@@ -389,7 +389,7 @@ if(mode==='brief'){briefCtl();return}
 if(mode==='setup'){setupCtl();return}
 if(mode==='opts'){optsCtl();return}
 if(mode==='end'){if(E[0])endA();if(E[1])endB();return}
-if(mode==='pause'){const PI=pmItems();if(E[12])pm=(pm+PI.length-1)%PI.length;if(E[13])pm=(pm+1)%PI.length;const it=PI[pm];if(E[14]&&it.l){it.l();sset()}if(E[15]&&it.r){it.r();sset()}if(E[0]&&it.a)it.a();if(E[9])mode='play';if(E[1])mode='title';return}
+if(mode==='pause'){const PI=pmItems();if(E[12])pm=(pm+PI.length-1)%PI.length;if(E[13])pm=(pm+1)%PI.length;const it=PI[pm];if(E[14]&&it.l){it.l();sset()}if(E[15]&&it.r){it.r();sset()}if(E[0]&&it.a)it.a();if(E[9]||E[1])mode='play';return}
 if(mode!=='play')return;if(!pad){mode='pause';return}if(E[9]){mode='pause';return}
 playCtl(dt);return;}
 /* ===== RENDERING ===== */
@@ -664,7 +664,7 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 function drawPause(){X.fillStyle='rgba(0,0,0,.72)';X.fillRect(0,0,CW,CH);if(!pad){tx('PAUSED',CW/2,CH*.4,56,'#f2c14e','center');tx('Controller disconnected - reconnect it to continue',CW/2,CH*.5,26,'#fca5a5','center');return}
 const PI=pmItems(),w=620,rh=Math.min(46,(CH-150)/PI.length|0),y0=(CH-PI.length*rh-90)/2|0,x=(CW-w)/2;panel(x,y0,w,PI.length*rh+90);tx('PAUSED',CW/2,y0+48,34,'#f2c14e','center');
 PI.forEach((it,i)=>{const yy=y0+64+i*rh;if(i===pm){X.fillStyle='#2f63c4';X.fillRect(x+12,yy,w-24,rh-4)}tx(it.n,x+30,yy+rh*.62,Math.min(24,rh*.55|0),'#fff');if(it.v)tx('< '+it.v()+' >',x+w-30,yy+rh*.62,Math.min(22,rh*.5|0),'#fde68a','right')});
-tx('D-pad: choose / adjust    A: select    B: main menu    Menu: resume',CW/2,y0+PI.length*rh+78,17,'#cbd5e1','center')}
+tx('D-pad: choose / adjust    A: select    B: resume    Menu: resume',CW/2,y0+PI.length*rh+78,17,'#cbd5e1','center')}
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
 const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','wall','gate','outpost'];
 const isMil=u=>u.t===0&&!u.ld&&u.k!=='vil'&&u.k!=='fish'&&u.k!=='trn'&&u.k!=='king'&&u.k!=='mon';
