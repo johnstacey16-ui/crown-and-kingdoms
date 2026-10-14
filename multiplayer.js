@@ -110,6 +110,7 @@
       mt: Number.isInteger(mt) ? mt : 0,
       kingdoms: kingdoms === 2 ? 2 : 4,
       civ: Number.isInteger(civ) ? civ : 0,
+      aiCiv: Number.isInteger(aiCiv) ? aiCiv : -1,
       diff: Number.isInteger(diff) ? diff : 1,
       aip: Number.isInteger(aip) ? aip : 0,
       vm: Number.isInteger(vm) ? vm : 0
@@ -123,12 +124,13 @@
     if (!Number.isInteger(raw.mt) || raw.mt < 0 || raw.mt >= MT.length) return null;
     if (raw.kingdoms !== 2 && raw.kingdoms !== 4) return null;
     if (!Number.isInteger(raw.civ) || raw.civ < 0 || raw.civ >= CIV.length) return null;
+    if (!Number.isInteger(raw.aiCiv) || raw.aiCiv < -1 || raw.aiCiv >= CIV.length) return null;
     if (!Number.isInteger(raw.diff) || raw.diff < 0 || raw.diff > 2) return null;
     if (!Number.isInteger(raw.aip) || raw.aip < 0 || raw.aip > 6) return null;
     if (!Number.isInteger(raw.vm) || raw.vm < 0 || raw.vm > 3) return null;
     return {
       schema: CONFIG_VERSION, seed: raw.seed, msz: raw.msz, mt: raw.mt,
-      kingdoms: raw.kingdoms, civ: raw.civ, diff: raw.diff, aip: raw.aip, vm: raw.vm
+      kingdoms: raw.kingdoms, civ: raw.civ, aiCiv: raw.aiCiv, diff: raw.diff, aip: raw.aip, vm: raw.vm
     };
   }
 
@@ -482,13 +484,13 @@
   }
 
   function saveLocalSettings() {
-    if (!beforeRoomSettings) beforeRoomSettings = { msz, mt, kingdoms, civ, diff, aip, vm, seedOv, cmp };
+    if (!beforeRoomSettings) beforeRoomSettings = { msz, mt, kingdoms, civ, aiCiv, diff, aip, vm, seedOv, cmp };
   }
 
   function restoreLocalSettings() {
     if (!beforeRoomSettings) return;
     try {
-      ({ msz, mt, kingdoms, civ, diff, aip, vm, seedOv, cmp } = beforeRoomSettings);
+      ({ msz, mt, kingdoms, civ, aiCiv, diff, aip, vm, seedOv, cmp } = beforeRoomSettings);
       if (typeof sset === 'function') sset();
     } catch (_) {}
     beforeRoomSettings = null;
@@ -496,7 +498,7 @@
 
   function applyConfig(cfg) {
     msz = cfg.msz; mt = cfg.mt; kingdoms = cfg.kingdoms;
-    civ = cfg.civ; diff = cfg.diff; aip = cfg.aip; vm = cfg.vm;
+    civ = cfg.civ; aiCiv = cfg.aiCiv; diff = cfg.diff; aip = cfg.aip; vm = cfg.vm;
   }
 
   function startGameUsingConfig(cfg) {
