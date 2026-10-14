@@ -303,6 +303,8 @@ globalThis.__CK_TEST__ = {
         team,
         age: S.age[team],
         buildings: S.bs.filter((b) => b.t === team && b.hp > 0).length,
+        buildingKinds: S.bs.filter((b) => b.t === team && b.hp > 0).map((b) => ({ k: b.k, done: !!b.done, hp: Math.round(b.hp), x: b.x, y: b.y })),
+        builderOrders: S.us.filter((u) => u.t === team && u.k === 'vil' && u.o === 'b').map((u) => ({ x: Math.round(u.x), y: Math.round(u.y), target: u.tg?.k || null, tx: u.tg?.x ?? null, ty: u.tg?.y ?? null, loaded: !!u.ld })),
         completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege'].includes(b.k)).length,
         militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
         wave: a.wave || 0,
