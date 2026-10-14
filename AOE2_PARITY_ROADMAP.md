@@ -1,145 +1,95 @@
-# Crown & Kingdoms — AoE2: DE-style parity plan
+# Crown & Kingdoms — implementation roadmap
 
-This is a living implementation checklist for the Xbox Series S / Microsoft Edge target. The aim is a complete, controller-first RTS inspired by the broad systems of Age of Empires II: Definitive Edition, using original code and assets. This is not a claim of exact engine, art, balance, or content parity.
+**Audit date:** 14 October 2026  
+**Current source checkpoint at the time of audit:** `9c863b5` — population-limit options extended to 500.  
+**Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
-## Current implementation status (source audit, 2026-10-14)
+This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
 
-Legend: **Present** = code exists; **Partial** = a simplified or incomplete implementation; **Unverified** = needs actual gameplay testing on Xbox Edge.
+## Status key
 
-### Core match loop
-- [x] Four broad ages, resources, villagers, buildings, military units, production queues and research.
-- [x] Fog of war, minimap, pathfinding, combat, population limit, construction, repair, save/load and multiple victory modes.
-- [x] 2–4 rival kingdoms with civilization selection and difficulty/personality options.
-- [~] Economy and technology balance is simplified; technology effects must be audited one by one against the intended design.
-- [~] Unit roster, armor classes, attack bonuses and civilization bonuses are a subset/simplification of AoE2 DE.
-- [ ] Diplomacy, selectable teams/alliances, treaty states and allied victory.
-- [ ] Full, systematic audit of death, retreat, target acquisition, stuck units, pathfinding edge cases and queue failure handling.
-- [ ] Repeatable automated smoke tests for new game, each victory condition, save/load, and campaign transitions.
+- **Present in source** — implementation is identifiable in the current code.
+- **Partial** — a simplified/subset implementation exists, or important edge cases remain.
+- **Unverified** — needs running-game, browser, network or physical-controller testing.
+- **Gap** — not implemented to the requested standard.
 
-### Xbox controller and interface
-- [x] Gamepad input, controller navigation, contextual commands, pause menu, formations, minimap and controller-first setup menus exist.
-- [~] Multi-unit selection and command behavior needs systematic parity and accessibility testing.
-- [ ] Verify every menu and command using only an Xbox controller at TV distance.
-- [ ] Verify pause/resume, focus loss, disconnect/reconnect and browser refresh behavior on Xbox Edge.
+## 1. Current implementation
 
-### Economy, construction and technology
-- [x] Food/wood/gold/stone gathering, drop-off buildings, farms with automatic reseeding, market trading and resource upgrades.
-- [~] Fishing Ships can gather fish and deliver food to Docks; fish traps and a broader renewable naval-food economy are not implemented.
-- [x] Farm capacity technology effects: Horse Collar adds 75 food, Heavy Plow adds 125, Crop Rotation adds 175; new and reseeded farms use the researched capacity. Auto-reseed costs 60 wood.
-- [x] Building and unit production queues, age advancement, blacksmith and civilization research.
-- [~] Research coverage/effects are incomplete or simplified compared with the full AoE2 technology tree.
-- [x] Added regression guards for existing/new unit hit points, unit-specific attack bonuses, farm-capacity upgrades and building-health upgrades; these are source-level checks, not live-match simulation.
-- [~] Farm food capacity, trade prices, repair/build rates and several upgrades need an explicit effect audit.
-- [ ] Verify economic loops for every resource, including depletion, no-route cases, farm reseeding and AI economy recovery.
+### Core simulation and economy
 
-### Military and AI
-- [x] Melee/ranged units, siege, ships, monks/relics, formations, defensive structures and basic attack waves.
-- [x] AI production adapts to some player army composition; multiple rival AI slots exist.
-- [~] AI strategy, army composition, counter-unit logic, target priorities, retreat, naval play and siege use remain simplified.
-- [ ] Systematically test each unit counter and technology interaction.
-- [ ] Verify 2-, 3- and 4-kingdom games on every difficulty and confirm no rival becomes inert.
+- **Present:** four broad ages; age-up costs, research times and building prerequisites; resource pools; villagers; construction and repair; production queues; research; population accounting; game-end handling.
+- **Present:** population limit selector with 50, 100, 150, 200, 250, 300, 400 and 500 options. Houses add five capacity each, starting from a base capacity of ten, with the selected setting as the upper cap. This is a configurable limit, not an automatic grant of that many population slots.
+- **Present:** food, wood, gold and stone gathering; drop-off logic; farms with automatic reseeding for 60 wood; Horse Collar (+75 farm food), Heavy Plow (+125) and Crop Rotation (+175); ownership-aware farm upgrades.
+- **Present:** market buy/sell trading with changing prices; Trade Carts from Markets and Trade Cogs from Docks; distance-based gold on completed deliveries; retry behaviour when a route endpoint is unavailable.
+- **Present:** relic collection and income while a relic is stored in a monastery; Fishing Ships, renewable fish traps (100 wood, 900 food per trap) and AI fish-trap deployment.
+- **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
+- **Gap:** a complete tribute interface and rules; diplomacy, neutral/ally/enemy relationships, team victory and treaty states; full villager resource-priority automation, auto-assignment and resource-site-specific commands; Town Bell behaviour.
 
-### Maps and scenarios
-- [x] Random and seeded layout presets, four map sizes, terrain/resource generation, fog and campaign objectives/events.
-- [~] Fixed layouts are seeded procedural maps, not hand-authored maps with the variety and generation rules of AoE2 DE.
-- [~] Campaign paths and missions exist, but campaign breadth, scripted objectives, triggers and balance are far below a full DE campaign catalogue.
-- [ ] Add proper scenario scripting primitives and validate every mission from start to victory/defeat.
-- [ ] Add more distinct map-generation rules, starting-position fairness checks, terrain connectivity checks and naval map validation.
+### Combat, units and buildings
 
-### Art, animation, audio and performance
-- [x] Custom canvas/isometric renderer, original procedural building/terrain art, unit atlas, animation, effects and synthesized audio.
-- [~] Visual variety and unit/building animation coverage remain below a shipped commercial RTS.
-- [ ] Test worst-case unit counts, large maps, fog/minimap cost and long-running matches on Xbox Series S Edge.
-- [ ] Verify asset loading and a graceful fallback if any optional asset fails.
+- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground and Passive stances; patrol and attack-move commands; garrison/unload logic.
+- **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
+- **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, and more purposeful War Galley target selection.
+- **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
+- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; reliable Guard and Follow commands; No Attack as a distinct stance; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
 
-### Online play
-- [~] Multiplayer integration code is loaded separately; reliability and full feature coverage are unverified.
-- [ ] Verify host/join, disconnect/rejoin, state synchronization, match end, and controller-only navigation in a real network test before calling online play complete.
+### Maps, campaigns and victory conditions
 
+- **Present:** seeded/procedural map layouts and sizes, fog of war, explored areas, minimap, land/water terrain diagnostics, start-position land connectivity checks, dock-site diagnostics, seed retries and campaign objectives/events.
+- **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide and the standard Town Centre victory. These conditions are separate from full AoE2 rulesets.
+- **Present:** *The Golden Coast* and *The Strait's Last Relic*, alongside earlier campaign scenarios.
+- **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
+- **Gap:** Score victory, King of the Hill, Sudden Death and time-limit victory; a scenario editor; replay/spectator systems; broader campaigns, trigger tools and end-to-end mission validation; cheats, taunts and a complete chat system.
 
-- [x] Farm ownership is now recorded for player- and AI-built farms; Horse Collar, Heavy Plow and Crop Rotation capacity increases only affect farms owned by the researching kingdom. The reseed notification now matches the 60-wood cost. Source syntax check passed; live gameplay remains unverified.
+### Controller, graphics, audio and networking
 
+- **Present:** controller-driven menus, contextual commands, radial menu, remappable gamepad controls, pause/resume, formations, minimap, selection UI, synthesised Web Audio and a performance overlay.
+- **Present:** local SVG atlases for upright units, forces and buildings; four-direction animation metadata and team-colour variants; procedural fallbacks; original terrain/building drawing and local stone/wood textures.
+- **Partial:** animation coverage and visual consistency still need in-game inspection. The atlas metadata check validates frame bounds, not whether a sprite is visually upright, correctly scaled or attractive at TV distance.
+- **Partial / unverified:** `multiplayer.js` exists, but host/join, state synchronisation, reconnect, match-end and controller-only multiplayer flows need real network tests.
+- **Gap:** physical Xbox checks for TV-safe layout, controller disconnect/focus recovery, large-army performance, pause/resume, save/load and campaign completion have not been replaced by static tests.
 
-- [x] Added a Node.js source-check script and GitHub Actions workflow to parse inline JavaScript and guard the farm-capacity/ownership/reseed fixes against regression. This is static validation, not a substitute for browser or Xbox gameplay testing.
+## 2. Highest-priority backlog
 
+Work in small, independently testable changes. Keep `index.html` as the canonical app and preserve existing controls, save/load, pathfinding, fog, combat and fallbacks.
 
-- [x] Combat armour audit: Blacksmith infantry armour now applies through an explicit infantry roster, and archer armour through an explicit ranged roster, including selected unique units. Automated source checks cover both rosters and the damage formula. Exact AoE2 balance and in-match behaviour still require playtesting.
+1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
+2. **Diplomacy foundation:** introduce one central relationship helper and use it consistently for hostile targeting, damage, AI priorities, visibility/ownership rules, trade eligibility and victory counting. Do not add alliances by changing isolated `team !== otherTeam` checks.
+3. **Tribute and resource transfers:** add controller-friendly amount selection, affordability checks, clear notifications and AI-safe validation. Gate transfers by the implemented diplomacy relationship rules.
+4. **Villager automation:** create a priority-setting system that affects idle villagers and newly trained villagers; show current assignments clearly and allow a manual override. Add resource-site orders without breaking standard gather/drop-off behaviour.
+5. **Command coverage:** audit selection, group switching, formations, patrol, attack-move, guard/follow, garrison and passive/no-attack semantics; add controller regression coverage.
+6. **Victory modes:** implement one mode at a time with explicit setup options, in-match state, AI participation, UI progress and tests for both player wins and losses.
+7. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
+8. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
+9. **Art and performance:** visually inspect sprite anchors/orientation/layering and effects; test optional-asset fallbacks, pause behaviour and performance on target devices before claiming acceptance.
 
-## Implementation order
+## 3. Platform-service exclusions
 
-1. **Stability and testability:** protect the last working build; syntax checks plus runtime smoke tests; resolve any black-screen or stuck-game regressions first.
-2. **Core simulation parity:** economy/tech effects, unit stats and counters, production queues, pathfinding, construction/repair, save/load, victory conditions.
-3. **Xbox control parity:** selection groups, reliable command context, rally/queue/formation flows, readable TV-scale UI, pause and focus recovery.
-4. **AI and skirmish depth:** viable economy, age-up, counter production, coordinated attacks, defense, siege, naval behavior, and multi-opponent verification.
-5. **Map and campaign depth:** fair map generation, meaningful scenarios, objective/trigger tooling, campaign progression and balance.
-6. **Presentation and performance:** original detailed art/animation, readable effects, audio, profiling and real Xbox Edge validation.
-7. **Online and finishing:** only after local simulation and controller flows are reliable.
+Per project direction, do not spend time implementing Xbox achievements, Xbox cloud saves, Xbox presence/clubs, Smart Delivery, Xbox Play Anywhere, Xbox Cloud Gaming integration, Xbox-native matchmaking/ranked ELO, or platform cross-play without the required supported infrastructure. Browser-side game modes and local simulation features remain in scope. Do not confuse these exclusions with the separate task of verifying the existing `multiplayer.js` integration.
 
-## Recent implementation note
+## 4. Automated validation
 
-- Commit `ff0f677`: Treadmill Crane research now increases villager construction progress by 20%.
-- Commit `d7900be`: Added Crop Rotation to the mill research list and implemented Horse Collar / Heavy Plow / Crop Rotation as farm food-capacity upgrades instead of harvest-rate multipliers.
-- Commit `3c5cd9e`: Automatic farm reseeding now uses the researched farm capacity and costs 60 wood.
-- Syntax validation passed for the inline JavaScript after this change. This is not a substitute for a live gameplay test.
+The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-based checks for:
 
+- inline JavaScript syntax and key source invariants;
+- population cap configuration;
+- trade routes and fishing economy;
+- fish traps and technology effects;
+- AI retreats, siege support, defensive threat priorities and naval targeting;
+- campaign content;
+- map connectivity/generation diagnostics;
+- sprite-atlas metadata and frame bounds.
 
-- [x] Follow-up armour roster correction: added Longbowmen and Mangudai to ranged armour; kept Throwing Axemen and Gbeto under infantry armour and removed melee Mamelukes from the ranged list. Source-level roster checks updated; this corrects classification coverage but does not establish full AoE2 DE balance.
+These tests guard against known source regressions. They do not run a browser, simulate full battles, verify sound output, validate network sessions, or test an Xbox controller.
 
-- [x] Siege splash fix: splash now damages nearby enemy units and buildings, not the target's own team; dead/loaded units are excluded. Source syntax and regression assertions added. Gameplay balance and impact radius still require live match testing.
+## 5. Release checklist
 
-- [x] Siege AI target priority: idle siege units now select an enemy building in range before nearby enemy units; other unit classes retain the existing unit-first behaviour. Static regression assertion added.
+Before calling a feature complete:
 
-- [x] Naval combat pass: War Galleys gain explicit bonuses against Fishing and Transport Ships; ship armour classes are included in damage mitigation; Docks now offer Ship Weapons (+3 attack for War Galleys) and Reinforced Hulls (+20 Fishing Ship HP, +35 War Galley HP, +30 Transport Ship HP). Enemy composition analysis now counts ranged gunpowder units and infantry more accurately, and Dock production reacts to a visible player fleet. Inline JavaScript syntax validation passed; naval balance and actual water-map combat still need gameplay testing.
-- [x] Expanded counter relationships: Spearmen now receive explicit bonuses against additional cavalry/elephant classes; Scout Cavalry gains bonuses against archers and villagers; Knights gain bonuses against ranged troops and siege engines. Added two seeded map-layout choices, Mediterranean Fleet and Golden Coast, using existing terrain-generation rules. Inline JavaScript syntax validation passed; map fairness and counter balance need gameplay testing.
+- Confirm the source change and tests are committed to `main`.
+- Confirm the latest GitHub Actions run succeeds.
+- Confirm Vercel's status for that exact commit; do not infer deployment from the source alone.
+- For gameplay/UI changes, verify the actual deployed page and record anything that has not been tested on Xbox Series S / Edge.
+- Preserve procedural/visual fallbacks and existing controller mappings unless a deliberate, tested change is required.
 
-- [x] Coordinated AI pass: attack groups now admit a broader mixed roster including spear counters and siege units; idle defenders near a threatened Town Centre intercept nearby attackers while villagers retain the garrison response. Static syntax validation passed; group cohesion and retreat behaviour still require live matches.
-- [x] Naval engagement pass: idle War Galleys now seek nearby hostile ships before choosing a route toward an enemy Town Centre, instead of treating the Town Centre as their only naval objective.
-- [x] Technology/building consistency pass: Masonry and Fortified Walls now scale existing building maximum/current HP safely, while `addB` already applies the relevant researched durability multipliers to newly constructed buildings; unit HP/attack research continues to feed existing and newly trained units through shared tech state.
-- [x] Campaign expansion: added **The Golden Coast**, a coastal combined-arms mission with fleet, army and enemy Town Centre objectives plus timed raid events; added it as a fourth campaign arc. Static JavaScript syntax validation passed; objective balance and naval pathing are not playtested.
-- [x] Graphics review: confirmed the renderer uses direction-aware atlas frames for supported unit classes and retains procedural fallbacks, plus per-team colour passed into the sprite painter. Detailed asset diversity, animation quality and Xbox readability still need visual/device testing.
-- [ ] Map connectivity validation remains outstanding: new presets use existing seeded terrain generation, but automated checks for land-path reachability, navigable water lanes, and valid dock placement have not yet been added.
-
-
-- [x] Villager orientation safeguard (commit `fe8f524`): villagers now bypass the external SVG atlas and use the upright procedural renderer until atlas orientation is visually verified. Animated movement, equipment and team-colour rendering remain in the procedural painter. Inline JavaScript syntax passed; actual browser/Xbox visual verification remains outstanding.
-- [x] Xbox radial-menu legibility pass (commit `8394fec`): increased option height from 36px to 42px, primary label size from 13px to 15px, secondary size from 11px to 12px, and strengthened locked-item contrast. Inline JavaScript syntax passed; controller navigation and small-screen layout still require live testing.
-- [ ] Deployment verification remains blocked by Vercel's reported build-rate-limit failure on commits `fe8f524` and `8394fec`; do not treat the GitHub source as proof that the live site updated.
-
-- [~] **Generated-map connectivity audit added (2026-10-14):** map generation now labels land and water components, checks that all kingdom starting positions belong to the same traversable land component, retries failed seeds up to 12 times, and records water-component/coast diagnostics in `S.mapAudit`. This is terrain-level validation; naval route-to-dock gameplay and all map seeds still need runtime testing.
-- [x] Added two further procedural layout rules: **Scattered Lakes** (multiple separate lake basins) and **Twin Lakes** (two-lake terrain), alongside the existing layouts. Visual distinction and starting-position fairness still require in-game review.
-- [ ] **Visual asset/animation upgrade is partial.** Added and integrated a new original SVG atlas with upright, four-direction villager, infantry and archer sprites for four team colours, each with idle/walk/attack/work frame sequences. Remaining: cover the full unit roster and building art with equally detailed assets; visually inspect the new atlas in-game and verify animation orientation/performance on Xbox Edge.
-
-## Graphics upgrade update (2026-10-14)
-
-- Added `assets/detailed-forces-atlas.svg` with original, team-coloured sprite art for the remaining infantry, ranged troops, cavalry, elephants, siege engines and naval units. Existing villagers, militia and archers retain their upright animated atlas; procedural painters remain the fallback when an asset fails or a class is not mapped.
-- Added `assets/detailed-buildings-atlas.svg` with 20 isometric structure/fortification designs and four team-colour variants. Completed buildings use the atlas; construction stages, building effects, selection, damage and missing-asset fallback remain in the existing renderer.
-- Added static regression assertions for the two atlas integrations. This is a source-level integration, not yet a claim of visual acceptance: verify sprite orientation, scale, transparency, map layering and Xbox Series S / Edge performance in a live match before calling the graphics pass complete.
-
-
-## Economy upgrade — trade routes (2026-10-14)
-
-- Added trainable Trade Carts at Markets and Trade Cogs at Docks. Each trader records its producing endpoint and automatically finds a completed endpoint belonging to another kingdom.
-- Traders travel between endpoints and generate gold on delivery based on route distance. If an endpoint is destroyed or no destination is available, traders wait and retry rather than generating free gold.
-- AI kingdoms can produce a limited number of traders when a compatible foreign endpoint exists. Trade units are excluded from ordinary combat targeting.
-- Corrected the Farm help text to state the implemented 60-wood auto-reseed cost.
-- Added static regression assertions for production, route dispatch, distance-based gold and the help text. These assertions verify source integration, not actual route movement or balance in a live Xbox match.
-
-
-- [x] **AI survivability pass (2026-10-14):** critically wounded AI land combat units (22% health or lower) now attempt to withdraw to a completed Town Centre or Castle, heal while sheltered, and only resume ordinary behavior after reaching 65% health. Villagers, monks, kings, traders and ships are excluded. Automated source regression checks added; route behavior and combat impact still need runtime simulation.
-
-
-- [x] **Dock-site diagnostics (2026-10-14):** the generated-map audit now checks for a valid 2×2 Dock footprint beside navigable water near each kingdom start and reports `dockableStarts` / `navalAccess` in `S.mapAudit`. This reports naval access without rejecting intentionally inland layouts; the map regression test now guards the diagnostic fields.
-
-
-- [x] **Coastal campaign sequel (2026-10-14):** added *The Strait's Last Relic* as the next Coastal War mission, with monastery construction, relic recovery, enemy Castle and Town Centre objectives, and timed mixed land/naval raids. The mission uses the existing campaign objective/event system; objective balance and mission completion remain to be validated in a running game.
-
-
-- [x] **Renewable fish traps (2026-10-14):** selected Fishing Ships now offer a controller-menu action to deploy a visible fish trap on nearby unoccupied water for 100 wood. Traps provide 900 food and replenish when depleted instead of disappearing. Regression checks cover deployment, wood cost, menu access, rendering and renewal; gameplay balance/pathing still require runtime validation.
-
-
-- [x] **AI siege support (2026-10-14):** coordinated enemy attack waves now assign rams, mangonels, scorpions, trebuchets and bombard units a dedicated completed defensive target, prioritising Castles, then Towers, then Town Centres. Retreating units are filtered out of the wave-release group so their withdrawal order is not overwritten. Regression checks added; combat balance/pathfinding still need runtime simulation.
-
-- AI fishing ships now deploy renewable traps when nearby fish nodes are exhausted and the AI has enough wood, so the renewable naval-food loop is used by computer kingdoms as well as the player.
-
-- AI base defence now weights nearby rams, mangonels, scorpions, trebuchets and bombard units as higher-priority threats when selecting an intruder to intercept.
-
-- AI War Galleys now favour enemy War Galleys over non-combat ships when choosing a nearby naval target, while retaining the existing range check and fallback push toward enemy territory.
+The roadmap is intentionally consolidated: current state belongs in the sections above, not in an ever-growing series of duplicate dated notes.
