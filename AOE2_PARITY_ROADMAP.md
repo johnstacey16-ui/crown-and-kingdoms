@@ -141,3 +141,5 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - AI fishing ships now deploy renewable traps when nearby fish nodes are exhausted and the AI has enough wood, so the renewable naval-food loop is used by computer kingdoms as well as the player.
 
 - AI base defence now weights nearby rams, mangonels, scorpions, trebuchets and bombard units as higher-priority threats when selecting an intruder to intercept.
+
+- AI War Galleys now favour enemy War Galleys over non-combat ships when choosing a nearby naval target, while retaining the existing range check and fallback push toward enemy territory.
