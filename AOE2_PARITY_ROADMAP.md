@@ -42,10 +42,11 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 ### Maps, campaigns and victory conditions
 
 - **Present:** seeded/procedural map layouts and sizes, fog of war, explored areas, minimap, land/water terrain diagnostics, start-position land connectivity checks, dock-site diagnostics, seed retries and campaign objectives/events.
-- **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide and the standard Town Centre victory. These conditions are separate from full AoE2 rulesets.
+- **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide, standard Town Centre victory and score-at-20-minutes victory. Score is a Crown & Kingdoms-specific formula based on held resources, surviving units/buildings, age, researched technologies and stored relics; it is not claimed to match AoE2's exact scoring formula.
 - **Present:** *The Golden Coast* and *The Strait's Last Relic*, alongside earlier campaign scenarios.
 - **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
-- **Gap:** Score victory, King of the Hill, Sudden Death and time-limit victory; a scenario editor; replay/spectator systems; broader campaigns, trigger tools and end-to-end mission validation; cheats, taunts and a complete chat system.
+- **Partial:** score/time-limit mode uses a fixed 20-minute limit and a simplified, documented score formula; selectable time limits are not implemented.
+- **Gap:** King of the Hill, Sudden Death; a scenario editor; replay/spectator systems; broader campaigns, trigger tools and end-to-end mission validation; cheats, taunts and a complete chat system.
 
 ### Controller, graphics, audio and networking
 
@@ -64,7 +65,7 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 3. **Extend tribute:** the first pass sends 100 units of a selected resource to an ally, with affordability validation and notifications. Next add selectable quantities and richer transfer feedback before considering AI-initiated tribute.
 4. **Extend villager automation:** worker target controls now cover Food, Wood, Gold and Stone; new villagers follow targets and manual orders override automation. Next add direct resource-site command support and validate drop-off/pathing edge cases.
 5. **Command coverage:** audit selection, group switching, formations, patrol, attack-move, guard/follow, garrison and passive/no-attack semantics; add controller regression coverage.
-6. **Victory modes:** implement one mode at a time with explicit setup options, in-match state, AI participation, UI progress and tests for both player wins and losses.
+6. **Victory modes:** score-at-time-limit is now present with AI participation, a live countdown, score calculation and a draw result. Next add selectable durations, King of the Hill and Sudden Death with tests for all outcomes.
 7. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
 8. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
 9. **Art and performance:** visually inspect sprite anchors/orientation/layering and effects; test optional-asset fallbacks, pause behaviour and performance on target devices before claiming acceptance.
@@ -82,6 +83,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-ba
 - diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
 - allied tribute resource validation and transfer integration;
 - villager target selection, new-worker automation, manual overrides and save/load persistence;
+- score/time-limit victory calculation, setup selection, countdown and tie handling;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;
