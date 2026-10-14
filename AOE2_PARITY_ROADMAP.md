@@ -134,3 +134,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 
 - [x] **Renewable fish traps (2026-10-14):** selected Fishing Ships now offer a controller-menu action to deploy a visible fish trap on nearby unoccupied water for 100 wood. Traps provide 900 food and replenish when depleted instead of disappearing. Regression checks cover deployment, wood cost, menu access, rendering and renewal; gameplay balance/pathing still require runtime validation.
+
+
+- [x] **AI siege support (2026-10-14):** coordinated enemy attack waves now assign rams, mangonels, scorpions, trebuchets and bombard units a dedicated completed defensive target, prioritising Castles, then Towers, then Town Centres. Retreating units are filtered out of the wave-release group so their withdrawal order is not overwritten. Regression checks added; combat balance/pathfinding still need runtime simulation.
