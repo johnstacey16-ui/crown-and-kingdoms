@@ -307,6 +307,9 @@ globalThis.__CK_TEST__ = {
         builderOrders: S.us.filter((u) => u.t === team && u.k === 'vil' && u.o === 'b').map((u) => ({ x: Math.round(u.x), y: Math.round(u.y), target: u.tg?.k || null, tx: u.tg?.x ?? null, ty: u.tg?.y ?? null, loaded: !!u.ld })),
         completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege'].includes(b.k)).length,
         militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
+        readyArmy: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['scout', 'king', 'cart'].includes(u.k) && !u.retreating).length,
+        hostileBuildings: S.bs.filter((b) => isHostile(team, b.t) && b.hp > 0).length,
+        nextWaveTime: a.nx || 0,
         wave: a.wave || 0,
       })).filter(Boolean),
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
@@ -441,6 +444,8 @@ assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
 console.log('ai-growth-debug:', JSON.stringify({ rivals: activeAi, peaks: aiAfter.aiPeak, resources: aiAfter.resources }));
 assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
   'At least one rival should field a four-unit force at some point during eight simulated minutes');
+assert.ok(activeAi.some((a) => a.wave > 0),
+  'At least one rival should launch a coordinated attack wave during twelve simulated minutes');
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
 console.log('ai-growth-smoke: rival AI progressed over 720 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
