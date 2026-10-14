@@ -29,7 +29,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** food, wood, gold and stone tribute from the pause menu to allied surviving kingdoms, with controller-selectable amounts of 100, 250, 500 or 1,000. The sender's balance is checked before the same amount is credited to the ally.
 - **Partial:** player tribute quantities are selectable from 100, 250, 500 or 1,000; AI-initiated tribute and arbitrary custom amounts are not implemented.
 - **Present:** controller-adjustable worker targets for Food, Wood, Gold and Stone; newly created player villagers are assigned automatically while automation is enabled, idle automated workers retry after resources deplete, and settings are saved/restored. Manual orders and Stop disable reassignment for that villager.
-- **Partial:** targets are per-resource desired counts with balanced overflow; direct site-based assignment is still manual, and the AI does not use the player's priority settings.
+- **Partial:** targets are per-resource desired counts with balanced overflow. Automatic villagers now verify a route to resource nodes and skip repeated unreachable targets; direct site-based assignments remain manual, and the AI does not use the player's priority settings.
 
 ### Combat, units and buildings
 
@@ -69,7 +69,7 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
 3. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
-4. **Extend villager automation:** worker target controls now cover Food, Wood, Gold and Stone; new villagers follow targets and manual orders override automation. Next add direct resource-site command support and validate drop-off/pathing edge cases.
+4. **Extend villager automation:** worker target controls cover Food, Wood, Gold and Stone; new villagers follow targets, manual orders override automation, and automatic workers skip resource nodes without a valid route. Next add richer direct resource-site assignment controls and validate drop-off/pathing edge cases.
 5. **Command coverage:** Guard and Follow commands are now present for compatible friendly/ally targets, with garrison-capable target validation, guard interception and return-to-post. Next audit selection, group switching, formations, patrol, attack-move and edge cases.
 6. **Victory modes:** selectable score limits, King of the Hill and Sudden Death now exist in source with regression checks. Continue expanding end-to-end validation for objectives, ties, elimination and all victory conditions.
 7. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
@@ -131,7 +131,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `script
 - population cap configuration;
 - diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
 - allied tribute resource/amount selectors, eligibility checks, affordability validation and transfer integration;
-- villager target selection, new-worker automation, manual overrides and save/load persistence;
+- villager target selection, new-worker automation, manual overrides, route-aware resource fallback and save/load persistence;
 - score/time-limit victory calculation, selectable duration control, settings/save restoration, countdown and tie handling;
 - King of the Hill route preparation, military presence rules, ally/neutral handling, contested resets, AI targeting, landmark/minimap visibility and save progress restoration;
 - Sudden Death mode selection, no-new-Town-Centre rule, player loss, rival kingdom elimination, hostile-Town-Centre victory and save/settings compatibility;
