@@ -12,7 +12,8 @@
   const CHANNEL_PREFIX = 'ck:v1:';
   const MAX_PACKET_BYTES = 1024; // App-level budget, below Supabase's transport limit.
   const SEND_INTERVAL_MS = 200; // 5 Hz; coalesce stale positions rather than queueing them.
-  const MAX_PLAYERS = 16;
+  // Four is the game's maximum kingdom count; it bounds Broadcast fan-out too.
+  const MAX_PLAYERS = 4;
   const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const MARKER_COLORS = ['#ff6b6b', '#4dd0e1', '#ffd166', '#c792ea', '#7ee081', '#ff9f43', '#82aaff', '#f48fb1'];
 
@@ -196,7 +197,7 @@
     lobbyFields = { box, nick, code };
     nick.addEventListener('input', () => { state.nick = nick.value; });
     code.addEventListener('input', () => {
-      code.value = code.value.toUpperCase().replace(/[^A-Z2-9]/g, '').slice(0, 6);
+      code.value = code.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
     });
     return lobbyFields;
   }
@@ -456,7 +457,9 @@
     saveLocalSettings();
     applyConfig(cfg);
     const priorSeed = seedOv;
+    const priorCampaign = cmp;
     seedOv = cfg.seed;
+    cmp = null; // Multiplayer starts a skirmish, never a campaign mission.
     try {
       start();
       const sig = mapSignature();
@@ -464,6 +467,7 @@
       return sig;
     } catch (e) {
       seedOv = priorSeed;
+      cmp = priorCampaign;
       throw e;
     }
   }
@@ -712,7 +716,7 @@
     state.verified.clear();
     remotePlayers.clear();
     lastSeqBySid.clear();
-    state.seq = 0;
+    // Keep the per-session sequence monotonic across repeated room entries.
     stopMarkerTimer();
     setStatus('Loading Supabase and connecting to room ' + code + '…');
     try {
@@ -734,9 +738,11 @@
             });
           } else {
             reconcilePresence(epoch, ch);
+            if (state.lifecycle === 'running' && state.gameStarted) startMarkerTimer(epoch);
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           state.connected = false;
+          stopMarkerTimer();
           setStatus('Room connection interrupted (' + status + '). Local gameplay will not be frozen.');
         }
       });
@@ -799,9 +805,11 @@
   }
 
   function failOpenRoom() {
-    if (state.active) void leaveRoom(false, true);
-    else mode = 'title';
-    showLobbyFields(false);
+    if (state.active) void leaveRoom(true, true);
+    else {
+      mode = 'title';
+      showLobbyFields(false);
+    }
   }
 
   function updateLocalSetting(row, delta) {
