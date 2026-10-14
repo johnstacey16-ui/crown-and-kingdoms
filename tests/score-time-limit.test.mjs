@@ -23,7 +23,7 @@ assert.match(html, /const ranked=Array\.from\(\{length:S\.teamN\},\(_,t\)=>\(\{t
   'Only the player and living hostile rivals should be ranked');
 assert.match(html, /if\(leaders\.length>1\)\{endGame\('draw'/,
   'Equal highest scores must result in a visible draw, not arbitrarily grant a win');
-assert.match(html, /\['Destroy Town Centre','Wonder \(5 min\)','Relics \(4 min\)','Regicide','Score at time limit','King of the Hill'\]\[vm\]/,
+assert.match(html, /\['Destroy Town Centre','Wonder \(5 min\)','Relics \(4 min\)','Regicide','Score at time limit','King of the Hill','Sudden Death'\]\[vm\]/,
   'The score/time-limit mode must be selectable in the controller setup menu');
 assert.match(html, /if\(vm===4\)tx\('SCORE MODE · '/,
   'The HUD must show the remaining game time in score mode');
@@ -42,11 +42,11 @@ assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute score limit/,
   'The score draw message must state the selected duration');
 assert.match(html, /JSON\.stringify\(\{ui,br,msz,diff,vm,scoreLimit,mt,civ/,
   'Settings persistence must include the selected score duration');
-assert.match(html, /vm=cl\(st\.vm\|0,0,5\);scoreLimit=SCORE_LIMITS\.includes\(st\.scoreLimit\)\?st\.scoreLimit:1200/,
+assert.match(html, /vm=cl\(st\.vm\|0,0,6\);scoreLimit=SCORE_LIMITS\.includes\(st\.scoreLimit\)\?st\.scoreLimit:1200/,
   'Settings restoration must retain Score victory and safely default missing duration values');
 assert.match(html, /sz:W,vm,scoreLimit,aip,pal:S\.pal/,
   'Saved games must include the selected duration');
-assert.match(html, /vm=cl\(j\.vm\|0,0,5\);scoreLimit=SCORE_LIMITS\.includes\(j\.scoreLimit\)\?j\.scoreLimit:1200/,
+assert.match(html, /vm=cl\(j\.vm\|0,0,6\);scoreLimit=SCORE_LIMITS\.includes\(j\.scoreLimit\)\?j\.scoreLimit:1200/,
   'Loading older saves must safely default duration and preserve Score victory');
 assert.match(html, /if\(!PRF\)PRF=\{civ,msz,mt,diff,aip,vm,scoreLimit\}/,
   'Campaign entry must preserve the player setup');
