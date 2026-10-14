@@ -17,7 +17,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 
 - Four-age progression, buildings, unit production, research, construction and repair.
 - Resource gathering, farms with 60-wood automatic reseeding, farm-capacity upgrades, market trading, relic income, trade carts/cogs, renewable fish traps, ally-only tribute and configurable villager worker targets with new-worker auto-assignment.
-- Ground, siege and naval combat; formations and Aggressive/Defensive/Stand Ground/Passive/No Attack stances; Guard and Follow commands; AI attack groups, defensive priorities, retreats and naval target selection.
+- Ground, siege and naval combat; formations and Aggressive/Defensive/Stand Ground/Passive/No Attack stances; Guard and Follow commands; AI attack groups, defensive priorities, retreats and naval target selection. Researched Man-at-Arms/Long Swordsman, Pikeman, Arbalester, Elite Skirmisher, Light Cavalry and Cavalier ranks display consistently in selection and production UI; distinct upgrade sprites remain a gap.
 - Fog of war, minimap, pathfinding, seeded/procedural maps, connectivity diagnostics, save/load flows and campaign objectives.
 - Wonder, relic and Regicide victory options alongside the standard Town Centre victory; a score-at-selectable-time-limit mode (10, 15, 20, 25 or 30 minutes); King of the Hill, where military land units contest a central landmark for five uninterrupted minutes; and Sudden Death, where losing your starting Town Centre eliminates your kingdom and building another is disabled.
 - Original SVG sprite atlases, team-colour variants, animation metadata, procedural visual fallbacks and synthesised Web Audio.
