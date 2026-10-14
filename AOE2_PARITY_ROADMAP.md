@@ -125,3 +125,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 
 - [x] **AI survivability pass (2026-10-14):** critically wounded AI land combat units (22% health or lower) now attempt to withdraw to a completed Town Centre or Castle, heal while sheltered, and only resume ordinary behavior after reaching 65% health. Villagers, monks, kings, traders and ships are excluded. Automated source regression checks added; route behavior and combat impact still need runtime simulation.
+
+
+- [x] **Dock-site diagnostics (2026-10-14):** the generated-map audit now checks for a valid 2×2 Dock footprint beside navigable water near each kingdom start and reports `dockableStarts` / `navalAccess` in `S.mapAudit`. This reports naval access without rejecting intentionally inland layouts; the map regression test now guards the diagnostic fields.
