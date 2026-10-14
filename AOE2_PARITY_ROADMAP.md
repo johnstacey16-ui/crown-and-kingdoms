@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 14 October 2026  
-**Source checkpoint reviewed for this roadmap update:** `7dd937ba61fafcc5eebf78ad8fff984a0f1d3b2f` (main, 14 October 2026).  
+**Source checkpoint reviewed for this roadmap update:** `9f0efbac9c9c6288ce6e30a225f0ddd171b9a6b9` (main, 14 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -66,7 +66,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 Work in small, independently testable changes. Keep `index.html` as the canonical app and preserve existing controls, save/load, pathfinding, fog, combat and fallbacks.
 
-1. **Real simulation smoke test (high priority):** current CI runs syntax/source invariants and targeted rule/helper tests, but no test advances the real main simulation for 60 ticks. Design a deterministic, Node-compatible test seam that invokes the actual update logic and asserts a concrete state change; do not count a source-pattern assertion or a mocked replacement simulation as coverage. Keep the game loop, tick order and browser build unchanged until the seam is understood and reviewed.
+1. **Expand real simulation coverage (high priority):** `tests/simulation-smoke.test.mjs` now loads the actual inline game script in a headless Node harness, starts a seeded match, advances 60 real ticks, and runs a real villager wood-gathering order for 60 simulated seconds. GitHub Actions passed on PR #16 (`3d63168d92956f6e36bf7171c88161d78ebb13fd`): the smoke advanced 60 seconds, wood nodes fell from 87,500 to 87,166.19, and player wood rose from 200 to 290. Next add focused real-simulation checks for construction/research, trade-route gold delivery, and naval movement only after each can be driven deterministically. This is headless logic coverage, not browser rendering or Xbox acceptance.
 2. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 3. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
 4. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
