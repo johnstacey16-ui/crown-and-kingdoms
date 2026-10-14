@@ -431,8 +431,10 @@ assert.ok(activeAi.some((a) => a.buildings > (aiBefore.aiGrowth.find((b) => b &&
   'Rival AI must make measurable economic, military or age progression during eight simulated minutes');
 assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
-assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0 || a.militaryUnits >= 4),
-  'Rival AI should establish military production or field a meaningful defensive force');
+assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
+  'Rival AI should establish a completed military production building');
+assert.ok(activeAi.some((a) => a.militaryUnits >= 4),
+  'At least one rival should field a small military force after eight simulated minutes');
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
 console.log('ai-growth-smoke: rival AI progressed over 480 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
