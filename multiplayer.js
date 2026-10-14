@@ -16,6 +16,10 @@
   const MAX_PLAYERS = 4;
   const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const MARKER_COLORS = ['#ff6b6b', '#4dd0e1', '#ffd166', '#c792ea', '#7ee081', '#ff9f43', '#82aaff', '#f48fb1'];
+  // Supabase's default client Presence limit is 5 track/untrack calls per 30 seconds.
+  const PRESENCE_WINDOW_MS = 30000;
+  const PRESENCE_CALL_LIMIT = 5;
+  const presenceCallTimes = [];
 
   function makeSessionId() {
     try {
@@ -232,6 +236,29 @@
     return CHANNEL_PREFIX + code;
   }
 
+  function prunePresenceCallTimes(now = Date.now()) {
+    while (presenceCallTimes.length && now - presenceCallTimes[0] >= PRESENCE_WINDOW_MS) presenceCallTimes.shift();
+  }
+
+  function hasPresenceBudget(required = 1) {
+    prunePresenceCallTimes();
+    return presenceCallTimes.length + required <= PRESENCE_CALL_LIMIT;
+  }
+
+  async function trackPresence(channel, payload) {
+    if (!hasPresenceBudget(1)) {
+      throw new Error('Presence rate budget reached (5 calls per 30 seconds). Wait for the rate window to clear, then reconnect.');
+    }
+    presenceCallTimes.push(Date.now());
+    return channel.track(payload);
+  }
+
+  async function untrackPresence(channel) {
+    if (!hasPresenceBudget(1)) return false;
+    presenceCallTimes.push(Date.now());
+    try { await channel.untrack(); return true; } catch (_) { return false; }
+  }
+
   function presenceEntries(channel) {
     const result = [];
     let ps = {};
@@ -267,7 +294,7 @@
   async function trackHost(lifecycle, epoch, channel) {
     if (!channelStillCurrent(epoch, channel) || state.role !== 'host') return;
     state.lifecycle = lifecycle;
-    const result = await channel.track(hostMetadata(lifecycle));
+    const result = await trackPresence(channel, hostMetadata(lifecycle));
     if (!channelStillCurrent(epoch, channel)) return;
     if (result && result !== 'ok') throw new Error('Presence track returned ' + String(result));
     state.tracked = true;
@@ -284,7 +311,7 @@
     if (guestTrackPromise) return guestTrackPromise;
     const operation = (async () => {
       try {
-        const result = await channel.track(guestMetadata());
+        const result = await trackPresence(channel, guestMetadata());
         if (!channelStillCurrent(epoch, channel)) return false;
         if (result && result !== 'ok') throw new Error('Presence track returned ' + String(result));
         state.tracked = true;
@@ -386,7 +413,7 @@
     try {
       state.lifecycle = 'failed';
       state.localFailure = reason;
-      await channel.track(hostMetadata('failed'));
+      await trackPresence(channel, hostMetadata('failed'));
     } catch (_) {}
     try {
       await channel.send({ type: 'broadcast', event: 'room-failed', payload: { v: 1, sid: sessionId, reason: String(reason).slice(0, 180) } });
@@ -475,10 +502,14 @@
   }
 
   async function startHostGame(epoch, channel) {
-    if (!channelStillCurrent(epoch, channel) || state.role !== 'host' || state.lifecycle !== 'lobby') return;
+    if (!channelStillCurrent(epoch, channel) || state.busy || state.role !== 'host' || state.lifecycle !== 'lobby') return;
     const others = Array.from(state.members.values()).filter(m => m.sid !== sessionId && m.sid && m.ready !== false);
     if (!state.connected || !state.tracked || !state.config || !others.length) {
       setStatus('Start requires a connected host, a valid configuration and at least one other player.');
+      return;
+    }
+    if (!hasPresenceBudget(1)) {
+      setStatus('Cannot publish the running-room state yet: Supabase Presence rate window is full. Wait up to 30 seconds and retry.');
       return;
     }
     const cfg = validateConfig(state.config);
@@ -489,9 +520,9 @@
     state.busy = true;
     state.config = cfg;
     try {
-      // Publish the final, immutable configuration through Presence before map generation.
-      await trackHost('starting', epoch, channel);
-      if (!channelStillCurrent(epoch, channel)) return;
+      // The validated immutable map config was already published in lobby Presence.
+      // Publish the map signature and running lifecycle after deterministic generation.
+      state.lifecycle = 'starting';
       state.hostSignature = startGameUsingConfig(cfg);
       state.lifecycle = 'running';
       await trackHost('running', epoch, channel);
@@ -687,6 +718,10 @@
 
   async function enterRoom(role, code, nick, cfg) {
     if (state.busy || state.active) return;
+    if (!hasPresenceBudget(1)) {
+      setStatus('Supabase Presence update limit reached. Wait for the 30-second rate window to clear before opening another room.');
+      return;
+    }
     const clean = cleanNick(nick);
     if (!clean) {
       setStatus('Enter a nickname with 1–24 characters and no control characters.');
@@ -810,7 +845,8 @@
     state.channel = null;
     pendingPayload = null;
     if (ch) {
-      try { await ch.untrack(); } catch (_) {}
+      // If the Presence budget is exhausted, removeChannel still causes server-side cleanup.
+      await untrackPresence(ch);
       try { if (client) await client.removeChannel(ch); } catch (_) {}
     }
     if (restoreSettings !== false) restoreLocalSettings();
@@ -1057,6 +1093,6 @@
 
   window.addEventListener('beforeunload', () => {
     stopMarkerTimer();
-    try { if (state.channel) void state.channel.untrack(); } catch (_) {}
+    try { if (state.channel) void untrackPresence(state.channel); } catch (_) {}
   });
 })();
