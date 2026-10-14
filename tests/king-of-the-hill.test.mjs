@@ -59,4 +59,13 @@ assert.match(html, /if\(vm===5&&S\.ex\[\(H\/2\|0\)\*W\+\(W\/2\|0\)\]\)L\.push/,
 assert.match(html, /if\(vm===5\)\{const P=w2m\(r,W\/2,H\/2\)/,
   'The hill objective must have a minimap marker');
 
-console.log('king-of-the-hill: all 24 source regression assertions passed');
+assert.match(html, /diplomacyRelation\(0,u\.t\)!=='neutral'/,
+  'Neutral units must not count as capture units');
+assert.match(html, /nx:\(vm===5\?180:/,
+  'AI should begin its first hill attack earlier than a standard attack wave');
+assert.match(html, /A\.nx=S\.t\+\(vm===5\?\[180,150,120\]\[diff\]:\[300,240,180\]\[diff\]\)/,
+  'AI should make repeated attempts to capture or retake a hill');
+assert.match(html, /S\.mapAudit=\{\.\.\.auditGeneratedMap\(starts\),hillReachable:true\}/,
+  'Map connectivity should be refreshed after the hill roads are carved');
+
+console.log('king-of-the-hill: all 30 source regression assertions passed');
