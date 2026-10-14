@@ -20,9 +20,9 @@ const checks = [
   ['infantry armour upgrades use explicit unit classes', html.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto'])")],
   ['archer armour upgrades use explicit unit classes', html.includes("const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan','hcan','conq','wagon','eled','mgd'])")],
   ['combat damage applies both armour class upgrades', html.includes('ib=(INFARM.has(t.k)&&ta.armI?1:0)+(ARCHARM.has(t.k)&&ta.armR?1:0)')],
-  ['siege splash damages enemy units rather than the target team', html.includes('e.t!==p.a.t&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp')],
-  ['siege splash can damage nearby enemy buildings', html.includes('for(const e of S.bs)if(e!==p.t&&e.t!==p.a.t&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e)')],
-  ['siege auto-targeting prioritises enemy buildings in range', html.includes('function foe(u,r){let b=null,bd=r;if(U[u.k]?.sg){for(const q of S.bs)if(q.t!==u.t&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}if(b)return b}')],
+  ['siege splash damages hostile units only', html.includes('e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp')],
+  ['siege splash can damage nearby hostile buildings', html.includes('for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e)')],
+  ['siege auto-targeting prioritises hostile buildings in range', html.includes('function foe(u,r){let b=null,bd=r;if(U[u.k]?.sg){for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}if(b)return b}')],
   ['farm reseeding uses 60 wood and accurate feedback', /S\.res\[u\.t\]\.w>=60[\s\S]{0,120}Farm reseeded \(-60 wood\)/.test(html)],
 ];
 

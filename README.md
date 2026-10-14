@@ -32,6 +32,8 @@ Use Node.js 22 or a compatible current Node release. No package installation is 
 ```sh
 node scripts/check-game.mjs
 node tests/population-limits.test.mjs
+node tests/town-bell.test.mjs
+node tests/diplomacy.test.mjs
 node tests/trade-routes.test.mjs
 node tests/fishing-economy.test.mjs
 node tests/fish-traps.test.mjs

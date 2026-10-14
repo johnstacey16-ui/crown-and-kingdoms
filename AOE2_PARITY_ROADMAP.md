@@ -75,7 +75,8 @@ Per project direction, do not spend time implementing Xbox achievements, Xbox cl
 The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-based checks for:
 
 - inline JavaScript syntax and key source invariants;
-- population cap configuration and diplomacy state/targeting;
+- population cap configuration;
+- diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;
