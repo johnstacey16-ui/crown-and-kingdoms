@@ -166,6 +166,21 @@ function createVillagerPriority(source=null){
 }
 const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
 function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===k).length:0}
+function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
+function skipAutoNode(u,n){if(!u||!n)return;const key=autoNodeKey(n);if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];if(!u.autoSkipNodes.includes(key)){if(u.autoSkipNodes.length>=128)u.autoSkipNodes.shift();u.autoSkipNodes.push(key)}}
+function findReachableAutoNode(u,k,r=36){
+ const all=S.nodes.filter(n=>n.amt>0&&!n.fi===!u.sh),live=new Set(all.map(autoNodeKey));
+ u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(key=>live.has(key)).slice(-128);
+ const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!u.autoSkipNodes.includes(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
+ let failed=0;
+ for(const n of candidates){
+  const route=path(u,goalNear(n,1));
+  if(route&&route.length)return {n,route};
+  skipAutoNode(u,n);
+  if(++failed>=2)break;
+ }
+ return null;
+}
 function assignAutoVillager(u,force=false){
  if(!S||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld)return false;
  const p=S.vp||(S.vp=createVillagerPriority());
@@ -177,9 +192,9 @@ function assignAutoVillager(u,force=false){
  const needs=keys.filter(k=>counts[k]<p[k]).sort((a,b)=>(p[b]-counts[b])-(p[a]-counts[a]));
  const rest=keys.filter(k=>!needs.includes(k)).sort((a,b)=>(counts[a]/p[a])-(counts[b]/p[b])||counts[a]-counts[b]);
  for(const k of needs.concat(rest)){
-  const n=findNode(u,k,36);
-  if(!n)continue;
-  u.o='g';u.tg=n;u.ct=k;u.p=[];u.pt=null;u.ret=0;u.autoWorker=1;return true;
+  const found=findReachableAutoNode(u,k,36);
+  if(!found)continue;
+  u.o='g';u.tg=found.n;u.ct=k;u.p=found.route;u.pt=null;u.ret=0;u.rp=1;u.autoWorker=1;return true;
  }
  return false;
 }
@@ -376,9 +391,9 @@ if(u.o==='g'){
 if(u.ret){const b=dropoff(u);if(!b){u.o='i';return}
 if(d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];return}
 if(!u.p.length||u.rp<=0){u.p=path(u,goalNear(b,1))||[];u.rp=1}walk(u,dt);return}
-if(!tg||tg.amt<=0){const n=findNode(u,u.ct);if(n){u.tg=n;u.p=[]}else if(u.car>0){u.ret=1;u.p=[]}else u.o='i';return}
+if(!tg||tg.amt<=0){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else u.o='i';return}
 if(d2(u.x,u.y,tg)<=1.1){const g=Math.min(tg.amt,GR*gm(u,tg)*(tg.an?(S.tech[u.t].hunt?2.2:1.5):1)*dt);tg.amt-=g;u.car+=g;u.ct=tg.k;if(gt>(u.sn||0)){u.sn=gt+.7+Math.random()*.5;if(tg.k==='w')sfx('chop',u.x,u.y);else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y)}if(tg.amt<=0){if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}else if(tg.fm&&S.res[u.t].w>=60){S.res[u.t].w-=60;tg.amt=farmFood(u.t);if(u.t===0)note('Farm reseeded (-60 wood)')}else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}}if(u.car>=(S.tech[u.t].carry?15:CAP)){u.ret=1;u.p=[]}}
-else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
+else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){if(u.t===0&&u.autoWorker)skipAutoNode(u,tg);u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
 if(u.o==='b'){if(!tg||tg.hp<=0||(tg.done&&tg.hp>=tg.mh)){u.o='i';if(tg&&tg.done&&tg.hp>0){const ak={lumber:'w',mine:'g',mill:'f'}[tg.k],n=ak&&findNode(u,ak,16);if(n){u.o='g';u.tg=n;u.ct=n.k;u.p=[];u.ret=0}}return}
 if(d2(u.x,u.y,tg)<=1.1){if(tg.done)tg.hp=Math.min(tg.mh,tg.hp+tg.mh*dt/40);else{const buildRate=S.tech[u.t].crane?1.2:1;tg.pr+=dt*buildRate;if(gt>(u.sn||0)){u.sn=gt+.8+Math.random()*.4;sfx('hammer',u.x,u.y)}tg.hp=Math.min(tg.mh,tg.mh*tg.pr/B[tg.k].bt+1);
 if(tg.pr>=B[tg.k].bt){tg.done=true;tg.hp=tg.mh;sfx('built',tg.x+tg.s/2,tg.y+tg.s/2);if(tg.t===0){S.pl.bl++;note(B[tg.k].n+' complete')}}}}

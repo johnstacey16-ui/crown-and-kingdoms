@@ -11,8 +11,8 @@ assert.match(html, /function assignAutoVillager\(u,force=false\)\{/,
   'Auto assignment must use one central worker-assignment function');
 assert.match(html, /const needs=keys\.filter\(k=>counts\[k\]<p\[k\]\)/,
   'Priority targets must fill unmet resource targets before balancing extra workers');
-assert.match(html, /const n=findNode\(u,k,36\);[\s\S]{0,180}u\.o='g';u\.tg=n;u\.ct=k/,
-  'Assigned villagers must receive a real gather order to a matching resource node');
+assert.match(html, /const found=findReachableAutoNode\(u,k,36\);[\s\S]{0,180}u\.o='g';u\.tg=found\.n;u\.ct=k/,
+  'Assigned villagers must receive a route-verified gather order to a matching resource node');
 assert.match(html, /function addU\(t,k,x,y\)\{[\s\S]{0,500}if\(k==='vil'&&t===0&&S\.vp&&S\.vp\.enabled\)assignAutoVillager\(u\)/,
   'Newly trained/created player villagers must follow the current priorities when automation is enabled');
 assert.match(html, /function villagerPriorityMenuItems\(\)\{[\s\S]{0,650}WORKER_TARGETS\.map/,
