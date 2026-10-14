@@ -86,3 +86,5 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - [x] Siege splash fix: splash now damages nearby enemy units and buildings, not the target's own team; dead/loaded units are excluded. Source syntax and regression assertions added. Gameplay balance and impact radius still require live match testing.
 
 - [x] Siege AI target priority: idle siege units now select an enemy building in range before nearby enemy units; other unit classes retain the existing unit-first behaviour. Static regression assertion added.
+
+- [x] Naval combat pass: War Galleys gain explicit bonuses against Fishing and Transport Ships; ship armour classes are included in damage mitigation; Docks now offer Ship Weapons (+3 attack for War Galleys) and Reinforced Hulls (+20 Fishing Ship HP, +35 War Galley HP, +30 Transport Ship HP). Enemy composition analysis now counts ranged gunpowder units and infantry more accurately, and Dock production reacts to a visible player fleet. Inline JavaScript syntax validation passed; naval balance and actual water-map combat still need gameplay testing.
