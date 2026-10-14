@@ -1,9 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-<rect width="96" height="96" fill="#887f70"/>
-<g stroke="#3c3832" stroke-opacity=".48" stroke-width="1.4" fill="none">
-<path d="M0 17H96 M0 43H96 M0 69H96 M0 94H96"/>
-<path d="M23 0V17 M67 17V43 M35 43V69 M78 69V94 M48 0V17 M8 69V94"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+ <linearGradient id="stone" x2="0" y2="1"><stop stop-color="#a69b88"/><stop offset=".48" stop-color="#898071"/><stop offset="1" stop-color="#6d665b"/></linearGradient>
+ <linearGradient id="face" x2="0" y2="1"><stop stop-color="#d1c5ad" stop-opacity=".34"/><stop offset="1" stop-color="#29251f" stop-opacity=".18"/></linearGradient>
+ <pattern id="grain" width="17" height="19" patternUnits="userSpaceOnUse"><circle cx="3" cy="5" r=".8" fill="#e1d5bd" opacity=".45"/><circle cx="12" cy="14" r="1" fill="#39342d" opacity=".35"/><path d="M7 2l2 1m-4 12l2-1" stroke="#403a32" stroke-opacity=".2"/></pattern>
+</defs>
+<rect width="128" height="128" fill="url(#stone)"/>
+<g stroke="#403a31" stroke-width="2.2" stroke-linejoin="round">
+ <path d="M0 1H128 M0 26H128 M0 53H128 M0 80H128 M0 107H128 M0 127H128"/>
+ <path d="M27 1V26 M82 1V26 M54 26V53 M111 26V53 M16 53V80 M71 53V80 M101 80V107 M43 80V107 M75 107V127 M118 107V127"/>
 </g>
-<g fill="#c2b6a1" fill-opacity=".23"><path d="M2 2H21V14H2Z M50 20H64V39H50Z M37 47H60V65H37Z M5 73H31V91H5Z M70 72H75V91H70Z"/></g>
-<g fill="#282620" fill-opacity=".13"><path d="M25 19H64V40H25Z M3 46H32V66H3Z M69 46H94V65H69Z M37 72H67V91H37Z"/></g>
+<g fill="url(#face)">
+ <path d="M2 3H25V23H2Z M30 3H80V23H30Z M85 3H126V23H85Z M2 29H51V50H2Z M58 29H109V50H58Z M2 56H13V77H2Z M20 56H68V77H20Z M75 56H126V77H75Z M2 83H40V104H2Z M47 83H98V104H47Z M104 83H126V104H104Z M2 110H72V125H2Z M79 110H116V125H79Z"/>
+</g>
+<g fill="url(#grain)"><rect width="128" height="128"/></g>
+<g fill="none" stroke-linecap="round">
+ <path d="M38 8l-4 5 3 4m53-2l-5 4m-56 23l4 3-2 4m62-14l-3 5 4 4m-69 33l5-3m75 6l-4 5m-49 18l3 4-2 3" stroke="#3b352d" stroke-opacity=".45" stroke-width="1.2"/>
+ <path d="M7 8h13m45 26h17m-66 31h12m64-22h14m-52 57h18m28 17h13" stroke="#e1d4bb" stroke-opacity=".42" stroke-width="1.5"/>
+</g>
+<g fill="#c8b99e" opacity=".34"><circle cx="13" cy="17" r="1.3"/><circle cx="61" cy="9" r="1"/><circle cx="119" cy="43" r="1.4"/><circle cx="31" cy="66" r="1.2"/><circle cx="88" cy="92" r="1.5"/><circle cx="17" cy="116" r="1"/></g>
 </svg>
