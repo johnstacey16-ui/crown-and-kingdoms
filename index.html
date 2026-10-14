@@ -460,9 +460,9 @@ if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&!b.done).length<1+(vil.lengt
 if(vil.length<([18,28,40][diff]*PERS[aip].v|0)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&AG[S.age[t]+1].needs.includes(x.k)).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
-if(S.age[t]>=1&&!cnt('market')&&vil.length>=14)aiBuild(vil,'market',t);
+if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&(arm.length>=6||R.w>=B.market.cost.w+100))aiBuild(vil,'market',t);
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall').length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
-if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24))aiDock(vil,tc,t);
+if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||R.w>=B.dock.cost.w+100)&&S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24))aiDock(vil,tc,t);
 for(const s of my.filter(u=>u.k==='fish'&&u.o==='i')){let n=findNode(s,'f',32);if(!n&&R.w>=100){deployFishTrap([s]);n=findNode(s,'f',32)}if(n){s.o='g';s.tg=n;s.ct='f';s.p=[];s.ret=0}}
 for(const s of my.filter(u=>u.k==='scout'&&u.o==='i')){const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p}}
 {const hostileShips=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&U[u.k].sh&&u.k!=='fish'),ptc=S.bs.filter(b=>isHostile(t,b.t)&&b.k==='tc'&&b.hp>0).sort((x,y)=>Math.hypot(x-tc.x,y-tc.y)-Math.hypot(y-tc.x,y-tc.y))[0];for(const ship of my.filter(u=>u.k==='gal'&&u.o==='i')){const enemy=hostileShips.sort((a,b)=>(Math.hypot(a.x-ship.x,a.y-ship.y)-(a.k==='gal'?6:0))-(Math.hypot(b.x-ship.x,b.y-ship.y)-(b.k==='gal'?6:0)))[0];if(enemy&&Math.hypot(enemy.x-ship.x,enemy.y-ship.y)<28){ship.o='a';ship.tg=enemy;ship.p=[];continue}if(!ptc)continue;const p=path(ship,(x,y)=>S.wt[y*W+x]&&Math.hypot(x-ptc.x,y-ptc.y)<18);if(p&&p.length){ship.o='m';ship.p=p}}}
