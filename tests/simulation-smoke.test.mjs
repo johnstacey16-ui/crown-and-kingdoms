@@ -94,11 +94,11 @@ globalThis.__CK_TEST__ = {
   tick(dt) { step(dt); },
   orderWoodGather() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
-    assert.ok(u, 'The seeded match must contain a player villager');
+    if (!u) throw new Error('The seeded match must contain a player villager');
     const nodes = S.nodes.filter((n) => n.k === 'w' && n.amt > 0);
     nodes.sort((a, b) => Math.hypot(a.x - u.x, a.y - u.y) - Math.hypot(b.x - u.x, b.y - u.y));
     const n = nodes[0];
-    assert.ok(n, 'The seeded match must contain a wood resource node');
+    if (!n) throw new Error('The seeded match must contain a wood resource node');
     u.o = 'g'; u.tg = n; u.ct = n.k; u.car = 0; u.ret = 0; u.p = []; u.rp = 0; u.autoWorker = 0;
   },
   state() {
