@@ -92,6 +92,35 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
   tick(dt) { step(dt); },
+  beginTradeRoute() {
+    const playerTc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    const enemyTc = S.bs.find((b) => b.t !== 0 && b.k === 'tc' && b.done);
+    if (!playerTc || !enemyTc) throw new Error('The seeded match must have player and enemy Town Centres');
+    const findMarketSite = (tc, team) => {
+      for (let radius = 3; radius <= 18; radius++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          for (let dx = -radius; dx <= radius; dx++) {
+            if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
+            const x = Math.floor(tc.x + 1) + dx, y = Math.floor(tc.y + 1) + dy;
+            if (okPlace(team, 'market', x, y)) return [x, y];
+          }
+        }
+      }
+      return null;
+    };
+    const srcSite = findMarketSite(playerTc, 0);
+    const dstSite = findMarketSite(enemyTc, enemyTc.t);
+    if (!srcSite || !dstSite) throw new Error('Could not find legal market sites for the trade-route test');
+    const src = addB(0, 'market', srcSite[0], srcSite[1], true);
+    const dst = addB(enemyTc.t, 'market', dstSite[0], dstSite[1], true);
+    const p = spawnPos(src);
+    if (!p) throw new Error('Could not find a legal trade-cart spawn tile');
+    const cart = addU(0, 'cart', p[0], p[1]);
+    cart.tradeFromKey = [0, 'market', src.x, src.y].join(':');
+    const distance = Math.hypot((src.x + src.s / 2) - (dst.x + dst.s / 2), (src.y + src.s / 2) - (dst.y + dst.s / 2));
+    if (distance < 10) throw new Error('Trade route is too short to provide a meaningful gold-delivery test');
+    return { gold: S.res[0].g, distance };
+  },
   beginHouseConstruction() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
     if (!u) throw new Error('The seeded match must contain a builder');
@@ -130,6 +159,7 @@ globalThis.__CK_TEST__ = {
       ticks: S.vt,
       units: S.us.length,
       buildings: S.bs.length,
+      playerGold: S.res[0].g,
       houseConstruction: (() => {
         const b = S.bs.find((b) => b.t === 0 && b.k === 'house');
         return b ? { done: b.done, progress: b.pr, hp: b.hp, maxHp: b.mh } : null;
@@ -207,6 +237,15 @@ assert.equal(constructionAfter.houseConstruction.hp, constructionAfter.houseCons
   'A completed house should have full hit points');
 assert.ok(constructionAfter.buildings >= 5, 'The completed house should be included in the live building state');
 console.log(`construction-smoke: house at ${plannedHouse.x},${plannedHouse.y} completed in 60 simulated seconds (build time=${plannedHouse.buildSeconds}s)`);
+
+game.start(123456, 1);
+const tradeBefore = game.beginTradeRoute();
+for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+const tradeAfter = game.state();
+assert.ok(tradeAfter.playerGold > tradeBefore.gold,
+  'A real trade cart travelling between completed allied/enemy markets should deliver gold');
+console.log(`trade-smoke: cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over 60 simulated seconds`);
+
 
 
 
