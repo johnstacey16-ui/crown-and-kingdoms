@@ -7,8 +7,8 @@ assert.match(html, /function kingdomScore\(t\)\{/,
   'The score victory mode must calculate a score for each kingdom');
 assert.match(html, /const resources=Object\.values\(S\.res\[t\]\|\|\{\}\)\.reduce/,
   'Held resources must contribute to kingdom score');
-assert.match(html, /const units=S\.us\.filter\(u=>u\.t===t&&u\.hp>0&&!u\.ld\)\.reduce/,
-  'Surviving ungarrisoned army units must contribute to score');
+assert.match(html, /const units=S\.us\.filter\(u=>u\.t===t&&u\.hp>0\)\.reduce/,
+  'All surviving army units, including garrisoned units, must contribute to score');
 assert.match(html, /const buildings=S\.bs\.filter\(b=>b\.t===t&&b\.hp>0\)\.reduce/,
   'Surviving buildings must contribute to score');
 assert.match(html, /const techs=Object\.entries\(S\.tech\[t\]\|\|\{\}\)\.filter/,

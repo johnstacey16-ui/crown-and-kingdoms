@@ -15,6 +15,8 @@ assert.match(html, /function isHostile\(a,b\)\{return a!==b&&diplomacyRelation\(
   'Hostility must come from the shared relationship helper');
 assert.match(html, /function setDiplomacy\(a,b,rel\)\{[\s\S]{0,450}S\.dip\[a\]\[b\]=S\.dip\[b\]\[a\]=rel/,
   'Changing diplomacy must update both kingdoms symmetrically');
+assert.match(html, /if\(rel!=='enemy'\)for\(const u of S\.us\)if\(\(u\.o==='a'\|\|u\.o==='v'\)/,
+  'Changing a relationship away from enemy must cancel active attacks and conversions against that kingdom');
 assert.match(html, /function diplomacyMenuItems\(\)\{[\s\S]{0,500}l:\(\)=>rotateDiplomacy\(0,t,-1\),r:\(\)=>rotateDiplomacy\(0,t,1\),a:\(\)=>rotateDiplomacy\(0,t,1\)/,
   'Enemy, neutral and ally states must be changeable with the pause-menu controller');
 assert.match(html, /if\(!isHostile\(a\.t,t\.t\)\)return;const ak=U\[a\.k\]/,

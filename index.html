@@ -106,7 +106,7 @@ function relationLabel(r){return r==='ally'?'Ally':r==='neutral'?'Neutral':r==='
 function setDiplomacy(a,b,rel){
  if(!S||!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=S.teamN||b>=S.teamN||a===b||!DIPLOMACY_STATES.includes(rel))return false;
  S.dip[a][b]=S.dip[b][a]=rel;
- if(rel!=='enemy')for(const u of S.us)if((u.o==='a'||u.o==='m')&&u.tg&&Number.isInteger(u.tg.t)&&((u.t===a&&u.tg.t===b)||(u.t===b&&u.tg.t===a))){u.o='i';u.tg=null;u.p=[]}
+ if(rel!=='enemy')for(const u of S.us)if((u.o==='a'||u.o==='v')&&u.tg&&Number.isInteger(u.tg.t)&&((u.t===a&&u.tg.t===b)||(u.t===b&&u.tg.t===a))){u.o='i';u.tg=null;u.p=[]}
  if(a===0||b===0)note('Diplomacy: Kingdom '+((a===0?b:a)+1)+' is now '+relationLabel(rel));
  return true;
 }
@@ -444,7 +444,7 @@ function elim(){if(cmp)return;if(vm===0){if(!S.bs.some(b=>b.t===0&&b.k==='tc'&&b
 function kingdomAlive(t){return S.bs.some(b=>b.t===t&&b.hp>0)||S.us.some(u=>u.t===t&&u.hp>0)}
 function kingdomScore(t){
  const resources=Object.values(S.res[t]||{}).reduce((sum,n)=>sum+Math.max(0,Number(n)||0),0)/10;
- const units=S.us.filter(u=>u.t===t&&u.hp>0&&!u.ld).reduce((sum,u)=>{
+ const units=S.us.filter(u=>u.t===t&&u.hp>0).reduce((sum,u)=>{
   const d=U[u.k]||{},cost=Object.values(d.cost||{}).reduce((a,n)=>a+(Number(n)||0),0);
   return sum+Math.max(0,cost/8)*Math.max(0,Math.min(1,u.hp/Math.max(1,d.hp||u.hp||1)));
  },0);
