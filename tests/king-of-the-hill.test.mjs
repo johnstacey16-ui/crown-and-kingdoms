@@ -38,11 +38,11 @@ assert.match(html, /const sx=vm===5\?W\/2:tc\.x\+\(tgt\.x-tc\.x\)\*\.35,sy=vm===
 assert.match(html, /const fo=vm===5\?\[\(i%5-2\),\(\(Math\.floor\(i\/5\)%5\)-2\)\]:fslot/,
   'AI combat units must gather in a compact capture formation');
 
-assert.match(html, /'King of the Hill'\]\[vm\]/,
+assert.match(html, /'King of the Hill','Sudden Death'\]\[vm\]/,
   'King of the Hill must be selectable in the controller-driven victory menu');
-assert.match(html, /vm=cl\(st\.vm\|0,0,5\)/,
+assert.match(html, /vm=cl\(st\.vm\|0,0,6\)/,
   'Settings restoration must accept the new victory mode');
-assert.match(html, /vm=cl\(j\.vm\|0,0,5\)/,
+assert.match(html, /vm=cl\(j\.vm\|0,0,6\)/,
   'Saved games must restore the new victory mode');
 assert.match(html, /kh:S\.kh/,
   'Save slots must preserve hill control progress');
