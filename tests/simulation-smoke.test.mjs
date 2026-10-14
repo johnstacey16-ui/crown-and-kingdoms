@@ -303,13 +303,8 @@ globalThis.__CK_TEST__ = {
         team,
         age: S.age[team],
         buildings: S.bs.filter((b) => b.t === team && b.hp > 0).length,
-        buildingKinds: S.bs.filter((b) => b.t === team && b.hp > 0).map((b) => ({ k: b.k, done: !!b.done, hp: Math.round(b.hp), x: b.x, y: b.y })),
-        builderOrders: S.us.filter((u) => u.t === team && u.k === 'vil' && u.o === 'b').map((u) => ({ x: Math.round(u.x), y: Math.round(u.y), target: u.tg?.k || null, tx: u.tg?.x ?? null, ty: u.tg?.y ?? null, loaded: !!u.ld })),
         completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege'].includes(b.k)).length,
         militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
-        readyArmy: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['scout', 'king', 'cart'].includes(u.k) && !u.retreating).length,
-        hostileBuildings: S.bs.filter((b) => isHostile(team, b.t) && b.hp > 0).length,
-        nextWaveTime: a.nx || 0,
         wave: a.wave || 0,
       })).filter(Boolean),
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
@@ -441,7 +436,6 @@ assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
 assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
   'Rival AI should establish a completed military production building');
-console.log('ai-growth-debug:', JSON.stringify({ rivals: activeAi, peaks: aiAfter.aiPeak, resources: aiAfter.resources }));
 assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
   'At least one rival should field a four-unit force at some point during eight simulated minutes');
 assert.ok(activeAi.some((a) => a.wave > 0),
