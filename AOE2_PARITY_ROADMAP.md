@@ -111,3 +111,12 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - Added `assets/detailed-forces-atlas.svg` with original, team-coloured sprite art for the remaining infantry, ranged troops, cavalry, elephants, siege engines and naval units. Existing villagers, militia and archers retain their upright animated atlas; procedural painters remain the fallback when an asset fails or a class is not mapped.
 - Added `assets/detailed-buildings-atlas.svg` with 20 isometric structure/fortification designs and four team-colour variants. Completed buildings use the atlas; construction stages, building effects, selection, damage and missing-asset fallback remain in the existing renderer.
 - Added static regression assertions for the two atlas integrations. This is a source-level integration, not yet a claim of visual acceptance: verify sprite orientation, scale, transparency, map layering and Xbox Series S / Edge performance in a live match before calling the graphics pass complete.
+
+
+## Economy upgrade — trade routes (2026-10-14)
+
+- Added trainable Trade Carts at Markets and Trade Cogs at Docks. Each trader records its producing endpoint and automatically finds a completed endpoint belonging to another kingdom.
+- Traders travel between endpoints and generate gold on delivery based on route distance. If an endpoint is destroyed or no destination is available, traders wait and retry rather than generating free gold.
+- AI kingdoms can produce a limited number of traders when a compatible foreign endpoint exists. Trade units are excluded from ordinary combat targeting.
+- Corrected the Farm help text to state the implemented 60-wood auto-reseed cost.
+- Added static regression assertions for production, route dispatch, distance-based gold and the help text. These assertions verify source integration, not actual route movement or balance in a live Xbox match.
