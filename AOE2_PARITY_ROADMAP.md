@@ -139,3 +139,5 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - [x] **AI siege support (2026-10-14):** coordinated enemy attack waves now assign rams, mangonels, scorpions, trebuchets and bombard units a dedicated completed defensive target, prioritising Castles, then Towers, then Town Centres. Retreating units are filtered out of the wave-release group so their withdrawal order is not overwritten. Regression checks added; combat balance/pathfinding still need runtime simulation.
 
 - AI fishing ships now deploy renewable traps when nearby fish nodes are exhausted and the AI has enough wood, so the renewable naval-food loop is used by computer kingdoms as well as the player.
+
+- AI base defence now weights nearby rams, mangonels, scorpions, trebuchets and bombard units as higher-priority threats when selecting an intruder to intercept.
