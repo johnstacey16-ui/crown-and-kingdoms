@@ -5,7 +5,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 assert.match(html, /function siteMenu\(wx,wy\)\{[\s\S]{0,650}const selected=S\.sel\.filter\(u=>u\.t===0&&u\.k==='vil'&&u\.hp>0&&!u\.ld\)/,
   'Resource site menus must identify the selected living, ungarrisoned player villagers');
-assert.match(html, /mk\(selected\.length\?'Send selected villagers to gather \('\+selected\.length\+'\)' :'Send Villager to gather'/,
+assert.ok(html.includes("mk(selected.length?'Send selected villagers to gather ('+selected.length+')':'Send Villager to gather'"),
   'The resource menu must label group gather orders distinctly from single-villager orders');
 assert.match(html, /if\(selected\.length\)give\(selected,\(\)=>orderSel\(t,wx,wy\)\);else\{const v=nearV\(wx,wy\)/,
   'A resource-menu confirmation must order every selected villager to the exact hovered node and preserve the single-villager fallback');
