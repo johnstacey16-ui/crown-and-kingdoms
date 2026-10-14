@@ -60,6 +60,9 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 - [x] Added a Node.js source-check script and GitHub Actions workflow to parse inline JavaScript and guard the farm-capacity/ownership/reseed fixes against regression. This is static validation, not a substitute for browser or Xbox gameplay testing.
 
+
+- [x] Combat armour audit: Blacksmith infantry armour now applies through an explicit infantry roster, and archer armour through an explicit ranged roster, including selected unique units. Automated source checks cover both rosters and the damage formula. Exact AoE2 balance and in-match behaviour still require playtesting.
+
 ## Implementation order
 
 1. **Stability and testability:** protect the last working build; syntax checks plus runtime smoke tests; resolve any black-screen or stuck-game regressions first.
