@@ -338,8 +338,13 @@ globalThis.__CK_TEST__ = {
       if (!site) throw new Error('Could not find a clear site for a completed test Barracks');
       barracks = addB(0, 'bar', site.x, site.y, true);
     }
-    const unit = S.us.find((u) => u.t === 0 && u.k === 'mil');
-    if (!unit) throw new Error('Match must contain a Militia unit to test existing-unit upgrades');
+    let unit = S.us.find((u) => u.t === 0 && u.k === 'mil');
+    if (!unit) {
+      const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+      const p = spawnPos(tc);
+      if (!p) throw new Error('Could not find a spawn position for the existing-unit upgrade test');
+      unit = addU(0, 'mil', p[0], p[1]);
+    }
     const beforeMax = mhp(unit);
     unit.hp = beforeMax - 10;
     unit.testTechTarget = true;
