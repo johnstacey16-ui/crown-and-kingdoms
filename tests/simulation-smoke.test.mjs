@@ -92,6 +92,25 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
   tick(dt) { step(dt); },
+  beginHouseConstruction() {
+    const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
+    if (!u) throw new Error('The seeded match must contain a builder');
+    let site = null;
+    const ux = Math.floor(u.x), uy = Math.floor(u.y);
+    for (let radius = 2; radius <= 12 && !site; radius++) {
+      for (let dy = -radius; dy <= radius && !site; dy++) {
+        for (let dx = -radius; dx <= radius && !site; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
+          const x = ux + dx, y = uy + dy;
+          if (okPlace(0, 'house', x, y)) site = [x, y];
+        }
+      }
+    }
+    if (!site) throw new Error('Could not find a legal explored tile for the construction test');
+    const b = addB(0, 'house', site[0], site[1], false);
+    u.o = 'b'; u.tg = b; u.p = []; u.rp = 0;
+    return { x: b.x, y: b.y, buildSeconds: B.house.bt };
+  },
   beginGatherResearch() {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     return tc ? research(tc, 'gath') : false;
@@ -111,6 +130,10 @@ globalThis.__CK_TEST__ = {
       ticks: S.vt,
       units: S.us.length,
       buildings: S.bs.length,
+      houseConstruction: (() => {
+        const b = S.bs.find((b) => b.t === 0 && b.k === 'house');
+        return b ? { done: b.done, progress: b.pr, hp: b.hp, maxHp: b.mh } : null;
+      })(),
       scoreCache: S.scoreCache.slice(),
       resources: S.res.map((r) => ({ ...r })),
       gameOver: S.over,
@@ -172,5 +195,18 @@ const researchAfter = game.state();
 assert.equal(researchAfter.research.gatherRate, 1, 'Completing research must apply the real Gather Rate technology effect');
 assert.equal(researchAfter.research.townCentreResearch, null, 'The completed research queue should clear');
 console.log('research-smoke: Gather Rate research completed through 31 simulated seconds and applied to the real technology state');
+
+game.start(123456);
+const plannedHouse = game.beginHouseConstruction();
+for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+const constructionAfter = game.state();
+assert.ok(constructionAfter.houseConstruction, 'The real house should remain in the game state');
+assert.equal(constructionAfter.houseConstruction.done, true,
+  'A villager ordered to build a legal house site should complete it within 60 simulated seconds');
+assert.equal(constructionAfter.houseConstruction.hp, constructionAfter.houseConstruction.maxHp,
+  'A completed house should have full hit points');
+assert.ok(constructionAfter.buildings >= 5, 'The completed house should be included in the live building state');
+console.log(`construction-smoke: house at ${plannedHouse.x},${plannedHouse.y} completed in 60 simulated seconds (build time=${plannedHouse.buildSeconds}s)`);
+
 
 
