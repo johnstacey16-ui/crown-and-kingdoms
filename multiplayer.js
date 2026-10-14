@@ -732,16 +732,30 @@
         if (!channelStillCurrent(epoch, ch)) return;
         if (status === 'SUBSCRIBED') {
           state.connected = true;
-          if (role === 'host' && !state.tracked) {
-            void trackHost('lobby', epoch, ch).then(() => reconcilePresence(epoch, ch)).catch(e => {
-              if (channelStillCurrent(epoch, ch)) setStatus('Presence tracking failed: ' + String(e && e.message || e));
-            });
+          if (role === 'host') {
+            if (!state.tracked) {
+              const lifecycle = ['lobby', 'starting', 'running', 'failed'].includes(state.lifecycle) ? state.lifecycle : 'lobby';
+              void trackHost(lifecycle, epoch, ch).then(() => {
+                reconcilePresence(epoch, ch);
+                if (state.lifecycle === 'running' && state.gameStarted) startMarkerTimer(epoch);
+              }).catch(e => {
+                if (channelStillCurrent(epoch, ch)) setStatus('Presence tracking failed: ' + String(e && e.message || e));
+              });
+            } else {
+              reconcilePresence(epoch, ch);
+              if (state.lifecycle === 'running' && state.gameStarted) startMarkerTimer(epoch);
+            }
           } else {
             reconcilePresence(epoch, ch);
-            if (state.lifecycle === 'running' && state.gameStarted) startMarkerTimer(epoch);
+            if (state.lifecycle === 'running' && state.gameStarted) {
+              void trackGuestOnce(epoch, ch).then(ok => {
+                if (ok && channelStillCurrent(epoch, ch) && state.lifecycle === 'running' && state.gameStarted) startMarkerTimer(epoch);
+              });
+            }
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           state.connected = false;
+          state.tracked = false; // Presence must be restored after the channel rejoins.
           stopMarkerTimer();
           setStatus('Room connection interrupted (' + status + '). Local gameplay will not be frozen.');
         }
