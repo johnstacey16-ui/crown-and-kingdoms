@@ -15,6 +15,9 @@ const checks = [
   ['player-built farms record ownership', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);if\(n\)n\.t=0/.test(html)],
   ['AI-built farms record ownership', /addN\('f',x,y,farmFood\(t\),1\);if\(n\)n\.t=t/.test(html)],
   ['farm technology only affects the researching kingdom', /n\.k==='f'&&n\.fm&&n\.t===b\.t&&S\.nd\[n\.y\*W\+n\.x\]===n/.test(html)],
+  ['infantry armour upgrades use explicit unit classes', /INFARM=new Set\\(\\['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','longs','pike'\\]\\)/.test(html)],
+  ['archer armour upgrades use explicit unit classes', /ARCHARM=new Set\\(\\['arc','xbow','skirm','genoa','plumed','chuko','jan','hcan','conq','gbeto','wagon','eled','mamel'\\]\\)/.test(html)],
+  ['combat damage applies both armour class upgrades', /ib=\\(INFARM\\.has\\(t\\.k\\)&&ta\\.armI\\?1:0\\)\\+\\(ARCHARM\\.has\\(t\\.k\\)&&ta\\.armR\\?1:0\\)/.test(html)],
   ['farm reseeding uses 60 wood and accurate feedback', /S\.res\[u\.t\]\.w>=60[\s\S]{0,120}Farm reseeded \(-60 wood\)/.test(html)],
 ];
 
