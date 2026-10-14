@@ -92,6 +92,42 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
   tick(dt) { step(dt); },
+  beginNavalMove() {
+    const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
+      S.wt[y * W + x] === 1 && !S.nd[y * W + x];
+    const seen = new Uint8Array(W * H);
+    let best = [];
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+      const index = y * W + x;
+      if (seen[index] || !pass(x, y)) continue;
+      const component = [[x, y]];
+      seen[index] = 1;
+      for (let head = 0; head < component.length; head++) {
+        const [cx, cy] = component[head];
+        for (const [dx, dy] of D8) {
+          const nx = cx + dx, ny = cy + dy, ni = ny * W + nx;
+          if (seen[ni] || !pass(nx, ny)) continue;
+          if (dx && dy && (!pass(cx + dx, cy) || !pass(cx, cy + dy))) continue;
+          seen[ni] = 1;
+          component.push([nx, ny]);
+        }
+      }
+      if (component.length > best.length) best = component;
+    }
+    if (best.length < 12) throw new Error('Seeded map has no usable navigable-water component for a ship movement test');
+    const start = best[0];
+    let target = start, farthest = -1;
+    for (const tile of best) {
+      const distance = Math.hypot(tile[0] - start[0], tile[1] - start[1]);
+      if (distance > farthest) { farthest = distance; target = tile; }
+    }
+    const ship = addU(0, 'gal', start[0] + 0.5, start[1] + 0.5);
+    const goal = gp(target[0] + 0.5, target[1] + 0.5, 0.6);
+    const route = path(ship, goal);
+    if (!route || route.length < 6) throw new Error('Could not find a meaningful real ship route through navigable water');
+    ship.testNaval = true; ship.o = 'm'; ship.p = route; ship.rp = 10;
+    return { start: { x: ship.x, y: ship.y }, target, routeLength: route.length };
+  },
   beginTradeRoute() {
     const playerTc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     const enemyTc = S.bs.find((b) => b.t !== 0 && b.k === 'tc' && b.done);
@@ -160,6 +196,10 @@ globalThis.__CK_TEST__ = {
       units: S.us.length,
       buildings: S.bs.length,
       playerGold: S.res[0].g,
+      navalShip: (() => {
+        const u = S.us.find((u) => u.t === 0 && u.k === 'gal' && u.testNaval === true);
+        return u ? { x: u.x, y: u.y, order: u.o, water: S.wt[(u.y | 0) * W + (u.x | 0)] === 1 } : null;
+      })(),
       houseConstruction: (() => {
         const b = S.bs.find((b) => b.t === 0 && b.k === 'house');
         return b ? { done: b.done, progress: b.pr, hp: b.hp, maxHp: b.mh } : null;
@@ -245,6 +285,17 @@ const tradeAfter = game.state();
 assert.ok(tradeAfter.playerGold > tradeBefore.gold,
   'A real trade cart travelling between completed allied/enemy markets should deliver gold');
 console.log(`trade-smoke: cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over 60 simulated seconds`);
+
+game.start(123456);
+const navalBefore = game.beginNavalMove();
+for (let tick = 0; tick < 900; tick += 1) game.tick(1 / 30);
+const navalAfter = game.state();
+assert.ok(navalAfter.navalShip, 'The test ship should remain present in the real simulation');
+assert.ok(Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.navalShip.y - navalBefore.start.y) > 4,
+  'The real ship movement order should move the ship across the water route');
+assert.equal(navalAfter.navalShip.water, true, 'The ship should remain on navigable water during the movement smoke test');
+console.log(`naval-smoke: ship moved across water (route=${navalBefore.routeLength} path points, displacement=${Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.navalShip.y - navalBefore.start.y).toFixed(1)} tiles)`);
+
 
 
 
