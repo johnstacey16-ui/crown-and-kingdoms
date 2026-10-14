@@ -300,6 +300,8 @@ globalThis.__CK_TEST__ = {
         team,
         age: S.age[team],
         buildings: S.bs.filter((b) => b.t === team && b.hp > 0).length,
+        buildingKinds: S.bs.filter((b) => b.t === team && b.hp > 0).map((b) => ({ kind: b.k, done: !!b.done, hp: b.hp })),
+        unitsByKind: Object.fromEntries([...new Set(S.us.filter((u) => u.t === team && u.hp > 0).map((u) => u.k))].map((k) => [k, S.us.filter((u) => u.t === team && u.hp > 0 && u.k === k).length])),
         completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege', 'dock'].includes(b.k)).length,
         militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
         trainedOrResearching: S.bs.filter((b) => b.t === team && b.q?.length).length,
