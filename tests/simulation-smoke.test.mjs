@@ -92,6 +92,15 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed) { seedOv = seed; cmp = null; gameMode = 0; start(); },
   tick(dt) { step(dt); },
+  orderWoodGather() {
+    const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
+    if (!u) throw new Error('The seeded match must contain a player villager');
+    const nodes = S.nodes.filter((n) => n.k === 'w' && n.amt > 0);
+    nodes.sort((a, b) => Math.hypot(a.x - u.x, a.y - u.y) - Math.hypot(b.x - u.x, b.y - u.y));
+    const n = nodes[0];
+    if (!n) throw new Error('The seeded match must contain a wood resource node');
+    u.o = 'g'; u.tg = n; u.ct = n.k; u.car = 0; u.ret = 0; u.p = []; u.rp = 0; u.autoWorker = 0;
+  },
   state() {
     return {
       time: S.t,
@@ -102,6 +111,11 @@ globalThis.__CK_TEST__ = {
       resources: S.res.map((r) => ({ ...r })),
       gameOver: S.over,
       mapAudit: S.mapAudit && { ok: S.mapAudit.ok },
+      woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
+      worker: (() => {
+        const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
+        return u ? { x: u.x, y: u.y, order: u.o, carrying: u.car, returning: u.ret } : null;
+      })(),
     };
   },
 };
@@ -127,3 +141,18 @@ assert.ok(after.resources.every((r) => Object.values(r).every((v) => Number.isFi
   'Resource state must remain finite after the ticks');
 assert.equal(after.gameOver, null, 'The smoke match should remain active');
 console.log(`simulation-smoke: 60 real ticks passed (units=${after.units}, buildings=${after.buildings}, gameTime=${after.time}s)`);
+
+game.start(123456);
+game.orderWoodGather();
+const economyBefore = game.state();
+for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+const economyAfter = game.state();
+assert.ok(
+  economyAfter.woodNodes < economyBefore.woodNodes ||
+  economyAfter.worker?.carrying > 0 ||
+  economyAfter.resources[0].w > economyBefore.resources[0].w,
+  'A real villager gathering order should harvest wood, carry it, or deliver it within 60 simulated seconds',
+);
+assert.ok(economyAfter.worker, 'The gathering villager should remain alive');
+console.log(`economy-smoke: villager order advanced 60s (wood=${economyBefore.woodNodes}->${economyAfter.woodNodes}, carried=${economyAfter.worker.carrying}, playerWood=${economyBefore.resources[0].w}->${economyAfter.resources[0].w})`);
+
