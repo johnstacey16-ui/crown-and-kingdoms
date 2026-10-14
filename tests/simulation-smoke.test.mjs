@@ -324,8 +324,20 @@ globalThis.__CK_TEST__ = {
     return tc ? research(tc, 'gath') : false;
   },
   beginManAtArmsResearch() {
-    const barracks = S.bs.find((b) => b.t === 0 && b.k === 'bar' && b.done);
-    if (!barracks) throw new Error('Age-one match must provide a completed Barracks');
+    let barracks = S.bs.find((b) => b.t === 0 && b.k === 'bar' && b.done);
+    if (!barracks) {
+      const size = B.bar.s;
+      let site = null;
+      for (let y = 2; y < H - size - 1 && !site; y++) for (let x = 2; x < W - size - 1 && !site; x++) {
+        let clear = true;
+        for (let dy = 0; dy < size && clear; dy++) for (let dx = 0; dx < size; dx++) {
+          if (S.g[(y + dy) * W + x + dx] || S.wt[(y + dy) * W + x + dx]) { clear = false; break; }
+        }
+        if (clear) site = { x, y };
+      }
+      if (!site) throw new Error('Could not find a clear site for a completed test Barracks');
+      barracks = addB(0, 'bar', site.x, site.y, true);
+    }
     const unit = S.us.find((u) => u.t === 0 && u.k === 'mil');
     if (!unit) throw new Error('Match must contain a Militia unit to test existing-unit upgrades');
     const beforeMax = mhp(unit);
