@@ -5,7 +5,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 assert.match(html, /function kingdomScore\(t\)\{/,
   'The score victory mode must calculate a score for each kingdom');
-assert.match(html, /const resources=Object\.values\(S\.res\[t\]\|\|\{\}\)\.reduce/,
+assert.match(html, /const res=S\.res\[t\]\|\|\{\};let resources=0;for\(const n of Object\.values\(res\)\)resources\+=Math\.max\(0,Number\(n\)\|\|0\);resources\/=10/,
 assert.match(html, /const res=S\.res\[t\]\|\|\{\};let resources=0;for\(const n of Object\.values\(res\)\)resources\+=Math\.max\(0,Number\(n\)\|\|0\);resources\/=10/,
 assert.match(html, /const units=S\.us\.filter\(u=>u\.t===t&&u\.hp>0\)\.reduce/,
   'All surviving army units, including garrisoned units, must contribute to score');
