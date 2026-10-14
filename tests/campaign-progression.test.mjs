@@ -21,8 +21,9 @@ test('mission completion follows the next item in the campaign arc', () => {
   assert.match(html,
     /function endA\(\)\{if\(!cmp\)\{start\(\);return\}if\(S\.over==='win'\)\{const next=nextCampaignMission\(cmp\.i\);if\(next!==null\)\{bi=next;mode='brief'\}else\{mode='camp';ci=0\}\}else startScenario\(cmp\.i\)\}/,
     'Winning should open the next mission briefing, or return to the campaign list after the final mission');
-  assert.doesNotMatch(html,
-    /function endA\(\)\{[^}]*CAMP\[cmp\.i\+1\]/,
+  const endA = html.slice(html.indexOf('function endA()'), html.indexOf('function endB()'));
+  assert.ok(endA.startsWith('function endA()'), 'The mission end handler must remain identifiable');
+  assert.doesNotMatch(endA, /CAMP\[cmp\.i\+1\]/,
     'Mission completion must not advance by raw campaign-array index');
 });
 
@@ -35,4 +36,4 @@ test('campaign-list lock rules use the previous mission in the same arc', () => 
     'Unlocking must use the previous mission in that arc');
 });
 
-console.log('campaign-progression: all 7 assertions passed');
+console.log('campaign-progression: all 8 assertions passed');
