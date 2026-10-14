@@ -289,7 +289,9 @@
         if (result && result !== 'ok') throw new Error('Presence track returned ' + String(result));
         state.tracked = true;
         state.connected = true;
-        setStatus('Connected. Waiting for the host to start the marker match.');
+        setStatus(state.lifecycle === 'running' && state.gameStarted
+          ? 'Reconnected. Marker synchronisation restored.'
+          : 'Connected. Waiting for the host to start the marker match.');
         reconcilePresence(epoch, channel);
         return true;
       } catch (e) {
