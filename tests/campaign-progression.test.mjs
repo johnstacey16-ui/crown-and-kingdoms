@@ -27,13 +27,16 @@ test('mission completion follows the next item in the campaign arc', () => {
     'Mission completion must not advance by raw campaign-array index');
 });
 
-test('campaign-list lock rules use the previous mission in the same arc', () => {
+test('campaign-list lock rules use the filtered previous mission in the same arc', () => {
   assert.match(html,
     /const CAMP_ARCS=\[\{n:'The Crown of Ashford',ids:\[0,1,2,3,4,5,8\]\},\{n:'Frontier Wars',ids:\[6,7\]\},\{n:'The Royal Campaign',ids:\[9,10,11\]\},\{n:'Coastal War',ids:\[12,13\]\}\]/,
     'Arc groupings must remain explicit and consistent');
   assert.match(html,
-    /const m=CAMP\[i\],locked=j>0&&!dn\[arc\.ids\[j-1\]\]/,
-    'Unlocking must use the previous mission in that arc');
+    /const m=CAMP\[i\],locked=j>0&&!dn\[ids\[j-1\]\]/,
+    'Unlocking must use the previous valid mission in the displayed arc');
+  assert.match(html,
+    /ids=arc\.ids\.filter\(i=>Number\.isInteger\(i\)&&CAMP\[i\]&&typeof CAMP\[i\]\.t==='string'\)/,
+    'Invalid or missing mission entries must be filtered before drawing or unlocking');
 });
 
-console.log('campaign-progression: all 9 assertions passed');
+console.log('campaign-progression: all 10 assertions passed');
