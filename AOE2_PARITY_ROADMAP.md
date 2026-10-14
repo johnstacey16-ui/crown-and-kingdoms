@@ -70,13 +70,21 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 8. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
 9. **Art and performance:** visually inspect sprite anchors/orientation/layering and effects; test optional-asset fallbacks, pause behaviour and performance on target devices before claiming acceptance.
 
+
+### Maintenance audit — 14 October 2026
+
+- **Fixed CI test discovery:** the workflow previously listed each test file explicitly, creating a risk that new tests would exist locally but never run in GitHub Actions. It now discovers all `tests/*.test.mjs` files and fails if none exist.
+- **Aligned contributor instructions:** the README uses the same test-discovery approach, while keeping the game-script syntax/invariant check and atlas validation explicit.
+- **Kept the canonical game untouched in this maintenance pass:** changes are limited to workflow and documentation; no gameplay feature is marked complete by these housekeeping edits.
+- **Next engineering gates remain:** selectable score-mode duration, King of the Hill, Sudden Death, deeper technology/unit-line coverage, and real browser/network/Xbox validation. Platform services explicitly excluded by the project remain out of scope.
+
 ## 3. Platform-service exclusions
 
 Per project direction, do not spend time implementing Xbox achievements, Xbox cloud saves, Xbox presence/clubs, Smart Delivery, Xbox Play Anywhere, Xbox Cloud Gaming integration, Xbox-native matchmaking/ranked ELO, or platform cross-play without the required supported infrastructure. Browser-side game modes and local simulation features remain in scope. Do not confuse these exclusions with the separate task of verifying the existing `multiplayer.js` integration.
 
 ## 4. Automated validation
 
-The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-based checks for:
+The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `scripts/check-game.mjs`, discovers and executes **every** `tests/*.test.mjs` file automatically, then validates atlas metadata. This avoids a manually maintained list drifting out of sync when a new regression test is added. The checks cover:
 
 - inline JavaScript syntax and key source invariants;
 - population cap configuration;
