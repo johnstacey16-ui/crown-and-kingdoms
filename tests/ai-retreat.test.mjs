@@ -22,3 +22,7 @@ test('retreating units heal at shelter and resume only after recovering', () => 
   assert.match(html, /u\.hp>=mhp\(u\)\*\.65/);
   assert.match(html, /u\.retreating=false;u\.retreatTarget=null;u\.tg=null/);
 });
+
+test('retreating units are excluded from coordinated AI attack waves', () => {
+  assert.match(html, /arm=my\.filter\(u=>u\.k!=='vil'&&!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)/);
+});
