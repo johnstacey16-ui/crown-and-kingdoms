@@ -10,7 +10,7 @@
   const PROTOCOL_VERSION = 1;
   const CONFIG_VERSION = 1;
   const CHANNEL_PREFIX = 'ck:v1:';
-  const MAX_PACKET_BYTES = 1024; // App-level budget, below Supabase's transport limit.
+  const MAX_PACKET_BYTES = 1024; // Conservative app-level budget for UTF-8 JSON payload bytes.
   const SEND_INTERVAL_MS = 200; // 5 Hz; coalesce stale positions rather than queueing them.
   // Four is the game's maximum kingdom count; it bounds Broadcast fan-out too.
   const MAX_PLAYERS = 4;
