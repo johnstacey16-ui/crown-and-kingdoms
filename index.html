@@ -106,7 +106,7 @@ function relationLabel(r){return r==='ally'?'Ally':r==='neutral'?'Neutral':r==='
 function setDiplomacy(a,b,rel){
  if(!S||!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=S.teamN||b>=S.teamN||a===b||!DIPLOMACY_STATES.includes(rel))return false;
  S.dip[a][b]=S.dip[b][a]=rel;
- if(rel!=='enemy')for(const u of S.us)if((u.o==='a'||u.o==='v')&&u.tg&&Number.isInteger(u.tg.t)&&((u.t===a&&u.tg.t===b)||(u.t===b&&u.tg.t===a))){u.o='i';u.tg=null;u.p=[]}
+ if(rel!=='enemy')for(const u of S.us)if((u.o==='a'||u.o==='v')&&u.tg&&Number.isInteger(u.tg.t)&&((u.t===a&&u.tg.t===b)||(u.t===b&&u.tg.t===a))){const guard=u.guardTarget&&u.guardTarget.hp>0?u.guardTarget:null;u.o=guard?'G':'i';u.tg=guard;u.guardTarget=null;u.p=[]}
  if(a===0||b===0)note('Diplomacy: Kingdom '+((a===0?b:a)+1)+' is now '+relationLabel(rel));
  return true;
 }
@@ -315,7 +315,7 @@ function deployFishTrap(ships){let made=0;for(const u of ships){if(u.k!=='fish'|
 function killNode(n){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;S.nodes=S.nodes.filter(m=>m!==n)}
 function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;let tg=u.tg;if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.hp>0&&b.done)||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';u.hp=Math.min(mhp(u),u.hp+Math.max(1.5,mhp(u)*.035)*dt);if(u.hp>=mhp(u)*.65){u.retreating=false;u.retreatTarget=null;u.tg=null}}else{if(!u.p.length||u.rp<=0){u.p=path(u,goalNear(shelter,1))||[];u.rp=1}if(u.p.length)walk(u,dt);return}if(u.retreating)return}}if(u.k==='cart'||u.k==='cog'){tickTrader(u,dt);return}if(u.k==='bers'&&u.hp<mhp(u))u.hp=Math.min(mhp(u),u.hp+.5*dt);
 if(u.k==='mon'&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e.t===u.t&&e.hp<mhp(e)&&Math.hypot(e.x-u.x,e.y-u.y)<4)e.hp=Math.min(mhp(e),e.hp+4)}
-if(u.o==='i'){if(u.as&&(u.sa=(u.sa||0)-dt)<=0){u.sa=1;const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(u,gp(x,y,2.5));if(p){u.o='m';u.p=p}}if(u.k==='mon'&&u.t>0&&(u.sc=(u.sc||0)-dt)<=0){u.sc=1;const e=u.st===4?null:foe(u,9);if(e&&!e.q){u.o='v';u.tg=e;u.p=[]}else{const rl=S.rel.find(x=>!x.c&&!x.m);if(rl){u.o='r';u.tg=rl;u.p=[]}}}if(u.k!=='vil'&&u.k!=='mon'&&u.k!=='fish'&&u.k!=='trn'&&u.k!=='king'&&u.k!=='cart'&&u.k!=='cog'&&(u.sc=(u.sc||0)-dt)<=0){u.sc=.5;const sr=[7,4,d.rng,0,0][u.st|0],e=sr>0?foe(u,sr):null;if(e){u.o='a';u.tg=e;u.p=[]}}return}
+if(u.o==='F'||u.o==='G'){const target=u.tg;if(!target||target.hp<=0||(!U[target.k]&&!target.q)||(target.q&&!target.done)||(target.t!==u.t&&diplomacyRelation(u.t,target.t)!=='ally')||!!U[u.k]?.sh!==!!(U[target.k]&&U[target.k].sh)){u.o='i';u.tg=null;u.guardTarget=null;u.p=[];return}if(u.o==='G'&&u.st!==4){const e=foe(u,6);if(e&&e!==target&&d2(target.x,target.y,e)<=5){u.guardTarget=target;u.o='a';u.tg=e;u.p=[];return}}const spacing=u.o==='F'?1.25:2,dist=d2(u.x,u.y,target);if(dist<=spacing){u.p=[];return}if(!u.p.length||u.rp<=0){u.p=path(u,goalNear(target,spacing))||[];u.rp=.6}if(u.p.length)walk(u,dt);return}if(u.o==='i'){if(u.as&&(u.sa=(u.sa||0)-dt)<=0){u.sa=1;const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(u,gp(x,y,2.5));if(p){u.o='m';u.p=p}}if(u.k==='mon'&&u.t>0&&(u.sc=(u.sc||0)-dt)<=0){u.sc=1;const e=u.st===4?null:foe(u,9);if(e&&!e.q){u.o='v';u.tg=e;u.p=[]}else{const rl=S.rel.find(x=>!x.c&&!x.m);if(rl){u.o='r';u.tg=rl;u.p=[]}}}if(u.k!=='vil'&&u.k!=='mon'&&u.k!=='fish'&&u.k!=='trn'&&u.k!=='king'&&u.k!=='cart'&&u.k!=='cog'&&(u.sc=(u.sc||0)-dt)<=0){u.sc=.5;const sr=[7,4,d.rng,0,0][u.st|0],e=sr>0?foe(u,sr):null;if(e){u.o='a';u.tg=e;u.p=[]}}return}
 if(u.o==='m'){if(walk(u,dt))u.o='i';return}
 if(u.o==='B'){if(!tg||tg.hp<=0||(tg.cg||[]).length>=(tg.q?GAR[tg.k]:5)){u.o='i';return}if(tg.q?d2(u.x,u.y,tg)<=1.4:Math.hypot(tg.x-u.x,tg.y-u.y)<=2){u.ld=tg;(tg.cg=tg.cg||[]).push(u);u.x=tg.x+(tg.s||0)/2;u.y=tg.y+(tg.s||0)/2;u.o='i';u.p=[];return}
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.7));u.rp=.8;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
@@ -332,7 +332,7 @@ if(!mb){u.o='i';return}if(bd<=1.3){u.rel.c=null;u.rel.m=mb;u.rel=null;u.o='i';if
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(mb,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(u.o==='p'){const e=u.st===4?null:foe(u,6);if(e){u.o='a';u.tg=e;u.p=[];return}const pt=u.pt;if(!pt){u.o='i';return}
 if(!u.p.length||u.rp<=0){const g=pt.to?pt.b:pt.a,p=path(u,gp(g[0],g[1],1.2));u.rp=2;if(!p){u.o='i';return}u.p=p}if(walk(u,dt)){if(pt.once){u.o='i';u.pt=null}else{pt.to^=1;u.p=[]}}return}
-if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){u.o=u.pt?'p':'i';u.tg=null;return}
+if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTarget.hp>0?u.guardTarget:null;u.o=guard?'G':u.pt?'p':'i';u.tg=guard;u.guardTarget=null;u.p=[];return}
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
 const dist=d2(u.x,u.y,tg);
 if(dist<=d.rng){u.p=[];if(u.cd<=0){hit(u,tg);u.cd=d.cd}}
@@ -413,8 +413,19 @@ if(arm.length>=need&&tgt&&S.t>=(A.nx||0)){A.wave++;A.nx=S.t+[300,240,180][diff]*
 /* ===== SIMULATION STEP ===== */
 const mv=(u,dx,dy)=>{const x=u.x+dx,y=u.y+dy,i=(y|0)*W+(x|0);if(u.sh?S.wt[i]&&!S.nd[i]:!S.g[i]){u.x=x;u.y=y}};
 function WL(dt){for(const n of S.nodes)if(n.an&&(n.w=(n.w||0)-dt)<=0){n.w=3+S.r()*4;const[dx,dy]=D8[(S.r()*4)|0],x=n.x+dx,y=n.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;n.x=x;n.y=y;S.g[y*W+x]=1;S.nd[y*W+x]=n}}}
-function stopSel(){for(const u of S.sel)if(!u.q){u.o='i';u.p=[];u.tg=null;u.pt=null;u.autoWorker=0}note('Stopped')}
+function stopSel(){for(const u of S.sel)if(!u.q){u.o='i';u.p=[];u.tg=null;u.pt=null;u.autoWorker=0;u.guardTarget=null}note('Stopped')}
 function regroup(){const us=S.sel.filter(u=>!u.q);if(!us.length)return;orderSel(null,us.reduce((a,u)=>a+u.x,0)/us.length,us.reduce((a,u)=>a+u.y,0)/us.length);note('Regrouping')}
+function orderGuardFollow(wx,wy,kind){
+ const target=pick(wx,wy),ship=!!(target&&U[target.k]&&U[target.k].sh);
+ if(!target||(!U[target.k]&&!target.q)||target.hp<=0||(target.q&&!target.done)||(target.t!==0&&diplomacyRelation(0,target.t)!=='ally')){
+  note('Choose a living friendly unit or completed building');return false;
+ }
+ const units=S.sel.filter(u=>!u.q&&u.t===0&&u.hp>0&&!u.ld&&u!==target&&u.k!=='vil'&&u.k!=='cart'&&u.k!=='cog'&&!!(U[u.k]&&U[u.k].sh)===ship);
+ if(!units.length){note(ship?'Select ships to guard/follow a friendly ship':'Select military units to guard/follow a friendly unit or building');return false}
+ for(const u of units){u.o=kind;u.tg=target;u.guardTarget=null;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.rp=0}
+ note((kind==='F'?'Following ':'Guarding ')+(U[target.k]?.n||B[target.k]?.n||'target')+' with '+units.length+' unit'+(units.length===1?'':'s'));
+ return true;
+}
 function patrol(wx,wy,once){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once};u.o='p';u.p=[]}note('Patrolling')}
 function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.includes(u))),base=fresh?S.sel.filter(u=>!u.q):S.all.filter(u=>u.hp>0),ks=[...new Set(base.map(u=>u.k))];if(ks.length<2)return false;if(fresh)S.si=0;S.all=base;S.si=((S.si||0)+d+ks.length+1)%(ks.length+1);S.sel=S.si?base.filter(u=>u.k===ks[S.si-1]):base;note('Group: '+(S.si?U[ks[S.si-1]].n+' x'+S.sel.length:'all '+base.length));return true}
 function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.st=v;if(v===4&&(u.o==='a'||u.o==='v')){u.o='i';u.tg=null;u.p=[]}}note(['Aggressive','Defensive','Stand ground','Passive','No Attack'][v]+' stance');menu=null}
@@ -581,7 +592,7 @@ for(const q of S.bs)if((q.t===0||S.ex[q.y*W+q.x])&&wx>=q.x-.3&&wx<=q.x+q.s+.3&&w
 const i=(wy|0)*W+(wx|0),n=S.nd[i];if(n&&S.ex[i]&&n.amt>0)return n;return S.rel.find(q=>!q.m&&!q.c&&S.ex[(q.y|0)*W+(q.x|0)]&&Math.hypot(q.x-wx,q.y-wy)<.9)||null}
 function orderSel(tg,wx,wy){const us=S.sel.filter(e=>!e.q);if(!us.length){const b=S.sel[0];if(b&&b.t===0&&b.done&&B[b.k].tr){b.rally={x:wx,y:wy,t:tg&&tg.amt>0?tg:null};fx.push({x:wx,y:wy,l:.5,k:'p'});note('Rally point set');return true}return false}
 if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(us[0].t,tg.t)){note('That kingdom is not hostile');return false}
-let noAttackBlocked=0;for(const u of us){u.p=[];u.pt=null;u.as=0;u.autoWorker=0;
+let noAttackBlocked=0;for(const u of us){u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}if(u.st===2)u.st=0;u.o=u.k==='mon'&&!tg.q?'v':'a';u.tg=tg}
 else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){if(u.ct!==tg.k)u.car=0;u.o='g';u.tg=tg;u.ct=tg.k;u.ret=0}
@@ -602,7 +613,7 @@ menu={title:d.n,b:s,i:0,items:it}}
 else if(S.sel.length&&S.sel.every(u=>u.k==='fish'))menu={title:'Fishing Ship',i:0,items:[{l:'Deploy Fish Trap (-100 Wood)',c:{w:100},lk:'',fn:()=>{deployFishTrap(S.sel);menu=null}},{l:'Stop fishing',c:{},lk:'',fn:()=>{stopSel();menu=null}}]}
 else if(S.sel.some(u=>u.k==='vil'))menu={title:'Build',i:0,items:['house','farm','lumber','mine','mill','market','dock','wall','gate','outpost','bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'].map(k=>{const d=B[k],lk=k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:d.req&&!S.bs.some(b=>b.t===0&&b.k===d.req&&b.done)?'Needs '+B[d.req].n:'';
 return{l:d.n,c:d.cost,lk,fn:()=>{if(lk)return note(lk);if(!can(0,d.cost))return note('Not enough resources');menu=null;place={k}}}})}
-else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
+else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Follow friendly target',c:{},lk:'',fn:()=>{menu=null;pat=3;note('Move the cursor to a friendly unit, then A (B cancels)')}},{l:'Guard friendly target',c:{},lk:'',fn:()=>{menu=null;pat=4;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
 if(menu&&menu.title==='Build'){menu.items.splice(10,0,{l:'Stop (go idle)',c:{},lk:'',fn:()=>{stopSel();menu=null}});menu.pr=[[0,11],[11,21]]}}
 function ctl(dt){if(E.some(Boolean)&&aInit()&&AC.state==='suspended')AC.resume();if(mode!=='play'){if(E[12]||E[13]||E[14]||E[15])uis('move');else if(E[0])uis('ok');else if(E[1]||E[9])uis('back')}
 if(mode==='remap'){if(rw){const b=ER.findIndex((v,i)=>v&&i!==9);if(b>=0){BM[RA[ri][0]]=b;rw=0;sv()}return}
@@ -976,7 +987,7 @@ if(RE[4]){if(!cgo.done&&sl>=0&&live().length){S.sel=live();note('Group '+(sl+1)+
 if(menu){const m=menu,N=m.items.length,pr=m.pr||Array.from({length:Math.ceil(N/12)},(_,i)=>[i*12,Math.min(N,i*12+12)]),pg=Math.min(m.pg||0,pr.length-1),a0=pr[pg][0],n=pr[pg][1]-a0,sx=ax(0),sy=ax(1);
 if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;m.i=a0+Math.floor(a/6.2832*n+.5)%n}else if(m.i<a0||m.i>=a0+n)m.i=a0;
 if(E[3])yc=1;if(RE[7]&&m.rad){menu=null;return}if(E[0]){m.items[m.i].fn();return}if(E[2]&&m.b)cancelQ(m.b);if(E[3]&&pr.length>1){m.pg=(pg+1)%pr.length;m.i=pr[m.pg][0]}if(E[1])menu=null;return}
-if(pat){if(E[1])pat=0;else if(E[0]){patrol(wx,wy,pat===2);pat=0}return}
+if(pat){if(E[1])pat=0;else if(E[0]){if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}return}
 if(place){if(E[1]){place=null;return}const s=B[place.k].s;place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=okPlace(0,place.k,place.x,place.y)&&can(0,B[place.k].cost);
 if(E[0]){const k=place.k,d=B[k];if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');pay(0,d.cost);let vs=S.sel.filter(u=>u.k==='vil');if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);if(n)n.t=0;for(const u of vs){u.o='g';u.tg=n;u.ct='f';u.p=[];u.ret=0;u.car=0}}else{const b=addB(0,k,place.x,place.y,false);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
@@ -1130,7 +1141,7 @@ function shade(t,l1,l2,c){X.fillStyle='#000b';X.fillRect(0,0,CW,CH);tx(t,CW/2,CH
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode==='title')return drawTitle();if(mode==='multiplayer')return window.CK_NET?window.CK_NET.drawLobby():drawTitle();if(mode==='remap')return drawRemap();if(mode==='info')return drawInfo2();if(mode==='setup')return drawSetup();if(mode==='opts')return drawOpts();if(mode==='slots')return drawSlots();if(mode==='camp')return drawCamp();if(mode==='brief')return drawBrief();if(mode==='obj')return drawObj();if(mode==='tree')return drawTree();
 for(const n of notes)n.t-=dt;notes=notes.filter(n=>n.t>0);drawWorld();
 if(mode==='play'){const[wx,wy]=s2w(cur.x,cur.y);hud();if(ov)drawOv();if(boxR){X.strokeStyle='#8cff3c';X.lineWidth=2;X.setLineDash([7,5]);X.strokeRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0));X.setLineDash([]);X.fillStyle='rgba(140,255,60,.12)';X.fillRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0))}if(menu&&menu.rad)drawRadial();if(cgo)drawCg();const h=pick(wx,wy);
-X.strokeStyle='#fff';X.lineWidth=3;X.beginPath();X.arc(cur.x,cur.y,12,0,7);X.moveTo(cur.x-20,cur.y);X.lineTo(cur.x+20,cur.y);X.moveTo(cur.x,cur.y-20);X.lineTo(cur.x,cur.y+20);X.stroke();X.lineWidth=1;if(pat)tx(pat===2?'ATTACK MOVE: A set point, B cancel':'PATROL: A set point, B cancel',cur.x+22,cur.y+30,20,'#ffd24a');
+X.strokeStyle='#fff';X.lineWidth=3;X.beginPath();X.arc(cur.x,cur.y,12,0,7);X.moveTo(cur.x-20,cur.y);X.lineTo(cur.x+20,cur.y);X.moveTo(cur.x,cur.y-20);X.lineTo(cur.x,cur.y+20);X.stroke();X.lineWidth=1;if(pat)tx(pat===2?'ATTACK MOVE: A set point, B cancel':pat===3?'FOLLOW: select a friendly target, B cancel':pat===4?'GUARD: select a friendly target, B cancel':'PATROL: A set point, B cancel',cur.x+22,cur.y+30,20,'#ffd24a');
 if(h&&!(menu&&menu.rad)&&!cgo)tx(h.rl?'Relic':h.q?B[h.k].n+(h.t?' (enemy)':'')+' '+(h.hp|0)+'/'+h.mh:h.k in NM&&!U[h.k]?(h.fi?'Fish':h.an?'Deer':h.fm?'Farm':NM[h.k])+' '+(h.amt|0):(h.t?'Enemy ':'')+U[h.k].n+' '+(h.hp|0)+'/'+mhp(h),cur.x+22,cur.y-14,20,h.t?'#f99':'#fff')}
 else hud();
 if(mode==='pause')drawPause();if(perfHud)drawPerfOverlay(dt);

@@ -23,6 +23,7 @@ jobs:
       - run: node tests/villager-priority.test.mjs
       - run: node tests/score-time-limit.test.mjs
       - run: node tests/no-attack-stance.test.mjs
+      - run: node tests/guard-follow.test.mjs
       - run: node tests/trade-routes.test.mjs
       - run: node tests/fishing-economy.test.mjs
       - run: node tests/fish-traps.test.mjs

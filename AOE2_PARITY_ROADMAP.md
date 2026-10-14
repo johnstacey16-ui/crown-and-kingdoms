@@ -33,11 +33,11 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 ### Combat, units and buildings
 
-- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground, Passive and No Attack stances; patrol and attack-move commands; garrison/unload logic.
+- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground, Passive and No Attack stances; patrol, attack-move, Guard and Follow commands; garrison/unload logic.
 - **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
 - **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, and more purposeful War Galley target selection.
 - **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
-- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; reliable Guard and Follow commands; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
+- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
 
 ### Maps, campaigns and victory conditions
 
@@ -64,7 +64,7 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
 3. **Extend tribute:** the first pass sends 100 units of a selected resource to an ally, with affordability validation and notifications. Next add selectable quantities and richer transfer feedback before considering AI-initiated tribute.
 4. **Extend villager automation:** worker target controls now cover Food, Wood, Gold and Stone; new villagers follow targets and manual orders override automation. Next add direct resource-site command support and validate drop-off/pathing edge cases.
-5. **Command coverage:** audit selection, group switching, formations, patrol, attack-move, guard/follow, garrison and passive/no-attack semantics; add controller regression coverage.
+5. **Command coverage:** Guard and Follow commands are now present for compatible friendly/ally targets, with garrison-capable target validation, guard interception and return-to-post. Next audit selection, group switching, formations, patrol, attack-move and edge cases.
 6. **Victory modes:** score-at-time-limit is now present with AI participation, a live countdown, score calculation and a draw result. Next add selectable durations, King of the Hill and Sudden Death with tests for all outcomes.
 7. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
 8. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
@@ -85,6 +85,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-ba
 - villager target selection, new-worker automation, manual overrides and save/load persistence;
 - score/time-limit victory calculation, setup selection, countdown and tie handling;
 - No Attack stance: autonomous targeting suppression, attack cancellation, direct-command rejection and feedback;
+- Guard/Follow target validation, controller menus, simulation behaviour, post-combat return and manual-order overrides;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;
