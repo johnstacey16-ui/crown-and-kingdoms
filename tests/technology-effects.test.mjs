@@ -15,4 +15,63 @@ assert.match(html, /if\(k==='fw'\)for\(const x of S\.bs\)if\(x\.t===b\.t&&\(x\.k
 assert.match(html, /S\.tech\[t\]\.mas\?1\.4:1/, 'new buildings must inherit Masonry health');
 assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'new walls and gates must inherit Fortified Wall health');
 
+
+assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=t\.gath\?1\.25:1/,
+  'Gather Rate research must affect existing villagers on future collection ticks');
+assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
+  'Double-bit Axe and Bow Saw must affect wood gathering');
+assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\.15\*!!t\.smine/,
+  'Gold Mining and Stone Mining must affect the matching resource gathering rates');
+assert.match(html, /S\.tech\[u\.t\]\.carry\?15:CAP/,
+  'Carry Capacity research must affect already-working villagers when they next reach the carrying threshold');
+assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)/,
+  'Infantry and ranged armour upgrades must affect damage calculation only for their explicit unit classes');
+assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
+  'Treadmill Crane must affect ongoing and future construction work rates');
+assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(tk\.gf\?4:0\):0\),cls=ak\.sg/,
+  'Arrowslits must feed the defensive building damage calculation');
+assert.match(html, /tk\.gtow\?3:0/,
+  'Guard Tower must feed the defensive building damage calculation');
+assert.match(html, /tk\.keep\?3:0/,
+  'Keep must feed the defensive building damage calculation');
+
+assert.match(html, /function unitName\(k,t\)\{\s*const tech=S&&S\.tech&&S\.tech\[t\]\|\|\{\};/,
+  'Unit rank display must read the actual researching kingdom technology ledger');
+assert.match(html, /if\(k==='mil'\)return tech\.longs\?'Long Swordsman':tech\.man\?'Man-at-Arms':U\[k\]\.n/,
+  'Existing and newly trained Militia must display the highest researched infantry rank');
+assert.match(html, /if\(k==='spear'&&tech\.pike\)return 'Pikeman'/,
+  'Spearmen must display as Pikemen after that upgrade');
+assert.match(html, /if\(k==='xbow'&&tech\.arb\)return 'Arbalester'/,
+  'Crossbowmen must display as Arbalesters after that upgrade');
+assert.match(html, /if\(k==='skirm'&&tech\.elsk\)return 'Elite Skirmisher'/,
+  'Skirmishers must display their researched elite rank');
+assert.match(html, /if\(k==='scout'&&tech\.lcav\)return 'Light Cavalry'/,
+  'Scouts must display as Light Cavalry after that upgrade');
+assert.match(html, /if\(k==='knight'&&tech\.cavl\)return 'Cavalier'/,
+  'Knights must display as Cavaliers after that upgrade');
+assert.match(html, /return\{l:unitName\(k,s\.t\),c:U\[k\]\.cost/,
+  'Production menu labels must use the selected kingdom upgrade state');
+assert.match(html, /note\(unitName\(q\.k,b\.t\)\+' trained'\)/,
+  'Training feedback must use the researched unit name');
+assert.match(html, /\$\{unitName\(a\.k,a\.t\)\}/,
+  'The selected-unit HUD must use the researched unit name');
+assert.match(html, /Training \$\{a\.q\.map\(q=>unitName\(q\.k,a\.t\)\[0\]\)\.join\(''\)\}/,
+  'Production queue initials must remain consistent with researched unit ranks');
+
+// Every technology must connect to either a shared effect payload (unit HP/attack
+// bonus or a callback), or one of the explicitly handled scalar technology flags.
+const techStart = html.indexOf('const TE={');
+const techEnd = html.indexOf('};', techStart);
+assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
+const techText = html.slice(techStart, techEnd + 1);
+const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
+const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
+const techRows = techMatches.map((match,index)=>{
+ const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
+ const block=techText.slice(match.index,end);
+ return {key:match[1],hasEffectPayload:/\b(?:hpb|atkb):\{/.test(block)||/\bfx:/.test(block),hasRuntimeHandler:handledFlags.has(match[1])};
+});
+assert.deepEqual(techRows.filter(r=>!r.hasEffectPayload&&!r.hasRuntimeHandler).map(r=>r.key), [],
+  'Every defined technology must have a generic effect payload or an explicitly handled gameplay flag');
+
 console.log('technology-effects: static assertions passed');
