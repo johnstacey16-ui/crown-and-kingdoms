@@ -832,7 +832,7 @@
     stopMarkerTimer();
     state.active = false;
     state.connected = false;
-    state.busy = false;
+    state.busy = true; // Block room re-entry until asynchronous channel cleanup finishes.
     state.tracked = false;
     state.role = null;
     state.hostSid = null;
@@ -860,6 +860,7 @@
     showLobbyFields(false);
     if (goTitle !== false) mode = 'title';
     state.config = currentLocalConfig();
+    state.busy = false;
     setStatus('Not connected. Create a room or join using a room code.');
   }
 
