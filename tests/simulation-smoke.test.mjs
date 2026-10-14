@@ -50,6 +50,8 @@ const storage = new Map();
 const sandbox = {
   console: { ...console, warn() {}, error() {} },
   document,
+  innerWidth: 1280,
+  innerHeight: 720,
   navigator: { getGamepads: () => [] },
   localStorage: {
     getItem: (key) => storage.get(key) ?? null,
