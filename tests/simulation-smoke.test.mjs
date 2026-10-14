@@ -111,6 +111,41 @@ globalThis.__CK_TEST__ = {
     }
     return { mission: cmp.i, requiredGoals: CAMP[cmp.i].goals.map((g) => g.id) };
   },
+  beginNavalCombat() {
+    const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
+      S.wt[y * W + x] === 1 && !S.nd[y * W + x];
+    const seen = new Uint8Array(W * H);
+    let best = [];
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+      const index = y * W + x;
+      if (seen[index] || !pass(x, y)) continue;
+      const component = [[x, y]];
+      seen[index] = 1;
+      for (let head = 0; head < component.length; head++) {
+        const [cx, cy] = component[head];
+        for (const [dx, dy] of D8) {
+          const nx = cx + dx, ny = cy + dy, ni = ny * W + nx;
+          if (seen[ni] || !pass(nx, ny)) continue;
+          if (dx && dy && (!pass(cx + dx, cy) || !pass(cx, cy + dy))) continue;
+          seen[ni] = 1; component.push([nx, ny]);
+        }
+      }
+      if (component.length > best.length) best = component;
+    }
+    if (best.length < 20) throw new Error('Seeded map has no usable water component for naval combat');
+    let pair = null, bestDistance = Infinity;
+    for (let i = 0; i < best.length; i++) for (let j = i + 1; j < best.length; j++) {
+      const distance = Math.hypot(best[i][0] - best[j][0], best[i][1] - best[j][1]);
+      if (distance >= 3 && distance <= 5 && distance < bestDistance) {
+        pair = [best[i], best[j]]; bestDistance = distance;
+      }
+    }
+    if (!pair) throw new Error('Could not find adjacent clear water tiles for opposing ships');
+    const attacker = addU(0, 'gal', pair[0][0] + 0.5, pair[0][1] + 0.5);
+    const target = addU(1, 'gal', pair[1][0] + 0.5, pair[1][1] + 0.5);
+    target.testNavalTarget = true; attacker.o = 'a'; attacker.tg = target;
+    return { attacker: { x: attacker.x, y: attacker.y }, targetHp: target.hp, targetMaxHp: U[target.k].hp, targetKey: [target.t, target.k, target.x, target.y].join(':') };
+  },
   beginNavalMove() {
     const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
       S.wt[y * W + x] === 1 && !S.nd[y * W + x];
@@ -216,6 +251,10 @@ globalThis.__CK_TEST__ = {
       buildings: S.bs.length,
       playerGold: S.res[0].g,
       campaign: cmp ? { index: cmp.i, goals: { ...cmp.d }, time: cmp.t } : null,
+      navalCombatTarget: (() => {
+        const u = S.us.find((u) => u.testNavalTarget === true);
+        return u ? { hp: u.hp, maxHp: U[u.k].hp, dead: !!u.dead } : null;
+      })(),
       navalShip: (() => {
         const u = S.us.find((u) => u.t === 0 && u.k === 'gal' && u.testNaval === true);
         return u ? { x: u.x, y: u.y, order: u.o, water: S.wt[(u.y | 0) * W + (u.x | 0)] === 1 } : null;
@@ -315,6 +354,16 @@ assert.ok(Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.na
   'The real ship movement order should move the ship across the water route');
 assert.equal(navalAfter.navalShip.water, true, 'The ship should remain on navigable water during the movement smoke test');
 console.log(`naval-smoke: ship moved across water (route=${navalBefore.routeLength} path points, displacement=${Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.navalShip.y - navalBefore.start.y).toFixed(1)} tiles)`);
+
+game.start(123456);
+const combatBefore = game.beginNavalCombat();
+for (let tick = 0; tick < 900; tick += 1) game.tick(1 / 30);
+const combatAfter = game.state();
+assert.ok(combatAfter.navalCombatTarget, 'The enemy galley should remain inspectable in the live simulation');
+assert.ok(combatAfter.navalCombatTarget.hp < combatBefore.targetHp || combatAfter.navalCombatTarget.dead,
+  'A real galley attack order should damage or destroy the enemy ship');
+console.log(`naval-combat-smoke: enemy galley HP ${combatBefore.targetHp}->${combatAfter.navalCombatTarget.hp} over 30 simulated seconds`);
+
 
 const campaignBefore = game.completeFirstCampaignMission();
 for (let tick = 0; tick < 15; tick += 1) game.tick(1 / 30);
