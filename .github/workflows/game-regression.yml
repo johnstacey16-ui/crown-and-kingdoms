@@ -20,6 +20,7 @@ jobs:
       - run: node tests/town-bell.test.mjs
       - run: node tests/diplomacy.test.mjs
       - run: node tests/tribute.test.mjs
+      - run: node tests/villager-priority.test.mjs
       - run: node tests/trade-routes.test.mjs
       - run: node tests/fishing-economy.test.mjs
       - run: node tests/fish-traps.test.mjs
