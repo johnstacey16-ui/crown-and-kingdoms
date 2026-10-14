@@ -8,5 +8,5 @@ assert.match(html, /tries<12\)return newGame\(tries\+1\)/, 'disconnected terrain
 assert.match(html, /n:'Scattered Lakes'.*arch:1/, 'scattered-lakes generator preset must exist');
 assert.match(html, /n:'Twin Lakes'.*lake:1/, 'twin-lakes generator preset must exist');
 assert.match(html, /function drawUnit\(u\)/, 'unit renderer must remain present');
-assert.match(html, /k!=='vil'\?assetFrame/, 'unverified villager atlas must remain safely disabled');
+assert.match(html, /ASSET\.n\?assetFrame/, 'validated upright atlas must be enabled with fallback');
 console.log('map-generation-static: all 8 assertions passed');
