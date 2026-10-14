@@ -58,7 +58,7 @@ assert.match(html, /if\(e\.atkb\)\{T0\.atkb=T0\.atkb\|\|\{\};for\(const q in e\.
   'Attack technologies must update the persistent technology ledger');
 assert.match(html, /tk\.atkb&&tk\.atkb\[a\.k\]\|\|0/,
   'Existing and newly trained attackers must use the researched damage bonus');
-assert.match(html, /S\.tech\[t\]\.crane\?1\.2:1/,
+assert.match(html, /S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect construction rate for existing workers');
 assert.match(html, /bd=\(ak\.rng<2\?\(tk\.atkM2\?5:tk\.atkM\?2:0\):\(tk\.atkR2\?3:tk\.atkR\?1:0\)\)/,
   'Blacksmith attack upgrades must be included in combat damage');
