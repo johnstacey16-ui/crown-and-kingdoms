@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)]
-  .filter((match) => !/type=["']application\\/json["']/i.test(match[0]));
+const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
+  .filter((match) => !/type=["']application\/json["']/i.test(match[0]));
 assert.ok(scripts.length, 'The real game script must be present');
 
 const listeners = new Map();
