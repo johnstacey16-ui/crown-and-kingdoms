@@ -24,6 +24,7 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 ### Economy, construction and technology
 - [x] Food/wood/gold/stone gathering, drop-off buildings, farms with automatic reseeding, market trading and resource upgrades.
+- [~] Fishing Ships can gather fish and deliver food to Docks; fish traps and a broader renewable naval-food economy are not implemented.
 - [x] Farm capacity technology effects: Horse Collar adds 75 food, Heavy Plow adds 125, Crop Rotation adds 175; new and reseeded farms use the researched capacity. Auto-reseed costs 60 wood.
 - [x] Building and unit production queues, age advancement, blacksmith and civilization research.
 - [~] Research coverage/effects are incomplete or simplified compared with the full AoE2 technology tree.
