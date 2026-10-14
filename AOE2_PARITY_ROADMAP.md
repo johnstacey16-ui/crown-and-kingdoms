@@ -122,3 +122,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - AI kingdoms can produce a limited number of traders when a compatible foreign endpoint exists. Trade units are excluded from ordinary combat targeting.
 - Corrected the Farm help text to state the implemented 60-wood auto-reseed cost.
 - Added static regression assertions for production, route dispatch, distance-based gold and the help text. These assertions verify source integration, not actual route movement or balance in a live Xbox match.
+
+
+- [x] **AI survivability pass (2026-10-14):** critically wounded AI land combat units (22% health or lower) now attempt to withdraw to a completed Town Centre or Castle, heal while sheltered, and only resume ordinary behavior after reaching 65% health. Villagers, monks, kings, traders and ships are excluded. Automated source regression checks added; route behavior and combat impact still need runtime simulation.
