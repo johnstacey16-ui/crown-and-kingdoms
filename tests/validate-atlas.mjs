@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const html = readFileSync(resolve(root, 'index.html'), 'utf8');
-const match = html.match(/<script[^>]*id=["']ck-assets["'][^>]*>([\\s\\S]*?)<\\/script>/i);
+const match = html.match(/<script[^>]*id=["']ck-assets["'][^>]*>([\s\S]*?)<\/script>/i);
 assert.ok(match, 'index.html must contain the ck-assets JSON manifest');
 const pack = JSON.parse(match[1]);
 assert.ok(Array.isArray(pack.atlases) && pack.atlases.length, 'asset manifest must contain at least one atlas');
@@ -20,7 +20,7 @@ for (const atlas of pack.atlases) {
   const assetPath = resolve(root, atlas.src);
   assert.ok(existsSync(assetPath), `missing atlas asset: ${atlas.src}`);
   const svg = readFileSync(assetPath, 'utf8');
-  const dimensions = svg.match(/<svg\\b[^>]*\\bwidth=["']([\\d.]+)["'][^>]*\\bheight=["']([\\d.]+)["']/i);
+  const dimensions = svg.match(/<svg\b[^>]*\bwidth=["']([\d.]+)["'][^>]*\bheight=["']([\d.]+)["']/i);
   assert.ok(dimensions, `atlas ${atlas.src} must expose explicit SVG width and height`);
   const width = Number(dimensions[1]);
   const height = Number(dimensions[2]);
