@@ -249,6 +249,59 @@ globalThis.__CK_TEST__ = {
     u.o = 'b'; u.tg = b; u.p = []; u.rp = 0;
     return { x: b.x, y: b.y, buildSeconds: B.house.bt };
   },
+  runSiegeTargetTest() {
+    const team = 1;
+    const aiTc = S.bs.find((b) => b.t === team && b.k === 'tc' && b.done);
+    const playerTc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    if (!aiTc || !playerTc) throw new Error('Seeded match must have both Town Centres');
+    S.age[team] = 2;
+    S.res[team] = { f: 5000, w: 5000, g: 5000, s: 5000 };
+    const castle = addB(0, 'castle', playerTc.x + 10, playerTc.y + 10, true);
+    const tower = addB(0, 'tower', playerTc.x + 7, playerTc.y + 1, true);
+    const ram = addU(team, 'ram', aiTc.x + 2, aiTc.y + 2);
+    const infantry = [];
+    for (let i = 0; i < 20; i++) infantry.push(addU(team, 'mil', aiTc.x + 3 + (i % 5), aiTc.y + 3 + Math.floor(i / 5)));
+    for (const u of [ram, ...infantry]) { u.o = 'i'; u.tg = null; u.p = []; u.retreating = 0; }
+    const ai = S.ai[team];
+    ai.cd = 0; ai.nx = 0; ai.wave = 0; ai.on = 0; ai.stg = null;
+    aiTeam(team, 1 / 30);
+    const waveStarted = ai.wave > 0 && !!ai.stg;
+    const selectedSiegeTarget = !!ai.stg && ai.stg.siegeT === castle;
+    const primaryTarget = ai.stg?.tg || null;
+    const stagedMixedArmy = !!ai.stg && infantry.some((u) => u.o === 'm' || u.o === 'a');
+    S.t += 51;
+    ai.cd = 0;
+    aiTeam(team, 1 / 30);
+    return {
+      waveStarted,
+      selectedSiegeTarget,
+      siegeUnitTargetedCastle: ram.o === 'a' && ram.tg === castle,
+      infantryAssignedToPrimaryTarget: !!primaryTarget && infantry.some((u) => u.o === 'a' && u.tg === primaryTarget),
+      stagedMixedArmy,
+      towerExists: tower.hp > 0,
+    };
+  },
+  runDefenseResponse() {
+    const team = 1;
+    const tc = S.bs.find((b) => b.t === team && b.k === 'tc' && b.done);
+    if (!tc) throw new Error('Seeded AI must have a completed Town Centre');
+    const intruder = addU(0, 'mil', tc.x + 4, tc.y + 4);
+    intruder.hp = 10000; intruder.mh = 10000;
+    const defenders = [
+      addU(team, 'mil', tc.x + 6, tc.y + 4),
+      addU(team, 'spear', tc.x + 7, tc.y + 4),
+    ];
+    for (const u of defenders) { u.o = 'i'; u.tg = null; u.p = []; u.retreating = 0; }
+    const worker = S.us.find((u) => u.t === team && u.k === 'vil' && !u.ld);
+    if (!worker) throw new Error('Seeded AI must have a villager available for the defence test');
+    worker.x = tc.x + 4; worker.y = tc.y + 5; worker.o = 'i'; worker.tg = null; worker.p = []; worker.ld = null;
+    S.ai[team].cd = 0;
+    aiTeam(team, 1 / 30);
+    return {
+      militaryResponded: defenders.some((u) => u.o === 'a' && u.tg === intruder),
+      villagerGarrisoned: worker.o === 'B' && worker.tg === tc,
+    };
+  },
   beginGatherResearch() {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     return tc ? research(tc, 'gath') : false;
@@ -443,6 +496,20 @@ assert.ok(activeAi.some((a) => a.wave > 0),
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
 console.log('ai-growth-smoke: rival AI progressed over 720 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
+
+game.start(123456);
+const defence = game.runDefenseResponse();
+assert.equal(defence.militaryResponded, true, 'Idle AI defenders should engage a hostile intruder near their Town Centre');
+assert.equal(defence.villagerGarrisoned, true, 'AI villagers near a threatened Town Centre should garrison');
+console.log('ai-defence-smoke: idle military engaged a hostile intruder and a nearby villager garrisoned');
+
+game.start(246810);
+const siegeAttack = game.runSiegeTargetTest();
+assert.equal(siegeAttack.waveStarted, true, 'A sufficiently large AI army should initiate a coordinated wave');
+assert.equal(siegeAttack.selectedSiegeTarget, true, 'Siege targeting should prefer a completed hostile Castle over a Tower or Town Centre');
+assert.equal(siegeAttack.siegeUnitTargetedCastle, true, 'A staged battering ram should receive the selected Castle target');
+assert.equal(siegeAttack.infantryAssignedToPrimaryTarget, true, 'Non-siege units should retain the primary attack target');
+console.log('ai-siege-smoke: coordinated wave selected the Castle for the ram and retained the Town Centre target for infantry');
 
 
 
