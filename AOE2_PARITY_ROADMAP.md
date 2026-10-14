@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 14 October 2026  
-**Source checkpoint reviewed for this roadmap update:** `9f0efbac9c9c6288ce6e30a225f0ddd171b9a6b9` (main, 14 October 2026).  
+**Source checkpoint reviewed for this roadmap update:** `82faa858518f030847a30b25d4f161757ac36aac` (main, 14 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -66,7 +66,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 Work in small, independently testable changes. Keep `index.html` as the canonical app and preserve existing controls, save/load, pathfinding, fog, combat and fallbacks.
 
-1. **Expand real simulation coverage (high priority):** `tests/simulation-smoke.test.mjs` now loads the actual inline game script in a headless Node harness, starts a seeded match, advances 60 real ticks, and runs a real villager wood-gathering order for 60 simulated seconds. GitHub Actions passed on PR #16 (`3d63168d92956f6e36bf7171c88161d78ebb13fd`): the smoke advanced 60 seconds, wood nodes fell from 87,500 to 87,166.19, and player wood rose from 200 to 290. Next add focused real-simulation checks for construction/research, trade-route gold delivery, and naval movement only after each can be driven deterministically. This is headless logic coverage, not browser rendering or Xbox acceptance.
+1. **Expand real simulation coverage (high priority):** `tests/simulation-smoke.test.mjs` loads the actual inline game script in a headless Node harness. CI has passed for seeded 60-tick simulation, 60-second villager wood gathering/delivery (wood nodes 87,500 → 87,166.19; player wood 200 → 290), Gather Rate research completion (technology applies only after the timer), and villager house construction (completed house has full hit points). Research passed on PR #17 (`9957ce8403f4daa406f80c34b4b92a9af7c63dff`); construction passed on PR #18 (`32a1564363fc9e45300f034c423598ac9d845a1e`). Next add focused real-simulation checks for trade-route gold delivery and naval movement only when they can be driven deterministically. This is headless logic coverage, not browser rendering or Xbox acceptance.
 2. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 3. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
 4. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
