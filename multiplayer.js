@@ -8,7 +8,7 @@
   // Publishable client key only. Never put a service-role/secret key here.
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wj7wH708NGPxJscwv77pug_8Lf6XR7u';
   const PROTOCOL_VERSION = 1;
-  const CONFIG_VERSION = 1;
+  const CONFIG_VERSION = 2; // Config schema now includes all starting-civilization inputs.
   const CHANNEL_PREFIX = 'ck:v1:';
   const MAX_PACKET_BYTES = 1024; // Conservative app-level budget for UTF-8 JSON payload bytes.
   const SEND_INTERVAL_MS = 200; // 5 Hz; coalesce stale positions rather than queueing them.
