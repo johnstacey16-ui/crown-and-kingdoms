@@ -60,6 +60,28 @@ const mk=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.im
 function addN(k,x,y,amt,fm){x|=0;y|=0;if(x<1||y<1||x>=W-1||y>=H-1||S.g[y*W+x]||S.wt[y*W+x])return null;const n={k,x,y,s:1,amt,fm};S.nodes.push(n);S.nd[y*W+x]=n;S.g[y*W+x]=1;return n}
 function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:1)*(S.tech[t].bz?1.15:1)*(S.tech[t].fw&&(k==='wall'||k==='gate')?1.8:1)),b={t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);for(let j=0;j<b.s;j++)for(let i=0;i<b.s;i++)S.g[(y+j)*W+x+i]=1;if(k==='gate')S.gt[y*W+x]=t+1;return b}
 function addU(t,k,x,y){const u={t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb[k]||0),sh:U[k].sh,cg:U[k].cap?[]:undefined,o:'i',p:[],cd:0,rp:Math.random()*.5,car:0,ct:null,tg:null,ret:0};S.us.push(u);return u}
+/* ===== GENERATED MAP CONNECTIVITY AUDIT =====
+   Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
+   Buildings/resources are intentionally excluded: this audits the generated terrain
+   before placement, not temporary gameplay obstructions. */
+function auditGeneratedMap(starts){
+ const seenLand=new Uint8Array(W*H),seenWater=new Uint8Array(W*H),landComponents=[],waterComponents=[];
+ const flood=(sx,sy,kind,seen)=>{
+  const pass=i=>kind==='land'?(S.wt[i]!==1):(S.wt[i]===1);
+  const start=sy*W+sx;if(start<0||start>=W*H||!pass(start)||seen[start])return 0;
+  const q=[start];seen[start]=1;
+  for(let h=0;h<q.length;h++){const i=q[h],x=i%W,y=(i/W)|0;
+   const ns=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];
+   for(const n of ns)if(n>=0&&!seen[n]&&pass(n)){seen[n]=1;q.push(n)}
+  }return q.length;
+ };
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]!==1&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand));if(S.wt[i]===1&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater))}
+ const startCells=starts.map(([x,y])=>Math.max(0,Math.min(H-1,y))*W+Math.max(0,Math.min(W-1,x)));
+ const landReachable=startCells.length>0&&startCells.every(i=>seenLand[i]===1);
+ const waterCells=waterComponents.reduce((a,b)=>a+b,0);
+ const coastStarts=starts.filter(([x,y])=>{for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1)return true}return false}).length;
+ return {ok:landReachable,landReachable,landComponents:landComponents.length,waterComponents:waterComponents.length,waterCells,coastalStarts:coastStarts,starts:starts.length};
+}
 function newGame(tries=0){setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:Date.now()&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
 S={t:0,teamN,r,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
 res:Array.from({length:teamN},()=>{const v=[200,500,1000,2000][startRes]||200;return startRes===0?{f:200,w:200,g:100,s:0}:{f:v,w:v,g:v,s:v}}),pl:{tr:0,bl:0,kills:0,gath:0},sel:[],vt:0,al:-99,age:Array(teamN).fill(startAge),tech:Array.from({length:teamN},()=>({})),rel:[],px:Array.from({length:teamN},()=>({f:100,w:100,g:100,s:100})),civ:Array.from({length:teamN},(_,t)=>t),pal:MT[mt].pal||0,ai:Array.from({length:teamN},(_,t)=>({cd:4+t*.7,wave:0,nx:([1080,840,600][diff]*PERS[aip].g)|0})),over:null};
@@ -70,9 +92,9 @@ for(const[bx,by]of bs){const px=bx+(bx<W/2?13:-13),py=by+(by<H/2?4:-4);for(let y
 if(MT[mt].rv!==0){const pts=[[bs[0][0]+13,bs[0][1]-4],[W*.4+(r()-.5)*8,H*.62+(r()-.5)*8],[W*.5+(r()-.5)*8,H*.5+(r()-.5)*8],[W*.6+(r()-.5)*8,H*.36+(r()-.5)*8],[bs[1][0]-13,bs[1][1]+4]];let len=0;
 for(let s=0;s<4;s++){const a=pts[s],b=pts[s+1],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])*2);for(let k=0;k<=n;k++){const x=a[0]+(b[0]-a[0])*k/n,y=a[1]+(b[1]-a[1])*k/n,ford=len>10&&(len%16)<4;len+=.5;
 for(let yy=Math.floor(y-1.4);yy<=Math.ceil(y+1.4);yy++)for(let xx=Math.floor(x-1.4);xx<=Math.ceil(x+1.4);xx++)if(xx>0&&yy>0&&xx<W-1&&yy<H-1&&Math.hypot(xx+.5-x,yy+.5-y)<1.4){const i2=yy*W+xx;if(ford){S.wt[i2]=2;S.g[i2]=0}else if(S.wt[i2]!==2){S.wt[i2]=1;S.g[i2]=1}}}}}
-{const M=MT[mt];if(M.cs||M.sea){for(let y=0;y<H;y++)for(let x=0;x<W;x++){const e=M.cs?(x+y<W*.46+Math.sin(x*.21)*3||x+y>W*1.54+Math.cos(y*.19)*3):(Math.hypot((x-W/2)/(W*.27),(y-H/2)/(H*.22))<1+Math.sin((x+y)*.3)*.08);if(e&&!bs.some(b=>Math.hypot(b[0]-x,b[1]-y)<12))S.g[y*W+x]=S.wt[y*W+x]=1}}
+{const M=MT[mt];if(M.cs||M.sea||M.arch||M.lake){for(let y=0;y<H;y++)for(let x=0;x<W;x++){let e=false;if(M.cs)e=(x+y<W*.46+Math.sin(x*.21)*3||x+y>W*1.54+Math.cos(y*.19)*3);else if(M.sea)e=Math.hypot((x-W/2)/(W*.27),(y-H/2)/(H*.22))<1+Math.sin((x+y)*.3)*.08;else if(M.arch){const nx=x/W,ny=y/H;const blobs=[[.24,.27,.14],[.70,.25,.16],[.48,.52,.13],[.25,.76,.15],[.76,.73,.14]];e=blobs.some(([cx,cy,rad],j)=>Math.hypot((nx-cx)*(W/H),ny-cy)<rad+Math.sin(x*.13+y*.17+j)*.018)}else if(M.lake){const dx=(x-W*.5)/(W*.20),dy=(y-H*.5)/(H*.24);e=dx*dx+dy*dy<1+Math.sin(x*.11)*.06+Math.cos(y*.13)*.05}if(e&&!bs.some(b=>Math.hypot(b[0]-x,b[1]-y)<12))S.g[y*W+x]=S.wt[y*W+x]=1}}
 if(M.rg)for(const c of[-.28,.02,.3]){const gap=W*(.6+r()*.8),d=c*W;for(let sm=0;sm<W*2;sm++){const x=(sm+d)/2,y=(sm-d)/2;if(x<3||y<3||x>W-4||y>H-4||Math.abs(sm-gap)<4.5||sm%2||bs.some(b=>Math.hypot(b[0]-x,b[1]-y)<12)||S.wt[(y|0)*W+(x|0)])continue;addN('s',x,y,350)}}}
-for(let i=0;i<Math.round(W*H/324*MT[mt].f);i++){const cx=r()*W,cy=r()*H;if(bs.some(b=>Math.hypot(b[0]-cx,b[1]-cy)<8))continue;for(let j=0;j<22;j++)addN('w',cx+(r()-.5)*9,cy+(r()-.5)*9,100)}
+const mapAudit=auditGeneratedMap(bs);S.mapAudit=mapAudit;if(!mapAudit.ok&&tries<12)return newGame(tries+1);if(!mapAudit.ok)console.warn('[Crown & Kingdoms] generated map has disconnected starting land regions after 13 attempts',mapAudit);for(let i=0;i<Math.round(W*H/324*MT[mt].f);i++){const cx=r()*W,cy=r()*H;if(bs.some(b=>Math.hypot(b[0]-cx,b[1]-cy)<8))continue;for(let j=0;j<22;j++)addN('w',cx+(r()-.5)*9,cy+(r()-.5)*9,100)}
 for(let j=0;j<10;j++)addN('g',W/2+(r()-.5)*7,H/2+(r()-.5)*7,300);
 const dr=(x,y)=>{if(bs.some(b=>Math.hypot(b[0]-x,b[1]-y)<10))return;const d=addN('f',x,y,200);if(d)d.an=1};for(let j=0;j<Math.round(W*H/170);j++)dr(3+r()*(W-6),3+r()*(H-6));bs.forEach(([bx,by])=>{for(let j=0;j<7;j++)dr(bx+(r()-.5)*34,by+(r()-.5)*34)});
 for(let i=0,k=0;i<300&&k<2+Math.round(W*H/3000);i++){const x=(W*.2+r()*W*.6)|0,y=(H*.2+r()*H*.6)|0;if(!S.g[y*W+x]&&!S.wt[y*W+x]){S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null});k++}}
@@ -414,7 +436,7 @@ const PALS=[{g:GC,d:GCd,l:GCl,coast:'#cdbd82',dirt:['#8d7b4c','#867449']}];
 {const mk=(a,c,dk)=>({g:a,d:a.map(x=>shd(x,.9)),l:a.map(x=>shd(x,1.06)),coast:c,dirt:dk});PALS.push(mk(['#d8c48a','#d2bd80','#dcc890','#cdb676','#d6c286','#d0ba7c'],'#e6d8a8',['#b89a60','#b0925a']),mk(['#e8f0f4','#dde8ee','#f0f6f8','#d4e2ea','#e2ecf0','#d9e6ec'],'#c3d0d6',['#8e8a84','#86827c']),mk(['#7f9a62','#789358','#86a068','#718c54','#7c9660','#7a945a'],'#b8b090',['#7d7568','#766e62']))}
 function dia(cx,cy,hw,hh){X.beginPath();X.moveTo(cx,cy-hh);X.lineTo(cx+hw,cy);X.lineTo(cx,cy+hh);X.lineTo(cx-hw,cy);X.closePath()}
 function poly(a){X.beginPath();X.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)X.lineTo(a[i][0],a[i][1]);X.closePath()}
-const GAR={tc:15,castle:20,tower:5},MT=[{n:'Arabia',l:1,f:1,m:1},{n:'Black Forest',l:.4,f:3,m:.8},{n:'Lakes',l:3,f:.7,m:1},{n:'Open Plains',l:.3,f:.25,m:1.5},{n:'Desert Oasis',l:.5,f:.3,m:1.2,pal:1},{n:'Frozen North',l:1.3,f:1.2,m:1,pal:2},{n:'Coastal',l:.3,f:.6,m:1.2,cs:1},{n:'Mediterranean',l:.2,f:.7,m:1.2,rv:0,sea:1},{n:'Gold Rush',l:.4,f:.5,m:2.6,gd:1,rv:0},{n:'Highland Pass',l:.3,f:.6,m:1.6,rg:1,rv:0,pal:3}];
+const GAR={tc:15,castle:20,tower:5},MT=[{n:'Arabia',l:1,f:1,m:1},{n:'Black Forest',l:.4,f:3,m:.8},{n:'Lakes',l:3,f:.7,m:1},{n:'Open Plains',l:.3,f:.25,m:1.5},{n:'Desert Oasis',l:.5,f:.3,m:1.2,pal:1},{n:'Frozen North',l:1.3,f:1.2,m:1,pal:2},{n:'Coastal',l:.3,f:.6,m:1.2,cs:1},{n:'Mediterranean',l:.2,f:.7,m:1.2,rv:0,sea:1},{n:'Gold Rush',l:.4,f:.5,m:2.6,gd:1,rv:0},{n:'Highland Pass',l:.3,f:.6,m:1.6,rg:1,rv:0,pal:3},{n:'Archipelago',l:.2,f:.7,m:1.5,arch:1,rv:0},{n:'Twin Lakes',l:.6,f:.8,m:1.1,lake:1,rv:0}];
 const MA={mil:1,spear:1,knight:2,gal:1,cata:2,ele:3,tk:5,saml:1,eled:2,bers:0,fish:1,trn:2},PRA={mil:1,scout:2,knight:2,skirm:3,ram:50,gal:3,trn:2,camel:0,cata:3,ele:2,tk:2,saml:1,eled:2,fish:2};
 /* Blacksmith armour applies by unit class, including unique units; keep these sets explicit because the roster is data-driven. */
 const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto']);
@@ -589,7 +611,7 @@ function drawUnit(u){const k=u.k,d=U[k],P=w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))
 const st=mv?1:(u.o==='a'&&u.cd>0&&u.cd<.45)?2:(u.o==='g'||u.o==='b')?3:0,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if(S.sel.includes(u)){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
-/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Villagers use the upright procedural painter until the external atlas has passed a visual-orientation check on the actual game canvas. This keeps their animated limbs, tools, team colours and equipment while preventing malformed atlas frames from rendering sideways/upside-down. Other validated atlas classes remain enabled. */const af=ASSET.n&&k!=='vil'?assetFrame(k,u.t,st,u.dr|0,gt):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
+/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Atlas frames are enabled only after metadata/frame bounds validate; procedural sprites remain the automatic fallback. Keep the feet anchor stable for upright walking. */const af=ASSET.n?assetFrame(k,u.t,st,u.dr|0,gt):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
 if(u.car>0&&u.ct){X.fillStyle={f:'#e0554f',w:'#9a6b3a',g:'#f2c14e',s:'#b0b8bf'}[u.ct];X.fillRect(sx-4*z,sy-(sz[1]-16)*z*.55,8*z,6*z)}
 const mh=mhp(u);if(u.hp<mh)bar(sx-13*z,sy-(sz[1]-6)*z*.9,26*z,u.hp/mh,'#6e6')}
 function drawRelic(q){const P=w2s(q.x,q.y),sx=P[0],y=P[1]-(q.c?24:6),g=.5+.5*Math.sin(gt*3);X.fillStyle='rgba(255,226,102,'+(.15+.15*g)+')';X.beginPath();X.arc(sx,y,13+g*3,0,7);X.fill();X.fillStyle='#ffe066';X.strokeStyle='#a87b12';poly([[sx,y-9],[sx+7,y],[sx,y+9],[sx-7,y]]);X.fill();X.stroke()}
