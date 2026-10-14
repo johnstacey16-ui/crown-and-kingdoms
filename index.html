@@ -1188,7 +1188,7 @@ function cmpTick(dt){const sc=CAMP[cmp.i];if(!sc||S.over)return;cmp.t+=dt;cmp.k=
 function cmpHud(){const sc=CAMP[cmp.i];if(!sc)return;const g=sc.goals.filter(q=>!cmp.d[q.id]).slice(0,4);if(!g.length)return;X.fillStyle='rgba(0,0,0,.55)';X.fillRect(10,60,Math.min(420,CW-20),30+g.length*26);tx('Mission '+(cmp.i+1)+': '+sc.t,20,80,17,'#f2c14e');g.forEach((q,i)=>tx('- '+q.t,24,104+i*26,16,'#fff'))}
 function cmpObj(){const sc=CAMP[cmp.i];tx('Mission '+(cmp.i+1)+': '+sc.t,CW/2-400,400,22,'#f2c14e');sc.goals.forEach((g,i)=>tx((cmp.d[g.id]?'[x] ':'[  ] ')+g.t,CW/2-400,440+i*34,21,cmp.d[g.id]?'#9ae6b4':'#fff'))}
 function endA(){if(!cmp){start();return}if(S.over==='win'){const next=nextCampaignMission(cmp.i);if(next!==null){bi=next;mode='brief'}else{mode='camp';ci=0}}else startScenario(cmp.i)}
-function endB(){if(cmp){mode='camp';ci=0}else mode='title'}
+function endB(){if(cmp){if(S.over==='win'&&nextCampaignMission(cmp.i)===null){mode='title'}else{mode='camp';ci=0}}else mode='title'}
 function wrapT(s,x,y,w,sz,c,lh){X.font=`bold ${sz}px system-ui,sans-serif`;let line='',yy=y;for(const wd of s.split(' ')){const t=line?line+' '+wd:wd;if(X.measureText(t).width>w&&line){tx(line,x,yy,sz,c);yy+=lh;line=wd}else line=t}tx(line,x,yy,sz,c);return yy+lh}
 const CAMP_ARCS=[{n:'The Crown of Ashford',ids:[0,1,2,3,4,5,8]},{n:'Frontier Wars',ids:[6,7]},{n:'The Royal Campaign',ids:[9,10,11]},{n:'Coastal War',ids:[12,13]}];
 function nextCampaignMission(i){const order=CAMP_ARCS.flatMap(arc=>arc.ids),p=order.indexOf(i);return p>=0&&p<order.length-1?order[p+1]:null}
