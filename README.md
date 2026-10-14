@@ -31,29 +31,11 @@ Use Node.js 22 or a compatible current Node release. No package installation is 
 
 ```sh
 node scripts/check-game.mjs
-node tests/population-limits.test.mjs
-node tests/town-bell.test.mjs
-node tests/diplomacy.test.mjs
-node tests/tribute.test.mjs
-node tests/villager-priority.test.mjs
-node tests/score-time-limit.test.mjs
-node tests/no-attack-stance.test.mjs
-node tests/guard-follow.test.mjs
-node tests/trade-routes.test.mjs
-node tests/fishing-economy.test.mjs
-node tests/fish-traps.test.mjs
-node tests/technology-effects.test.mjs
-node tests/ai-retreat.test.mjs
-node tests/ai-siege-support.test.mjs
-node tests/ai-defence-priority.test.mjs
-node tests/naval-ai-priority.test.mjs
-node tests/campaign-content.test.mjs
-node tests/map-connectivity.test.mjs
-node tests/map-generation-static.test.mjs
+for test in tests/*.test.mjs; do node "$test" || exit 1; done
 node tests/validate-atlas.mjs
 ```
 
-GitHub Actions runs these checks on pushes and pull requests to `main`. Most tests are static syntax, source-pattern or asset-metadata checks. They do **not** simulate complete matches and cannot replace browser, deployment, network or Xbox controller testing.
+The GitHub Actions workflow uses the same discovery rule: every `tests/*.test.mjs` file is run automatically, so newly added regression tests cannot silently be omitted from a manually maintained CI list. Most tests are static syntax, source-pattern or asset-metadata checks. They do **not** simulate complete matches and cannot replace browser, deployment, network or Xbox controller testing.
 
 ## Project boundaries
 
