@@ -24,6 +24,7 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 ### Economy, construction and technology
 - [x] Food/wood/gold/stone gathering, drop-off buildings, farms with automatic reseeding, market trading and resource upgrades.
+- [x] Farm capacity technology effects: Horse Collar adds 75 food, Heavy Plow adds 125, Crop Rotation adds 175; new and reseeded farms use the researched capacity. Auto-reseed costs 60 wood.
 - [x] Building and unit production queues, age advancement, blacksmith and civilization research.
 - [~] Research coverage/effects are incomplete or simplified compared with the full AoE2 technology tree.
 - [~] Farm food capacity, trade prices, repair/build rates and several upgrades need an explicit effect audit.
@@ -66,4 +67,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 ## Recent implementation note
 
 - Commit `ff0f677`: Treadmill Crane research now increases villager construction progress by 20%.
+- Commit `d7900be`: Added Crop Rotation to the mill research list and implemented Horse Collar / Heavy Plow / Crop Rotation as farm food-capacity upgrades instead of harvest-rate multipliers.
+- Commit `3c5cd9e`: Automatic farm reseeding now uses the researched farm capacity and costs 60 wood.
 - Syntax validation passed for the inline JavaScript after this change. This is not a substitute for a live gameplay test.
