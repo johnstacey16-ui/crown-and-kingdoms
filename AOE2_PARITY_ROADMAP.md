@@ -33,11 +33,11 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 ### Combat, units and buildings
 
-- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground and Passive stances; patrol and attack-move commands; garrison/unload logic.
+- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground, Passive and No Attack stances; patrol and attack-move commands; garrison/unload logic.
 - **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
 - **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, and more purposeful War Galley target selection.
 - **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
-- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; reliable Guard and Follow commands; No Attack as a distinct stance; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
+- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; reliable Guard and Follow commands; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
 
 ### Maps, campaigns and victory conditions
 
@@ -84,6 +84,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-ba
 - allied tribute resource validation and transfer integration;
 - villager target selection, new-worker automation, manual overrides and save/load persistence;
 - score/time-limit victory calculation, setup selection, countdown and tie handling;
+- No Attack stance: autonomous targeting suppression, attack cancellation, direct-command rejection and feedback;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;

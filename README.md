@@ -17,7 +17,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 
 - Four-age progression, buildings, unit production, research, construction and repair.
 - Resource gathering, farms with 60-wood automatic reseeding, farm-capacity upgrades, market trading, relic income, trade carts/cogs, renewable fish traps, ally-only tribute and configurable villager worker targets with new-worker auto-assignment.
-- Ground, siege and naval combat; formations and several unit stances; AI attack groups, defensive priorities, retreats and naval target selection.
+- Ground, siege and naval combat; formations and Aggressive/Defensive/Stand Ground/Passive/No Attack stances; AI attack groups, defensive priorities, retreats and naval target selection.
 - Fog of war, minimap, pathfinding, seeded/procedural maps, connectivity diagnostics, save/load flows and campaign objectives.
 - Wonder, relic and Regicide victory options alongside the standard Town Centre victory; a score-at-20-minutes mode that compares surviving armies/buildings, held resources, age, technologies and stored relics.
 - Original SVG sprite atlases, team-colour variants, animation metadata, procedural visual fallbacks and synthesised Web Audio.
@@ -37,6 +37,7 @@ node tests/diplomacy.test.mjs
 node tests/tribute.test.mjs
 node tests/villager-priority.test.mjs
 node tests/score-time-limit.test.mjs
+node tests/no-attack-stance.test.mjs
 node tests/trade-routes.test.mjs
 node tests/fishing-economy.test.mjs
 node tests/fish-traps.test.mjs
