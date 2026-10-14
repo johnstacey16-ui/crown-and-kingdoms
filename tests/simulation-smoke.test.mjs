@@ -436,6 +436,7 @@ assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
 assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
   'Rival AI should establish a completed military production building');
+console.log('ai-growth-debug:', JSON.stringify({ rivals: activeAi, peaks: aiAfter.aiPeak, resources: aiAfter.resources }));
 assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
   'At least one rival should field a four-unit force at some point during eight simulated minutes');
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
