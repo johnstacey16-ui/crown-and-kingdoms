@@ -26,7 +26,9 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
 - **Present:** skirmish diplomacy controls in the pause menu can set each surviving rival to Enemy, Neutral or Ally. The relationship matrix is symmetric and saved/restored; missing diplomacy data in older saves defaults to enemies. Combat damage, manual attacks, automatic target acquisition, AI attack targets, naval target selection and defensive threat scans respect hostility.
 - **Partial:** diplomacy is currently player-controlled against individual rivals; AI-to-AI relationships stay hostile, and treaty duration, negotiated diplomacy, shared vision, tribute and fully developed allied-team victory rules are not implemented.
-- **Gap:** a complete tribute interface and rules; full villager resource-priority automation, auto-assignment and resource-site-specific commands.
+- **Present:** fixed 100-unit food/wood/gold/stone tribute transfers from the pause menu to allied surviving kingdoms. The sender's balance is checked and the same amount is credited to the ally.
+- **Partial:** tribute amount is fixed at 100 per action; configurable quantities and AI-initiated tribute are not implemented.
+- **Gap:** full villager resource-priority automation, auto-assignment and resource-site-specific commands.
 
 ### Combat, units and buildings
 
@@ -58,7 +60,7 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 
 1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
-3. **Tribute and resource transfers:** add controller-friendly amount selection, affordability checks, clear notifications and AI-safe validation. Gate transfers by the implemented diplomacy relationship rules.
+3. **Extend tribute:** the first pass sends 100 units of a selected resource to an ally, with affordability validation and notifications. Next add selectable quantities and richer transfer feedback before considering AI-initiated tribute.
 4. **Villager automation:** create a priority-setting system that affects idle villagers and newly trained villagers; show current assignments clearly and allow a manual override. Add resource-site orders without breaking standard gather/drop-off behaviour.
 5. **Command coverage:** audit selection, group switching, formations, patrol, attack-move, guard/follow, garrison and passive/no-attack semantics; add controller regression coverage.
 6. **Victory modes:** implement one mode at a time with explicit setup options, in-match state, AI participation, UI progress and tests for both player wins and losses.
@@ -77,6 +79,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-ba
 - inline JavaScript syntax and key source invariants;
 - population cap configuration;
 - diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
+- allied tribute resource validation and transfer integration;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;

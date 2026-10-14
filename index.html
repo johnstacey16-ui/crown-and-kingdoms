@@ -121,6 +121,25 @@ function diplomacyMenuItems(){
   items.push({n:'Diplomacy: Kingdom '+(t+1),v:()=>relationLabel(diplomacyRelation(0,t)),l:()=>rotateDiplomacy(0,t,-1),r:()=>rotateDiplomacy(0,t,1),a:()=>rotateDiplomacy(0,t,1)});
  return items;
 }
+const TRIBUTE_RESOURCES=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
+let tributeResource=0;
+function sendTribute(from,to,resourceIndex,amount=100){
+ if(!S||!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=S.teamN||to>=S.teamN||from===to)return false;
+ const resource=TRIBUTE_RESOURCES[resourceIndex];
+ if(!resource||!Number.isInteger(amount)||amount<=0)return false;
+ if(diplomacyRelation(from,to)!=='ally'){if(from===0)note('Tribute requires an alliance');return false}
+ if(!S.res[from]||!S.res[to]||S.res[from][resource.k]<amount){if(from===0)note('Not enough '+resource.n+' for tribute');return false}
+ S.res[from][resource.k]-=amount;S.res[to][resource.k]+=amount;
+ if(from===0)note('Sent '+amount+' '+resource.n+' to Kingdom '+(to+1));
+ return true;
+}
+function tributeMenuItems(){
+ if(!S||cmp)return [];
+ const items=[];
+ for(let t=1;t<S.teamN;t++)if(diplomacyRelation(0,t)==='ally'&&S.bs.some(b=>b.t===t&&b.k==='tc'&&b.hp>0))
+  items.push({n:'Tribute: Kingdom '+(t+1)+' (100)',v:()=>TRIBUTE_RESOURCES[tributeResource].n,l:()=>{tributeResource=(tributeResource+TRIBUTE_RESOURCES.length-1)%TRIBUTE_RESOURCES.length},r:()=>{tributeResource=(tributeResource+1)%TRIBUTE_RESOURCES.length},a:()=>sendTribute(0,t,tributeResource,100)});
+ return items;
+}
 function newGame(tries=0){setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:Date.now()&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
 S={t:0,teamN,r,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
 res:Array.from({length:teamN},()=>{const v=[200,500,1000,2000][startRes]||200;return startRes===0?{f:200,w:200,g:100,s:0}:{f:v,w:v,g:v,s:v}}),pl:{tr:0,bl:0,kills:0,gath:0},sel:[],vt:0,al:-99,age:Array(teamN).fill(startAge),tech:Array.from({length:teamN},()=>({})),dip:createDiplomacy(teamN),rel:[],px:Array.from({length:teamN},()=>({f:100,w:100,g:100,s:100})),civ:Array.from({length:teamN},(_,t)=>t),pal:MT[mt].pal||0,ai:Array.from({length:teamN},(_,t)=>({cd:4+t*.7,wave:0,nx:([1080,840,600][diff]*PERS[aip].g)|0})),over:null};
@@ -809,7 +828,7 @@ const r2=s=>s?(s[0]==='n'?S.nodes:s[0]==='b'?S.bs:s[0]==='r'?S.rel:S.us)[+s.slic
 diff=j.diff;aip=cl(j.aip|0,0,6);vm=j.vm|0;cmp=j.cmp&&CAMP[j.cmp.i]?j.cmp:null;S.vc=j.vc||[0,0];cam=j.cam;clampCam();cur={x:CW/2,y:CH/2};menu=place=null;fx=[];corp=[];rub=[];PT.length=0;queueWarm();ov=0;fog();mmUp();note('Game loaded');return true}
 const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'Cheap infantry. Feudal Age.','Spearman':'Infantry that counters cavalry.','Archer':'Ranged. Weak against melee and cavalry.','Scout Cavalry':'Fast scout and raider.','Knight':'Strong cavalry, good against archers. Castle Age.','Crossbowman':'Stronger ranged infantry. Castle Age.','Battering Ram':'Siege: wrecks buildings, weak against units. Castle Age.','Monk':'Heals allies, converts enemy units, carries relics.','House':'+5 population cap.','Lumber Camp':'Wood drop-off. Build beside forests.','Mining Camp':'Gold and stone drop-off. Build beside mines.','Mill':'Food drop-off for berries, deer and farms.','Farm':'Renewable food; reseeds itself for 60 wood.','Barracks':'Trains Militia and Spearmen. Needs Feudal Age.','Archery Range':'Trains archers. Needs a Barracks.','Stable':'Trains cavalry. Needs a Barracks.','Blacksmith':'Military upgrades. Needs a Barracks.','Market':'Trade 100 at a time for Gold. Prices move with each trade, then drift back.','Trade Cart':'Automatically carries gold between different kingdoms’ markets; income scales with route distance.','Trade Cog':'A naval trader that carries gold between different kingdoms’ docks.','Watch Tower':'Shoots enemies in range and reveals terrain.','Castle':'Strong defence; trains Knights, Crossbowmen and Rams.','Stone Wall':'Blocks movement. Keep pressing A to chain walls, B to stop. Leave a gap!','Monastery':'Trains Monks. Needs Castle Age.','Siege Workshop':'Trains Rams, Mangonels and Scorpions. Castle Age.','University':'Crane, Masonry and Arrowslits. Needs a Blacksmith.','Trebuchet':'Huge range, wrecks buildings. Imperial Age.','Camel Rider':'Counters cavalry. Castle Age.','King':'Regicide: if your King dies you lose.','Wonder':'Hold it for 5 minutes to win (Wonder victory only).','Gate':'Your units pass through; enemies are blocked.','Outpost':'Cheap lookout with a long view.','Skirmisher':'Cheap ranged unit that counters archers.','Mangonel':'Siege with splash damage. Castle Age.','Scorpion':'Bolt thrower, strong against infantry.','Dock':'Build on the shore. Trains Fishing Ships and War Galleys.','Fishing Ship':'Catches fish and delivers them to a Dock.','Transport Ship':'Carries 5 land units. X on it to board, X on shore to unload.','War Galley':'Ranged warship. Castle Age.','Advance: Feudal Age':'Unlocks military buildings, towers and the Market.','Advance: Castle Age':'Unlocks Castle, Knights, Crossbowmen, Rams and Monks.','Advance: Imperial Age':'Unlocks the strongest upgrades.'};
 const GSP=[.5,1,1.5,2,3];
-function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=>{omr='pause';mode='obj'}},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),
+function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=>{omr='pause';mode='obj'}},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),...tributeMenuItems(),
 {n:'Game speed',v:()=>gs+'x',l:()=>{gs=GSP[Math.max(0,GSP.indexOf(gs)-1)]},r:()=>{gs=GSP[Math.min(4,GSP.indexOf(gs)+1)]}},
 {n:'Cursor speed',v:()=>cspd+'x',l:()=>{cspd=Math.max(.5,cspd-.25)},r:()=>{cspd=Math.min(2,cspd+.25)}},
 {n:'Brightness',v:()=>br.toFixed(1),l:()=>{br=Math.max(.6,+(br-.1).toFixed(1));rs()},r:()=>{br=Math.min(1.5,+(br+.1).toFixed(1));rs()}},

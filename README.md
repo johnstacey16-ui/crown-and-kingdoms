@@ -16,7 +16,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 ## Systems currently present in source
 
 - Four-age progression, buildings, unit production, research, construction and repair.
-- Resource gathering, farms with 60-wood automatic reseeding, farm-capacity upgrades, market trading, relic income, trade carts/cogs and renewable fish traps.
+- Resource gathering, farms with 60-wood automatic reseeding, farm-capacity upgrades, market trading, relic income, trade carts/cogs, renewable fish traps and ally-only tribute (100 units per transfer).
 - Ground, siege and naval combat; formations and several unit stances; AI attack groups, defensive priorities, retreats and naval target selection.
 - Fog of war, minimap, pathfinding, seeded/procedural maps, connectivity diagnostics, save/load flows and campaign objectives.
 - Wonder, relic and Regicide victory options alongside the standard Town Centre victory.
@@ -34,6 +34,7 @@ node scripts/check-game.mjs
 node tests/population-limits.test.mjs
 node tests/town-bell.test.mjs
 node tests/diplomacy.test.mjs
+node tests/tribute.test.mjs
 node tests/trade-routes.test.mjs
 node tests/fishing-economy.test.mjs
 node tests/fish-traps.test.mjs
