@@ -887,8 +887,8 @@
   }
 
   function updateLocalSetting(row, delta) {
-    if (state.active && (state.role !== 'host' || state.lifecycle !== 'lobby')) {
-      setStatus('Only the host may choose map settings before the match starts.');
+    if (state.active) {
+      setStatus('Room settings are fixed when the room is created. Leave and create a new room to use a different map.');
       return;
     }
     const cfg = state.config || currentLocalConfig();
@@ -1006,7 +1006,7 @@
         X.fillStyle = '#234b8c';
         X.fillRect(x + 14, yy - 21, Math.min(510, w * 0.61), rowH - 2);
       }
-      const canChange = i >= 4 && i <= 6 && (!state.active || (state.role === 'host' && state.lifecycle === 'lobby'));
+      const canChange = i >= 4 && i <= 6 && !state.active;
       tx((i === selectedRow ? '› ' : '  ') + r.label, x + 28, yy, 17, canChange ? '#fff' : '#e2e8f0');
       tx(r.value, x + Math.min(505, w * 0.6), yy, 14, '#fde68a');
     });
@@ -1118,6 +1118,7 @@
     control, drawLobby, getRenderEntries, drawMarker, drawMatchStatus, isRunning, snapshot,
     openLobby() {
       state.nick = cleanNick(ensureLobbyFields().nick.value) || state.nick || 'Player';
+      if (!state.active && !beforeRoomSettings) saveLocalSettings();
       state.config = state.config || currentLocalConfig();
       showLobbyFields(true);
       mode = 'multiplayer';
