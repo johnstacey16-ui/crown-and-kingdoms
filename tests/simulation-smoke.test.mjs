@@ -323,6 +323,25 @@ globalThis.__CK_TEST__ = {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     return tc ? research(tc, 'gath') : false;
   },
+  beginManAtArmsResearch() {
+    const barracks = S.bs.find((b) => b.t === 0 && b.k === 'bar' && b.done);
+    if (!barracks) throw new Error('Age-one match must provide a completed Barracks');
+    const unit = S.us.find((u) => u.t === 0 && u.k === 'mil');
+    if (!unit) throw new Error('Match must contain a Militia unit to test existing-unit upgrades');
+    const beforeMax = mhp(unit);
+    unit.hp = beforeMax - 10;
+    unit.testTechTarget = true;
+    S.res[0].f = 1000; S.res[0].g = 1000; S.res[0].w = 1000; S.res[0].s = 1000;
+    if (!research(barracks, 'man')) throw new Error('Barracks should accept affordable Man-at-Arms research');
+    return { beforeMax, beforeHp: unit.hp };
+  },
+  addPostUpgradeMilitia() {
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    const p = spawnPos(tc);
+    if (!p) throw new Error('Could not find a valid spawn position for post-upgrade Militia');
+    const unit = addU(0, 'mil', p[0], p[1]);
+    unit.testTechNew = true;
+  },
   orderWoodGather() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
     if (!u) throw new Error('The seeded match must contain a player villager');
@@ -366,7 +385,12 @@ globalThis.__CK_TEST__ = {
       gameOver: S.over,
       research: {
         gatherRate: S.tech[0].gath || 0,
+        manAtArms: S.tech[0].man || 0,
         townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
+      },
+      upgradedUnits: {
+        existing: (() => { const u = S.us.find((u) => u.testTechTarget); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
+        newlyTrained: (() => { const u = S.us.find((u) => u.testTechNew); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
       },
       mapAudit: S.mapAudit ? { ...S.mapAudit } : null,
       aiPeak: { ...aiPeak },
@@ -431,6 +455,23 @@ const researchAfter = game.state();
 assert.equal(researchAfter.research.gatherRate, 1, 'Completing research must apply the real Gather Rate technology effect');
 assert.equal(researchAfter.research.townCentreResearch, null, 'The completed research queue should clear');
 console.log('research-smoke: Gather Rate research completed through 31 simulated seconds and applied to the real technology state');
+
+game.start(123456, 1);
+const hpBeforeUpgrade = game.beginManAtArmsResearch();
+for (let tick = 0; tick < 930; tick += 1) game.tick(1 / 30);
+const hpAfterUpgrade = game.state();
+assert.equal(hpAfterUpgrade.research.manAtArms, 1, 'Man-at-Arms research should complete through the real research timer');
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.maxHp, hpBeforeUpgrade.beforeMax + 15,
+  'The researched hit-point bonus must increase the maximum HP of an existing Militia unit');
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.hp, hpBeforeUpgrade.beforeHp + 15,
+  'Upgrading an injured unit must preserve its existing damage rather than fully healing it');
+game.addPostUpgradeMilitia();
+const hpWithNewUnit = game.state().upgradedUnits.newlyTrained;
+assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 15,
+  'New Militia created after research must inherit the same HP bonus');
+assert.equal(hpWithNewUnit.hp, hpWithNewUnit.maxHp,
+  'New Militia should spawn at its upgraded maximum HP');
+console.log('technology-hp-smoke: completed Man-at-Arms research upgrades existing injured units and newly created units without erasing damage');
 
 game.start(123456);
 const plannedHouse = game.beginHouseConstruction();
