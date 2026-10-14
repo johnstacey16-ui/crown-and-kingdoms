@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 14 October 2026  
-**Current source checkpoint at the time of audit:** `9c863b5` — population-limit options extended to 500.  
+**Current source checkpoint:** `main` — see repository history for the latest commit.  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -24,7 +24,9 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** market buy/sell trading with changing prices; Trade Carts from Markets and Trade Cogs from Docks; distance-based gold on completed deliveries; retry behaviour when a route endpoint is unavailable.
 - **Present:** relic collection and income while a relic is stored in a monastery; Fishing Ships, renewable fish traps (100 wood, 900 food per trap) and AI fish-trap deployment.
 - **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
-- **Gap:** a complete tribute interface and rules; diplomacy, neutral/ally/enemy relationships, team victory and treaty states; full villager resource-priority automation, auto-assignment and resource-site-specific commands.
+- **Present:** skirmish diplomacy controls in the pause menu can set each surviving rival to Enemy, Neutral or Ally. The relationship matrix is symmetric and saved/restored; missing diplomacy data in older saves defaults to enemies. Combat damage, manual attacks, automatic target acquisition, AI attack targets, naval target selection and defensive threat scans respect hostility.
+- **Partial:** diplomacy is currently player-controlled against individual rivals; AI-to-AI relationships stay hostile, and treaty duration, negotiated diplomacy, shared vision, tribute and fully developed allied-team victory rules are not implemented.
+- **Gap:** a complete tribute interface and rules; full villager resource-priority automation, auto-assignment and resource-site-specific commands.
 
 ### Combat, units and buildings
 
@@ -55,7 +57,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 Work in small, independently testable changes. Keep `index.html` as the canonical app and preserve existing controls, save/load, pathfinding, fog, combat and fallbacks.
 
 1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
-2. **Diplomacy foundation:** introduce one central relationship helper and use it consistently for hostile targeting, damage, AI priorities, visibility/ownership rules, trade eligibility and victory counting. Do not add alliances by changing isolated `team !== otherTeam` checks.
+2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
 3. **Tribute and resource transfers:** add controller-friendly amount selection, affordability checks, clear notifications and AI-safe validation. Gate transfers by the implemented diplomacy relationship rules.
 4. **Villager automation:** create a priority-setting system that affects idle villagers and newly trained villagers; show current assignments clearly and allow a manual override. Add resource-site orders without breaking standard gather/drop-off behaviour.
 5. **Command coverage:** audit selection, group switching, formations, patrol, attack-move, guard/follow, garrison and passive/no-attack semantics; add controller regression coverage.
@@ -73,7 +75,7 @@ Per project direction, do not spend time implementing Xbox achievements, Xbox cl
 The GitHub Actions workflow `.github/workflows/game-regression.yml` runs Node-based checks for:
 
 - inline JavaScript syntax and key source invariants;
-- population cap configuration;
+- population cap configuration and diplomacy state/targeting;
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - AI retreats, siege support, defensive threat priorities and naval targeting;

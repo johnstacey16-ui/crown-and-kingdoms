@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+
+assert.match(html, /const DIPLOMACY_STATES=\['enemy','neutral','ally'\]/,
+  'Diplomacy must use explicit enemy, neutral and ally states');
+assert.match(html, /function createDiplomacy\(n,source=null\)\{[\s\S]{0,650}d\[a\]\[b\]=d\[b\]\[a\]=rel/,
+  'New games and restored saves must use a symmetric relationship matrix');
+assert.match(html, /tech:Array\.from\(\{length:teamN\},\(\)=>\(\{\}\)\),dip:createDiplomacy\(teamN\),rel:\[\]/,
+  'New matches must default to every rival being hostile');
+assert.match(html, /function diplomacyRelation\(a,b\)\{if\(a===b\)return 'self';return S&&S\.dip&&S\.dip\[a\]&&S\.dip\[a\]\[b\]\|\|'enemy'\}/,
+  'Missing relationship data must default safely to enemy');
+assert.match(html, /function isHostile\(a,b\)\{return a!==b&&diplomacyRelation\(a,b\)==='enemy'\}/,
+  'Hostility must come from the shared relationship helper');
+assert.match(html, /function setDiplomacy\(a,b,rel\)\{[\s\S]{0,450}S\.dip\[a\]\[b\]=S\.dip\[b\]\[a\]=rel/,
+  'Changing diplomacy must update both kingdoms symmetrically');
+assert.match(html, /function diplomacyMenuItems\(\)\{[\s\S]{0,500}l:\(\)=>rotateDiplomacy\(0,t,-1\),r:\(\)=>rotateDiplomacy\(0,t,1\),a:\(\)=>rotateDiplomacy\(0,t,1\)/,
+  'Enemy, neutral and ally states must be changeable with the pause-menu controller');
+assert.match(html, /if\(!isHostile\(a\.t,t\.t\)\)return;const ak=U\[a\.k\]/,
+  'All damage must be blocked against neutral/allied kingdoms');
+assert.match(html, /if\(tg&&tg\.t>0&&\(tg\.q\|\|U\[tg\.k\]\)&&!isHostile\(us\[0\]\.t,tg\.t\)\)/,
+  'Manual attacks must reject non-hostile targets');
+assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}isHostile\(u\.t,e\.t\)/,
+  'Automatic target acquisition must ignore neutral/allied kingdoms');
+assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
+  'AI attack waves must choose targets only from hostile kingdoms');
+assert.match(html, /S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&U\[u\.k\]\.sh&&u\.k!=='fish'\)/,
+  'Naval AI must ignore allied/neutral warships');
+assert.match(html, /S\.us\.some\(e=>isHostile\(t,e\.t\)&&!e\.ld&&e\.hp>0&&U\[e\.k\]\.dmg>3/,
+  'AI defensive threat detection must ignore non-hostile units');
+assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,diff/,
+  'Save data must preserve diplomacy relationships');
+assert.match(html, /dip:createDiplomacy\(\(j\.res\|\|\[\]\)\.length\|\|2,j\.dip\)/,
+  'Load data must restore diplomacy and default legacy saves to enemies');
+assert.match(html, /if\(!S\.bs\.some\(b=>b\.k==='tc'&&isHostile\(0,b\.t\)&&b\.hp>0\)\)endGame\('win','All hostile Town Centres have fallen'\)/,
+  'Town Centre victory must consider current hostile relationships');
+
+console.log('diplomacy: all 16 source regression assertions passed');

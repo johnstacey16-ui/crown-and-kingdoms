@@ -21,7 +21,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 - Fog of war, minimap, pathfinding, seeded/procedural maps, connectivity diagnostics, save/load flows and campaign objectives.
 - Wonder, relic and Regicide victory options alongside the standard Town Centre victory.
 - Original SVG sprite atlases, team-colour variants, animation metadata, procedural visual fallbacks and synthesised Web Audio.
-- Controller-oriented menus and navigation, including a Town Bell action that sends villagers toward available completed shelters. Population-limit settings now include 50, 100, 150, 200, 250, 300, 400 and 500; houses still determine the capacity actually available during a match.
+- Controller-oriented menus and navigation, including Town Bell and pause-menu diplomacy controls for enemy, neutral and ally relationships. Population-limit settings now include 50, 100, 150, 200, 250, 300, 400 and 500; houses still determine the capacity actually available during a match.
 
 These statements describe source-level presence, not guaranteed balance or acceptance on physical Xbox hardware. See the roadmap for partial systems and unverified behaviour.
 
