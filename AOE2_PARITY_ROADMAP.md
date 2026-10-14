@@ -131,3 +131,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 
 - [x] **Coastal campaign sequel (2026-10-14):** added *The Strait's Last Relic* as the next Coastal War mission, with monastery construction, relic recovery, enemy Castle and Town Centre objectives, and timed mixed land/naval raids. The mission uses the existing campaign objective/event system; objective balance and mission completion remain to be validated in a running game.
+
+
+- [x] **Renewable fish traps (2026-10-14):** selected Fishing Ships now offer a controller-menu action to deploy a visible fish trap on nearby unoccupied water for 100 wood. Traps provide 900 food and replenish when depleted instead of disappearing. Regression checks cover deployment, wood cost, menu access, rendering and renewal; gameplay balance/pathing still require runtime validation.
