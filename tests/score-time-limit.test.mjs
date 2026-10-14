@@ -6,16 +6,16 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 assert.match(html, /function kingdomScore\(t\)\{/,
   'The score victory mode must calculate a score for each kingdom');
 assert.match(html, /const res=S\.res\[t\]\|\|\{\};let resources=0;for\(const n of Object\.values\(res\)\)resources\+=Math\.max\(0,Number\(n\)\|\|0\);resources\/=10/,
-assert.match(html, /const res=S\.res\[t\]\|\|\{\};let resources=0;for\(const n of Object\.values\(res\)\)resources\+=Math\.max\(0,Number\(n\)\|\|0\);resources\/=10/,
-assert.match(html, /const units=S\.us\.filter\(u=>u\.t===t&&u\.hp>0\)\.reduce/,
+  'Held resources must contribute to kingdom score');
+assert.match(html, /for\(const u of S\.us\)if\(u\.t===t&&u\.hp>0\)/,
   'All surviving army units, including garrisoned units, must contribute to score');
-assert.match(html, /const buildings=S\.bs\.filter\(b=>b\.t===t&&b\.hp>0\)\.reduce/,
+assert.match(html, /for\(const b of S\.bs\)if\(b\.t===t&&b\.hp>0\)/,
   'Surviving buildings must contribute to score');
-assert.match(html, /const techs=Object\.entries\(S\.tech\[t\]\|\|\{\}\)\.filter/,
+assert.match(html, /const techs=techCount\*30/,
   'Researched technologies must contribute to score');
-assert.match(html, /const age=\(S\.age\[t\]\|\|0\)\*150/,
+assert.match(html, /age=\(S\.age\[t\]\|\|0\)\*150/,
   'Advancing the age must contribute to score');
-assert.match(html, /const relics=S\.rel\.filter\(r=>r\.m&&r\.m\.t===t\)\.length\*250/,
+assert.match(html, /const relics=relicCount\*250/,
   'Stored relics must contribute to score');
 assert.match(html, /if\(vm===4\)\{const limit=scoreLimit;if\(S\.t<limit\)return/,
   'Score victory must resolve at the selected game-time limit');
