@@ -13,4 +13,6 @@ assert.match(html, /ck-detailed-forces/, 'detailed troop, cavalry, siege and shi
 assert.match(html, /ck-detailed-buildings/, 'detailed building atlas must be integrated');
 assert.match(html, /assetFrame\('bld_'\+b\.k,b\.t,3,0,gt\)/, 'completed buildings must use the detailed atlas with procedural fallback');
 assert.match(html, /const baf=b\.done&&!ghost&&ASSET\.n\?assetFrame/, 'building sprite rendering must retain a safe fallback');
+assert.match(html, /dockableStarts/, 'map audit must report starts with a legal Dock site nearby');
+assert.match(html, /navalAccess:dockableStarts>0/, 'map audit must expose whether any valid dock site exists');
 console.log('map-generation-static: graphics and map assertions passed');
