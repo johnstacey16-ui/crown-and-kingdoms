@@ -427,6 +427,7 @@ const aiBefore = game.state();
 for (let tick = 0; tick < 5400; tick += 1) game.tick(1 / 30);
 const aiAfter = game.state();
 const activeAi = aiAfter.aiGrowth.filter((a) => a && a.team > 0);
+console.log('ai-growth-debug:', JSON.stringify({ before: aiBefore.aiGrowth, after: activeAi, resources: aiAfter.resources, ages: aiAfter.aiGrowth.map((a) => a?.age ?? null) }));
 assert.ok(activeAi.length > 0, 'The seeded match should initialise at least one rival AI kingdom');
 assert.ok(activeAi.some((a) => a.buildings > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.buildings ?? 0) ||
   a.militaryUnits > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.militaryUnits ?? 0) ||
