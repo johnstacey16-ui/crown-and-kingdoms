@@ -7,7 +7,7 @@ assert.match(html, /const DIPLOMACY_STATES=\['enemy','neutral','ally'\]/,
   'Diplomacy must use explicit enemy, neutral and ally states');
 assert.match(html, /function createDiplomacy\(n,source=null\)\{[\s\S]{0,650}d\[a\]\[b\]=d\[b\]\[a\]=rel/,
   'New games and restored saves must use a symmetric relationship matrix');
-assert.match(html, /tech:Array\.from\(\{length:teamN\},\(\)=>\(\{\}\)\),dip:createDiplomacy\(teamN\),rel:\[\]/,
+assert.match(html, /tech:Array\.from\(\{length:teamN\},\(\)=>\(\{\}\)\),dip:createDiplomacy\(teamN\),vp:createVillagerPriority\(\),rel:\[\]/,
   'New matches must default to every rival being hostile');
 assert.match(html, /function diplomacyRelation\(a,b\)\{if\(a===b\)return 'self';return S&&S\.dip&&S\.dip\[a\]&&S\.dip\[a\]\[b\]\|\|'enemy'\}/,
   'Missing relationship data must default safely to enemy');
@@ -29,7 +29,7 @@ assert.match(html, /S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&U\[u\.k\]\.s
   'Naval AI must ignore allied/neutral warships');
 assert.match(html, /S\.us\.some\(e=>isHostile\(t,e\.t\)&&!e\.ld&&e\.hp>0&&U\[e\.k\]\.dmg>3/,
   'AI defensive threat detection must ignore non-hostile units');
-assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,diff/,
+assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,vp:S\.vp,diff/,
   'Save data must preserve diplomacy relationships');
 assert.match(html, /dip:createDiplomacy\(\(j\.res\|\|\[\]\)\.length\|\|2,j\.dip\)/,
   'Load data must restore diplomacy and default legacy saves to enemies');
