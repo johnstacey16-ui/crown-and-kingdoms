@@ -220,6 +220,8 @@
     f.box.style.left = (panelX + 104) + 'px';
     f.box.style.top = (panelY + panelH * 0.16) + 'px';
     f.box.style.width = Math.min(310, panelW * 0.42) + 'px';
+    f.nick.disabled = !!state.active;
+    f.code.disabled = !!state.active;
     f.box.style.display = show ? 'flex' : 'none';
     if (show) {
       if (!f.nick.value) f.nick.value = state.nick || 'Player';
@@ -630,7 +632,7 @@
     sendInFlight = true;
     Promise.resolve(ch.send({ type: 'broadcast', event: 'marker', payload }))
       .catch(() => { if (channelStillCurrent(epoch, ch)) setStatus('Network send interrupted; local gameplay continues.'); })
-      .finally(() => { sendInFlight = false; });
+      .finally(() => { if (epoch === state.epoch) sendInFlight = false; });
   }
 
   async function broadcast(event, payload, epoch) {
