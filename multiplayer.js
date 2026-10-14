@@ -935,7 +935,7 @@
   }
 
   function lobbyRows() {
-    const cfg = state.config || currentLocalConfig();
+    const cfg = state.config || (state.role === 'guest' ? null : currentLocalConfig());
     const hostMode = state.role === 'host';
     const running = state.lifecycle === 'running';
     return [
@@ -943,9 +943,9 @@
       { label: 'Room-code field', value: state.roomCode || 'Enter code to join' },
       { label: 'Create Room', value: state.active ? 'Leave current room first' : 'Create a new room' },
       { label: 'Join Room', value: state.active ? 'Leave current room first' : 'Join an existing room' },
-      { label: 'Map size', value: ['Small (72)', 'Medium (96)', 'Large (128)', 'Huge (176)'][cfg.msz] },
-      { label: 'Map type', value: MT[cfg.mt] ? MT[cfg.mt].n : 'Invalid' },
-      { label: 'Kingdom count', value: cfg.kingdoms === 2 ? 'Two kingdoms' : 'Four kingdoms' },
+      { label: 'Map size', value: cfg ? ['Small (72)', 'Medium (96)', 'Large (128)', 'Huge (176)'][cfg.msz] : 'Waiting for host' },
+      { label: 'Map type', value: cfg ? (MT[cfg.mt] ? MT[cfg.mt].n : 'Invalid') : 'Waiting for host' },
+      { label: 'Kingdom count', value: cfg ? (cfg.kingdoms === 2 ? 'Two kingdoms' : 'Four kingdoms') : 'Waiting for host' },
       { label: 'Start Marker Match', value: !hostMode ? 'Host only' : running ? 'Already running' : 'Requires another player' },
       { label: 'Leave Multiplayer', value: state.active ? 'Disconnect and return to title' : 'Return to title' }
     ];
@@ -996,10 +996,10 @@
     memberList.forEach((m, i) => {
       tx((m.role === 'host' ? '★ ' : '• ') + displayMemberName(m), rightX, y + h * 0.23 + i * 25, 15, m.sid === sessionId ? '#9ae6b4' : '#fff');
     });
-    const cfg = state.config || currentLocalConfig();
+    const cfg = state.config || (state.role === 'guest' ? null : currentLocalConfig());
     const cy = y + h * 0.23 + Math.max(1, memberList.length) * 25 + 28;
     tx('MAP CONFIGURATION', rightX, cy, 16, '#f2c14e');
-    tx('Seed: ' + (cfg.seed ? cfg.seed.toString(16).padStart(6, '0').toUpperCase() : 'set on create'), rightX, cy + 26, 14, '#fff');
+    tx('Seed: ' + (cfg && cfg.seed ? cfg.seed.toString(16).padStart(6, '0').toUpperCase() : state.role === 'guest' ? 'waiting for host' : 'set on create'), rightX, cy + 26, 14, '#fff');
     tx('Schema: ' + CONFIG_VERSION + ' · Protocol: ' + PROTOCOL_VERSION, rightX, cy + 50, 14, '#cbd5e1');
     if (state.hostSignature) tx('Map signature: ' + state.hostSignature, rightX, cy + 76, 13, '#9ae6b4');
     if (state.localFailure) {
