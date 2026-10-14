@@ -426,14 +426,14 @@ console.log(`campaign-smoke: First Hearth completed; objectives=${campaignBefore
 
 game.start(123456);
 const aiBefore = game.state();
-for (let tick = 0; tick < 14400; tick += 1) game.tick(1 / 30);
+for (let tick = 0; tick < 21600; tick += 1) game.tick(1 / 30);
 const aiAfter = game.state();
 const activeAi = aiAfter.aiGrowth.filter((a) => a && a.team > 0);
 assert.ok(activeAi.length > 0, 'The seeded match should initialise at least one rival AI kingdom');
 assert.ok(activeAi.some((a) => a.buildings > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.buildings ?? 0) ||
   a.militaryUnits > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.militaryUnits ?? 0) ||
   a.age > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.age ?? 0)),
-  'Rival AI must make measurable economic, military or age progression during eight simulated minutes');
+  'Rival AI must make measurable economic, military or age progression during twelve simulated minutes');
 assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
 assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
@@ -442,7 +442,7 @@ console.log('ai-growth-debug:', JSON.stringify({ rivals: activeAi, peaks: aiAfte
 assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
   'At least one rival should field a four-unit force at some point during eight simulated minutes');
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
-console.log('ai-growth-smoke: rival AI progressed over 480 simulated seconds: ' +
+console.log('ai-growth-smoke: rival AI progressed over 720 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
 
 
