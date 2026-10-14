@@ -36,4 +36,4 @@ test('campaign-list lock rules use the previous mission in the same arc', () => 
     'Unlocking must use the previous mission in that arc');
 });
 
-console.log('campaign-progression: all 8 assertions passed');
+console.log('campaign-progression: all 9 assertions passed');
