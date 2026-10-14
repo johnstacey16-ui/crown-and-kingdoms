@@ -1,5 +1,20 @@
 /* Crown & Kingdoms — Phase 1 multiplayer networking spine.
  * Isolated from the simulation. Supabase loads only when Multiplayer is opened.
+ *
+ * PROTOCOL SCOPE / CURRENT LIMITS
+ * - This module coordinates a lobby, publishes the host's starting configuration,
+ *   and checks that each peer independently generated the expected map signature.
+ * - While a match is running, it broadcasts lightweight player-marker positions
+ *   (coalesced to a maximum of 5 Hz); it does NOT replicate units, resources,
+ *   combat, construction, research, or the full simulation state.
+ * - It is therefore not authoritative RTS simulation networking, deterministic
+ *   lockstep, rollback networking, or host migration. Do not describe it as such.
+ * - Channel rejoin restores connection/presence handling; it does not transfer
+ *   host authority. A guest must not assume a running match can continue in sync
+ *   after the host disappears or its local simulation diverges.
+ * - Changes to event names, packet shapes, protocol/config versions, presence
+ *   metadata, or lifecycle transitions are protocol changes: update validation
+ *   and regression coverage for host/guest, reconnect, stale packets, and host loss.
  */
 (function () {
   'use strict';
