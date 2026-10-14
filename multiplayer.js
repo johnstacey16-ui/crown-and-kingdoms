@@ -67,6 +67,11 @@
     return Array.from(s).slice(0, 24).join('');
   }
 
+  function cleanStatusText(value) {
+    if (typeof value !== 'string') return '';
+    return value.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 180);
+  }
+
   function normalizeRoomCode(value) {
     if (typeof value !== 'string') return '';
     return value.toUpperCase().replace(/[\s-]/g, '');
@@ -357,10 +362,15 @@
       }
     }
 
-    const hosts = Array.from(members.values()).filter(m =>
-      m.role === 'host' && m.sid === m.hostSid && validateConfig(m.config));
-    if (hosts.length > 1) {
+    const hostRecords = Array.from(members.values()).filter(m =>
+      m.role === 'host' && m.sid === m.hostSid);
+    const hosts = hostRecords.filter(m => validateConfig(m.config));
+    if (hostRecords.length > 1) {
       failRoom('More than one host is present for this room code. The match has been stopped safely.', epoch, channel);
+      return;
+    }
+    if (state.role === 'guest' && hostRecords.length === 1 && hosts.length === 0) {
+      failLocal('The host advertised an invalid room configuration. Leave and recreate the room.');
       return;
     }
 
@@ -369,7 +379,7 @@
         setStatus('Reconnecting to room presence…');
         return;
       }
-      if (hosts.some(h => h.sid !== sessionId)) {
+      if (hostRecords.some(h => h.sid !== sessionId)) {
         failRoom('Host identity conflict detected. The match has been stopped safely.', epoch, channel);
         return;
       }
@@ -429,11 +439,16 @@
 
   function failRoom(reason, epoch, channel) {
     if (state.localFailure) return;
+    // Guests may stop locally on a conflict, but must never advertise themselves as host.
+    if (state.role !== 'host') {
+      failLocal(reason);
+      return;
+    }
     void publishHostFailure(reason, epoch, channel);
   }
 
   function failLocal(reason) {
-    state.localFailure = String(reason || 'Multiplayer integrity check failed.');
+    state.localFailure = cleanStatusText(reason) || 'Multiplayer integrity check failed.';
     state.lifecycle = 'failed';
     stopMarkerTimer();
     remotePlayers.clear();
@@ -715,7 +730,10 @@
     });
     channel.on('broadcast', { event: 'room-failed' }, ({ payload }) => {
       if (!channelStillCurrent(epoch, channel) || !payload || payload.v !== 1 || payload.sid === sessionId) return;
-      failLocal(cleanNick(payload.reason) || 'The host stopped the room after an integrity failure.');
+      const sender = typeof payload.sid === 'string' ? state.members.get(payload.sid) : null;
+      if (!sender || sender.role !== 'host' || sender.sid !== sender.hostSid ||
+          (state.hostSid && payload.sid !== state.hostSid)) return;
+      failLocal(cleanStatusText(payload.reason) || 'The host stopped the room after an integrity failure.');
     });
   }
 
