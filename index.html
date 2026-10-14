@@ -300,6 +300,19 @@ function patrol(wx,wy,once){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.pt={a:[
 function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.includes(u))),base=fresh?S.sel.filter(u=>!u.q):S.all.filter(u=>u.hp>0),ks=[...new Set(base.map(u=>u.k))];if(ks.length<2)return false;if(fresh)S.si=0;S.all=base;S.si=((S.si||0)+d+ks.length+1)%(ks.length+1);S.sel=S.si?base.filter(u=>u.k===ks[S.si-1]):base;note('Group: '+(S.si?U[ks[S.si-1]].n+' x'+S.sel.length:'all '+base.length));return true}
 function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil')u.st=v;note(['Aggressive','Defensive','Stand ground','Passive'][v]+' stance');menu=null}
 function unload(b){const cg=b.cg||[];for(const c of cg){let sp=null;for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<=b.s+r&&!sp;dy++)for(let dx=-r;dx<=b.s+r&&!sp;dx++){const x=b.x+dx,y=b.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&!S.wt[y*W+x]&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5]}if(sp){c.x=sp[0];c.y=sp[1];c.ld=null}}b.cg=cg.filter(c=>c.ld);note('Garrison unloaded')}
+function townBell(t){
+ const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
+ let sent=0;
+ for(const u of workers){
+  const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]&&((b.cg||[]).length+S.us.filter(v=>v!==u&&v.hp>0&&v.t===t&&v.o==='B'&&v.tg===b).length)<GAR[b.k]);
+  shelters.sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
+  const shelter=shelters[0];
+  if(!shelter)continue;
+  u.p=[];u.pt=null;u.as=0;u.o='B';u.tg=shelter;u.ut=null;sent++;
+ }
+ if(t===0)note(sent?'Town Bell: '+sent+' villagers sent to shelter':'No available shelter space for villagers');
+ return sent;
+}
 function gm(u,tg){const t=S.tech[u.t];let m=t.gath?1.25:1;const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;return m}
 const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 /* AoE-style farm capacity upgrades add food, rather than incorrectly increasing the harvest rate. */
@@ -445,7 +458,7 @@ ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
 const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:U[k].n,c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const n=P[6]?5:1;let ok=0;for(let q=0;q<n;q++)if(train(s,k))ok++;else break;if(ok)note(U[k].n+(ok>1?' x'+ok:'')+' queued')}}});
-if(s.k==='tc'){const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?'':'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
+if(s.k==='tc'){it.push({l:'Town Bell: Garrison villagers',c:{},lk:'',fn:()=>{townBell(s.t);menu=null}});const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?'':'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
 for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:e.cost,lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
 if(d.tx)for(const r of mkTrades())it.push(r);
 if(s.cg&&s.cg.length&&GAR[s.k])it.push({l:'Unload garrison ('+s.cg.length+')',c:{},lk:'',fn:()=>{unload(s);menu=null}});

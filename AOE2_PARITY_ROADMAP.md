@@ -19,11 +19,12 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 - **Present:** four broad ages; age-up costs, research times and building prerequisites; resource pools; villagers; construction and repair; production queues; research; population accounting; game-end handling.
 - **Present:** population limit selector with 50, 100, 150, 200, 250, 300, 400 and 500 options. Houses add five capacity each, starting from a base capacity of ten, with the selected setting as the upper cap. This is a configurable limit, not an automatic grant of that many population slots.
+- **Present:** Town Bell action on a player Town Centre sends available villagers toward completed Town Centres, Castles or Towers with room, counting both current garrisons and villagers already on the way. Villagers can be released using the normal unload action.
 - **Present:** food, wood, gold and stone gathering; drop-off logic; farms with automatic reseeding for 60 wood; Horse Collar (+75 farm food), Heavy Plow (+125) and Crop Rotation (+175); ownership-aware farm upgrades.
 - **Present:** market buy/sell trading with changing prices; Trade Carts from Markets and Trade Cogs from Docks; distance-based gold on completed deliveries; retry behaviour when a route endpoint is unavailable.
 - **Present:** relic collection and income while a relic is stored in a monastery; Fishing Ships, renewable fish traps (100 wood, 900 food per trap) and AI fish-trap deployment.
 - **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
-- **Gap:** a complete tribute interface and rules; diplomacy, neutral/ally/enemy relationships, team victory and treaty states; full villager resource-priority automation, auto-assignment and resource-site-specific commands; Town Bell behaviour.
+- **Gap:** a complete tribute interface and rules; diplomacy, neutral/ally/enemy relationships, team victory and treaty states; full villager resource-priority automation, auto-assignment and resource-site-specific commands.
 
 ### Combat, units and buildings
 
