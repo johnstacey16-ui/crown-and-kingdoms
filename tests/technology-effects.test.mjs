@@ -28,7 +28,7 @@ assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)
   'Infantry and ranged armour upgrades must affect damage calculation only for their explicit unit classes');
 assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect ongoing and future construction work rates');
-assert.match(html, /tk\.slit\?2:0\):0\),cls=ak\.sg/,
+assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(tk\.gf\?4:0\):0\),cls=ak\.sg/,
   'Arrowslits must feed the defensive building damage calculation');
 assert.match(html, /tk\.gtow\?3:0/,
   'Guard Tower must feed the defensive building damage calculation');
