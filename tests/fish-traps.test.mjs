@@ -19,3 +19,7 @@ test('fish traps visually distinguish themselves and replenish instead of disapp
   assert.match(html, /if\(tg\.trap\)\{tg\.amt=900/);
   assert.match(html, /if\(n\.trap\)\{X\.strokeStyle='#d7b36a'/);
 });
+
+test('AI fishing ships deploy traps when nearby fish resources run out', () => {
+  assert.match(html, /if\(!n&&R\.w>=100\)\{deployFishTrap\(\[s\]\);n=findNode\(s,'f',32\)\}/);
+});
