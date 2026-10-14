@@ -296,6 +296,14 @@ globalThis.__CK_TEST__ = {
         townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
       },
       mapAudit: S.mapAudit && { ok: S.mapAudit.ok },
+      aiGrowth: S.ai.map((a, team) => team === 0 || !a ? null : ({
+        team,
+        age: S.age[team],
+        buildings: S.bs.filter((b) => b.t === team && b.hp > 0).length,
+        completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege'].includes(b.k)).length,
+        militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
+        wave: a.wave || 0,
+      })).filter(Boolean),
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
       worker: (() => {
         const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
@@ -410,6 +418,24 @@ for (const goal of campaignBefore.requiredGoals) {
 }
 assert.equal(campaignAfter.gameOver, 'win', 'Completing all First Hearth objectives should trigger the real mission-win state');
 console.log(`campaign-smoke: First Hearth completed; objectives=${campaignBefore.requiredGoals.join(',')}, result=${campaignAfter.gameOver}`);
+
+game.start(123456);
+const aiBefore = game.state();
+for (let tick = 0; tick < 14400; tick += 1) game.tick(1 / 30);
+const aiAfter = game.state();
+const activeAi = aiAfter.aiGrowth.filter((a) => a && a.team > 0);
+assert.ok(activeAi.length > 0, 'The seeded match should initialise at least one rival AI kingdom');
+assert.ok(activeAi.some((a) => a.buildings > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.buildings ?? 0) ||
+  a.militaryUnits > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.militaryUnits ?? 0) ||
+  a.age > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.age ?? 0)),
+  'Rival AI must make measurable economic, military or age progression during eight simulated minutes');
+assert.ok(activeAi.some((a) => a.age >= 1),
+  'At least one rival should complete Feudal Age after meeting building and food prerequisites');
+assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0 || a.militaryUnits >= 4),
+  'Rival AI should establish military production or field a meaningful defensive force');
+assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
+console.log('ai-growth-smoke: rival AI progressed over 480 simulated seconds: ' +
+  activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
 
 
 
