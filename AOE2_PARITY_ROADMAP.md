@@ -79,3 +79,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - Commit `d7900be`: Added Crop Rotation to the mill research list and implemented Horse Collar / Heavy Plow / Crop Rotation as farm food-capacity upgrades instead of harvest-rate multipliers.
 - Commit `3c5cd9e`: Automatic farm reseeding now uses the researched farm capacity and costs 60 wood.
 - Syntax validation passed for the inline JavaScript after this change. This is not a substitute for a live gameplay test.
+
+
+- [x] Follow-up armour roster correction: added Longbowmen and Mangudai to ranged armour; kept Throwing Axemen and Gbeto under infantry armour and removed melee Mamelukes from the ranged list. Source-level roster checks updated; this corrects classification coverage but does not establish full AoE2 DE balance.
