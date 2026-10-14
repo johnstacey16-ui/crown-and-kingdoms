@@ -885,7 +885,7 @@
   }
 
   function failOpenRoom() {
-    leaveToSinglePlayer();
+    window.CK_NET.leaveToSinglePlayer();
   }
 
   function updateLocalSetting(row, delta) {
