@@ -267,6 +267,7 @@ globalThis.__CK_TEST__ = {
     aiTeam(team, 1 / 30);
     const waveStarted = ai.wave > 0 && !!ai.stg;
     const selectedSiegeTarget = !!ai.stg && ai.stg.siegeT === castle;
+    const primaryTarget = ai.stg?.tg || null;
     const stagedMixedArmy = !!ai.stg && infantry.some((u) => u.o === 'm' || u.o === 'a');
     S.t += 51;
     ai.cd = 0;
@@ -275,7 +276,7 @@ globalThis.__CK_TEST__ = {
       waveStarted,
       selectedSiegeTarget,
       siegeUnitTargetedCastle: ram.o === 'a' && ram.tg === castle,
-      infantryAssignedToPrimaryTarget: infantry.some((u) => u.o === 'a' && u.tg === playerTc),
+      infantryAssignedToPrimaryTarget: !!primaryTarget && infantry.some((u) => u.o === 'a' && u.tg === primaryTarget),
       stagedMixedArmy,
       towerExists: tower.hp > 0,
     };
