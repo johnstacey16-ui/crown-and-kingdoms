@@ -299,6 +299,8 @@ globalThis.__CK_TEST__ = {
       aiGrowth: S.ai.map((a, team) => team === 0 || !a ? null : ({
         team,
         age: S.age[team],
+        townCentreResearch: S.bs.find((b) => b.t === team && b.k === 'tc')?.rs || null,
+        agePrerequisites: new Set(S.bs.filter((b) => b.t === team && b.done && AG[S.age[team] + 1]?.needs.includes(b.k)).map((b) => b.k)).size,
         buildings: S.bs.filter((b) => b.t === team && b.hp > 0).length,
         buildingKinds: S.bs.filter((b) => b.t === team && b.hp > 0).map((b) => ({ kind: b.k, done: !!b.done, hp: b.hp })),
         unitsByKind: Object.fromEntries([...new Set(S.us.filter((u) => u.t === team && u.hp > 0).map((u) => u.k))].map((k) => [k, S.us.filter((u) => u.t === team && u.hp > 0 && u.k === k).length])),
