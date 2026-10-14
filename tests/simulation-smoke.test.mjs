@@ -249,6 +249,27 @@ globalThis.__CK_TEST__ = {
     u.o = 'b'; u.tg = b; u.p = []; u.rp = 0;
     return { x: b.x, y: b.y, buildSeconds: B.house.bt };
   },
+  runDefenseResponse() {
+    const team = 1;
+    const tc = S.bs.find((b) => b.t === team && b.k === 'tc' && b.done);
+    if (!tc) throw new Error('Seeded AI must have a completed Town Centre');
+    const intruder = addU(0, 'mil', tc.x + 4, tc.y + 4);
+    intruder.hp = 10000; intruder.mh = 10000;
+    const defenders = [
+      addU(team, 'mil', tc.x + 6, tc.y + 4),
+      addU(team, 'spear', tc.x + 7, tc.y + 4),
+    ];
+    for (const u of defenders) { u.o = 'i'; u.tg = null; u.p = []; u.retreating = 0; }
+    const worker = S.us.find((u) => u.t === team && u.k === 'vil' && !u.ld);
+    if (!worker) throw new Error('Seeded AI must have a villager available for the defence test');
+    worker.x = tc.x + 4; worker.y = tc.y + 5; worker.o = 'i'; worker.tg = null; worker.p = []; worker.ld = null;
+    S.ai[team].cd = 0;
+    aiTeam(team, 1 / 30);
+    return {
+      militaryResponded: defenders.some((u) => u.o === 'a' && u.tg === intruder),
+      villagerGarrisoned: worker.o === 'B' && worker.tg === tc,
+    };
+  },
   beginGatherResearch() {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     return tc ? research(tc, 'gath') : false;
@@ -443,6 +464,12 @@ assert.ok(activeAi.some((a) => a.wave > 0),
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
 console.log('ai-growth-smoke: rival AI progressed over 720 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
+
+game.start(123456);
+const defence = game.runDefenseResponse();
+assert.equal(defence.militaryResponded, true, 'Idle AI defenders should engage a hostile intruder near their Town Centre');
+assert.equal(defence.villagerGarrisoned, true, 'AI villagers near a threatened Town Centre should garrison');
+console.log('ai-defence-smoke: idle military engaged a hostile intruder and a nearby villager garrisoned');
 
 
 
