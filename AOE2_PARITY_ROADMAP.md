@@ -37,7 +37,8 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
 - **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, and more purposeful War Galley target selection.
 - **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
-- **Gap:** a systematic complete upgrade-line/technology-cost/prerequisite audit; the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
+- **Partial:** the 31 currently defined technologies are reachable from their listed buildings and define costs, ages and research times; research now rejects unknown technologies and wrong-building requests. Full effect-by-effect balance, upgrade-line coverage and prerequisite verification across a larger roster still need expansion.
+- **Gap:** the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
 
 ### Maps, campaigns and victory conditions
 
@@ -108,6 +109,13 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 - **Regression coverage:** a dedicated test verifies selection, save/settings clamps, the Town Centre build prohibition, player defeat, rival elimination, projectile cleanup and victory once hostile Town Centres are gone.
 - **Validation boundary:** source checks do not simulate live combat or a complete match; those remain deployment/browser/Xbox acceptance work.
 
+
+### Maintenance / technology audit — 14 October 2026
+
+- **Research request integrity:** the research function now validates the match, kingdom and building before work starts; refuses undefined technologies and research unavailable at that building; and allows age advancement only from a Town Centre. Invalid requests exit before costs are deducted.
+- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 31 technology entries.
+- **Effects remain partial:** generic hit-point and attack upgrades, construction speed, farm capacity, defensive attack effects and building health still have targeted checks. This does not establish complete AoE2 DE unit/technology parity or prove balance in live matches.
+
 ## 3. Platform-service exclusions
 
 Per project direction, do not spend time implementing Xbox achievements, Xbox cloud saves, Xbox presence/clubs, Smart Delivery, Xbox Play Anywhere, Xbox Cloud Gaming integration, Xbox-native matchmaking/ranked ELO, or platform cross-play without the required supported infrastructure. Browser-side game modes and local simulation features remain in scope. Do not confuse these exclusions with the separate task of verifying the existing `multiplayer.js` integration.
@@ -128,6 +136,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `script
 - Guard/Follow target validation, controller menus, simulation behaviour, post-combat return and manual-order overrides;
 - trade routes and fishing economy;
 - fish traps and technology effects;
+- all current technology definitions exposed through building research lists, required cost/time/age metadata, prerequisite references, and research-request validation;
 - AI retreats, siege support, defensive threat priorities and naval targeting;
 - campaign content;
 - map connectivity/generation diagnostics;
