@@ -996,7 +996,8 @@ function drawPerfOverlay(dt){
  const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?470:365,x=12,y=62,h=64;
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+(dt*1000).toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
- let xx=x+9;for(let t=0;t<S.teamN;t++){const label=names[t]+' '+S.us.filter(u=>u.t===t).length;tx(label,xx,y+36,12,teamColor(t));xx+=label.length*7.2+17}
+ const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
+ let xx=x+9;for(let t=0;t<S.teamN;t++){const label=names[t]+' '+teamCounts[t];tx(label,xx,y+36,12,teamColor(t));xx+=label.length*7.2+17}
  tx('SIM '+perfStepMs.toFixed(2)+' ms (peak '+perfStepPeak.toFixed(2)+')  |  DRAW '+perfDrawMs.toFixed(2)+' ms (peak '+perfDrawPeak.toFixed(2)+')',x+9,y+54,11,'#cbd5e1');
 }
 
