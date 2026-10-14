@@ -524,6 +524,7 @@
       // Publish the map signature and running lifecycle after deterministic generation.
       state.lifecycle = 'starting';
       state.hostSignature = startGameUsingConfig(cfg);
+      state.gameStarted = true;
       state.lifecycle = 'running';
       await trackHost('running', epoch, channel);
       if (!channelStillCurrent(epoch, channel)) return;
@@ -560,6 +561,7 @@
       }
       if (!channelStillCurrent(epoch, channel)) return;
       const sig = startGameUsingConfig(cfg);
+      state.gameStarted = true; // A local game now exists even if signatures disagree.
       if (sig !== host.mapSignature) {
         state.startingGame = false;
         try {
@@ -670,6 +672,7 @@
     if (payload.seq <= previousSeq) return;
     const member = state.members.get(payload.sid);
     if (!member || (member.role !== 'host' && member.role !== 'guest')) return;
+    if (payload.nick !== member.nick) return;
     lastSeqBySid.set(payload.sid, payload.seq);
     const now = performance.now();
     let marker = remotePlayers.get(payload.sid);
@@ -824,6 +827,7 @@
   async function leaveRoom(goTitle, restoreSettings) {
     const ch = state.channel;
     const client = supabaseClient;
+    const hadStartedGame = state.gameStarted;
     ++state.epoch;
     stopMarkerTimer();
     state.active = false;
@@ -849,7 +853,10 @@
       await untrackPresence(ch);
       try { if (client) await client.removeChannel(ch); } catch (_) {}
     }
-    if (restoreSettings !== false) restoreLocalSettings();
+    if (restoreSettings !== false) {
+      if (hadStartedGame) beforeRoomSettings = null;
+      else restoreLocalSettings();
+    }
     showLobbyFields(false);
     if (goTitle !== false) mode = 'title';
     state.config = currentLocalConfig();
@@ -857,11 +864,7 @@
   }
 
   function failOpenRoom() {
-    if (state.active) void leaveRoom(true, true);
-    else {
-      mode = 'title';
-      showLobbyFields(false);
-    }
+    leaveToSinglePlayer();
   }
 
   function updateLocalSetting(row, delta) {
@@ -1084,7 +1087,10 @@
       selectedRow = 0;
       setStatus('Not connected. Create a room or join using a room code.');
     },
-    leaveToSinglePlayer() { void leaveRoom(true, true); },
+    leaveToSinglePlayer() {
+      const hadStartedGame = state.gameStarted;
+      void leaveRoom(false, true).then(() => { mode = hadStartedGame ? 'play' : 'title'; });
+    },
     reconcilePresence,
     _acceptMarkerForTest: acceptMarker,
     _validateConfigForTest: validateConfig,
@@ -1093,7 +1099,7 @@
   };
 
   window.addEventListener('beforeunload', () => {
+    // pagehide performs best-effort channel cleanup; avoid a duplicate untrack.
     stopMarkerTimer();
-    try { if (state.channel) void untrackPresence(state.channel); } catch (_) {}
   });
 })();
