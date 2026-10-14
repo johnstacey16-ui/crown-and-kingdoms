@@ -90,7 +90,7 @@ sandbox.requestAnimationFrame = () => {};
 const source = scripts.map((match) => match[1]).join('\n');
 const harness = `
 globalThis.__CK_TEST__ = {
-  start(seed) { seedOv = seed; cmp = null; gameMode = 0; start(); },
+  start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
   tick(dt) { step(dt); },
   beginGatherResearch() {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
@@ -164,7 +164,7 @@ assert.ok(
 assert.ok(economyAfter.worker, 'The gathering villager should remain alive');
 console.log(`economy-smoke: villager order advanced 60s (wood=${economyBefore.woodNodes}->${economyAfter.woodNodes}, carried=${economyAfter.worker.carrying}, playerWood=${economyBefore.resources[0].w}->${economyAfter.resources[0].w})`);
 
-game.start(123456);
+game.start(123456, 1);
 assert.equal(game.beginGatherResearch(), true, 'The Town Centre should accept affordable Gather Rate research');
 assert.equal(game.state().research.gatherRate, 0, 'Research must not apply before its timer completes');
 for (let tick = 0; tick < 930; tick += 1) game.tick(1 / 30);
