@@ -11,8 +11,8 @@ assert.match(html, /function findReachableAutoNode\(u,k,r=36\)\{[\s\S]{0,700}con
   'Automatic resource selection must verify a path exists before assigning the target');
 assert.match(html, /if\(route&&route\.length\)return \{n,route\}/,
   'Reachable automatic targets must return the path to avoid an immediate second failed lookup');
-assert.match(html, /if\(\+\+failed>=6\)break/,
-  'Route checks must be bounded per attempt to avoid expensive unbounded retries');
+assert.match(html, /if\(\+\+failed>=2\)break/,
+  'At most two failed routes may be checked per retry to limit pathfinding cost');
 assert.match(html, /function assignAutoVillager\(u,force=false\)\{[\s\S]{0,1500}findReachableAutoNode\(u,k,36\)/,
   'New/reassigned automated villagers must use route-aware resource selection');
 assert.match(html, /u\.p=found\.route;u\.pt=null;u\.ret=0;u\.rp=1;u\.autoWorker=1;return true/,
