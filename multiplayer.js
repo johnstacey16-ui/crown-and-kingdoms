@@ -824,7 +824,7 @@
     }
   }
 
-  async function leaveRoom(goTitle, restoreSettings) {
+  async function leaveRoom(goTitle, restoreSettings, forceRestoreSettings) {
     const ch = state.channel;
     const client = supabaseClient;
     const hadStartedGame = state.gameStarted;
@@ -854,7 +854,7 @@
       try { if (client) await client.removeChannel(ch); } catch (_) {}
     }
     if (restoreSettings !== false) {
-      if (hadStartedGame) beforeRoomSettings = null;
+      if (hadStartedGame && !forceRestoreSettings) beforeRoomSettings = null;
       else restoreLocalSettings();
     }
     showLobbyFields(false);
@@ -1064,6 +1064,24 @@
     return !!(state.active && state.connected && state.lifecycle === 'running' && !state.localFailure);
   }
 
+  function drawMatchStatus() {
+    if (!state.active || !state.roomCode || !state.gameStarted) return;
+    const healthy = state.connected && state.lifecycle === 'running' && !state.localFailure;
+    const label = 'ROOM ' + state.roomCode + ' · ' + String(state.role || 'PLAYER').toUpperCase() +
+      ' · ' + (state.localFailure ? 'INTEGRITY ERROR' : healthy ? 'CONNECTED' : 'CONNECTION LOST') +
+      ' · MARKERS ONLY';
+    const width = Math.min(Math.max(260, CW - 20), 430);
+    const x = (CW - width) / 2, y = 58;
+    X.save();
+    X.fillStyle = 'rgba(9,13,22,.86)';
+    X.fillRect(x, y, width, 25);
+    X.strokeStyle = healthy ? 'rgba(126,224,129,.75)' : 'rgba(255,139,130,.9)';
+    X.lineWidth = 1;
+    X.strokeRect(x, y, width, 25);
+    tx(label, CW / 2, y + 17, 12, healthy ? '#9ae6b4' : '#ffb4ab', 'center');
+    X.restore();
+  }
+
   function snapshot() {
     return {
       protocol: PROTOCOL_VERSION, sessionId, roomCode: state.roomCode, role: state.role,
@@ -1078,7 +1096,7 @@
   }
 
   window.CK_NET = {
-    control, drawLobby, getRenderEntries, drawMarker, isRunning, snapshot,
+    control, drawLobby, getRenderEntries, drawMarker, drawMatchStatus, isRunning, snapshot,
     openLobby() {
       state.nick = cleanNick(ensureLobbyFields().nick.value) || state.nick || 'Player';
       state.config = state.config || currentLocalConfig();
@@ -1089,7 +1107,13 @@
     },
     leaveToSinglePlayer() {
       const hadStartedGame = state.gameStarted;
-      void leaveRoom(false, true).then(() => { mode = hadStartedGame ? 'play' : 'title'; });
+      const resume = hadStartedGame && mode !== 'end' && mode !== 'error';
+      mode = resume ? 'play' : 'title';
+      void leaveRoom(false, true, hadStartedGame && !resume);
+    },
+    leaveToTitle() {
+      mode = 'title';
+      void leaveRoom(false, true, true);
     },
     reconcilePresence,
     _acceptMarkerForTest: acceptMarker,
