@@ -760,6 +760,8 @@
     state.busy = true;
     const epoch = ++state.epoch;
     state.active = true;
+    f.nick.disabled = true;
+    f.code.disabled = true;
     state.connected = false;
     state.tracked = false;
     guestTrackPromise = null;
