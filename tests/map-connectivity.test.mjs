@@ -7,8 +7,8 @@ const grid = [
   ['L','L','W','L'],
   ['W','W','W','L']
 ];
-const land = cell => cell === 'L';
-const water = cell => cell === 'W';
+const land = (_x, _y, cell) => cell === 'L';
+const water = (_x, _y, cell) => cell === 'W';
 
 assert.equal(floodFill(grid, {x:0,y:0}, (_x,_y,c) => c === 'L').cells.length, 5);
 assert.equal(connectedComponents(grid, (_x,_y,c) => c === 'L').length, 2);
