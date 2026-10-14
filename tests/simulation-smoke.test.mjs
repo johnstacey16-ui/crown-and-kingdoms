@@ -93,6 +93,7 @@ let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
+  startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
   completeFirstCampaignMission() {
     startScenario(0);
@@ -350,7 +351,7 @@ globalThis.__CK_TEST__ = {
         gatherRate: S.tech[0].gath || 0,
         townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
       },
-      mapAudit: S.mapAudit && { ok: S.mapAudit.ok },
+      mapAudit: S.mapAudit ? { ...S.mapAudit } : null,
       aiPeak: { ...aiPeak },
       aiGrowth: S.ai.map((a, team) => team === 0 || !a ? null : ({
         team,
@@ -510,6 +511,17 @@ assert.equal(siegeAttack.selectedSiegeTarget, true, 'Siege targeting should pref
 assert.equal(siegeAttack.siegeUnitTargetedCastle, true, 'A staged battering ram should receive the selected Castle target');
 assert.equal(siegeAttack.infantryAssignedToPrimaryTarget, true, 'Non-siege units should retain the primary attack target');
 console.log('ai-siege-smoke: coordinated wave selected the Castle for the ram and retained the Town Centre target for infantry');
+
+const generatedMaps = [];
+for (let mapIndex = 0; mapIndex < 12; mapIndex += 1) {
+  const result = game.startMap(73000 + mapIndex, mapIndex, 4);
+  assert.equal(result.mapAudit?.landReachable, true, `Generated map ${mapIndex} should connect all four starting land regions`);
+  assert.ok(result.mapAudit.waterCells > 0, `Generated map ${mapIndex} should contain water cells`);
+  assert.equal(result.mapAudit.starts, 4, `Generated map ${mapIndex} should audit all four starting locations`);
+  generatedMaps.push({ mapIndex, landComponents: result.mapAudit.landComponents, waterComponents: result.mapAudit.waterComponents, dockableStarts: result.mapAudit.dockableStarts });
+}
+console.log('generated-map-smoke: all 12 actual map types generated with connected starting land: ' +
+  generatedMaps.map((m) => `map ${m.mapIndex}: land components=${m.landComponents}, water components=${m.waterComponents}, dockable starts=${m.dockableStarts}`).join('; '));
 
 
 
