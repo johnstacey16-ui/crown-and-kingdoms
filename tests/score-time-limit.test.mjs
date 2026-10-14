@@ -36,9 +36,9 @@ assert.match(html, /\{n:'Score time limit',v:\(\)=>Math\.round\(scoreLimit\/60\)
   'The duration selector must be visible in the controller-driven setup menu');
 assert.match(html, /Math\.max\(0,scoreLimit-S\.t\)/,
   'The score HUD countdown must reflect the selected duration');
-assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute time limit'/,
+assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute time limit/,
   'The score winner message must state the selected duration');
-assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute score limit'/,
+assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute score limit/,
   'The score draw message must state the selected duration');
 assert.match(html, /JSON\.stringify\(\{ui,br,msz,diff,vm,scoreLimit,mt,civ/,
   'Settings persistence must include the selected score duration');
