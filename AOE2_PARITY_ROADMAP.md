@@ -57,6 +57,9 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 - [x] Farm ownership is now recorded for player- and AI-built farms; Horse Collar, Heavy Plow and Crop Rotation capacity increases only affect farms owned by the researching kingdom. The reseed notification now matches the 60-wood cost. Source syntax check passed; live gameplay remains unverified.
 
+
+- [x] Added a Node.js source-check script and GitHub Actions workflow to parse inline JavaScript and guard the farm-capacity/ownership/reseed fixes against regression. This is static validation, not a substitute for browser or Xbox gameplay testing.
+
 ## Implementation order
 
 1. **Stability and testability:** protect the last working build; syntax checks plus runtime smoke tests; resolve any black-screen or stuck-game regressions first.
