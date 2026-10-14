@@ -92,6 +92,25 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
   tick(dt) { step(dt); },
+  completeFirstCampaignMission() {
+    startScenario(0);
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    if (!tc) throw new Error('First Hearth must start with a Town Centre');
+    for (const kind of ['house', 'lumber', 'bar']) {
+      if (!put(0, kind, tc.x + 8, tc.y + 8)) throw new Error('Could not place campaign objective building: ' + kind);
+    }
+    while (S.us.filter((u) => u.t === 0 && u.k === 'vil').length < 10) {
+      const p = spawnPos(tc);
+      if (!p) throw new Error('Could not spawn villagers for campaign objective test');
+      addU(0, 'vil', p[0], p[1]);
+    }
+    while (cmil(0) < 4) {
+      const p = spawnPos(tc);
+      if (!p) throw new Error('Could not spawn soldiers for campaign objective test');
+      addU(0, 'mil', p[0], p[1]);
+    }
+    return { mission: cmp.i, requiredGoals: CAMP[cmp.i].goals.map((g) => g.id) };
+  },
   beginNavalMove() {
     const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
       S.wt[y * W + x] === 1 && !S.nd[y * W + x];
@@ -196,6 +215,7 @@ globalThis.__CK_TEST__ = {
       units: S.us.length,
       buildings: S.bs.length,
       playerGold: S.res[0].g,
+      campaign: cmp ? { index: cmp.i, goals: { ...cmp.d }, time: cmp.t } : null,
       navalShip: (() => {
         const u = S.us.find((u) => u.t === 0 && u.k === 'gal' && u.testNaval === true);
         return u ? { x: u.x, y: u.y, order: u.o, water: S.wt[(u.y | 0) * W + (u.x | 0)] === 1 } : null;
@@ -295,6 +315,17 @@ assert.ok(Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.na
   'The real ship movement order should move the ship across the water route');
 assert.equal(navalAfter.navalShip.water, true, 'The ship should remain on navigable water during the movement smoke test');
 console.log(`naval-smoke: ship moved across water (route=${navalBefore.routeLength} path points, displacement=${Math.hypot(navalAfter.navalShip.x - navalBefore.start.x, navalAfter.navalShip.y - navalBefore.start.y).toFixed(1)} tiles)`);
+
+const campaignBefore = game.completeFirstCampaignMission();
+for (let tick = 0; tick < 15; tick += 1) game.tick(1 / 30);
+const campaignAfter = game.state();
+assert.equal(campaignBefore.mission, 0, 'The campaign smoke should initialise First Hearth');
+for (const goal of campaignBefore.requiredGoals) {
+  assert.equal(campaignAfter.campaign.goals[goal], 1, `Campaign objective ${goal} should be marked complete by the real objective tracker`);
+}
+assert.equal(campaignAfter.gameOver, 'win', 'Completing all First Hearth objectives should trigger the real mission-win state');
+console.log(`campaign-smoke: First Hearth completed; objectives=${campaignBefore.requiredGoals.join(',')}, result=${campaignAfter.gameOver}`);
+
 
 
 
