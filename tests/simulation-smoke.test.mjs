@@ -92,6 +92,10 @@ const harness = `
 globalThis.__CK_TEST__ = {
   start(seed) { seedOv = seed; cmp = null; gameMode = 0; start(); },
   tick(dt) { step(dt); },
+  beginGatherResearch() {
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    return tc ? research(tc, 'gath') : false;
+  },
   orderWoodGather() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
     if (!u) throw new Error('The seeded match must contain a player villager');
@@ -110,6 +114,10 @@ globalThis.__CK_TEST__ = {
       scoreCache: S.scoreCache.slice(),
       resources: S.res.map((r) => ({ ...r })),
       gameOver: S.over,
+      research: {
+        gatherRate: S.tech[0].gath || 0,
+        townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
+      },
       mapAudit: S.mapAudit && { ok: S.mapAudit.ok },
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
       worker: (() => {
@@ -155,4 +163,14 @@ assert.ok(
 );
 assert.ok(economyAfter.worker, 'The gathering villager should remain alive');
 console.log(`economy-smoke: villager order advanced 60s (wood=${economyBefore.woodNodes}->${economyAfter.woodNodes}, carried=${economyAfter.worker.carrying}, playerWood=${economyBefore.resources[0].w}->${economyAfter.resources[0].w})`);
+
+game.start(123456);
+assert.equal(game.beginGatherResearch(), true, 'The Town Centre should accept affordable Gather Rate research');
+assert.equal(game.state().research.gatherRate, 0, 'Research must not apply before its timer completes');
+for (let tick = 0; tick < 930; tick += 1) game.tick(1 / 30);
+const researchAfter = game.state();
+assert.equal(researchAfter.research.gatherRate, 1, 'Completing research must apply the real Gather Rate technology effect');
+assert.equal(researchAfter.research.townCentreResearch, null, 'The completed research queue should clear');
+console.log('research-smoke: Gather Rate research completed through 31 simulated seconds and applied to the real technology state');
+
 
