@@ -428,7 +428,7 @@
       await trackPresence(channel, hostMetadata('failed'));
     } catch (_) {}
     try {
-      await channel.send({ type: 'broadcast', event: 'room-failed', payload: { v: 1, sid: sessionId, reason: String(reason).slice(0, 180) } });
+      await broadcast('room-failed', { v: 1, sid: sessionId, reason: String(reason).slice(0, 180) }, epoch);
     } catch (_) {}
     if (channelStillCurrent(epoch, channel)) {
       stopMarkerTimer();
@@ -581,9 +581,7 @@
       state.gameStarted = true; // A local game now exists even if signatures disagree.
       if (sig !== host.mapSignature) {
         state.startingGame = false;
-        try {
-          await channel.send({ type: 'broadcast', event: 'map-fail', payload: { v: 1, sid: sessionId, signature: sig, expected: host.mapSignature } });
-        } catch (_) {}
+        await broadcast('map-fail', { v: 1, sid: sessionId, signature: sig, expected: host.mapSignature }, epoch);
         failLocal('Initial map signature mismatch. The marker match was aborted; use the same settings and recreate the room.');
         return;
       }
@@ -594,9 +592,7 @@
       setStatus('Map signature matches host. Marker match running.');
       startMarkerTimer(epoch);
       sendMarkerNow(epoch);
-      try {
-        await channel.send({ type: 'broadcast', event: 'map-ok', payload: { v: 1, sid: sessionId, signature: sig } });
-      } catch (_) {}
+      await broadcast('map-ok', { v: 1, sid: sessionId, signature: sig }, epoch);
     } catch (e) {
       if (channelStillCurrent(epoch, channel)) {
         state.startingGame = false;
@@ -626,26 +622,30 @@
     if (jsonByteLength(p) > MAX_PACKET_BYTES) return;
     pendingPayload = p;
     if (sendInFlight) return;
-    const ch = state.channel;
     const payload = pendingPayload;
     pendingPayload = null;
     sendInFlight = true;
-    Promise.resolve(ch.send({ type: 'broadcast', event: 'marker', payload }))
-      .catch(() => { if (channelStillCurrent(epoch, ch)) setStatus('Network send interrupted; local gameplay continues.'); })
+    void broadcast('marker', payload, epoch)
       .finally(() => { if (epoch === state.epoch) sendInFlight = false; });
   }
 
   async function broadcast(event, payload, epoch) {
     const ch = state.channel;
-    if (!ch || !channelStillCurrent(epoch, ch)) return;
+    if (!ch || !channelStillCurrent(epoch, ch)) return false;
     try {
       if (jsonByteLength(payload) > MAX_PACKET_BYTES) {
-        setStatus('Network packet rejected: application payload exceeded 1 KB.');
-        return;
+        if (channelStillCurrent(epoch, ch)) setStatus('Network packet rejected: application payload exceeded 1 KB.');
+        return false;
       }
-      await ch.send({ type: 'broadcast', event, payload });
-    } catch (_) {
-      if (channelStillCurrent(epoch, ch)) setStatus('Network send interrupted; local gameplay continues.');
+      const result = await ch.send({ type: 'broadcast', event, payload });
+      if (result && result !== 'ok') {
+        if (channelStillCurrent(epoch, ch)) setStatus('Supabase Broadcast reported ' + String(result) + '; local gameplay continues.');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (channelStillCurrent(epoch, ch)) setStatus('Network send interrupted: ' + String(e && e.message || e) + '. Local gameplay continues.');
+      return false;
     }
   }
 
