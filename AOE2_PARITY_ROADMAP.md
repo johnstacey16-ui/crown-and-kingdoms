@@ -128,3 +128,6 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 
 
 - [x] **Dock-site diagnostics (2026-10-14):** the generated-map audit now checks for a valid 2×2 Dock footprint beside navigable water near each kingdom start and reports `dockableStarts` / `navalAccess` in `S.mapAudit`. This reports naval access without rejecting intentionally inland layouts; the map regression test now guards the diagnostic fields.
+
+
+- [x] **Coastal campaign sequel (2026-10-14):** added *The Strait's Last Relic* as the next Coastal War mission, with monastery construction, relic recovery, enemy Castle and Town Centre objectives, and timed mixed land/naval raids. The mission uses the existing campaign objective/event system; objective balance and mission completion remain to be validated in a running game.
