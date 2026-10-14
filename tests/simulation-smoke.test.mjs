@@ -107,7 +107,7 @@ globalThis.__CK_TEST__ = {
 };
 `;
 const vmContext = vm.createContext(sandbox);
-new vm.Script(source + '\\n' + harness, { filename: 'index.html:simulation-smoke' }).runInContext(vmContext, { timeout: 15000 });
+new vm.Script(source + '\n' + harness, { filename: 'index.html:simulation-smoke' }).runInContext(vmContext, { timeout: 15000 });
 
 const game = sandbox.__CK_TEST__;
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
