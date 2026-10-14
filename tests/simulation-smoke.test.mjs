@@ -111,6 +111,23 @@ globalThis.__CK_TEST__ = {
     }
     return { mission: cmp.i, requiredGoals: CAMP[cmp.i].goals.map((g) => g.id) };
   },
+  beginShipRepair() {
+    let pair = null;
+    for (let y = 2; y < H - 2 && !pair; y++) for (let x = 2; x < W - 2 && !pair; x++) {
+      if (S.wt[y * W + x] !== 1 || S.nd[y * W + x]) continue;
+      for (const [dx, dy] of D8) {
+        const lx = x + dx, ly = y + dy, li = ly * W + lx;
+        if (S.wt[li] === 0 && !S.g[li] && !S.nd[li]) { pair = { sx: x, sy: y, vx: lx, vy: ly }; break; }
+      }
+    }
+    if (!pair) throw new Error('Seeded map has no clear coastal tile pair for ship repair');
+    const ship = addU(0, 'gal', pair.sx + 0.5, pair.sy + 0.5);
+    ship.hp = U[ship.k].hp * 0.5; ship.testRepairTarget = true;
+    const worker = addU(0, 'vil', pair.vx + 0.5, pair.vy + 0.5);
+    S.sel = [worker];
+    if (!orderSel(ship, ship.x, ship.y)) throw new Error('Real player order should accept a villager ship-repair command');
+    return { hp: ship.hp, maxHp: U[ship.k].hp, order: worker.o, distance: Math.hypot(worker.x - ship.x, worker.y - ship.y) };
+  },
   beginNavalCombat() {
     const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
       S.wt[y * W + x] === 1 && !S.nd[y * W + x];
@@ -251,6 +268,14 @@ globalThis.__CK_TEST__ = {
       buildings: S.bs.length,
       playerGold: S.res[0].g,
       campaign: cmp ? { index: cmp.i, goals: { ...cmp.d }, time: cmp.t } : null,
+      repairTarget: (() => {
+        const u = S.us.find((u) => u.testRepairTarget === true);
+        return u ? { hp: u.hp, maxHp: U[u.k].hp } : null;
+      })(),
+      repairWorker: (() => {
+        const u = S.us.find((u) => u.o === 'rep' && u.t === 0 && u.k === 'vil');
+        return u ? { order: u.o, targetHp: u.tg?.hp ?? null } : null;
+      })(),
       navalCombatTarget: (() => {
         const u = S.us.find((u) => u.testNavalTarget === true);
         return u ? { hp: u.hp, maxHp: U[u.k].hp, dead: !!u.dead } : null;
@@ -363,6 +388,17 @@ assert.ok(combatAfter.navalCombatTarget, 'The enemy galley should remain inspect
 assert.ok(combatAfter.navalCombatTarget.hp < combatBefore.targetHp || combatAfter.navalCombatTarget.dead,
   'A real galley attack order should damage or destroy the enemy ship');
 console.log(`naval-combat-smoke: enemy galley HP ${combatBefore.targetHp}->${combatAfter.navalCombatTarget.hp} over 30 simulated seconds`);
+
+game.start(123456);
+const repairBefore = game.beginShipRepair();
+assert.equal(repairBefore.order, 'rep', 'The real villager command should enter ship-repair state');
+for (let tick = 0; tick < 300; tick += 1) game.tick(1 / 30);
+const repairAfter = game.state();
+assert.ok(repairAfter.repairTarget, 'The damaged ship should remain in the real simulation');
+assert.ok(repairAfter.repairTarget.hp > repairBefore.hp, 'The real repair order should restore ship hit points');
+assert.ok(repairAfter.repairTarget.hp <= repairAfter.repairTarget.maxHp, 'Repairing must not exceed maximum ship health');
+console.log(`ship-repair-smoke: galley HP ${repairBefore.hp}->${repairAfter.repairTarget.hp} over 10 simulated seconds`);
+
 
 
 const campaignBefore = game.completeFirstCampaignMission();
