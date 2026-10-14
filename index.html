@@ -824,7 +824,19 @@ const CAMP=[
 {t:'Crown of Ashford',b:'The rival claimant has fortified the capital and refuses all terms. Muster a field army, break the outer defences and destroy the enemy Town Centre to reunite the kingdom under one crown.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);put(1,'castle',e.x-7,e.y+8);put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2},
  goals:[{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:5,do:()=>note('Protect your rams with infantry. They deal heavy damage to buildings but are vulnerable in melee.')},{at:120,do:()=>note('Use your archers to thin defenders before your siege units reach the walls.')}]} 
+ ev:[{at:5,do:()=>note('Protect your rams with infantry. They deal heavy damage to buildings but are vulnerable in melee.')},{at:120,do:()=>note('Use your archers to thin defenders before your siege units reach the walls.')}]},
+{t:'Siege of Greywatch',b:'Greywatch blocks the royal road. The enemy has fortified its capital and must be driven out before reinforcements arrive. Use your siege engines carefully and keep cavalry away from enemy pikes.',civ:0,en:3,mt:1,msz:1,seed:910,diff:1,aip:1,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);put(1,'tower',e.x-4,e.y+11);grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
+ goals:[{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
+ ev:[{at:90,do:()=>note('Greywatch is reinforced. Keep your siege units behind the front line.')},{at:240,do:()=>raid(5,['knight','arc','spear','knight','arc'],'Enemy reinforcements are striking your economy.')}]},
+{t:'The King’s Road',b:'A vital trade route is under threat. Establish a market, raise two defensive towers and hold the road for eight minutes while enemy raiders test your defences.',civ:3,en:2,mt:0,msz:1,seed:911,diff:1,aip:4,vm:0,
+ setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
+ goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480}],
+ ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')}]},
+{t:'The Relic Road',b:'Two sacred relics lie between the rival kingdoms. Build a monastery, train monks and bring both relics home. Protect the monks: the enemy patrols the central road.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);for(let i=0;i<2;i++){let x=(W/2|0)+(i?3:-3),y=(H/2|0)+(i?2:-2);for(let r=0;r<16&&(x<2||y<2||x>=W-2||y>=H-2||S.g[y*W+x]||S.wt[y*W+x]);r++){x=(W/2|0)+(i?3:-3)+r%4;y=(H/2|0)+(i?2:-2)+((r/4)|0)}if(x>1&&y>1&&x<W-1&&y<H-1&&!S.wt[y*W+x])S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null})}const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
+ goals:[{id:'relics',t:'Return both relics to your Monastery',ok:()=>S.rel.filter(r=>r.m&&r.m.t===0).length>=2}],
+ ev:[{at:80,do:()=>note('Monks can collect relics and carry them back to a Monastery. Keep escorts nearby.')},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy patrols have spotted your monks.')}]} 
 ]; 
 const campDone=()=>{try{const d=JSON.parse(localStorage.getItem('ck_camp'));return Array.isArray(d)?d:[]}catch(e){return[]}};
 function campMark(i){try{const d=campDone();d[i]=1;localStorage.setItem('ck_camp',JSON.stringify(d))}catch(e){}}
@@ -835,7 +847,7 @@ function cmpObj(){const sc=CAMP[cmp.i];tx('Mission '+(cmp.i+1)+': '+sc.t,CW/2-40
 function endA(){if(!cmp){start();return}if(S.over==='win'){if(CAMP[cmp.i+1]){bi=cmp.i+1;mode='brief'}else{mode='camp';ci=0}}else startScenario(cmp.i)}
 function endB(){if(cmp){mode='camp';ci=0}else mode='title'}
 function wrapT(s,x,y,w,sz,c,lh){X.font=`bold ${sz}px system-ui,sans-serif`;let line='',yy=y;for(const wd of s.split(' ')){const t=line?line+' '+wd:wd;if(X.measureText(t).width>w&&line){tx(line,x,yy,sz,c);yy+=lh;line=wd}else line=t}tx(line,x,yy,sz,c);return yy+lh}
-const CAMP_ARCS=[{n:'The Crown of Ashford',ids:[0,1,2,3,4,5,8]},{n:'Frontier Wars',ids:[6,7]}];
+const CAMP_ARCS=[{n:'The Crown of Ashford',ids:[0,1,2,3,4,5,8]},{n:'Frontier Wars',ids:[6,7]},{n:'The Royal Campaign',ids:[9,10,11]}];
 const campItems=()=>{const dn=campDone(),arc=CAMP_ARCS[ca]||CAMP_ARCS[0];return[{n:'Campaign: '+arc.n,v:()=>((ca+1)+' / '+CAMP_ARCS.length),d:()=> 'Use Left/Right to switch campaign.',l:()=>{ca=(ca+CAMP_ARCS.length-1)%CAMP_ARCS.length;ci=0},r:()=>{ca=(ca+1)%CAMP_ARCS.length;ci=0}},...arc.ids.map((i,j)=>{const m=CAMP[i],locked=j>0&&!dn[arc.ids[j-1]];return{n:(j+1)+'. '+m.t+(dn[i]?'  (complete)':locked?'  (locked)':''),d:()=>m.b.slice(0,100)+'...',a:()=>{if(!locked){bi=i;mode='brief'}}}}),{n:'Back',a:()=>{mode='title'}}]};
 function drawCamp(){titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
 function campCtl(){const it=campItems(),n=it.length;if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;const r=it[ci];if(E[14]&&r.l)r.l();if(E[15]&&r.r)r.r();if(E[0]&&r.a)r.a();if(E[1])mode='title'}
