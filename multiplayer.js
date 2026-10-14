@@ -969,6 +969,7 @@
     panel(x, y, w, h);
     tx('CROWN & KINGDOMS — MULTIPLAYER', CW / 2, y + 38, Math.min(30, w / 25), '#f2c14e', 'center');
     tx('PHASE 1: SHARED STARTING MAP + MOVING COMMAND MARKERS ONLY', CW / 2, y + 65, 15, '#cbd5e1', 'center');
+    tx('Prototype only: room codes are not authentication; browser hosts are not trusted servers.', CW / 2, y + 84, 12, '#fca5a5', 'center');
     tx('Nickname', x + 26, y + h * 0.205, 17, '#fde68a');
     tx('Room code', x + 26, y + h * 0.275, 17, '#fde68a');
     tx('Room: ' + (state.roomCode || 'not connected'), x + 26, y + h * 0.36, 19, '#fff');
