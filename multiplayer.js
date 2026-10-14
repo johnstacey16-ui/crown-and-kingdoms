@@ -165,11 +165,11 @@
     if (lobbyFields) return lobbyFields;
     const css = document.createElement('style');
     css.textContent =
-      '#ck-mp-fields{position:fixed;z-index:20;left:50%;top:30.2%;transform:translateX(-50%);width:min(340px,76vw);display:none;gap:10px;flex-direction:column;pointer-events:auto;font:600 18px system-ui,sans-serif}' +
+      '#ck-mp-fields{position:fixed;z-index:20;left:0;top:0;transform:none;width:310px;display:none;gap:10px;flex-direction:column;pointer-events:auto;font:600 18px system-ui,sans-serif}' +
       '#ck-mp-fields input{box-sizing:border-box;width:100%;height:38px;border:2px solid #c9a24a;border-radius:4px;background:#10131c;color:#fff;padding:6px 10px;font:600 18px system-ui,sans-serif;user-select:text;-webkit-user-select:text;touch-action:auto;outline-offset:3px}' +
       '#ck-mp-fields input:focus{outline:3px solid #82aaff;border-color:#fff}' +
       '#ck-mp-fields input::placeholder{color:#b9b9b9}' +
-      '@media(max-height:650px){#ck-mp-fields{top:27.5%;gap:6px}#ck-mp-fields input{height:32px;font-size:16px}}';
+      '@media(max-height:650px){#ck-mp-fields{gap:6px}#ck-mp-fields input{height:32px;font-size:16px}}';
     document.head.appendChild(css);
     const box = document.createElement('div');
     box.id = 'ck-mp-fields';
@@ -203,6 +203,13 @@
 
   function showLobbyFields(show) {
     const f = ensureLobbyFields();
+    const panelW = Math.min(920, CW - 28);
+    const panelH = Math.min(CH - 30, Math.max(440, CH * 0.9));
+    const panelX = (CW - panelW) / 2;
+    const panelY = (CH - panelH) / 2;
+    f.box.style.left = (panelX + 104) + 'px';
+    f.box.style.top = (panelY + panelH * 0.16) + 'px';
+    f.box.style.width = Math.min(310, panelW * 0.42) + 'px';
     f.box.style.display = show ? 'flex' : 'none';
     if (show) {
       if (!f.nick.value) f.nick.value = state.nick || 'Player';
@@ -269,21 +276,32 @@
       lifecycle === 'running' ? 'Match running. Markers update at 5 Hz.' : 'Room status: ' + lifecycle);
   }
 
+  let guestTrackPromise = null;
   async function trackGuestOnce(epoch, channel) {
-    if (!channelStillCurrent(epoch, channel) || state.role !== 'guest' || state.tracked || !state.hostSid) return;
-    state.tracked = true;
-    try {
-      const result = await channel.track(guestMetadata());
-      if (!channelStillCurrent(epoch, channel)) return;
-      if (result && result !== 'ok') throw new Error('Presence track returned ' + String(result));
-      state.connected = true;
-      setStatus('Connected. Waiting for the host to start the marker match.');
-      reconcilePresence(epoch, channel);
-    } catch (e) {
-      if (!channelStillCurrent(epoch, channel)) return;
-      state.tracked = false;
-      setStatus('Presence could not be established: ' + String(e && e.message || e));
-    }
+    if (!channelStillCurrent(epoch, channel) || state.role !== 'guest' || !state.hostSid) return false;
+    if (state.tracked) return true;
+    if (guestTrackPromise) return guestTrackPromise;
+    const operation = (async () => {
+      try {
+        const result = await channel.track(guestMetadata());
+        if (!channelStillCurrent(epoch, channel)) return false;
+        if (result && result !== 'ok') throw new Error('Presence track returned ' + String(result));
+        state.tracked = true;
+        state.connected = true;
+        setStatus('Connected. Waiting for the host to start the marker match.');
+        reconcilePresence(epoch, channel);
+        return true;
+      } catch (e) {
+        if (channelStillCurrent(epoch, channel)) {
+          state.tracked = false;
+          setStatus('Presence could not be established: ' + String(e && e.message || e));
+        }
+        return false;
+      }
+    })();
+    guestTrackPromise = operation;
+    try { return await operation; }
+    finally { if (guestTrackPromise === operation) guestTrackPromise = null; }
   }
 
   function reconcilePresence(epoch, channel) {
@@ -500,8 +518,8 @@
     setStatus('Generating and checking the host map…');
     try {
       if (!state.tracked) {
-        await trackGuestOnce(epoch, channel);
-        if (!state.tracked) throw new Error('Presence membership has not been established.');
+        const tracked = await trackGuestOnce(epoch, channel);
+        if (!tracked || !state.tracked) throw new Error('Presence membership has not been established.');
       }
       if (!channelStillCurrent(epoch, channel)) return;
       const sig = startGameUsingConfig(cfg);
@@ -680,6 +698,7 @@
     state.active = true;
     state.connected = false;
     state.tracked = false;
+    guestTrackPromise = null;
     state.role = role;
     state.roomCode = code;
     state.hostSid = role === 'host' ? sessionId : null;
@@ -773,6 +792,7 @@
       try { if (client) await client.removeChannel(ch); } catch (_) {}
     }
     if (restoreSettings !== false) restoreLocalSettings();
+    showLobbyFields(false);
     if (goTitle !== false) mode = 'title';
     state.config = currentLocalConfig();
     setStatus('Not connected. Create a room or join using a room code.');
@@ -1003,6 +1023,7 @@
       selectedRow = 0;
       setStatus('Not connected. Create a room or join using a room code.');
     },
+    leaveToSinglePlayer() { void leaveRoom(true, true); },
     reconcilePresence,
     _acceptMarkerForTest: acceptMarker,
     _validateConfigForTest: validateConfig,
