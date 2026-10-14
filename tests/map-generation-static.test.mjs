@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+assert.match(html, /function auditGeneratedMap\(starts\)/, 'real map generator must contain the terrain audit');
+assert.match(html, /S\.mapAudit=mapAudit/, 'generated audit result must be attached to the game state');
+assert.match(html, /startReach\[i\]===1/, 'starting positions must be tested against the same reachable component');
+assert.match(html, /tries<12\)return newGame\(tries\+1\)/, 'disconnected terrain must trigger bounded regeneration');
+assert.match(html, /n:'Scattered Lakes'.*arch:1/, 'scattered-lakes generator preset must exist');
+assert.match(html, /n:'Twin Lakes'.*lake:1/, 'twin-lakes generator preset must exist');
+assert.match(html, /function drawUnit\(u\)/, 'unit renderer must remain present');
+assert.match(html, /k!=='vil'\?assetFrame/, 'unverified villager atlas must remain safely disabled');
+console.log('map-generation-static: all 8 assertions passed');
