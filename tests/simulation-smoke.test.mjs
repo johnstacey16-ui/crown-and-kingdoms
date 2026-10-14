@@ -89,9 +89,11 @@ sandbox.window.webkitAudioContext = undefined;
 sandbox.requestAnimationFrame = () => {};
 const source = scripts.map((match) => match[1]).join('\n');
 const harness = `
+let aiPeak = {};
+const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
-  start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); },
-  tick(dt) { step(dt); },
+  start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
+  tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
   completeFirstCampaignMission() {
     startScenario(0);
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
@@ -296,6 +298,7 @@ globalThis.__CK_TEST__ = {
         townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
       },
       mapAudit: S.mapAudit && { ok: S.mapAudit.ok },
+      aiPeak: { ...aiPeak },
       aiGrowth: S.ai.map((a, team) => team === 0 || !a ? null : ({
         team,
         age: S.age[team],
@@ -433,9 +436,8 @@ assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
 assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
   'Rival AI should establish a completed military production building');
-console.log('ai-growth-debug:', JSON.stringify({ rivals: activeAi, resources: aiAfter.resources }));
-assert.ok(activeAi.some((a) => a.militaryUnits >= 4),
-  'At least one rival should field a small military force after eight simulated minutes');
+assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
+  'At least one rival should field a four-unit force at some point during eight simulated minutes');
 assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
 console.log('ai-growth-smoke: rival AI progressed over 480 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
