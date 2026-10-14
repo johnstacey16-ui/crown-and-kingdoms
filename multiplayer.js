@@ -436,13 +436,13 @@
   }
 
   function saveLocalSettings() {
-    if (!beforeRoomSettings) beforeRoomSettings = { msz, mt, kingdoms, civ, diff, aip, vm, seedOv };
+    if (!beforeRoomSettings) beforeRoomSettings = { msz, mt, kingdoms, civ, diff, aip, vm, seedOv, cmp };
   }
 
   function restoreLocalSettings() {
     if (!beforeRoomSettings) return;
     try {
-      ({ msz, mt, kingdoms, civ, diff, aip, vm, seedOv } = beforeRoomSettings);
+      ({ msz, mt, kingdoms, civ, diff, aip, vm, seedOv, cmp } = beforeRoomSettings);
       if (typeof sset === 'function') sset();
     } catch (_) {}
     beforeRoomSettings = null;
