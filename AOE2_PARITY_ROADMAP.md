@@ -84,3 +84,5 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - [x] Follow-up armour roster correction: added Longbowmen and Mangudai to ranged armour; kept Throwing Axemen and Gbeto under infantry armour and removed melee Mamelukes from the ranged list. Source-level roster checks updated; this corrects classification coverage but does not establish full AoE2 DE balance.
 
 - [x] Siege splash fix: splash now damages nearby enemy units and buildings, not the target's own team; dead/loaded units are excluded. Source syntax and regression assertions added. Gameplay balance and impact radius still require live match testing.
+
+- [x] Siege AI target priority: idle siege units now select an enemy building in range before nearby enemy units; other unit classes retain the existing unit-first behaviour. Static regression assertion added.
