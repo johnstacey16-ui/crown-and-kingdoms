@@ -57,9 +57,9 @@
   const lastSeqBySid = new Map();
 
   function cleanNick(value) {
-    if (typeof value !== 'string') return '';
+    if (typeof value !== 'string' || /[\u0000-\u001f\u007f-\u009f]/.test(value)) return '';
     const s = value.trim();
-    if (!s || /[\u0000-\u001f\u007f-\u009f]/.test(s)) return '';
+    if (!s) return '';
     return Array.from(s).slice(0, 24).join('');
   }
 
@@ -629,7 +629,7 @@
     if (typeof payload.sid !== 'string' || payload.sid.length < 3 || payload.sid.length > 80 || payload.sid === sessionId) return;
     if (!state.members.has(payload.sid)) return;
     const nick = cleanNick(payload.nick);
-    if (!nick || /[\u0000-\u001f\u007f-\u009f]/.test(payload.nick)) return;
+    if (!nick || payload.nick !== nick) return;
     if (!Number.isFinite(payload.x) || !Number.isFinite(payload.y)) return;
     if (payload.x < 0 || payload.y < 0 || payload.x > W - 1 || payload.y > H - 1) return;
     if (!Number.isSafeInteger(payload.seq) || payload.seq < 1) return;
