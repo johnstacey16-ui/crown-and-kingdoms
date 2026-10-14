@@ -19,7 +19,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 - Resource gathering, farms with 60-wood automatic reseeding, farm-capacity upgrades, market trading, relic income, trade carts/cogs, renewable fish traps, ally-only tribute and configurable villager worker targets with new-worker auto-assignment.
 - Ground, siege and naval combat; formations and Aggressive/Defensive/Stand Ground/Passive/No Attack stances; Guard and Follow commands; AI attack groups, defensive priorities, retreats and naval target selection.
 - Fog of war, minimap, pathfinding, seeded/procedural maps, connectivity diagnostics, save/load flows and campaign objectives.
-- Wonder, relic and Regicide victory options alongside the standard Town Centre victory; a score-at-selectable-time-limit mode (10, 15, 20, 25 or 30 minutes) that compares surviving armies/buildings, held resources, age, technologies and stored relics.
+- Wonder, relic and Regicide victory options alongside the standard Town Centre victory; a score-at-selectable-time-limit mode (10, 15, 20, 25 or 30 minutes); and King of the Hill, where military land units contest a central landmark for five uninterrupted minutes.
 - Original SVG sprite atlases, team-colour variants, animation metadata, procedural visual fallbacks and synthesised Web Audio.
 - Controller-oriented menus and navigation, including Town Bell and pause-menu diplomacy controls for enemy, neutral and ally relationships. Population-limit settings now include 50, 100, 150, 200, 250, 300, 400 and 500; houses still determine the capacity actually available during a match.
 
