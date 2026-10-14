@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 14 October 2026  
-**Current source checkpoint:** `main` — see repository history for the latest commit.  
+**Source checkpoint reviewed for this roadmap update:** `7dd937ba61fafcc5eebf78ad8fff984a0f1d3b2f` (main, 14 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -59,22 +59,23 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** controller-driven menus, contextual commands, radial menu, remappable gamepad controls, pause/resume, formations, minimap, selection UI, synthesised Web Audio and a performance overlay.
 - **Present:** local SVG atlases for upright units, forces and buildings; four-direction animation metadata and team-colour variants; procedural fallbacks; original terrain/building drawing and local stone/wood textures.
 - **Partial:** animation coverage and visual consistency still need in-game inspection. The atlas metadata check validates frame bounds, not whether a sprite is visually upright, correctly scaled or attractive at TV distance.
-- **Partial / unverified:** `multiplayer.js` exists, but host/join, state synchronisation, reconnect, match-end and controller-only multiplayer flows need real network tests.
+- **Partial / unverified:** `multiplayer.js` coordinates lobby/configuration, map-signature checks and lightweight player-marker updates (5 Hz). It does **not** synchronise the full RTS simulation or provide authoritative lockstep/rollback/host migration. Host/join, reconnect, host loss, match-end and controller-only multiplayer flows still need real network tests.
 - **Gap:** physical Xbox checks for TV-safe layout, controller disconnect/focus recovery, large-army performance, pause/resume, save/load and campaign completion have not been replaced by static tests.
 
 ## 2. Highest-priority backlog
 
 Work in small, independently testable changes. Keep `index.html` as the canonical app and preserve existing controls, save/load, pathfinding, fog, combat and fallbacks.
 
-1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
+1. **Real simulation smoke test (high priority):** current CI runs syntax/source invariants and targeted rule/helper tests, but no test advances the real main simulation for 60 ticks. Design a deterministic, Node-compatible test seam that invokes the actual update logic and asserts a concrete state change; do not count a source-pattern assertion or a mocked replacement simulation as coverage. Keep the game loop, tick order and browser build unchanged until the seam is understood and reviewed.
+2. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
-3. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
-4. **Extend villager automation:** worker targets cover Food, Wood, Gold and Stone; new workers follow targets and manual orders override automation. The radial menu assigns selected villagers to exact resource sites, unreachable resources are skipped, and loaded workers seek reachable compatible drop-offs. Next validate unusual map connectivity and gather/drop-off behaviour in live matches.
-5. **Command coverage:** Guard and Follow commands are now present for compatible friendly/ally targets, with garrison-capable target validation, guard interception and return-to-post. Next audit selection, group switching, formations, patrol, attack-move and edge cases.
-6. **Victory modes:** selectable score limits, King of the Hill and Sudden Death now exist in source with regression checks. Continue expanding end-to-end validation for objectives, ties, elimination and all victory conditions.
-7. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
-8. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
-9. **Art and performance:** visually inspect sprite anchors/orientation/layering and effects; test optional-asset fallbacks, pause behaviour and performance on target devices before claiming acceptance.
+4. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
+5. **Extend villager automation:** worker targets cover Food, Wood, Gold and Stone; new workers follow targets and manual orders override automation. The radial menu assigns selected villagers to exact resource sites, unreachable resources are skipped, and loaded workers seek reachable compatible drop-offs. Next validate unusual map connectivity and gather/drop-off behaviour in live matches.
+6. **Command coverage:** Guard and Follow commands are now present for compatible friendly/ally targets, with garrison-capable target validation, guard interception and return-to-post. Next audit selection, group switching, formations, patrol, attack-move and edge cases.
+7. **Victory modes:** selectable score limits, King of the Hill and Sudden Death now exist in source with regression checks. Continue expanding end-to-end validation for objectives, ties, elimination and all victory conditions.
+8. **Technology and unit lines:** use data-driven checks to cover prerequisites, costs, research time, existing/new object effects, armor classes and counters. Add content only where its effects are implemented.
+9. **Map and campaign reliability:** validate multiple seeds, player-start fairness, ship routes, dock construction, every campaign objective and every end condition.
+10. **Art and performance:** visually inspect sprite anchors/orientation/layering and effects; test optional-asset fallbacks, pause behaviour and performance on target devices before claiming acceptance.
 
 
 ### Maintenance audit — 14 October 2026
