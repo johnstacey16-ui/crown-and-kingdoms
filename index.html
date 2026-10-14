@@ -360,7 +360,26 @@ function pjs(dt){for(const p of S.pj){const h=(p.t.s||0)/2,tx=p.t.x+h,ty=p.t.y+h
 function foe(u,r){let b=null,bd=r;if(U[u.k]?.sg){for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}if(b)return b}for(const e of S.us)if(isHostile(u.t,e.t)&&e.hp>0&&!e.ld){const d=Math.hypot(e.x-u.x,e.y-u.y);if(d<bd){bd=d;b=e}}if(b)return b;for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}return b}
 /* ===== ECONOMY / UNIT BEHAVIOUR ===== */
 function findNode(u,k,r=16){let b=null,bd=r;for(const n of S.nodes)if(n.k===k&&n.amt>0&&!n.fi===!u.sh){const d=Math.hypot(n.x-u.x,n.y-u.y);if(d<bd){bd=d;b=n}}return b}
-function dropoff(u){let b=null,bd=1e9;for(const q of S.bs)if(q.t===u.t&&q.done&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}return b}
+function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
+function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))}
+function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
+function findDropoffRoute(u){
+ const compatible=S.bs.filter(q=>dropoffCompatible(u,q)).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
+ if(!compatible.length)return null;
+ const live=new Set(compatible.map(dropoffKey));
+ u.dropSkipKeys=(Array.isArray(u.dropSkipKeys)?u.dropSkipKeys:[]).filter(key=>live.has(key)).slice(-32);
+ let candidates=compatible.filter(q=>!u.dropSkipKeys.includes(dropoffKey(q)));
+ if(!candidates.length){u.dropSkipKeys=[];candidates=compatible.slice()}
+ candidates.sort((a,b)=>(dropoffKey(a)===u.dropKey?-1:dropoffKey(b)===u.dropKey?1:0)||d2(u.x,u.y,a)-d2(u.x,u.y,b));
+ let failed=0;
+ for(const q of candidates){
+  const route=path(u,goalNear(q,1));
+  if(route&&route.length)return {b:q,route};
+  skipDropoff(u,q);
+  if(++failed>=2)break;
+ }
+ return null;
+}
 function deployFishTrap(ships){let made=0;for(const u of ships){if(u.k!=='fish'||u.hp<=0||S.res[u.t].w<100)continue;let spot=null;for(let r=1;r<=4&&!spot;r++)for(let y=Math.max(1,(u.y|0)-r);y<=Math.min(H-2,(u.y|0)+r)&&!spot;y++)for(let x=Math.max(1,(u.x|0)-r);x<=Math.min(W-2,(u.x|0)+r);x++){const i=y*W+x;if(S.wt[i]===1&&!S.nd[i]&&Math.hypot(x+.5-u.x,y+.5-u.y)<=4){spot={x,y,i};break}}if(!spot)continue;S.res[u.t].w-=100;const n={k:'f',x:spot.x,y:spot.y,s:1,amt:900,fi:1,trap:1,t:u.t};S.nodes.push(n);S.nd[spot.i]=n;made++;}if(made)note('Fish trap deployed ('+made+'; -'+made*100+' wood)');else note('Need 100 wood per trap and an empty nearby water tile');return made}
 function killNode(n){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;S.nodes=S.nodes.filter(m=>m!==n)}
 function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;let tg=u.tg;if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.hp>0&&b.done)||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';u.hp=Math.min(mhp(u),u.hp+Math.max(1.5,mhp(u)*.035)*dt);if(u.hp>=mhp(u)*.65){u.retreating=false;u.retreatTarget=null;u.tg=null}}else{if(!u.p.length||u.rp<=0){u.p=path(u,goalNear(shelter,1))||[];u.rp=1}if(u.p.length)walk(u,dt);return}if(u.retreating)return}}if(u.k==='cart'||u.k==='cog'){tickTrader(u,dt);return}if(u.k==='bers'&&u.hp<mhp(u))u.hp=Math.min(mhp(u),u.hp+.5*dt);
@@ -388,9 +407,17 @@ const dist=d2(u.x,u.y,tg);
 if(dist<=d.rng){u.p=[];if(u.cd<=0){hit(u,tg);u.cd=d.cd}}
 else if(u.st===2){u.o='i';u.tg=null}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,d.rng-(d.rng>2?.4:.1)));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt)}return}
 if(u.o==='g'){
-if(u.ret){const b=dropoff(u);if(!b){u.o='i';return}
-if(d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];return}
-if(!u.p.length||u.rp<=0){u.p=path(u,goalNear(b,1))||[];u.rp=1}walk(u,dt);return}
+if(u.ret){
+ const b=S.bs.find(q=>dropoffKey(q)===u.dropKey&&dropoffCompatible(u,q));
+ if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
+ if(!b||!u.p.length||u.rp<=0){
+  if((u.dropRetry||0)>0){u.dropRetry-=dt;return}
+  const dest=findDropoffRoute(u);
+  if(!dest){u.dropKey='';u.p=[];u.dropRetry=3;return}
+  u.dropKey=dropoffKey(dest.b);u.p=dest.route;u.rp=1;u.dropRetry=0;
+ }
+ walk(u,dt);return
+}
 if(!tg||tg.amt<=0){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else u.o='i';return}
 if(d2(u.x,u.y,tg)<=1.1){const g=Math.min(tg.amt,GR*gm(u,tg)*(tg.an?(S.tech[u.t].hunt?2.2:1.5):1)*dt);tg.amt-=g;u.car+=g;u.ct=tg.k;if(gt>(u.sn||0)){u.sn=gt+.7+Math.random()*.5;if(tg.k==='w')sfx('chop',u.x,u.y);else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y)}if(tg.amt<=0){if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}else if(tg.fm&&S.res[u.t].w>=60){S.res[u.t].w-=60;tg.amt=farmFood(u.t);if(u.t===0)note('Farm reseeded (-60 wood)')}else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}}if(u.car>=(S.tech[u.t].carry?15:CAP)){u.ret=1;u.p=[]}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){if(u.t===0&&u.autoWorker)skipAutoNode(u,tg);u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
