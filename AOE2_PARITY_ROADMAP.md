@@ -54,6 +54,9 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - [~] Multiplayer integration code is loaded separately; reliability and full feature coverage are unverified.
 - [ ] Verify host/join, disconnect/rejoin, state synchronization, match end, and controller-only navigation in a real network test before calling online play complete.
 
+
+- [x] Farm ownership is now recorded for player- and AI-built farms; Horse Collar, Heavy Plow and Crop Rotation capacity increases only affect farms owned by the researching kingdom. The reseed notification now matches the 60-wood cost. Source syntax check passed; live gameplay remains unverified.
+
 ## Implementation order
 
 1. **Stability and testability:** protect the last working build; syntax checks plus runtime smoke tests; resolve any black-screen or stuck-game regressions first.
