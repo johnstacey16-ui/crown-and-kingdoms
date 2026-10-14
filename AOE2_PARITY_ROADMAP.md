@@ -26,8 +26,8 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
 - **Present:** skirmish diplomacy controls in the pause menu can set each surviving rival to Enemy, Neutral or Ally. The relationship matrix is symmetric and saved/restored; missing diplomacy data in older saves defaults to enemies. Combat damage, manual attacks, automatic target acquisition, AI attack targets, naval target selection and defensive threat scans respect hostility.
 - **Partial:** diplomacy is currently player-controlled against individual rivals; AI-to-AI relationships stay hostile, and treaty duration, negotiated diplomacy, shared vision, tribute and fully developed allied-team victory rules are not implemented.
-- **Present:** fixed 100-unit food/wood/gold/stone tribute transfers from the pause menu to allied surviving kingdoms. The sender's balance is checked and the same amount is credited to the ally.
-- **Partial:** tribute amount is fixed at 100 per action; configurable quantities and AI-initiated tribute are not implemented.
+- **Present:** food, wood, gold and stone tribute from the pause menu to allied surviving kingdoms, with controller-selectable amounts of 100, 250, 500 or 1,000. The sender's balance is checked before the same amount is credited to the ally.
+- **Partial:** player tribute quantities are selectable from 100, 250, 500 or 1,000; AI-initiated tribute and arbitrary custom amounts are not implemented.
 - **Present:** controller-adjustable worker targets for Food, Wood, Gold and Stone; newly created player villagers are assigned automatically while automation is enabled, idle automated workers retry after resources deplete, and settings are saved/restored. Manual orders and Stop disable reassignment for that villager.
 - **Partial:** targets are per-resource desired counts with balanced overflow; direct site-based assignment is still manual, and the AI does not use the player's priority settings.
 
@@ -68,7 +68,7 @@ Work in small, independently testable changes. Keep `index.html` as the canonica
 
 1. **Regression protection:** maintain the syntax/source checks; add a targeted regression test whenever a user-facing setting or game rule changes. Static checks must be labelled as such.
 2. **Finish diplomacy:** central Enemy/Neutral/Ally relationships now feed hostile targeting, damage, manual attacks, AI priorities, naval target selection and elimination checks. Next: decide how diplomacy affects shared vision, resource access and ally victory; keep trade route eligibility distinct from hostility.
-3. **Extend tribute:** the first pass sends 100 units of a selected resource to an ally, with affordability validation and notifications. Next add selectable quantities and richer transfer feedback before considering AI-initiated tribute.
+3. **Extend tribute:** the player can select resource and amount (100, 250, 500 or 1,000) from the controller pause menu, with affordability validation and transfer notifications. Next consider AI-initiated tribute and richer allied-economy interactions.
 4. **Extend villager automation:** worker target controls now cover Food, Wood, Gold and Stone; new villagers follow targets and manual orders override automation. Next add direct resource-site command support and validate drop-off/pathing edge cases.
 5. **Command coverage:** Guard and Follow commands are now present for compatible friendly/ally targets, with garrison-capable target validation, guard interception and return-to-post. Next audit selection, group switching, formations, patrol, attack-move and edge cases.
 6. **Victory modes:** selectable score limits, King of the Hill and Sudden Death now exist in source with regression checks. Continue expanding end-to-end validation for objectives, ties, elimination and all victory conditions.
@@ -130,7 +130,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `script
 - inline JavaScript syntax and key source invariants;
 - population cap configuration;
 - diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
-- allied tribute resource validation and transfer integration;
+- allied tribute resource/amount selectors, eligibility checks, affordability validation and transfer integration;
 - villager target selection, new-worker automation, manual overrides and save/load persistence;
 - score/time-limit victory calculation, selectable duration control, settings/save restoration, countdown and tie handling;
 - King of the Hill route preparation, military presence rules, ally/neutral handling, contested resets, AI targeting, landmark/minimap visibility and save progress restoration;
