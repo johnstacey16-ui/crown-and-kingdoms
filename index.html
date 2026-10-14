@@ -64,20 +64,25 @@ function addU(t,k,x,y){const u={t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb
    Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
    Buildings/resources are intentionally excluded: this audits the generated terrain
    before placement, not temporary gameplay obstructions. */
+/* ===== GENERATED MAP CONNECTIVITY AUDIT =====
+   Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
+   Buildings/resources are intentionally excluded: this audits generated terrain
+   before placement, not temporary gameplay obstructions. */
 function auditGeneratedMap(starts){
  const seenLand=new Uint8Array(W*H),seenWater=new Uint8Array(W*H),landComponents=[],waterComponents=[];
  const flood=(sx,sy,kind,seen)=>{
   const pass=i=>kind==='land'?(S.wt[i]!==1):(S.wt[i]===1);
-  const start=sy*W+sx;if(start<0||start>=W*H||!pass(start)||seen[start])return 0;
+  const start=sy*W+sx;if(start<0||start>=W*H||!pass(start)||seen[start])return [];
   const q=[start];seen[start]=1;
   for(let h=0;h<q.length;h++){const i=q[h],x=i%W,y=(i/W)|0;
    const ns=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];
    for(const n of ns)if(n>=0&&!seen[n]&&pass(n)){seen[n]=1;q.push(n)}
-  }return q.length;
+  }return q;
  };
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]!==1&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand));if(S.wt[i]===1&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater))}
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]!==1&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand).length);if(S.wt[i]===1&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater).length)}
  const startCells=starts.map(([x,y])=>Math.max(0,Math.min(H-1,y))*W+Math.max(0,Math.min(W-1,x)));
- const landReachable=startCells.length>0&&startCells.every(i=>seenLand[i]===1);
+ const startReach=new Uint8Array(W*H),first=starts[0],reached=first?flood(first[0],first[1],'land',startReach):[];
+ const landReachable=!!first&&reached.length>0&&startCells.every(i=>startReach[i]===1);
  const waterCells=waterComponents.reduce((a,b)=>a+b,0);
  const coastStarts=starts.filter(([x,y])=>{for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1)return true}return false}).length;
  return {ok:landReachable,landReachable,landComponents:landComponents.length,waterComponents:waterComponents.length,waterCells,coastalStarts:coastStarts,starts:starts.length};
@@ -611,7 +616,7 @@ function drawUnit(u){const k=u.k,d=U[k],P=w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))
 const st=mv?1:(u.o==='a'&&u.cd>0&&u.cd<.45)?2:(u.o==='g'||u.o==='b')?3:0,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if(S.sel.includes(u)){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
-/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Atlas frames are enabled only after metadata/frame bounds validate; procedural sprites remain the automatic fallback. Keep the feet anchor stable for upright walking. */const af=ASSET.n?assetFrame(k,u.t,st,u.dr|0,gt):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
+/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Villagers retain the upright procedural painter until atlas orientation is visually verified; other validated atlas classes remain enabled. */const af=ASSET.n&&k!=='vil'?assetFrame(k,u.t,st,u.dr|0,gt):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
 if(u.car>0&&u.ct){X.fillStyle={f:'#e0554f',w:'#9a6b3a',g:'#f2c14e',s:'#b0b8bf'}[u.ct];X.fillRect(sx-4*z,sy-(sz[1]-16)*z*.55,8*z,6*z)}
 const mh=mhp(u);if(u.hp<mh)bar(sx-13*z,sy-(sz[1]-6)*z*.9,26*z,u.hp/mh,'#6e6')}
 function drawRelic(q){const P=w2s(q.x,q.y),sx=P[0],y=P[1]-(q.c?24:6),g=.5+.5*Math.sin(gt*3);X.fillStyle='rgba(255,226,102,'+(.15+.15*g)+')';X.beginPath();X.arc(sx,y,13+g*3,0,7);X.fill();X.fillStyle='#ffe066';X.strokeStyle='#a87b12';poly([[sx,y-9],[sx+7,y],[sx,y+9],[sx-7,y]]);X.fill();X.stroke()}
