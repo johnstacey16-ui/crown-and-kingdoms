@@ -303,6 +303,22 @@ globalThis.__CK_TEST__ = {
       villagerGarrisoned: worker.o === 'B' && worker.tg === tc,
     };
   },
+  beginFarmReseed() {
+    const worker = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
+    if (!worker) throw new Error('The seeded match must contain a player villager for farm reseeding');
+    let node = null;
+    for (let y = 2; y < H - 2 && !node; y++) for (let x = 2; x < W - 3 && !node; x++) {
+      const a = y * W + x, b = a + 1;
+      if (S.wt[a] || S.wt[b] || S.g[a] || S.g[b] || S.nd[a] || S.nd[b]) continue;
+      worker.x = x + 0.5; worker.y = y + 0.5;
+      node = addN('f', x + 1, y, 0.01, 1);
+    }
+    if (!node) throw new Error('Could not find two adjacent open land tiles for farm reseeding');
+    node.testFarmReseed = true;
+    S.res[0].w = 60;
+    worker.o = 'g'; worker.tg = node; worker.ct = 'f'; worker.p = []; worker.ret = 0; worker.car = 0;
+    return { wood: S.res[0].w, amount: node.amt };
+  },
   beginGatherResearch() {
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
     return tc ? research(tc, 'gath') : false;
@@ -344,6 +360,7 @@ globalThis.__CK_TEST__ = {
         const b = S.bs.find((b) => b.t === 0 && b.k === 'house');
         return b ? { done: b.done, progress: b.pr, hp: b.hp, maxHp: b.mh } : null;
       })(),
+      farmReseed: (() => { const n = S.nodes.find((n) => n.testFarmReseed); return n ? { amount: n.amt, wood: S.res[0].w, farm: !!n.fm } : null; })(),
       scoreCache: S.scoreCache.slice(),
       resources: S.res.map((r) => ({ ...r })),
       gameOver: S.over,
@@ -511,6 +528,16 @@ assert.equal(siegeAttack.selectedSiegeTarget, true, 'Siege targeting should pref
 assert.equal(siegeAttack.siegeUnitTargetedCastle, true, 'A staged battering ram should receive the selected Castle target');
 assert.equal(siegeAttack.infantryAssignedToPrimaryTarget, true, 'Non-siege units should retain the primary attack target');
 console.log('ai-siege-smoke: coordinated wave selected the Castle for the ram and retained the Town Centre target for infantry');
+
+game.start(123456);
+const farmBefore = game.beginFarmReseed();
+assert.equal(farmBefore.wood, 60, 'The farm reseed test should begin with the required 60 wood');
+game.tick(1 / 30);
+const farmAfter = game.state().farmReseed;
+assert.equal(farmAfter.farm, true, 'The exhausted resource must remain a farm node after reseeding');
+assert.equal(farmAfter.wood, 0, 'Automatic farm reseeding must charge 60 wood');
+assert.ok(farmAfter.amount >= 175, 'The exhausted farm should be replenished with its base food capacity');
+console.log(`farm-reseed-smoke: depleted farm replenished to ${farmAfter.amount} food for 60 wood`);
 
 const generatedMaps = [];
 for (let mapIndex = 0; mapIndex < 12; mapIndex += 1) {
