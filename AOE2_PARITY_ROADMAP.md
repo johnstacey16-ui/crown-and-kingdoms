@@ -28,6 +28,7 @@ Legend: **Present** = code exists; **Partial** = a simplified or incomplete impl
 - [x] Farm capacity technology effects: Horse Collar adds 75 food, Heavy Plow adds 125, Crop Rotation adds 175; new and reseeded farms use the researched capacity. Auto-reseed costs 60 wood.
 - [x] Building and unit production queues, age advancement, blacksmith and civilization research.
 - [~] Research coverage/effects are incomplete or simplified compared with the full AoE2 technology tree.
+- [x] Added regression guards for existing/new unit hit points, unit-specific attack bonuses, farm-capacity upgrades and building-health upgrades; these are source-level checks, not live-match simulation.
 - [~] Farm food capacity, trade prices, repair/build rates and several upgrades need an explicit effect audit.
 - [ ] Verify economic loops for every resource, including depletion, no-route cases, farm reseeding and AI economy recovery.
 
