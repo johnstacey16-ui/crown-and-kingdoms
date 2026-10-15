@@ -87,3 +87,8 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 - Added `js/ui.js` to `index.html` before `engine.js` (and before simulation's script slot), the service-worker core cache, source syntax checks and browser-foundation regression checks.
 - The module depends on shared classic-script globals at call time; no new duplicate state declarations were introduced. This is a maintainability extraction only and does not claim a performance improvement.
 - Next extraction should target a cohesive UI group with minimal hidden dependencies; avoid moving save-slot UI or campaign controls until their shared state and action dependencies have been mapped.
+
+
+### Engine refactor update
+
+`js/kingdom.js` now owns diplomacy, tribute, and automated villager-priority logic. It loads before `engine.js`, remains available offline through the service-worker cache, and is covered by the standalone regression suite. The refactor preserves the existing shared classic-script state and controller-first interface.
