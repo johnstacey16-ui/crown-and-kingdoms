@@ -10,7 +10,7 @@ This is the single handover checkpoint. Continue from live code and current CI r
 
 ## Latest implementation checkpoint
 
-- **Latest code/test checkpoint:** `1fd895edf2673b1d2c757dc88cf15522e139cf61` — real-engine combat checks now verify both attack-research damage bonuses and infantry/archer armour reductions, following the AI research-priority fix.
+- **Latest code/test checkpoint:** `f66ffa2036fb7ddba011900d835870628ff8cd2a` — real-engine combat checks verify attack-research bonuses and infantry, archer and cavalry armour reductions, following the AI research-priority fix.
 - **Green code workflow:** [#38747786721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747786721) completed successfully for the corrected campaign progression/test commits, including source checks, all standalone regression tests and atlas validation.
 - Corrected the large-army smoke benchmark so 100, 200 and 400 mean **total live units**, including the seeded starting force, rather than adding 100/200/400 on top of it. Timing still covers simulation steps only, uses three samples per population and reports median/range.
 - Added real-engine campaign matrix coverage: all 19 defined missions initialise with units/buildings and advance for one simulated second without an exception. This verifies startup only, not mission completion or balance.
