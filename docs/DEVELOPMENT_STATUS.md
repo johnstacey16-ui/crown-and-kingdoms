@@ -9,6 +9,7 @@
 This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
 ## Latest implementation checkpoint
+- **Campaign objective fix (15 October):** the Siege of Kronburg castle objective now treats an enemy Castle with `hp <= 0` as destroyed even when its dead building record remains in `S.bs`. A regression test checks all three castle-destruction campaign objectives use the live-health condition. This is code/test coverage, not a full mission playtest.
 - **Naval production refinement:** fleet-cap enforcement now includes war galleys already queued at all AI docks, preventing repeated AI decision ticks from queuing past the 4–12 ship target. Regression guard updated. Code commit `12d803b`; test commit `9ba6c6d`; CI pending.
 
 - **Naval AI follow-through (15 October):** AI dock construction no longer depends solely on a nearby fish node when hostile combat ships are present. It will attempt a dock if it has at least nine villagers and meets the existing age gate (`S.age[t]>=1`), with either six army units or an active naval threat. Combined with the adaptive 4–12 war-galley cap, this makes naval defence respond to enemy fleets rather than only economic fishing opportunities. Regression guards cover fleet sizing and dock-trigger conditions; a full water-map match remains to be played.
