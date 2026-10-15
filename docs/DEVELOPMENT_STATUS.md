@@ -83,3 +83,10 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Fixed AI building-count logic in `js/ai.js`: destroyed structures (`hp <= 0`) no longer count as existing production/economy buildings. The AI can therefore consider rebuilding lost Markets, Barracks, Docks and other structures instead of treating a destroyed shell as a permanent completed requirement.
 - Living foundations still count, preventing duplicate construction while a replacement is already underway.
 - Added `tests/ai-rebuild-destroyed-buildings.test.mjs` to guard the planning rule. This is source-level regression coverage; full AI match behaviour and Xbox performance are not claimed as tested.
+
+
+## 15 October 2026 — AI recovery coverage expanded
+
+- Extended the destroyed-structure recovery fix across AI planning: Town Centre lookups require a living Town Centre; destroyed walls, Barracks, Houses and Docks no longer count toward planning caps; destroyed structures no longer block resource-site construction; destroyed enemy Markets/Docks no longer qualify as trade destinations.
+- Living structures and foundations still count where appropriate to prevent duplicate orders.
+- Expanded `tests/ai-rebuild-destroyed-buildings.test.mjs` to cover these source-level rules. This is a focused regression guard, not a substitute for a full simulated AI recovery match.
