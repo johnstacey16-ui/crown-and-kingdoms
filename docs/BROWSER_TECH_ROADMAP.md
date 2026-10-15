@@ -102,3 +102,8 @@ Campaign scenarios, mission progression, objectives, briefing flow and raid-even
 ### Economy module
 
 Market trade-row generation and buy/sell transaction logic now live in `js/economy.js`; current pricing, price drift and resource validation are preserved. The module is included in the service-worker cache and simulation harness.
+
+
+### Controller menus module
+
+The new-game setup menu, options menu, title menu, controller handlers and score-limit options now live in `js/menus.js`. The engine still owns shared state and menu drawing primitives; the new module loads before the engine and is cached offline.
