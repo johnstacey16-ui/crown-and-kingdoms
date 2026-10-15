@@ -128,3 +128,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Valid cancellation still removes the newest queued unit and refunds its cost.
 - Regression guard: `tests/production-cancellation-validation.test.mjs`.
 - Source checks are not equivalent to running the Node suite or testing controller behaviour in a browser/Xbox.
+
+
+## 15 October 2026 — Garrison unload command validation
+
+- Unload now rejects missing, destroyed, unfinished, invalid-owner, non-garrison and empty buildings before changing unit state.
+- A clear message is shown for invalid requests. Units that cannot find a safe, free tile remain garrisoned rather than being silently released into blocked terrain.
+- Regression guard: `tests/garrison-unload-validation.test.mjs`.
+- Source-level checks only; Node suite and controller/browser gameplay testing remain outstanding.
