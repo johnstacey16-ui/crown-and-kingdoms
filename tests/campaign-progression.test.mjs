@@ -102,4 +102,17 @@ test('Last Crown does not treat a safely garrisoned King as defeated', () => {
     'Garrison state must not be mistaken for death');
 });
 
+
+test('campaign naval raids spawn on water instead of land and avoid land-path attack orders', () => {
+  assert.match(html,
+    /function raidShipPos\(e\)\{[\s\S]*?S\.wt\[i\]!==1\|\|S\.nd\[i\]\|\|S\.g\[i\]/,
+    'Naval reinforcements must select navigable, unoccupied water');
+  assert.match(html,
+    /const docks=S\.bs\.filter\(b=>b\.t===1&&b\.k==='dock'&&b\.hp>0\);/,
+    'Naval reinforcements should prefer water around enemy docks');
+  assert.match(html,
+    /const k=ks\[i%ks\.length\],ship=!!\(U\[k\]&&U\[k\]\.sh\),p=ship\?raidShipPos\(e\):spawnPos\(e\);if\(!p\)continue;const u=addU\(1,k,p\[0\],p\[1\]\);if\(!ship\)\{u\.o='a';u\.tg=tg;u\.p=\[\]\}/,
+    'Land raiders may attack the land target, while ships remain free to acquire reachable naval/coastal targets');
+});
+
 console.log('campaign-progression: regression assertions passed');
