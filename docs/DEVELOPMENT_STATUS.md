@@ -214,3 +214,6 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Updated [the browser technology roadmap](BROWSER_TECH_ROADMAP.md) with an explicit evidence-based rule: keep JavaScript, CSS, JSON and Canvas 2D as the current stack; treat SVG as optional UI art; defer Web Workers, GLSL/WebGL shaders and WebAssembly/Rust until a reproducible bottleneck or specific requirement justifies them.
 - The 100/200/400 total-unit Node simulation benchmark remains the repeatable simulation baseline, not an Xbox frame-rate claim. Browser rendering/frame pacing and physical Xbox Series S / Edge verification remain separate gates.
 - Documentation-only change; no game runtime files changed and no new test run is claimed. Next work should resume on a reproducible gameplay/runtime issue or a measured performance gap, not introduce optional technology pre-emptively.
+
+
+- **King of the Hill regression added (15 October):** commit [`1835e9c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8) adds live-engine checks for contested progress reset, excluded economic/naval units, the five-minute boundary and both player and enemy wins. **CI status not yet confirmed**; do not treat the new check as passing until GitHub Actions completes successfully.
