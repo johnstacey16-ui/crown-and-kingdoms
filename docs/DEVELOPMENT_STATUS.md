@@ -76,3 +76,10 @@ The browser-like harness executes the real classic-script game engine for select
 ## Working rule
 
 A passing assertion is not the same as a finished feature. Mark work as implemented, regression-checked, browser-playtested or Xbox-verified only at the corresponding evidence level. Never weaken a correct test to obtain a green build, and never claim physical Xbox testing without actually performing it.
+
+
+## 15 October 2026 — AI replacement planning after structure loss
+
+- Fixed AI building-count logic in `js/ai.js`: destroyed structures (`hp <= 0`) no longer count as existing production/economy buildings. The AI can therefore consider rebuilding lost Markets, Barracks, Docks and other structures instead of treating a destroyed shell as a permanent completed requirement.
+- Living foundations still count, preventing duplicate construction while a replacement is already underway.
+- Added `tests/ai-rebuild-destroyed-buildings.test.mjs` to guard the planning rule. This is source-level regression coverage; full AI match behaviour and Xbox performance are not claimed as tested.
