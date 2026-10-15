@@ -32,7 +32,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 - **Still required:** run the complete Node regression suite against the latest commit and exercise valid older saves; malformed-payload guards do not prove backward compatibility.
 - **Partial/unverified:** exercise the new guard and older save payloads in the complete Node suite; test interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
 - **Autosave implemented in source:** while a local game is actively playing, `engine.js` calls `saveG(true)` at 60-second intervals. `js/save.js` writes to the single rolling `ck_autosave` key, replacing the previous autosave rather than accumulating slots. Autosave is suppressed while the multiplayer runtime reports an active match; it does not claim to save a shared authoritative multiplayer state. The manual save slots remain separate.
-- **Regression coverage added (execution pending):** `tests/autosave-policy.test.mjs` checks the 60-second trigger, stable single-slot key, save/load key and suppression during active multiplayer, including pause/blur autosave. `tests/autosave-recovery-ui.test.mjs` guards the Load Game recovery action and the documented verification boundary. `tests/save-validation.test.mjs` now also exercises both a throwing adapter and a rejected asynchronous mirror promise, asserting the primary autosave still succeeds and the rejection is handled. `tests/causeway-map.test.mjs` guards the named King's Causeway layout and crossing invariants. These source-level tests have been committed but have not yet been run in this work session.
+- **Regression coverage added (execution pending):** `tests/autosave-policy.test.mjs` checks the 60-second trigger, stable single-slot key, save/load key and suppression during active multiplayer, including pause/blur autosave. `tests/autosave-recovery-ui.test.mjs` guards the Load Game recovery action and the documented verification boundary. `tests/save-validation.test.mjs` now also exercises both a throwing adapter and a rejected asynchronous mirror promise, asserting the primary autosave still succeeds and the rejection is handled. `tests/causeway-map.test.mjs` guards the named King's Causeway layout and crossing invariants. These tests were executed by GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) on commit `10a9a2f7209236385b57d31e7f71f1e844147d78`; the complete workflow passed. The preceding campaign save/load failure was caused by an over-escaped digit matcher in the indexed-reference validator. The matcher was corrected and the valid campaign round-trip now passes in CI. This is automated evidence only; live-browser and Xbox verification remain outstanding.
 - **Still required:** run the complete check suite; test interrupted writes and storage quota denial in a real browser; verify valid older saves. Avoid incompatible schema changes without defaults/migration tests.
 
 ### 1.3 Controller and accessibility
@@ -125,3 +125,11 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 4. Test naval/map connectivity and campaign completion across scenarios.
 5. Profile large armies and improve the most visible graphics defects based on live observation.
 6. Validate the exact deployment and perform physical Xbox controller/performance testing when available.
+
+
+## Latest verification checkpoint — 15 October 2026
+
+- Current verified commit at this checkpoint: `10a9a2f7209236385b57d31e7f71f1e844147d78`.
+- GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) passed the source checks, all standalone regression tests, and atlas metadata/frame validation.
+- The prior campaign save/load round-trip rejection was caused by an over-escaped digit matcher in `js/save.js`; the corrected indexed-reference validator is covered by the passing campaign smoke test.
+- No physical Xbox validation or complete live-browser playthrough is claimed by this automated result.
