@@ -392,7 +392,7 @@ globalThis.__CK_TEST__ = {
     S.tech[1] = {};
     const targetHp = target.hp;
     dmgT(attacker, target);
-    attacker.testChemistryBaseDamage = targetHp - target.hp;
+    S.chemistryBaseDamage = targetHp - target.hp;
     target.hp = targetHp; target.dead = 0;
     let university = S.bs.find((b) => b.t === 0 && b.k === 'univ' && b.done);
     if (!university) {
@@ -411,19 +411,20 @@ globalThis.__CK_TEST__ = {
     }
     S.res[0].f = 1000; S.res[0].g = 1000; S.res[0].w = 1000; S.res[0].s = 1000;
     if (!research(university, 'chem')) throw new Error('University should accept affordable Chemistry research');
-    return { baselineDamage: attacker.testChemistryBaseDamage };
+    return { baselineDamage: S.chemistryBaseDamage };
   },
   resolveChemistryShot() {
-    const attacker = S.us.find((u) => u.testChemistryAttacker === true);
-    const target = S.us.find((u) => u.testNavalTarget === true);
-    if (!attacker || !target) throw new Error('Chemistry combatants are missing');
+    this.beginNavalCombat();
+    const target = [...S.us].reverse().find((u) => u.testNavalTarget === true);
+    const attacker = target && [...S.us].reverse().find((u) => u.t === 0 && u.k === 'gal' && u.o === 'a' && u.tg === target);
+    if (!attacker || !target) throw new Error('Chemistry combatants could not be recreated after the research timer');
     S.tech[1] = {};
     attacker.hp = U[attacker.k].hp; attacker.dead = 0;
     target.hp = U[target.k].hp; target.dead = 0;
     const before = target.hp;
     dmgT(attacker, target);
     return {
-      baselineDamage: attacker.testChemistryBaseDamage,
+      baselineDamage: S.chemistryBaseDamage,
       actualDamage: before - target.hp,
       attackBonus: S.tech[0].atkb?.gal || 0
     };
