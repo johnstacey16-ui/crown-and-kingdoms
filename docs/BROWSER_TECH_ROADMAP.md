@@ -44,7 +44,8 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ### Phase 3 — persistence
 - Keep localStorage for settings and legacy save compatibility.
 - Keep IndexedDB backups for game slots.
-- Add periodic autosave only after save payload integrity and pause/campaign edge cases are covered.
+- **Implemented, automated verification pending:** active local play attempts a save every 60 seconds into one rolling `ck_autosave` slot; load-menu recovery exposes that checkpoint separately from the three manual slots. Periodic and pause/blur-triggered autosaves are suppressed while multiplayer is running.
+- **Still required:** verify storage-quota failures, interrupted writes, IndexedDB restore ordering and recovery through a live browser; a source-level test does not establish durable storage on Xbox Edge.
 - Add save thumbnails only with size quotas and failure-safe fallbacks.
 
 ### Phase 4 — audio and immersion
