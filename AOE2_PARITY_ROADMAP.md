@@ -242,3 +242,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Added a real-engine smoke case in commit [`1835e9c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8) for contested-hill progress resets, exclusion of villagers/trade carts/ships from capture, the 299-second non-victory boundary, and player/enemy victory at 300 uninterrupted seconds.
 - **Verification pending:** the new commit's push-triggered GitHub Actions result has not yet been confirmed. Do not mark this check passed until the workflow run reports success.
+
+
+### Rolling autosave regression coverage — 15 October 2026
+
+- Added a live-engine test in commit [`29a63a5`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/29a63a5b51e2769ab97a409bae59db27902bd251) proving that a second autosave overwrites the single `ck_autosave` snapshot, the newest snapshot restores its simulation time, and autosaving leaves the three manual save slots unchanged.
+- Existing runtime logic already schedules local autosaves every 60 seconds while a non-multiplayer match is running; this change adds regression coverage rather than duplicating the scheduler.
+- **Verification pending:** do not mark this new regression as passing until the GitHub Actions result is confirmed.
