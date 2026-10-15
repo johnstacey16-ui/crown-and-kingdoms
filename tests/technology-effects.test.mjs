@@ -91,7 +91,7 @@ assert.match(html, /function unitSpeed\(u\)\{return U\[u\.k\]\.sp\*\(\(S\.tech\[
   'Husbandry must apply a 10% movement-speed bonus only to mounted unit classes');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
   'Mounted classification must cover unique cavalry and mounted raiders consistently');
-assert.match(html, /if\(k==='husb'&&arm\.filter\(u=>CAVARM\.has\(u\.k\)\)\.length>=3\)score\+=22/,
+assert.match(html, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
