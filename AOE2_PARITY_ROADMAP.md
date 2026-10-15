@@ -78,7 +78,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ## Priority 4 — performance and scale
 
-- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting, pooled unit-separation buckets, and Town Bell shelter assignment that pre-counts garrison occupancy rather than rescanning all units for every villager/shelter pair. The unit-separation grid is owned by `js/simulation.js`, beside the movement helper it uses, while preserving the existing `sep()` entry point.
+- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting, pooled unit-separation buckets, and Town Bell shelter assignment that pre-counts garrison occupancy rather than rescanning all units for every villager/shelter pair. A real-engine harness check now exercises bulk assignments against available shelter capacities. The unit-separation grid is owned by `js/simulation.js`, beside the movement helper it uses, while preserving the existing `sep()` entry point.
 - **Unverified:** profile 200- and 400-unit matches with four kingdoms on Xbox Series S / Edge. Record frame time, simulation step cost, memory and input latency; compare quiet economy, dense combat, naval scenes and fog-of-war-heavy maps.
 - Only add viewport culling, further spatial indexes or reduced update rates when measurements identify a bottleneck and tests preserve gameplay behaviour.
 - Do not describe spatial indexing as a proven FPS improvement until measured on target hardware.
