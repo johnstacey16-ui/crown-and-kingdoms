@@ -18,3 +18,12 @@ test('the presentation foundation preserves full-screen controller-first canvas 
   assert.match(css, /canvas\s*\{[\s\S]*?width:\s*100%[\s\S]*?height:\s*100%/);
   assert.match(css, /canvas:focus-visible/);
 });
+
+
+test('the sprite atlas manifest is external JSON and loaded without blocking startup', () => {
+  const manifest = readFileSync(new URL('../assets/atlas-manifest.json', import.meta.url), 'utf8');
+  assert.doesNotThrow(() => JSON.parse(manifest));
+  assert.match(html, /fetch\('\.\/assets\/atlas-manifest\.json'/);
+  assert.match(html, /\.then\(pack=>\{if\(pack&&typeof pack==='object'\)loadAssetPack\(pack\)\}\)/);
+  assert.doesNotMatch(html, /<script id="ck-assets" type="application\/json">\s*\{/);
+});
