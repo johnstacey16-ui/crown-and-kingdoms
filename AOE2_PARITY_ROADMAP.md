@@ -75,7 +75,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ## Priority 4 — performance and scale
 
-- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting and pooled separation buckets.
+- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting and pooled unit-separation buckets. The unit-separation grid is owned by `js/simulation.js`, beside the movement helper it uses, while preserving the existing `sep()` entry point.
 - **Unverified:** profile 200- and 400-unit matches with four kingdoms on Xbox Series S / Edge. Record frame time, simulation step cost, memory and input latency; compare quiet economy, dense combat, naval scenes and fog-of-war-heavy maps.
 - Only add viewport culling, further spatial indexes or reduced update rates when measurements identify a bottleneck and tests preserve gameplay behaviour.
 - Do not describe spatial indexing as a proven FPS improvement until measured on target hardware.
@@ -116,7 +116,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors. The save-validation regression suite and sprite-atlas validation passed on commit `95d3c1519256b7eadf373c42e49a1ea1be30eaaf`.
+1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation and the minimap/fog ownership extraction passed on commit `a8b0e31f621334df38471d839dfd4e559454a546`. The next extraction moves unit-separation ownership beside simulation movement.
 2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
 3. Audit technology effects and AI decisions with focused tests where gaps are found.
 4. Test naval/map connectivity and campaign completion across scenarios.
