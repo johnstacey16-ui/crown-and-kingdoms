@@ -45,7 +45,7 @@ if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall').length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
-if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&arm.length>=6&&S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24))aiDock(vil,tc,t);
+if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||navalThreatCount>0)&&(navalThreatCount>0||S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24)))aiDock(vil,tc,t);
 /* Fishing ships break off and seek open water when hostile combat ships close in; they resume fishing after the threat passes. */
 const hostileFleet=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.sh&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4);
 for(const s of fish.filter(u=>u.hp>0)){
