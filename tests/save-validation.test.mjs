@@ -65,7 +65,7 @@ function attemptLoad(raw) {
 }
 for (const [label, raw] of [
   ['invalid JSON', '{not-json'],
-  ['missing simulation time', JSON.stringify(({ t, ...rest }) => rest)(validShape())],
+  ['missing simulation time', JSON.stringify((({ t, ...rest }) => rest)(validShape()))],
   ['negative simulation time', JSON.stringify({ ...validShape(), t: -1 })],
   ['non-finite simulation time', JSON.stringify({ ...validShape(), t: 'not-a-number' })],
   ['unsupported size', JSON.stringify({ ...validShape(), sz: 77, wt: '0'.repeat(77 * 77), ex: '0'.repeat(77 * 77) })],
