@@ -9,6 +9,8 @@
 This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
 ## Latest implementation checkpoint
+- **Naval production refinement:** fleet-cap enforcement now includes war galleys already queued at all AI docks, preventing repeated AI decision ticks from queuing past the 4–12 ship target. Regression guard updated. Code commit `12d803b`; test commit `9ba6c6d`; CI pending.
+
 - **Naval AI follow-through (15 October):** AI dock construction no longer depends solely on a nearby fish node when hostile combat ships are present. It will attempt a dock if it has at least nine villagers and meets the existing age gate (`S.age[t]>=1`), with either six army units or an active naval threat. Combined with the adaptive 4–12 war-galley cap, this makes naval defence respond to enemy fleets rather than only economic fishing opportunities. Regression guards cover fleet sizing and dock-trigger conditions; a full water-map match remains to be played.
 
 - **New gameplay change (15 October): adaptive AI naval force size.** Rival AI now targets a war-galley fleet cap of `min(12, max(4, 2 + 2 × hostile combat ships))`, instead of stopping at four galleys regardless of the player's fleet. Fishing, transport and trade ships do not inflate the threat count. Added a regression guard in `tests/ai-research-priority.test.mjs`; workflow result pending at this checkpoint. This changes the production cap only; tactical naval pathing and physical Xbox performance still need live playtesting.
