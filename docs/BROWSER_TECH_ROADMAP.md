@@ -13,7 +13,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/input.js`: controller polling, selection, orders and menu navigation.
 - `js/mapgen.js`: map generation/layout helpers extracted from the main engine.
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
-- `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
+- `js/render.js`: world, unit, relic, particle effects, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/assets.js`: optional sprite-atlas registration, metadata/frame validation, asynchronous image loading and animation-frame lookup, with procedural fallback preserved.
 - `js/ui.js`: shared title-background/generic list rendering and framed panels, match-result/runtime-error overlays, campaign list/briefing/objective drawing, performance overlay, strategic overview, technology tree, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; campaign progression remains in `js/campaign.js`; save serialization remains in `js/save.js`.
 - The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
@@ -169,3 +169,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the `DS` description table, `stt()` stat label helper, `drawRadial()`, `drawCg()` and `quickBar()` into `js/ui.js`. All drawing remains on the existing canvas and function names are unchanged.
 - The `draw()` loop still decides when the radial/control-group overlays appear; radial command state, group assignment/focus and controller processing remain in `engine.js`/`js/input.js` as before.
 - Added `tests/command-overlay-ui-extraction.test.mjs` to guard the ownership boundary and ensure drawing calls still connect to the existing command state.
+
+
+### Particle renderer separation — 15 October 2026
+
+- Moved `drawP()` from `engine.js` into `js/render.js`, next to the existing `PMAX`/`PT` particle state and world draw path.
+- Particle emission and simulation/lifetime updates (`emit()`, `updP()`) remain in `engine.js`. The renderer still calls `drawP()` in the same place before projectile strokes.
+- Added `tests/particle-renderer-extraction.test.mjs` to guard the script ordering, renderer ownership and unchanged particle-update/draw connection. This is a structural change only; no performance improvement is claimed without profiling.

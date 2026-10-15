@@ -125,3 +125,6 @@ c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);if(TCH.size>48)TCH.delete(TCH.keys
 
 function drawChunks(x0,x1,y0,y1){for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){const c=chunkOf(cx,cy);X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)}}
 const PMAX=[100,260,520],PT=[];
+
+/* Draw the particles whose lifecycle is updated by engine.js. */
+function drawP(){for(const p of PT){const P=w2s(p.x,p.y),a=1-p.t/p.l;X.globalAlpha=a*(p.k==='smk'||p.k==='puff'||p.k==='dust'?.55:.95);X.fillStyle=p.c;X.beginPath();X.arc(P[0],P[1]-Math.max(0,p.z)*zm*14,(p.r+(p.k==='smk'||p.k==='puff'||p.k==='dust'?p.t*6:0))*zm,0,7);X.fill()}X.globalAlpha=1}
