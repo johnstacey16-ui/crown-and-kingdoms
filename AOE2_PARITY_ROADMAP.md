@@ -22,7 +22,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 1.1 Runtime stability
 - **Unverified:** play complete skirmishes and campaign missions from cold start through victory/defeat, including pause/resume, save/load, age-up, queued production, garrison/unload, diplomacy and naval combat.
-- Reproduce every newly reported runtime error, fix the underlying path and add a focused regression test. The campaign timed-raid helper now exits safely if the enemy Town Centre has already been destroyed, with a regression assertion in `tests/campaign-progression.test.mjs`.
+- Reproduce every newly reported runtime error, fix the underlying path and add a focused regression test. The campaign timed-raid helper now exits safely if the enemy Town Centre has already been destroyed, with a regression assertion in `tests/campaign-progression.test.mjs`. Relic objectives now require the relic to be stored in a completed monastery; `tests/campaign-relic-objectives.test.mjs` guards all three relic-goal checks.
 - Check error-overlay recovery and ensure a caught frame error cannot leave the game silently half-running.
 - **Acceptance:** automated checks pass and the critical flows above are exercised in a real browser. Xbox acceptance remains a separate gate.
 
@@ -48,7 +48,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 2.2 AI strategy and counterplay
 - **Present:** economic expansion, composition-aware research, defensive response, grouped attacks, siege targeting, repairs and several naval behaviours.
-- **Partial:** improve strategy across all ages and map types; test whether AI gathers, advances, builds, produces counters, protects its economy and attacks with coherent mixed armies rather than oscillating or stalling.
+- **Partial:** AI naval threat assessment now distinguishes combat-capable warships from fishing ships, transports and trade cogs, so economic vessels do not trigger combat-ship counter priorities. `tests/ai-naval-threat-classification.test.mjs` guards this classification. Still improve strategy across all ages and map types; test whether AI gathers, advances, builds, produces counters, protects its economy and attacks with coherent mixed armies rather than oscillating or stalling.
 - Add deterministic scenario tests for key decisions, then play longer matches to assess strategy quality. Static source assertions alone cannot establish competent AI.
 
 ### 2.3 Naval and map systems
@@ -116,7 +116,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation and the minimap/fog ownership extraction passed on commit `a8b0e31f621334df38471d839dfd4e559454a546`. The next extraction moves unit-separation ownership beside simulation movement.
+1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation and the minimap/fog ownership extraction passed on commit `a8b0e31f621334df38471d839dfd4e559454a546`. Unit-separation ownership is now in `js/simulation.js`; the new regression run must pass before treating the extraction as regression-checked.
 2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
 3. Audit technology effects and AI decisions with focused tests where gaps are found.
 4. Test naval/map connectivity and campaign completion across scenarios.
