@@ -1001,14 +1001,20 @@ for (const shelter of townBellAudit.occupancy) {
 console.log('town-bell-behaviour: '+townBellAudit.assigned+' villagers assigned across '+townBellAudit.occupancy.length+' shelters with no capacity overbooking');
 
 for (const population of [100, 200, 400]) {
-  game.start(123456);
-  const started = process.hrtime.bigint();
-  const result = game.benchmarkArmy(population, 15);
-  const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6;
-  assert.equal(result.added, population, 'Benchmark must add the requested synthetic army size');
-  assert.ok(result.units >= population, 'Benchmark army must remain represented in simulation state');
-  assert.equal(result.ticks, 15, 'Benchmark must execute the full fixed number of simulation ticks');
-  assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Benchmark timing must be finite');
-  console.log('large-army-runtime: requested='+population+' added='+result.added+' total='+result.units+' ticks='+result.ticks+' elapsedMs='+elapsedMs.toFixed(2));
+  const samples = [];
+  let finalResult = null;
+  for (let repeat = 0; repeat < 3; repeat++) {
+    const started = process.hrtime.bigint();
+    const result = game.benchmarkArmy(population, 15);
+    const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6;
+    assert.equal(result.added, population, 'Benchmark must add the requested synthetic army size');
+    assert.ok(result.units >= population, 'Benchmark army must remain represented in simulation state');
+    assert.equal(result.ticks, 15, 'Benchmark must execute the full fixed number of simulation ticks');
+    assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Benchmark timing must be finite');
+    samples.push(elapsedMs);
+    finalResult = result;
+  }
+  samples.sort((a, b) => a - b);
+  console.log('large-army-runtime: requested='+population+' added='+finalResult.added+' total='+finalResult.units+' ticks='+finalResult.ticks+' repeats=3 medianMs='+samples[1].toFixed(2)+' rangeMs='+samples[0].toFixed(2)+'-'+samples[2].toFixed(2));
 }
 
