@@ -474,6 +474,18 @@ globalThis.__CK_TEST__ = {
     target.testNavalTarget = true; attacker.o = 'a'; attacker.tg = target;
     return { attacker: { x: attacker.x, y: attacker.y }, targetHp: target.hp, targetMaxHp: U[target.k].hp, targetKey: [target.t, target.k, target.x, target.y].join(':') };
   },
+  exerciseGalleyTargetReacquisition() {
+    this.start(24680);
+    this.beginNavalCombat();
+    const ship = S.us.find(unit => unit && unit.t === 1 && unit.k === 'gal' && unit.testNavalTarget);
+    const liveEnemy = S.us.find(unit => unit && unit.t === 0 && unit.k === 'gal' && unit.testNavalTarget !== true);
+    if (!ship || !liveEnemy) throw new Error('Naval test must create an AI galley and a nearby hostile galley');
+    ship.o = 'a';
+    ship.tg = { t: 0, k: 'gal', hp: 0, ld: 0, x: ship.x, y: ship.y };
+    S.ai[1].cd = 0;
+    aiTeam(1, 1 / 30);
+    return { reacquired: ship.tg === liveEnemy, order: ship.o, targetHp: ship.tg?.hp, targetTeam: ship.tg?.t };
+  },
   beginNavalMove() {
     const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
       S.wt[y * W + x] === 1 && !S.nd[y * W + x];
@@ -1306,6 +1318,12 @@ assert.equal(campaignCompletion.nextBriefing.mode, 'brief', 'Continue after vict
 assert.equal(campaignCompletion.nextBriefing.index, 1, 'First Hearth should advance to Raiders at the Ford');
 assert.equal(campaignCompletion.savedCompletion['0'], 1, 'Mission completion should be persisted for campaign unlocks');
 console.log('campaign-completion-transition: all objectives required, completion persisted, next mission briefing opened');
+
+// Verify the live AI decision loop retargets a war galley after its previous target dies.
+const galleyReacquisition = game.exerciseGalleyTargetReacquisition();
+assert.equal(galleyReacquisition.reacquired, true, 'An AI war galley must acquire a nearby live hostile ship after target loss');
+assert.equal(galleyReacquisition.order, 'a', 'The retargeted war galley should remain in attack mode');
+console.log('naval-ai-target-reacquisition: live AI retargeted after target loss');
 
 // Exercise every named generated-map layout through the actual game initializer.
 // This catches disconnected starts and bad map-layout seeds that static tests miss.
