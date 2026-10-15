@@ -13,6 +13,13 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Unverified** — needs running-game, browser, network or physical-controller testing.
 - **Gap** — not implemented to the requested standard.
 
+## Latest continuation work — 15 October 2026
+
+- **Implemented:** moved the technology tree, objectives and controller help/About screens to `js/ui.js`; the classic-script load order and shared state are preserved.
+- **Implemented:** added more saddle tack, stitched details and cavalry barding accents to the procedural mounted-unit art.
+- **Implemented:** reuse the spatial separation grid for large armies to reduce repeated allocations. This is a targeted allocation reduction, not proof of 400-unit performance; Xbox Edge profiling remains unverified.
+- **Regression suite:** several tests were still reading only `engine.js` after functions had been extracted into `js/simulation.js` or `js/ui.js`. Their source composition is being corrected; the full suite must pass before this work is marked confirmed.
+
 ## 1. Current implementation
 
 ### Core simulation and economy
