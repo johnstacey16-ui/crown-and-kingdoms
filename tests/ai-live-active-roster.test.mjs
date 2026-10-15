@@ -28,3 +28,13 @@ assert.match(threatScan, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k
 assert.doesNotMatch(ai, /const hostileFleet=S\.us\.filter|const hostileShips=S\.us\.filter/,
   'Do not re-scan the entire unit list separately for the same naval rosters');
 console.log('ai-live-active-roster: naval threat lists are consolidated into one source scan');
+
+assert.match(threatScan, /const hostileFleet=\[\],hostileShips=\[\],humanArmy=\[\],humanShips=\[\];let navalThreatCount=0;for\(const e of S\.us\)/,
+  'The hostile scan should also build active land-army and naval-counter rosters in the same pass');
+assert.match(threatScan, /if\(!e\.ld&&!U\[e\.k\]\.sh\)humanArmy\.push\(e\)/,
+  'Human counter-planning must preserve its active, non-garrisoned land-unit filter');
+assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
+  'Naval counter-planning must preserve its active combat-ship filter');
+assert.doesNotMatch(ai, /const humanArmy=S\.us\.filter|humanShips=S\.us\.filter/,
+  'Do not rescan all units later to reconstruct the same hostile army and ship rosters');
+console.log('ai-live-active-roster: hostile army and naval counter rosters share one source scan');
