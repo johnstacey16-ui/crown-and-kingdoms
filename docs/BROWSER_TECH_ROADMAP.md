@@ -43,7 +43,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 
 ### Phase 3 — persistence
 - Keep localStorage for settings and legacy save compatibility.
-- Keep IndexedDB backups for game slots; failures in the optional backup mirror must not block the primary localStorage save (guarded in `js/save.js`, with regression coverage in `tests/save-validation.test.mjs`).
+- Keep IndexedDB backups for game slots; synchronous exceptions and rejected promises in the optional backup mirror must not block the primary localStorage save (guarded in `js/save.js`, with regression coverage in `tests/save-validation.test.mjs`).
 - **Implemented, automated verification pending:** active local play attempts a save every 60 seconds into one rolling `ck_autosave` slot; load-menu recovery exposes that checkpoint separately from the three manual slots. Periodic and pause/blur-triggered autosaves are suppressed while multiplayer is running.
 - **Still required:** verify storage-quota failures, interrupted writes, IndexedDB restore ordering and recovery through a live browser; a source-level test does not establish durable storage on Xbox Edge.
 - Add save thumbnails only with size quotas and failure-safe fallbacks.
