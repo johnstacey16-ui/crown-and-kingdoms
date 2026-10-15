@@ -7,7 +7,8 @@ assert.match(ai, /humanShips=S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&!u\
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
 assert.match(ai, /navalTargetScore=\(e\)=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\(e\.k==='gal'\?6:0\)\+\(U\[e\.k\]\.dmg>=4\?0:10\)-Math\.min\(3,focus\(e\)\)\*4/,
   'warships must prioritize combat-capable enemy ships over economic and transport vessels');
-assert.match(ai, /if\(k==='navalAtk'&&humanShips\.some\(u=>u\.k==='gal'\)\)score\+=105/);
+assert.match(ai, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
+  'AI must value naval attack research against any confirmed enemy combat-ship class');
 assert.match(ai, /counters=isDock\?\(enemyShips>=1\?\['gal'\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');
 
