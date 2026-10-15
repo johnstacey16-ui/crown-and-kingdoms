@@ -64,6 +64,13 @@ This is the single handover checkpoint. Continue from live code and current CI r
 - Later documentation checkpoint `fe030d76ba8a9e5a8e055c6a5d4f0e7c8b51e323`, workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015), also completed successfully.
 - The exact-population benchmark and 19-mission startup matrix passed workflow [#38747786721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747786721).
 
+## Backed-up branch and workflow disposition — 15 October 2026
+
+- **Automated workflows:** no GitHub Actions runs were active at the checkpoint. The latest two documentation-triggered runs, [#38791194147](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791194147) and [#38791201438](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791201438), both passed; the timed campaign-event test run [#38791039785](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791039785) also passed. No open pull requests were returned by GitHub.
+- **Backup branches:** retained rather than deleted. Comparison against `main` shows many historical branches are over 1,000 commits behind because the game has since moved from the old monolithic `index.html` implementation into separate `js/*.js` modules. Their changes must not be merged wholesale: doing so risks restoring obsolete monolithic code over the current architecture.
+- **Workflow already incorporated:** `maintenance/ci-roadmap-audit` has the same `.github/workflows/game-regression.yml` blob as `main`; automatic discovery of every `tests/*.test.mjs` and the atlas validation are already on `main`. The branch's remaining README/roadmap differences are older snapshots, not missing CI functionality.
+- **Disposition:** the backup branches remain available as historical recovery references. The currently active source of truth is `main`; only distinct changes that are still missing should be ported forward individually and regression-tested. Branches have not been deleted or blindly merged.
+
 ## What CI verifies
 
 Workflow: `.github/workflows/game-regression.yml`
