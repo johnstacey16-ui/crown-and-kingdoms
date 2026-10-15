@@ -13,6 +13,7 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **AI production and naval scan hardening:** AI no longer attempts training at destroyed production buildings or technology research at destroyed research buildings; queue shape is checked before training decisions. Naval threat/target scans guard invalid unit records. Focused regression guards added; full-match balance and Xbox validation remain outstanding.
 - **AI input safety — improved:** roster planning skips invalid unit records before unit metadata access and validates the Town Centre queue shape before production decisions. Regression guard added; full simulation and console validation remain outstanding.
 
 - **AI roster correctness — improved, not complete:** AI strategic counts now use living units; garrisoned units are excluded from active worker and combat/naval pools. This prevents stale dead records and sheltered units from suppressing replacement production or inflating field strength. Regression test added; full skirmish balance and Xbox performance still require live testing.
