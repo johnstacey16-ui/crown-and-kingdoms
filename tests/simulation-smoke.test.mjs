@@ -579,6 +579,18 @@ globalThis.__CK_TEST__ = {
     if (!n) throw new Error('The seeded match must contain a wood resource node');
     u.o = 'g'; u.tg = n; u.ct = n.k; u.car = 0; u.ret = 0; u.p = []; u.rp = 0; u.autoWorker = 0;
   },
+  benchmarkArmy(count, ticks = 15) {
+    this.start(13579);
+    for (let i = 0; i < count; i++) {
+      const x = 4 + (i % 20) * 4;
+      const y = 4 + Math.floor(i / 20) * 3.5;
+      const unit = addU(i % Math.min(4, S.teamN), 'mil', x, y);
+      unit.o = 'i'; unit.tg = null; unit.p = []; unit.sc = 1000; unit.as = 0; unit.retreating = 0;
+    }
+    const before = S.us.length;
+    for (let i = 0; i < ticks; i++) step(1 / 30);
+    return { requested: count, added: S.us.length - before, units: S.us.length, ticks, time: S.t, mapSize: W };
+  },
   auditTownBellReservations() {
     const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
     if (!shelters.length) throw new Error('The seeded match must have an eligible player shelter');
@@ -986,3 +998,16 @@ for (const shelter of townBellAudit.occupancy) {
   assert.ok(shelter.assigned <= shelter.capacity, 'Town Bell must not overbook ' + shelter.kind);
 }
 console.log('town-bell-behaviour: '+townBellAudit.assigned+' villagers assigned across '+townBellAudit.occupancy.length+' shelters with no capacity overbooking');
+
+for (const population of [100, 200, 400]) {
+  game.start(123456);
+  const started = process.hrtime.bigint();
+  const result = game.benchmarkArmy(population, 15);
+  const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6;
+  assert.equal(result.added, population, 'Benchmark must add the requested synthetic army size');
+  assert.ok(result.units >= population, 'Benchmark army must remain represented in simulation state');
+  assert.equal(result.ticks, 15, 'Benchmark must execute the full fixed number of simulation ticks');
+  assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Benchmark timing must be finite');
+  console.log('large-army-runtime: requested='+population+' added='+result.added+' total='+result.units+' ticks='+result.ticks+' elapsedMs='+elapsedMs.toFixed(2));
+}
+
