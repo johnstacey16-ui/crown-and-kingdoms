@@ -303,6 +303,26 @@ globalThis.__CK_TEST__ = {
       villagerGarrisoned: worker.o === 'B' && worker.tg === tc,
     };
   },
+  beginRelicIncome() {
+    const size = B.monastery.s;
+    let site = null;
+    for (let y = 2; y < H - size - 1 && !site; y++) for (let x = 2; x < W - size - 1 && !site; x++) {
+      let clear = true;
+      for (let dy = 0; dy < size && clear; dy++) for (let dx = 0; dx < size; dx++) {
+        const index = (y + dy) * W + x + dx;
+        if (S.g[index] || S.wt[index]) { clear = false; break; }
+      }
+      if (clear) site = { x, y };
+    }
+    if (!site) throw new Error('Could not find a clear site for the relic-income test Monastery');
+    const monastery = addB(0, 'monastery', site.x, site.y, true);
+    const relic = S.rel.find(r => !r.m && !r.c);
+    if (!relic) throw new Error('Seeded match must contain an unclaimed relic for the relic-income test');
+    relic.m = monastery;
+    for (const u of S.us) if (u.t === 0) { u.o = 'i'; u.tg = null; u.p = []; u.rp = 0; }
+    S.res[0].g = 0;
+    return { gold: S.res[0].g, relics: S.rel.filter(r => r.m === monastery).length };
+  },
   beginFarmReseed() {
     const worker = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
     if (!worker) throw new Error('The seeded match must contain a player villager for farm reseeding');
@@ -586,6 +606,15 @@ assert.equal(siegeAttack.selectedSiegeTarget, true, 'Siege targeting should pref
 assert.equal(siegeAttack.siegeUnitTargetedCastle, true, 'A staged battering ram should receive the selected Castle target');
 assert.equal(siegeAttack.infantryAssignedToPrimaryTarget, true, 'Non-siege units should retain the primary attack target');
 console.log('ai-siege-smoke: coordinated wave selected the Castle for the ram and retained the Town Centre target for infantry');
+
+game.start(123456);
+const relicBefore = game.beginRelicIncome();
+assert.equal(relicBefore.relics, 1, 'The relic-income test should place one relic in the completed Monastery');
+for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+const relicAfter = game.state();
+assert.ok(relicAfter.playerGold >= relicBefore.gold + 29.5,
+  'A relic held in a completed Monastery should generate approximately 30 gold over 60 simulated seconds');
+console.log(`relic-income-smoke: one relic generated ${relicAfter.playerGold - relicBefore.gold} gold over 60 simulated seconds`);
 
 game.start(123456);
 const farmBefore = game.beginFarmReseed();
