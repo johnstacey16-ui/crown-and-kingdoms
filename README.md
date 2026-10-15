@@ -50,7 +50,7 @@ GitHub Actions discovers and runs every `tests/*.test.mjs` test. The suite is pr
 
 ## Local autosave
 
-During active local play, the game attempts an autosave every 60 seconds into one rolling `ck_autosave` slot; each successful save replaces the previous autosave. The Load Game menu offers a separate **Recover Autosave** action, leaving the three manual slots untouched. Autosave is suppressed for active multiplayer sessions, including pause/blur-triggered saves, because the current lobby is not a complete authoritative multiplayer save system. Browser storage failures can still prevent a save, so autosave is not a substitute for verified storage durability.
+During active local play, the game attempts an autosave every 60 seconds into one rolling `ck_autosave` slot; each successful save replaces the previous autosave. The Load Game menu offers a separate **Recover Autosave** action, leaving the three manual slots untouched. Autosave is suppressed for active multiplayer sessions, including pause/blur-triggered saves, because the current lobby is not a complete authoritative multiplayer save system. The IndexedDB backup is best-effort and cannot block the primary localStorage write; browser storage failures can still prevent a save, so autosave is not a substitute for verified storage durability.
 
 ## Development rules
 
