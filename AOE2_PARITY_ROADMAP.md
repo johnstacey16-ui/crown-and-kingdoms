@@ -127,10 +127,11 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Latest implementation checkpoint — 15 October 2026
 
-- Code commit: `94a22c18d363e49e3a54df892ba46fe49a957c9d` adds a real-engine boot-and-tick smoke test for all 17 campaign missions; the same tested branch contains the corrected benchmark for 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
+- Code commit: `94a22c18d363e49e3a54df892ba46fe49a957c9d` adds a real-engine boot-and-tick smoke test for all 19 defined campaign missions; the same tested branch contains the corrected benchmark for 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
 - The benchmark warms both sides of the current 64-unit separation fallback threshold and reports median/range across three simulation-only samples for each population.
-- Workflow [#38747030117](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747030117) completed successfully for this commit and ran the complete configured regression suite, including all 17 campaign startup checks.
-- The 17 campaign missions each started with units/buildings and survived one simulated second; this is startup smoke coverage, not full mission completion.
+- Workflow [#38747786721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747786721) completed successfully for the corrected campaign code/tests and ran the complete configured regression suite, including all 19 campaign startup checks and arc coverage validation.
+- All 19 defined campaign missions each started with units/buildings and survived one simulated second; this is startup smoke coverage, not full mission completion.
+- Fixed a progression defect where the campaign arc list referenced nonexistent ID 19. The defined campaign has 19 missions (IDs 0–18); Iron Pass is grouped under Northern March and the Causeway Campaign now references only its two defined missions. A regression test enforces that every mission is included exactly once with no invalid IDs.
 - Latest simulation-only Node CI timings over 30 fixed steps and three repeats: 100 total units median **6.24 ms** (range 6.11–6.26); 200 total units median **10.97 ms** (10.94–11.16); 400 total units median **20.64 ms** (20.58–24.32). Earlier successful samples were faster, demonstrating that shared CI timing varies.
 - These are Node simulation timings, not browser-render timings, Xbox frame-rate or physical console verification. Earlier 120/220/420 total-unit timings are superseded by this exact-population benchmark.
 - Automated CI is not a full live browser playthrough, production deployment confirmation, multiplayer validation or physical Xbox verification.
