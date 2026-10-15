@@ -561,6 +561,22 @@ if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
  for(const u of responders){u.o='a';u.tg=distress.enemy;u.p=[]}
  if(responders.length)A.lastAllyHelp=S.t;
 }
+/* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
+const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle'].includes(b.k))
+ .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
+let raid=null;
+for(const site of economicSites){
+ const intruder=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3)
+  .map(e=>({e,d:Math.hypot(e.x-(site.x+(site.s||0)/2),e.y-(site.y+(site.s||0)/2))}))
+  .filter(q=>q.d<8.5).sort((a,b)=>a.d-b.d)[0];
+ if(intruder){raid={site,e:intruder.e};break}
+}
+if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
+ const defenders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&Math.hypot(u.x-raid.site.x,u.y-raid.site.y)<21)
+  .sort((a,b)=>Math.hypot(a.x-raid.site.x,a.y-raid.site.y)-Math.hypot(b.x-raid.site.x,b.y-raid.site.y)).slice(0,4);
+ for(const u of defenders){u.o='a';u.tg=raid.e;u.p=[]}
+ if(defenders.length)A.lastRaidDefense=S.t;
+}
 if(bl.some(b=>b.k==='market'&&b.done)){for(const k of['f','w','s']){if(R[k]>1100&&R.g<400)trade(t,k,'sell');else if(R[k]<80&&R.g>600&&k!=='s')trade(t,k,'buy')}}
 if(A.stg){const wu=(A.wu||[]).filter(u=>u.hp>0&&u.k!=='mon'&&!u.retreating);if(wu.every(u=>u.o!=='m')||S.t-A.stg.t>50){for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='a';u.tg=['ram','mang','scor','treb','bomb'].includes(u.k)&&A.stg.siegeT&&A.stg.siegeT.hp>0?A.stg.siegeT:A.stg.tg;u.p=[]}A.stg=null}}
 {A.kn=A.kn||new Set();for(const b of S.bs)if(isHostile(t,b.t)&&b.hp>0&&!A.kn.has(b)&&my.some(u=>Math.hypot(u.x-b.x,u.y-b.y)<9))A.kn.add(b);
