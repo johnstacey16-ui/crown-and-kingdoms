@@ -25,3 +25,13 @@ test('renderer, UI and minimap can still resolve shared primitives', () => {
   assert.match(minimap, /dia\(/);
   assert.match(engine, /tx\(pat===2/);
 });
+
+test('shared primitives are declared exactly once across the loaded rendering scripts', () => {
+  const sources = [render, ui, engine, minimap];
+  for (const [name, owner] of [['tx', ui], ['bar', render], ['dia', render], ['poly', render]]) {
+    const declaration = new RegExp('function ' + name + '\\(', 'g');
+    const total = sources.reduce((n, source) => n + (source.match(declaration) || []).length, 0);
+    assert.equal(total, 1, name + ' should have a single shared declaration');
+    assert.equal((owner.match(declaration) || []).length, 1, name + ' must remain with its chosen owner');
+  }
+});
