@@ -205,3 +205,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Queries inspect nearby cells, perform the same exact Euclidean radius check, and keep the hostile/dead/garrisoned filters and original array-order tie-break. Siege units still prioritise buildings in range; other units still fall back to the existing building scan when no hostile unit is in range.
 - Buckets reuse their arrays across rebuilds to limit per-tick garbage. `tests/simulation-smoke.test.mjs` compares indexed targets with the original linear reference over a 368-unit synthetic army, including ties, dead/garrisoned targets and an invalidated rebuild. `tests/spatial-target-index.test.mjs` protects index wiring.
 - No frame-rate gain is claimed until the 100–400 unit workloads are profiled on the target browser/Xbox runtime.
+
+### World entity creation extraction — 15 October 2026
+
+- The three world entity factory functions (`addN`, `addB`, `addU`) now live in `js/entities.js`, separating placement/initialisation from the top-level engine.
+- The module loads after shared state and kingdom automation helpers, before campaign and engine code. Existing global function names and shared state access are preserved for the classic-script architecture.
+- Added ownership/load-order/offline-cache regression coverage and wired the module into `scripts/check-game.mjs`.
+- This is a maintainability boundary, not a performance claim. Start-up, save/load, map generation and Xbox Edge still need full regression/runtime verification.
