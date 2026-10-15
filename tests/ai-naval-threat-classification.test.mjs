@@ -11,7 +11,7 @@ assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
   assert.match(ai, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,
   'low-health disengagement must cover every combat warship, not only galleys');
-assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
+assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
   'naval focus-fire counts must be built once before ship target scoring');
 assert.match(ai, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/,
   'each ship assignment must update focus-fire counts for following ships');
