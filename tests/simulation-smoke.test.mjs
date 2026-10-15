@@ -1104,6 +1104,7 @@ for (let layout = 1; layout <= 13; layout += 1) {
   assert.ok(state.mapAudit, `Map layout ${layout} must publish its generated-map audit`);
   assert.equal(state.mapAudit.landReachable, true, `Map layout ${layout} must connect all four starting land regions`);
   assert.equal(state.mapAudit.starts, 4, `Map layout ${layout} must audit all four starting positions`);
+  assert.ok(Number.isInteger(state.mapAudit.attempts) && state.mapAudit.attempts >= 1 && state.mapAudit.attempts <= 13, `Map layout ${layout} must report a bounded 1–13 generation attempt count`);
   assert.ok(state.units >= 20, `Map layout ${layout} must initialize a starting economy for all four kingdoms`);
   generatedMapAudits.push({ layout, attempts: state.mapAudit.attempts ?? null, water: state.mapAudit.waterCells, dockableStarts: state.mapAudit.dockableStarts });
 }
