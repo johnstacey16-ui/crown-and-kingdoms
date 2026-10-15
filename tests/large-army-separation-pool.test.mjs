@@ -11,7 +11,7 @@ test('large-army separation recycles spatial bucket arrays instead of allocating
   const start = simulation.indexOf('function sep(){');
   const end = simulation.length;
   assert.ok(start >= 0 && end > start, 'Separation function must remain isolated');
-  const sep = engine.slice(start, end);
+  const sep = simulation.slice(start, end);
   assert.match(sep, /if\(us\.length<=128\)/, 'Small armies retain the straightforward linear path');
   assert.match(sep, /for\(const bucket of grid\.values\(\)\)\{bucket\.length=0;SEP_BUCKET_POOL\.push\(bucket\)\}grid\.clear\(\)/,
     'Occupied buckets must be emptied and returned to the reuse pool each large-army tick');
