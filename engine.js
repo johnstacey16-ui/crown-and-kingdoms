@@ -24,26 +24,7 @@ function addU(t,k,x,y){const u={t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb
    Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
    Buildings/resources are intentionally excluded: this audits generated terrain
    before placement, not temporary gameplay obstructions. */
-function auditGeneratedMap(starts){
- const seenLand=new Uint8Array(W*H),seenWater=new Uint8Array(W*H),landComponents=[],waterComponents=[];
- const flood=(sx,sy,kind,seen)=>{
-  const pass=i=>kind==='land'?(S.wt[i]!==1):(S.wt[i]===1||S.wt[i]===2);
-  const start=sy*W+sx;if(start<0||start>=W*H||!pass(start)||seen[start])return [];
-  const q=[start];seen[start]=1;
-  for(let h=0;h<q.length;h++){const i=q[h],x=i%W,y=(i/W)|0;
-   const ns=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];
-   for(const n of ns)if(n>=0&&!seen[n]&&pass(n)){seen[n]=1;q.push(n)}
-  }return q;
- };
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]!==1&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand).length);if((S.wt[i]===1||S.wt[i]===2)&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater).length)}
- const startCells=starts.map(([x,y])=>Math.max(0,Math.min(H-1,y))*W+Math.max(0,Math.min(W-1,x)));
- const startReach=new Uint8Array(W*H),first=starts[0],reached=first?flood(first[0],first[1],'land',startReach):[];
- const landReachable=!!first&&reached.length>0&&startCells.every(i=>startReach[i]===1);
- const waterCells=waterComponents.reduce((a,b)=>a+b,0),largestWaterComponent=waterComponents.length?Math.max(...waterComponents):0,waterNetworkCoverage=waterCells?Math.round(largestWaterComponent/waterCells*100):0;
- const coastStarts=starts.filter(([x,y])=>{for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1)return true}return false}).length;
- const dockableStarts=starts.filter(([sx,sy])=>{for(let y=Math.max(1,sy-24);y<Math.min(H-2,sy+24);y++)for(let x=Math.max(1,sx-24);x<Math.min(W-2,sx+24);x++){let land=true;for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)if(S.wt[(y+dy)*W+x+dx]===1)land=false;if(!land)continue;let shore=false;for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++)if((dx<0||dy<0||dx>=2||dy>=2)&&x+dx>=0&&y+dy>=0&&x+dx<W&&y+dy<H&&S.wt[(y+dy)*W+x+dx]===1)shore=true;if(shore)return true}return false}).length;
- return {ok:landReachable,landReachable,landComponents:landComponents.length,waterComponents:waterComponents.length,waterCells,largestWaterComponent,waterNetworkCoverage,navigableWaterConnected:waterCells>0&&waterComponents.length===1,coastalStarts:coastStarts,dockableStarts,navalAccess:dockableStarts>0,starts:starts.length};
-}
+
 const DIPLOMACY_STATES=['enemy','neutral','ally'];
 function createDiplomacy(n,source=null){
  const d=Array.from({length:n},(_,a)=>Array.from({length:n},(_,b)=>a===b?'self':'enemy'));
@@ -184,25 +165,7 @@ function villagerPriorityMenuItems(){
   ...WORKER_TARGETS.map(r=>({n:'Worker target: '+r.n,v:()=>p[r.k]+' target / '+villagerAssignedCount(0,r.k)+' assigned',l:()=>changeVillagerTarget(r.k,-1),r:()=>changeVillagerTarget(r.k,1),a:()=>applyVillagerPriorities(0)}))
  ];
 }
-function prepareHillMap(starts){
- const cleared=new Uint8Array(W*H),hx=W/2,hy=H/2;
- const carve=(ax,ay,bx,by,radius)=>{
-  const steps=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)*2));
-  for(let k=0;k<=steps;k++){
-   const x=ax+(bx-ax)*k/steps,y=ay+(by-ay)*k/steps;
-   for(let yy=Math.max(1,Math.floor(y-radius));yy<=Math.min(H-2,Math.ceil(y+radius));yy++)
-    for(let xx=Math.max(1,Math.floor(x-radius));xx<=Math.min(W-2,Math.ceil(x+radius));xx++)
-     if(Math.hypot(xx+.5-x,yy+.5-y)<=radius)cleared[yy*W+xx]=1;
-  }
- };
- for(const b of starts)carve(b[0]+.5,b[1]+.5,hx,hy,2.2);
- carve(hx,hy,hx,hy,6);
- for(let i=0;i<cleared.length;i++)if(cleared[i]){S.g[i]=0;S.wt[i]=0;S.nd[i]=null}
- S.nodes=S.nodes.filter(n=>!cleared[(n.y|0)*W+(n.x|0)]);
- S.rel=S.rel.filter(q=>Math.hypot(q.x-hx,q.y-hy)>6.2);
- S.kh=Array(S.teamN).fill(0);
- S.mapAudit={...auditGeneratedMap(starts),hillReachable:true};
-}
+
 function newGame(tries=0){setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:Date.now()&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
 S={t:0,teamN,r,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
 res:Array.from({length:teamN},()=>{const v=[200,500,1000,2000][startRes]||200;return startRes===0?{f:200,w:200,g:100,s:0}:{f:v,w:v,g:v,s:v}}),pl:{tr:0,bl:0,kills:0,gath:0},sel:[],vt:0,al:-99,age:Array(teamN).fill(startAge),tech:Array.from({length:teamN},()=>({})),dip:createDiplomacy(teamN),vp:createVillagerPriority(),scoreCache:Array(teamN).fill(0),kh:Array(teamN).fill(0),rel:[],px:Array.from({length:teamN},()=>({f:100,w:100,g:100,s:100})),civ:Array.from({length:teamN},(_,t)=>t),pal:MT[mt].pal||0,ai:Array.from({length:teamN},(_,t)=>({cd:4+t*.7,wave:0,nx:(vm===5?180:([480,360,240][diff]*PERS[aip].g))|0})),over:null};
@@ -1154,7 +1117,7 @@ const cx=CW/2,cy=CH*.12;X.save();X.shadowColor='#f2c14e';X.shadowBlur=18;X.fillS
 function drawList(title,items,idx,sub){X.fillStyle='rgba(3,7,12,.64)';X.fillRect(0,0,CW,CH);const w=Math.min(780,CW-40),rh=Math.min(48,Math.max(34,(CH-230)/items.length|0)),y0=Math.max(10,(CH-items.length*rh-130)/2|0),x=(CW-w)/2;panel(x,y0,w,items.length*rh+110);tx(title,CW/2,y0+52,36,'#f4d58b','center');X.fillStyle='rgba(220,181,104,.18)';X.fillRect(x+24,y0+63,w-48,1);
 items.forEach((it,i)=>{const yy=y0+72+i*rh,active=i===idx;if(active){const hg=X.createLinearGradient(x,yy,x+w,yy+rh);hg.addColorStop(0,'#5c492d');hg.addColorStop(.5,'#354651');hg.addColorStop(1,'#27343c');X.fillStyle=hg;X.fillRect(x+14,yy,w-28,rh-4);X.strokeStyle='#e8c777';X.lineWidth=1.5;X.strokeRect(x+14.5,yy+.5,w-29,rh-5);X.fillStyle='#f6d98f';X.fillRect(x+22,yy+7,3,rh-18)}else{X.fillStyle='rgba(255,255,255,.025)';X.fillRect(x+18,yy,w-36,rh-5)}tx(it.n,x+36,yy+rh*.64,Math.min(26,rh*.55|0),it.a&&!it.v?'#f4d58b':'#f1f5f9');if(it.v){tx('‹',x+w-150,yy+rh*.64,Math.min(25,rh*.5|0),'#c5a45e','center');tx(String(it.v()),x+w-88,yy+rh*.64,Math.min(22,rh*.48|0),'#f8e2a6','center');tx('›',x+w-28,yy+rh*.64,Math.min(25,rh*.5|0),'#c5a45e','center')}});
 const sd=items[idx]&&items[idx].d?items[idx].d():'';if(sd){X.fillStyle='rgba(0,0,0,.28)';X.fillRect(x+18,y0+items.length*rh+78,w-36,26);tx(sd,CW/2,y0+items.length*rh+97,Math.min(17,CW/45),'#d6e0e8','center')}tx(sub,CW/2,Math.min(CH-12,y0+items.length*rh+130),Math.min(16,CW/55),'#a9d9bf','center')}
-function applyMapLayout(){const p=[null,{mt:0,seed:202611},{mt:7,seed:202612},{mt:1,seed:202613},{mt:6,seed:202614},{mt:1,seed:202615},{mt:5,seed:202616},{mt:8,seed:202617},{mt:9,seed:202618},{mt:4,seed:202619},{mt:7,seed:202620},{mt:8,seed:202621},{mt:7,seed:202622},{mt:7,seed:202623}][mapLayout];if(p){mt=p.mt;seedOv=p.seed}else seedOv=null}
+
 const SCORE_LIMITS=[600,900,1200,1500,1800];
 const setRows=()=>[{n:'Game mode',v:()=>['Standard','Deathmatch','Fast Economy'][gameMode],d:()=>['Normal economic start. Other start options below apply.','Castle Age, 2000 of every resource, 6 knights, 8 archers and 2 rams per kingdom. Overrides starting resources and age.','500 of every resource and 5 extra villagers per kingdom. Overrides starting resources.'][gameMode],l:()=>{gameMode=(gameMode+2)%3},r:()=>{gameMode=(gameMode+1)%3}},{n:'Kingdoms',v:()=>({2:'Two (you + 1 AI)',3:'Three (you + 2 AI)',4:'Four (you + 3 AI)'})[kingdoms],d:()=>`Fight ${kingdoms-1} rival kingdom${kingdoms===2?'':'s'}.`,l:()=>{kingdoms=kingdoms===2?4:kingdoms-1},r:()=>{kingdoms=kingdoms===4?2:kingdoms+1}},{n:'Civilization',v:()=>CIV[civ].n,d:()=>CIV[civ].d,l:()=>{civ=(civ+CIV.length-1)%CIV.length},r:()=>{civ=(civ+1)%CIV.length}},
 {n:'Enemy civilization',v:()=>aiCiv<0?'Random':CIV[aiCiv].n,d:()=>aiCiv<0?'The first rival gets a random civilization; other rivals are randomized too.':'The first rival uses this civilization; other rivals are randomized.',l:()=>{aiCiv=aiCiv<0?CIV.length-1:aiCiv-1},r:()=>{aiCiv=aiCiv>=CIV.length-1?-1:aiCiv+1}},
