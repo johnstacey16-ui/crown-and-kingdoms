@@ -20,3 +20,52 @@ for(const b of S.sel)if(b.rally){const P=w2s(b.rally.x,b.rally.y);X.fillStyle='#
 drawP();X.lineWidth=2;for(const p of S.pj){const P=w2s(p.x,p.y),Q=w2s(p.t.x+(p.t.s||0)/2,p.t.y+(p.t.s||0)/2),a=Math.atan2(Q[1]-P[1],Q[0]-P[0]);X.strokeStyle='#e8d8a0';X.beginPath();X.moveTo(P[0],P[1]-10);X.lineTo(P[0]+Math.cos(a)*9,P[1]-10+Math.sin(a)*9);X.stroke();X.fillStyle='#bbb';X.fillRect(P[0]+Math.cos(a)*9-1,P[1]-11+Math.sin(a)*9,3,3)}
 for(const f of fx){const P=w2s(f.x,f.y);if(f.k==='h'){X.strokeStyle='#ff6a4a';X.beginPath();for(let a=0;a<6;a++){X.moveTo(P[0],P[1]-8);X.lineTo(P[0]+Math.cos(a*1.05)*9,P[1]-8+Math.sin(a*1.05)*9)}X.stroke()}else{const r=20*(1.5-f.l*2);X.strokeStyle='#fff';X.beginPath();X.ellipse(P[0],P[1],r,r/2,0,0,7);X.stroke()}}X.lineWidth=1;
 if(place&&place.x!==undefined){const k=place.k,f={x:place.x,y:place.y,s:B[k].s,k,t:0,done:true,hp:1,mh:1,pr:1,q:[]};drawBld(f,1);X.fillStyle=place.ok?'rgba(80,255,120,.5)':'rgba(255,70,70,.5)';poly([w2s(f.x,f.y),w2s(f.x+f.s,f.y),w2s(f.x+f.s,f.y+f.s),w2s(f.x,f.y+f.s)]);X.fill()}}
+
+function drawUnit(u){const k=u.k,d=U[k],P=w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1],mv=u.p&&u.p.length>0;if(mv){const q=u.p[0],dx=(q[0]-u.x)-(q[1]-u.y);if(Math.abs(dx)>.03)u.fd=dx>0?1:-1;u.dr=((Math.round(Math.atan2(((q[0]-u.x)+(q[1]-u.y))*.5,dx)/(Math.PI/4))%8)+8)%8}
+const st=mv?1:(u.o==='a'&&u.cd>0&&u.cd<.45)?2:(u.o==='g'||u.o==='b')?3:0,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
+if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
+X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if(S.sel.includes(u)){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
+/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Prefer the new upright atlas for villagers, infantry and archers; validated legacy atlas frames and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,u.dr|0,gt+(u.rp||0)):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
+/* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */
+{
+ const T=S.tech[u.t]||{},metal='#d8c49a',gold='#f0c35e',edge='#3b2a17';
+ const rank=k==='mil'?(T.longs?'long':T.man?'man':''):k==='spear'&&T.pike?'pike':k==='xbow'&&T.arb?'arb':k==='skirm'&&T.elsk?'elsk':k==='scout'&&T.lcav?'lcav':k==='knight'&&T.cavl?'cavl':'';
+ if(rank){
+  X.save();X.translate(sx,sy);X.scale(z,z);X.lineCap='round';X.lineJoin='round';
+  if(rank==='man'||rank==='long'){
+   const y=rank==='long'?-25:-24;
+   X.fillStyle=rank==='long'?'#9da7b2':'#7d8792';X.strokeStyle=edge;X.lineWidth=1;
+   X.beginPath();X.moveTo(-4.8,y-2);X.lineTo(-2.7,y-4);X.lineTo(2.7,y-4);X.lineTo(4.8,y-2);X.lineTo(4,y+3);X.lineTo(0,y+5);X.lineTo(-4,y+3);X.closePath();X.fill();X.stroke();
+   X.strokeStyle=rank==='long'?gold:metal;X.lineWidth=1.35;X.beginPath();X.moveTo(-2.6,y-2);X.lineTo(2.6,y-2);X.moveTo(-2.3,y+1);X.lineTo(2.3,y+1);X.stroke();
+   if(rank==='long'){X.strokeStyle=gold;X.lineWidth=1.5;X.beginPath();X.moveTo(5,-29);X.lineTo(9,-36);X.stroke();X.fillStyle=gold;X.beginPath();X.moveTo(9,-36);X.lineTo(7.6,-32.5);X.lineTo(10.4,-34);X.closePath();X.fill()}
+  }else if(rank==='pike'){
+   X.strokeStyle='#ba8d4a';X.lineWidth=1.5;X.beginPath();X.moveTo(6,-23);X.lineTo(7,-48);X.stroke();
+   X.fillStyle=metal;X.strokeStyle=edge;X.lineWidth=.65;X.beginPath();X.moveTo(7,-52);X.lineTo(4.8,-47);X.lineTo(7,-45);X.lineTo(9.2,-47);X.closePath();X.fill();X.stroke();
+   X.strokeStyle=gold;X.lineWidth=1.25;X.beginPath();X.moveTo(-4,-22);X.lineTo(0,-20);X.lineTo(4,-22);X.stroke()
+  }else if(rank==='arb'){
+   X.strokeStyle=metal;X.lineWidth=2;X.beginPath();X.moveTo(-7,-25);X.lineTo(7,-25);X.stroke();
+   X.strokeStyle=gold;X.lineWidth=1.25;X.beginPath();X.moveTo(-7,-29);X.quadraticCurveTo(-3,-25,-7,-21);X.moveTo(7,-29);X.quadraticCurveTo(3,-25,7,-21);X.stroke();
+   X.strokeStyle=edge;X.lineWidth=.8;X.beginPath();X.moveTo(0,-27);X.lineTo(0,-23);X.stroke()
+  }else if(rank==='elsk'){
+   X.fillStyle=gold;X.strokeStyle=edge;X.lineWidth=.65;for(const x of[-4.5,4.5]){X.beginPath();X.arc(x,-27,1.5,0,Math.PI*2);X.fill();X.stroke()}
+   X.strokeStyle=metal;X.lineWidth=1.2;X.beginPath();X.moveTo(-3.5,-21);X.lineTo(3.5,-21);X.stroke()
+  }else if(rank==='lcav'||rank==='cavl'){
+   const riderY=-39;
+   X.fillStyle=rank==='cavl'?gold:metal;X.strokeStyle=edge;X.lineWidth=.8;
+   X.beginPath();X.moveTo(-3.8,riderY+1);X.lineTo(-3,riderY-2);X.lineTo(0,riderY-4);X.lineTo(3,riderY-2);X.lineTo(3.8,riderY+1);X.closePath();X.fill();X.stroke();
+   X.strokeStyle=rank==='cavl'?gold:metal;X.lineWidth=rank==='cavl'?2.1:1.3;X.beginPath();X.moveTo(-9,-15);X.lineTo(9,-15);X.stroke();
+   if(rank==='cavl'){X.strokeStyle=gold;X.lineWidth=1.6;X.beginPath();X.moveTo(-6,-18);X.lineTo(-3,-20);X.lineTo(3,-20);X.lineTo(6,-18);X.stroke()}
+  }
+  X.restore()
+ }
+ if(u.sh&&T.navalHull){
+  X.save();X.translate(sx,sy);X.scale(z,z);X.strokeStyle='#f0c35e';X.lineWidth=1.15;X.beginPath();X.moveTo(-9,-7);X.lineTo(-4,-5.5);X.lineTo(4,-5.5);X.lineTo(9,-7);X.stroke();X.fillStyle='#d8c49a';for(const x of[-6,0,6]){X.beginPath();X.arc(x,-7,0.75,0,Math.PI*2);X.fill()}X.restore()
+ }
+ if(T.siegeup&&['ram','mang','scor','treb','bomb'].includes(k)){
+  X.save();X.translate(sx,sy);X.scale(z,z);X.strokeStyle='#f0c35e';X.lineWidth=1.4;X.strokeRect(-8,-15,16,4);X.fillStyle='#d8c49a';X.fillRect(-6,-15,2,2);X.fillRect(4,-15,2,2);X.restore()
+ }
+if(u.car>0&&u.ct){X.fillStyle={f:'#e0554f',w:'#9a6b3a',g:'#f2c14e',s:'#b0b8bf'}[u.ct];X.fillRect(sx-4*z,sy-(sz[1]-16)*z*.55,8*z,6*z)}
+const mh=mhp(u);if(u.hp<mh)bar(sx-13*z,sy-(sz[1]-6)*z*.9,26*z,u.hp/mh,'#6e6')}}
+
+function drawRelic(q){const P=w2s(q.x,q.y),sx=P[0],y=P[1]-(q.c?24:6),g=.5+.5*Math.sin(gt*3);X.fillStyle='rgba(255,226,102,'+(.15+.15*g)+')';X.beginPath();X.arc(sx,y,13+g*3,0,7);X.fill();X.fillStyle='#ffe066';X.strokeStyle='#a87b12';poly([[sx,y-9],[sx+7,y],[sx,y+9],[sx-7,y]]);X.fill();X.stroke()}
+const CKS=8,TCH=new Map();let CHK=true;
