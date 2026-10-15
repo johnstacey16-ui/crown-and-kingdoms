@@ -78,7 +78,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ## Priority 4 — performance and scale
 
-- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting, pooled unit-separation buckets, and Town Bell shelter assignment that pre-counts garrison occupancy rather than rescanning all units for every villager/shelter pair. A real-engine harness check exercises bulk assignments against available shelter capacities. The pooled separation grid now activates above 64 units (reduced from 128 after measured simulation runs exposed a costly quadratic fallback at 120 total units).
+- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting, pooled unit-separation buckets, and Town Bell shelter assignment that pre-counts garrison occupancy rather than rescanning all units for every villager/shelter pair. Real-engine tests cover Town Bell capacity reservations and simulation-only 120/220/420-unit timing. The pooled separation grid activates above 64 units; workflow #947 passed the full configured regression suite after this threshold change. Current CI timings are a Node-runner baseline, not Xbox frame-rate evidence.
 - **Unverified:** profile 200- and 400-unit matches with four kingdoms on Xbox Series S / Edge. Record frame time, simulation step cost, memory and input latency; compare quiet economy, dense combat, naval scenes and fog-of-war-heavy maps.
 - Only add viewport culling, further spatial indexes or reduced update rates when measurements identify a bottleneck and tests preserve gameplay behaviour.
 - Do not describe spatial indexing as a proven FPS improvement until measured on target hardware.
