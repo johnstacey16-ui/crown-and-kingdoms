@@ -60,7 +60,7 @@ const checks = [
   ['combat damage applies both armour class upgrades', source.includes('ib=(INFARM.has(t.k)&&ta.armI?1:0)+(ARCHARM.has(t.k)&&ta.armR?1:0)+(CAVARM.has(t.k)&&ta.armC?1:0)')],
   ['siege splash damages hostile units only', source.includes('e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp')],
   ['siege splash can damage nearby hostile buildings', source.includes('for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e)')],
-  ['siege auto-targeting prioritises hostile buildings in range', /function foe\(u,r\)\{[\s\S]{0,280}if\(U\[u\.k\]\?\.sg\)\{[\s\S]{0,260}if\(b\)return b\}[\s\S]{0,120}b=nearestFoeUnit\(u,r\);if\(b\)return b;[\s\S]{0,120}for\(const q of S\.bs\)/.test(source)],
+  ['siege auto-targeting prioritises hostile buildings in range', (()=>{const start=source.indexOf('function foe(u,r){'),siege=source.indexOf('if(U[u.k]?.sg){',start),indexed=source.indexOf('b=nearestFoeUnit(u,r);if(b)return b;',start),fallback=source.indexOf('for(const q of S.bs)',indexed);return start>=0&&siege>start&&source.indexOf('if(b)return b',siege)<indexed&&indexed>siege&&fallback>indexed})()],
   ['farm reseeding uses 60 wood and accurate feedback', /S\.res\[u\.t\]\.w>=60[\s\S]{0,120}Farm reseeded \(-60 wood\)/.test(source)],
 ];
 
