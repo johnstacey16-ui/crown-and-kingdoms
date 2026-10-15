@@ -14,7 +14,7 @@ const ns=S.nodes.filter(n=>nk.includes(n.k)&&!n.an&&!n.fi&&Math.hypot(n.x-tc.x,n
 for(const n of ns.slice(0,12))for(const[dx,dy]of[[-2,0],[1,0],[0,-2],[0,1],[-2,-2],[1,1]]){const x=n.x+dx,y=n.y+dy;if(okPlace(t,k,x,y)&&!cor(tc,x,y)){pay(t,d.cost);const b=addB(t,k,x,y,false);v.o='b';v.tg=b;v.p=[];return}}}
 function aiRetreat(t,my,tc,bl){if(!tc||!tc.done)return;const shelters=bl.filter(b=>b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle'));for(const u of my){if(u.k==='vil'||u.k==='mon'||u.k==='king'||u.k==='cart'||u.k==='cog'||u.sh||u.hp<=0)continue;const ratio=u.hp/Math.max(1,mhp(u));if(!u.retreating&&ratio<=.22){const safe=shelters.slice().sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!safe)continue;const p=path(u,goalNear(safe,1));if(p){u.retreating=true;u.retreatTarget=safe;u.o='m';u.tg=safe;u.p=p;u.rp=1}}}}
 function ai(dt){for(let t=1;t<S.teamN;t++)aiTeam(t,dt)}
-function aiTeam(t,dt){const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([3,2,1.2][diff])*(1+(t-1)*.05);const R=S.res[t],my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;for(const u of S.us)if(u.t===t&&u.hp>0){my.push(u);if(u.k==='vil'&&!u.ld)vil.push(u);else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);if(u.k==='fish'&&!u.ld)fish.push(u);if(u.k==='scout'&&!u.ld)scouts.push(u);if(u.k==='gal'&&!u.ld)galleys.push(u)}for(const b of S.bs)if(b.t===t){bl.push(b);if(!tc&&b.k==='tc'&&b.hp>0)tc=b}if(!tc)return;
+function aiTeam(t,dt){const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([3,2,1.2][diff])*(1+(t-1)*.05);const R=S.res[t],my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;for(const u of S.us)if(u&&u.t===t&&u.hp>0&&U[u.k]){my.push(u);if(u.k==='vil'&&!u.ld)vil.push(u);else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);if(u.k==='fish'&&!u.ld)fish.push(u);if(u.k==='scout'&&!u.ld)scouts.push(u);if(u.k==='gal'&&!u.ld)galleys.push(u)}for(const b of S.bs)if(b.t===t){bl.push(b);if(!tc&&b.k==='tc'&&b.hp>0)tc=b}if(!tc)return;
 const navalThreatCount=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&U[e.k].sh&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4).length;
 if(S.t-(A.lastTributeAt??-90)>=90){
  const allies=[];
@@ -40,7 +40,7 @@ if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
 }
 const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&b.hp>0&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
-if(vil.length<([18,28,40][diff]*PERS[aip].v|0)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&x.hp>0&&AG[S.age[t]+1].needs.includes(x.k)&&B[x.k]&&(B[x.k].age||0)===S.age[t]).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
+if(vil.length<([18,28,40][diff]*PERS[aip].v|0)&&Array.isArray(tc.q)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&x.hp>0&&AG[S.age[t]+1].needs.includes(x.k)&&B[x.k]&&(B[x.k].age||0)===S.age[t]).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
