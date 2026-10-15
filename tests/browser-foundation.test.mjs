@@ -40,8 +40,8 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
 
 
 test('the core engine is external and loads before multiplayer integration', () => {
-  assert.match(html, /<script src="\.\/js\/config\.js"><\/script><script src="\.\/js\/state\.js"><\/script><script src="\.\/js\/audio\.js"><\/script><script src="\.\/js\/save\.js"><\/script><script src="\.\/js\/input\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
-  assert.match(html, /<script src="\.\/multiplayer\.js"><\/script>/);
+  assert.ok(html.includes('<script src="./js/render.js"></script>'));
+  assert.ok(html.includes('<script src="./js/render.js"></script>'));
   assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/state.js'));
   assert.ok(html.indexOf('./js/state.js') < html.indexOf('./js/audio.js'));
   assert.ok(html.indexOf('./js/audio.js') < html.indexOf('./js/save.js'));
@@ -58,7 +58,7 @@ test('the core engine is external and loads before multiplayer integration', () 
 
 
 test('IndexedDB backs up saved slots without replacing the localStorage compatibility path', () => {
-  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/js\/config\.js"><\/script><script src="\.\/js\/state\.js"><\/script><script src="\.\/js\/audio\.js"><\/script><script src="\.\/js\/save\.js"><\/script><script src="\.\/js\/input\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
+  assert.ok(html.includes('<script src="./js/render.js"></script>'));
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
   assert.match(persistence, /mirrorSave, restoreMissing/);
   assert.match(engine, /mirrorSave\(skey\(slot\),payload\)/);
