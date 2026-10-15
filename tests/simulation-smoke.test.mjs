@@ -122,6 +122,16 @@ globalThis.__CK_TEST__ = {
     return { loaded, version: payload.v, bytes: stored.length, before, after: snapshot() };
   },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
+  runSkirmish(seconds = 60) {
+    this.start(24680);
+    for (let tick = 0; tick < Math.round(seconds * 30); tick++) this.tick(1 / 30);
+    return {
+      time: S.t, teams: S.teamN, width: W, height: H, units: S.us.length, buildings: S.bs.length,
+      invalidUnits: S.us.filter(u => !u || !Number.isFinite(u.x) || !Number.isFinite(u.y) || u.x < 0 || u.y < 0 || u.x >= W || u.y >= H || !Number.isFinite(u.hp)).length,
+      invalidBuildings: S.bs.filter(b => !b || !Number.isFinite(b.x) || !Number.isFinite(b.y) || b.x < 0 || b.y < 0 || b.x >= W || b.y >= H || !Number.isFinite(b.hp)).length,
+      invalidResources: S.res.filter(r => !r || !['f','w','g','s'].every(k => Number.isFinite(r[k]) && r[k] >= 0)).length,
+    };
+  },
   auditHusbandrySpeeds() {
     const previous = S.tech[0].husb;
     try {
@@ -1082,6 +1092,16 @@ for (let mission = 0; mission < 19; mission += 1) {
 }
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
+
+const skirmish = game.runSkirmish(60);
+assert.equal(skirmish.teams, 4, 'Long skirmish stress test must include four kingdoms');
+assert.ok(skirmish.time >= 59.9, 'Skirmish stress test must advance at least 60 simulated seconds');
+assert.ok(skirmish.units >= 40, 'Four-kingdom skirmish should retain a live-sized world');
+assert.equal(skirmish.invalidUnits, 0, 'AI skirmish must not leave units with invalid coordinates or health');
+assert.equal(skirmish.invalidBuildings, 0, 'AI skirmish must not leave buildings with invalid coordinates or health');
+assert.equal(skirmish.invalidResources, 0, 'AI skirmish must preserve finite non-negative kingdom resources');
+console.log('four-kingdom-skirmish-smoke: '+skirmish.time.toFixed(1)+'s, '+skirmish.units+' units, '+skirmish.buildings+' buildings, invalid units/buildings/resources='+skirmish.invalidUnits+'/'+skirmish.invalidBuildings+'/'+skirmish.invalidResources);
+
 
 
 
