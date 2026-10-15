@@ -93,7 +93,8 @@ let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
-  startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
+  startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; mapLayout = 0; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
+  startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startCampaign(index) { startScenario(index); return this.state(); },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
   completeFirstCampaignMission() {
@@ -640,13 +641,20 @@ for (let mapIndex = 0; mapIndex < 12; mapIndex += 1) {
 console.log('generated-map-smoke: all 12 actual map types generated with connected starting land: ' +
   generatedMaps.map((m) => `map ${m.mapIndex}: land components=${m.landComponents}, water components=${m.waterComponents}, dockable starts=${m.dockableStarts}`).join('; '));
 
+const causewaySkirmish = game.startLayout(12, 4);
+assert.equal(causewaySkirmish.layout, 12, 'The selectable Causeway layout must load directly in a four-kingdom match');
+assert.equal(causewaySkirmish.mapAudit?.landReachable, true, 'All four skirmish starting land regions must connect across the shallow crossings');
+assert.equal(causewaySkirmish.mapAudit?.starts, 4, 'The four-kingdom Causeway map must audit every starting position');
+assert.ok(causewaySkirmish.mapAudit?.waterCells > 0, 'The four-kingdom Causeway map must retain a navigable-water corridor');
+console.log('causeway-layout-smoke: layout 12 generated for four kingdoms with connected starting land and a live water corridor');
+
 game.start(123456);
 const causewayCampaign = game.startCampaign(16);
 assert.equal(causewayCampaign.campaign?.index, 16, 'The seventeenth campaign mission should start through the real scenario loader');
 assert.equal(causewayCampaign.layout, 12, 'The Causeway mission must select the dedicated map layout');
-assert.equal(causewayCampaign.mapAudit?.landReachable, true, 'All four starting land regions must connect across the shallow crossings');
-assert.equal(causewayCampaign.mapAudit?.starts, 4, 'The Causeway map audit must recognise all four starting positions');
-assert.ok(causewayCampaign.mapAudit?.waterCells > 0, 'The Causeway map must retain a navigable-water corridor');
+assert.equal(causewayCampaign.mapAudit?.landReachable, true, 'Campaign player and rival starting land must connect across the shallow crossings');
+assert.equal(causewayCampaign.mapAudit?.starts, 2, 'The campaign map audit must recognise its player and rival starting positions');
+assert.ok(causewayCampaign.mapAudit?.waterCells > 0, 'The Causeway campaign must retain a navigable-water corridor');
 assert.ok(causewayCampaign.buildings >= 4 && causewayCampaign.units > 0, 'The Causeway mission must create its starting economy and forces');
 console.log('causeway-campaign-smoke: mission 17 loaded on layout 12 with connected starting land and a live water corridor');
 
