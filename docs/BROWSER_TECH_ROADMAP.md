@@ -17,13 +17,15 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
 - `persistence.js`: IndexedDB mirrors for the existing localStorage save slots; localStorage remains the compatibility source.
 - `sw.js`: versioned same-origin offline shell cache, network-first code refresh, and cached fallbacks.
-- Regression checks cover module syntax, load order, storage compatibility, audio resume rejection handling, cache policy and sprite atlas bounds.
+- Regression checks cover module syntax, load order, storage compatibility, audio resume rejection handling, cache policy, sprite atlas bounds and safe audio voice classification when an entity has no unit definition.
+- The reported runtime error reading `mt` from an undefined unit definition was guarded in `js/audio.js` and covered by a focused regression test. This addresses that specific failure path; it is not a guarantee that all runtime errors are eliminated.
 
 ## Next implementation phases
 
 ### Phase 1 — finish safe engine separation
-- Map generation/layout and simulation stepping have been extracted to `js/mapgen.js` and `js/simulation.js`.
-- Continue moving menu/HUD/overlay functions into `js/ui.js`, preserving shared global bindings and testing script order after each move.
+- Map generation/layout, simulation stepping and world rendering have been extracted to `js/mapgen.js`, `js/simulation.js` and `js/render.js`.
+- **Next structural task:** move a cohesive menu/HUD/overlay group into `js/ui.js` only after identifying its direct and indirect dependencies. Keep the extraction behaviour-preserving; do not mix gameplay changes into the move.
+- After extraction, update `index.html`, `sw.js`, `scripts/check-game.mjs` and the relevant tests in the same change. Check for duplicate top-level lexical declarations before committing.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
 
@@ -65,3 +67,11 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ## Verification policy
 
 A passing GitHub Actions run verifies source invariants and the automated regression suite, not Xbox hardware performance or a successful Vercel deployment. Record those separately when directly verified.
+
+
+## Current continuation checkpoint — 15 October 2026
+
+- Keep the three maintained Markdown files as the documentation source of truth: root README, parity roadmap and this browser roadmap. Do not recreate completed prompt documents.
+- The current audio classifier guard is a small runtime-hardening fix, not a reason to change the audio architecture. Preserve lazy AudioContext creation, browser autoplay handling and graceful fallback.
+- The next refactor is UI extraction, but gameplay stability takes precedence if a new runtime error is reported. Do not change save payloads, controller mappings, simulation tick order or multiplayer message contracts as part of a code-movement-only change.
+- Before claiming release readiness, verify the exact latest commit's checks and deployment status. The public Vercel build was previously blocked by a build-rate limit; no Xbox or live-browser acceptance should be inferred from source checks alone.
