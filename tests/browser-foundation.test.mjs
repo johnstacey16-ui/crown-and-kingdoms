@@ -17,7 +17,9 @@ const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url),
 const kingdom = readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8');
 const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8');
 const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + engineSource;
+const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
+const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -92,6 +94,12 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./js/kingdom.js'));
   assert.ok(html.indexOf('./js/kingdom.js') < html.indexOf('./js/campaign.js'));
   assert.ok(html.indexOf('./js/campaign.js') < html.indexOf('./js/economy.js'));
+  assert.ok(html.indexOf('./js/economy.js') < html.indexOf('./js/formations.js'));
+  assert.ok(html.indexOf('./js/formations.js') < html.indexOf('./js/menus.js'));
+  assert.ok(html.indexOf('./js/menus.js') < html.indexOf('./engine.js'));
+  assert.ok(menus.includes('const SCORE_LIMITS=[600,900,1200,1500,1800]'));
+  assert.ok(menus.includes('function setupCtl()'));
+  assert.ok(!engineSource.includes('const SCORE_LIMITS='));
   assert.ok(html.indexOf('./js/economy.js') < html.indexOf('./engine.js'));
   assert.ok(economy.includes('function mkTrades()'));
   assert.ok(economy.includes('function trade(t,k,md)'));
