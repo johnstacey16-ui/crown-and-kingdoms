@@ -412,6 +412,11 @@
     if (state.role !== 'guest') return;
     const host = hosts[0];
     if (!host) {
+      /* A running match has no host migration: end the session if host presence disappears. */
+      if (state.gameStarted || state.startingGame || state.lifecycle === 'running') {
+        failLocal('Host connection lost. This multiplayer match has ended; host migration is not supported. Return to the title and create a new room to play again.');
+        return;
+      }
       setStatus('Connected to the room. Waiting for the host configuration…');
       return;
     }
