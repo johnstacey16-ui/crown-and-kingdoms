@@ -1284,6 +1284,15 @@ assert.equal(timedCampaignEvent.callsAfterRepeat, 1, 'Further campaign ticks mus
 assert.equal(timedCampaignEvent.firedAfterRepeat, true, 'The event fired marker must remain set after additional ticks');
 console.log('campaign-event-dispatch: timed event fired once and remained one-shot across 18 seconds of campaign time');
 
+// Campaigns must fail through the normal mission-end path when the player's Town Centre falls.
+const campaignDefeat = game.exerciseCampaignDefeat();
+assert.equal(campaignDefeat.over, 'lose', 'Losing the player Town Centre must defeat a campaign mission');
+assert.equal(campaignDefeat.mode, 'end', 'Campaign defeat should enter the mission-end screen');
+assert.equal(campaignDefeat.reason, 'Your Town Centre fell', 'Campaign defeat should explain the cause');
+assert.equal(campaignDefeat.campaignTime, 0, 'Campaign time must stop advancing after immediate defeat');
+assert.equal(campaignDefeat.savedCompletion, null, 'A failed mission must not be recorded as completed');
+console.log('campaign-defeat-transition: Town Centre loss ends the mission without recording a win');
+
 // Exercise the real mission-end path: no victory before all goals, persistent completion,
 // then the next mission briefing follows the campaign's declared arc order.
 const campaignCompletion = game.exerciseCampaignCompletion();
