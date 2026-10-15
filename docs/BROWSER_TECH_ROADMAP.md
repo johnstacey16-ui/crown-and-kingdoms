@@ -15,7 +15,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
 - `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/assets.js`: optional sprite-atlas registration, metadata/frame validation, asynchronous image loading and animation-frame lookup, with procedural fallback preserved.
-- `js/ui.js`: shared title-background/generic list rendering and framed panels, match-result/runtime-error overlays, performance overlay, strategic overview, technology tree, objectives, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; save serialization remains in `js/save.js`.
+- `js/ui.js`: shared title-background/generic list rendering and framed panels, match-result/runtime-error overlays, campaign list/briefing/objective drawing, performance overlay, strategic overview, technology tree, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; campaign progression remains in `js/campaign.js`; save serialization remains in `js/save.js`.
 - The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
 - Large-army unit separation reuses its spatial bucket map across simulation steps, avoiding a fresh map allocation for each pass. The path still needs measured performance verification at 400 units on the target browser.
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
@@ -29,7 +29,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ### Phase 1 — finish safe engine separation
 - Map generation/layout, simulation stepping and world rendering have been extracted to `js/mapgen.js`, `js/simulation.js` and `js/render.js`.
 - **Completed this pass:** move the technology tree, objectives, controller help/About screens, pause-menu model/drawing, and controller-remap presentation into `js/ui.js`; preserve shared state and controller navigation.
-- **Next structural task:** map dependencies before further campaign-presentation extraction. Shared title/list drawing now belongs to `js/ui.js`; keep campaign progression, save reading/restoration and controller input behaviour unchanged.
+- **Next structural task:** audit menu presentation inside `js/menus.js` and move only the drawing portions to `js/ui.js` where this keeps menu models and controller actions clearly separated. Keep campaign progression, save reading/restoration and controller input behaviour unchanged.
 - After extraction, update `index.html`, `sw.js`, `scripts/check-game.mjs` and the relevant tests in the same change. Check for duplicate top-level lexical declarations before committing.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
@@ -149,3 +149,9 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved `panel()`, `shade()` and `drawError()` into `js/ui.js` with their bodies preserved. The end-of-match renderer and runtime exception handler still call the same functions by name.
 - `CK_ERR`, the `try/catch` frame boundary and the simulation halt-on-runtime-exception behaviour remain in `engine.js`; only drawing moved.
 - `tests/core-ui-primitives-extraction.test.mjs` protects the rendering function ownership and both existing runtime call paths.
+
+
+### Campaign presentation separation — 15 October 2026
+
+- Moved `cmpHud()`, `cmpObj()`, `wrapT()`, `drawCamp()` and `drawBrief()` into `js/ui.js`. Campaign definitions, `CAMP_ARCS`, objective/event checks, mission start/completion and controller handlers remain in `js/campaign.js`.
+- The campaign content source test now composes `js/ui.js` before `js/campaign.js`, matching the actual page script order. `tests/campaign-ui-extraction.test.mjs` guards the ownership boundary.

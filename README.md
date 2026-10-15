@@ -11,7 +11,8 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 - **`js/simulation.js`** — simulation systems extracted from the main engine, including economy, combat and AI logic.
 - **`js/input.js`** — gamepad polling, selection, orders and menu navigation.
 - **`js/render.js`** — world, unit, relic and terrain/chunk rendering; sprite atlases are preferred where supported, with procedural drawing fallbacks.
-- **`js/ui.js`** — shared menu renderers and framed panels, match-result/runtime-error overlays, performance/overview screens, technology tree, objectives, help/About, pause-menu, controller-remap and save-slot presentation, plus the in-match resource bar and HUD; controller input/rebinding remains in `js/input.js`, while compatible save serialization remains in `js/save.js`.
+- **`js/ui.js`** — shared menu renderers and framed panels, match-result/runtime-error overlays, campaign lists/briefings/objective overlays, performance/overview screens, technology tree, help/About, pause-menu, controller-remap and save-slot presentation, plus the in-match resource bar and HUD; controller input/rebinding remains in `js/input.js`, while compatible save serialization remains in `js/save.js`.
+- **`js/campaign.js`** — mission definitions, campaign arc order, objective validation, event scheduling, progression/unlock rules and controller action handlers; campaign view drawing is owned by `js/ui.js`.
 - **`js/audio.js`** — synthesised sound effects, spatial audio, ambience and adaptive music.
 - **`js/save.js` and `persistence.js`** — compatible save serialization plus IndexedDB backup/restore; localStorage remains the primary compatibility path.
 - **`assets/`** — external atlas manifest and original local SVG sprite atlases. `tests/validate-atlas.mjs` checks frame metadata and bounds.
