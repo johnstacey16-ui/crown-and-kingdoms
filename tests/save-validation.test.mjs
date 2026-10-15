@@ -83,7 +83,7 @@ for (const [label, raw] of [
   ['unknown resource-node type', JSON.stringify({ ...validShape(), nodes: [{ k: 'not-a-resource', x: 1, y: 1, amt: 10 }] })],
   ['unit reference outside entity arrays', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 1, y: 1, tg: 'b9' }] })],
   ['non-array unit cargo references', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 1, y: 1, cg: 'not-an-array' }] })],
-  ['invalid relic record', JSON.stringify({ ...validShape(), rel: [{ x: 99, y: 1, c: null, m: null }] })],
+  ['invalid relic reference', JSON.stringify({ ...validShape(), rel: [{ x: 1, y: 1, c: 'b9', m: null }] })],
   ['non-array relic collection', JSON.stringify({ ...validShape(), rel: {} })],
 ]) {
   const attempt = attemptLoad(raw);
