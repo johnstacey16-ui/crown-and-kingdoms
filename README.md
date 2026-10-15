@@ -11,7 +11,7 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 - **`js/simulation.js`** — simulation systems extracted from the main engine, including economy, combat and AI logic.
 - **`js/input.js`** — gamepad polling, selection, orders and menu navigation.
 - **`js/render.js`** — world, unit, relic and terrain/chunk rendering; sprite atlases are preferred where supported, with procedural drawing fallbacks.
-- **`js/ui.js`** — extracted performance-overlay and strategic-overview drawing; it uses shared runtime state and must load before `engine.js`.
+- **`js/ui.js`** — performance overlay, strategic overview, technology tree, objectives, controller help/About and pause-menu rendering; it reads shared runtime state, while pause input handling remains in `js/input.js`.
 - **`js/audio.js`** — synthesised sound effects, spatial audio, ambience and adaptive music.
 - **`js/save.js` and `persistence.js`** — compatible save serialization plus IndexedDB backup/restore; localStorage remains the primary compatibility path.
 - **`assets/`** — external atlas manifest and original local SVG sprite atlases. `tests/validate-atlas.mjs` checks frame metadata and bounds.
