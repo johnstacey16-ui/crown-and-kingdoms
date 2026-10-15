@@ -30,6 +30,7 @@ test('Causeway campaign uses the navigable strait layout and a staged land-and-s
   assert.ok(mission.includes("t:'Build a Dock'"), 'The mission must require a coastal dock');
   assert.ok(mission.includes("t:'Have 3 War Galleys alive'"), 'The mission must require a functioning fleet');
   assert.ok(mission.includes("t:'Build 2 completed Towers'"), 'The mission must require defended land approaches');
+  assert.ok(mission.includes("for(const gy of [.34,.42,.66])"), 'The rival must start with a galley patrol positioned along the strait');
   assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The mission must be included in natural campaign progression');
 });
 
