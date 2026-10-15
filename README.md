@@ -50,7 +50,7 @@ GitHub Actions discovers and runs every `tests/*.test.mjs` test. The suite is pr
 
 ## Latest automated verification
 
-As of 15 October 2026, GitHub Actions run [#926](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744134109) passed on commit `488638d5593385382bbea4378973ef3fb67df441`. The workflow completed source parsing/invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation. The earlier campaign save/load round-trip regression was corrected in `js/save.js`: valid indexed entity references are no longer rejected by an over-escaped digit matcher.
+As of 15 October 2026, the latest main-branch verification is GitHub Actions run [#38791201438](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791201438), which passed on commit `2c98534d2ec9d376894f4dcd0ad206e9f9372931`. It completed source parsing/invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation. The campaign timed-event regression also passed in [run #38791039785](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791039785).
 
 This is automated CI evidence only. It does not establish complete match simulation, live-browser behaviour, deployment correctness, multiplayer resilience, storage-quota/interrupted-write behaviour, frame rate at 400 units, or physical Xbox Series S / Edge compatibility. See [the development status ledger](docs/DEVELOPMENT_STATUS.md) for the checkpoint and the next work item.
 
