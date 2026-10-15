@@ -19,4 +19,6 @@ assert.match(ai, /const navalThreatCount=S\.us\.filter\(e=>isHostile\(t,e\.t\)&&
 assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
   'AI war-galley production must scale from a four-ship baseline up to twelve against hostile fleets');
 
+assert.match(ai, /if\(S\.age\[t\]>=1&&vil\.length>=9&&!cnt\('dock'\)&&\(arm\.length>=6\|\|navalThreatCount>0\)&&\(navalThreatCount>0\|\|S\.nodes\.some\(n=>n\.fi&&Math\.hypot\(n\.x-tc\.x,n\.y-tc\.y\)<24\)\)\)aiDock\(vil,tc,t\)/,
+  'AI must attempt a dock when hostile combat ships threaten it, even without a nearby fish node');
 console.log('ai-research-priority: military upgrades respond to own army composition');
