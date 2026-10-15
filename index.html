@@ -568,7 +568,7 @@ const wk=k=>vil.filter(u=>u.o==='g'&&u.ct===k).length;
 /* Repair important damaged buildings with a small number of idle villagers when construction is not already waiting. */
 if(!bl.some(b=>!b.done&&b.hp>0)&&S.t-(A.lastBuildingRepair??-99)>=4){
  const priority={tc:10,castle:9,tower:8,gate:7,wall:6,monastery:5,market:5,lumber:4,mine:4,mill:4,dock:4,bar:3,rng:3,stable:3,siege:3,house:2};
- const target=bl.filter(b=>b.done&&b.hp>0&&b.hp<b.mh*.65&&!vil.some(v=>v.o==='b'&&v.tg===b)&&!S.us.some(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-(b.x+b.s/2),e.y-(b.y+b.s/2))<8))
+ const repairSites=bl.concat(S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.done&&b.hp>0&&['tc','castle','tower','market','mill','lumber','mine','dock','wall','gate'].includes(b.k))),target=repairSites.filter(b=>b.done&&b.hp>0&&b.hp<b.mh*.65&&!vil.some(v=>v.o==='b'&&v.tg===b)&&!S.us.some(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-(b.x+b.s/2),e.y-(b.y+b.s/2))<8))
   .sort((a,b)=>((priority[b.k]||1)+(1-b.hp/b.mh)*3)-((priority[a.k]||1)+(1-a.hp/a.mh)*3))[0];
  if(target){
   const builders=vil.filter(v=>v.o==='i'&&!v.ld).sort((a,b)=>Math.hypot(a.x-(target.x+target.s/2),a.y-(target.y+target.s/2))-Math.hypot(b.x-(target.x+target.s/2),b.y-(target.y+target.s/2)));
@@ -581,7 +581,7 @@ if(k==='f'&&R.w>=60+((S.age[t]>=1&&cnt('bar')&&arm.length<6)?50:0)&&(!n||S.nodes
 if(!n){k='w';n=findNode(v,'w',30)}if(n){v.o='g';v.tg=n;v.ct=n.k;v.p=[];v.ret=0}}
 aiRebal(vil,R,t);{const thr=S.us.some(e=>isHostile(t,e.t)&&!e.ld&&e.hp>0&&U[e.k].dmg>3&&Math.hypot(e.x-tc.x,e.y-tc.y)<12);if(thr){const intr=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-tc.x,e.y-tc.y)<13).sort((a,b)=>(Math.hypot(a.x-tc.x,a.y-tc.y)-(['ram','mang','scor','treb','bomb'].includes(a.k)?8:0))-(Math.hypot(b.x-tc.x,b.y-tc.y)-(['ram','mang','scor','treb','bomb'].includes(b.k)?8:0)))[0];if(intr)for(const d of arm)if(d.o==='i'&&Math.hypot(d.x-tc.x,d.y-tc.y)<18){d.o='a';d.tg=intr;d.p=[]}for(const v of vil.concat(my.filter(u=>u.k==='king')))if(v.o!=='B'&&!v.ld&&Math.hypot(v.x-tc.x,v.y-tc.y)<16&&(tc.cg||[]).length<15){v.o='B';v.tg=tc;v.p=[]}A.gu=S.t}else if(tc.cg&&tc.cg.length&&S.t-(A.gu||0)>15)unload(tc)}
 /* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
-const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'));
+const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
  const invaders=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-(base.x+base.s/2),e.y-(base.y+base.s/2))<13)
