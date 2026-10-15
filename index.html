@@ -490,7 +490,7 @@ function ai(dt){for(let t=1;t<S.teamN;t++)aiTeam(t,dt)}
 function aiTeam(t,dt){const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([3,2,1.2][diff])*(1+(t-1)*.05);const R=S.res[t],my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;for(const u of S.us)if(u.t===t){my.push(u);if(u.k==='vil')vil.push(u);else if(!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);if(u.k==='fish')fish.push(u);if(u.k==='scout')scouts.push(u);if(u.k==='gal')galleys.push(u)}for(const b of S.bs)if(b.t===t){bl.push(b);if(!tc&&b.k==='tc')tc=b}if(!tc)return;
 if(S.t-(A.lastTributeAt??-90)>=90){
  const allies=[];
- for(let ally=0;ally<S.teamN;ally++)if(ally!==t&&diplomacyRelation(t,ally)==='ally'&&S.bs.some(b=>b.t===ally&&b.k==='tc'&&b.hp>0))allies.push(ally);
+ for(let ally=0;ally<S.teamN;ally++)if(ally!==t&&diplomacyRelation(t,ally)==='ally'&&(S.bs.some(b=>b.t===ally&&b.hp>0)||S.us.some(u=>u.t===ally&&u.hp>0)))allies.push(ally);
  const reserves={f:900,w:800,g:650,s:500};
  const needs={f:250,w:250,g:200,s:150};
  let transfer=null;
