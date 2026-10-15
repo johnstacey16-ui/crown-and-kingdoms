@@ -18,8 +18,9 @@ const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8
 const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
 const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 const minimap = readFileSync(new URL('../js/minimap.js', import.meta.url), 'utf8');
+const assets = readFileSync(new URL('../js/assets.js', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const source = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + game;
+const source = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + assets + '\n' + game;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
@@ -39,11 +40,12 @@ new vm.Script(economy, { filename: 'js/economy.js' });
 new vm.Script(formations, { filename: 'js/formations.js' });
 new vm.Script(menus, { filename: 'js/menus.js' });
 new vm.Script(minimap, { filename: 'js/minimap.js' });
+new vm.Script(assets, { filename: 'js/assets.js' });
 new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
 new vm.Script(persistence, { filename: 'persistence.js' });
 new vm.Script(serviceWorker, { filename: 'sw.js' });
-if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/mapgen.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./js/render.js"></script><script src="./js/ui.js"></script><script src="./js/simulation.js"></script><script src="./js/pathfinding.js"></script><script src="./js/kingdom.js"></script><script src="./js/campaign.js"></script><script src="./js/economy.js"></script><script src="./js/formations.js"></script><script src="./js/menus.js"></script><script src="./js/minimap.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine in dependency order');
+if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/mapgen.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./js/render.js"></script><script src="./js/ui.js"></script><script src="./js/simulation.js"></script><script src="./js/pathfinding.js"></script><script src="./js/kingdom.js"></script><script src="./js/campaign.js"></script><script src="./js/economy.js"></script><script src="./js/formations.js"></script><script src="./js/menus.js"></script><script src="./js/minimap.js"></script><script src="./js/assets.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine in dependency order');
 if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
