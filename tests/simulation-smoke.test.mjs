@@ -395,6 +395,7 @@ globalThis.__CK_TEST__ = {
       time: S.t,
       ticks: S.vt,
       layout: mapLayout,
+      enemyGalleys: S.us.filter((u) => u.t === 1 && u.k === 'gal' && u.hp > 0).length,
       units: S.us.length,
       buildings: S.bs.length,
       playerGold: S.res[0].g,
@@ -666,6 +667,7 @@ game.start(123456);
 const causewayCampaign = game.startCampaign(16);
 assert.equal(causewayCampaign.campaign?.index, 16, 'The seventeenth campaign mission should start through the real scenario loader');
 assert.equal(causewayCampaign.layout, 12, 'The Causeway mission must select the dedicated map layout');
+assert.ok(causewayCampaign.enemyGalleys >= 3, 'The Causeway rival must begin with three galleys contesting the strait');
 assert.equal(causewayCampaign.mapAudit?.landReachable, true, 'Campaign player and rival starting land must connect across the shallow crossings');
 assert.equal(causewayCampaign.mapAudit?.starts, 2, 'The campaign map audit must recognise its player and rival starting positions');
 assert.ok(causewayCampaign.mapAudit?.waterCells > 0, 'The Causeway campaign must retain a navigable-water corridor');
