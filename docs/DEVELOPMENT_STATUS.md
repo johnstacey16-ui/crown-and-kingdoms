@@ -8,6 +8,17 @@
 
 This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
+## Current continuation gate — 15 October 2026, 23:06 UK
+
+The latest mainline work includes several new checks whose results must be tied to the exact tested commit, not inferred from older green runs:
+
+- All 19 campaign missions now require objective predicates to execute and return booleans at startup and after 40 simulated seconds (commit [93f5ffd](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/93f5ffd6d267db8655d41409241d8b39348ac4f9)).
+- AI naval production now accounts for already-queued war galleys when enforcing its adaptive 4–12 fleet cap (implementation/test commits recorded below; CI was pending at the last checkpoint).
+- King of the Hill has live-engine checks for contested progress, excluded unit types, the five-minute boundary and both sides winning (commit [1835e9c](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8)); its CI result must be checked separately.
+- The mass-battle smoke test now requests 2,000 units across four kingdoms for 300 simulation ticks. This is a stress-test workload, not a measured Xbox frame-rate result; record the exact CI timing and keep physical Xbox Series S / Edge acceptance separate.
+
+Do not mark these new checks green from older workflow runs. The next gate is one full regression run against the current main head, followed by fixes for any failures. Browser playthroughs, multiplayer disconnect/termination behaviour, deployment, and physical Xbox performance remain separate acceptance gates.
+
 ## Campaign objective predicate audit — 15 October 2026
 
 - Strengthened the existing all-19-mission matrix so objective predicates must return a boolean rather than merely avoid throwing, checked both at initialisation and after 40 simulated seconds.
