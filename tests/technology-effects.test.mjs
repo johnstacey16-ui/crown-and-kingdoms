@@ -32,8 +32,12 @@ assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\[
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150,g:100\},t:30,age:1\}/,
   'Cavalry Armour must have explicit cost, research time and age');
-assert.match(html, /if\(k==='armC'&&humanCav>=3\)score\+=28/,
-  'AI research priority must respond to a substantial enemy cavalry force');
+assert.match(html, /if\(k==='armC'&&ownCav>=3\)score\+=32/,
+  'AI research priority must value cavalry armour when its own army fields cavalry');
+assert.match(html, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
+  'AI research priority must value infantry armour when its own army fields infantry');
+assert.match(html, /if\(k==='armR'&&ownRanged>=3\)score\+=32/,
+  'AI research priority must value ranged armour when its own army fields ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
 assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
