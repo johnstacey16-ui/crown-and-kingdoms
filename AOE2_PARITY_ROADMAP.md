@@ -59,7 +59,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 - Ensure procedural map retries terminate safely and every generated starting position has valid routes and resources.
 
 ### 2.4 Campaign and scenarios
-- **Present:** an 18-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
+- **Present:** a 20-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
 - **Partial:** play every mission to verify briefing, objective order, timer/event scheduling, victory/defeat conditions, unlocks and save/resume. Expand variety only after existing missions are completable.
 - Add automated checks for mission prerequisites and objective reachability; reserve actual mission completion for browser playtests.
 
