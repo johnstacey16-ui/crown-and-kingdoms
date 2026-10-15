@@ -119,6 +119,10 @@ test('in-game About copy describes the real asset, audio and verification bounda
   assert.doesNotMatch(engineSource, /All art is drawn in code\. No external assets or network calls/);
 });
 
+test('audio voice classification tolerates entities without unit definitions', () => {
+  assert.match(audio, /\(U\[k\]&&U\[k\]\.mt\)\|\|\['scout','knight','camel','mgd','cata','mamel','ele','eled'\]\.includes\(k\)\?'cav'/);
+});
+
 test('game balance data is separated from runtime code and resize work is debounced', () => {
   assert.match(config, /const U=\{/);
   assert.match(config, /const B=\{/);
