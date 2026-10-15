@@ -32,7 +32,8 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 - **Still required:** run the complete Node regression suite against the latest commit and exercise valid older saves; malformed-payload guards do not prove backward compatibility.
 - **Partial/unverified:** exercise the new guard and older save payloads in the complete Node suite; test interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
 - **Autosave implemented in source:** while a local game is actively playing, `engine.js` calls `saveG(true)` at 60-second intervals. `js/save.js` writes to the single rolling `ck_autosave` key, replacing the previous autosave rather than accumulating slots. Autosave is suppressed while the multiplayer runtime reports an active match; it does not claim to save a shared authoritative multiplayer state. The manual save slots remain separate.
-- **Still required:** add regression coverage for the one-slot overwrite policy, the 60-second trigger and multiplayer suppression; test interrupted writes and storage quota denial in a real browser. Avoid incompatible schema changes without defaults/migration tests.
+- **Regression coverage added (execution pending):** `tests/autosave-policy.test.mjs` checks the 60-second trigger, stable single-slot key, save/load key and suppression during active multiplayer, including pause/blur autosave. `tests/causeway-map.test.mjs` guards the named King's Causeway layout and crossing invariants. These source-level tests have been committed but have not yet been run in this work session.
+- **Still required:** run the complete check suite; test interrupted writes and storage quota denial in a real browser; verify valid older saves. Avoid incompatible schema changes without defaults/migration tests.
 
 ### 1.3 Controller and accessibility
 - **Present:** controller navigation, command menus, pause/resume and remapping.
@@ -118,7 +119,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation, minimap/fog ownership and unit-separation ownership checks have passed in earlier runs. Campaign helpers have now moved out of `engine.js`; the latest full suite must confirm the new ownership and script order.
+1. Run the complete current check suite and fix any failures before additional refactors. Recent commits added autosave-policy and King's Causeway regression tests, and corrected the pause/blur path so a live multiplayer session is not written as a local autosave. Those new tests still need execution; do not assume they pass. Earlier save-validation, sprite-atlas, minimap/fog ownership and unit-separation checks are historical results, not verification of the latest commit.
 2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
 3. Audit technology effects and AI decisions with focused tests where gaps are found.
 4. Test naval/map connectivity and campaign completion across scenarios.
