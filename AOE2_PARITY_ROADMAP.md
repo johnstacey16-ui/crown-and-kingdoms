@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 15 October 2026  
-**Source checkpoint reviewed for this roadmap update:** `e12a08a43a8d565d87ae7140f16b5f21140d6c7e` (main, 15 October 2026).  
+**Source checkpoint reviewed for this roadmap update:** `d66e3879c1d1fca74b7d9d808309e21f68e0e6ad` (main, 15 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -45,7 +45,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 
 - **Present:** seeded/procedural map layouts and sizes, fog of war, explored areas, minimap, land/water terrain diagnostics, start-position land connectivity checks, dock-site diagnostics, seed retries and campaign objectives/events.
 - **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide, standard Town Centre victory, score victory with selectable 10-, 15-, 20-, 25- or 30-minute limits, King of the Hill and Sudden Death. Score is a Crown & Kingdoms-specific formula based on held resources, surviving units/buildings, age, researched technologies and stored relics; it is not claimed to match AoE2's exact scoring formula.
-- **Present:** *The Golden Coast* and *The Strait's Last Relic*, alongside earlier campaign scenarios.
+- **Present:** *The Golden Coast*, *The Strait's Last Relic* and *The Siege of Tidewatch*, alongside earlier campaign scenarios. Tidewatch adds an Imperial Age coastal siege, artillery-production objective, fortified Castle/Town Centre targets and timed counter-raids.
 - **Present / source-tested:** natural campaign completion now follows the displayed arc order: Ashford arc missions 0–5 then 8, Frontier Wars 6–7, Royal Campaign 9–11, and Coastal War 12–13. This fixes the previous raw-array progression mismatch; full mission runs remain unverified.
 - **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
 - **Present:** score/time-limit offers 10-, 15-, 20-, 25- and 30-minute durations. The selected duration drives the HUD countdown and winner/draw result and is preserved in settings and save slots.
