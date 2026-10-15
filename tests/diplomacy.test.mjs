@@ -33,8 +33,10 @@ assert.match(html, /function nearestFoeUnit\(u,r\)\{[\s\S]{0,700}!isHostile\(u\.
   'Indexed automatic target acquisition must ignore neutral/allied, dead and garrisoned units');
 assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
   'AI attack waves must choose targets only from hostile kingdoms');
-assert.ok(html.includes("S.us.filter(u=>u&&Number.isInteger(u.t)&&isHostile(t,u.t)&&u.hp>0&&!u.ld&&U[u.k]?.sh&&u.k!=='fish'&&u.k!=='trn'&&u.k!=='cog'"),
-  'Naval AI must ignore allied/neutral warships');
+assert.ok(html.includes("const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;"),
+  'Naval AI must build enemy-only ship and land-counter rosters in the shared guarded scan');
+assert.ok(html.includes("if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e)"),
+  'Naval counter roster must exclude allied, neutral, economic and garrisoned ships');
 assert.match(html, /for\(const e of S\.us\)\{if\(!e\|\|e\.hp<=0\|\|e\.ld\|\|!isHostile\(t,e\.t\)\|\|!\(U\[e\.k\]\?\.dmg>3\)\)continue;/,
   'AI defensive threat detection must ignore non-hostile units');
 assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,vp:S\.vp,diff/,
