@@ -3,7 +3,7 @@ function auditGeneratedMap(starts){
  const seenLand=new Uint8Array(W*H),seenWater=new Uint8Array(W*H),landComponents=[],waterComponents=[];
  const flood=(sx,sy,kind,seen)=>{
   const pass=i=>kind==='land'?(S.wt[i]!==1):(S.wt[i]===1||S.wt[i]===2);
-  const start=sy*W+sx;if(start<0||start>=W*H||!pass(start)||seen[start])return [];
+  const start=sy*W+sx;if(sx<0||sy<0||sx>=W||sy>=H||start<0||start>=W*H||!pass(start)||seen[start])return [];
   const q=[start];seen[start]=1;
   for(let h=0;h<q.length;h++){const i=q[h],x=i%W,y=(i/W)|0;
    const ns=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];
