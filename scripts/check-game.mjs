@@ -7,6 +7,7 @@ const state = readFileSync(new URL('../js/state.js', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
+const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const source = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + game;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
@@ -17,11 +18,12 @@ new vm.Script(state, { filename: 'js/state.js' });
 new vm.Script(audio, { filename: 'js/audio.js' });
 new vm.Script(save, { filename: 'js/save.js' });
 new vm.Script(input, { filename: 'js/input.js' });
+new vm.Script(render, { filename: 'js/render.js' });
 new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
 new vm.Script(persistence, { filename: 'persistence.js' });
 new vm.Script(serviceWorker, { filename: 'sw.js' });
-if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
+if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./js/render.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
 if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
