@@ -19,9 +19,9 @@ test('shared title and generic list renderers have one owner in js/ui.js', () =>
 });
 
 test('title, options, campaign and save-slot screens continue using the shared renderers', () => {
-  assert.match(menus, /function drawTitle\(\)\{titleBg\(\)/);
-  assert.match(menus, /function drawSetup\(\)\{titleBg\(\);drawList\(/);
-  assert.match(menus, /function drawOpts\(\)\{titleBg\(\);drawList\(/);
+  assert.match(ui, /function drawTitle\(\)\{titleBg\(\)/);
+  assert.match(ui, /function drawSetup\(\)\{titleBg\(\);drawList\(/);
+  assert.match(ui, /function drawOpts\(\)\{titleBg\(\);drawList\(/);
   assert.match(ui, /function drawCamp\(\)\{titleBg\(\);drawList\(/);
   assert.match(ui, /function drawBrief\(\)\{titleBg\(\)/);
   assert.match(ui, /function drawSlots\(\)\{titleBg\(\);drawList\(/);
