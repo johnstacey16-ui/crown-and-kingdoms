@@ -4,3 +4,15 @@ let S,pad=null,P=[],E=[],prev=[],mode='title',ca=0,diff=1,kingdoms=4,startAge=0,
 const mmc=document.createElement('canvas');mmc.width=W;mmc.height=H;const mmx=mmc.getContext('2d');let mmd=mmx.createImageData(W,H);let PA;function setSize(n){W=H=n;if(typeof TCH!=='undefined')TCH.clear();PA={pr:new Int32Array(n*n),g:new Float32Array(n*n),cl:new Int32Array(n*n),st:new Int32Array(n*n),v:0};mmc.width=n;mmc.height=n;mmd=mmx.createImageData(n,n)}
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),note=s=>{uis('note');notes.push({s,t:3.5});if(notes.length>4)notes.shift()};
 const mk=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+
+/* Resolve the visible name of a researched unit in one shared presentation helper. */
+function unitName(k,t){
+ const tech=S&&S.tech&&S.tech[t]||{};
+ if(k==='mil')return tech.longs?'Long Swordsman':tech.man?'Man-at-Arms':U[k].n;
+ if(k==='spear'&&tech.pike)return 'Pikeman';
+ if(k==='xbow'&&tech.arb)return 'Arbalester';
+ if(k==='skirm'&&tech.elsk)return 'Elite Skirmisher';
+ if(k==='scout'&&tech.lcav)return 'Light Cavalry';
+ if(k==='knight'&&tech.cavl)return 'Cavalier';
+ return U[k]?U[k].n:k;
+}
