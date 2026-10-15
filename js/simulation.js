@@ -263,12 +263,13 @@ if(PERS[aip].rg&&cnt('bar')&&cnt('rng')<2&&vil.length>=10&&(arm.length>=4||R.w>=
 const humanArmy=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&!u.sh),humanCav=humanArmy.filter(u=>CAVARM.has(u.k)).length,humanRanged=humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,humanSiege=humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,humanInf=humanArmy.filter(u=>['mil','spear','pike','halb','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length,humanShips=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&U[u.k].sh&&u.k!=='trn');
 for(const b of bl)if(b.done&&B[b.k].tr&&b.k!=='tc'&&b.q.length<2){const o=trOf(b).filter(k=>U[k].age<=S.age[t]&&k!=='trn'&&(k!=='fish'||my.filter(u=>u.k==='fish').length<3)&&(k!=='gal'||my.filter(u=>u.k==='gal').length<4)&&(k!=='scout'||my.filter(u=>u.k==='scout').length<2)&&(k!=='cart'||(my.filter(u=>u.k==='cart').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='market'&&b2.done)))&&(k!=='cog'||(my.filter(u=>u.k==='cog').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='dock'&&b2.done))));if(o.length){const isDock=b.k==='dock',enemyShips=humanShips.length,enemyGal=humanShips.filter(u=>u.k==='gal').length,counters=isDock?(enemyGal>=2?['gal']:enemyShips>=2?['gal']:[]):humanCav>=3?['spear','pike','halb','camel']:humanRanged>=4?['skirm','knight','cata']:humanSiege>=2?['knight','mil','scout']:humanInf>=6?['scor','mang','arc']:[];train(b,counters.find(k=>o.includes(k))||pickW(o))}}
 const techPriority=k=>{
- const base={gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,atkM:62,atkR:62,armI:60,armR:60,armC:60,man:65,longs:66,pike:63,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57};
+ const base={gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,atkM:62,atkR:62,armI:60,armR:60,armC:60,man:65,longs:66,twohand:65,champ:64,pike:63,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57};
  let score=base[k]||20;
  if(k==='pike'&&humanCav>=2)score+=90;
  if(k==='elsk'&&humanRanged>=4)score+=60;
  if(k==='armR'&&humanRanged>=3)score+=28;
  if(k==='armI'&&humanInf>=3)score+=24;
+ if((k==='twohand'||k==='champ')&&humanInf>=3)score+=22;
  if(k==='armC'&&humanCav>=3)score+=28;
  if(k==='siegeup'&&humanSiege>=1)score+=42;
  if(k==='navalHull'&&humanShips.length)score+=95;

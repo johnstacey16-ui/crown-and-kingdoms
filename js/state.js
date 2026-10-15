@@ -8,7 +8,7 @@ const mk=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.im
 /* Resolve the visible name of a researched unit in one shared presentation helper. */
 function unitName(k,t){
  const tech=S&&S.tech&&S.tech[t]||{};
- if(k==='mil')return tech.longs?'Long Swordsman':tech.man?'Man-at-Arms':U[k].n;
+ if(k==='mil')return tech.champ?'Champion':tech.twohand?'Two-Handed Swordsman':tech.longs?'Long Swordsman':tech.man?'Man-at-Arms':U[k].n;
  if(k==='spear'&&tech.pike)return 'Pikeman';
  if(k==='xbow'&&tech.arb)return 'Arbalester';
  if(k==='skirm'&&tech.elsk)return 'Elite Skirmisher';

@@ -65,3 +65,6 @@ For the authoritative current gaps and next steps, see [the parity roadmap](AOE2
 
 
 - **Large-army target search:** enemy-unit acquisition now uses an 8-world-unit spatial bucket index rebuilt lazily once per simulation step. It retains exact distance/hostility/dead/garrisoned filters and original tie-breaking, while siege/building target priority stays unchanged. This is an algorithmic optimization, not yet an Xbox FPS claim.
+
+
+- **Infantry sword-line expansion:** Barracks research now progresses Man-at-Arms → Long Swordsman → Two-Handed Swordsman → Champion. Each tier updates existing and newly trained Militia-class units through the shared health/attack ledger, rank names across menus/HUD, AI research weighting and visible battlefield equipment cues.

@@ -60,7 +60,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
 - **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, hostile-kingdom-aware counter production and research, local anti-raid responses around economic sites, automatic safe-area repair of damaged AI buildings, evasive fishing-ship routing, wounded-warship disengagement, safe-area naval repair, limited emergency defence for allied bases, and purposeful War Galley target selection. Researched elite ranks and siege/naval upgrades now add battlefield-visible equipment details; fully unique rank-specific sprite sets remain incomplete.
 - **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
-- **Partial:** all 34 currently defined technologies are reachable from their listed buildings and define costs, ages and research times; research rejects unknown technologies and wrong-building requests. Data-driven checks now require every defined technology to have a recognized effect pathway, and the effect tests cover current/new units and buildings.
+- **Partial:** all 36 currently defined technologies are reachable from their listed buildings and define costs, ages and research times; research rejects unknown technologies and wrong-building requests. Data-driven checks now require every defined technology to have a recognized effect pathway, and the effect tests cover current/new units and buildings.
 - **Present in UI / partial in art:** researched Man-at-Arms, Long Swordsman, Pikeman, Arbalester, Elite Skirmisher, Light Cavalry and Cavalier ranks now appear in selection HUDs, production menus, queue initials and training feedback. These are rank labels over the existing internal unit types; distinct upgraded sprites/equipment and exact upgrade balance remain gaps.
 - **Gap:** the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
 
@@ -147,7 +147,7 @@ Static source checks remain useful for regressions, but they are not proof of co
 ### Maintenance / technology audit — 14 October 2026
 
 - **Research request integrity:** the research function now validates the match, kingdom and building before work starts; refuses undefined technologies and research unavailable at that building; and allows age advancement only from a Town Centre. Invalid requests exit before costs are deducted.
-- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 34 technology entries after adding class-specific Cavalry Armour.
+- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 36 technology entries after adding class-specific Cavalry Armour and the final two infantry sword ranks.
 - **Effects remain partial:** generic hit-point and attack upgrades, construction speed, farm capacity, defensive attack effects and building health still have targeted checks. This does not establish complete AoE2 DE unit/technology parity or prove balance in live matches.
 - **Rank presentation:** UI labels derive from the owning kingdom's completed technology ledger, so existing units and later-trained units show the same researched rank. Internal IDs and current sprite keys remain unchanged; no exact AoE2 DE appearance or complete roster is implied.
 
@@ -331,3 +331,11 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - `SEP_GRID` now recycles its populated arrays through `SEP_BUCKET_POOL`: each tick empties existing buckets, clears the key map, and reuses array storage as new cells become occupied.
 - The small-army linear path (128 units or fewer) is unchanged. The large-army broadphase keeps the same half-tile neighbourhood and overlap/displacement formula; this change only reduces transient bucket-array allocation.
 - `tests/large-army-separation-pool.test.mjs` guards pool reuse and the small-army fallback. The 404-unit spatial targeting smoke remains a separate correctness check. Physical Xbox performance still needs profiling.
+
+
+### Infantry sword-line completion — 15 October 2026
+
+- Added **Two-Handed Swordsman** (45-second research, 300 food/100 gold, Imperial Age, requires Long Swordsman) and **Champion** (60 seconds, 750 food/350 gold, Imperial Age, requires Two-Handed Swordsman) to the Barracks.
+- Both technologies add real health and attack bonuses to existing and later-trained `mil` units through the shared upgrade ledger. `unitName()` returns the highest researched tier, so selection display, production menus and training feedback stay consistent.
+- Procedural battlefield artwork adds a longer blade for Two-Handed Swordsmen and a stronger gold helmet/sword silhouette for Champions. AI tech weighting increases for this line when facing at least three hostile infantry units.
+- Research integrity now expects 36 technology entries. Live balance, animation readability and Xbox TV-distance clarity remain unverified.

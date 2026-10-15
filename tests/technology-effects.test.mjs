@@ -49,8 +49,18 @@ assert.match(html, /tk\.keep\?3:0/,
 
 assert.match(html, /function unitName\(k,t\)\{\s*const tech=S&&S\.tech&&S\.tech\[t\]\|\|\{\};/,
   'Unit rank display must read the actual researching kingdom technology ledger');
-assert.match(html, /if\(k==='mil'\)return tech\.longs\?'Long Swordsman':tech\.man\?'Man-at-Arms':U\[k\]\.n/,
+assert.match(html, /if\(k==='mil'\)return tech\.champ\?'Champion':tech\.twohand\?'Two-Handed Swordsman':tech\.longs\?'Long Swordsman':tech\.man\?'Man-at-Arms':U\[k\]\.n/,
   'Existing and newly trained Militia must display the highest researched infantry rank');
+assert.match(html, /bar:\{[^}]*rs:\['man','longs','twohand','champ','pike'\]/,
+  'Two-Handed Swordsman and Champion must be reachable from the Barracks');
+assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:300,g:100\},t:45,age:3,pre:'longs',hpb:\{mil:15\},atkb:\{mil:2\}\}/,
+  'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
+assert.match(html, /champ:\{n:'Champion',cost:\{f:750,g:350\},t:60,age:3,pre:'twohand',hpb:\{mil:20\},atkb:\{mil:3\}\}/,
+  'Champion must require Two-Handed Swordsman and add real health and attack');
+assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
+  'The battlefield renderer must use the highest researched sword-line tier');
+assert.match(html, /if\(rank==='man'\|\|rank==='long'\|\|rank==='twohand'\|\|rank==='champ'\)/,
+  'Each sword-line tier must get the battlefield equipment drawing path');
 assert.match(html, /if\(k==='spear'&&tech\.pike\)return 'Pikeman'/,
   'Spearmen must display as Pikemen after that upgrade');
 assert.match(html, /if\(k==='xbow'&&tech\.arb\)return 'Arbalester'/,
