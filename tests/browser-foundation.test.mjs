@@ -26,7 +26,7 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
   const manifest = readFileSync(new URL('../assets/atlas-manifest.json', import.meta.url), 'utf8');
   assert.doesNotThrow(() => JSON.parse(manifest));
   assert.match(engine, /fetch\('\.\/assets\/atlas-manifest\.json'/);
-  assert.match(html, /\.then\(pack=>\{if\(pack&&typeof pack==='object'\)loadAssetPack\(pack\)\}\)/);
+  assert.match(engine, /\.then\(pack=>\{if\(pack&&typeof pack==='object'\)loadAssetPack\(pack\)\}\)/);
   assert.doesNotMatch(html, /<script id="ck-assets" type="application\/json">\s*\{/);
 });
 
