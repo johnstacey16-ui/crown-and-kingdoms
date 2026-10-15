@@ -2,16 +2,6 @@
 'use strict';
 const cv=document.getElementById('c'),X=cv.getContext('2d');let CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
 const rs=()=>{DPR=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter='brightness('+br+')';const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
-function unitName(k,t){
- const tech=S&&S.tech&&S.tech[t]||{};
- if(k==='mil')return tech.longs?'Long Swordsman':tech.man?'Man-at-Arms':U[k].n;
- if(k==='spear'&&tech.pike)return 'Pikeman';
- if(k==='xbow'&&tech.arb)return 'Arbalester';
- if(k==='skirm'&&tech.elsk)return 'Elite Skirmisher';
- if(k==='scout'&&tech.lcav)return 'Light Cavalry';
- if(k==='knight'&&tech.cavl)return 'Cavalier';
- return U[k]?U[k].n:k;
-}
 /* ===== GAME STATE / MAP ===== */
 function addN(k,x,y,amt,fm){x|=0;y|=0;if(x<1||y<1||x>=W-1||y>=H-1||S.g[y*W+x]||S.wt[y*W+x])return null;const n={k,x,y,s:1,amt,fm};S.nodes.push(n);S.nd[y*W+x]=n;S.g[y*W+x]=1;return n}
 function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:1)*(S.tech[t].bz?1.15:1)*(S.tech[t].fw&&(k==='wall'||k==='gate')?1.8:1)),b={t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);for(let j=0;j<b.s;j++)for(let i=0;i<b.s;i++)S.g[(y+j)*W+x+i]=1;if(k==='gate')S.gt[y*W+x]=t+1;return b}
