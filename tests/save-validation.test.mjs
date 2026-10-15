@@ -41,7 +41,7 @@ assert.ok(validation.includes("!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl
 assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.isArray(r))"), 'each kingdom must have a resource object');
 assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
 assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
-assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result');
+assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result for manual and rolling autosave slots');
 assert.match(save, /const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/, 'a rejected asynchronous backup mirror must be handled without blocking the primary save');
 assert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
 
