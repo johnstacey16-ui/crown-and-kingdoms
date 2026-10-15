@@ -59,3 +59,6 @@ The goal is to build gameplay and content that can run in the browser: economy, 
 The repository is connected to Vercel. Check the Vercel status on the exact latest commit before assuming the hosted page includes a change. A successful deployment status confirms that Vercel completed that deployment; it does not prove that the correct public alias is open or that the build has been tested on Xbox.
 
 For the authoritative current gaps and next steps, see [the parity roadmap](AOE2_PARITY_ROADMAP.md).
+
+
+- **Cavalry Armour +1:** available at the Blacksmith, reduces incoming damage for mounted units through class-specific combat logic, and adds a visible metallic barding cue. AI research priority rises when facing at least three hostile mounted units.

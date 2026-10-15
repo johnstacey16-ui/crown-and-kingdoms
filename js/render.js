@@ -60,8 +60,8 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
  }
  /* Blacksmith armour upgrades receive a small battlefield-visible cue. */
  {
-  const T=S.tech[u.t]||{},inf=!!(T.armI&&INFARM.has(k)),arch=!!(T.armR&&ARCHARM.has(k));
-  if(inf||arch){
+  const T=S.tech[u.t]||{},inf=!!(T.armI&&INFARM.has(k)),arch=!!(T.armR&&ARCHARM.has(k)),cav=!!(T.armC&&CAVARM.has(k));
+  if(inf||arch||cav){
    X.save();X.translate(sx,sy);X.scale(z,z);X.lineJoin='round';X.lineWidth=.75;
    if(inf){
     X.fillStyle='rgba(183,196,207,.88)';X.strokeStyle='#382d22';
@@ -74,6 +74,12 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
     X.strokeStyle='#f0c35e';X.lineWidth=.8;X.beginPath();X.moveTo(-5,-17);X.lineTo(5,-17);X.stroke();
    }
    X.restore()
+  }
+  if(cav){
+   /* Metallic flank plate and gold seam make researched barding visible at normal zoom. */
+   X.fillStyle='rgba(198,207,216,.86)';X.strokeStyle='#382d22';X.lineWidth=.85;
+   X.beginPath();X.moveTo(-11,-17);X.quadraticCurveTo(-6,-21,0,-19);X.quadraticCurveTo(7,-19,11,-16);X.lineTo(9,-10);X.quadraticCurveTo(0,-7,-9,-10);X.closePath();X.fill();X.stroke();
+   X.strokeStyle='#f0c35e';X.lineWidth=.9;X.beginPath();X.moveTo(-7,-14);X.lineTo(-2,-12);X.lineTo(4,-12);X.lineTo(8,-14);X.stroke();
   }
  }
  if(u.sh&&T.navalHull){

@@ -24,8 +24,18 @@ assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'
   'Gold Mining and Stone Mining must affect the matching resource gathering rates');
 assert.match(html, /S\.tech\[u\.t\]\.carry\?15:CAP/,
   'Carry Capacity research must affect already-working villagers when they next reach the carrying threshold');
-assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)/,
-  'Infantry and ranged armour upgrades must affect damage calculation only for their explicit unit classes');
+assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)\+\(CAVARM\.has\(t\.k\)&&ta\.armC\?1:0\)/,
+  'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
+assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled'\]\)/,
+  'Cavalry armour must be restricted to mounted units in the current roster');
+assert.match(html, /smith:\{[^}]*rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2'\]/,
+  'Cavalry armour must be researched at the Blacksmith');
+assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150,g:100\},t:30,age:1\}/,
+  'Cavalry Armour must have explicit cost, research time and age');
+assert.match(html, /if\(k==='armC'&&humanCav>=3\)score\+=28/,
+  'AI research priority must respond to a substantial enemy cavalry force');
+assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
+  'Researched cavalry armour must be visible on matching battlefield units');
 assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect ongoing and future construction work rates');
 assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(tk\.gf\?4:0\):0\),cls=ak\.sg/,
@@ -65,7 +75,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
+const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','armC','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);
