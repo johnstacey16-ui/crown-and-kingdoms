@@ -13,7 +13,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/input.js`: controller polling, selection, orders and menu navigation.
 - `js/mapgen.js`: map generation/layout helpers extracted from the main engine.
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
-- `js/render.js`: world, unit, relic, particle effects, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
+- `js/render.js`: world, building/resource-node/unit/relic/particle drawing, procedural sprite artists, terrain tile/detail/hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/assets.js`: optional sprite-atlas registration, metadata/frame validation, asynchronous image loading and animation-frame lookup, with procedural fallback preserved.
 - `js/ui.js`: shared title-background/generic list rendering and framed panels, match-result/runtime-error overlays, campaign list/briefing/objective drawing, performance overlay, strategic overview, technology tree, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; campaign progression remains in `js/campaign.js`; save serialization remains in `js/save.js`.
 - The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
@@ -176,3 +176,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved `drawP()` from `engine.js` into `js/render.js`, next to the existing `PMAX`/`PT` particle state and world draw path.
 - Particle emission and simulation/lifetime updates (`emit()`, `updP()`) remain in `engine.js`. The renderer still calls `drawP()` in the same place before projectile strokes.
 - Added `tests/particle-renderer-extraction.test.mjs` to guard the script ordering, renderer ownership and unchanged particle-update/draw connection. This is a structural change only; no performance improvement is claimed without profiling.
+
+
+### World-object and sprite-art extraction — 15 October 2026
+
+- Moved the building/node artwork data and painters (`BG`, `CK_TEX`, `BP`, `paintBld()`, `drawBld()`, `paintNode()`, `drawNode()`) and procedural unit/siege/ship artists (`SPC`, `spr()`, `blit()`, `MP`, `man()`, `mnt()`, `sgp()`, `shp()`, `paintUnit()`, `USZ`) from `engine.js` into `js/render.js` without changing function names or drawing bodies.
+- `setZoom()`, particle emission/lifetime simulation, world state, game rules, selection and controller actions remain in their original owners. The renderer was already loaded before `engine.js`; no extra script was added.
+- `tests/world-object-renderer-extraction.test.mjs` verifies single ownership and confirms world draw paths still call the moved painters. This is a structural refactor; visual quality and frame time still require real-browser/Xbox verification.
