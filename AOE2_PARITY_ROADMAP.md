@@ -14,6 +14,8 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Gap** — not implemented to the requested standard.
 
 ## Latest continuation work — 15 October 2026
+- **Implemented:** extracted the optional sprite-atlas manager into `js/assets.js`; the main engine retains only atlas-pack startup and uses the same `ASSET` / `assetFrame` interfaces. The classic-script order, service-worker cache, and syntax/source checks include the new module. Atlas image loading remains asynchronous and procedural art remains the fallback.
+
 
 - **Implemented:** moved the technology tree, objectives and controller help/About screens to `js/ui.js`; the classic-script load order and shared state are preserved.
 - **Implemented:** added more saddle tack, stitched details and cavalry barding accents to the procedural mounted-unit art.
