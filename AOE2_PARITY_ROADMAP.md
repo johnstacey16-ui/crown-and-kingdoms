@@ -259,3 +259,9 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 - Moved new-game setup rows, options rows, title/setup/options drawing and controller handlers, and score-limit choices into `js/menus.js`.
 - Kept the current game-mode options, menu text, button navigation and setup restoration behavior intact. The module is loaded before the core engine and included in offline caching and source-level regression harnesses.
+
+
+## Minimap module extraction
+
+- Moved minimap terrain colour data, minimap texture refresh, world/minimap coordinate transforms, display filters and minimap drawing into `js/minimap.js`.
+- Kept player viewport, explored-terrain, team markers, pings, flares and King of the Hill marker rendering in place. Added the module to script-order checks, offline cache and simulation/KOTH harnesses.
