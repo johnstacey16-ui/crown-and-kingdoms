@@ -710,6 +710,51 @@ globalThis.__CK_TEST__ = {
     const elapsedMs = performance.now() - started;
     return { requested: count, added, units: S.us.length, ticks, elapsedMs, time: S.t, mapSize: W, combat };
   },
+  runFourKingdomMassBattle(populationPerTeam = 500, ticks = 30) {
+    this.start(24680);
+    if (S.teamN !== 4) throw new Error('Mass battle requires exactly four kingdoms');
+    S.us.length = 0;
+    const armies = Array.from({ length: 4 }, () => []);
+    const centreX = W / 2, centreY = H / 2;
+    for (let team = 0; team < 4; team++) {
+      const offsetX = [-5, 5, 5, -5][team];
+      const offsetY = [-5, -5, 5, 5][team];
+      for (let i = 0; i < populationPerTeam; i++) {
+        const x = Math.max(1, Math.min(W - 2, centreX + offsetX + (i % 25) * 0.16));
+        const y = Math.max(1, Math.min(H - 2, centreY + offsetY + (Math.floor(i / 25) % 20) * 0.16));
+        const unit = addU(team, 'mil', x, y);
+        unit.o = 'i'; unit.tg = null; unit.p = []; unit.sc = 1000; unit.as = 0; unit.retreating = 0;
+        armies[team].push(unit);
+      }
+    }
+    for (let team = 0; team < 4; team++) {
+      const enemies = armies[(team + 1) % 4];
+      for (let i = 0; i < populationPerTeam; i++) {
+        const unit = armies[team][i];
+        unit.o = 'a'; unit.tg = enemies[i]; unit.p = [];
+      }
+    }
+    const initial = armies.map((army, team) => ({ team, starting: army.length }));
+    const started = performance.now();
+    let tickError = null;
+    for (let tick = 0; tick < ticks; tick++) {
+      try { step(1 / 30); } catch (error) { tickError = String(error?.stack || error); break; }
+    }
+    const elapsedMs = performance.now() - started;
+    const result = armies.map((army, team) => ({
+      team,
+      starting: initial[team].starting,
+      alive: army.filter(u => u && u.hp > 0 && S.us.includes(u)).length,
+      deadOrRemoved: army.filter(u => !u || !(u.hp > 0) || !S.us.includes(u)).length,
+      invalid: army.filter(u => !u || !Number.isFinite(u.x) || !Number.isFinite(u.y) || !Number.isFinite(u.hp)).length,
+    }));
+    return {
+      requestedPerTeam: populationPerTeam, requestedTotal: populationPerTeam * 4,
+      actualUnits: S.us.length, teams: S.teamN, ticksCompleted: tickError ? undefined : ticks,
+      simulatedSeconds: S.t, elapsedMs, tickError, result,
+      invalidUnits: S.us.filter(u => !u || !Number.isFinite(u.x) || !Number.isFinite(u.y) || !Number.isFinite(u.hp)).length,
+    };
+  },
   auditTownBellReservations() {
     const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
     if (!shelters.length) throw new Error('The seeded match must have an eligible player shelter');
@@ -1236,4 +1281,22 @@ for (let repeat = 0; repeat < 3; repeat++) {
 }
 combatSamples.sort((a, b) => a - b);
 console.log('large-army-combat-runtime: requested=400 ticks=30 repeats=3 simulationOnly=true medianMs='+combatSamples[1].toFixed(2)+' rangeMs='+combatSamples[0].toFixed(2)+'-'+combatSamples[2].toFixed(2));
+
+// Four-way, 2,000-unit live-engine stress battle: 500 units per kingdom, with
+// real simulation ticks and directed attack orders. This is a short stress run,
+// not a claim that the battle is complete or that Xbox performance is certified.
+const massBattle = game.runFourKingdomMassBattle(500, 30);
+assert.equal(massBattle.teams, 4, 'Mass battle must contain four kingdoms');
+assert.equal(massBattle.requestedTotal, 2000, 'Mass battle must request 2,000 total units');
+assert.equal(massBattle.actualUnits, 2000, 'Mass battle must retain all 2,000 unit records after the run');
+assert.equal(massBattle.ticksCompleted, 30, 'Mass battle must complete all 30 fixed simulation ticks');
+assert.equal(massBattle.tickError, null, 'Mass battle must not throw during simulation');
+assert.equal(massBattle.invalidUnits, 0, 'Mass battle must not create units with invalid coordinates or health');
+assert.ok(Number.isFinite(massBattle.elapsedMs) && massBattle.elapsedMs >= 0, 'Mass battle timing must be finite');
+for (const team of massBattle.result) {
+  assert.equal(team.starting, 500, 'Each kingdom must start with 500 units');
+  assert.equal(team.invalid, 0, 'Each kingdom must retain valid unit state');
+}
+console.log('four-kingdom-mass-battle: '+massBattle.requestedTotal+' units, 500/team, ticks='+massBattle.ticksCompleted+', simulated='+massBattle.simulatedSeconds.toFixed(2)+'s, elapsedMs='+massBattle.elapsedMs.toFixed(2)+', survivors='+massBattle.result.map(t=>'T'+t.team+':'+t.alive).join('/')+', invalid='+massBattle.invalidUnits);
+
 
