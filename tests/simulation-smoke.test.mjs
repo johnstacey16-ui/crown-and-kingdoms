@@ -1106,6 +1106,10 @@ for (let mission = 0; mission < 19; mission += 1) {
   // Keep each real scenario alive for forty simulated seconds so early
   // scheduled events, repeated AI decisions and campaign state transitions execute.
   for (let tick = 0; tick < 1200; tick += 1) game.tick(1 / 30);
+  const objectiveAuditAfterSimulation = game.auditCurrentCampaignObjectives();
+  assert.ok(objectiveAuditAfterSimulation && objectiveAuditAfterSimulation.count > 0, `Campaign mission ${mission + 1} must retain its objective set after scheduled events and AI ticks`);
+  assert.equal(objectiveAuditAfterSimulation.unique, true, `Campaign mission ${mission + 1} objective IDs must remain unique after simulation`);
+  assert.equal(objectiveAuditAfterSimulation.predicateErrors, 0, `Campaign mission ${mission + 1} objective predicates must remain safe after 40 simulated seconds`);
   const after = game.state();
   assert.equal(after.campaign?.index, mission, `Campaign mission ${mission + 1} should remain active after simulation steps`);
   assert.ok(Number.isFinite(after.time), `Campaign mission ${mission + 1} should retain finite simulation time`);
