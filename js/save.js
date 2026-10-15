@@ -1,7 +1,7 @@
 /* Crown & Kingdoms — serialisation and restoration for local game slots. */
 function saveG(auto=false){if(!S)return false;try{const ni=new Map(S.nodes.map((n,i)=>[n,'n'+i])),bi=new Map(S.bs.map((n,i)=>[n,'b'+i])),ui=new Map(S.us.map((n,i)=>[n,'u'+i])),ri=new Map(S.rel.map((n,i)=>[n,'r'+i])),rf=t=>t?ni.get(t)||bi.get(t)||ui.get(t)||ri.get(t)||null:null;
 const payload=JSON.stringify({v:1,when:Date.now(),sz:W,vm,scoreLimit,aip,pal:S.pal,kh:S.kh,cmp:cmp?{i:cmp.i,t:cmp.t,d:cmp.d,e:cmp.e}:null,vc:S.vc,px:S.px,civ:S.civ,dip:S.dip,vp:S.vp,diff,cam,t:S.t,res:S.res,age:S.age,tech:S.tech,pl:S.pl,ai:S.ai.map(a=>({cd:a.cd,wave:a.wave,nx:a.nx,rn:a.rn})),vt:S.vt,wt:Array.from(S.wt).join(''),ex:Array.from(S.ex).join(''),rel:S.rel.map(q=>({x:q.x,y:q.y,c:rf(q.c),m:rf(q.m)})),nodes:S.nodes,bs:S.bs.map(b=>({...b,rally:b.rally?{x:b.rally.x,y:b.rally.y}:null,cg:(b.cg||[]).map(rf)})),us:S.us.map(u=>({...u,tg:rf(u.tg),rel:null,ld:rf(u.ld),cg:u.cg?u.cg.map(rf):undefined}))});
-const key=auto?'ck_autosave':skey(slot);if(window.CK_STORAGE)window.CK_STORAGE.mirrorSave(key,payload);
+const key=auto?'ck_autosave':skey(slot);try{if(window.CK_STORAGE&&typeof window.CK_STORAGE.mirrorSave==='function')window.CK_STORAGE.mirrorSave(key,payload)}catch(e){}
 localStorage.setItem(key,payload);
 if(!localStorage.getItem(key))throw 0;if(!auto)hs=1;note(auto?'Autosaved at '+(S.t/60|0)+':'+String(S.t%60|0).padStart(2,'0'):'Saved to slot '+(slot+1));return true}catch(e){if(!auto)note('Save failed - storage unavailable here');return false}}
 function loadG(auto=false){let j=null;try{j=JSON.parse(localStorage.getItem(auto?'ck_autosave':skey(slot)))}catch(e){}
