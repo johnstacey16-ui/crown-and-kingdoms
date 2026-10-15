@@ -70,7 +70,7 @@ for(const s of fish.filter(u=>u.o==='i'&&S.t>=(u.fleeUntil||0))){let n=findNode(
 for(const s of scouts.filter(u=>u.o==='i')){const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p}}
 {
 /* Wounded warships disengage to reachable open water instead of fighting to destruction. */
-for(const ship of galleys.filter(u=>u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'))){
+for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog'].includes(u.k)&&U[u.k].dmg>=4&&!u.ld&&u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'))){
  if(S.t<(ship.navalFallbackUntil||0))continue;
  let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-ship.x,e.y-ship.y);if(!threat||d<threat.d)threat={e,d}}
  if(!threat||threat.d>18)continue;
