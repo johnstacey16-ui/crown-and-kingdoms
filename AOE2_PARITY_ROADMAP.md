@@ -5,6 +5,13 @@
 
 This roadmap tracks meaningful remaining work, not a claim of full Age of Empires II: Definitive Edition parity. “Present in source” means an implementation exists; it does not mean it is balanced, bug-free or validated on physical Xbox hardware.
 
+## Repository workflow and backup disposition — 15 October 2026
+
+- The latest documentation CI runs for the current checkpoint, [#38792352638](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38792352638) and [#38792365007](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38792365007), both completed successfully. The timed campaign-event regression [#38791039785](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38791039785) also passed.
+- No open pull requests or in-progress workflows were found during the repository inventory.
+- All 32 non-main branches were retained and compared against `main`. The branches are historical backups with substantial divergence (many over 1,000 commits behind the current modular architecture). They are **not** safe to merge wholesale: several contain obsolete `index.html` game code and earlier roadmap/README snapshots.
+- The CI workflow on `main` already matches the backed-up `maintenance/ci-roadmap-audit` workflow file. The active `main` branch remains the source of truth. Any genuinely unique feature from an old branch must be selectively ported into current modules and regression-tested; the backups have not been deleted.
+
 ## Status definitions
 
 - **Present:** identifiable implementation exists.
