@@ -1002,6 +1002,10 @@ for (const shelter of townBellAudit.occupancy) {
 }
 console.log('town-bell-behaviour: '+townBellAudit.assigned+' villagers assigned across '+townBellAudit.occupancy.length+' shelters with no capacity overbooking');
 
+// Warm both sides of the 128-unit separation threshold before recording timed samples.
+game.benchmarkArmy(100, 30);
+game.benchmarkArmy(400, 30);
+
 for (const population of [100, 200, 400]) {
   const samples = [];
   let finalResult = null;
