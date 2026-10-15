@@ -655,6 +655,13 @@ assert.ok(Math.hypot(causewayShipAfter.x - causewayShipStart.start.x, causewaySh
 assert.equal(causewayShipAfter.water, true, 'The Causeway ship must remain on navigable water during the route test');
 console.log('causeway-layout-smoke: layout 12 generated for four kingdoms with connected land and a traversable ship route');
 
+const brokenIsles = game.startLayout(13, 4);
+assert.equal(brokenIsles.layout, 13, 'Broken Isles must load as layout 13');
+assert.equal(brokenIsles.mapAudit?.starts, 4, 'Broken Isles must recognise all four starting positions');
+assert.equal(brokenIsles.mapAudit?.landReachable, true, 'Shallow crossings must keep every starting kingdom land-connected');
+assert.ok(brokenIsles.mapAudit?.waterCells > 0, 'Broken Isles must retain navigable water channels');
+console.log('broken-isles-smoke: four starting kingdoms connected with live water channels');
+
 game.start(123456);
 const causewayCampaign = game.startCampaign(16);
 assert.equal(causewayCampaign.campaign?.index, 16, 'The seventeenth campaign mission should start through the real scenario loader');
