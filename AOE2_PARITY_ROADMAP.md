@@ -1,379 +1,122 @@
-# Crown & Kingdoms — implementation roadmap
-
-**Audit date:** 15 October 2026  
-**Source checkpoint reviewed for this continuation:** `ddf1b8c5d000af30cea93ea379407c590bd0d315` (main, 15 October 2026).  
-**Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
-
-This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
-
-## Status key
-
-- **Present in source** — implementation is identifiable in the current code.
-- **Partial** — a simplified/subset implementation exists, or important edge cases remain.
-- **Unverified** — needs running-game, browser, network or physical-controller testing.
-- **Gap** — not implemented to the requested standard.
-
-## Latest continuation work — 15 October 2026
-- **Implemented:** extracted the optional sprite-atlas manager into `js/assets.js`; the main engine retains only atlas-pack startup and uses the same `ASSET` / `assetFrame` interfaces. The classic-script order, service-worker cache, and syntax/source checks include the new module. Atlas image loading remains asynchronous and procedural art remains the fallback.
-
-
-- **Implemented:** moved the technology tree, objectives and controller help/About screens to `js/ui.js`; the classic-script load order and shared state are preserved.
-- **Implemented:** moved the pause-menu model and drawing into the existing `js/ui.js`; `js/input.js` retains D-pad navigation and B/Menu-to-resume handling. Added focused regression coverage for single ownership and resume behaviour.
-- **Implemented:** moved controller-remap labels and drawing into `js/ui.js`; button binding, reset, return behaviour and `ck_map` persistence remain in the existing input/runtime flow. Regression coverage protects module ownership and action wiring.
-- **Implemented:** moved `ico()`, `topbar()` and `hud()` into `js/ui.js`; `engine.js` continues to call the same `hud()` entry point. HUD status labels and the three affected source bundles have regression coverage; no frame-rate gain is claimed.
-- **Implemented:** moved `slotItems()` and `drawSlots()` into `js/ui.js`; slot parsing/restoration, controller selection and save serialisation remain in place. A focused test checks single ownership and preserved save/load callback wiring.
-- **Implemented:** moved shared `titleBg()` and `drawList()` helpers into `js/ui.js`; title, setup/options, campaign and save-slot screens still call the same global functions. A focused regression test checks ownership and caller integration.
-- **Implemented:** moved `panel()`, `shade()` and `drawError()` into `js/ui.js`; match-end and runtime-error callers retain the same entry points. Error state, the frame exception catch and simulation-stop behaviour remain in `engine.js`, and a focused test guards the split.
-- **Implemented:** moved campaign screen/objective drawing (`cmpHud()`, `cmpObj()`, `wrapT()`, `drawCamp()`, `drawBrief()`) into `js/ui.js`; mission data, objective evaluation, timed events, progression and controller handlers stay in `js/campaign.js`. Source composition and a focused regression test protect the split.
-- **Implemented:** moved main menu/setup/options drawing (`drawTitle()`, `drawSetup()`, `drawOpts()`) into `js/ui.js`; settings models and controller handlers remain in `js/menus.js`. A focused test protects the module boundary.
-- **Implemented:** moved in-game radial/control-group/quick-select drawing and the associated stat/description labels into `js/ui.js`; command state, selection logic and controller actions remain in their existing engine/input path. A focused regression test verifies caller wiring.
-- **Implemented:** added more saddle tack, stitched details and cavalry barding accents to the procedural mounted-unit art.
-- **Implemented:** large armies use half-tile spatial separation buckets, and the bucket arrays now recycle through a pool rather than being discarded and allocated again each tick. The 400-unit targeting audit is separate from separation correctness; Xbox Edge profiling remains unverified.
-- **Implemented:** researched infantry and ranged armour upgrades now have a subtle metal-and-gold visual cue in the battlefield renderer; `drawUnit` explicitly keeps its team technology state available to the equipment passes.
-- **Implemented:** the campaign HUD now lists up to five active objectives, so the five-objective opening tutorial no longer hides its last objective. A regression assertion covers the full list.
-- **Regression harness maintenance:** tests that inspect pause-menu item composition now include `js/ui.js` alongside `engine.js`, so assertions continue checking the real combined runtime after extraction. The full suite is run in GitHub Actions.
-
-
-- **Implemented:** moved researched unit display-name resolution (`unitName`) from `engine.js` into `js/state.js`, leaving the engine focused on runtime orchestration. Added `tests/unit-label-ownership.test.mjs` to protect single ownership and all seven researched rank labels. This is a maintainability refactor; it does not change combat balance or claim full runtime validation.
+# Crown & Kingdoms — Gameplay and Content Roadmap
 
-## 1. Current implementation
+**Reviewed:** 15 October 2026  
+**Target:** controller-first browser RTS, especially Xbox Series S / Microsoft Edge.
 
-### Core simulation and economy
+This roadmap tracks meaningful remaining work, not a claim of full Age of Empires II: Definitive Edition parity. “Present in source” means an implementation exists; it does not mean it is balanced, bug-free or validated on physical Xbox hardware.
 
-- **Present:** four broad ages; age-up costs, research times and building prerequisites; resource pools; villagers; construction and repair; production queues; research; population accounting; game-end handling.
-- **Present:** population limit selector with 50, 100, 150, 200, 250, 300, 400 and 500 options. Houses add five capacity each, starting from a base capacity of ten, with the selected setting as the upper cap. This is a configurable limit, not an automatic grant of that many population slots.
-- **Present:** Town Bell action on a player Town Centre sends available villagers toward completed Town Centres, Castles or Towers with room, counting both current garrisons and villagers already on the way. Villagers can be released using the normal unload action.
-- **Present:** food, wood, gold and stone gathering; drop-off logic; farms with automatic reseeding for 60 wood; Horse Collar (+75 farm food), Heavy Plow (+125) and Crop Rotation (+175); ownership-aware farm upgrades.
-- **Present:** market buy/sell trading with changing prices; Trade Carts from Markets and Trade Cogs from Docks; distance-based gold on completed deliveries; retry behaviour when a route endpoint is unavailable.
-- **Present:** relic collection and income while a relic is stored in a monastery; Fishing Ships, renewable fish traps (100 wood, 900 food per trap) and AI fish-trap deployment.
-- **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
-- **Present:** skirmish diplomacy controls in the pause menu can set each surviving rival to Enemy, Neutral or Ally. The relationship matrix is symmetric and saved/restored; missing diplomacy data in older saves defaults to enemies. Combat damage, manual attacks, automatic target acquisition, AI attack targets, naval target selection and defensive threat scans respect hostility.
-- **Partial:** diplomacy is currently player-controlled against individual rivals and AI-to-AI relationships remain hostile. Player-selected allies now share live fog-of-war vision, can receive conditional surplus-resource tribute, and can trigger emergency defensive support near allied Town Centres/Castles. Regicide victory respects hostility, so allied Kings no longer block victory. Treaty duration, AI-negotiated diplomacy and fully developed allied-team victory rules remain gaps.
-- **Present:** food, wood, gold and stone tribute from the pause menu to allied surviving kingdoms, with controller-selectable amounts of 100, 250, 500 or 1,000. The sender's balance is checked before the same amount is credited to the ally.
-- **Partial:** player tribute amounts are selectable from 100, 250, 500 or 1,000; arbitrary custom amounts and negotiated tribute agreements are not implemented.
-- **Present:** controller-adjustable worker targets for Food, Wood, Gold and Stone; newly created player villagers are assigned automatically while automation is enabled, idle automated workers retry after resources deplete, and settings are saved/restored. Manual orders and Stop disable reassignment for that villager.
-- **Partial:** targets are per-resource desired counts with balanced overflow. Automatic villagers verify routes and skip repeated unreachable targets; the controller radial menu can send all selected villagers to the exact hovered land resource. Carried loads now seek reachable compatible drop-offs and avoid repeatedly pathfinding the same failed destinations; other direct site assignments remain manual, and the AI does not use the player's priority settings.
+## Status definitions
 
-### Combat, units and buildings
+- **Present:** identifiable implementation exists.
+- **Partial:** simplified implementation or known gaps remain.
+- **Unverified:** requires a live browser, network, deployment or physical-controller test.
+- **Gap:** the requested capability is not yet implemented to the intended standard.
 
-- **Present:** melee, ranged, siege and naval units; monks and relic handling; formations; Aggressive, Defensive, Stand Ground, Passive and No Attack stances; patrol, attack-move, Guard and Follow commands; garrison/unload logic.
-- **Present:** siege splash damage against nearby enemies; class-based armour upgrade rosters; selected unit attack bonuses; some technology effects applied to existing units/buildings and newly created units/buildings.
-- **Present:** AI mixed attack groups, dedicated siege targets, siege-threat defensive priorities, critically wounded land-unit retreat/healing, hostile-kingdom-aware counter production and research, local anti-raid responses around economic sites, automatic safe-area repair of damaged AI buildings, evasive fishing-ship routing, wounded-warship disengagement, safe-area naval repair, limited emergency defence for allied bases, and purposeful War Galley target selection. Researched elite ranks and siege/naval upgrades now add battlefield-visible equipment details; fully unique rank-specific sprite sets remain incomplete.
-- **Partial:** unit upgrade lines, armour classes, attack bonuses, unique units, building roster and research coverage are subsets of AoE2 DE. Exact balance and complete class interactions are not established.
-- **Partial:** all 38 currently defined technologies are reachable from their listed buildings and define costs, ages and research times; research rejects unknown technologies and wrong-building requests. Data-driven checks now require every defined technology to have a recognized effect pathway, and the effect tests cover current/new units and buildings.
-- **Present in UI / partial in art:** researched Man-at-Arms, Long Swordsman, Pikeman, Arbalester, Elite Skirmisher, Light Cavalry and Cavalier ranks now appear in selection HUDs, production menus, queue initials and training feedback. These are rank labels over the existing internal unit types; distinct upgraded sprites/equipment and exact upgrade balance remain gaps.
-- **Gap:** the full regional and DLC unit roster; architecture-set variety; a verified attack projectile/accuracy model at full reference fidelity.
+## Current foundation
 
-### Maps, campaigns and victory conditions
+The project already contains four-age progression; economy and trading; construction and repair; ground, siege and naval units; research and unit upgrades; rival AI; formations and stances; fog of war and minimap; procedural/fixed maps; campaign missions and timed events; multiple victory modes; local save/load; controller-oriented menus; procedural audio; local SVG sprite atlases with fallbacks; and a lightweight Supabase Realtime lobby.
 
-- **Present:** seeded/procedural map layouts and sizes, fog of war, explored areas, minimap, land/water terrain diagnostics, start-position land connectivity checks, dock-site diagnostics, seed retries and campaign objectives/events.
-- **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide, standard Town Centre victory, score victory with selectable 10-, 15-, 20-, 25- or 30-minute limits, King of the Hill and Sudden Death. Score is a Crown & Kingdoms-specific formula based on held resources, surviving units/buildings, age, researched technologies and stored relics; it is not claimed to match AoE2's exact scoring formula.
-- **Present:** *The Golden Coast*, *The Strait's Last Relic* and *The Siege of Tidewatch*, alongside earlier campaign scenarios. Tidewatch adds an Imperial Age coastal siege, artillery-production objective, fortified Castle/Town Centre targets and timed counter-raids.
-- **Present / source-tested:** natural campaign completion now follows the displayed arc order: Ashford arc missions 0–5 then 8, Frontier Wars 6–7, Royal Campaign 9–11, and Coastal War 12–13. This fixes the previous raw-array progression mismatch; full mission runs remain unverified.
-- **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Twin Rivers generates two winding waterways with three shallow ford crossings each; Golden Coast adds a variable northern coastline to resource-rich terrain; King's Causeway adds a diagonal navigable strait with three separated shallow crossings; Broken Isles adds another repeatable coastal seed for mixed naval and land matches. These are repeatable strategic layouts, while full live-game vessel navigation still needs runtime validation. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
-- **Present:** score/time-limit offers 10-, 15-, 20-, 25- and 30-minute durations. The selected duration drives the HUD countdown and winner/draw result and is preserved in settings and save slots.
-- **Partial:** score calculation is a Crown & Kingdoms-specific formula, not AoE2 DE parity; score-mode duration and balance still need full-match testing.
-- **Present / unverified:** King of the Hill has a carved land route from each starting position, a central landmark and minimap marker, AI hill targeting, and a five-minute uncontested military hold condition. End-to-end matches and route behaviour still need live gameplay validation.
-- **Present / unverified:** Sudden Death ends a kingdom when its Town Centre is destroyed, blocks building another Town Centre, and awards victory when no hostile Town Centres remain. End-to-end play and all map types still require gameplay validation.
-- **Gap:** a scenario editor; replay/spectator systems; broader campaigns, trigger tools and end-to-end mission validation; cheats, taunts and a complete chat system.
-
-### Controller, graphics, audio and networking
+The main runtime is split into classic scripts. `engine.js` remains responsible for top-level orchestration, frame scheduling, game state and controller command integration. `js/ui.js` owns screen presentation, `js/render.js` owns world drawing, and dedicated modules own AI, simulation, maps, pathfinding, economy, campaign and related systems. Preserve the current script order and shared globals during further refactoring.
 
-- **Present:** controller-driven menus, contextual commands, radial menu, remappable gamepad controls, pause/resume, formations, minimap, selection UI, synthesised Web Audio and a performance overlay.
-- **Present:** local SVG atlases for upright units, forces and buildings; four-direction animation metadata and team-colour variants; procedural fallbacks; original terrain/building drawing and local stone/wood textures.
-- **Partial:** animation coverage and visual consistency still need in-game inspection. The atlas metadata check validates frame bounds, not whether a sprite is visually upright, correctly scaled or attractive at TV distance.
-- **Partial / unverified:** `multiplayer.js` coordinates lobby/configuration, map-signature checks and lightweight player-marker updates (5 Hz). It does **not** synchronise the full RTS simulation or provide authoritative lockstep/rollback/host migration. Host/join, reconnect, host loss, match-end and controller-only multiplayer flows still need real network tests.
-- **Gap:** physical Xbox checks for TV-safe layout, controller disconnect/focus recovery, large-army performance, pause/resume, save/load and campaign completion have not been replaced by static tests.
+## Priority 1 — correctness and release confidence
 
-## 2. Highest-priority backlog
+### 1.1 Runtime stability
+- **Unverified:** play complete skirmishes and campaign missions from cold start through victory/defeat, including pause/resume, save/load, age-up, queued production, garrison/unload, diplomacy and naval combat.
+- Reproduce every newly reported runtime error, fix the underlying path and add a focused regression test.
+- Check error-overlay recovery and ensure a caught frame error cannot leave the game silently half-running.
+- **Acceptance:** automated checks pass and the critical flows above are exercised in a real browser. Xbox acceptance remains a separate gate.
 
-The game is being built feature-first for the single-page Xbox Edge target. The most useful remaining work is to close material gameplay and presentation gaps rather than grow the test checklist.
+### 1.2 Save and offline compatibility
+- **Present:** localStorage compatibility and IndexedDB backup/restore.
+- **Partial/unverified:** test older save payloads, interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
+- Add autosave only after the save payload and recovery paths are proven safe. Avoid incompatible schema changes without defaults/migration tests.
 
-### Next gameplay and content work
+### 1.3 Controller and accessibility
+- **Present:** controller navigation, command menus, pause/resume and remapping.
+- **Unverified:** test focus/selection visibility, every menu's B/Back behaviour, repeated button presses, disconnect/reconnect, couch-distance readability and gamepad differences in Edge.
+- Keep primary gameplay possible without mouse or keyboard; do not make a feature depend on hover-only interaction.
 
-1. **Unit and technology depth:** expand the useful roster and counter relationships; add visibly distinct equipment/rank art rather than relying only on HUD rank labels; keep each new technology tied to real effects on existing and newly produced objects.
-2. **Campaign depth:** continue adding missions with meaningfully different starts, timed events, multi-stage objectives and enemy plans. The progression now includes Ashford, Frontier Wars, Royal Campaign, Coastal War, Northern March and The Causeway Campaign. The Causeway Muster uses layout 12 and combines dock, galley, tower and fortress objectives. The follow-on *The Crown Holds the Crossing* adds an Imperial Age fortification challenge: build two completed Castles, withstand timed heavy-siege raids and destroy the enemy Town Centre. Both missions use layout 12 and are ordered in the Causeway Campaign. *The Siege of Tidewatch* is now part of Coastal War and requires a Siege Workshop, two living Bombard Cannons, destruction of the enemy Castle and destruction of the enemy Town Centre before the mission completes.
-3. **Map identity and naval routes:** add distinct layouts with clear strategic choices; keep start fairness and land access in mind, and improve actual navigability for ships beyond terrain-only connectivity diagnostics.
-4. **AI and diplomacy:** adaptive counter research/production and allied emergency defence are now present. Remaining gaps include AI-negotiated diplomacy, treaty duration, vision-sharing controls beyond player-selected allies, and a more complete allied victory model.
-5. **Combat and economy balance:** review long matches, siege/ship counters, construction and repair rates, market value curves, farm recovery and resource demand at the higher population settings.
-6. **Graphics and controller readability:** refine unit equipment and rank differentiation, building silhouettes and architecture, attack/death/walk animation coverage, TV-distance readability, menu focus, and pause/disconnect recovery.
-7. **Multiplayer boundary:** the current network layer is lobby/configuration plus lightweight markers, not authoritative synchronization of the full RTS simulation. Keep the agreed host-authoritative direction separate from Xbox platform services; host loss ends the current match, and achievements, cloud saves, platform matchmaking and cross-play stay out of scope.
-8. **Target-device performance:** maintain the 30 Hz simulation and spatial separation optimisations; check 400-unit matches, effects, camera/selection responsiveness and save/load on actual Xbox Edge before claiming device acceptance.
+## Priority 2 — gameplay depth
 
-### Recently implemented in source
+### 2.1 Technologies and unit progression
+- **Present:** age-gated research and shared effects for many upgrades, including infantry sword-line ranks, Pikeman/Halberdier, Cavalry Armour and Conscription.
+- **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback.
+- Ensure each technology has a real, testable gameplay effect rather than a UI-only entry. Check stacking, repeated research prevention and save/load persistence.
+- Keep balance values labelled as project rules; do not imply exact official AoE2 values unless independently verified.
 
-- AI counter production and research now account for every hostile kingdom, not just the human player's army; active technologies cannot be duplicated in multiple AI buildings.
-- Player-selected AI allies can send capped surplus-resource tribute and dispatch a limited relief force when an ally's Town Centre or Castle is threatened.
-- Friendly ships can repair other damaged ships; repair uses the researched hull maximum, AI fleets can help repair when safe, Reinforced Hulls applies to Trade Cogs, and Siege Engineers also improves Trebuchets and Bombard Cannons.
-- The Coastal War campaign now contains *The Siege of Tidewatch*, with an Imperial Age siege, artillery production, a fortified Castle, a Town Centre target and timed counter-raids.
+### 2.2 AI strategy and counterplay
+- **Present:** economic expansion, composition-aware research, defensive response, grouped attacks, siege targeting, repairs and several naval behaviours.
+- **Partial:** improve strategy across all ages and map types; test whether AI gathers, advances, builds, produces counters, protects its economy and attacks with coherent mixed armies rather than oscillating or stalling.
+- Add deterministic scenario tests for key decisions, then play longer matches to assess strategy quality. Static source assertions alone cannot establish competent AI.
 
-Static source checks remain useful for regressions, but they are not proof of complete match balance, visual quality, online reliability or physical Xbox acceptance.
+### 2.3 Naval and map systems
+- **Present:** docks, fishing, trade cogs, warships, ship repair/retreat logic, named layouts and connectivity diagnostics.
+- **Partial:** verify transport/loading/unloading, water access, land/water route failures, ship targeting, shore interactions and AI naval objectives on island, coastal and mixed maps.
+- Ensure procedural map retries terminate safely and every generated starting position has valid routes and resources.
 
-### Maintenance audit — 14 October 2026
+### 2.4 Campaign and scenarios
+- **Present:** an 18-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
+- **Partial:** play every mission to verify briefing, objective order, timer/event scheduling, victory/defeat conditions, unlocks and save/resume. Expand variety only after existing missions are completable.
+- Add automated checks for mission prerequisites and objective reachability; reserve actual mission completion for browser playtests.
 
-- **Fixed CI test discovery:** the workflow previously listed each test file explicitly, creating a risk that new tests would exist locally but never run in GitHub Actions. It now discovers all `tests/*.test.mjs` files and fails if none exist.
-- **Aligned contributor instructions:** the README uses the same test-discovery approach, while keeping the game-script syntax/invariant check and atlas validation explicit.
-- **Kept the canonical game untouched in this maintenance pass:** changes are limited to workflow and documentation; no gameplay feature is marked complete by these housekeeping edits.
-- **Next engineering gates remain:** deeper technology/unit-line coverage, campaign/map end-to-end checks, and real browser/network/Xbox validation. Platform services explicitly excluded by the project remain out of scope.
+### 2.5 Economy, diplomacy and match rules
+- **Present:** gathering, farms and reseeding, market trading, relic income, trade routes, tribute, player-controlled Enemy/Neutral/Ally relationships, victory modes and population-limit options.
+- **Partial:** test economy pacing, inaccessible resources, failed trade routes, allied support, hostility transitions and each victory condition. Treaty duration, AI-negotiated diplomacy, custom tribute amounts and comprehensive allied victory rules remain gaps.
+- Keep population settings distinct from actual housing capacity; the chosen ceiling is not a free grant of population slots.
 
+## Priority 3 — visuals, audio and feedback
 
-### Gameplay follow-on — 14 October 2026
+- **Present:** original SVG atlas assets, animation metadata, procedural fallbacks, team-colour cues, equipment/rank cues, terrain details and synthesised spatial/adaptive audio.
+- **Partial:** make unit ranks and equipment more distinct at gameplay zoom; improve building silhouettes, animation readability, terrain contrast and ownership cues without obscuring selection or health bars.
+- **Unverified:** inspect real frames in a browser and on a TV at normal viewing distance. Atlas metadata validation does not confirm visual quality or correct animation playback.
+- Verify audio autoplay/resume, mute/volume controls and graceful handling when browser audio is unavailable.
 
-- **Score victory duration:** the New Game menu now offers 10, 15, 20, 25 or 30 game-minute limits using the same controller left/right interaction as the other setup options.
-- **Consistency:** the HUD countdown and victory/draw messages derive from the selected duration instead of a hard-coded 20-minute threshold.
-- **Persistence fix:** settings restore now permits victory mode index 4 (Score); both settings and saved games retain the chosen duration, while older settings/saves safely fall back to 20 minutes.
-- **Campaign isolation:** campaign entry uses its 20-minute score-mode default and the prior New Game selection is restored when leaving back to the setup flow.
-- **Regression coverage:** the score-mode source test now checks the supported options, controller-menu presence, duration-based ending/HUD and persistence compatibility. These are static source checks; full match timing still requires gameplay testing.
+## Priority 4 — performance and scale
 
+- **Present:** fixed-step simulation, terrain chunk rendering, spatial bucket targeting and pooled separation buckets.
+- **Unverified:** profile 200- and 400-unit matches with four kingdoms on Xbox Series S / Edge. Record frame time, simulation step cost, memory and input latency; compare quiet economy, dense combat, naval scenes and fog-of-war-heavy maps.
+- Only add viewport culling, further spatial indexes or reduced update rates when measurements identify a bottleneck and tests preserve gameplay behaviour.
+- Do not describe spatial indexing as a proven FPS improvement until measured on target hardware.
 
-### Gameplay follow-on — 14 October 2026
+## Priority 5 — multiplayer boundary
 
-- **King of the Hill:** added as a controller-selectable victory mode. It carves obstacle-free routes from each starting area to a central landmark for this mode, clears resource nodes from those routes, and places a visible landmark on the world map and minimap.
-- **Capture rules:** living, ungarrisoned land combat units inside the hill radius count; villagers, trade carts, trade cogs and ships do not. Player allies can assist; neutral units are not treated as player allies. A sole holder must maintain control for five continuous game-minutes; no holder or contested control resets the timer.
-- **AI:** attack groups route directly to the hill and use a compact formation so units can actually contest the capture radius.
-- **Persistence:** capture progress is saved/restored, finite values are bounded to the valid timer range, and older saves default to zero progress.
-- **Validation boundary:** new source regression tests cover these rules, but do not substitute for playing matches across multiple map types or testing on a physical Xbox.
+- **Present:** Supabase Realtime lobby/player markers and presence integration.
+- **Gap:** authoritative synchronization of a complete RTS match is not implemented. The current lobby is not online multiplayer gameplay.
+- Improve reconnect behaviour, room-code normalization, stale-presence cleanup and duplicate-session handling within the current broadcast/presence design. Do not introduce Postgres Changes or database writes as an assumed fallback.
+- Host migration is not part of the current plan; the intended rule is that host loss ends the match.
 
+## Engine refactoring rules
 
-### Gameplay follow-on — 14 October 2026
+Continue extracting only cohesive responsibilities from `engine.js`; avoid moving functions merely to reduce line count. For every extraction:
 
-- **Sudden Death:** added as a controller-selectable victory mode. Destroying the player's starting Town Centre ends the match in defeat; destroying a rival Town Centre eliminates that rival kingdom's remaining buildings and units.
-- **Build restriction:** the game rejects Town Centre placement while Sudden Death is selected. The mode remains isolated from campaign Town Centre victory rules.
-- **Victory:** the player wins once no hostile Town Centres remain. The HUD and match-start messages explain the objective.
-- **Regression coverage:** a dedicated test verifies selection, save/settings clamps, the Town Centre build prohibition, player defeat, rival elimination, projectile cleanup and victory once hostile Town Centres are gone.
-- **Validation boundary:** source checks do not simulate live combat or a complete match; those remain deployment/browser/Xbox acceptance work.
+1. Preserve public function names, shared state and controller behaviour.
+2. Keep classic-script dependency order valid.
+3. Update `index.html`, `sw.js`, `scripts/check-game.mjs` and tests in the same commit when affected.
+4. Add or update a focused ownership/integration test.
+5. Run the full automated check set and report actual results.
+6. Do not mix behaviour changes into a structural-only refactor unless the change has its own regression coverage.
 
+## Definition of done
 
-### Maintenance / technology audit — 14 October 2026
+A feature is **implemented** only when its code path is present and reachable. It is **regression-checked** when the relevant automated tests pass. It is **playtested** only after the behaviour has been exercised in a live browser. It is **Xbox-verified** only after direct testing on the target console/browser. Deployment is confirmed only from the exact commit's deployment status.
 
-- **Research request integrity:** the research function now validates the match, kingdom and building before work starts; refuses undefined technologies and research unavailable at that building; and allows age advancement only from a Town Centre. Invalid requests exit before costs are deducted.
-- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 38 technology entries after adding class-specific Cavalry Armour, the infantry sword-line ranks, Conscription and Halberdier.
-- **Effects remain partial:** generic hit-point and attack upgrades, construction speed, farm capacity, defensive attack effects and building health still have targeted checks. This does not establish complete AoE2 DE unit/technology parity or prove balance in live matches.
-- **Rank presentation:** UI labels derive from the owning kingdom's completed technology ledger, so existing units and later-trained units show the same researched rank. Internal IDs and current sprite keys remain unchanged; no exact AoE2 DE appearance or complete roster is implied.
+## Automated checks
 
-## 3. Platform-service exclusions
+Run with Node.js 22 or a compatible current release:
 
-Per project direction, do not spend time implementing Xbox achievements, Xbox cloud saves, Xbox presence/clubs, Smart Delivery, Xbox Play Anywhere, Xbox Cloud Gaming integration, Xbox-native matchmaking/ranked ELO, or platform cross-play without the required supported infrastructure. Browser-side game modes and local simulation features remain in scope. Do not confuse these exclusions with the separate task of verifying the existing `multiplayer.js` integration.
+```sh
+node scripts/check-game.mjs
+for test in tests/*.test.mjs; do node "$test" || exit 1; done
+node tests/validate-atlas.mjs
+```
 
-## 4. Automated validation
+GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source syntax, invariants, focused regression cases and atlas metadata; they do not replace complete-match, network, deployment or Xbox testing.
 
-The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `scripts/check-game.mjs`, discovers and executes **every** `tests/*.test.mjs` file automatically, then validates atlas metadata. This avoids a manually maintained list drifting out of sync when a new regression test is added. The checks cover:
+## Next work order
 
-- inline JavaScript syntax and key source invariants;
-- population cap configuration;
-- diplomacy relationship symmetry, hostility-aware target acquisition, AI targeting and save/load compatibility;
-- allied tribute resource/amount selectors, eligibility checks, affordability validation and transfer integration;
-- villager target selection, new-worker automation, manual overrides, route-aware resource fallback, group resource-site orders, reachable drop-off fallback and save/load persistence;
-- score/time-limit victory calculation, selectable duration control, settings/save restoration, countdown and tie handling;
-- King of the Hill route preparation, military presence rules, ally/neutral handling, contested resets, AI targeting, landmark/minimap visibility and save progress restoration;
-- Sudden Death mode selection, no-new-Town-Centre rule, player loss, rival kingdom elimination, hostile-Town-Centre victory and save/settings compatibility;
-- No Attack stance: autonomous targeting suppression, attack cancellation, direct-command rejection and feedback;
-- Guard/Follow target validation, controller menus, simulation behaviour, post-combat return and manual-order overrides;
-- trade routes and fishing economy;
-- fish traps and technology effects;
-- all current technology definitions exposed through building research lists, required cost/time/age metadata, prerequisite references, and research-request validation;
-- AI retreats, siege support, defensive threat priorities and naval targeting with a focus-fire bias so nearby friendly galleys concentrate on a shared warship target;
-- campaign content;
-- map connectivity/generation diagnostics;
-- sprite-atlas metadata and frame bounds.
-
-These tests guard against known source regressions. They do not run a browser, simulate full battles, verify sound output, validate network sessions, or test an Xbox controller.
-
-## 5. Release checklist
-
-Before calling a feature complete:
-
-- Confirm the source change and tests are committed to `main`.
-- Confirm the latest GitHub Actions run succeeds.
-- Confirm Vercel's status for that exact commit; do not infer deployment from the source alone.
-- For gameplay/UI changes, verify the actual deployed page and record anything that has not been tested on Xbox Series S / Edge.
-- Preserve procedural/visual fallbacks and existing controller mappings unless a deliberate, tested change is required.
-
-The roadmap is intentionally consolidated: current state belongs in the sections above, not in an ever-growing series of duplicate dated notes.
-
-### Gameplay consistency follow-on — 15 October 2026
-
-- **Diplomacy persistence:** the pause menu continues to list a rival kingdom after its Town Centre falls if any units or buildings survive, so the player can still change its relationship.
-- **Tribute consistency:** player and AI tribute-recipient eligibility both use the same surviving-force rule; losing a Town Centre no longer removes access while an allied kingdom still has any living unit or building.
-- **Regression coverage:** the diplomacy source test checks the relationship-state matrix, surviving-force menu eligibility and matching tribute-recipient eligibility. These are static source assertions, not a substitute for playing through kingdom elimination and diplomacy changes.
-
-### Engine modularisation and Xbox performance follow-on — 15 October 2026
-
-- **Completed foundation:** `index.html` is the canonical shell. Runtime modules include `js/config.js`, `js/state.js`, `js/mapgen.js`, `js/audio.js`, `js/save.js`, `js/input.js`, `js/render.js`, `js/simulation.js`, `persistence.js`, `engine.js` and `multiplayer.js`; atlas metadata is external JSON. Do not recreate modules that already exist.
-- **Present:** the simulation uses a 30 Hz fixed-step accumulator while drawing each animation frame; resize handling is debounced; terrain tiles are bounded to the camera-visible tile range; unit separation switches from pairwise checks to half-tile spatial buckets above 128 units.
-- **Next safe extraction:** audit the remaining drawing functions within `engine.js` and distinguish pure presentation from world-rendering and simulation dependencies. Keep command creation, selection, movement/combat and persistence logic in their existing owners.
-- **Extraction guardrails:** renderer entry points, unit/relic rendering, terrain tile/detail/hill helpers and cached terrain-chunk functions already live in `js/render.js`; map generation and simulation stepping live in `js/mapgen.js` and `js/simulation.js`. Keep input, save formats, campaign state and network message contracts unchanged during future UI extraction.
-- **Implemented:** moved the visual-only `drawP()` loop into `js/render.js`; particle allocation and time/velocity updates remain in `engine.js`, and the renderer's existing call site is preserved.
-- **Implemented:** relocated building/resource-node art data and painters, plus procedural unit/siege/ship sprite artists, into `js/render.js`. `drawWorld()`/`drawUnit()` still call the same global function names; zoom control, particle updates and gameplay state remain in `engine.js.
-- **Implemented:** moved deterministic tile variation and terrain/foliage palettes into `js/render.js` beside terrain painters; no game-state or map-generation rules changed.
-- **Implemented:** moved shared shape/progress primitives (`bar`, `dia`, `poly`) into `js/render.js` and canvas text drawing (`tx`) into `js/ui.js`; the engine no longer owns those rendering primitives.
-- **Performance backlog:** add visibility culling for units/buildings/effects only after confirming the world-to-screen bounds for isometric sprites and tall structures; profile combat/pathfinding at 200 and 400 population before changing update cadence. The existing viewport terrain bounds and spatial separation grid do not prove the whole renderer or simulation is within budget.
-- **Persistence/audio follow-up:** IndexedDB is currently an asynchronous backup/restore path for the three compatible local slots, not a replacement save format. Keep localStorage as the synchronous compatibility source until migration and interrupted-write recovery are tested. Audio is synthesised and must remain lazy/resumable under browser autoplay and suspend policies.
-- **Validation:** existing Node checks parse source and assert invariants. Each extraction should add script-order/syntax coverage and retain all current tests. Browser execution, network sessions, deployment status, and Xbox Series S / Edge performance remain explicitly unverified until actually run there.
-
-
-## 15 October 2026 — renderer extraction continuation
-
-- Extracted `drawWorld()`, `drawUnit()` and `drawRelic()` into `js/render.js`; their existing function names and drawing logic are preserved.
-- `index.html` loads the renderer before `engine.js`; rendering functions resolve shared classic-script globals at runtime.
-- The service worker core asset list includes the renderer, and source-composition checks include it in page load order.
-- This is a maintainability change, not a claim of measured frame-rate improvement. Xbox Edge and live deployment still require a successful deployment and device validation.
-- Continued the extraction with `paintTile()`, `paintTileDetail()` and `drawHill()` moved into `js/render.js`; added regression assertions that these helpers live in the renderer rather than `engine.js`. Existing global helper names and drawing bodies are preserved. This is structural cleanup only; no performance gain is claimed without runtime profiling.
-- Extended the renderer extraction to `chunkOf()` and `drawChunks()` so terrain chunk caching and chunk drawing sit alongside tile, hill, world, unit and relic rendering. Regression assertions cover both helpers; function bodies and names are preserved.
-
-## 15 October 2026 — graphics brief and project information
-
-- Completed the applicable documentation brief against the current source: the main page remains the single canonical entry point, with map generation, simulation and rendering split into ordered classic-script modules.
-- Refined the King of the Hill landmark's rock planes, ground shadow and flag highlights in `js/render.js`; its footprint, world position and procedural fallback remain intact.
-- Updated the in-game About panel to describe local SVG atlases, team-colour/animation metadata, procedural fallback art, synthesised spatial/adaptive audio, the limited scope of the Realtime lobby, and the fact that browser/deployment/Xbox validation is not yet confirmed.
-- Added a regression test for the accuracy of that About copy. Updated README and browser technology roadmap to match the current module layout and scope.
-- Remaining graphics-brief gates: run the complete Node checks, inspect sprites/animations in a real browser, test audio autoplay/resume and controller navigation, and profile larger armies on the target Xbox. Metadata checks alone cannot establish visual quality or frame rate.
-
-
-## Current continuation checkpoint — 15 October 2026
-
-This checkpoint supersedes older dated notes where they conflict with the current source layout.
-
-- **Latest known runtime regression addressed in source:** audio voice classification now checks whether a unit definition exists before reading its `mt` field. This addresses the reported crash when a controller action requested audio for an unknown or non-unit entity key. Regression coverage was added. It does not prove that every runtime crash is fixed.
-- **Deployment caveat:** the Vercel build-rate limit was reported during this continuation. A GitHub commit does not mean the public site has deployed it; confirm the status of the exact commit before relying on the hosted page.
-- **Documentation inventory:** the maintained Markdown set is `README.md`, this roadmap, and `docs/BROWSER_TECH_ROADMAP.md`. The completed graphics/audio prompt was removed after its applicable work was incorporated. Keep the README and both roadmaps; do not recreate a prompt file as a substitute for updating these canonical documents.
-- **Immediate engineering order:**
-  1. Keep closing runtime regressions found during real play; add a focused regression test for each fixed failure.
-  2. Continue auditing the smaller remainder of `engine.js` for coherent render/runtime boundaries; title, setup, options, campaign and pause-menu presentation have already moved to `js/ui.js`. Keep input, game state and controller command behaviour unchanged.
-  3. Improve visibly distinct unit ranks/equipment and building silhouettes without replacing the current art fallback path.
-  4. Continue meaningful campaign and strategic-map variety, with objectives, prerequisites and mission ordering covered by checks.
-  5. Profile 200- and 400-population matches and verify navigation, save/load, audio and controller focus in an actual browser/Xbox session when available.
-- **Do not mark complete based only on static checks:** full-match balance, online resilience, animation quality, TV-distance readability, and Xbox Series S / Edge performance remain unverified until directly tested.
-
-
-### UI and renderer modularisation follow-on — 15 October 2026
-
-- **Implemented in source:** `js/ui.js` owns the main HUD/resource bar, pause menu, controller-remap presentation, title/setup/options screens, campaign list/briefing/objective overlays, save-slot screen, technology/objectives/help/About screens, radial command menu, control-group overlay, quick-select bar, generic list/title helpers, framed panels, match-end overlay and runtime-error drawing. The global function names and classic-script shared scope are preserved.
-- **Renderer ownership:** `js/render.js` owns world-object painters, procedural unit/siege/ship artwork, terrain palettes, particle drawing, and shared canvas shape/progress primitives (`bar`, `dia`, `poly`). The shared text primitive `tx` lives in `js/ui.js`.
-- **Logic boundaries:** `js/menus.js` retains menu models and controller actions; `js/campaign.js` retains mission data, objective checks, progression and events; `js/input.js` retains controller polling/rebinding; `engine.js` retains world/game state, selection/commands, zoom control, the top-level draw dispatcher and frame loop.
-- **Regression protection:** focused ownership tests cover the moved groups. The complete GitHub Actions test suite and atlas metadata/frame-bound checks passed on commit `43f9dde5d82d352a6a882033e8519dea89d12a4a`.
-- **Still unverified:** public Vercel deployment and physical Xbox Series S/Edge behaviour. Passing static/browser-source tests does not establish the game has been visually or performance-tested on Xbox.
-
-
-## Engine modularisation — kingdom systems
-
-- Extracted diplomacy relationships, hostility helpers, the controller diplomacy menu, resource tribute transfers, and villager-priority automation from `engine.js` into `js/kingdom.js`.
-- Loaded the module after `js/simulation.js` and before `engine.js`, preserving the classic-script shared scope and the existing controller commands.
-- Added the module to the offline service-worker cache and regression harnesses. This is a structural refactor only: it does not change diplomacy rules, tribute amounts, worker priorities, or save fields.
-
-
-## Campaign engine extraction
-
-- Moved campaign scenario data, arc ordering, progression state, objective evaluation, timed events and controller action handlers into `js/campaign.js`; campaign list/briefing/objective drawing is owned by `js/ui.js`.
-- Kept campaign helpers in the same shared classic-script scope, loaded after kingdom systems and before `engine.js`; mission logic remains controller-driven.
-- Updated offline caching and test harnesses. No mission goals, resource rules, or victory conditions were intentionally changed by this structural move.
-
-
-## Economy module extraction
-
-- Moved the market trade-row builder and buy/sell transaction handler into `js/economy.js`.
-- Kept existing trade prices, price movement, resource checks and controller menu callbacks unchanged; the module is loaded before `engine.js` and included in offline caching and simulation regression setup.
-
-
-## Controller menu module extraction
-
-- Moved new-game setup rows, options rows, controller handlers and score-limit choices into `js/menus.js`; title/setup/options drawing now belongs to `js/ui.js`.
-- Kept the current game-mode options, menu text, button navigation and setup restoration behavior intact. The module is loaded before the core engine and included in offline caching and source-level regression harnesses.
-
-
-## Minimap module extraction
-
-- Moved minimap terrain colour data, minimap texture refresh, world/minimap coordinate transforms, display filters and minimap drawing into `js/minimap.js`.
-- Kept player viewport, explored-terrain, team markers, pings, flares and King of the Hill marker rendering in place. Added the module to script-order checks, offline cache and simulation/KOTH harnesses.
-
-
-## Pathfinding module extraction
-
-- Moved A* route search, diagonal corner-cut prevention, path reconstruction, target-distance helpers and point-goal construction into `js/pathfinding.js`.
-- Preserved the shared reusable path workspace, route cost/heuristic, walkability checks and existing return format. Loaded before kingdom automation and included in offline caching, syntax checks and pathing/simulation regressions.
-
-- Campaign module owns arc ordering, mission selection, objective/progression state and campaign controller handlers; its screen drawing and the shared title background/list renderers live in `js/ui.js`.
-
-
-## In-match UI extraction continuation — 15 October 2026
-
-- **Implemented:** moved in-match overlay composition from `engine.js` into `drawGameOverlays(dt)` in `js/ui.js`. This includes the selection rectangle, controller cursor/crosshair and order hints, hover labels, live HUD selection, radial/control-group overlays, pause and match-end panels, performance overlay, and multiplayer match status.
-- **Preserved:** the engine still owns simulation stepping, cursor/input state, selection/order mutations, particles, screen routing and the call to `drawWorld()`. The UI helper reads the same shared state and calls the same existing UI/network entry points; no new input route or saved field was introduced.
-- **Regression coverage:** added `tests/in-match-overlay-ui-extraction.test.mjs` for script order, single ownership and overlay wiring. The workflow automatically discovers all `tests/*.test.mjs` files.
-- **Verification boundary:** this is a behaviour-preserving source extraction. It does not claim better frame rate or prove live pause/end/multiplayer screens on Xbox; browser and physical-controller checks remain required.
-
-
-### Cavalry Armour gameplay addition — 15 October 2026
-
-- Added a 34th technology, **Cavalry Armour +1**, to the Blacksmith research list with explicit cost/time/age metadata.
-- Combat adds the researched +1 armour point only against targets in `CAVARM` (scout cavalry, knights, camels, mamelukes, cataphracts, elephants, mangudai and elephant archers). Infantry and ranged armour effects remain class-specific; mounted ranged units can qualify for both classes in the current simplified model.
-- Researched barding has a battlefield-visible flank plate/seam cue. AI research priority rises when it sees at least three hostile mounted units.
-- Regression tests verify research reachability, required metadata, damage calculation, class membership, AI priority and the visual cue. Balance and readability still need live browser/Xbox playtesting.
-
-
-## Front-end screen routing extraction — 15 October 2026
-
-- **Implemented:** moved the mode-to-screen dispatch for title, multiplayer lobby, controller remapping, About/info, new-game setup, options, save slots, campaign list/briefing/objectives and technology tree into `drawFrontEndScreen()` in `js/ui.js`.
-- **Preserved:** `engine.js` still updates the animation clock and particles, warms sprites, clears the canvas, advances in-match notes, draws the world and delegates live overlays. A true/false return explicitly preserves the old early-return behavior for full-screen views, including the multiplayer fallback to the title screen when network integration is unavailable.
-- **Regression coverage:** added `tests/front-end-screen-routing-ui-extraction.test.mjs` for screen ownership, load order and routing-before-world-draw. CI discovers the new test automatically.
-- **Verification boundary:** structural refactor only; it makes no frame-rate claim. Menu/controller flows still need direct browser and Xbox validation.
-
-
-### Large-army targeting optimisation — 15 October 2026
-
-- `foe()` now uses a cached spatial bucket index for nearby hostile units rather than scanning all `S.us` on every query. The grid is refreshed for each simulation step, and the query keeps exact distance checks, diplomacy/hostility rules, live/garrison filters, and stable tie ordering.
-- Siege-building priority and the later building fallback are unchanged. The index's bucket arrays are reused to avoid recreating every local array each step.
-- Regression coverage compares spatial and linear target selection over a synthetic 368-unit set and guards the cache invalidation/path structure. Treat this as an O(N) build plus local-neighbour query design; actual gains depend on army distribution and still require console/browser profiling.
-
-
-### Large-army separation allocation follow-on — 15 October 2026
-
-- `SEP_GRID` now recycles its populated arrays through `SEP_BUCKET_POOL`: each tick empties existing buckets, clears the key map, and reuses array storage as new cells become occupied.
-- The small-army linear path (128 units or fewer) is unchanged. The large-army broadphase keeps the same half-tile neighbourhood and overlap/displacement formula; this change only reduces transient bucket-array allocation.
-- `tests/large-army-separation-pool.test.mjs` guards pool reuse and the small-army fallback. The 404-unit spatial targeting smoke remains a separate correctness check. Physical Xbox performance still needs profiling.
-
-
-### Infantry sword-line completion — 15 October 2026
-
-- Added **Two-Handed Swordsman** (45-second research, 300 food/100 gold, Imperial Age, requires Long Swordsman) and **Champion** (60 seconds, 750 food/350 gold, Imperial Age, requires Two-Handed Swordsman) to the Barracks.
-- Both technologies add real health and attack bonuses to existing and later-trained `mil` units through the shared upgrade ledger. `unitName()` returns the highest researched tier, so selection display, production menus and training feedback stay consistent.
-- Procedural battlefield artwork adds a longer blade for Two-Handed Swordsmen and a stronger gold helmet/sword silhouette for Champions. AI tech weighting increases for this line when facing at least three hostile infantry units.
-- Research integrity now expects 36 technology entries. Live balance, animation readability and Xbox TV-distance clarity remain unverified.
-
-### World entity factory boundary — 15 October 2026
-
-- **Implemented:** moved the shared `addN()`, `addB()`, and `addU()` world-entity factories from `engine.js` into `js/entities.js`. Placement rejection, technology-derived building health, town-gate ownership, unit initialisation, and the player auto-villager hookup are retained.
-- **Wiring:** loaded `js/entities.js` after `js/kingdom.js` (where the auto-villager helper is defined) and before the campaign/game engine. Added it to the offline service-worker cache and the source syntax/load-order harness.
-- **Regression coverage:** added `tests/entity-factory-ownership.test.mjs` to verify single ownership, key factory invariants, dependency order, syntax-harness inclusion, and offline caching.
-- **Also cleaned:** removed a duplicated generated-map audit comment while touching engine orchestration.
-- **Verification boundary:** the module extraction is committed; this session has not yet established the result of the complete test suite or physical Xbox testing.
-
-### Full map-construction extraction — 15 October 2026
-
-- **Implemented:** moved the complete `newGame()` routine (about 8.6 KB) from `engine.js` into `js/mapgen.js`. Map terrain layouts, resources, starting Town Centres/villagers, starting armies, civilization effects, connectivity retries, exploration/fog initialisation, initial camera placement and minimap refresh are now owned by the map-generation module.
-- **Preserved:** `start()` remains in `engine.js`; the global function name and controller/campaign call sites are unchanged. A function-local strict-mode directive preserves the strict semantics that applied when the function lived in `engine.js`.
-- **Regression coverage:** added `tests/new-game-mapgen-ownership.test.mjs` to verify single ownership, connectivity/retry guards, starting-world setup and startup wiring.
-- **Verification boundary:** the complete regression workflow is being rerun after the extraction. This source move does not by itself confirm successful Xbox/browser startup.
-
-
-### Conscription production upgrade — 15 October 2026
-
-- Added **Conscription** to the Castle research list with explicit 150 food/150 gold cost, 60-second research time and Imperial Age requirement.
-- After completion, eligible military queues count down at 4/3 of normal speed, including units already in a queue. The effect applies to Barracks, Archery Range, Stable, Siege Workshop, Castle, Monastery and Dock military production; villagers, trade carts, fishing ships, transport ships and trade cogs are explicitly excluded.
-- The AI gives this research additional priority after assembling at least eight military units. Regression coverage checks research access, costs/age/time, live queue-rate calculation, and excluded economy/trade units.
-- Exact balance and physical Xbox performance remain unverified.
-
-
-### Halberdier counter-unit tier — 15 October 2026
-
-- Added **Halberdier** as the final Barracks spear-line technology (300 food/200 gold, 45 seconds, Imperial Age, requires Pikeman).
-- It applies the shared health/attack upgrade pathway to current and later-trained spear units and adds a dedicated +6 anti-cavalry bonus on top of the spear unit's normal target bonus. The target list uses the spear unit's existing `bn` list, preserving current counter definitions.
-- Unit names, AI research priority and battlefield polearm visuals now resolve to Halberdier after research. The research-integrity suite expects 38 technology records.
-- Live combat balance and TV-distance readability still require real browser/Xbox playtesting.
-
-### Rival AI module boundary — 15 October 2026
-
-- **Implemented:** extracted the dedicated rival AI block (~22 KB) from `js/simulation.js` into `js/ai.js`. The fixed-step simulation still calls the same `ai(dt)` entry point.
-- **Retained:** expansion, villager balancing, age research, technology priorities based on hostile unit composition, building repair, defensive responses, grouped attack waves, ship repair/retreat, galleys focusing enemy fleets and fish-ship evasive behaviour.
-- **Wiring:** loaded AI immediately after simulation and before pathfinding; added the file to offline caching, syntax/load-order checks, simulation smoke and the static gameplay regression bundles.
-- **Verification:** the existing source checks continue to inspect the combined simulation-plus-AI source bundle. This extraction is not a claim that strategy balance or 400-unit performance has been measured on Xbox.
+1. Run the complete current check suite and fix any failures before additional refactors.
+2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
+3. Audit technology effects and AI decisions with focused tests where gaps are found.
+4. Test naval/map connectivity and campaign completion across scenarios.
+5. Profile large armies and improve the most visible graphics defects based on live observation.
+6. Validate the exact deployment and perform physical Xbox controller/performance testing when available.
