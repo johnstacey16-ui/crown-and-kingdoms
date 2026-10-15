@@ -200,7 +200,7 @@ globalThis.__CK_TEST__ = {
     return { index: cmp.i, count: events.length, invalid };
   },
   exerciseAutosaveOverwrite() {
-    this.start(654321);
+    if (!S || !Array.isArray(S.us) || !cmp) throw new Error('Autosave regression requires an active campaign state');
     const manualKeys = ['ck_save', 'ck_save2', 'ck_save3'];
     const manualBefore = manualKeys.map(key => localStorage.getItem(key));
     if (!saveG(true)) throw new Error('Initial autosave write failed');
