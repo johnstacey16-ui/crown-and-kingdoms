@@ -6,8 +6,8 @@ const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
-if (!game.includes('<script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
-if (!game.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
+if (!html.includes('<script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
+if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
   ['age advancement uses reference resource costs and research times', /const AG=\[\{n:'Founding Age'\},\{n:'Feudal Age',cost:\{f:500\},t:130,needs:\['lumber','mill','mine'\]\},\{n:'Castle Age',cost:\{f:800,g:200\},t:160,needs:\['bar','rng','stable','smith','market','dock','tower','wall','gate','outpost'\]\},\{n:'Imperial Age',cost:\{f:1000,g:800\},t:190,needs:\['siege','univ','monastery','castle'\]\}\]/.test(game)],
