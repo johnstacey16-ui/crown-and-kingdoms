@@ -339,3 +339,11 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Both technologies add real health and attack bonuses to existing and later-trained `mil` units through the shared upgrade ledger. `unitName()` returns the highest researched tier, so selection display, production menus and training feedback stay consistent.
 - Procedural battlefield artwork adds a longer blade for Two-Handed Swordsmen and a stronger gold helmet/sword silhouette for Champions. AI tech weighting increases for this line when facing at least three hostile infantry units.
 - Research integrity now expects 36 technology entries. Live balance, animation readability and Xbox TV-distance clarity remain unverified.
+
+### World entity factory boundary — 15 October 2026
+
+- **Implemented:** moved the shared `addN()`, `addB()`, and `addU()` world-entity factories from `engine.js` into `js/entities.js`. Placement rejection, technology-derived building health, town-gate ownership, unit initialisation, and the player auto-villager hookup are retained.
+- **Wiring:** loaded `js/entities.js` after `js/kingdom.js` (where the auto-villager helper is defined) and before the campaign/game engine. Added it to the offline service-worker cache and the source syntax/load-order harness.
+- **Regression coverage:** added `tests/entity-factory-ownership.test.mjs` to verify single ownership, key factory invariants, dependency order, syntax-harness inclusion, and offline caching.
+- **Also cleaned:** removed a duplicated generated-map audit comment while touching engine orchestration.
+- **Verification boundary:** the module extraction is committed; this session has not yet established the result of the complete test suite or physical Xbox testing.
