@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const guard = save.indexOf("if(!j||j.v!==1||!Number.isInteger(j.sz)");
@@ -33,4 +34,39 @@ assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.is
 assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
 assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
 assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result');
+
+// Exercise the real loader's early-rejection path without booting the renderer.
+const validShape = () => ({
+  v: 1, sz: 96, us: [], bs: [], nodes: [],
+  res: [{ f: 0, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }],
+  age: [0, 0], tech: [{}, {}], pl: [{}, {}],
+  wt: '0'.repeat(96 * 96), ex: '0'.repeat(96 * 96),
+});
+function attemptLoad(raw) {
+  const sentinel = { untouched: true };
+  const messages = [];
+  const sandbox = {
+    localStorage: { getItem: () => raw },
+    skey: () => 'slot-1',
+    note: message => messages.push(message),
+    SZ: [72, 96, 128, 176],
+    S: sentinel,
+  };
+  vm.runInNewContext(save, sandbox, { filename: 'js/save.js' });
+  const result = sandbox.loadG();
+  return { result, state: sandbox.S, messages };
+}
+for (const [label, raw] of [
+  ['invalid JSON', '{not-json'],
+  ['unsupported size', JSON.stringify({ ...validShape(), sz: 77, wt: '0'.repeat(77 * 77), ex: '0'.repeat(77 * 77) })],
+  ['invalid terrain code', JSON.stringify({ ...validShape(), wt: 'x' + '0'.repeat(96 * 96 - 1) })],
+  ['invalid explored code', JSON.stringify({ ...validShape(), ex: 'x' + '0'.repeat(96 * 96 - 1) })],
+  ['negative resource', JSON.stringify({ ...validShape(), res: [{ f: -1, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }] })],
+]) {
+  const attempt = attemptLoad(raw);
+  assert.equal(attempt.result, false, `${label} must be rejected`);
+  assert.equal(attempt.state.untouched, true, `${label} must not replace the current game state`);
+  assert.ok(attempt.messages.includes('No valid save found'), `${label} must show a recoverable message`);
+}
+
 console.log('save-validation: malformed JSON, missing arrays, invalid map dimensions and incomplete terrain data are rejected before restore');
