@@ -646,7 +646,14 @@ assert.equal(causewaySkirmish.layout, 12, 'The selectable Causeway layout must l
 assert.equal(causewaySkirmish.mapAudit?.landReachable, true, 'All four skirmish starting land regions must connect across the shallow crossings');
 assert.equal(causewaySkirmish.mapAudit?.starts, 4, 'The four-kingdom Causeway map must audit every starting position');
 assert.ok(causewaySkirmish.mapAudit?.waterCells > 0, 'The four-kingdom Causeway map must retain a navigable-water corridor');
-console.log('causeway-layout-smoke: layout 12 generated for four kingdoms with connected starting land and a live water corridor');
+const causewayShipStart = game.beginNavalMove();
+for (let tick = 0; tick < 900; tick += 1) game.tick(1 / 30);
+const causewayShipAfter = game.state().navalShip;
+assert.ok(causewayShipAfter, 'The ship used for the Causeway water-route test must remain in the simulation');
+assert.ok(Math.hypot(causewayShipAfter.x - causewayShipStart.start.x, causewayShipAfter.y - causewayShipStart.start.y) > 4,
+  'A ship must traverse the actual Causeway layout water corridor, not merely spawn on water');
+assert.equal(causewayShipAfter.water, true, 'The Causeway ship must remain on navigable water during the route test');
+console.log('causeway-layout-smoke: layout 12 generated for four kingdoms with connected land and a traversable ship route');
 
 game.start(123456);
 const causewayCampaign = game.startCampaign(16);
