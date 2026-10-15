@@ -193,3 +193,11 @@ The roadmap is intentionally consolidated: current state belongs in the sections
 - This is a maintainability change, not a claim of measured frame-rate improvement. Xbox Edge and live deployment still require a successful deployment and device validation.
 - Continued the extraction with `paintTile()`, `paintTileDetail()` and `drawHill()` moved into `js/render.js`; added regression assertions that these helpers live in the renderer rather than `engine.js`. Existing global helper names and drawing bodies are preserved. This is structural cleanup only; no performance gain is claimed without runtime profiling.
 - Extended the renderer extraction to `chunkOf()` and `drawChunks()` so terrain chunk caching and chunk drawing sit alongside tile, hill, world, unit and relic rendering. Regression assertions cover both helpers; function bodies and names are preserved.
+
+## 15 October 2026 — graphics brief and project information
+
+- Completed the applicable documentation brief against the current source: the main page remains the single canonical entry point, with map generation, simulation and rendering split into ordered classic-script modules.
+- Refined the King of the Hill landmark's rock planes, ground shadow and flag highlights in `js/render.js`; its footprint, world position and procedural fallback remain intact.
+- Updated the in-game About panel to describe local SVG atlases, team-colour/animation metadata, procedural fallback art, synthesised spatial/adaptive audio, the limited scope of the Realtime lobby, and the fact that browser/deployment/Xbox validation is not yet confirmed.
+- Added a regression test for the accuracy of that About copy. Updated README and browser technology roadmap to match the current module layout and scope.
+- Remaining graphics-brief gates: run the complete Node checks, inspect sprites/animations in a real browser, test audio autoplay/resume and controller navigation, and profile larger armies on the target Xbox. Metadata checks alone cannot establish visual quality or frame rate.
