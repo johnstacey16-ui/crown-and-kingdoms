@@ -47,7 +47,7 @@ assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\
 const validShape = () => ({
   v: 1, t: 0, sz: 96, us: [], bs: [], nodes: [], pl: {},
   res: [{ f: 0, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }],
-  age: [0, 0], tech: [{}, {}], pl: [{}, {}],
+  age: [0, 0], tech: [{}, {}],
   wt: '0'.repeat(96 * 96), ex: '0'.repeat(96 * 96),
 });
 function attemptLoad(raw) {
