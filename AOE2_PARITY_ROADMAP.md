@@ -44,7 +44,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 2.1 Technologies and unit progression
 - **Present:** age-gated research and shared effects for many upgrades, including infantry sword-line ranks, Pikeman/Halberdier, Cavalry Armour, Conscription and Husbandry. Husbandry increases mounted-unit movement by 10%; the implementation includes the mounted special-unit roster and AI research valuation.
-- **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback.
+- **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback. AI now applies a stronger penalty to advanced melee/ranged attack research when it has fewer than two matching troops; `tests/ai-research-priority.test.mjs` guards this. Latest workflow execution is pending.
 - Ensure each technology has a real, testable gameplay effect rather than a UI-only entry. Check stacking, repeated research prevention and save/load persistence.
 - Keep balance values labelled as project rules; do not imply exact official AoE2 values unless independently verified.
 
@@ -59,14 +59,14 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 - Ensure procedural map retries terminate safely and every generated starting position has valid routes and resources.
 
 ### 2.4 Campaign and scenarios
-- **Present:** a 20-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
+- **Present:** a 19-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
 - **Partial:** play every mission to verify briefing, objective order, timer/event scheduling, victory/defeat conditions, unlocks and save/resume. Expand variety only after existing missions are completable.
 - Add automated checks for mission prerequisites and objective reachability; reserve actual mission completion for browser playtests.
 
 ### 2.5 Economy, diplomacy and match rules
 - **Present:** gathering, farms and reseeding, market trading, relic income, trade routes, tribute, player-controlled Enemy/Neutral/Ally relationships, victory modes and population-limit options.
 - **Partial:** test economy pacing, inaccessible resources, failed trade routes, allied support, hostility transitions and each victory condition. Treaty duration, AI-negotiated diplomacy, custom tribute amounts and comprehensive allied victory rules remain gaps.
-- **Implemented, regression check pending:** AI military research now scores infantry, ranged and cavalry armour against the AI's own deployed army composition, and values melee/ranged attack upgrades when those classes are fielded. Enemy composition still influences defensive and counter-tech priorities; the AI no longer treats enemy ranged/infantry counts as the main reason to buy armour for its own ranged/infantry classes. Research scoring also now penalizes armour, Husbandry and attack upgrades when the matching unit class is absent, reducing early resource waste. Latest automated verification is pending.
+- AI military research scores infantry, ranged and cavalry armour against the AI's own deployed army composition, and values melee/ranged attack upgrades when those classes are fielded. Enemy composition still influences defensive and counter-tech priorities; enemy ranged/infantry counts do not override the need for the AI's own units. Research scoring penalizes armour, Husbandry and standard attack upgrades when matching classes are absent. The latest change also penalizes advanced melee/ranged attack upgrades (`atkM2`/`atkR2`) by 28 priority points when fewer than two matching troops are fielded, with focused regression assertions. The full workflow for the latest commits is pending.
 - Keep population settings distinct from actual housing capacity; the chosen ceiling is not a free grant of population slots.
 
 ## Priority 3 — visuals, audio and feedback
