@@ -16,8 +16,8 @@ assert.match(ai, /if\(k==='armI'&&humanRanged>=3\)score\+=12/,
 
 assert.match(ai, /const navalThreatCount=S\.us\.filter\(e=>isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\.sh&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\.length/,
   'AI fleet planning must count hostile combat ships without counting fishing, transport or trade ships');
-assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
-  'AI war-galley production must scale from a four-ship baseline up to twelve against hostile fleets');
+assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length\+bl\.filter\(b2=>b2\.k==='dock'\)\.reduce\(\(n,b2\)=>n\+b2\.q\.filter\(q=>q==='gal'\)\.length,0\)<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
+  'AI war-galley production must scale from a four-ship baseline to twelve and include queued ships to prevent overproduction');
 
 assert.match(ai, /if\(S\.age\[t\]>=1&&vil\.length>=9&&!cnt\('dock'\)&&\(arm\.length>=6\|\|navalThreatCount>0\)&&\(navalThreatCount>0\|\|S\.nodes\.some\(n=>n\.fi&&Math\.hypot\(n\.x-tc\.x,n\.y-tc\.y\)<24\)\)\)aiDock\(vil,tc,t\)/,
   'AI must attempt a dock when hostile combat ships threaten it, even without a nearby fish node');
