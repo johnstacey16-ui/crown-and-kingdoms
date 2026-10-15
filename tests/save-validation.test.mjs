@@ -20,6 +20,9 @@ for (const required of [
   "typeof j.ex!=='string'",
   'j.wt.length!==j.sz*j.sz',
   'j.ex.length!==j.sz*j.sz',
+  '!/^[012]+$/.test(j.wt)',
+  '!/^[01]+$/.test(j.ex)',
+  '!j.res.every(r=>[\'f\',\'w\',\'g\',\'s\'].every(k=>Number.isFinite(r[k])&&r[k]>=0))',
 ]) {
   assert.ok(validation.includes(required), `save validation must reject incomplete or malformed field: ${required}`);
 }
