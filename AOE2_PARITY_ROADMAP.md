@@ -13,6 +13,8 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **AI roster correctness — improved, not complete:** AI strategic counts now use living units; garrisoned units are excluded from active worker and combat/naval pools. This prevents stale dead records and sheltered units from suppressing replacement production or inflating field strength. Regression test added; full skirmish balance and Xbox performance still require live testing.
+
 - **Naval AI response — improved, not complete:** hostile combat ships can trigger dock construction even when no nearby fish node is present, and war-galley production cap scales from 4 to 12 by threat count. Source-level regression guards are in place; map-valid dock placement, actual ship production, combat tactics and Xbox performance remain unverified in live play.
 
 - **AI naval production — improved:** war-galley cap scales from a four-ship baseline to a maximum of twelve based on hostile combat ships; fishing, transport and trade ships are excluded from the threat count. Regression guard added. Still unverified in a full naval match and on Xbox hardware.
