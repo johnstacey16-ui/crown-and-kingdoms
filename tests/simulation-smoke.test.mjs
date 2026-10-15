@@ -159,9 +159,8 @@ globalThis.__CK_TEST__ = {
     }
   },
   auditAttackResearchDamage() {
-    const attacker = S.us.find(u => u.t === 0 && u.k === 'mil' && u.hp > 0);
-    const target = S.us.find(u => u.t === 1 && u.k === 'mil' && u.hp > 0);
-    if (!attacker || !target) throw new Error('Attack research audit requires opposing infantry');
+    const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
+    const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
     const tech = S.tech[0], oldM = tech.atkM, oldM2 = tech.atkM2, oldR = tech.atkR, oldR2 = tech.atkR2;
     const oldHp = target.hp, oldDead = target.dead;
     const damage = (key, value) => {
