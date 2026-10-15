@@ -75,3 +75,11 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 - The current audio classifier guard is a small runtime-hardening fix, not a reason to change the audio architecture. Preserve lazy AudioContext creation, browser autoplay handling and graceful fallback.
 - The next refactor is UI extraction, but gameplay stability takes precedence if a new runtime error is reported. Do not change save payloads, controller mappings, simulation tick order or multiplayer message contracts as part of a code-movement-only change.
 - Before claiming release readiness, verify the exact latest commit's checks and deployment status. The public Vercel build was previously blocked by a build-rate limit; no Xbox or live-browser acceptance should be inferred from source checks alone.
+
+
+### UI extraction follow-on — 15 October 2026
+
+- Moved `drawPerfOverlay(dt)`, `ovr()` and `drawOv()` from `engine.js` into `js/ui.js` without rewriting their function bodies.
+- Added `js/ui.js` to `index.html` before `engine.js` (and before simulation's script slot), the service-worker core cache, source syntax checks and browser-foundation regression checks.
+- The module depends on shared classic-script globals at call time; no new duplicate state declarations were introduced. This is a maintainability extraction only and does not claim a performance improvement.
+- Next extraction should target a cohesive UI group with minimal hidden dependencies; avoid moving save-slot UI or campaign controls until their shared state and action dependencies have been mapped.
