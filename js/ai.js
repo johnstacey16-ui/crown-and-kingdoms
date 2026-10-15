@@ -183,9 +183,9 @@ aiRebal(vil,R,t);{let thr=false,intr=null,best=Infinity;for(const e of S.us){if(
 const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
- const invaders=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-(base.x+base.s/2),e.y-(base.y+base.s/2))<13)
-  .sort((a,b)=>(Math.hypot(a.x-(base.x+base.s/2),a.y-(base.y+base.s/2))-(['ram','mang','scor','treb','bomb'].includes(a.k)?7:0))-(Math.hypot(b.x-(base.x+base.s/2),b.y-(base.y+base.s/2))-(['ram','mang','scor','treb','bomb'].includes(b.k)?7:0)));
- if(invaders.length){distress={base,enemy:invaders[0]};break}
+ let intruder=null,best=Infinity;const bx=base.x+base.s/2,by=base.y+base.s/2;
+ for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-bx,e.y-by);if(d>=13)continue;const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?7:0);if(score<best){best=score;intruder=e}}
+ if(intruder){distress={base,enemy:intruder};break}
 }
 if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
  const responders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&u.k!=='mon'&&Math.hypot(u.x-(distress.base.x+distress.base.s/2),u.y-(distress.base.y+distress.base.s/2))<32)
