@@ -233,3 +233,11 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) completed successfully. Its `node-checks` job passed script/source invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation.
 - The preceding campaign save/load round-trip failure came from an over-escaped digit matcher in the indexed entity-reference validator. The current validator accepts valid references such as `u12` while retaining the range check, and the campaign round-trip passes in the full CI suite.
 - This checkpoint is automated-test evidence only. Live browser, deployment, storage-quota/interrupted-write behaviour, and physical Xbox Series S / Edge performance remain unverified.
+
+### Current CI checkpoint — 15 October 2026
+
+- Latest completed green workflow at this checkpoint: [run #926](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744134109), for commit `488638d5593385382bbea4378973ef3fb67df441`.
+- All three configured stages passed: source parsing/invariants, all standalone regression tests, and local atlas metadata/frame-bound validation.
+- The campaign save/load indexed-reference rejection is fixed and covered by the passing regression suite. Do not reopen it without a new failing reproduction.
+- CI does not prove browser runtime correctness or Xbox hardware performance. The next technical step is behavioural runtime coverage and repeatable small/medium/large simulation profiling, not more documentation-only checkpoints.
+
