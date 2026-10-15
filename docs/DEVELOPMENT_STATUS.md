@@ -9,6 +9,8 @@
 This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
 ## Latest implementation checkpoint
+- **New gameplay change (15 October): adaptive AI naval force size.** Rival AI now targets a war-galley fleet cap of `min(12, max(4, 2 + 2 × hostile combat ships))`, instead of stopping at four galleys regardless of the player's fleet. Fishing, transport and trade ships do not inflate the threat count. Added a regression guard in `tests/ai-research-priority.test.mjs`; workflow result pending at this checkpoint. This changes the production cap only; tactical naval pathing and physical Xbox performance still need live playtesting.
+
 
 - **Latest code/test checkpoint:** `f66ffa2036fb7ddba011900d835870628ff8cd2a` — real-engine combat checks verify attack-research bonuses and infantry, archer and cavalry armour reductions, following the AI research-priority fix.
 - **Green code workflow:** [#38747786721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747786721) completed successfully for the corrected campaign progression/test commits, including source checks, all standalone regression tests and atlas validation.
