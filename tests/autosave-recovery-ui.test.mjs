@@ -17,6 +17,6 @@ test('load menu exposes one rolling autosave recovery action separately from man
 test('browser roadmap records autosave as implemented but not fully verified', () => {
   const roadmap = readFileSync(new URL('../docs/BROWSER_TECH_ROADMAP.md', import.meta.url), 'utf8');
   assert.match(roadmap, /Periodic local autosave is implemented/);
-  assert.match(roadmap, /multiplayer pause\/blur autosaves are suppressed/);
+  assert.match(roadmap, /pause\/blur-triggered autosaves are suppressed while multiplayer is running/);
   assert.match(roadmap, /storage-quota, interrupted-write and live-browser recovery behaviour still need verification/);
 });
