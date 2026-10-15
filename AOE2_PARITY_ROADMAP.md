@@ -119,27 +119,18 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors. Recent commits added autosave-policy and King's Causeway regression tests, and corrected the pause/blur path so a live multiplayer session is not written as a local autosave. Those new tests still need execution; do not assume they pass. Earlier save-validation, sprite-atlas, minimap/fog ownership and unit-separation checks are historical results, not verification of the latest commit.
-2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
-3. Audit technology effects and AI decisions with focused tests where gaps are found.
-4. Test naval/map connectivity and campaign completion across scenarios.
-5. Profile large armies and improve the most visible graphics defects based on live observation.
-6. Validate the exact deployment and perform physical Xbox controller/performance testing when available.
+1. Verify the corrected exact-total 100/200/400-unit simulation benchmark in the workflow for commit `c64e353e0487c51c0d3922c2211bb74d32fd6556`. Report Node runner timings as simulation-only measurements, not Xbox frame-rate claims.
+2. Continue substantive technology-effect, AI strategy/naval, and campaign objective/event work using the real-engine smoke harness where possible.
+3. Fix the highest-impact reproducible behaviour revealed by runtime coverage; avoid adding duplicate source-only audits for already covered behaviour.
+4. Exercise cold start, pause/resume, save/load, complete campaign missions and naval routes in a live browser.
+5. Continue cohesive engine/UI extraction only when it preserves script order, shared state and controller behaviour, with focused integration coverage.
+6. Confirm deployment and physically test controller-only play and 400-unit performance on Xbox Series S / Edge when hardware access is available.
 
+## Latest implementation checkpoint — 15 October 2026
 
-## Latest verification checkpoint — 15 October 2026
-
-- Current verified commit at this checkpoint: `10a9a2f7209236385b57d31e7f71f1e844147d78`.
-- GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) passed the source checks, all standalone regression tests, and atlas metadata/frame validation.
-- The prior campaign save/load round-trip rejection was caused by an over-escaped digit matcher in `js/save.js`; the corrected indexed-reference validator is covered by the passing campaign smoke test.
-- No physical Xbox validation or complete live-browser playthrough is claimed by this automated result.
-
-## Development checkpoint — 15 October 2026
-
-- Latest completed CI checkpoint before this documentation refresh: commit `488638d5593385382bbea4378973ef3fb67df441`, workflow [#926](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744134109), conclusion: **success**.
-- Verified by that workflow: game-script/source checks, every standalone regression test, and atlas metadata/frame-bound validation.
-- The previous campaign save/load round-trip regression is resolved in `js/save.js`; the complete standalone regression suite passed afterward.
-- This does **not** verify full campaign playthroughs, live browser/deployment operation, multiplayer correctness, 400-unit performance, or physical Xbox compatibility.
-- **Next development focus:** build on the passing baseline with behavioural/runtime integration tests and measured simulation performance. Do not repeat the fixed save-validator investigation unless a new reproducible regression appears.
-- For the consolidated checkpoint and work log, see [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md).
-
+- Code commit: `c64e353e0487c51c0d3922c2211bb74d32fd6556` corrects the simulation smoke benchmark to target 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
+- The benchmark warms both sides of the current 64-unit separation fallback threshold and reports median/range across three simulation-only samples for each population.
+- CI for this commit was still running at the time of this documentation edit. The benchmark must not be marked verified until workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completes successfully.
+- Previous verified code checkpoint: `a2187d200dfcd6e2c75d339c5fda8fbd3fae8039`, workflow [#947](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746092399), successful. Later docs workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015) also passed.
+- Earlier 120/220/420 total-unit timings motivated the threshold change, but they are not substitutes for the corrected 100/200/400 total-unit run.
+- Automated CI is not a full live browser playthrough, production deployment confirmation, multiplayer validation or physical Xbox verification.
