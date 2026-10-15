@@ -18,6 +18,7 @@ for (const required of [
   '!Array.isArray(j.age)',
   '!Array.isArray(j.tech)',
   "!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl)",
+  '!j.cam||typeof j.cam!==\'object\'||Array.isArray(j.cam)||!Number.isFinite(j.cam.x)||!Number.isFinite(j.cam.y)',
   '!j.us.every(u=>u&&typeof u===\'object\'&&!Array.isArray(u)&&typeof u.k===\'string\'&&!!U[u.k]&&Number.isInteger(u.t)&&u.t>=0&&u.t<j.res.length&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&Number.isFinite(u.hp)&&u.hp>=0&&u.x>=0&&u.y>=0&&u.x<j.sz&&u.y<j.sz)',
   '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&!!B[b.k]&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isFinite(b.hp)&&b.hp>=0&&Number.isFinite(b.mh)&&b.mh>0&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
   '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&[\'f\',\'w\',\'g\',\'s\'].includes(n.k)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
@@ -50,7 +51,7 @@ assert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a f
 const validShape = () => ({
   v: 1, t: 0, sz: 96, us: [], bs: [], nodes: [], pl: {},
   res: [{ f: 0, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }],
-  age: [0, 0], tech: [{}, {}],
+  age: [0, 0], tech: [{}, {}], cam: { x: 0, y: 0 },
   wt: '0'.repeat(96 * 96), ex: '0'.repeat(96 * 96),
 });
 function attemptLoad(raw) {
@@ -80,6 +81,9 @@ for (const [label, raw] of [
   ['invalid explored code', JSON.stringify({ ...validShape(), ex: 'x' + '0'.repeat(96 * 96 - 1) })],
   ['negative resource', JSON.stringify({ ...validShape(), res: [{ f: -1, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }] })],
   ['missing resources', JSON.stringify({ ...validShape(), res: undefined })],
+  ['missing camera state', JSON.stringify((({ cam, ...rest }) => rest)(validShape()))],
+  ['non-finite camera position', JSON.stringify({ ...validShape(), cam: { x: 0, y: 'invalid' } })],
+  ['array camera state', JSON.stringify({ ...validShape(), cam: [] })],
   ['unit outside map', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 200, y: 1 }] })],
   ['unknown unit type', JSON.stringify({ ...validShape(), us: [{ k: 'not-a-unit', t: 0, x: 1, y: 1 }] })],
   ['unit missing health', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 1, y: 1 }] })],
