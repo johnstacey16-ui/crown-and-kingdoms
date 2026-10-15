@@ -94,4 +94,26 @@ for (const [label, raw] of [
   assert.ok(attempt.messages.includes('No valid save found'), `${label} must show a recoverable message`);
 }
 
+// A broken optional IndexedDB adapter must not prevent the primary localStorage write.
+const writes = new Map();
+const backupFailureSandbox = {
+  window: { CK_STORAGE: { mirrorSave() { throw new Error('IndexedDB unavailable'); } } },
+  localStorage: {
+    setItem(key, value) { writes.set(key, value); },
+    getItem(key) { return writes.get(key) ?? null; },
+  },
+  S: {
+    nodes: [], bs: [], us: [], rel: [], wt: [], ex: [], res: [], age: [], tech: [], ai: [],
+    t: 0, pal: 0, kh: [], vc: [], px: [], civ: [0, 1], dip: [], vp: [],
+  },
+  W: 72, vm: 0, scoreLimit: 1200, aip: 0, cmp: null, diff: 0, cam: {},
+  slot: 0, skey: () => 'ck_save', hs: 0,
+  note() {},
+};
+vm.runInNewContext(save, backupFailureSandbox, { filename: 'js/save.js' });
+assert.equal(backupFailureSandbox.saveG(true), true,
+  'a failing backup adapter must not fail the primary save');
+assert.ok(writes.has('ck_autosave'),
+  'the primary rolling autosave must be written even when the backup adapter throws');
+
 console.log('save-validation: malformed JSON, missing arrays, invalid map dimensions and incomplete terrain data are rejected before restore');
