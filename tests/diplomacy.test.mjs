@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
+assert.match(html, /for\(let t=1;t<S\.teamN;t\+\+\)if\(diplomacyRelation\(0,t\)==='ally'&&\(S\.bs\.some\(b=>b\.t===t&&b\.hp>0\)\|\|S\.us\.some\(u=>u\.t===t&&u\.hp>0\)\)\)allies\.push\(t\)/,
+  'Tribute recipients must include surviving allied kingdoms without a Town Centre');
 assert.match(html, /const DIPLOMACY_STATES=\['enemy','neutral','ally'\]/,
   'Diplomacy must use explicit enemy, neutral and ally states');
 assert.match(html, /function createDiplomacy\(n,source=null\)\{[\s\S]{0,650}d\[a\]\[b\]=d\[b\]\[a\]=rel/,
