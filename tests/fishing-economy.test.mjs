@@ -12,6 +12,6 @@ assert.match(html, /q\.k==='dock':q\.k==='tc'/, 'water units must return gathere
 assert.match(html, /S\.res\[u\.t\]\[u\.ct\]\+=u\.car/, 'delivered cargo must be credited to the owning kingdom');
 assert.match(html, /u\.car>=\(S\.tech\[u\.t\]\.carry\?15:CAP\)/, 'gatherers must return when their carry capacity is reached');
 assert.match(html, /my\.filter\(u=>u\.k==='fish'\)\.length<3/, 'AI fishing-ship production must be capped');
-assert.match(html, /for\(const s of fish\.filter\(u=>u\.o==='i'\)\)/, 'idle AI fishing ships must receive fishing orders');
+assert.match(html, /for\(const s of fish\.filter\(u=>u\.o==='i'&&S\.t>=\(u\.fleeUntil\|\|0\)\)\)/, 'idle AI fishing ships must receive fishing orders after any flee cooldown expires');
 
 console.log('fishing-economy: static assertions passed');
