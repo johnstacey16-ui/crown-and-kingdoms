@@ -144,7 +144,7 @@ Static source checks remain useful for regressions, but they are not proof of co
 ### Maintenance / technology audit — 14 October 2026
 
 - **Research request integrity:** the research function now validates the match, kingdom and building before work starts; refuses undefined technologies and research unavailable at that building; and allows age advancement only from a Town Centre. Invalid requests exit before costs are deducted.
-- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 32 technology entries after adding class-specific Cavalry Armour.
+- **Data-driven checks:** a new test parses the current technology and building definitions. It verifies that every defined technology appears in at least one building research list, each technology defines costs/research time/age, all prerequisite keys resolve, and prerequisites themselves are reachable. Current table count: 34 technology entries after adding class-specific Cavalry Armour.
 - **Effects remain partial:** generic hit-point and attack upgrades, construction speed, farm capacity, defensive attack effects and building health still have targeted checks. This does not establish complete AoE2 DE unit/technology parity or prove balance in live matches.
 - **Rank presentation:** UI labels derive from the owning kingdom's completed technology ledger, so existing units and later-trained units show the same researched rank. Internal IDs and current sprite keys remain unchanged; no exact AoE2 DE appearance or complete roster is implied.
 
@@ -302,7 +302,7 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 ### Cavalry Armour gameplay addition — 15 October 2026
 
-- Added a 32nd technology, **Cavalry Armour +1**, to the Blacksmith research list with explicit cost/time/age metadata.
+- Added a 34th technology, **Cavalry Armour +1**, to the Blacksmith research list with explicit cost/time/age metadata.
 - Combat adds the researched +1 armour point only against targets in `CAVARM` (scout cavalry, knights, camels, mamelukes, cataphracts, elephants, mangudai and elephant archers). Infantry and ranged armour effects remain class-specific; mounted ranged units can qualify for both classes in the current simplified model.
 - Researched barding has a battlefield-visible flank plate/seam cue. AI research priority rises when it sees at least three hostile mounted units.
 - Regression tests verify research reachability, required metadata, damage calculation, class membership, AI priority and the visual cue. Balance and readability still need live browser/Xbox playtesting.
