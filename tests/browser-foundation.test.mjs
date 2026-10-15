@@ -53,6 +53,11 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(!engineSource.includes('function drawPerfOverlay(dt)'));
   assert.ok(!engineSource.includes('const ovr=()=>'));
   assert.ok(!engineSource.includes('function drawOv()'));
+  assert.ok(ui.includes('function treeLines()'));
+  assert.ok(ui.includes('function drawTree()'));
+  assert.ok(ui.includes('function drawObj()'));
+  assert.ok(ui.includes('function drawInfo2()'));
+  assert.ok(!engineSource.includes('function treeLines()'));
   assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/state.js'));
   assert.ok(html.indexOf('./js/state.js') < html.indexOf('./js/mapgen.js'));
   assert.ok(html.indexOf('./js/mapgen.js') < html.indexOf('./js/audio.js'));
