@@ -96,4 +96,4 @@ Q('f',6,-3,7,120);Q('w',-7,-2,18,100);Q('w',3,-8,14,100);Q('g',9,3,7,300);Q('s',
 addB(t,'tc',bx-1,by-1,true);for(let i=0;i<5;i++)addU(t,'vil',bx+(i-2)*.8,by+2.5)});
 {const p=S.bs.find(b=>b.t===0&&b.k==='tc');if(tries<8&&p&&S.us.some(u=>u.t>0&&u.k==='vil'&&!path(u,goalNear(p,1))))return newGame(tries+1)}
 S.civ=Array(S.teamN);S.civ[0]=civ;const usedCivs=new Set([civ]);for(let t=1;t<S.teamN;t++){let c=t===1&&aiCiv>=0?aiCiv:(civ+1+((S.r()*(CIV.length-1))|0))%CIV.length,guard=0;while(usedCivs.has(c)&&guard++<CIV.length)c=(c+1)%CIV.length;S.civ[t]=c;usedCivs.add(c)}for(let t=0;t<S.teamN;t++)CIV[S.civ[t]].fx(t);
-ctr(10.5,H-9.5);cur={x:CW/2,y:CH/2};fog();mmUp()}
+S.mapAudit={...S.mapAudit,attempts:tries+1};ctr(10.5,H-9.5);cur={x:CW/2,y:CH/2};fog();mmUp()}
