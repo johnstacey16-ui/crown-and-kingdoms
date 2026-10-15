@@ -26,6 +26,8 @@ const st=mv?1:(u.o==='a'&&u.cd>0&&u.cd<.45)?2:(u.o==='g'||u.o==='b')?3:0,fr=st==
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if(S.sel.includes(u)){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
 /* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Prefer the new upright atlas for villagers, infantry and archers; validated legacy atlas frames and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,u.dr|0,gt+(u.rp||0)):null;if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
+/* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
+if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}
 /* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */
 {
  const T=S.tech[u.t]||{},metal='#d8c49a',gold='#f0c35e',edge='#3b2a17';
