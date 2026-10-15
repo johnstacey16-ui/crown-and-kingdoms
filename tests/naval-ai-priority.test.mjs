@@ -5,8 +5,8 @@ const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 
 assert.match(ai, /const hostileFleet=\[\],hostileShips=\[\],humanArmy=\[\],humanShips=\[\];let navalThreatCount=0;for\(const e of S\.us\)/,
   'AI should build hostile naval rosters with one unit-list pass');
-assert.match(ai, /if\(e\.k!=='fish'\)hostileShips\.push\(e\)/,
-  'naval target candidates must be valid living hostile ships, not allied ships or fishing boats');
+assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
+  'naval target candidates must exclude garrisoned ships and fishing boats');
 assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\)/,
   'AI must track focus fire across its galley fleet');
 assert.match(ai, /navalTargetScore=e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\(e\.k==='gal'\?6:0\)\+\(U\[e\.k\]\.dmg>=4\?0:10\)-Math\.min\(3,focusCounts\.get\(e\)\|\|0\)\*4/,
