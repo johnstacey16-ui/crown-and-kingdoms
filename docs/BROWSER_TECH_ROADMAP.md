@@ -29,7 +29,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ### Phase 1 — finish safe engine separation
 - Map generation/layout, simulation stepping and world rendering have been extracted to `js/mapgen.js`, `js/simulation.js` and `js/render.js`.
 - **Completed this pass:** move the technology tree, objectives, controller help/About screens, pause-menu model/drawing, and controller-remap presentation into `js/ui.js`; preserve shared state and controller navigation.
-- **Next structural task:** audit menu presentation inside `js/menus.js` and move only the drawing portions to `js/ui.js` where this keeps menu models and controller actions clearly separated. Keep campaign progression, save reading/restoration and controller input behaviour unchanged.
+- **Completed this pass:** moved `drawTitle()`, `drawSetup()` and `drawOpts()` into `js/ui.js`. `setRows()`, `optsItems()`, menu state, settings persistence and controller handlers remain in `js/menus.js`; the module boundary is now presentation versus menu model/actions.
 - After extraction, update `index.html`, `sw.js`, `scripts/check-game.mjs` and the relevant tests in the same change. Check for duplicate top-level lexical declarations before committing.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
@@ -155,3 +155,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 
 - Moved `cmpHud()`, `cmpObj()`, `wrapT()`, `drawCamp()` and `drawBrief()` into `js/ui.js`. Campaign definitions, `CAMP_ARCS`, objective/event checks, mission start/completion and controller handlers remain in `js/campaign.js`.
 - The campaign content source test now composes `js/ui.js` before `js/campaign.js`, matching the actual page script order. `tests/campaign-ui-extraction.test.mjs` guards the ownership boundary.
+
+
+### Main menu/setup/options presentation separation — 15 October 2026
+
+- Moved `drawTitle()`, `drawSetup()` and `drawOpts()` into `js/ui.js` with existing names and bodies preserved.
+- `setRows()`, `optsItems()`, `titleCtl()`, `setupCtl()` and `optsCtl()` remain in `js/menus.js`, preserving setting values, wraparound navigation and `sset()` persistence calls.
+- Added `tests/menu-screen-ui-extraction.test.mjs` to protect the split and verify the presentation still uses the existing menu models.
