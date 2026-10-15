@@ -347,3 +347,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - **Regression coverage:** added `tests/entity-factory-ownership.test.mjs` to verify single ownership, key factory invariants, dependency order, syntax-harness inclusion, and offline caching.
 - **Also cleaned:** removed a duplicated generated-map audit comment while touching engine orchestration.
 - **Verification boundary:** the module extraction is committed; this session has not yet established the result of the complete test suite or physical Xbox testing.
+
+### Full map-construction extraction — 15 October 2026
+
+- **Implemented:** moved the complete `newGame()` routine (about 8.6 KB) from `engine.js` into `js/mapgen.js`. Map terrain layouts, resources, starting Town Centres/villagers, starting armies, civilization effects, connectivity retries, exploration/fog initialisation, initial camera placement and minimap refresh are now owned by the map-generation module.
+- **Preserved:** `start()` remains in `engine.js`; the global function name and controller/campaign call sites are unchanged. A function-local strict-mode directive preserves the strict semantics that applied when the function lived in `engine.js`.
+- **Regression coverage:** added `tests/new-game-mapgen-ownership.test.mjs` to verify single ownership, connectivity/retry guards, starting-world setup and startup wiring.
+- **Verification boundary:** the complete regression workflow is being rerun after the extraction. This source move does not by itself confirm successful Xbox/browser startup.
