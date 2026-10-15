@@ -6,7 +6,6 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 
 test('pause-menu model and drawing have one owner in the shared UI module', () => {
   assert.ok(html.indexOf('./js/ui.js') >= 0);
