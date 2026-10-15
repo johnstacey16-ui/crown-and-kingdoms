@@ -6,12 +6,13 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const state = readFileSync(new URL('../js/state.js', import.meta.url), 'utf8');
+const mapgen = readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + engineSource;
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -42,7 +43,8 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
 test('the core engine is external and loads before multiplayer integration', () => {
   assert.ok(html.includes('<script src="./js/render.js"></script>'));
   assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/state.js'));
-  assert.ok(html.indexOf('./js/state.js') < html.indexOf('./js/audio.js'));
+  assert.ok(html.indexOf('./js/state.js') < html.indexOf('./js/mapgen.js'));
+  assert.ok(html.indexOf('./js/mapgen.js') < html.indexOf('./js/audio.js'));
   assert.ok(html.indexOf('./js/audio.js') < html.indexOf('./js/save.js'));
   assert.ok(html.indexOf('./js/save.js') < html.indexOf('./js/input.js'));
   assert.ok(html.indexOf('./js/input.js') < html.indexOf('./engine.js'));
