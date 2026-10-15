@@ -10,6 +10,7 @@ const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
+const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const engine = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
@@ -48,6 +49,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/input.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
+  assert.ok(render.startsWith('function drawWorld()'));
+  assert.ok(!engineSource.includes('function drawWorld()'));
+  assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
   assert.ok(multiplayer.length > 0);
   assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
 });
