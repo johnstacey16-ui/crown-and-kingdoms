@@ -15,10 +15,10 @@ test('new-game map and initial-state construction has one owner in js/mapgen.js'
 });
 
 test('map regeneration, connectivity validation and runtime startup wiring are retained', () => {
-  assert.match(mapgen, /const mapAudit=auditGeneratedMap\(bs\);S\.mapAudit=mapAudit/);
-  assert.match(mapgen, /if\(!mapAudit\.ok&&tries<12\)return newGame\(tries\\+1\)/);
-  assert.match(mapgen, /addB\(t,'tc',bx-1,by-1,true\)/);
-  assert.match(mapgen, /ctr\(10\.5,H-9\.5\);cur=\{x:CW\/2,y:CH\/2\};fog\(\);mmUp\(\)/);
+  assert.ok(mapgen.includes('const mapAudit=auditGeneratedMap(bs);S.mapAudit=mapAudit'));
+  assert.ok(mapgen.includes('if(!mapAudit.ok&&tries<12)return newGame(tries+1)'));
+  assert.ok(mapgen.includes("addB(t,'tc',bx-1,by-1,true)"));
+  assert.ok(mapgen.includes('ctr(10.5,H-9.5);cur={x:CW/2,y:CH/2};fog();mmUp()'));
   const generator = html.indexOf('./js/mapgen.js');
   const engineAt = html.indexOf('./engine.js');
   assert.ok(generator >= 0 && engineAt > generator,
@@ -26,4 +26,3 @@ test('map regeneration, connectivity validation and runtime startup wiring are r
   assert.ok(smoke.includes("new URL('../js/mapgen.js', import.meta.url)"),
     'Simulation smoke test must include the real map generator');
 });
-
