@@ -16,7 +16,8 @@ const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const kingdom = readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8');
 const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + engineSource;
+const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8');
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -90,6 +91,11 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/simulation.js'));
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./js/kingdom.js'));
   assert.ok(html.indexOf('./js/kingdom.js') < html.indexOf('./js/campaign.js'));
+  assert.ok(html.indexOf('./js/campaign.js') < html.indexOf('./js/economy.js'));
+  assert.ok(html.indexOf('./js/economy.js') < html.indexOf('./engine.js'));
+  assert.ok(economy.includes('function mkTrades()'));
+  assert.ok(economy.includes('function trade(t,k,md)'));
+  assert.ok(!engineSource.includes('function mkTrades()'));
   assert.ok(html.indexOf('./js/campaign.js') < html.indexOf('./engine.js'));
   assert.ok(campaign.includes('function startScenario(i)'));
   assert.ok(campaign.includes('function cmpTick(dt)'));
