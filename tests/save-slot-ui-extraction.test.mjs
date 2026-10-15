@@ -8,7 +8,7 @@ const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 test('save-slot menu model and drawing live in js/ui.js', () => {
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
-  assert.match(ui, /const slotItems=\(\)=>SI\.map\(/);
+  assert.match(ui, /const slotItems=\(\)=>\{const items=SI\.map\(/);
   assert.match(ui, /function drawSlots\(\)\{titleBg\(\);drawList\(/);
   assert.doesNotMatch(engine, /const slotItems=\(\)/);
   assert.doesNotMatch(engine, /function drawSlots\(\)/);
