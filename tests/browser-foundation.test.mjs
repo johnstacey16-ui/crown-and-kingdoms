@@ -91,6 +91,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/kingdom.js') < html.indexOf('./engine.js'));
   assert.ok(kingdom.includes('function createDiplomacy(n,source=null)'));
   assert.ok(kingdom.includes('function sendTribute(from,to,resourceIndex,amount=100)'));
+  assert.ok(kingdom.includes('function createVillagerPriority(source=null)'));
+  assert.ok(kingdom.includes('function assignAutoVillager(u,force=false)'));
+  assert.ok(!engineSource.includes('function createVillagerPriority(source=null)'));
   assert.ok(!engineSource.includes('const DIPLOMACY_STATES='));
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./engine.js'));
   assert.ok(simulation.includes('function step(dt)'));
