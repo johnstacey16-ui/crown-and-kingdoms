@@ -205,3 +205,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Invalid building/team inputs and non-integer placement coordinates are rejected before map checks; existing boundary and terrain rules are preserved.
 - Regression test: `tests/building-placement-input-validation.test.mjs`. Runtime validation remains outstanding.
+
+
+### Production queue shape validation — 15 October 2026
+
+- Training rejects buildings whose production queue is not an array before reading queue length or spending resources.
+- Existing eligibility and capacity checks are preserved.
+- Regression test: `tests/production-queue-shape-validation.test.mjs`. Runtime validation remains outstanding.
