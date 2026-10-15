@@ -14,6 +14,8 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/mapgen.js`: map generation/layout helpers extracted from the main engine.
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
 - `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
+- `js/ui.js`: performance overlay, strategic overview, technology tree, objectives and controller help/About screens extracted without changing the classic-script shared-state model.
+- Large-army unit separation reuses its spatial bucket map across simulation steps, avoiding a fresh map allocation for each pass. The path still needs measured performance verification at 400 units on the target browser.
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
 - `persistence.js`: IndexedDB mirrors for the existing localStorage save slots; localStorage remains the compatibility source.
 - `sw.js`: versioned same-origin offline shell cache, network-first code refresh, and cached fallbacks.
@@ -24,14 +26,15 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 
 ### Phase 1 — finish safe engine separation
 - Map generation/layout, simulation stepping and world rendering have been extracted to `js/mapgen.js`, `js/simulation.js` and `js/render.js`.
-- **Next structural task:** move a cohesive menu/HUD/overlay group into `js/ui.js` only after identifying its direct and indirect dependencies. Keep the extraction behaviour-preserving; do not mix gameplay changes into the move.
+- **Completed this pass:** move the technology tree, objectives and controller help/About screens into `js/ui.js`; preserve shared state and controller navigation.
+- **Next structural task:** map dependencies before moving the remaining HUD, pause/menu, save-slot and campaign presentation code. Keep extraction behaviour-preserving; do not mix gameplay changes into the move.
 - After extraction, update `index.html`, `sw.js`, `scripts/check-game.mjs` and the relevant tests in the same change. Check for duplicate top-level lexical declarations before committing.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
 
 ### Phase 2 — Xbox Edge performance
 - Keep simulation stepping at 30 Hz and rendering at the browser's animation cadence.
-- Profile 4 kingdoms and large armies before introducing a spatial index.
+- A half-tile spatial bucket grid is already used for unit separation and its map allocation is now reused. Profile 4 kingdoms and large armies on target hardware before further tuning.
 - Retain existing chunk rendering; add viewport culling only where it does not hide UI/world effects.
 - Debounce resize recalculation (implemented).
 - Reduce hot-loop allocations only when tests and profiling show the affected path.
