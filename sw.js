@@ -11,6 +11,7 @@ const CORE_ASSETS = [
   './styles.css',
   './js/config.js',
   './js/state.js',
+  './js/mapgen.js',
   './js/audio.js',
   './js/save.js',
   './js/input.js',
