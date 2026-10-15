@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
-const guard = save.indexOf("if(!j||j.v!==1||!Number.isInteger(j.sz)");
+const guard = save.indexOf("if(!j||j.v!==1||!Number.isFinite(j.t)||j.t<0||!Number.isInteger(j.sz)");
 const restore = save.indexOf('setSize(j.sz)');
 assert.ok(guard >= 0, 'loadG must validate a save payload before restoring it');
 assert.ok(restore > guard, 'payload validation must run before map allocation and state replacement');
@@ -65,6 +65,9 @@ function attemptLoad(raw) {
 }
 for (const [label, raw] of [
   ['invalid JSON', '{not-json'],
+  ['missing simulation time', JSON.stringify(({ t, ...rest }) => rest)(validShape())],
+  ['negative simulation time', JSON.stringify({ ...validShape(), t: -1 })],
+  ['non-finite simulation time', JSON.stringify({ ...validShape(), t: 'not-a-number' })],
   ['unsupported size', JSON.stringify({ ...validShape(), sz: 77, wt: '0'.repeat(77 * 77), ex: '0'.repeat(77 * 77) })],
   ['invalid terrain code', JSON.stringify({ ...validShape(), wt: 'x' + '0'.repeat(96 * 96 - 1) })],
   ['invalid explored code', JSON.stringify({ ...validShape(), ex: 'x' + '0'.repeat(96 * 96 - 1) })],
