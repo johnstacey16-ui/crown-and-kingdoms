@@ -92,4 +92,14 @@ test('leaving campaign restores every pre-campaign setup option', () => {
     'Leaving the final mission results screen must restore the saved setup');
 });
 
+
+test('Last Crown does not treat a safely garrisoned King as defeated', () => {
+  assert.match(html,
+    /if\(cmp\.i===5&&!S\.us\.some\(u=>u&&u\.t===0&&u\.k==='king'&&u\.hp>0\)\)\{endGame\('lose','Your King has fallen'\);return\}/,
+    'The King remains alive while garrisoned; only a dead or missing King loses the mission');
+  const kingCheck = html.slice(html.indexOf('if(cmp.i===5'), html.indexOf('cmp.t+=dt', html.indexOf('if(cmp.i===5')));
+  assert.doesNotMatch(kingCheck, /!u\.ld/,
+    'Garrison state must not be mistaken for death');
+});
+
 console.log('campaign-progression: regression assertions passed');
