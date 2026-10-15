@@ -212,3 +212,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - The module loads after shared state and kingdom automation helpers, before campaign and engine code. Existing global function names and shared state access are preserved for the classic-script architecture.
 - Added ownership/load-order/offline-cache regression coverage and wired the module into `scripts/check-game.mjs`.
 - This is a maintainability boundary, not a performance claim. Start-up, save/load, map generation and Xbox Edge still need full regression/runtime verification.
+
+### Full new-game setup extraction — 15 October 2026
+
+- `js/mapgen.js` now owns both terrain/connectivity helpers and the complete `newGame()` routine. Engine startup and controller/campaign entry points still call the same global function name.
+- The extracted routine retains strict mode explicitly, because it previously inherited the `engine.js` strict directive.
+- Added a focused ownership and runtime-wiring test. This makes map initialization easier to isolate from rendering, frame scheduling and controller orchestration without changing the classic-script model.
+- Regression, save/load and physical Xbox startup are still required before this boundary should be treated as release-verified.
