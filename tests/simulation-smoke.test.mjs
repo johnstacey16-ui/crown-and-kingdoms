@@ -579,6 +579,30 @@ globalThis.__CK_TEST__ = {
     if (!n) throw new Error('The seeded match must contain a wood resource node');
     u.o = 'g'; u.tg = n; u.ct = n.k; u.car = 0; u.ret = 0; u.p = []; u.rp = 0; u.autoWorker = 0;
   },
+  auditTownBellReservations() {
+    const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
+    if (!shelters.length) throw new Error('The seeded match must have an eligible player shelter');
+    for (const b of shelters) b.cg = [];
+    for (const u of S.us) {
+      if (u.t === 0 && u.k === 'vil') u.ld = true;
+      if (u.t === 0 && u.o === 'B') { u.o = 'i'; u.tg = null; }
+    }
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done && b.hp > 0);
+    const workers = [];
+    for (let i = 0; i < 100; i++) {
+      const u = addU(0, 'vil', tc.x + 1 + (i % 7) * 0.15, tc.y + 1 + Math.floor(i / 7) * 0.15);
+      u.ld = null; u.o = 'i'; u.tg = null; u.p = []; u.rp = 0;
+      workers.push(u);
+    }
+    const totalCapacity = shelters.reduce((sum, b) => sum + GAR[b.k], 0);
+    const sent = townBell(0);
+    const assigned = workers.filter((u) => u.o === 'B' && shelters.includes(u.tg));
+    const occupancy = shelters.map((b) => ({
+      kind: b.k, capacity: GAR[b.k],
+      assigned: assigned.filter((u) => u.tg === b).length,
+    }));
+    return { sent, assigned: assigned.length, totalCapacity, occupancy, unassigned: workers.length - assigned.length };
+  },
   state() {
     return {
       time: S.t,
@@ -951,3 +975,14 @@ assert.deepEqual(JSON.parse(JSON.stringify(saveRoundTrip.after.technology)), JSO
 assert.deepEqual(JSON.parse(JSON.stringify(saveRoundTrip.after.campaign)), JSON.parse(JSON.stringify(saveRoundTrip.before.campaign)), 'Campaign time, completed goals and fired events must be restored');
 assert.equal(saveRoundTrip.after.campaign?.index, 16, 'The Causeway campaign must remain the active mission after loading');
 console.log(`save-load-smoke: restored campaign ${saveRoundTrip.after.campaign.index} with ${saveRoundTrip.after.units} units, ${saveRoundTrip.after.buildings} buildings and ${saveRoundTrip.bytes} saved characters`);
+
+
+game.start(123456);
+const townBellAudit = game.auditTownBellReservations();
+assert.equal(townBellAudit.sent, townBellAudit.assigned, 'Town Bell must report every actual villager assignment');
+assert.equal(townBellAudit.assigned, townBellAudit.totalCapacity, 'With enough villagers, Town Bell should reserve every available shelter slot exactly once');
+assert.equal(townBellAudit.unassigned, 100 - townBellAudit.totalCapacity, 'Villagers beyond total shelter capacity must remain unassigned');
+for (const shelter of townBellAudit.occupancy) {
+  assert.ok(shelter.assigned <= shelter.capacity, 'Town Bell must not overbook ' + shelter.kind);
+}
+console.log('town-bell-behaviour: '+townBellAudit.assigned+' villagers assigned across '+townBellAudit.occupancy.length+' shelters with no capacity overbooking');
