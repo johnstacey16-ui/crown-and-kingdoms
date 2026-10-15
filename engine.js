@@ -322,8 +322,6 @@ const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
 const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[];
 function refreshSlots(){SI=[0,1,2].map(n=>{let r=null;try{r=localStorage.getItem(skey(n))}catch(e){}if(!r)return null;try{const j=JSON.parse(r);if(j.v!==1||!Array.isArray(j.us)||!Array.isArray(j.civ))return'bad';return{t:j.t|0,civ:j.civ,w:j.sz,d:j.diff|0,m:j.cmp&&CAMP[j.cmp.i]?CAMP[j.cmp.i].t:null,when:j.when}}catch(e){return'bad'}})}
 function openSlots(m,back){sm=m;sb=back;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE)window.CK_STORAGE.restoreMissing().then(()=>refreshSlots()).catch(()=>{})}
-const slotItems=()=>SI.map((x,n)=>{const ok=x&&x!=='bad',nm=k=>(CIV[k]||{n:'?'}).n,lab='Slot '+(n+1)+(ok?'   '+nm(x.civ[0])+' vs '+nm(x.civ[1])+'   '+(x.t/60|0)+':'+String(x.t%60|0).padStart(2,'0'):x==='bad'?'   (unreadable)':'   (empty)');return{n:lab,d:()=>ok?(sm==='save'?'Overwrite this save. ':'')+(x.m?'Mission: '+x.m+'. ':'Skirmish. ')+x.w+'x'+x.w+' map, '+['Easy','Normal','Hard'][x.d]+(x.when?'. Saved '+new Date(x.when).toLocaleString():''):x==='bad'?'This slot cannot be read.':sm==='save'?'Saves the current match here.':'Nothing saved in this slot.',a:()=>{if(sm==='save'){slot=n;saveG();refreshSlots();mode=sb}else if(ok){slot=n;if(loadG())mode='play'}}}}).concat([{n:'Back',a:()=>{mode=sb}}]);
-function drawSlots(){titleBg();drawList(sm==='save'?'SAVE GAME':'LOAD GAME',slotItems(),ci,'A: '+(sm==='save'?'save here':'load')+'    B: back')}
 function slotsCtl(){const it=slotItems(),n=it.length;if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[1])mode=sb}
 
 
