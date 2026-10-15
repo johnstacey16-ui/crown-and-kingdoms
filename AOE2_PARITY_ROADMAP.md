@@ -127,9 +127,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Latest implementation checkpoint — 15 October 2026
 
-- Code commit: `c64e353e0487c51c0d3922c2211bb74d32fd6556` corrects the simulation smoke benchmark to target 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
+- Code commit: `94a22c18d363e49e3a54df892ba46fe49a957c9d` adds a real-engine boot-and-tick smoke test for all 17 campaign missions; the same tested branch contains the corrected benchmark for 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
 - The benchmark warms both sides of the current 64-unit separation fallback threshold and reports median/range across three simulation-only samples for each population.
-- Workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completed successfully for the benchmark commit and ran the complete configured regression suite.
-- Simulation-only Node CI timings over 30 fixed steps and three repeats: 100 total units median **4.99 ms** (range 4.66–5.88); 200 total units median **8.94 ms** (8.15–9.15); 400 total units median **15.89 ms** (15.03–15.97).
+- Workflow [#38747030117](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747030117) completed successfully for this commit and ran the complete configured regression suite, including all 17 campaign startup checks.
+- The 17 campaign missions each started with units/buildings and survived one simulated second; this is startup smoke coverage, not full mission completion.
+- Latest simulation-only Node CI timings over 30 fixed steps and three repeats: 100 total units median **6.24 ms** (range 6.11–6.26); 200 total units median **10.97 ms** (10.94–11.16); 400 total units median **20.64 ms** (20.58–24.32). Earlier successful samples were faster, demonstrating that shared CI timing varies.
 - These are Node simulation timings, not browser-render timings, Xbox frame-rate or physical console verification. Earlier 120/220/420 total-unit timings are superseded by this exact-population benchmark.
 - Automated CI is not a full live browser playthrough, production deployment confirmation, multiplayer validation or physical Xbox verification.
