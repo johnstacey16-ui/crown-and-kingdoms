@@ -582,7 +582,8 @@ globalThis.__CK_TEST__ = {
   benchmarkArmy(count, ticks = 15) {
     this.start(13579);
     const baseCount = S.us.length;
-    for (let i = 0; i < count; i++) {
+    const toAdd = Math.max(0, count - baseCount);
+    for (let i = 0; i < toAdd; i++) {
       const x = 4 + (i % 20) * 4;
       const y = 4 + Math.floor(i / 20) * 3.5;
       const unit = addU(i % Math.min(4, S.teamN), 'mil', x, y);
@@ -1002,7 +1003,7 @@ for (const shelter of townBellAudit.occupancy) {
 }
 console.log('town-bell-behaviour: '+townBellAudit.assigned+' villagers assigned across '+townBellAudit.occupancy.length+' shelters with no capacity overbooking');
 
-// Warm both sides of the 128-unit separation threshold before recording timed samples.
+// Warm both sides of the 64-unit separation threshold before recording timed samples.
 game.benchmarkArmy(100, 30);
 game.benchmarkArmy(400, 30);
 
@@ -1012,8 +1013,8 @@ for (const population of [100, 200, 400]) {
   for (let repeat = 0; repeat < 3; repeat++) {
     const result = game.benchmarkArmy(population, 30);
     const elapsedMs = result.elapsedMs;
-    assert.equal(result.added, population, 'Benchmark must add the requested synthetic army size');
-    assert.ok(result.units >= population, 'Benchmark army must remain represented in simulation state');
+    assert.equal(result.units, population, 'Benchmark must measure the requested total live-unit population, including the seeded starting army');
+    assert.ok(result.added >= 0, 'Benchmark must report how many synthetic units were added to reach the target population');
     assert.equal(result.ticks, 30, 'Benchmark must execute the full fixed number of simulation ticks');
     assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Simulation-only benchmark timing must be finite');
     samples.push(elapsedMs);
