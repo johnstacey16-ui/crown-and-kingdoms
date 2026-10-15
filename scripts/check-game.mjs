@@ -5,19 +5,21 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
+const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const source = config + '\n' + audio + '\n' + save + '\n' + game;
+const source = config + '\n' + audio + '\n' + save + '\n' + input + '\n' + game;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 new vm.Script(config, { filename: 'js/config.js' });
 new vm.Script(audio, { filename: 'js/audio.js' });
 new vm.Script(save, { filename: 'js/save.js' });
+new vm.Script(input, { filename: 'js/input.js' });
 new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
 new vm.Script(persistence, { filename: 'persistence.js' });
 new vm.Script(serviceWorker, { filename: 'sw.js' });
-if (!html.includes('<script src="./js/config.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
+if (!html.includes('<script src="./js/config.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
 if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
@@ -40,4 +42,4 @@ for (const [name, ok] of checks) {
   if (!ok) throw new Error(`FAIL: ${name}`);
   console.log(`PASS: ${name}`);
 }
-console.log('PASS: parsed external config.js, audio.js, save.js, engine.js, persistence.js, sw.js and multiplayer.js');
+console.log('PASS: parsed external config.js, audio.js, save.js, input.js, engine.js, persistence.js, sw.js and multiplayer.js');
