@@ -92,6 +92,7 @@ globalThis.__CK_TEST__ = {
   start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
   startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; mapLayout = 0; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
+  auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
   saveLoadRoundTrip() {
     slot = 0;
@@ -1064,6 +1065,8 @@ assert.equal(brokenShipAfter.water, true, 'The Broken Isles ship must finish its
 console.log('broken-isles-smoke: connected starting land, one water network and an actual ship route');
 
 game.start(123456);
+const invalidMapStartAudit = game.auditMapStarts([[-1, 10], [10, 10]]);
+assert.equal(invalidMapStartAudit.landReachable, false, 'Out-of-bounds map start coordinates must not alias an in-bounds linear grid index');
 const causewayCampaign = game.startCampaign(16);
 assert.equal(causewayCampaign.campaign?.index, 16, 'The seventeenth campaign mission should start through the real scenario loader');
 assert.equal(causewayCampaign.layout, 12, 'The Causeway mission must select the dedicated map layout');
