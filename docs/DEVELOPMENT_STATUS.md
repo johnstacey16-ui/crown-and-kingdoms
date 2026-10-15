@@ -160,3 +160,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Existing owner/building/unit compatibility, age, resource, population-cap and queue-capacity checks remain in place.
 - Regression guard: `tests/production-queue-shape-validation.test.mjs`.
 - Source-level checks only; Node execution and browser/controller testing remain outstanding.
+
+
+## 15 October 2026 — Campaign objective counts
+
+- Campaign helpers now count only living units for villager and military-force objectives, and only surviving completed buildings for construction objectives.
+- Unknown unit definitions are excluded safely from military counts.
+- Regression guard: `tests/campaign-objective-live-counts.test.mjs`.
+- Source-level validation only; the Node test and live campaign playthrough have not been run in this environment.
