@@ -109,6 +109,8 @@ const techPriority=k=>{
  if(k==='armC'&&ownCav<2)score-=28;
  if(k==='atkM'&&ownInf+ownCav<2)score-=20;
  if(k==='atkR'&&ownRanged<2)score-=20;
+ if(k==='atkM2'&&ownInf+ownCav<2)score-=28;
+ if(k==='atkR2'&&ownRanged<2)score-=28;
  /* Armour research should protect the army we actually field, not just react to the enemy's composition. */
  if(k==='armR'&&ownRanged>=3)score+=32;
  if(k==='armI'&&ownInf>=3)score+=30;
