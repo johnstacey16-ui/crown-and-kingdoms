@@ -93,6 +93,34 @@ globalThis.__CK_TEST__ = {
   startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; mapLayout = 0; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startCampaign(index) { startScenario(index); return this.state(); },
+  saveLoadRoundTrip() {
+    slot = 0;
+    const snapshot = () => ({
+      time: S.t,
+      size: W,
+      units: S.us.length,
+      buildings: S.bs.length,
+      nodeCount: S.nodes.length,
+      resources: S.res.map((r) => ({ ...r })),
+      technology: S.tech.map((t) => ({ ...t })),
+      campaign: cmp ? { index: cmp.i, time: cmp.t, goals: { ...cmp.d }, events: { ...cmp.e } } : null,
+    });
+    const before = snapshot();
+    saveG();
+    const stored = localStorage.getItem(skey(slot));
+    if (!stored) throw new Error('Saving the active match did not write a local save slot');
+    const payload = JSON.parse(stored);
+    if (payload.v !== 1) throw new Error('Saved game did not use the supported save format');
+    S.us.length = 0;
+    S.bs.length = 0;
+    S.nodes.length = 0;
+    S.rel.length = 0;
+    S.res[0].f = -12345;
+    if (S.tech[0]) S.tech[0].cons = !S.tech[0].cons;
+    cmp = null;
+    const loaded = loadG();
+    return { loaded, version: payload.v, bytes: stored.length, before, after: snapshot() };
+  },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
   auditConscriptionRates() {
     const previous = S.tech[0].cons;
@@ -882,3 +910,21 @@ console.log('causeway-campaign-smoke: mission 17 loaded on layout 12 with connec
 
 
 
+
+
+game.startCampaign(16);
+for (let tick = 0; tick < 90; tick += 1) game.tick(1 / 30);
+const saveRoundTrip = game.saveLoadRoundTrip();
+assert.equal(saveRoundTrip.loaded, true, 'A valid local save must restore successfully');
+assert.equal(saveRoundTrip.version, 1, 'The save round-trip must preserve the current versioned format');
+assert.ok(saveRoundTrip.bytes > 1000, 'The active campaign must write a non-empty world snapshot');
+assert.equal(saveRoundTrip.after.time, saveRoundTrip.before.time, 'Simulation time must survive save/load');
+assert.equal(saveRoundTrip.after.size, saveRoundTrip.before.size, 'Map dimensions must survive save/load');
+assert.equal(saveRoundTrip.after.units, saveRoundTrip.before.units, 'All saved units must be restored');
+assert.equal(saveRoundTrip.after.buildings, saveRoundTrip.before.buildings, 'All saved buildings must be restored');
+assert.equal(saveRoundTrip.after.nodeCount, saveRoundTrip.before.nodeCount, 'All saved resource nodes must be restored');
+assert.deepEqual(saveRoundTrip.after.resources, saveRoundTrip.before.resources, 'All kingdoms’ resources must be restored');
+assert.deepEqual(saveRoundTrip.after.technology, saveRoundTrip.before.technology, 'Researched technologies must be restored');
+assert.deepEqual(saveRoundTrip.after.campaign, saveRoundTrip.before.campaign, 'Campaign time, completed goals and fired events must be restored');
+assert.equal(saveRoundTrip.after.campaign?.index, 16, 'The Causeway campaign must remain the active mission after loading');
+console.log(`save-load-smoke: restored campaign ${saveRoundTrip.after.campaign.index} with ${saveRoundTrip.after.units} units, ${saveRoundTrip.after.buildings} buildings and ${saveRoundTrip.bytes} saved characters`);
