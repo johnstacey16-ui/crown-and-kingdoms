@@ -199,3 +199,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Shelter occupancy is derived from unique living units actually garrisoned in the shelter, so stale/dead references cannot make an available shelter appear full.
 - Existing reservation and capacity checks remain in place.
 - Regression test: `tests/town-bell-garrison-capacity.test.mjs`. Runtime validation remains outstanding.
+
+
+### Building placement input validation — 15 October 2026
+
+- Invalid building/team inputs and non-integer placement coordinates are rejected before map checks; existing boundary and terrain rules are preserved.
+- Regression test: `tests/building-placement-input-validation.test.mjs`. Runtime validation remains outstanding.
