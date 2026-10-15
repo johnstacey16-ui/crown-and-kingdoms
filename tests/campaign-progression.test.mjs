@@ -66,4 +66,11 @@ test('multi-objective naval campaigns cannot bypass remaining objectives on Town
     'Campaign victory must wait until every listed objective has completed');
 });
 
+test('destroyed Town Centres no longer block campaign objectives or timed-raid shutdown', () => {
+  assert.match(html, /const tcOf=t=>S\.bs\.find\(b=>b\.t===t&&b\.k==='tc'&&b\.hp>0\)/,
+    'Campaign Town Centre lookup must ignore retained zero-health building records');
+  assert.match(html, /function raid\(n,ks,msg\)\{const e=tcOf\(1\);if\(!e\)return;/,
+    'Timed raids must stop once the enemy Town Centre has no remaining health');
+});
+
 console.log('campaign-progression: regression assertions passed');
