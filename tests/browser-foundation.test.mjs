@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 
 test('the game loads its shared stylesheet from the same-origin root', () => {
   assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css">/);
@@ -26,4 +28,14 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
   assert.match(html, /fetch\('\.\/assets\/atlas-manifest\.json'/);
   assert.match(html, /\.then\(pack=>\{if\(pack&&typeof pack==='object'\)loadAssetPack\(pack\)\}\)/);
   assert.doesNotMatch(html, /<script id="ck-assets" type="application\/json">\s*\{/);
+});
+
+
+test('the core engine is external and loads before multiplayer integration', () => {
+  assert.match(html, /<script src="\.\/engine\.js"><\/script>/);
+  assert.match(html, /<script src="\.\/multiplayer\.js"><\/script>/);
+  assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
+  assert.ok(engine.length > 200000);
+  assert.ok(multiplayer.length > 0);
+  assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
 });
