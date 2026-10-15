@@ -19,7 +19,7 @@ assert.match(townBell, /const workers=S\.us\.filter\(u=>u\.t===t&&u\.k==='vil'&&
   'Town Bell must target live, ungarrisoned villagers belonging to the selected kingdom');
 assert.match(townBell, /const shelters=S\.bs\.filter\(b=>b\.t===t&&b\.done&&b\.hp>0&&GAR\[b\.k\]\)/,
   'Town Bell must build its eligible shelter list once per command');
-assert.match(townBell, /const occupancy=new Map\(shelters\.map\(b=>\[b,\(b\.cg\|\|\[\]\)\.length\]\)\)/,
+assert.match(townBell, /const occupancy=new Map\(shelters\.map\(b=>\[b,new Set\(\(Array\.isArray\(b\.cg\)\?b\.cg:\[\]\)\.filter\(u=>u&&u\.hp>0&&u\.ld===b\)\)\.size\]\)\)/,
   'Town Bell must pre-count garrisoned villagers once per shelter');
 assert.match(townBell, /for\(const v of S\.us\)if\(v\.hp>0&&v\.t===t&&v\.o==='B'&&occupancy\.has\(v\.tg\)\)/,
   'Town Bell must reserve capacity for villagers already en route');
