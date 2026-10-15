@@ -107,3 +107,8 @@ Market trade-row generation and buy/sell transaction logic now live in `js/econo
 ### Controller menus module
 
 The new-game setup menu, options menu, title menu, controller handlers and score-limit options now live in `js/menus.js`. The engine still owns shared state and menu drawing primitives; the new module loads before the engine and is cached offline.
+
+
+### Minimap module
+
+Minimap terrain refresh, world/minimap coordinate transforms, entity filters and minimap drawing now live in `js/minimap.js`, with viewport and objective markers preserved and offline caching enabled.
