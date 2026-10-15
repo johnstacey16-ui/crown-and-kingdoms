@@ -739,6 +739,12 @@ assert.equal(husbandrySpeeds.infantry, 1.4, 'Husbandry must not increase infantr
 assert.equal(husbandrySpeeds.transport, husbandrySpeeds.transportBase, 'Husbandry must not increase transport-ship speed');
 assert.equal(husbandrySpeeds.conqMounted, true, 'Mounted unique cavalry must be included in the mounted set');
 console.log('husbandry-smoke: cavalry receives +10% speed; infantry and transport ships are unchanged');
+const attackResearch = game.auditAttackResearchDamage();
+assert.equal(attackResearch.meleeBasic - attackResearch.meleeBase, 2, 'Melee Attack +2 must increase live melee damage by exactly two');
+assert.equal(attackResearch.meleeAdvanced - attackResearch.meleeBase, 5, 'Melee Attack +5 must increase live melee damage by exactly five');
+assert.equal(attackResearch.rangedBasic - attackResearch.rangedBase, 1, 'Ranged Attack +1 must increase live ranged damage by exactly one');
+assert.equal(attackResearch.rangedAdvanced - attackResearch.rangedBase, 3, 'Ranged Attack +3 must increase live ranged damage by exactly three');
+console.log('attack-research-smoke: basic and advanced melee/ranged upgrades verified against live combat damage');
 
 const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
