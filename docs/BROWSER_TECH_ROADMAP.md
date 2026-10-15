@@ -117,3 +117,5 @@ Minimap terrain refresh, world/minimap coordinate transforms, entity filters and
 ### Pathfinding module
 
 A* route search, diagonal corner checks, path reconstruction and route-target helpers now live in `js/pathfinding.js`. The module loads before kingdom automation, is cached offline and is covered by pathing and simulation regression harnesses.
+
+- Campaign arc ordering, mission selection, briefing layout and campaign controller handlers are grouped in `js/campaign.js`; shared title-background rendering remains in the core UI.
