@@ -164,3 +164,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - `upB` now skips buildings with zero or negative health as well as unfinished buildings. A structure destroyed earlier in the current simulation tick cannot still finish research, spawn queued production, or fire a defensive weapon in that tick.
 - Regression guard: `tests/destroyed-building-work.test.mjs`. Full runtime and gameplay verification remain required.
+
+
+### Reject invalid production and research commands — 15 October 2026
+
+- Production commands now validate that the building is alive, completed, supports the requested unit, and that the unit exists before charging resources.
+- Research commands reject dead or unfinished buildings before charging resources.
+- Regression guard: `tests/invalid-building-commands.test.mjs`. Runtime validation is still needed.
