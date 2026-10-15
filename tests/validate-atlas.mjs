@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const html = readFileSync(resolve(root, 'index.html'), 'utf8');
-const match = html.match(/<script[^>]*id=["']ck-assets["'][^>]*>([\s\S]*?)<\/script>/i);
-assert.ok(match, 'index.html must contain the ck-assets JSON manifest');
-const pack = JSON.parse(match[1]);
+const manifestPath = resolve(root, 'assets/atlas-manifest.json');
+assert.ok(existsSync(manifestPath), 'external sprite atlas manifest must exist');
+const pack = JSON.parse(readFileSync(manifestPath, 'utf8'));
 assert.ok(Array.isArray(pack.atlases) && pack.atlases.length, 'asset manifest must contain at least one atlas');
 
 let animations = 0;
