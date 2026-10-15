@@ -66,3 +66,10 @@ test('offline shell caching stays same-origin and keeps online code updates fres
   assert.match(serviceWorker, /const networkFirst = request\.mode === 'navigate'/);
   assert.match(serviceWorker, /cache\.addAll\(CORE_ASSETS\)/);
 });
+
+
+test('offline cache can survive temporary hosting errors as well as network loss', () => {
+  const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+  assert.match(serviceWorker, /return await cache\.match\(request\) \|\| response/);
+  assert.match(serviceWorker, /const cached = await cache\.match\(request\);\s*if \(cached\) return cached/);
+});
