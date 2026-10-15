@@ -32,7 +32,7 @@ if(S.t-(A.lastTributeAt??-90)>=90){
 aiRetreat(t,my,tc,bl);
 const damagedFleet=my.filter(u=>u.sh&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>a.hp/mhp(a)-b.hp/mhp(b));
 if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
- const target=damagedFleet[0],underFire=S.us.some(e=>isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
+ const target=damagedFleet[0],underFire=S.us.some(e=>e&&Number.isInteger(e.t)&&isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
  if(!underFire){
   const repairer=my.find(u=>u!==target&&u.sh&&u.hp>mhp(u)*.7&&u.o==='i'&&!['fish','trn','cog'].includes(u.k));
   if(repairer){repairer.o='rep';repairer.tg=target;repairer.p=[]}
