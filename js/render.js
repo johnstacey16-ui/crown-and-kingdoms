@@ -88,3 +88,11 @@ function drawHill(o){
  X.fillStyle='#be4b3a';poly([[P[0]+4*zm,P[1]-38*zm],[P[0]+19*zm,P[1]-33*zm],[P[0]+4*zm,P[1]-28*zm]]);X.fill();
  X.restore();
 }
+
+function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){TCH.delete(key);TCH.set(key,c);return c}
+const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');
+for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
+c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);if(TCH.size>48)TCH.delete(TCH.keys().next().value);return c}
+
+function drawChunks(x0,x1,y0,y1){for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){const c=chunkOf(cx,cy);X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)}}
+const PMAX=[100,260,520],PT=[];
