@@ -197,13 +197,22 @@ function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.st=v;if(v===4
 function unload(b){const cg=b.cg||[];for(const c of cg){let sp=null;for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<=b.s+r&&!sp;dy++)for(let dx=-r;dx<=b.s+r&&!sp;dx++){const x=b.x+dx,y=b.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&!S.wt[y*W+x]&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5]}if(sp){c.x=sp[0];c.y=sp[1];c.ld=null}}b.cg=cg.filter(c=>c.ld);note('Garrison unloaded')}
 function townBell(t){
  const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
+ const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]);
+ const occupancy=new Map(shelters.map(b=>[b,(b.cg||[]).length]));
+ for(const v of S.us)if(v.hp>0&&v.t===t&&v.o==='B'&&occupancy.has(v.tg))occupancy.set(v.tg,occupancy.get(v.tg)+1);
  let sent=0;
  for(const u of workers){
-  const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]&&((b.cg||[]).length+S.us.filter(v=>v!==u&&v.hp>0&&v.t===t&&v.o==='B'&&v.tg===b).length)<GAR[b.k]);
-  shelters.sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
-  const shelter=shelters[0];
+  let shelter=null,best=Infinity;
+  for(const b of shelters){
+   const ownReservation=u.o==='B'&&u.tg===b?1:0;
+   if((occupancy.get(b)||0)-ownReservation>=GAR[b.k])continue;
+   const distance=d2(u.x,u.y,b);
+   if(distance<best){best=distance;shelter=b}
+  }
   if(!shelter)continue;
-  u.p=[];u.pt=null;u.as=0;u.o='B';u.tg=shelter;u.ut=null;sent++;
+  if(u.o==='B'&&occupancy.has(u.tg))occupancy.set(u.tg,Math.max(0,occupancy.get(u.tg)-1));
+  u.p=[];u.pt=null;u.as=0;u.o='B';u.tg=shelter;u.ut=null;
+  occupancy.set(shelter,(occupancy.get(shelter)||0)+1);sent++;
  }
  if(t===0)note(sent?'Town Bell: '+sent+' villagers sent to shelter':'No available shelter space for villagers');
  return sent;
