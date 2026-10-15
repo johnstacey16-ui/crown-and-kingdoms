@@ -14,6 +14,7 @@ const CORE_ASSETS = [
   './js/audio.js',
   './js/save.js',
   './js/input.js',
+  './js/render.js',
   './engine.js',
   './persistence.js',
   './multiplayer.js',
