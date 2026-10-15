@@ -4,17 +4,19 @@ import vm from 'node:vm';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const state = readFileSync(new URL('../js/state.js', import.meta.url), 'utf8');
+const mapgen = readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const source = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + game;
+const source = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + game;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 new vm.Script(config, { filename: 'js/config.js' });
 new vm.Script(state, { filename: 'js/state.js' });
+new vm.Script(mapgen, { filename: 'js/mapgen.js' });
 new vm.Script(audio, { filename: 'js/audio.js' });
 new vm.Script(save, { filename: 'js/save.js' });
 new vm.Script(input, { filename: 'js/input.js' });
@@ -46,4 +48,4 @@ for (const [name, ok] of checks) {
   if (!ok) throw new Error(`FAIL: ${name}`);
   console.log(`PASS: ${name}`);
 }
-console.log('PASS: parsed external config.js, state.js, audio.js, save.js, input.js, engine.js, persistence.js, sw.js and multiplayer.js');
+console.log('PASS: parsed external config.js, state.js, mapgen.js, audio.js, save.js, input.js, render.js, engine.js, persistence.js, sw.js and multiplayer.js');
