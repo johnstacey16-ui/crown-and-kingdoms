@@ -70,6 +70,28 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - WebAssembly/AssemblyScript: not part of the current upgrade.
 - Xbox achievements, cloud saves, matchmaking and cross-play: out of scope.
 
+## Technology decision rule — 15 October 2026
+
+Use the smallest technology stack that solves a demonstrated problem. Do not add languages, rendering backends, worker threads or build tooling merely because they might be useful later.
+
+| Technology | Current decision | Evidence required before expanding use |
+| --- | --- | --- |
+| JavaScript | Keep it as the simulation, AI, economy, combat, pathfinding and orchestration language. | Change only for a concrete correctness or maintainability need. |
+| CSS | Continue extending the existing stylesheet as menus, HUD and controller-facing UI improve. | A UI requirement that cannot be met cleanly with the existing styles. |
+| JSON | Keep the sprite atlas manifest and suitable configuration/data files. Save payloads remain versioned and validated by the existing save system. | A specific new data format or compatibility requirement; do not duplicate configuration without a reason. |
+| SVG | Optional for crisp scalable icons or specific UI/minimap artwork. | A defined visual need; keep Canvas/procedural fallbacks where assets may fail to load. |
+| Web Workers | Deferred. | Reproducible profiling showing map generation, pathfinding or another separable task blocks the main thread, plus a safe data/message boundary. |
+| GLSL / WebGL shaders | Deferred; Canvas 2D remains the renderer. | Measured Canvas limits or a named visual effect that justifies renderer complexity and has a fallback plan. |
+| WebAssembly / Rust | Deferred; not a planned prerequisite for the 400-unit target. | Repeatable target-browser profiling identifies a hot loop that remains too slow after reasonable JavaScript improvements, and a small isolated prototype proves a net benefit. |
+
+### Performance gate
+
+A smooth small match is not proof that four kingdoms and 400 live units will remain smooth. Use the existing 100/200/400-total-unit simulation benchmark as a repeatable baseline, then measure browser rendering and frame pacing separately. Node timings must never be presented as Xbox frame-rate evidence. Optimise the measured bottleneck, not the hypothetical one.
+
+### Scope guard
+
+Finish the current engine, gameplay, graphics, save/recovery and controller work before adding optional technology. Any new dependency or execution model must state: (1) the observed problem, (2) the measurement or reproduction, (3) why the current stack cannot reasonably solve it, and (4) the regression/fallback plan. If those points cannot be named, defer the addition.
+
 ## Verification policy
 
 A passing GitHub Actions run verifies source invariants and the automated regression suite, not Xbox hardware performance or a successful Vercel deployment. Record those separately when directly verified.
