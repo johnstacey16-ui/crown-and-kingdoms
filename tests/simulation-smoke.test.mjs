@@ -1139,4 +1139,19 @@ for (const population of [100, 200, 400]) {
   samples.sort((a, b) => a - b);
   console.log('large-army-runtime: requested='+population+' added='+finalResult.added+' total='+finalResult.units+' ticks='+finalResult.ticks+' repeats=3 simulationOnly=true medianMs='+samples[1].toFixed(2)+' rangeMs='+samples[0].toFixed(2)+'-'+samples[2].toFixed(2));
 }
+}
+
+// Measure a dense opposing-army scenario as well as idle separation overhead.
+const combatSamples = [];
+let combatResult = null;
+for (let repeat = 0; repeat < 3; repeat++) {
+  combatResult = game.benchmarkArmy(400, 30, true);
+  assert.equal(combatResult.units, 400, 'Combat benchmark must contain the requested live-unit population');
+  assert.equal(combatResult.combat, true, 'Combat benchmark must enable opposing attack orders');
+  assert.equal(combatResult.ticks, 30, 'Combat benchmark must execute all fixed simulation ticks');
+  assert.ok(Number.isFinite(combatResult.elapsedMs) && combatResult.elapsedMs >= 0, 'Combat timing must be finite');
+  combatSamples.push(combatResult.elapsedMs);
+}
+combatSamples.sort((a, b) => a - b);
+console.log('large-army-combat-runtime: requested=400 ticks=30 repeats=3 simulationOnly=true medianMs='+combatSamples[1].toFixed(2)+' rangeMs='+combatSamples[0].toFixed(2)+'-'+combatSamples[2].toFixed(2));
 
