@@ -10,11 +10,12 @@ This is the single handover checkpoint. Continue from live code and current CI r
 
 ## Latest implementation checkpoint
 
-- **Code checkpoint:** `a47c7d22047cbf9b080940a3a72ec5fd5c042611` — campaign progression and coverage corrections.
+- **Latest code checkpoint:** `7f48a362e1101ede4af85e6becfb302d05279430` — advanced AI attack-research priorities and regression guard, following campaign progression fixes.
 - **Green code workflow:** [#38747786721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747786721) completed successfully for the corrected campaign progression/test commits, including source checks, all standalone regression tests and atlas validation.
 - Corrected the large-army smoke benchmark so 100, 200 and 400 mean **total live units**, including the seeded starting force, rather than adding 100/200/400 on top of it. Timing still covers simulation steps only, uses three samples per population and reports median/range.
 - Added real-engine campaign matrix coverage: all 19 defined missions initialise with units/buildings and advance for one simulated second without an exception. This verifies startup only, not mission completion or balance.
-- Fixed a real campaign progression defect: the arc list referenced nonexistent mission ID 19, while the actual array contains 19 missions (IDs 0–18). Iron Pass (ID 18) now belongs to Northern March; Causeway Campaign contains IDs 16–17. Added regression coverage proving every defined mission ID appears exactly once in the campaign arcs and that no missing/out-of-range mission is referenced.
+- Fixed a real campaign progression defect: the arc list referenced nonexistent mission ID 19, while the actual array contains 19 missions (IDs 0–18). Iron Pass (ID 18) now belongs to Northern March; Causeway Campaign contains IDs 16–17. Regression coverage proves every defined mission ID appears exactly once in the campaign arcs and no missing/out-of-range mission is referenced.
+- AI research scoring now applies a stronger penalty to advanced melee attack research (`atkM2`) when the AI has fewer than two melee troops, and advanced ranged attack research (`atkR2`) when it has fewer than two ranged troops. Added regression guards in `tests/ai-research-priority.test.mjs`; full workflow result for these latest commits is pending.
 - Corrected the benchmark warm-up comment to reflect the current 64-unit separation fallback threshold.
 - **Latest simulation-only benchmark (Node CI runner; 30 steps, 3 repeats):** 100 total units median 6.24 ms (6.11–6.26); 200 total units median 10.97 ms (10.94–11.16); 400 total units median 20.64 ms (20.58–24.32). These timings cover simulation steps only and are not Xbox frame-rate or browser-render timings. An earlier passing run measured 4.99 / 8.94 / 15.89 ms respectively; CI runner load varies.
 - The separation fallback is limited to 64 or fewer units; larger armies use pooled spatial-grid separation. Earlier 120/220/420-unit measurements motivated this threshold change but are superseded by the exact-total benchmark above.
@@ -42,7 +43,7 @@ The browser-like harness executes the real classic-script game engine for select
 | --- | --- |
 | Save validation and indexed entity references | Fixed at the previously green code checkpoint; valid campaign save/load round-trip is covered |
 | Local autosave | One rolling `ck_autosave` slot at 60-second intervals in active local play; multiplayer autosave suppressed; browser storage denial/recovery still needs live verification |
-| Technology | Many researched effects have source guards and runtime smoke tests for Gather Rate, Man-at-Arms HP, Bloodlines, Chemistry and newly created units; not every technology is fully balance-tested |
+| Technology | Many researched effects have source guards and runtime smoke tests for Gather Rate, Man-at-Arms HP, Bloodlines, Chemistry and newly created units; AI now penalizes advanced attack upgrades without a matching army; full latest workflow pending; not every technology is fully balance-tested |
 | Campaign | All 19 defined missions passed real-engine startup plus one simulated second; objective-specific regressions and selected real objective completion are covered; full playthroughs remain unverified |
 | AI | Growth, age progression, coordinated siege, defensive response, research priority, retreat and naval threat logic have focused coverage; complete-match strategy remains unverified |
 | Maps/naval | Generated-map connectivity and selected real ship movement/combat/repair paths are covered; every layout and coastal edge case is not certified |
