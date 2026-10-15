@@ -26,7 +26,7 @@ assert.match(html, /S\.tech\[u\.t\]\.carry\?15:CAP/,
   'Carry Capacity research must affect already-working villagers when they next reach the carrying threshold');
 assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)\+\(CAVARM\.has\(t\.k\)&&ta\.armC\?1:0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
-assert.match(html, /const CAVARM=new Set\\(\\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\\]\\)/,
+assert.match(html, /const CAVARM=new Set\\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\\)/,
   'Cavalry armour must be restricted to mounted units in the current roster');
 assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2'\]/,
   'Cavalry armour must be researched at the Blacksmith');
