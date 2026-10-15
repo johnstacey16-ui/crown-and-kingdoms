@@ -23,12 +23,6 @@ const popOf=t=>S.us.filter(u=>u.t===t).length+S.bs.reduce((a,b)=>a+(b.t===t?b.q.
 const can=(t,c)=>Object.keys(c).every(k=>S.res[t][k]>=c[k]),pay=(t,c,m=-1)=>{for(const k in c)S.res[t][k]+=m*c[k]};
 const cs=c=>Object.entries(c).map(([k,v])=>v+k.toUpperCase()).join(' ')||'free';
 const vis=e=>e.t===0||S.vs[(e.y|0)*W+(e.x|0)];
-/* ===== FOG OF WAR / MINIMAP DATA ===== */
-const FOG_OFFSETS={};for(const r of[8,11,14]){const a=[];for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)a.push([x,y]);FOG_OFFSETS[r]=a}
-function fog(){S.vs.fill(0);const m=(e,r)=>{const h=(e.s||0)/2,cx=(e.x+h)|0,cy=(e.y+h)|0,a=FOG_OFFSETS[r];for(let i=0;i<a.length;i++){const x=cx+a[i][0],y=cy+a[i][1];if(x>=0&&x<W&&y>=0&&y<H)S.vs[y*W+x]=S.ex[y*W+x]=1}};
-const sharesVision=t=>t===0||diplomacyRelation(0,t)==='ally';
-for(const u of S.us)if(sharesVision(u.t)&&u.hp>0)m(u,8);
-for(const b of S.bs)if(sharesVision(b.t)&&b.hp>0)m(b,b.k==='tc'?11:b.k==='outpost'?14:8)}
 const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||0)+v},atkbF=(t,k,v)=>{const T0=S.tech[t];T0.atkb=T0.atkb||{};T0.atkb[k]=(T0.atkb[k]||0)+v};
 const CIV0=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t,'knight',15)},{n:'Britons',uu:'lbow',d:'Archers +1 attack; Longbowmen',fx:t=>{atkbF(t,'arc',1);atkbF(t,'xbow',1);atkbF(t,'hcan',1)}},{n:'Mongols',uu:'mgd',d:'Scouts +30 HP, faster hunting; Mangudai',fx:t=>{hpbF(t,'scout',30);S.tech[t].hunt=1}},{n:'Byzantines',uu:'cata',d:'Buildings +15% HP; Cataphracts',fx:t=>{S.tech[t].bz=1}},{n:'Persians',uu:'ele',d:'Start +150 food and wood; War Elephants',fx:t=>{S.res[t].f+=150;S.res[t].w+=150}},{n:'Teutons',uu:'tk',d:'Infantry +1 armour; Teutonic Knights',fx:t=>{S.tech[t].armI=1}}];
 const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t,'knight',15),ut:{k:'ut0',n:'Chivalry',cost:{f:300,g:200},t:50,age:2,fx:t=>atkbF(t,'knight',2)}},
