@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 // These guards protect the existing fishing loop from regressions. They are
 // source-level checks, not a substitute for simulating a live match.
