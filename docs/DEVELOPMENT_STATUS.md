@@ -217,3 +217,6 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 
 
 - **King of the Hill regression added (15 October):** commit [`1835e9c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8) adds live-engine checks for contested progress reset, excluded economic/naval units, the five-minute boundary and both player and enemy wins. **CI status not yet confirmed**; do not treat the new check as passing until GitHub Actions completes successfully.
+
+
+- **Rolling autosave regression added (15 October):** commit [`29a63a5`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/29a63a5b51e2769ab97a409bae59db27902bd251) covers overwrite-in-place, restoration of the latest simulation time, and preservation of manual save slots. The existing scheduler is configured for 60-second local-match autosaves. **New test CI result remains unconfirmed.**
