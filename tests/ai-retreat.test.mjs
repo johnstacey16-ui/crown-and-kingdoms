@@ -25,6 +25,6 @@ test('retreating units heal at shelter and resume only after recovering', () => 
 
 test('retreating units are excluded from coordinated AI attack waves', () => {
   assert.match(html,
-    /else if\(!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)arm\.push\(u\)/,
+    /else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)arm\.push\(u\)/,
     'The AI roster must exclude units already retreating before forming attacks');
 });
