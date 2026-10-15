@@ -33,6 +33,9 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Implemented:** the campaign HUD now lists up to five active objectives, so the five-objective opening tutorial no longer hides its last objective. A regression assertion covers the full list.
 - **Regression harness maintenance:** tests that inspect pause-menu item composition now include `js/ui.js` alongside `engine.js`, so assertions continue checking the real combined runtime after extraction. The full suite is run in GitHub Actions.
 
+
+- **Implemented:** moved researched unit display-name resolution (`unitName`) from `engine.js` into `js/state.js`, leaving the engine focused on runtime orchestration. Added `tests/unit-label-ownership.test.mjs` to protect single ownership and all seven researched rank labels. This is a maintainability refactor; it does not change combat balance or claim full runtime validation.
+
 ## 1. Current implementation
 
 ### Core simulation and economy
