@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
+test('campaign HUD can display every active objective in five-goal tutorial missions', () => {
+  assert.match(html, /function cmpHud\(\)[\s\S]*?sc\.goals\.filter\(q=>!cmp\.d\[q\.id\]\)\.slice\(0,5\)/);
+  assert.match(html, /g\.forEach\(\(q,i\)=>tx\('- '\+q\.t,24,104\+i\*26,16,'#fff'\)\)/);
+});
+
 test('coastal campaign sequel has relic, monastery and siege objectives', () => {
   assert.match(html, /t:'The Strait\\'s Last Relic'/);
   assert.match(html, /t:'Build a Monastery'/);
