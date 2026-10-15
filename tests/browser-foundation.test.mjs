@@ -56,3 +56,13 @@ test('audio resume attempts cannot create unhandled autoplay-policy rejections',
   assert.match(engine, /AC\.resume\(\)\.catch\(\(\)=>\{\}\)/);
   assert.doesNotMatch(engine, /AC\.resume\(\)(?!\.catch)/);
 });
+
+
+test('offline shell caching stays same-origin and keeps online code updates fresh', () => {
+  const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+  assert.match(engine, /navigator\.serviceWorker\.register\('\.\/sw\.js'/);
+  assert.match(serviceWorker, /request\.method !== 'GET'/);
+  assert.match(serviceWorker, /url\.origin !== self\.location\.origin/);
+  assert.match(serviceWorker, /const networkFirst = request\.mode === 'navigate'/);
+  assert.match(serviceWorker, /cache\.addAll\(CORE_ASSETS\)/);
+});
