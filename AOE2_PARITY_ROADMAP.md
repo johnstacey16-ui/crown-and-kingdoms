@@ -244,6 +244,12 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - **Verification passed:** GitHub Actions run [38813593812](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38813593812) completed successfully.
 
 
+### Campaign objective predicate return types — 15 October 2026
+
+- Strengthened the all-19-mission live-engine campaign matrix: every objective predicate must execute without throwing and return an actual boolean, both at mission start and after 40 simulated seconds.
+- This closes a gap where the audit invoked predicates but silently accepted `undefined`, strings or other truthy/falsy non-boolean results.
+- Regression guard: the campaign matrix in `tests/simulation-smoke.test.mjs`. CI result for commit [`93f5ffd`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/93f5ffd6d267db8655d41409241d8b39348ac4f9) pending.
+
 ### Rolling autosave regression coverage — 15 October 2026
 
 - Added a live-engine test in commit [`29a63a5`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/29a63a5b51e2769ab97a409bae59db27902bd251) proving that a second autosave overwrites the single `ck_autosave` snapshot, the newest snapshot restores its simulation time, and autosaving leaves the three manual save slots unchanged.
