@@ -5,9 +5,11 @@ const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 assert.match(ai, /humanShips=S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&!u\.ld&&U\[u\.k\]\.sh&&u\.k!=='fish'&&u\.k!=='trn'&&u\.k!=='cog'&&U\[u\.k\]\.dmg>=4\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
-assert.match(ai, /focusCounts=new Map\\(\\);for\\(const u of galleys\\)if\\(u\\.o==='a'&&u\\.tg\\)focusCounts\\.set\\(u\\.tg,\\(focusCounts\\.get\\(u\\.tg\\)\\|\\|0\\)\\+1\\);for\\(const ship of galleys\\.filter\\(u=>u\\.o==='i'/,
-  'warships must prioritize combat-capable enemy ships over economic and transport vessels');
-assert.match(ai, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/);\nassert.match(ai, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
+assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>u\.o==='i'/,
+  'naval focus-fire counts must be built once before ship target scoring');
+assert.match(ai, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/,
+  'each ship assignment must update focus-fire counts for following ships');
+assert.match(ai, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
   'AI must value naval attack research against any confirmed enemy combat-ship class');
 assert.match(ai, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');
