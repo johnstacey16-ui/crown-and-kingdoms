@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
-assert.match(ai, /humanShips=S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&!u\.ld&&U\[u\.k\]\.sh&&u\.k!=='fish'&&u\.k!=='trn'&&u\.k!=='cog'&&U\[u\.k\]\.dmg>=4\)/,
+assert.match(ai, /humanShips=S\.us\.filter\(u=>u&&Number\.isInteger\(u\.t\)&&isHostile\(t,u\.t\)&&u\.hp>0&&!u\.ld&&U\[u\.k\]\?\.sh&&u\.k!=='fish'&&u\.k!=='trn'&&u\.k!=='cog'&&U\[u\.k\]\.dmg>=4\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
 assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>u\.o==='i'/,
