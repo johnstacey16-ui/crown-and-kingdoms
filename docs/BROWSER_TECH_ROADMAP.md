@@ -226,3 +226,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the rival AI subsystem from `js/simulation.js` into dedicated `js/ai.js`; core simulation remains responsible for fixed-step unit/building updates and calls the same `ai(dt)` entry point.
 - Preserved shared global function names for the classic-script architecture. The AI script loads after simulation and before pathfinding-dependent runtime use, then is syntax-checked and cached for offline use.
 - Updated source-regression bundles to include the extracted subsystem and added an ownership/load-order regression test. Physical Xbox runtime profiling remains a separate release gate.
+
+### Save/load regression resolved — 15 October 2026
+
+- Current `main` HEAD at the time of this checkpoint: `10a9a2f7209236385b57d31e7f71f1e844147d78` (`fix: accept indexed entity references in valid saves`). The subsequent commits in this documentation update do not change game runtime code.
+- GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) completed successfully. Its `node-checks` job passed script/source invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation.
+- The preceding campaign save/load round-trip failure came from an over-escaped digit matcher in the indexed entity-reference validator. The current validator accepts valid references such as `u12` while retaining the range check, and the campaign round-trip passes in the full CI suite.
+- This checkpoint is automated-test evidence only. Live browser, deployment, storage-quota/interrupted-write behaviour, and physical Xbox Series S / Edge performance remain unverified.
