@@ -153,8 +153,9 @@ if(!n){k='w';n=findNode(v,'w',30)}if(n){v.o='g';v.tg=n;v.ct=n.k;v.p=[];v.ret=0}}
 /* Villagers evacuate from nearby raiders, then resume their previous work once they reach safety. */
 for(const v of vil){
  if(v.hp<=0||v.ld||v.o==='B')continue;
- const threat=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.dmg>3)
-  .map(e=>({e,d:Math.hypot(e.x-v.x,e.y-v.y)})).sort((a,b)=>a.d-b.d)[0];
+ /* Single-pass nearest-raider scan avoids filter/map/sort allocations for every villager. */
+ let threat=null;
+ for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-v.x,e.y-v.y);if(!threat||d<threat.d)threat={e,d}}
  if(v.aiEvac){
   const ev=v.aiEvac,near=threat&&threat.d<7,safe=ev.shelter&&Math.hypot(v.x-(ev.shelter.x+ev.shelter.s/2),v.y-(ev.shelter.y+ev.shelter.s/2))<3;
   if(!near&&(safe||S.t>=ev.until)){
