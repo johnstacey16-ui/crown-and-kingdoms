@@ -120,3 +120,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Patrol clears stale target/path state and reports when no eligible units were selected.
 - Regression guard: `tests/patrol-order-validation.test.mjs`.
 - Source assertions have been added; full test execution and controller/browser gameplay validation remain pending.
+
+
+## 15 October 2026 — Production cancellation validation
+
+- Queue cancellation now rejects destroyed/unfinished buildings, invalid owners, empty queues and malformed queue entries before issuing refunds.
+- Valid cancellation still removes the newest queued unit and refunds its cost.
+- Regression guard: `tests/production-cancellation-validation.test.mjs`.
+- Source checks are not equivalent to running the Node suite or testing controller behaviour in a browser/Xbox.
