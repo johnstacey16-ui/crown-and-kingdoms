@@ -1,0 +1,40 @@
+/* Crown & Kingdoms — shared browser presentation foundation.
+   Keep the canvas as the sole game surface; UI and world rendering remain controller-driven. */
+:root {
+  color-scheme: dark;
+  background: #0d0f14;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0d0f14;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+body {
+  position: fixed;
+  inset: 0;
+  contain: strict;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  image-rendering: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+canvas:focus-visible {
+  outline: 2px solid #f2c14e;
+  outline-offset: -2px;
+}
