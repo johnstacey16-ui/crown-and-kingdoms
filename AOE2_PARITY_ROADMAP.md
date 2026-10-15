@@ -119,9 +119,8 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Verify the corrected exact-total 100/200/400-unit simulation benchmark in the workflow for commit `c64e353e0487c51c0d3922c2211bb74d32fd6556`. Report Node runner timings as simulation-only measurements, not Xbox frame-rate claims.
-2. Continue substantive technology-effect, AI strategy/naval, and campaign objective/event work using the real-engine smoke harness where possible.
-3. Fix the highest-impact reproducible behaviour revealed by runtime coverage; avoid adding duplicate source-only audits for already covered behaviour.
+1. Continue substantive technology-effect, AI strategy/naval, and campaign objective/event work using the real-engine smoke harness where possible.
+2. Fix the highest-impact reproducible behaviour revealed by runtime coverage; avoid adding duplicate source-only audits for already covered behaviour.
 4. Exercise cold start, pause/resume, save/load, complete campaign missions and naval routes in a live browser.
 5. Continue cohesive engine/UI extraction only when it preserves script order, shared state and controller behaviour, with focused integration coverage.
 6. Confirm deployment and physically test controller-only play and 400-unit performance on Xbox Series S / Edge when hardware access is available.
@@ -130,7 +129,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Code commit: `c64e353e0487c51c0d3922c2211bb74d32fd6556` corrects the simulation smoke benchmark to target 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
 - The benchmark warms both sides of the current 64-unit separation fallback threshold and reports median/range across three simulation-only samples for each population.
-- CI for this commit was still running at the time of this documentation edit. The benchmark must not be marked verified until workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completes successfully.
-- Previous verified code checkpoint: `a2187d200dfcd6e2c75d339c5fda8fbd3fae8039`, workflow [#947](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746092399), successful. Later docs workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015) also passed.
-- Earlier 120/220/420 total-unit timings motivated the threshold change, but they are not substitutes for the corrected 100/200/400 total-unit run.
+- Workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completed successfully for the benchmark commit and ran the complete configured regression suite.
+- Simulation-only Node CI timings over 30 fixed steps and three repeats: 100 total units median **4.99 ms** (range 4.66–5.88); 200 total units median **8.94 ms** (8.15–9.15); 400 total units median **15.89 ms** (15.03–15.97).
+- These are Node simulation timings, not browser-render timings, Xbox frame-rate or physical console verification. Earlier 120/220/420 total-unit timings are superseded by this exact-population benchmark.
 - Automated CI is not a full live browser playthrough, production deployment confirmation, multiplayer validation or physical Xbox verification.
