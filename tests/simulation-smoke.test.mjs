@@ -1276,6 +1276,19 @@ assert.equal(timedCampaignEvent.callsAfterRepeat, 1, 'Further campaign ticks mus
 assert.equal(timedCampaignEvent.firedAfterRepeat, true, 'The event fired marker must remain set after additional ticks');
 console.log('campaign-event-dispatch: timed event fired once and remained one-shot across 18 seconds of campaign time');
 
+// Exercise the real mission-end path: no victory before all goals, persistent completion,
+// then the next mission briefing follows the campaign's declared arc order.
+const campaignCompletion = game.exerciseCampaignCompletion();
+assert.notEqual(campaignCompletion.before.over, 'win', 'A campaign must not win while every objective predicate is false');
+assert.equal(Object.keys(campaignCompletion.before.completed).length, 0, 'No objective may be marked complete before its predicate succeeds');
+assert.equal(campaignCompletion.won.over, 'win', 'The mission should win after every objective predicate succeeds');
+assert.equal(Object.keys(campaignCompletion.won.completed).length, 5, 'Every First Hearth objective must be recorded complete');
+assert.equal(campaignCompletion.won.mode, 'end', 'Campaign victory should enter the mission-end screen');
+assert.equal(campaignCompletion.nextBriefing.mode, 'brief', 'Continue after victory should open the next mission briefing');
+assert.equal(campaignCompletion.nextBriefing.index, 1, 'First Hearth should advance to Raiders at the Ford');
+assert.equal(campaignCompletion.savedCompletion['0'], 1, 'Mission completion should be persisted for campaign unlocks');
+console.log('campaign-completion-transition: all objectives required, completion persisted, next mission briefing opened');
+
 // Exercise every named generated-map layout through the actual game initializer.
 // This catches disconnected starts and bad map-layout seeds that static tests miss.
 const generatedMapAudits = [];
