@@ -158,12 +158,12 @@ globalThis.__CK_TEST__ = {
     };
   },
 
-  runFourKingdomWar(economySeconds = 180, combatSeconds = 60) {
+  runFourKingdomWar(economySeconds = 360, combatSeconds = 60) {
     kingdoms = 4;
     this.start(86420);
     const ticksPerSecond = 30;
     const runTicks = (seconds) => {
-      for (let tick = 0; tick < Math.round(seconds * ticksPerSecond); tick++) this.tick(1 / ticksPerSecond);
+      for (let tick = 0; tick < Math.round(seconds * ticksPerSecond); tick++) { this.tick(1 / ticksPerSecond); aiTeam(0, 1 / ticksPerSecond); }
     };
     const snapshot = () => Array.from({ length: 4 }, (_, team) => {
       const units = S.us.filter(u => u && u.t === team && u.hp > 0);
@@ -1260,12 +1260,12 @@ assert.equal(skirmish.invalidBuildings, 0, 'AI skirmish must not leave buildings
 assert.equal(skirmish.invalidResources, 0, 'AI skirmish must preserve finite non-negative kingdom resources');
 console.log('four-kingdom-skirmish-smoke: '+skirmish.time.toFixed(1)+'s, '+skirmish.units+' units, '+skirmish.buildings+' buildings, invalid units/buildings/resources='+skirmish.invalidUnits+'/'+skirmish.invalidBuildings+'/'+skirmish.invalidResources);
 
-// Longer four-kingdom economy-to-war run: allow the actual AI to gather, build,
-// train and manage its economy for three simulated minutes, then send each
-// surviving army against a rival and continue the live simulation for one minute.
-const war = game.runFourKingdomWar(180, 60);
+// Longer four-kingdom economy-to-war run: enable the existing AI decision function
+// for team 0 as well as the three native AI teams, allow six simulated minutes of
+// gathering/building/training, then order surviving armies to attack rivals for one minute.
+const war = game.runFourKingdomWar(360, 60);
 assert.equal(war.teams, 4, 'Extended AI war must run four kingdoms');
-assert.ok(war.simulatedSeconds >= 239.9, 'Extended AI war must simulate at least four minutes');
+assert.ok(war.simulatedSeconds >= 419.9, 'Extended AI war must simulate at least seven minutes');
 assert.ok(war.before.every(t => t.units > 0 && t.buildings > 0), 'Each AI kingdom must start with units and buildings');
 assert.ok(war.economy.every(t => t.units > 0 && t.buildings > 0), 'Each AI kingdom must retain units and buildings after economy phase');
 assert.equal(war.invalidUnits, 0, 'Extended AI war must preserve valid unit states');
