@@ -306,3 +306,11 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Combat adds the researched +1 armour point only against targets in `CAVARM` (scout cavalry, knights, camels, mamelukes, cataphracts, elephants, mangudai and elephant archers). Infantry and ranged armour effects remain class-specific; mounted ranged units can qualify for both classes in the current simplified model.
 - Researched barding has a battlefield-visible flank plate/seam cue. AI research priority rises when it sees at least three hostile mounted units.
 - Regression tests verify research reachability, required metadata, damage calculation, class membership, AI priority and the visual cue. Balance and readability still need live browser/Xbox playtesting.
+
+
+## Front-end screen routing extraction — 15 October 2026
+
+- **Implemented:** moved the mode-to-screen dispatch for title, multiplayer lobby, controller remapping, About/info, new-game setup, options, save slots, campaign list/briefing/objectives and technology tree into `drawFrontEndScreen()` in `js/ui.js`.
+- **Preserved:** `engine.js` still updates the animation clock and particles, warms sprites, clears the canvas, advances in-match notes, draws the world and delegates live overlays. A true/false return explicitly preserves the old early-return behavior for full-screen views, including the multiplayer fallback to the title screen when network integration is unavailable.
+- **Regression coverage:** added `tests/front-end-screen-routing-ui-extraction.test.mjs` for screen ownership, load order and routing-before-world-draw. CI discovers the new test automatically.
+- **Verification boundary:** structural refactor only; it makes no frame-rate claim. Menu/controller flows still need direct browser and Xbox validation.
