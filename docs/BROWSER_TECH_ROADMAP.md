@@ -162,3 +162,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved `drawTitle()`, `drawSetup()` and `drawOpts()` into `js/ui.js` with existing names and bodies preserved.
 - `setRows()`, `optsItems()`, `titleCtl()`, `setupCtl()` and `optsCtl()` remain in `js/menus.js`, preserving setting values, wraparound navigation and `sset()` persistence calls.
 - Added `tests/menu-screen-ui-extraction.test.mjs` to protect the split and verify the presentation still uses the existing menu models.
+
+
+### In-game command overlay extraction — 15 October 2026
+
+- Moved the `DS` description table, `stt()` stat label helper, `drawRadial()`, `drawCg()` and `quickBar()` into `js/ui.js`. All drawing remains on the existing canvas and function names are unchanged.
+- The `draw()` loop still decides when the radial/control-group overlays appear; radial command state, group assignment/focus and controller processing remain in `engine.js`/`js/input.js` as before.
+- Added `tests/command-overlay-ui-extraction.test.mjs` to guard the ownership boundary and ensure drawing calls still connect to the existing command state.
