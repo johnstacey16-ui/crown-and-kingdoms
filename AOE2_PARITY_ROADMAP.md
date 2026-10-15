@@ -13,6 +13,7 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **AI enemy-composition safety:** counter-unit planning ignores malformed and garrisoned enemy records; naval threat and building-repair scans guard missing/unknown unit metadata. Automated source regression added; live strategic balance remains unverified.
 - **AI production and naval scan hardening:** AI no longer attempts training at destroyed production buildings or technology research at destroyed research buildings; queue shape is checked before training decisions. Naval threat/target scans guard invalid unit records, and galley-cap calculations ignore malformed dock queues. Focused regression guards added; full-match balance and Xbox validation remain outstanding.
 - **AI input safety — improved:** roster planning skips invalid unit records before unit metadata access and validates the Town Centre queue shape before production decisions. Regression guard added; full simulation and console validation remain outstanding.
 
