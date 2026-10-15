@@ -10,7 +10,7 @@ const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + engineSource;
+const engine = config + '\n' + state + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
