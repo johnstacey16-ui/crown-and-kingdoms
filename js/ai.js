@@ -198,9 +198,8 @@ const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market
  .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
 let raid=null;
 for(const site of economicSites){
- const intruder=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3)
-  .map(e=>({e,d:Math.hypot(e.x-(site.x+(site.s||0)/2),e.y-(site.y+(site.s||0)/2))}))
-  .filter(q=>q.d<8.5).sort((a,b)=>a.d-b.d)[0];
+ let intruder=null;const sx=site.x+(site.s||0)/2,sy=site.y+(site.s||0)/2;
+ for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-sx,e.y-sy);if(d<8.5&&(!intruder||d<intruder.d))intruder={e,d}}
  if(intruder){raid={site,e:intruder.e};break}
 }
 if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
