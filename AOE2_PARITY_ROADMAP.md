@@ -7,11 +7,11 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 
 ## Repository workflow and backup disposition — 15 October 2026
 
-- The latest gameplay regression, [#38804001855](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38804001855), passed on commit `723a36c7b20c6b4c9671356742fc7ccf2730241e`. It passed source parsing/invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation, including campaign Town Centre defeat and live naval AI target recovery both after target loss and while moving without a target.
-- The repository has one active workflow definition, `.github/workflows/game-regression.yml`, triggered by pushes to `main`, pull requests into `main`, and manual dispatch. No in-progress runs were found. Open-PR status is recorded only when explicitly checked; old backup branches are not automatically treated as pending work.
+- The latest gameplay regression, [#38804716971](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38804716971), passed on commit `3caa44506b4e50628a8c4e0354be6917ef1f80bd`. It passed source parsing/invariants, every standalone `tests/*.test.mjs` regression test, and sprite-atlas metadata/frame-bound validation. Recent campaign coverage includes defeat on Town Centre loss and The Last Crown king survival; naval coverage includes live target reacquisition after target loss and while moving without a target.
+- Some intermediate commits failed while their new tests were being aligned with the implementation: stale naval focus-fire source expectations, a naval fixture that did not produce the intended hostile galley, and a campaign-defeat completion-record assertion. The implementation/test corrections were followed by successful runs; the latest head is green. Failed historical runs remain in Actions as audit history and are not rerun against obsolete commits.
+- The repository has one active workflow definition, `.github/workflows/game-regression.yml`, triggered by pushes to `main`, pull requests into `main`, and manual dispatch. It runs source invariants, discovers every standalone regression test, and validates sprite-atlas metadata/frame bounds.
 - All 32 non-main branches were retained and compared against `main`. The branches are historical backups with substantial divergence (many over 1,000 commits behind the current modular architecture). They are **not** safe to merge wholesale: several contain obsolete `index.html` game code and earlier roadmap/README snapshots.
 - The CI workflow on `main` already matches the backed-up `maintenance/ci-roadmap-audit` workflow file. The active `main` branch remains the source of truth. Any genuinely unique feature from an old branch must be selectively ported into current modules and regression-tested; the backups have not been deleted.
-
 ## Status definitions
 
 - **Present:** identifiable implementation exists.
