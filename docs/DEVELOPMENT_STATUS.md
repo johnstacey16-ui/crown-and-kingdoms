@@ -90,3 +90,10 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Extended the destroyed-structure recovery fix across AI planning: Town Centre lookups require a living Town Centre; destroyed walls, Barracks, Houses and Docks no longer count toward planning caps; destroyed structures no longer block resource-site construction; destroyed enemy Markets/Docks no longer qualify as trade destinations.
 - Living structures and foundations still count where appropriate to prevent duplicate orders.
 - Expanded `tests/ai-rebuild-destroyed-buildings.test.mjs` to cover these source-level rules. This is a focused regression guard, not a substitute for a full simulated AI recovery match.
+
+
+## 15 October 2026 — AI age-up requirement consistency
+
+- Corrected the AI's villager-production/age-up gate to count only completed, living buildings that qualify for the current age. It now matches the actual `research(b,'age')` requirement check, including the building's age.
+- Prevents destroyed or wrong-age structures from falsely satisfying the AI's two-building age-up requirement and suppressing villager production.
+- Added a focused assertion to `tests/ai-rebuild-destroyed-buildings.test.mjs`. Full match behaviour remains subject to the regression suite and gameplay testing.
