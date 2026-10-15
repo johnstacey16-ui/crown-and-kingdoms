@@ -8,7 +8,7 @@ const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8')
 
 test('terrain colour palettes and deterministic tile variation belong to js/render.js', () => {
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
-  for (const marker of ['const hsh=', 'const GC=', 'const SC={}', 'const shd=', 'const GCd=', 'GCl=GC.map', 'const PALS=']) {
+  for (const marker of ['const hsh=', 'const GC=', ',SC={}', 'const shd=', 'const GCd=', 'GCl=GC.map', 'const PALS=']) {
     assert.ok(render.includes(marker), marker+' must be renderer-owned');
     assert.ok(!engine.includes(marker), marker+' must not be duplicated in engine.js');
   }
