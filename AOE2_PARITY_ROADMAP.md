@@ -171,3 +171,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Production commands now validate that the building is alive, completed, supports the requested unit, and that the unit exists before charging resources.
 - Research commands reject dead or unfinished buildings before charging resources.
 - Regression guard: `tests/invalid-building-commands.test.mjs`. Runtime validation is still needed.
+
+
+### Patrol command eligibility — 15 October 2026
+
+- Patrol is restricted to living, ungarrisoned combat units and warships, excluding workers, fishing boats, traders, transports and monks.
+- Invalid selections receive a clear message; eligible units have stale target/path state cleared before the patrol starts.
+- Regression test: `tests/patrol-order-validation.test.mjs`. Runtime playtesting remains outstanding.
