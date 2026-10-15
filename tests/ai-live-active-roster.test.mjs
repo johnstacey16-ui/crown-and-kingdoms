@@ -21,8 +21,8 @@ console.log('ai-live-active-roster: dead and garrisoned units do not inflate AI 
 const threatScan = ai.slice(ai.indexOf('const hostileFleet=[]'), ai.indexOf('\nif(S.t-(A.lastTributeAt'));
 assert.match(threatScan, /for\(const e of S\.us\)/,
   'AI naval threat rosters should be built in a single pass over the unit list');
-assert.match(threatScan, /if\(e\.k!=='fish'\)hostileShips\.push\(e\)/,
-  'Naval target candidates must preserve the existing non-fishing-ship filter');
+assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
+  'Naval target candidates must exclude garrisoned ships and fishing boats');
 assert.match(threatScan, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;if\(!e\.ld\)hostileFleet\.push\(e\)\}/,
   'Threat count must include garrisoned combat ships as before while the active flee/avoidance fleet excludes them');
 assert.doesNotMatch(ai, /const hostileFleet=S\.us\.filter|const hostileShips=S\.us\.filter/,
