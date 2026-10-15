@@ -1,0 +1,12 @@
+function path(u,goal){const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i])):(i=>S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0,hk=[],hv=[];
+const hf=hx===undefined?()=>0:(x,y)=>{const dx=Math.abs(x+.5-hx),dy=Math.abs(y+.5-hy);return Math.max(0,Math.max(dx,dy)+.414*Math.min(dx,dy)-hr-.7)};
+const push=(k,n)=>{let i=hk.length;hk.push(k);hv.push(n);while(i>0){const p=(i-1)>>1;if(hk[p]<=k)break;hk[i]=hk[p];hv[i]=hv[p];i=p}hk[i]=k;hv[i]=n};
+const pop=()=>{const r=hv[0],kl=hk.pop(),vl=hv.pop(),n=hk.length;if(n){let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&hk[c+1]<hk[c])c++;if(hk[c]>=kl)break;hk[i]=hk[c];hv[i]=hv[c];i=c}hk[i]=kl;hv[i]=vl}return r};
+const s0=sy*W+sx;A.st[s0]=v;A.g[s0]=0;A.pr[s0]=-1;push(0,s0);
+while(hk.length){const c=pop();if(A.cl[c]===v)continue;A.cl[c]=v;const cx=c%W,cy=c/W|0;
+if(goal(cx,cy)){const p=[];for(let n=c;A.pr[n]>=0;n=A.pr[n])p.push([n%W+.5,(n/W|0)+.5]);if(!p.length)p.push([cx+.5,cy+.5]);return p.reverse()}
+for(const[dx,dy]of D8){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const n=ny*W+nx;if(A.cl[n]===v||bl(n))continue;if(dx&&dy&&(bl(cy*W+nx)||bl(ny*W+cx)))continue;const ng=A.g[c]+(dx&&dy?1.414:1);if(A.st[n]!==v||ng<A.g[n]){A.st[n]=v;A.g[n]=ng;A.pr[n]=c;push(ng+hf(nx,ny),n)}}}
+return null}
+function d2(px,py,t){const s=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+s)),dy=Math.max(t.y-py,0,py-(t.y+s));return Math.hypot(dx,dy)}
+const goalNear=(t,r)=>{const f=(x,y)=>d2(x+.5,y+.5,t)<=r;f.hx=t.x+(t.s||0)/2;f.hy=t.y+(t.s||0)/2;f.hr=r+(t.s||0)/2;return f};
+const gp=(x,y,r)=>{const f=(a,b)=>Math.hypot(a+.5-x,b+.5-y)<r;f.hx=x;f.hy=y;f.hr=r;return f};
