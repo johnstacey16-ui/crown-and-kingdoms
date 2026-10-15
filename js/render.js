@@ -78,17 +78,28 @@ if(!coast&&!dirt){if(hv>.8){g.strokeStyle='#3e7a30';g.lineWidth=1;g.beginPath();
 function paintTileDetail(g,x,y,cx,cy){const i=y*W+x,wv=S.wt[i],h=hsh(x*17+31,y*23+7),q=hsh(x*7+83,y*13+41);if(wv){if(wv===1&&h>.57){const ox=(q-.5)*34,oy=(h-.5)*13;g.strokeStyle='rgba(190,226,245,'+(.12+q*.12)+')';g.lineWidth=.7;g.beginPath();g.moveTo(cx+ox-3,cy+oy);g.lineTo(cx+ox+3,cy+oy-1.5);g.stroke()}return}const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]===1)||(y<H-1&&S.wt[i+W]===1);if(coast)return;const ox=(q-.5)*43,oy=(h-.5)*19;if(h>.83){g.strokeStyle='rgba(32,76,28,.62)';g.lineWidth=.85;g.beginPath();g.moveTo(cx+ox-2,cy+oy+2);g.lineTo(cx+ox-1,cy+oy-2);g.moveTo(cx+ox,cy+oy+2);g.lineTo(cx+ox+2,cy+oy-1);g.stroke()}else if(h<.12&&q>.35){g.fillStyle=h<.035?'rgba(229,204,128,.8)':'rgba(110,103,91,.62)';g.beginPath();g.ellipse(cx+ox,cy+oy,1.5+q,0.8,0,0,Math.PI*2);g.fill()}else if(h>.72&&q<.22){g.fillStyle='rgba(231,190,88,.8)';g.fillRect(cx+ox,cy+oy,1.6,1.6);g.fillStyle='rgba(248,233,173,.8)';g.fillRect(cx+ox+.5,cy+oy-.5,.8,.8)}}
 
 function drawHill(o){
- const P=w2s(o.x,o.y),rx=TW*2.8,ry=TH*1.8;
- X.save();X.globalAlpha=.9;X.fillStyle='rgba(34,49,34,.72)';X.beginPath();X.ellipse(P[0],P[1],rx,ry,0,0,Math.PI*2);X.fill();
- X.strokeStyle='#d8c995';X.lineWidth=2;X.beginPath();X.ellipse(P[0],P[1],rx-3*zm,ry-2*zm,0,0,Math.PI*2);X.stroke();
- X.fillStyle='#68706b';dia(P[0],P[1],TW*1.05,TH*.72);X.fill();X.fillStyle='#aab0a0';dia(P[0],P[1]-6*zm,TW*.72,TH*.45);X.fill();
- X.fillStyle='#7d8985';X.fillRect(P[0]-4*zm,P[1]-24*zm,8*zm,21*zm);X.fillStyle='#c8cec1';X.fillRect(P[0]-4*zm,P[1]-24*zm,2.5*zm,20*zm);
- X.fillStyle='#d8c995';dia(P[0],P[1]-24*zm,5*zm,2.5*zm);X.fill();
- X.strokeStyle='#463b2a';X.lineWidth=2;X.beginPath();X.moveTo(P[0]+4*zm,P[1]-24*zm);X.lineTo(P[0]+4*zm,P[1]-38*zm);X.stroke();
- X.fillStyle='#be4b3a';poly([[P[0]+4*zm,P[1]-38*zm],[P[0]+19*zm,P[1]-33*zm],[P[0]+4*zm,P[1]-28*zm]]);X.fill();
+ const P=w2s(o.x,o.y),rx=TW*2.8,ry=TH*1.8,z=zm,px=P[0],py=P[1];
+ X.save();
+ // Low, warm-edged earth mound keeps the existing footprint and landmark position.
+ X.globalAlpha=.94;
+ X.fillStyle='rgba(25,34,24,.48)';
+ X.beginPath();X.ellipse(px,py+2*z,rx*1.04,ry*1.04,0,0,Math.PI*2);X.fill();
+ X.fillStyle='#59634a';X.beginPath();X.ellipse(px,py,rx,ry,0,0,Math.PI*2);X.fill();
+ X.strokeStyle='#d8c995';X.lineWidth=Math.max(1,2*z);X.beginPath();X.ellipse(px,py,rx-3*z,ry-2*z,0,0,Math.PI*2);X.stroke();
+ // Three overlapping rock planes add a readable light direction without extra assets.
+ X.fillStyle='#414d4d';poly([[px-18*z,py-2*z],[px-8*z,py-15*z],[px+3*z,py-11*z],[px+8*z,py+2*z],[px-3*z,py+9*z]]);X.fill();
+ X.fillStyle='#707b78';poly([[px-8*z,py-15*z],[px+5*z,py-19*z],[px+18*z,py-8*z],[px+8*z,py+2*z],[px+3*z,py-11*z]]);X.fill();
+ X.fillStyle='#aab0a0';poly([[px-8*z,py-15*z],[px+5*z,py-19*z],[px+1*z,py-12*z],[px-5*z,py-10*z]]);X.fill();
+ X.strokeStyle='rgba(224,218,185,.65)';X.lineWidth=Math.max(.7,z);X.beginPath();X.moveTo(px-17*z,py+1*z);X.lineTo(px-8*z,py-9*z);X.lineTo(px-2*z,py-5*z);X.moveTo(px+5*z,py-13*z);X.lineTo(px+13*z,py-8*z);X.stroke();
+ // Landmark plinth and flag retain their original centre/height for gameplay readability.
+ X.fillStyle='#7d8985';X.fillRect(px-4*z,py-24*z,8*z,21*z);
+ X.fillStyle='#c8cec1';X.fillRect(px-4*z,py-24*z,2.5*z,20*z);
+ X.fillStyle='#d8c995';dia(px,py-24*z,5*z,2.5*z);X.fill();
+ X.strokeStyle='#463b2a';X.lineWidth=Math.max(1,2*z);X.beginPath();X.moveTo(px+4*z,py-24*z);X.lineTo(px+4*z,py-38*z);X.stroke();
+ X.fillStyle='#be4b3a';poly([[px+4*z,py-38*z],[px+19*z,py-33*z+Math.sin(gt*4)*1.2*z],[px+4*z,py-28*z]]);X.fill();
+ X.fillStyle='rgba(245,225,169,.7)';poly([[px+5*z,py-37*z],[px+16*z,py-33*z+Math.sin(gt*4)*1.2*z],[px+5*z,py-32*z]]);X.fill();
  X.restore();
 }
-
 function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){TCH.delete(key);TCH.set(key,c);return c}
 const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');
 for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
