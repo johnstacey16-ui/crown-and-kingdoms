@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 assert.match(html, /if\(M\.cs\|\|M\.sea\|\|M\.arch\|\|M\.lake\|\|mapLayout===11\|\|mapLayout===12\|\|mapLayout===13\)/,
   'the generator must apply special terrain shaping for the Causeway preset');
