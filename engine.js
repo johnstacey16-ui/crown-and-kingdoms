@@ -61,7 +61,7 @@ const trOf=b=>{let l=B[b.k].tr||[];if(b.k==='castle'&&S.civ)l=l.concat([CIV[S.ci
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function setQ(v){gq=v;rs();sset()}
-function autoPause(){if(mode==='play'){mode='pause';pm=0}}
+function autoPause(){if(mode==='play'){saveG(true);mode='pause';pm=0}}
 function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
 function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
 
