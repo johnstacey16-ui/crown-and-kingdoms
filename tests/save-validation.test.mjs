@@ -142,3 +142,38 @@ assert.equal(rejectionHandled, true,
   'the save path must attach a rejection handler to asynchronous backup mirroring');
 
 console.log('save-validation: malformed saves rejected before restore; synchronous and asynchronous backup failures cannot block primary saves');
+
+
+// Guard the actual engine autosave policy: one rolling local checkpoint, once per minute,
+// and never while the shared multiplayer session is active.
+assert.match(engine, /let lastAutoSaveAt=-60000;/,
+  'the autosave clock must initialize so a new single-player session can checkpoint promptly');
+assert.match(engine, /now-lastAutoSaveAt>=60000/,
+  'active play must use a 60-second autosave interval');
+assert.match(engine, /S&&!\(window\.CK_NET&&window\.CK_NET\.isRunning\(\)\)&&now-lastAutoSaveAt>=60000\)\{lastAutoSaveAt=now;saveG\(true\)\}/,
+  'the frame loop must suppress rolling local autosaves while multiplayer is running');
+assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\)/,
+  'automatic saves must reuse one fixed rolling slot rather than creating a growing save history');
+
+// A failed primary write must report failure and leave the previous checkpoint intact.
+const previousCheckpoint = JSON.stringify({ v: 1, marker: 'previous-checkpoint' });
+let storedCheckpoint = previousCheckpoint;
+const failedPrimaryWriteSandbox = {
+  window: {},
+  localStorage: {
+    setItem() { throw new Error('quota exceeded'); },
+    getItem(key) { return key === 'ck_autosave' ? storedCheckpoint : null; },
+  },
+  S: {
+    nodes: [], bs: [], us: [], rel: [], wt: [], ex: [], res: [], age: [], tech: [], ai: [],
+    t: 0, pal: 0, kh: [], vc: [], px: [], civ: [0, 1], dip: [], vp: [],
+  },
+  W: 72, vm: 0, scoreLimit: 1200, aip: 0, cmp: null, diff: 0, cam: {},
+  slot: 0, skey: () => 'ck_save', hs: 0,
+  note() {},
+};
+vm.runInNewContext(save, failedPrimaryWriteSandbox, { filename: 'js/save.js' });
+assert.equal(failedPrimaryWriteSandbox.saveG(true), false,
+  'a failed primary autosave write must return failure');
+assert.equal(storedCheckpoint, previousCheckpoint,
+  'a failed primary write must not overwrite the previous checkpoint');
