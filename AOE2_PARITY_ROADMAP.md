@@ -290,3 +290,11 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Preserved the shared reusable path workspace, route cost/heuristic, walkability checks and existing return format. Loaded before kingdom automation and included in offline caching, syntax checks and pathing/simulation regressions.
 
 - Campaign module owns arc ordering, mission selection, objective/progression state and campaign controller handlers; its screen drawing and the shared title background/list renderers live in `js/ui.js`.
+
+
+## In-match UI extraction continuation — 15 October 2026
+
+- **Implemented:** moved in-match overlay composition from `engine.js` into `drawGameOverlays(dt)` in `js/ui.js`. This includes the selection rectangle, controller cursor/crosshair and order hints, hover labels, live HUD selection, radial/control-group overlays, pause and match-end panels, performance overlay, and multiplayer match status.
+- **Preserved:** the engine still owns simulation stepping, cursor/input state, selection/order mutations, particles, screen routing and the call to `drawWorld()`. The UI helper reads the same shared state and calls the same existing UI/network entry points; no new input route or saved field was introduced.
+- **Regression coverage:** added `tests/in-match-overlay-ui-extraction.test.mjs` for script order, single ownership and overlay wiring. The workflow automatically discovers all `tests/*.test.mjs` files.
+- **Verification boundary:** this is a behaviour-preserving source extraction. It does not claim better frame rate or prove live pause/end/multiplayer screens on Xbox; browser and physical-controller checks remain required.
