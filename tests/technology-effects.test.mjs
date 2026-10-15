@@ -28,7 +28,7 @@ assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled'\]\)/,
   'Cavalry armour must be restricted to mounted units in the current roster');
-assert.match(html, /smith:\{[^}]*rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2'\]/,
+assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2'\]/,
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150,g:100\},t:30,age:1\}/,
   'Cavalry Armour must have explicit cost, research time and age');

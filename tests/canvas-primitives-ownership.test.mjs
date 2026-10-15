@@ -23,7 +23,7 @@ test('renderer, UI and minimap can still resolve shared primitives', () => {
   assert.match(render, /poly\(/);
   assert.match(ui, /poly\(/);
   assert.match(minimap, /dia\(/);
-  assert.match(engine, /tx\(pat===2/);
+  assert.match(ui, /tx\(pat===2/);
 });
 
 test('shared primitives are declared exactly once across the loaded rendering scripts', () => {
