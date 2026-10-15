@@ -19,6 +19,10 @@ assert.match(html, /const popOf=t=>S\.us\.filter\(u=>u\.t===t\)\.length\+S\.bs\.
 assert.match(html, /if\(popOf\(t\)>=capOf\(t\)\)/, 'training must refuse units when live plus queued population reaches the cap');
 assert.match(html, /if\(u\.tradeReturning\)u\.tradeReturning=false;[\s\S]{0,360}u\.tradeReturning=true/, 'trade routes must alternate destination and return journeys');
 assert.match(html, /u\.trWait=2/, 'traders without a valid destination must wait and retry');
+assert.match(html, /keyOf\(b\)===u\.tradeFromKey&&b\.done&&b\.hp>0/, 'a destroyed source market or dock must be discarded');
+assert.match(html, /b\.t===u\.t&&b\.k===endpoint&&b\.done&&b\.hp>0/, 'fallback source selection must ignore destroyed endpoints');
+assert.match(html, /keyOf\(b\)===u\.tradeDestKey&&b\.done&&b\.hp>0&&b\.t!==u\.t/, 'a destroyed destination must be discarded');
+assert.match(html, /b\.done&&b\.hp>0&&b\.k===endpoint&&b\.t!==u\.t/, 'fallback destination selection must ignore destroyed endpoints');
 assert.match(html, /u\.k==='cart'\|\|u\.k==='cog'\)\{tickTrader\(u,dt\);return\}/, 'trader movement must remain separate from combat orders');
 
 console.log('trade-routes: static assertions passed');
