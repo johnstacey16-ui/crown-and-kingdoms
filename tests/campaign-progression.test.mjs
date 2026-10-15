@@ -20,7 +20,7 @@ test('campaign arcs define the actual mission progression order', () => {
     .flatMap((match) => match[1].split(',').map(Number));
   assert.deepEqual(ids, [0, 1, 2, 3, 4, 5, 8, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
     'Natural mission progression must follow the displayed arc sequence, not raw array order');
-  assert.equal(new Set(ids).size, 18, 'Each of the 20 missions must occur once in the progression');
+  assert.equal(new Set(ids).size, 20, 'Each of the 20 missions must occur once in the progression');
 });
 
 test('mission completion follows the next item in the campaign arc', () => {
