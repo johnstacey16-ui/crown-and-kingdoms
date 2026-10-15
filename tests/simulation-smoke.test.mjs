@@ -476,9 +476,9 @@ globalThis.__CK_TEST__ = {
   },
   exerciseGalleyTargetReacquisition() {
     this.start(24680);
-    this.beginNavalCombat();
-    const ship = S.us.find(unit => unit && unit.t === 1 && unit.k === 'gal' && unit.testNavalTarget);
-    const liveEnemy = S.us.find(unit => unit && unit.t === 0 && unit.k === 'gal' && unit.o === 'a' && unit.tg === ship);
+    const naval = this.beginNavalCombat();
+    const ship = S.us.find(unit => unit && [unit.t, unit.k, unit.x, unit.y].join(':') === naval.targetKey);
+    const liveEnemy = ship && S.us.find(unit => unit && unit.t === 0 && unit.k === 'gal' && Math.hypot(unit.x - ship.x, unit.y - ship.y) < 10);
     if (!ship || !liveEnemy) throw new Error('Naval test must create an AI galley and a nearby hostile galley');
     ship.o = 'a';
     ship.tg = { t: 0, k: 'gal', hp: 0, ld: 0, x: ship.x, y: ship.y };
