@@ -177,3 +177,10 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Unknown unit definitions are excluded safely from military counts.
 - Regression guard: `tests/campaign-objective-live-counts.test.mjs`.
 - Source-level validation only; the Node test and live campaign playthrough have not been run in this environment.
+
+
+## 15 October 2026 — technology scope guard
+
+- Updated [the browser technology roadmap](BROWSER_TECH_ROADMAP.md) with an explicit evidence-based rule: keep JavaScript, CSS, JSON and Canvas 2D as the current stack; treat SVG as optional UI art; defer Web Workers, GLSL/WebGL shaders and WebAssembly/Rust until a reproducible bottleneck or specific requirement justifies them.
+- The 100/200/400 total-unit Node simulation benchmark remains the repeatable simulation baseline, not an Xbox frame-rate claim. Browser rendering/frame pacing and physical Xbox Series S / Edge verification remain separate gates.
+- Documentation-only change; no game runtime files changed and no new test run is claimed. Next work should resume on a reproducible gameplay/runtime issue or a measured performance gap, not introduce optional technology pre-emptively.
