@@ -48,4 +48,12 @@ test('campaign-list lock rules use the filtered previous mission in the same arc
     'Invalid or missing mission entries must be filtered before drawing or unlocking');
 });
 
-console.log('campaign-progression: all 10 assertions passed');
+test('destroy-castle objectives ignore destroyed castle records', () => {
+  const castleGoals = html.split('\n').filter(line => /t:'(?:Destroy the enemy Castle|Destroy Tidewatch Castle)'/.test(line));
+  assert.equal(castleGoals.length, 3, 'All three castle-destruction objectives must remain covered');
+  for (const goal of castleGoals) {
+    assert.match(goal, /b\.hp>0/, 'A castle with zero health must count as destroyed even if its record remains in S.bs');
+  }
+});
+
+console.log('campaign-progression: regression assertions passed');
