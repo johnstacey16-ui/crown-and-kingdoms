@@ -19,4 +19,7 @@ assert.match(save, /localStorage\.setItem\(key,payload\)/,
 assert.match(save, /loadG\(auto=false\)[\s\S]*?localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)/,
   'The loader must restore the rolling autosave when requested');
 
+assert.match(engine, /function autoPause\(\)\{if\(mode==='play'\)\{if\(!\(window\.CK_NET&&window\.CK_NET\.isRunning\(\)\)\)saveG\(true\);mode='pause';pm=0\}\}/,
+  'Pause/blur must not write a local autosave from a live multiplayer session');
+
 console.log('Autosave policy checks passed.');
