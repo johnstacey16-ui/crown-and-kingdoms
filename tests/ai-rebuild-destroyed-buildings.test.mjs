@@ -27,4 +27,7 @@ assert.match(ai, /bl\.filter\(b=>b\.k==='house'&&b\.hp>0&&!b\.done\)\.length/,
 assert.match(ai, /bl\.filter\(b2=>b2\.k==='dock'&&b2\.hp>0\)\.reduce/,
   'Destroyed Docks must not contribute queued naval production to AI capacity');
 
+assert.match(ai, /S\.bs\.filter\(x=>x\.t===t&&x\.done&&x\.hp>0&&AG\[S\.age\[t\]\+1\]\.needs\.includes\(x\.k\)&&B\[x\.k\]&&\(B\[x\.k\]\.age\|\|0\)===S\.age\[t\]\)/,
+  'AI age-up planning must count only living, completed buildings from the current age, matching the actual research gate');
+
 console.log('ai-rebuild-destroyed-buildings: destroyed structures no longer block replacement planning');
