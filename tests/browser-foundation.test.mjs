@@ -8,6 +8,7 @@ const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 test('the game loads its shared stylesheet from the same-origin root', () => {
   assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css">/);
   assert.doesNotMatch(html, /<style>/);
+  assert.match(html, /<canvas id="c" tabindex="0" role="application" aria-label="Crown &amp; Kingdoms real-time strategy game\. Use a connected game controller to play\."><\/canvas>/);
 });
 
 test('the presentation foundation preserves full-screen controller-first canvas rendering', () => {
