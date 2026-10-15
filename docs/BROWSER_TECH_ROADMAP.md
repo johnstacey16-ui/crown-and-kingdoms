@@ -112,3 +112,8 @@ The new-game setup menu, options menu, title menu, controller handlers and score
 ### Minimap module
 
 Minimap terrain refresh, world/minimap coordinate transforms, entity filters and minimap drawing now live in `js/minimap.js`, with viewport and objective markers preserved and offline caching enabled.
+
+
+### Pathfinding module
+
+A* route search, diagonal corner checks, path reconstruction and route-target helpers now live in `js/pathfinding.js`. The module loads before kingdom automation, is cached offline and is covered by pathing and simulation regression harnesses.
