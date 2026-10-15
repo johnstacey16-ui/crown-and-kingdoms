@@ -22,5 +22,18 @@ const mixed = auditLandAndWater(grid, {
 });
 assert.equal(mixed.ok, true);
 assert.equal(auditReachability(grid, {x:0,y:0}, [{x:3,y:3,label:'isolated land'}], land).ok, false);
+// Eight-way reachability must match A* and reject diagonal corner cutting.
+const cornerTrap = [
+  ['L','X'],
+  ['X','L']
+];
+assert.equal(floodFill(cornerTrap, {x:0,y:0}, (_x,_y,c)=>c==='L', 8).cells.length, 1,
+  'Diagonal neighbours separated by two blocked orthogonal cells are not reachable');
+const openDiagonal = [
+  ['L','L'],
+  ['X','L']
+];
+assert.equal(floodFill(openDiagonal, {x:0,y:0}, (_x,_y,c)=>c==='L', 8).cells.length, 3,
+  'A diagonal remains reachable when at least one orthogonal side is passable');
 assert.deepEqual(floodFill([], {x:0,y:0}, land).cells, []);
-console.log('map-connectivity: all 7 assertions passed');
+console.log('map-connectivity: all connectivity assertions passed');
