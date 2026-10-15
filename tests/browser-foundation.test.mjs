@@ -12,8 +12,9 @@ const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
+const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + simulation + '\n' + engineSource;
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -43,6 +44,15 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
 
 test('the core engine is external and loads before multiplayer integration', () => {
   assert.ok(html.includes('<script src="./js/render.js"></script>'));
+  assert.ok(html.includes('<script src="./js/ui.js"></script>'));
+  assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/ui.js'));
+  assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(ui.includes('function drawPerfOverlay(dt)'));
+  assert.ok(ui.includes('const ovr=()=>'));
+  assert.ok(ui.includes('function drawOv()'));
+  assert.ok(!engineSource.includes('function drawPerfOverlay(dt)'));
+  assert.ok(!engineSource.includes('const ovr=()=>'));
+  assert.ok(!engineSource.includes('function drawOv()'));
   assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/state.js'));
   assert.ok(html.indexOf('./js/state.js') < html.indexOf('./js/mapgen.js'));
   assert.ok(html.indexOf('./js/mapgen.js') < html.indexOf('./js/audio.js'));
@@ -69,6 +79,7 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(!engineSource.includes('function drawHill(o)'));
   assert.ok(!engineSource.includes('function chunkOf(cx,cy)'));
   assert.ok(!engineSource.includes('function drawChunks(x0,x1,y0,y1)'));
+  assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/simulation.js'));
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./engine.js'));
   assert.ok(simulation.includes('function step(dt)'));
