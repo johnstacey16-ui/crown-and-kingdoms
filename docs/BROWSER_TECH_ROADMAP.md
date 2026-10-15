@@ -92,3 +92,8 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 ### Engine refactor update
 
 `js/kingdom.js` now owns diplomacy, tribute, and automated villager-priority logic. It loads before `engine.js`, remains available offline through the service-worker cache, and is covered by the standalone regression suite. The refactor preserves the existing shared classic-script state and controller-first interface.
+
+
+### Campaign module
+
+Campaign scenarios, mission progression, objectives, briefing flow and raid-event dispatch now live in `js/campaign.js`, loaded before the core engine and included in offline caching and regression harnesses.
