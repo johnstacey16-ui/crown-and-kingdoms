@@ -29,7 +29,7 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
 /* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */
 {
  const T=S.tech[u.t]||{},metal='#d8c49a',gold='#f0c35e',edge='#3b2a17';
- const rank=k==='mil'?(T.champ?'champ':T.twohand?'twohand':T.longs?'long':T.man?'man':''):k==='spear'&&T.pike?'pike':k==='xbow'&&T.arb?'arb':k==='skirm'&&T.elsk?'elsk':k==='scout'&&T.lcav?'lcav':k==='knight'&&T.cavl?'cavl':'';
+ const rank=k==='mil'?(T.champ?'champ':T.twohand?'twohand':T.longs?'long':T.man?'man':''):k==='spear'?(T.halb?'halb':T.pike?'pike':''):k==='xbow'&&T.arb?'arb':k==='skirm'&&T.elsk?'elsk':k==='scout'&&T.lcav?'lcav':k==='knight'&&T.cavl?'cavl':'';
  if(rank){
   X.save();X.translate(sx,sy);X.scale(z,z);X.lineCap='round';X.lineJoin='round';
   if(rank==='man'||rank==='long'||rank==='twohand'||rank==='champ'){
@@ -38,9 +38,10 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
    X.beginPath();X.moveTo(-4.8,y-2);X.lineTo(-2.7,y-4);X.lineTo(2.7,y-4);X.lineTo(4.8,y-2);X.lineTo(4,y+3);X.lineTo(0,y+5);X.lineTo(-4,y+3);X.closePath();X.fill();X.stroke();
    X.strokeStyle=(rank==='long'||rank==='twohand'||rank==='champ')?gold:metal;X.lineWidth=rank==='champ'?1.8:1.35;X.beginPath();X.moveTo(-2.6,y-2);X.lineTo(2.6,y-2);X.moveTo(-2.3,y+1);X.lineTo(2.3,y+1);X.stroke();
    if(rank==='long'||rank==='twohand'||rank==='champ'){const tip=rank==='champ'?-42:rank==='twohand'?-39:-36;X.strokeStyle=rank==='champ'?'#f6d36c':gold;X.lineWidth=rank==='champ'?2.1:rank==='twohand'?1.8:1.5;X.beginPath();X.moveTo(5,-29);X.lineTo(9,tip);X.stroke();X.fillStyle=gold;X.beginPath();X.moveTo(9,tip);X.lineTo(7.6,tip+3.5);X.lineTo(10.4,tip+2);X.closePath();X.fill()}if(rank==='champ'){X.strokeStyle='#f6d36c';X.lineWidth=1.4;X.beginPath();X.moveTo(-4.5,y-5);X.lineTo(0,y-10);X.lineTo(4.5,y-5);X.stroke()}
-  }else if(rank==='pike'){
-   X.strokeStyle='#ba8d4a';X.lineWidth=1.5;X.beginPath();X.moveTo(6,-23);X.lineTo(7,-48);X.stroke();
-   X.fillStyle=metal;X.strokeStyle=edge;X.lineWidth=.65;X.beginPath();X.moveTo(7,-52);X.lineTo(4.8,-47);X.lineTo(7,-45);X.lineTo(9.2,-47);X.closePath();X.fill();X.stroke();
+  }else if(rank==='pike'||rank==='halb'){
+   X.strokeStyle='#ba8d4a';X.lineWidth=1.5;X.beginPath();X.moveTo(6,-23);X.lineTo(7,rank==='halb'?-52:-48);X.stroke();
+   X.fillStyle=rank==='halb'?gold:metal;X.strokeStyle=edge;X.lineWidth=.65;X.beginPath();X.moveTo(7,rank==='halb'?-59:-52);X.lineTo(rank==='halb'?2.8:4.8,rank==='halb'?-53:-47);X.lineTo(7,rank==='halb'?-50:-45);X.lineTo(rank==='halb'?11.2:9.2,rank==='halb'?-53:-47);X.closePath();X.fill();X.stroke();
+   if(rank==='halb'){X.beginPath();X.moveTo(7,-54);X.lineTo(1.5,-56);X.lineTo(2.5,-51);X.lineTo(7,-52);X.closePath();X.fill();X.stroke();X.strokeStyle=gold;X.lineWidth=1;X.beginPath();X.moveTo(4,-30);X.lineTo(8,-30);X.stroke()}
    X.strokeStyle=gold;X.lineWidth=1.25;X.beginPath();X.moveTo(-4,-22);X.lineTo(0,-20);X.lineTo(4,-22);X.stroke()
   }else if(rank==='arb'){
    X.strokeStyle=metal;X.lineWidth=2;X.beginPath();X.moveTo(-7,-25);X.lineTo(7,-25);X.stroke();

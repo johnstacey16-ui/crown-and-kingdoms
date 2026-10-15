@@ -69,10 +69,22 @@ assert.match(html, /q\.t-=dt\*trainRate\(b,q\.k\)/,
   'Conscription must accelerate the live unit production queue, including units already queued');
 assert.match(html, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
   'AI must value Conscription once it has a substantial army');
+assert.match(html, /bar:\{[^}]*rs:\['man','longs','twohand','champ','pike','halb'\]/,
+  'Halberdier must be reachable through the Barracks upgrade line');
+assert.match(html, /halb:\{n:'Halberdier',cost:\{f:300,g:200\},t:45,age:3,pre:'pike',hpb:\{spear:20\},atkb:\{spear:2\}\}/,
+  'Halberdier must require Pikeman and add health/attack effects');
+assert.match(html, /a\.k==='spear'&&tk\.halb&&ak\.bn&&\(ak\.bn\[t\.k\]\|\|ak\.bn\[U\[t\.k\]\.lk\]\)\?6:0/,
+  'Halberdier must add the specific anti-cavalry damage bonus to the spear unit line');
+assert.match(html, /T\.halb\?'halb':T\.pike\?'pike'/,
+  'Battlefield sprites must use the highest researched spear-line rank');
+assert.match(html, /rank==='pike'\|\|rank==='halb'/,
+  'Halberdiers must receive the upgraded polearm rendering path');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
 assert.match(html, /if\(rank==='man'\|\|rank==='long'\|\|rank==='twohand'\|\|rank==='champ'\)/,
   'Each sword-line tier must get the battlefield equipment drawing path');
+assert.match(html, /if\(k==='spear'&&tech\.halb\)return 'Halberdier'/,
+  'Pikemen must display as Halberdiers after the Imperial upgrade');
 assert.match(html, /if\(k==='spear'&&tech\.pike\)return 'Pikeman'/,
   'Spearmen must display as Pikemen after that upgrade');
 assert.match(html, /if\(k==='xbow'&&tech\.arb\)return 'Arbalester'/,

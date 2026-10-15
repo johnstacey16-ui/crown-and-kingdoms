@@ -71,3 +71,6 @@ For the authoritative current gaps and next steps, see [the parity roadmap](AOE2
 
 
 - **Conscription:** Castle research (150 food, 150 gold; 60 seconds; Imperial Age) speeds military production queues by 33⅓%, including units already queued. It does not speed villagers, trade carts/cogs, fishing ships or transport ships.
+
+
+- **Halberdier:** the Imperial Barracks upgrade follows Pikeman, adds health and attack to existing/new Spearmen, grants an additional +6 damage against the existing anti-cavalry target roster, and adds a larger gold polearm cue. AI prioritises the upgrade when enemy cavalry is present.
