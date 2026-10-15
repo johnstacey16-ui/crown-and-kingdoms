@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
+const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const guard = save.indexOf("if(!j||j.v!==1||!Number.isFinite(j.t)||j.t<0||!Number.isInteger(j.sz)");
 const restore = save.indexOf('setSize(j.sz)');
 assert.ok(guard >= 0, 'loadG must validate a save payload before restoring it');
