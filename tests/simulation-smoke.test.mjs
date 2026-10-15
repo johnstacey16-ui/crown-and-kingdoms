@@ -2,10 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
-  .filter((match) => !/type=["']application\/json["']/i.test(match[0]));
-assert.ok(scripts.length, 'The real game script must be present');
+const source = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+assert.ok(source.length > 200000, 'The external real game engine must be present');
 
 const listeners = new Map();
 const context2d = new Proxy({
@@ -78,6 +76,7 @@ const sandbox = {
   Set,
   JSON,
   Promise,
+  fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ atlases: [] }) }),
 };
 sandbox.window = sandbox;
 sandbox.window.devicePixelRatio = 1;
@@ -87,7 +86,6 @@ sandbox.window.CK_ASSETS = null;
 sandbox.window.AudioContext = undefined;
 sandbox.window.webkitAudioContext = undefined;
 sandbox.requestAnimationFrame = () => {};
-const source = scripts.map((match) => match[1]).join('\n');
 const harness = `
 let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
