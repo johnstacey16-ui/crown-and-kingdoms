@@ -16,7 +16,7 @@ for (const required of [
   '!Array.isArray(j.res)',
   '!Array.isArray(j.age)',
   '!Array.isArray(j.tech)',
-  '!Array.isArray(j.pl)',
+  "!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl)",
   '!j.us.every(u=>u&&typeof u===\'object\'&&!Array.isArray(u)&&typeof u.k===\'string\'&&!!U[u.k]&&Number.isInteger(u.t)&&u.t>=0&&u.t<j.res.length&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<j.sz&&u.y<j.sz)',
   '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&!!B[b.k]&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
   '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&[\'f\',\'w\',\'g\',\'s\'].includes(n.k)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
@@ -36,7 +36,8 @@ for (const required of [
 assert.ok(validation.includes('!Number.isFinite(j.t)||j.t<0'), 'saved simulation time must be finite and non-negative');
 assert.ok(validation.includes('!SZ.includes(j.sz)'), 'saved map dimensions must match one of the supported map sizes before allocation');
 assert.ok(validation.includes('j.res.length<2') && validation.includes('j.res.length>4'), 'save team count must be bounded to supported kingdom counts');
-assert.ok(validation.includes('j.age.length!==j.res.length') && validation.includes('j.tech.length!==j.res.length') && validation.includes('j.pl.length!==j.res.length'), 'team-indexed arrays must agree before restoration');
+assert.ok(validation.includes('j.age.length!==j.res.length') && validation.includes('j.tech.length!==j.res.length'), 'team-indexed age and technology arrays must agree before restoration');
+assert.ok(validation.includes("!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl)"), 'player statistics must use the actual saved statistics-object shape');
 assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.isArray(r))"), 'each kingdom must have a resource object');
 assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
 assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
@@ -44,7 +45,7 @@ assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
-  v: 1, t: 0, sz: 96, us: [], bs: [], nodes: [],
+  v: 1, t: 0, sz: 96, us: [], bs: [], nodes: [], pl: {},
   res: [{ f: 0, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }],
   age: [0, 0], tech: [{}, {}], pl: [{}, {}],
   wt: '0'.repeat(96 * 96), ex: '0'.repeat(96 * 96),
