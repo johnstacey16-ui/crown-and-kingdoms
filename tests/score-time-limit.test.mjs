@@ -48,9 +48,9 @@ assert.match(html, /sz:W,vm,scoreLimit,aip,pal:S\.pal/,
   'Saved games must include the selected duration');
 assert.match(html, /vm=cl\(j\.vm\|0,0,6\);scoreLimit=SCORE_LIMITS\.includes\(j\.scoreLimit\)\?j\.scoreLimit:1200/,
   'Loading older saves must safely default duration and preserve Score victory');
-assert.match(html, /if\(!PRF\)PRF=\{civ,msz,mt,diff,aip,vm,scoreLimit\}/,
+assert.match(html, /if\(!PRF\)PRF=\{civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit\}/,
   'Campaign entry must preserve the player setup');
-assert.match(html, /\(\{civ,msz,mt,diff,aip,vm,scoreLimit\}=PRF\)/,
+assert.match(html, /\(\{civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit\}=PRF\)/,
   'Returning from a campaign must restore the prior setup and duration');
 
 console.log('score-time-limit: all 24 source regression assertions passed');
