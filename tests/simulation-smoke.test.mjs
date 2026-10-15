@@ -55,7 +55,7 @@ const sandbox = {
     setItem: (key, value) => storage.set(key, String(value)),
     removeItem: (key) => storage.delete(key),
   },
-  performance: { now: () => 0 },
+  performance: { now: () => Number(process.hrtime.bigint()) / 1e6 },
   requestAnimationFrame() {},
   setInterval() { return 1; },
   setTimeout() { return 1; },
@@ -589,8 +589,10 @@ globalThis.__CK_TEST__ = {
       unit.o = 'i'; unit.tg = null; unit.p = []; unit.sc = 1000; unit.as = 0; unit.retreating = 0;
     }
     const added = S.us.length - baseCount;
+    const started = performance.now();
     for (let i = 0; i < ticks; i++) step(1 / 30);
-    return { requested: count, added, units: S.us.length, ticks, time: S.t, mapSize: W };
+    const elapsedMs = performance.now() - started;
+    return { requested: count, added, units: S.us.length, ticks, elapsedMs, time: S.t, mapSize: W };
   },
   auditTownBellReservations() {
     const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
@@ -1004,17 +1006,16 @@ for (const population of [100, 200, 400]) {
   const samples = [];
   let finalResult = null;
   for (let repeat = 0; repeat < 3; repeat++) {
-    const started = process.hrtime.bigint();
-    const result = game.benchmarkArmy(population, 15);
-    const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6;
+    const result = game.benchmarkArmy(population, 30);
+    const elapsedMs = result.elapsedMs;
     assert.equal(result.added, population, 'Benchmark must add the requested synthetic army size');
     assert.ok(result.units >= population, 'Benchmark army must remain represented in simulation state');
-    assert.equal(result.ticks, 15, 'Benchmark must execute the full fixed number of simulation ticks');
-    assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Benchmark timing must be finite');
+    assert.equal(result.ticks, 30, 'Benchmark must execute the full fixed number of simulation ticks');
+    assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0, 'Simulation-only benchmark timing must be finite');
     samples.push(elapsedMs);
     finalResult = result;
   }
   samples.sort((a, b) => a - b);
-  console.log('large-army-runtime: requested='+population+' added='+finalResult.added+' total='+finalResult.units+' ticks='+finalResult.ticks+' repeats=3 medianMs='+samples[1].toFixed(2)+' rangeMs='+samples[0].toFixed(2)+'-'+samples[2].toFixed(2));
+  console.log('large-army-runtime: requested='+population+' added='+finalResult.added+' total='+finalResult.units+' ticks='+finalResult.ticks+' repeats=3 simulationOnly=true medianMs='+samples[1].toFixed(2)+' rangeMs='+samples[0].toFixed(2)+'-'+samples[2].toFixed(2));
 }
 
