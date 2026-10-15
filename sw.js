@@ -10,6 +10,7 @@ const CORE_ASSETS = [
   './index.html',
   './styles.css',
   './js/config.js',
+  './js/state.js',
   './js/audio.js',
   './js/save.js',
   './js/input.js',
