@@ -133,3 +133,13 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - GitHub Actions run [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191) passed the source checks, all standalone regression tests, and atlas metadata/frame validation.
 - The prior campaign save/load round-trip rejection was caused by an over-escaped digit matcher in `js/save.js`; the corrected indexed-reference validator is covered by the passing campaign smoke test.
 - No physical Xbox validation or complete live-browser playthrough is claimed by this automated result.
+
+## Development checkpoint — 15 October 2026
+
+- Latest completed CI checkpoint before this documentation refresh: commit `488638d5593385382bbea4378973ef3fb67df441`, workflow [#926](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744134109), conclusion: **success**.
+- Verified by that workflow: game-script/source checks, every standalone regression test, and atlas metadata/frame-bound validation.
+- The previous campaign save/load round-trip regression is resolved in `js/save.js`; the complete standalone regression suite passed afterward.
+- This does **not** verify full campaign playthroughs, live browser/deployment operation, multiplayer correctness, 400-unit performance, or physical Xbox compatibility.
+- **Next development focus:** build on the passing baseline with behavioural/runtime integration tests and measured simulation performance. Do not repeat the fixed save-validator investigation unless a new reproducible regression appears.
+- For the consolidated checkpoint and work log, see [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md).
+
