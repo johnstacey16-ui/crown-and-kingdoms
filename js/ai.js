@@ -38,7 +38,7 @@ if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
   if(repairer){repairer.o='rep';repairer.tg=target;repairer.p=[]}
  }
 }
-const cnt=k=>bl.filter(b=>b.k===k).length;
+const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
 if(vil.length<([18,28,40][diff]*PERS[aip].v|0)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&AG[S.age[t]+1].needs.includes(x.k)).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
