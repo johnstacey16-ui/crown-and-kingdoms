@@ -94,6 +94,18 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
+  auditCurrentCampaignObjectives() {
+    if (!cmp || !CAMP[cmp.i]) return null;
+    const goals = CAMP[cmp.i].goals || [];
+    const ids = goals.map((goal) => goal && goal.id);
+    let predicateErrors = 0;
+    for (const goal of goals) {
+      if (!goal || typeof goal.ok !== 'function') { predicateErrors++; continue; }
+      try { const value = goal.ok(); if (typeof value !== 'boolean') predicateErrors++; }
+      catch { predicateErrors++; }
+    }
+    return { index: cmp.i, count: goals.length, ids, unique: ids.every((id) => typeof id === 'string' && id.length > 0) && new Set(ids).size === ids.length, predicateErrors };
+  },
   saveLoadRoundTrip() {
     slot = 0;
     const snapshot = () => ({
@@ -1085,6 +1097,10 @@ const campaignBoots = [];
 for (let mission = 0; mission < 19; mission += 1) {
   const before = game.startCampaign(mission);
   assert.equal(before.campaign?.index, mission, `Campaign mission ${mission + 1} should initialise the requested scenario`);
+  const objectiveAudit = game.auditCurrentCampaignObjectives();
+  assert.ok(objectiveAudit && objectiveAudit.count > 0, `Campaign mission ${mission + 1} must define at least one objective`);
+  assert.equal(objectiveAudit.unique, true, `Campaign mission ${mission + 1} must use unique, non-empty objective IDs`);
+  assert.equal(objectiveAudit.predicateErrors, 0, `Campaign mission ${mission + 1} objective predicates must execute and return booleans at scenario start`);
   assert.ok(before.units > 0, `Campaign mission ${mission + 1} should initialise at least one unit`);
   assert.ok(before.buildings > 0, `Campaign mission ${mission + 1} should initialise at least one building`);
   // Keep each real scenario alive for forty simulated seconds so early
