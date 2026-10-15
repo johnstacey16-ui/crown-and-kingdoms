@@ -14,7 +14,7 @@ function pd(o,t,d,f,v){const s=AC.createOscillator(),g=AC.createGain();s.type='s
 const FV={a:[800,1150],o:[500,900],u:[330,760],e:[520,1800],i:[300,2300]},VX={vil:[['o',.1,1],['e',.09,.9]],sol:[['a',.13,.85]],cav:[['a',.09,.9],['o',.14,.8]],arc:[['e',.11,.9]],mon:[['u',.4,1.05],['o',.4,.97]],king:[['o',.2,.9],['a',.2,.85]],die:[['o',.28,.55]],vdie:[['o',.3,.6]]},VP={vil:240,sol:125,cav:105,arc:150,mon:190,king:115};
 function syl(o,t,d,f0,f1,v,vw,at){const s=AC.createOscillator(),g=AC.createGain();s.type='sawtooth';s.frequency.setValueAtTime(f0,t);s.frequency.linearRampToValueAtTime(f0*(f1||1),t+d);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+(at||.02));g.gain.exponentialRampToValueAtTime(.0001,t+d);for(const F of FV[vw]){const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=F;b.Q.value=7;s.connect(b);b.connect(g)}g.connect(o);s.start(t);s.stop(t+d+.03)}
 function vox(o,t,k,p){const q=VX[k];if(!q)return;let tt=t;for(const[v,d,m]of q){syl(o,tt,d,p*R1(.95,1.05),m,.28,v,k==='mon'?.12:.02);tt+=d*.9}}
-const vk=k=>k==='vil'?'vil':k==='mon'?'mon':k==='king'?'king':U[k].mt||['scout','knight','camel','mgd','cata','mamel','ele','eled'].includes(k)?'cav':U[k]&&U[k].rng>2?'arc':'sol';
+const vk=k=>k==='vil'?'vil':k==='mon'?'mon':k==='king'?'king':(U[k]&&U[k].mt)||['scout','knight','camel','mgd','cata','mamel','ele','eled'].includes(k)?'cav':U[k]&&U[k].rng>2?'arc':'sol';
 const SFX={blade:{cd:40,d:.3,f:(o,t)=>{nz(o,t,.08,'bandpass',R1(2200,3400),2.2,.32);tn(o,t,.2,'triangle',R1(1500,2100),R1(1000,1300),.1)}},
 stab:{cd:40,d:.2,f:(o,t)=>{nz(o,t,.06,'bandpass',R1(1100,1600),1.4,.3);tn(o,t,.1,'sine',R1(280,360),120,.25)}},
 blunt:{cd:40,d:.25,f:(o,t)=>{tn(o,t,.15,'sine',R1(140,190),55,.55);nz(o,t,.07,'lowpass',900,1,.3)}},
