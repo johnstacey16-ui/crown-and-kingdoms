@@ -102,6 +102,13 @@ const techPriority=k=>{
  const ownInf=arm.filter(u=>INFARM.has(u.k)).length,ownRanged=arm.filter(u=>ARCHARM.has(u.k)).length,ownCav=arm.filter(u=>CAVARM.has(u.k)).length;
  if(k==='husb'&&ownCav>=3)score+=22;
  if(k==='elsk'&&humanRanged>=4)score+=60;
+ /* Avoid spending scarce resources on upgrades for unit classes not yet fielded. */
+ if(k==='husb'&&ownCav<2)score-=24;
+ if(k==='armR'&&ownRanged<2)score-=28;
+ if(k==='armI'&&ownInf<2)score-=28;
+ if(k==='armC'&&ownCav<2)score-=28;
+ if(k==='atkM'&&ownInf+ownCav<2)score-=20;
+ if(k==='atkR'&&ownRanged<2)score-=20;
  /* Armour research should protect the army we actually field, not just react to the enemy's composition. */
  if(k==='armR'&&ownRanged>=3)score+=32;
  if(k==='armI'&&ownInf>=3)score+=30;
