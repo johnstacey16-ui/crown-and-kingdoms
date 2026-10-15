@@ -99,13 +99,19 @@ const techPriority=k=>{
  let score=base[k]||20;
  if(k==='pike'&&humanCav>=2)score+=90;
  if(k==='halb'&&humanCav>=2)score+=85;
- if(k==='husb'&&arm.filter(u=>CAVARM.has(u.k)).length>=3)score+=22;
+ const ownInf=arm.filter(u=>INFARM.has(u.k)).length,ownRanged=arm.filter(u=>ARCHARM.has(u.k)).length,ownCav=arm.filter(u=>CAVARM.has(u.k)).length;
+ if(k==='husb'&&ownCav>=3)score+=22;
  if(k==='elsk'&&humanRanged>=4)score+=60;
- if(k==='armR'&&humanRanged>=3)score+=28;
- if(k==='armI'&&humanInf>=3)score+=24;
+ /* Armour research should protect the army we actually field, not just react to the enemy's composition. */
+ if(k==='armR'&&ownRanged>=3)score+=32;
+ if(k==='armI'&&ownInf>=3)score+=30;
+ if(k==='armC'&&ownCav>=3)score+=32;
+ if(k==='armI'&&humanRanged>=3)score+=12;
+ if(k==='armR'&&humanInf>=4)score+=10;
  if((k==='twohand'||k==='champ')&&humanInf>=3)score+=22;
  if(k==='cons'&&arm.length>=8)score+=24;
- if(k==='armC'&&humanCav>=3)score+=28;
+ if(k==='atkM'&&ownInf>=4)score+=24;
+ if(k==='atkR'&&ownRanged>=4)score+=24;
  if(k==='siegeup'&&humanSiege>=1)score+=42;
  if(k==='navalHull'&&humanShips.length)score+=95;
  if(k==='navalAtk'&&humanShips.length)score+=105;
