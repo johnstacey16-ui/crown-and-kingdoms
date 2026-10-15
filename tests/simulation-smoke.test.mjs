@@ -199,6 +199,31 @@ globalThis.__CK_TEST__ = {
     }
     return { index: cmp.i, count: events.length, invalid };
   },
+  exerciseAutosaveOverwrite() {
+    this.start(654321);
+    const manualKeys = ['ck_save', 'ck_save2', 'ck_save3'];
+    const manualBefore = manualKeys.map(key => localStorage.getItem(key));
+    if (!saveG(true)) throw new Error('Initial autosave write failed');
+    const firstRaw = localStorage.getItem('ck_autosave');
+    if (!firstRaw) throw new Error('Autosave must use its dedicated single rolling slot');
+    const first = JSON.parse(firstRaw);
+    S.t += 60;
+    if (!saveG(true)) throw new Error('Second autosave write failed');
+    const secondRaw = localStorage.getItem('ck_autosave');
+    const second = JSON.parse(secondRaw);
+    const manualAfter = manualKeys.map(key => localStorage.getItem(key));
+    S.t = 0;
+    const loaded = loadG(true);
+    return {
+      firstTime: first.t,
+      secondTime: second.t,
+      overwritten: firstRaw !== secondRaw && second.t === first.t + 60,
+      loaded,
+      restoredTime: S.t,
+      manualSlotsUnchanged: manualKeys.every((key, index) => manualBefore[index] === manualAfter[index]),
+      autosaveCount: localStorage.getItem('ck_autosave') ? 1 : 0,
+    };
+  },
   saveLoadRoundTrip() {
     slot = 0;
     const snapshot = () => ({
@@ -1430,6 +1455,13 @@ console.log('four-kingdom-economy-war: simulated='+war.simulatedSeconds.toFixed(
 
 game.startCampaign(16);
 for (let tick = 0; tick < 90; tick += 1) game.tick(1 / 30);
+const autosave = game.exerciseAutosaveOverwrite();
+assert.equal(autosave.overwritten, true, 'A second autosave must overwrite the single rolling autosave payload');
+assert.equal(autosave.loaded, true, 'The latest rolling autosave must restore successfully');
+assert.equal(autosave.restoredTime, autosave.secondTime, 'Autosave loading must restore the newest saved simulation time');
+assert.equal(autosave.manualSlotsUnchanged, true, 'Autosaving must not overwrite the three independent manual save slots');
+assert.equal(autosave.autosaveCount, 1, 'Autosave must retain one dedicated rolling slot');
+console.log('rolling-autosave-smoke: latest snapshot overwrites the previous autosave, restores successfully and leaves manual slots untouched');
 const saveRoundTrip = game.saveLoadRoundTrip();
 assert.equal(saveRoundTrip.loaded, true, 'A valid local save must restore successfully');
 assert.equal(saveRoundTrip.version, 1, 'The save round-trip must preserve the current versioned format');
