@@ -19,7 +19,8 @@ const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'ut
 const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8');
 const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
 const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + engineSource;
+const minimap = readFileSync(new URL('../js/minimap.js', import.meta.url), 'utf8');
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -96,6 +97,11 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/campaign.js') < html.indexOf('./js/economy.js'));
   assert.ok(html.indexOf('./js/economy.js') < html.indexOf('./js/formations.js'));
   assert.ok(html.indexOf('./js/formations.js') < html.indexOf('./js/menus.js'));
+  assert.ok(html.indexOf('./js/menus.js') < html.indexOf('./js/minimap.js'));
+  assert.ok(html.indexOf('./js/minimap.js') < html.indexOf('./engine.js'));
+  assert.ok(minimap.includes('function mmUp()'));
+  assert.ok(minimap.includes('function minimapDraw(r,big)'));
+  assert.ok(!engineSource.includes('function minimapDraw(r,big)'));
   assert.ok(html.indexOf('./js/menus.js') < html.indexOf('./engine.js'));
   assert.ok(menus.includes('const SCORE_LIMITS=[600,900,1200,1500,1800]'));
   assert.ok(menus.includes('function setupCtl()'));
