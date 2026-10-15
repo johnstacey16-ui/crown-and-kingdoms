@@ -38,6 +38,12 @@ assert.match(html, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
   'AI research priority must value infantry armour when its own army fields infantry');
 assert.match(html, /if\(k==='armR'&&ownRanged>=3\)score\+=32/,
   'AI research priority must value ranged armour when its own army fields ranged units');
+assert.match(html, /if\(k==='armR'&&ownRanged<2\)score-=28/,
+  'AI should delay ranged armour when it has no meaningful ranged force');
+assert.match(html, /if\(k==='armC'&&ownCav<2\)score-=28/,
+  'AI should delay cavalry armour when it has no meaningful cavalry force');
+assert.match(html, /if\(k==='atkR'&&ownRanged<2\)score-=20/,
+  'AI should avoid premature ranged attack research before fielding ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
 assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
