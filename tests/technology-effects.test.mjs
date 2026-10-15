@@ -79,6 +79,16 @@ assert.match(html, /T\.halb\?'halb':T\.pike\?'pike'/,
   'Battlefield sprites must use the highest researched spear-line rank');
 assert.match(html, /rank==='pike'\|\|rank==='halb'/,
   'Halberdiers must receive the upgraded polearm rendering path');
+assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight'],rs:['lcav','cavl','blood','husb'],req:'bar',age:1}"),
+  'Husbandry must be researchable at the Stable');
+assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
+  'Husbandry must have explicit cost, duration and Castle Age availability');
+assert.match(html, /function unitSpeed\(u\)\{return U\[u\.k\]\.sp\*\(\(S\.tech\[u\.t\]&&S\.tech\[u\.t\]\.husb&&CAVARM\.has\(u\.k\)\)\?1\.1:1\)\}/,
+  'Husbandry must apply a 10% movement-speed bonus only to mounted unit classes');
+assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
+  'Mounted classification must cover unique cavalry and mounted raiders consistently');
+assert.match(html, /if\(k==='husb'&&arm\.filter\(u=>CAVARM\.has\(u\.k\)\)\.length>=3\)score\+=22/,
+  'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
 assert.match(html, /if\(rank==='man'\|\|rank==='long'\|\|rank==='twohand'\|\|rank==='champ'\)/,
@@ -111,7 +121,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','armC','cons','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
+const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);

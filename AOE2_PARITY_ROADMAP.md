@@ -120,3 +120,11 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 4. Test naval/map connectivity and campaign completion across scenarios.
 5. Profile large armies and improve the most visible graphics defects based on live observation.
 6. Validate the exact deployment and perform physical Xbox controller/performance testing when available.
+
+
+## Husbandry mounted-speed upgrade — 15 October 2026
+
+- Added **Husbandry** to the Stable research list (150 food/150 gold, 40 seconds, Castle Age).
+- `unitSpeed()` applies a 1.1 multiplier to mounted units during path-following movement, affecting existing and later-produced cavalry without modifying base unit roster speeds. The mounted class set also includes Conquistadors, Boyars and Tarkans for Cavalry Armour and Husbandry consistency.
+- AI research priority rises when it has at least three mounted units. Runtime smoke asserts a Knight moves at 2.31 instead of 2.1, while infantry and transport-ship speeds remain unchanged.
+- Balance and actual Xbox movement feel remain unverified.

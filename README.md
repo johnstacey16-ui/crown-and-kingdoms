@@ -65,3 +65,6 @@ The project focuses on browser-capable RTS gameplay, content, controls, graphics
 
 - [Age of Empires II-inspired gameplay and content parity](AOE2_PARITY_ROADMAP.md)
 - [Browser architecture, performance and platform roadmap](docs/BROWSER_TECH_ROADMAP.md)
+
+
+- **Husbandry:** Stable research available in Castle Age increases movement speed for mounted units by 10%. Existing cavalry and mounted unique units use the same movement-speed helper; infantry and transport/economic ships retain their original speed. AI values the technology when it has a mounted force.

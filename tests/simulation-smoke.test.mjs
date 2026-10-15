@@ -122,6 +122,22 @@ globalThis.__CK_TEST__ = {
     return { loaded, version: payload.v, bytes: stored.length, before, after: snapshot() };
   },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
+  auditHusbandrySpeeds() {
+    const previous = S.tech[0].husb;
+    try {
+      S.tech[0].husb = 1;
+      return {
+        knight: unitSpeed({ t: 0, k: 'knight' }),
+        infantry: unitSpeed({ t: 0, k: 'mil' }),
+        transport: unitSpeed({ t: 0, k: 'trn' }),
+        transportBase: U.trn.sp,
+        conqMounted: CAVARM.has('conq'),
+      };
+    } finally {
+      if (previous === undefined) delete S.tech[0].husb;
+      else S.tech[0].husb = previous;
+    }
+  },
   auditConscriptionRates() {
     const previous = S.tech[0].cons;
     try {
@@ -645,6 +661,13 @@ for (const key of ['villager','cart','fish','transport','tradeCog']) {
   assert.equal(conscriptionRates[key], 1, 'Conscription must not speed economic or transport queue ' + key);
 }
 console.log('conscription-smoke: military queues run at 4/3 speed; economy/trade/transport queues remain unchanged');
+const husbandrySpeeds = game.auditHusbandrySpeeds();
+assert.ok(Math.abs(husbandrySpeeds.knight - 2.31) < 1e-9, 'Husbandry must increase Knight movement speed by 10%');
+assert.equal(husbandrySpeeds.infantry, 1.4, 'Husbandry must not increase infantry speed');
+assert.equal(husbandrySpeeds.transport, husbandrySpeeds.transportBase, 'Husbandry must not increase transport-ship speed');
+assert.equal(husbandrySpeeds.conqMounted, true, 'Mounted unique cavalry must be included in the mounted set');
+console.log('husbandry-smoke: cavalry receives +10% speed; infantry and transport ships are unchanged');
+
 const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
 assert.equal(targetAudit.mismatches,0,'Spatial target search must match the original linear nearest-hostile scan');
