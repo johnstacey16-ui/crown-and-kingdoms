@@ -486,9 +486,31 @@ if(S.age[t]>=1&&S.t>420&&vil.length>=12&&cnt('tower')<PERS[aip].tw&&can(t,B.towe
 if(PERS[aip].cv&&S.age[t]>=1&&cnt('bar')&&!cnt('stable')&&vil.length>=10&&(arm.length>=4||R.w>=B.stable.cost.w+100)&&can(t,B.stable.cost))aiBuild(vil,'stable',t);
 if(PERS[aip].rg&&cnt('bar')&&cnt('rng')<2&&vil.length>=10&&(arm.length>=4||R.w>=B.rng.cost.w+100)&&can(t,B.rng.cost))aiBuild(vil,'rng',t);
 {const g=AG[S.age[t]+1];if(g&&!tc.rs&&vil.length>=8&&new Set(S.bs.filter(x=>x.t===t&&x.done&&g.needs.includes(x.k)).map(x=>x.k)).size>=2&&can(t,g.cost))research(tc,'age')}
-const humanArmy=S.us.filter(u=>u.t===0&&u.hp>0&&!u.sh),humanCav=humanArmy.filter(u=>['scout','knight','camel','cata','ele','boyar','conq'].includes(u.k)).length,humanRanged=humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,humanSiege=humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,humanInf=humanArmy.filter(u=>['mil','spear','pike','halb','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length,humanShips=S.us.filter(u=>u.t===0&&u.hp>0&&U[u.k].sh&&u.k!=='trn');
+const humanArmy=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&!u.sh),humanCav=humanArmy.filter(u=>['scout','knight','camel','cata','ele','boyar','conq'].includes(u.k)).length,humanRanged=humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,humanSiege=humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,humanInf=humanArmy.filter(u=>['mil','spear','pike','halb','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length,humanShips=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&U[u.k].sh&&u.k!=='trn');
 for(const b of bl)if(b.done&&B[b.k].tr&&b.k!=='tc'&&b.q.length<2){const o=trOf(b).filter(k=>U[k].age<=S.age[t]&&k!=='trn'&&(k!=='fish'||my.filter(u=>u.k==='fish').length<3)&&(k!=='gal'||my.filter(u=>u.k==='gal').length<4)&&(k!=='scout'||my.filter(u=>u.k==='scout').length<2)&&(k!=='cart'||(my.filter(u=>u.k==='cart').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='market'&&b2.done)))&&(k!=='cog'||(my.filter(u=>u.k==='cog').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='dock'&&b2.done))));if(o.length){const isDock=b.k==='dock',enemyShips=humanShips.length,enemyGal=humanShips.filter(u=>u.k==='gal').length,counters=isDock?(enemyGal>=2?['gal']:enemyShips>=2?['gal']:[]):humanCav>=3?['spear','pike','halb','camel']:humanRanged>=4?['skirm','knight','cata']:humanSiege>=2?['knight','mil','scout']:humanInf>=6?['scor','mang','arc']:[];train(b,counters.find(k=>o.includes(k))||pickW(o))}}
-for(const b of bl)if(b.done&&rsOf(b).length&&!b.rs){const k=rsOf(b).find(k=>{const e=TE[k];return!S.tech[t][k]&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost)});if(k)research(b,k)}
+const techPriority=k=>{
+ const base={gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,atkM:62,atkR:62,armI:60,armR:60,man:65,longs:66,pike:63,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57};
+ let score=base[k]||20;
+ if(k==='pike'&&humanCav>=2)score+=90;
+ if(k==='elsk'&&humanRanged>=4)score+=60;
+ if(k==='armR'&&humanRanged>=3)score+=28;
+ if(k==='armI'&&humanInf>=3)score+=24;
+ if(k==='siegeup'&&humanSiege>=1)score+=42;
+ if(k==='navalHull'&&humanShips.length)score+=95;
+ if(k==='navalAtk'&&humanShips.some(u=>u.k==='gal'))score+=105;
+ if(k==='atkM'&&humanInf>=4)score+=18;
+ if(k==='atkR'&&humanRanged>=4)score+=18;
+ if(k==='gath'&&vil.length>=8)score+=15;
+ if(k==='axe'&&vil.length>=4)score+=12;
+ if(k==='carry'&&vil.length>=12)score+=12;
+ if(k==='mas'&&bl.some(b=>b.k==='tc'&&b.hp<b.mh*.8))score+=15;
+ return score
+};
+for(const b of bl)if(b.done&&rsOf(b).length&&!b.rs){
+ const choices=rsOf(b).filter(k=>{const e=TE[k];return!S.tech[t][k]&&!bl.some(other=>other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost)});
+ choices.sort((a,b)=>techPriority(b)-techPriority(a));
+ if(choices.length)research(b,choices[0])
+}
 const wk=k=>vil.filter(u=>u.o==='g'&&u.ct===k).length;
 for(const v of vil)if(v.o==='i'){const ub=bl.find(b=>!b.done&&b.hp>0&&!vil.some(u=>u.o==='b'&&u.tg===b));if(ub){v.o='b';v.tg=ub;v.p=[];continue}const nv=vil.length;let k=wk('f')<(S.age[t]>=1&&arm.length<6?Math.max(8,nv*.45|0):Math.max(5,nv*.32|0))?'f':wk('w')<Math.max(6,nv*.3|0)?'w':wk('g')<Math.max(3,nv*.2|0)?'g':wk('s')<Math.max(2,nv*.1|0)&&S.age[t]>=1?'s':'f',n=findNode(v,k,36);
 if(k==='f'&&R.w>=60+((S.age[t]>=1&&cnt('bar')&&arm.length<6)?50:0)&&(!n||S.nodes.filter(m=>m.fm&&m.amt>0&&Math.hypot(m.x-tc.x,m.y-tc.y)<12).length<Math.max(4,nv*.25|0)))for(let i=0,pf=0;i<20&&!pf;i++){const x=(tc.x+1+(S.r()-.5)*14)|0,y=(tc.y+1+(S.r()-.5)*14)|0;if(Math.hypot(x-tc.x,y-tc.y)>3&&!cor(tc,x,y)&&okPlace(t,'farm',x,y)){pay(t,B.farm.cost);n=addN('f',x,y,farmFood(t),1);if(n)n.t=t;pf=1}}
