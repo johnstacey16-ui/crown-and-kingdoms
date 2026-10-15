@@ -49,7 +49,11 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
   assert.ok(render.startsWith('function drawWorld()'));
+  assert.match(render, /function drawUnit\\(u\\)/);
+  assert.match(render, /function drawRelic\\(q\\)/);
   assert.ok(!engineSource.includes('function drawWorld()'));
+  assert.ok(!engineSource.includes('function drawUnit(u)'));
+  assert.ok(!engineSource.includes('function drawRelic(q)'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
   assert.ok(multiplayer.length > 0);
   assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
