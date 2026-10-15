@@ -30,6 +30,7 @@ for (const required of [
 ]) {
   assert.ok(validation.includes(required), `save validation must reject incomplete or malformed field: ${required}`);
 }
+assert.ok(validation.includes('!Number.isFinite(j.t)||j.t<0'), 'saved simulation time must be finite and non-negative');
 assert.ok(validation.includes('!SZ.includes(j.sz)'), 'saved map dimensions must match one of the supported map sizes before allocation');
 assert.ok(validation.includes('j.res.length<2') && validation.includes('j.res.length>4'), 'save team count must be bounded to supported kingdom counts');
 assert.ok(validation.includes('j.age.length!==j.res.length') && validation.includes('j.tech.length!==j.res.length') && validation.includes('j.pl.length!==j.res.length'), 'team-indexed arrays must agree before restoration');
@@ -40,7 +41,7 @@ assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
-  v: 1, sz: 96, us: [], bs: [], nodes: [],
+  v: 1, t: 0, sz: 96, us: [], bs: [], nodes: [],
   res: [{ f: 0, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }],
   age: [0, 0], tech: [{}, {}], pl: [{}, {}],
   wt: '0'.repeat(96 * 96), ex: '0'.repeat(96 * 96),
