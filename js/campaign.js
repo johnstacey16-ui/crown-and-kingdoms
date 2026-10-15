@@ -27,7 +27,7 @@ const CAMP=[
 ,
 {t:'The Northern Watch',b:'The first snows have arrived, and raiders are gathering beyond the pine forests. Fortify the northern approach, train a dependable force of archers and spearmen, and hold your settlement until the raiding season passes.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
  setup(){S.res[0]={f:600,w:600,g:250,s:150}},
- goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>cmil(0)>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
+ goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>S.us.filter(u=>u.t===0&&u.hp>0&&U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
  ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching!')},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!')}]},
 {t:'Crossing at Redwater',b:'A vital trade road crosses the Redwater river. Build a market and two towers to secure the crossing, then survive the enemy raids long enough for your merchants to reopen the road.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
  setup(){S.res[0]={f:700,w:700,g:350,s:250}},
