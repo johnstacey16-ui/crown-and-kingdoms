@@ -51,7 +51,7 @@ function rebuildFoeGrid(){
  foeGridEpoch++;
  for(const bin of FOE_BUCKETS.values())bin.length=0;
  for(let i=0;i<S.us.length;i++){
-  const e=S.us[i];if(!e)continue;
+  const e=S.us[i];if(!e||e.hp<=0||e.ld)continue;
   const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
   let bin=FOE_BUCKETS.get(key);
   if(!bin){bin=[];FOE_BUCKETS.set(key,bin)}
