@@ -5,8 +5,9 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
+const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const engine = config + '\n' + engineSource;
+const engine = config + '\n' + audio + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -37,7 +38,8 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
 test('the core engine is external and loads before multiplayer integration', () => {
   assert.match(html, /<script src="\.\/js\/config\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
   assert.match(html, /<script src="\.\/multiplayer\.js"><\/script>/);
-  assert.ok(html.indexOf('./js/config.js') < html.indexOf('./engine.js'));
+  assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/audio.js'));
+  assert.ok(html.indexOf('./js/audio.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
   assert.ok(multiplayer.length > 0);
@@ -46,7 +48,7 @@ test('the core engine is external and loads before multiplayer integration', () 
 
 
 test('IndexedDB backs up saved slots without replacing the localStorage compatibility path', () => {
-  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/js\/config\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
+  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/js\/config\.js"><\/script><script src="\.\/js\/audio\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
   assert.match(persistence, /mirrorSave, restoreMissing/);
   assert.match(engine, /mirrorSave\(skey\(slot\),payload\)/);
