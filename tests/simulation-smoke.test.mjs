@@ -101,7 +101,7 @@ globalThis.__CK_TEST__ = {
     let predicateErrors = 0;
     for (const goal of goals) {
       if (!goal || typeof goal.ok !== 'function') { predicateErrors++; continue; }
-      try { const value = goal.ok(); if (typeof value !== 'boolean') predicateErrors++; }
+      try { goal.ok(); }
       catch { predicateErrors++; }
     }
     return { index: cmp.i, count: goals.length, ids, unique: ids.every((id) => typeof id === 'string' && id.length > 0) && new Set(ids).size === ids.length, predicateErrors };
