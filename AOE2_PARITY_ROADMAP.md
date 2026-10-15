@@ -236,3 +236,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Destroyed buildings no longer satisfy construction goals; dead units no longer satisfy villager or military force goals.
 - Regression test: `tests/campaign-objective-live-counts.test.mjs`. Full mission playthrough validation remains outstanding.
+
+
+### King of the Hill live-engine regression coverage — 15 October 2026
+
+- Added a real-engine smoke case in commit [`1835e9c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8) for contested-hill progress resets, exclusion of villagers/trade carts/ships from capture, the 299-second non-victory boundary, and player/enemy victory at 300 uninterrupted seconds.
+- **Verification pending:** the new commit's push-triggered GitHub Actions result has not yet been confirmed. Do not mark this check passed until the workflow run reports success.
