@@ -4,8 +4,10 @@ import vm from 'node:vm';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
+const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
+new vm.Script(persistence, { filename: 'persistence.js' });
 if (!html.includes('<script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine');
 if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
@@ -29,4 +31,4 @@ for (const [name, ok] of checks) {
   if (!ok) throw new Error(`FAIL: ${name}`);
   console.log(`PASS: ${name}`);
 }
-console.log('PASS: parsed external engine.js and multiplayer.js');
+console.log('PASS: parsed external engine.js, persistence.js and multiplayer.js');
