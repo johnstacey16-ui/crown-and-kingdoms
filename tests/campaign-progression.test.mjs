@@ -18,9 +18,9 @@ test('campaign arcs define the actual mission progression order', () => {
   assert.ok(arcOrder, 'The named campaign arcs must remain identifiable');
   const ids = [...arcOrder.matchAll(/ids:\[([0-9,]+)\]/g)]
     .flatMap((match) => match[1].split(',').map(Number));
-  assert.deepEqual(ids, [0, 1, 2, 3, 4, 5, 8, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+  assert.deepEqual(ids, [0, 1, 2, 3, 4, 5, 8, 6, 7, 9, 10, 11, 12, 13, 14, 15, 18, 16, 17],
     'Natural mission progression must follow the displayed arc sequence, not raw array order');
-  assert.equal(new Set(ids).size, 20, 'Each of the 20 missions must occur once in the progression');
+  assert.equal(new Set(ids).size, 19, 'Each of the 19 missions must occur once in the progression');
 });
 
 test('mission completion follows the next item in the campaign arc', () => {
@@ -38,7 +38,7 @@ test('mission completion follows the next item in the campaign arc', () => {
 
 test('campaign-list lock rules use the filtered previous mission in the same arc', () => {
   assert.match(html,
-    /const CAMP_ARCS=\[\{n:'The Crown of Ashford',ids:\[0,1,2,3,4,5,8\]\},\{n:'Frontier Wars',ids:\[6,7\]\},\{n:'The Royal Campaign',ids:\[9,10,11\]\},\{n:'Coastal War',ids:\[12,13,14\]\},\{n:'Northern March',ids:\[15\]\},\{n:'The Causeway Campaign',ids:\[16,17,18,19\]\}\]/,
+    /const CAMP_ARCS=\[\{n:'The Crown of Ashford',ids:\[0,1,2,3,4,5,8\]\},\{n:'Frontier Wars',ids:\[6,7\]\},\{n:'The Royal Campaign',ids:\[9,10,11\]\},\{n:'Coastal War',ids:\[12,13,14\]\},\{n:'Northern March',ids:\[15,18\]\},\{n:'The Causeway Campaign',ids:\[16,17\]\}\]/,
     'Arc groupings must remain explicit and consistent');
   assert.match(html,
     /const m=CAMP\[i\],locked=j>0&&!dn\[ids\[j-1\]\]/,
