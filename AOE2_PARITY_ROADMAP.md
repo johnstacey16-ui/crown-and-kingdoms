@@ -72,7 +72,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 2.4 Campaign and scenarios
 - **Present:** a 19-mission campaign structure, objective evaluation, timed events and progression/unlocks, including The Causeway Muster and The Siege of Tidewatch.
-- **Partial:** automated real-engine boot coverage now runs all 19 missions for 40 simulated seconds each (workflow [#38784116861](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38784116861)); this catches startup, scheduled-event and repeated-AI regressions, but is not a full playthrough. Still play every mission through objective order, timers, victory/defeat, unlocks and save/resume before calling the campaign complete.
+- **Partial:** automated real-engine boot coverage now runs all 19 missions for 40 simulated seconds each (workflow [#38784116861](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38784116861)); this catches startup, scheduled-event and repeated-AI regressions, but is not a full playthrough. The same harness evaluates every mission's objective predicates at startup, verifies unique non-empty objective IDs, and catches predicate exceptions; workflow [#38784894500](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38784894500) passed. Goal reachability and full mission completion remain unverified. Still play every mission through objective order, timers, victory/defeat, unlocks and save/resume before calling the campaign complete.
 - Add automated checks for mission prerequisites and objective reachability; reserve actual mission completion for browser playtests.
 
 ### 2.5 Economy, diplomacy and match rules
