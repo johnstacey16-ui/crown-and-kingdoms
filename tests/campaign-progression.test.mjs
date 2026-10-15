@@ -115,4 +115,18 @@ test('campaign naval raids spawn on water instead of land and avoid land-path at
     'Land raiders may attack the land target, while ships remain free to acquire reachable naval/coastal targets');
 });
 
+
+test('campaign naval spawn selection considers every enemy Dock', () => {
+  const start = html.indexOf('function raidShipPos(e)');
+  const end = html.indexOf('\nfunction raid(', start);
+  assert.ok(start >= 0 && end > start, 'Campaign ship-spawn helper must remain identifiable');
+  const helper = html.slice(start, end);
+  assert.match(helper, /const anchors=docks\.length\?docks:\[e\]/,
+    'Use all enemy Docks as candidate spawn anchors');
+  assert.match(helper, /for\(const a of anchors\)\{const q=Math\.hypot/,
+    'Score each valid water tile against every anchor and choose its nearest one');
+  assert.match(helper, /if\(d<bd&&d<=18\)\{bd=d;best=\[x\+\.5,y\+\.5\]\}/,
+    'Only return navigable water within 18 tiles of the nearest anchor');
+});
+
 console.log('campaign-progression: regression assertions passed');
