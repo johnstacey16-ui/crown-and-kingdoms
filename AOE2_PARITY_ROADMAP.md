@@ -241,7 +241,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 ### King of the Hill live-engine regression coverage — 15 October 2026
 
 - Added a real-engine smoke case in commit [`1835e9c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/1835e9ca7839349ffdce81ca9cb0207cff5e8ec8) for contested-hill progress resets, exclusion of villagers/trade carts/ships from capture, the 299-second non-victory boundary, and player/enemy victory at 300 uninterrupted seconds.
-- **Verification pending:** the new commit's push-triggered GitHub Actions result has not yet been confirmed. Do not mark this check passed until the workflow run reports success.
+- **Verification passed:** GitHub Actions run [38813593812](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38813593812) completed successfully.
 
 
 ### Rolling autosave regression coverage — 15 October 2026
