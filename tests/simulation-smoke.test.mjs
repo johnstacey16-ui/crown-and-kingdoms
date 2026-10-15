@@ -1139,7 +1139,6 @@ for (const population of [100, 200, 400]) {
   samples.sort((a, b) => a - b);
   console.log('large-army-runtime: requested='+population+' added='+finalResult.added+' total='+finalResult.units+' ticks='+finalResult.ticks+' repeats=3 simulationOnly=true medianMs='+samples[1].toFixed(2)+' rangeMs='+samples[0].toFixed(2)+'-'+samples[2].toFixed(2));
 }
-}
 
 // Measure a dense opposing-army scenario as well as idle separation overhead.
 const combatSamples = [];
