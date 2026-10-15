@@ -1,4 +1,4 @@
-function raid(n,ks,msg){const e=tcOf(1),tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!e||!tg)return;for(let i=0;i<n;i++){const p=spawnPos(e);if(!p)continue;const u=addU(1,ks[i%ks.length],p[0],p[1]);u.o='a';u.tg=tg;u.p=[]}if(msg)note(msg)}
+function raid(n,ks,msg){const e=tcOf(1);if(!e)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;for(let i=0;i<n;i++){const p=spawnPos(e);if(!p)continue;const u=addU(1,ks[i%ks.length],p[0],p[1]);u.o='a';u.tg=tg;u.p=[]}if(msg)note(msg)}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.res[0]={f:500,w:600,g:100,s:100}},
