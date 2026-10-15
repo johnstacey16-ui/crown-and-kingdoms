@@ -661,7 +661,15 @@ assert.equal(brokenIsles.layout, 13, 'Broken Isles must load as layout 13');
 assert.equal(brokenIsles.mapAudit?.starts, 4, 'Broken Isles must recognise all four starting positions');
 assert.equal(brokenIsles.mapAudit?.landReachable, true, 'Shallow crossings must keep every starting kingdom land-connected');
 assert.ok(brokenIsles.mapAudit?.waterCells > 0, 'Broken Isles must retain navigable water channels');
-console.log('broken-isles-smoke: four starting kingdoms connected with live water channels');
+assert.equal(brokenIsles.mapAudit?.navigableWaterConnected, true, 'All Broken Isles channels must belong to one traversable water network');
+const brokenShipStart = game.beginNavalMove();
+for (let tick = 0; tick < 900; tick += 1) game.tick(1 / 30);
+const brokenShipAfter = game.state().navalShip;
+assert.ok(brokenShipAfter, 'The Broken Isles movement ship must remain active');
+assert.ok(Math.hypot(brokenShipAfter.x - brokenShipStart.start.x, brokenShipAfter.y - brokenShipStart.start.y) > 4,
+  'A ship must travel through the Broken Isles water network rather than merely spawn');
+assert.equal(brokenShipAfter.water, true, 'The Broken Isles ship must finish its route on navigable deep water');
+console.log('broken-isles-smoke: connected starting land, one water network and an actual ship route');
 
 game.start(123456);
 const causewayCampaign = game.startCampaign(16);
