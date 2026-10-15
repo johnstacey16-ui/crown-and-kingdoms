@@ -484,7 +484,10 @@ globalThis.__CK_TEST__ = {
     ship.tg = { t: 0, k: 'gal', hp: 0, ld: 0, x: ship.x, y: ship.y };
     S.ai[1].cd = 0;
     aiTeam(1, 1 / 30);
-    return { reacquired: ship.tg === liveEnemy, order: ship.o, targetHp: ship.tg?.hp, targetTeam: ship.tg?.t };
+    const reacquiredAfterTargetLoss = ship.tg === liveEnemy;
+    ship.o = 'm'; ship.tg = null; ship.p = []; S.ai[1].cd = 0;
+    aiTeam(1, 1 / 30);
+    return { reacquired: reacquiredAfterTargetLoss, idleMoveReacquired: ship.tg === liveEnemy, order: ship.o, targetHp: ship.tg?.hp, targetTeam: ship.tg?.t };
   },
   beginNavalMove() {
     const pass = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 &&
@@ -1323,6 +1326,7 @@ console.log('campaign-completion-transition: all objectives required, completion
 const galleyReacquisition = game.exerciseGalleyTargetReacquisition();
 assert.equal(galleyReacquisition.reacquired, true, 'An AI war galley must acquire a nearby live hostile ship after target loss');
 assert.equal(galleyReacquisition.order, 'a', 'The retargeted war galley should remain in attack mode');
+assert.equal(galleyReacquisition.idleMoveReacquired, true, 'An AI war galley moving without a target must engage a nearby hostile ship');
 console.log('naval-ai-target-reacquisition: live AI retargeted after target loss');
 
 // Exercise every named generated-map layout through the actual game initializer.
