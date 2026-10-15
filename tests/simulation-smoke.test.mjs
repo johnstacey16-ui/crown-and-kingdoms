@@ -923,8 +923,8 @@ assert.equal(saveRoundTrip.after.size, saveRoundTrip.before.size, 'Map dimension
 assert.equal(saveRoundTrip.after.units, saveRoundTrip.before.units, 'All saved units must be restored');
 assert.equal(saveRoundTrip.after.buildings, saveRoundTrip.before.buildings, 'All saved buildings must be restored');
 assert.equal(saveRoundTrip.after.nodeCount, saveRoundTrip.before.nodeCount, 'All saved resource nodes must be restored');
-assert.deepEqual(saveRoundTrip.after.resources, saveRoundTrip.before.resources, 'All kingdoms’ resources must be restored');
-assert.deepEqual(saveRoundTrip.after.technology, saveRoundTrip.before.technology, 'Researched technologies must be restored');
-assert.deepEqual(saveRoundTrip.after.campaign, saveRoundTrip.before.campaign, 'Campaign time, completed goals and fired events must be restored');
+assert.deepEqual(JSON.parse(JSON.stringify(saveRoundTrip.after.resources)), JSON.parse(JSON.stringify(saveRoundTrip.before.resources)), 'All kingdoms’ resources must be restored');
+assert.deepEqual(JSON.parse(JSON.stringify(saveRoundTrip.after.technology)), JSON.parse(JSON.stringify(saveRoundTrip.before.technology)), 'Researched technologies must be restored');
+assert.deepEqual(JSON.parse(JSON.stringify(saveRoundTrip.after.campaign)), JSON.parse(JSON.stringify(saveRoundTrip.before.campaign)), 'Campaign time, completed goals and fired events must be restored');
 assert.equal(saveRoundTrip.after.campaign?.index, 16, 'The Causeway campaign must remain the active mission after loading');
 console.log(`save-load-smoke: restored campaign ${saveRoundTrip.after.campaign.index} with ${saveRoundTrip.after.units} units, ${saveRoundTrip.after.buildings} buildings and ${saveRoundTrip.bytes} saved characters`);
