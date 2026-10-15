@@ -11,17 +11,18 @@ This is the single handover checkpoint. Continue from live code and current CI r
 ## Latest implementation checkpoint
 
 - **Code commit:** `c64e353e0487c51c0d3922c2211bb74d32fd6556` — `test: benchmark exact large-army populations`.
-- **CI status at this documentation edit:** workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) was still running; do not treat this checkpoint as green until that workflow finishes successfully.
+- **Green code workflow:** [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completed successfully for this commit, including source checks, all standalone regression tests and atlas validation.
 - Corrected the large-army smoke benchmark so 100, 200 and 400 mean **total live units**, including the seeded starting force, rather than adding 100/200/400 on top of it. Timing still covers simulation steps only, uses three samples per population and reports median/range.
 - Corrected the benchmark warm-up comment to reflect the current 64-unit separation fallback threshold.
-- Previously verified optimisation: the separation fallback is limited to 64 or fewer units; larger armies use pooled spatial-grid separation. The earlier 120/220/420-unit measurements demonstrated the benefit but are not exact 100/200/400 population results and must not be reported as such.
+- **Verified simulation-only benchmark (Node CI runner; 30 steps, 3 repeats):** 100 total units median 4.99 ms (4.66–5.88); 200 total units median 8.94 ms (8.15–9.15); 400 total units median 15.89 ms (15.03–15.97). These timings cover simulation steps only and are not Xbox frame-rate or browser-render timings.
+- The separation fallback is limited to 64 or fewer units; larger armies use pooled spatial-grid separation. Earlier 120/220/420-unit measurements motivated this threshold change but are superseded by the exact-total benchmark above.
 - Town Bell shelter assignment was optimised to build eligible shelters once, count existing/en-route occupancy in one pass, and update reservations as villagers are assigned. Behavioural coverage checks that assignment never overbooks shelter capacity.
 
 ## Last known successful workflow before the latest benchmark correction
 
 - Code checkpoint `a2187d200dfcd6e2c75d339c5fda8fbd3fae8039`, workflow [#947](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746092399), passed the configured source checks, standalone regression tests and atlas validation.
 - Later documentation checkpoint `fe030d76ba8a9e5a8e055c6a5d4f0e7c8b51e323`, workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015), also completed successfully.
-- These historical green runs do not validate the new exact-population benchmark commit until its own workflow passes.
+- The exact-population benchmark commit now has its own passing workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612).
 
 ## What CI verifies
 
@@ -51,8 +52,7 @@ The browser-like harness executes the real classic-script game engine for select
 
 ## Next implementation work — no repeat-audit loop
 
-1. Confirm workflow for `c64e353` completes; inspect the test output and record exact 100/200/400 total-unit timings.
-2. Continue the highest-impact gameplay work: close measurable technology-effect gaps, deepen AI/naval/campaign behavioural coverage, and fix reproducible defects rather than adding redundant source regexes.
+1. Continue the highest-impact gameplay work: close measurable technology-effect gaps, deepen AI/naval/campaign behavioural coverage, and fix reproducible defects rather than adding redundant source regexes.
 3. Keep the development ledger and parity roadmap aligned with every meaningful implementation and exact CI result.
 4. Run live browser playthroughs for cold start, pause/resume, save/load, campaign completion, naval routes and end conditions when a browser session is available.
 5. Validate deployment and physical Xbox Series S / Edge controller/performance separately; never infer those results from Node CI.
