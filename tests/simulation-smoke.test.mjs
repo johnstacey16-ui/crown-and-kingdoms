@@ -581,15 +581,16 @@ globalThis.__CK_TEST__ = {
   },
   benchmarkArmy(count, ticks = 15) {
     this.start(13579);
+    const baseCount = S.us.length;
     for (let i = 0; i < count; i++) {
       const x = 4 + (i % 20) * 4;
       const y = 4 + Math.floor(i / 20) * 3.5;
       const unit = addU(i % Math.min(4, S.teamN), 'mil', x, y);
       unit.o = 'i'; unit.tg = null; unit.p = []; unit.sc = 1000; unit.as = 0; unit.retreating = 0;
     }
-    const before = S.us.length;
+    const added = S.us.length - baseCount;
     for (let i = 0; i < ticks; i++) step(1 / 30);
-    return { requested: count, added: S.us.length - before, units: S.us.length, ticks, time: S.t, mapSize: W };
+    return { requested: count, added, units: S.us.length, ticks, time: S.t, mapSize: W };
   },
   auditTownBellReservations() {
     const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
