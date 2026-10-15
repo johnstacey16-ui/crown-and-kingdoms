@@ -140,3 +140,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Latest simulation-only Node CI timings over 30 fixed steps and three repeats: 100 total units median **6.24 ms** (range 6.11–6.26); 200 total units median **10.97 ms** (10.94–11.16); 400 total units median **20.64 ms** (20.58–24.32). Earlier successful samples were faster, demonstrating that shared CI timing varies.
 - These are Node simulation timings, not browser-render timings, Xbox frame-rate or physical console verification. Earlier 120/220/420 total-unit timings are superseded by this exact-population benchmark.
 - Automated CI is not a full live browser playthrough, production deployment confirmation, multiplayer validation or physical Xbox verification.
+
+### AI recovery after destroyed buildings — 15 October 2026
+
+- AI building-count checks now ignore structures with `hp <= 0`, so destroyed production/economy buildings no longer permanently suppress replacement planning.
+- Living foundations remain counted to avoid duplicate builds while construction is in progress.
+- Regression guard: `tests/ai-rebuild-destroyed-buildings.test.mjs`. Treat this as implemented with a focused source regression guard; full-match recovery still needs playtesting.
