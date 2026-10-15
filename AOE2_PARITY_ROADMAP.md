@@ -48,7 +48,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 2.2 AI strategy and counterplay
 - **Present:** economic expansion, composition-aware research, defensive response, grouped attacks, siege targeting, repairs and several naval behaviours.
-- **Partial:** AI naval threat assessment now distinguishes combat-capable warships from fishing ships, transports and trade cogs, so economic vessels do not trigger combat-ship counter priorities. `tests/ai-naval-threat-classification.test.mjs` guards this classification. Still improve strategy across all ages and map types; test whether AI gathers, advances, builds, produces counters, protects its economy and attacks with coherent mixed armies rather than oscillating or stalling.
+- **Partial:** AI naval threat assessment distinguishes combat-capable warships from fishing ships, transports and trade cogs, so economic vessels do not trigger combat-ship counter priorities. Warship target scoring now prefers combat-capable enemy ships over transports/trade vessels when both are available, while retaining a fallback target if no warship is nearby. `tests/ai-naval-threat-classification.test.mjs` guards classification and target priority. Still improve strategy across all ages and map types; test whether AI gathers, advances, builds, produces counters, protects its economy and attacks with coherent mixed armies rather than oscillating or stalling.
 - Add deterministic scenario tests for key decisions, then play longer matches to assess strategy quality. Static source assertions alone cannot establish competent AI.
 
 ### 2.3 Naval and map systems
