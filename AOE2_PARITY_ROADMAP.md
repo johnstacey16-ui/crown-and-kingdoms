@@ -212,3 +212,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Training rejects buildings whose production queue is not an array before reading queue length or spending resources.
 - Existing eligibility and capacity checks are preserved.
 - Regression test: `tests/production-queue-shape-validation.test.mjs`. Runtime validation remains outstanding.
+
+
+### Campaign objective count correctness — 15 October 2026
+
+- Destroyed buildings no longer satisfy construction goals; dead units no longer satisfy villager or military force goals.
+- Regression test: `tests/campaign-objective-live-counts.test.mjs`. Full mission playthrough validation remains outstanding.
