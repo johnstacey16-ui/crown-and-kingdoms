@@ -58,6 +58,24 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
   }
   X.restore()
  }
+ /* Blacksmith armour upgrades receive a small battlefield-visible cue. */
+ {
+  const T=S.tech[u.t]||{},inf=!!(T.armI&&INFARM.has(k)),arch=!!(T.armR&&ARCHARM.has(k));
+  if(inf||arch){
+   X.save();X.translate(sx,sy);X.scale(z,z);X.lineJoin='round';X.lineWidth=.75;
+   if(inf){
+    X.fillStyle='rgba(183,196,207,.88)';X.strokeStyle='#382d22';
+    X.beginPath();X.moveTo(-5,-22);X.lineTo(-3,-25);X.lineTo(3,-25);X.lineTo(5,-22);X.lineTo(4,-15);X.lineTo(0,-13);X.lineTo(-4,-15);X.closePath();X.fill();X.stroke();
+    X.strokeStyle='#f0c35e';X.lineWidth=.8;X.beginPath();X.moveTo(-3,-20);X.lineTo(3,-20);X.moveTo(-3,-17);X.lineTo(3,-17);X.stroke();
+   }
+   if(arch){
+    X.fillStyle='rgba(176,190,202,.86)';X.strokeStyle='#382d22';
+    for(const side of[-1,1]){X.beginPath();X.moveTo(side*2,-23);X.lineTo(side*6,-22);X.lineTo(side*7,-17);X.lineTo(side*3,-15);X.closePath();X.fill();X.stroke()}
+    X.strokeStyle='#f0c35e';X.lineWidth=.8;X.beginPath();X.moveTo(-5,-17);X.lineTo(5,-17);X.stroke();
+   }
+   X.restore()
+  }
+ }
  if(u.sh&&T.navalHull){
   X.save();X.translate(sx,sy);X.scale(z,z);X.strokeStyle='#f0c35e';X.lineWidth=1.15;X.beginPath();X.moveTo(-9,-7);X.lineTo(-4,-5.5);X.lineTo(4,-5.5);X.lineTo(9,-7);X.stroke();X.fillStyle='#d8c49a';for(const x of[-6,0,6]){X.beginPath();X.arc(x,-7,0.75,0,Math.PI*2);X.fill()}X.restore()
  }
