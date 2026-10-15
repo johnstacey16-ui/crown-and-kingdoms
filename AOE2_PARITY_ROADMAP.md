@@ -247,3 +247,9 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Moved campaign scenario data, campaign progression, objective tracking/HUD, mission briefing flow and raid-event dispatch into `js/campaign.js`.
 - Kept campaign helpers in the same shared classic-script scope, loaded after kingdom systems and before `engine.js`; campaign logic remains controller-driven.
 - Updated offline caching and test harnesses. No mission goals, resource rules, or victory conditions were intentionally changed by this structural move.
+
+
+## Economy module extraction
+
+- Moved the market trade-row builder and buy/sell transaction handler into `js/economy.js`.
+- Kept existing trade prices, price movement, resource checks and controller menu callbacks unchanged; the module is loaded before `engine.js` and included in offline caching and simulation regression setup.
