@@ -15,7 +15,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
 - `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/assets.js`: optional sprite-atlas registration, metadata/frame validation, asynchronous image loading and animation-frame lookup, with procedural fallback preserved.
-- `js/ui.js`: performance overlay, strategic overview, technology tree, objectives, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; save serialization remains in `js/save.js`.
+- `js/ui.js`: shared title-background/generic list rendering, performance overlay, strategic overview, technology tree, objectives, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; save serialization remains in `js/save.js`.
 - The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
 - Large-army unit separation reuses its spatial bucket map across simulation steps, avoiding a fresh map allocation for each pass. The path still needs measured performance verification at 400 units on the target browser.
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
@@ -29,7 +29,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ### Phase 1 — finish safe engine separation
 - Map generation/layout, simulation stepping and world rendering have been extracted to `js/mapgen.js`, `js/simulation.js` and `js/render.js`.
 - **Completed this pass:** move the technology tree, objectives, controller help/About screens, pause-menu model/drawing, and controller-remap presentation into `js/ui.js`; preserve shared state and controller navigation.
-- **Next structural task:** map dependencies before moving the remaining campaign presentation and any remaining save-slot orchestration. Slot labels/action descriptors and drawing are now in `js/ui.js`; keep save reading/restoration and controller selection behaviour unchanged.
+- **Next structural task:** map dependencies before further campaign-presentation extraction. Shared title/list drawing now belongs to `js/ui.js`; keep campaign progression, save reading/restoration and controller input behaviour unchanged.
 - After extraction, update `index.html`, `sw.js`, `scripts/check-game.mjs` and the relevant tests in the same change. Check for duplicate top-level lexical declarations before committing.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
@@ -87,7 +87,7 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 - Moved `drawPerfOverlay(dt)`, `ovr()` and `drawOv()` from `engine.js` into `js/ui.js` without rewriting their function bodies.
 - Added `js/ui.js` to `index.html` before `engine.js` (and before simulation's script slot), the service-worker core cache, source syntax checks and browser-foundation regression checks.
 - The module depends on shared classic-script globals at call time; no new duplicate state declarations were introduced. This is a maintainability extraction only and does not claim a performance improvement.
-- The pause-menu, controller-remap, in-match HUD and save-slot presentation now live in `js/ui.js`; input/rebinding remains in `js/input.js`, and save serialization remains in `js/save.js`. Next extraction should target campaign presentation after mapping its state and action dependencies.
+- The pause-menu, controller-remap, in-match HUD, save-slot presentation and shared title/list renderers now live in `js/ui.js`; controller input/rebinding remains in `js/input.js`, and save serialization remains in `js/save.js`. Next extraction can target smaller campaign presentation helpers after mapping dependencies.
 
 
 ### Engine refactor update
@@ -135,3 +135,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the `slotItems()` menu model and `drawSlots()` presentation into `js/ui.js`, preserving the current three-slot labels, save overwrite/load callbacks, unreadable-slot message and controller-facing help text.
 - `refreshSlots()`, `openSlots()`, `slotsCtl()`, the save payload format, localStorage compatibility and IndexedDB backup path remain in their previous owners. The extraction changes presentation ownership only.
 - `tests/save-slot-ui-extraction.test.mjs` guards the separation between slot labels/drawing and existing save/load orchestration.
+
+
+### Shared menu-rendering extraction follow-on — 15 October 2026
+
+- Moved `titleBg()` and `drawList()` to `js/ui.js`, preserving both bodies and function names. The title menu, new-game/options lists, campaign list/briefing and save-slot screen continue to call the same global helpers.
+- `panel()` remains in `engine.js` as the reusable panel primitive used across gameplay and menu screens.
+- Added `tests/shared-menu-rendering-ui-extraction.test.mjs` to protect single ownership and all current caller groups.
