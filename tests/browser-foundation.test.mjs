@@ -54,12 +54,16 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(render.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(render.includes('function paintTileDetail(g,x,y,cx,cy)'));
   assert.ok(render.includes('function drawHill(o)'));
+  assert.ok(render.includes('function chunkOf(cx,cy)'));
+  assert.ok(render.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(!engineSource.includes('function drawWorld()'));
   assert.ok(!engineSource.includes('function drawUnit(u)'));
   assert.ok(!engineSource.includes('function drawRelic(q)'));
   assert.ok(!engineSource.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(!engineSource.includes('function paintTileDetail(g,x,y,cx,cy)'));
   assert.ok(!engineSource.includes('function drawHill(o)'));
+  assert.ok(!engineSource.includes('function chunkOf(cx,cy)'));
+  assert.ok(!engineSource.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
   assert.ok(multiplayer.length > 0);
   assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
