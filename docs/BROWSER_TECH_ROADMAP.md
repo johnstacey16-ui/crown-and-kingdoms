@@ -97,3 +97,8 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 ### Campaign module
 
 Campaign scenarios, mission progression, objectives, briefing flow and raid-event dispatch now live in `js/campaign.js`, loaded before the core engine and included in offline caching and regression harnesses.
+
+
+### Economy module
+
+Market trade-row generation and buy/sell transaction logic now live in `js/economy.js`; current pricing, price drift and resource validation are preserved. The module is included in the service-worker cache and simulation harness.
