@@ -130,6 +130,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 6. Confirm deployment and physically test controller-only play and 400-unit performance on Xbox Series S / Edge when hardware access is available.
 
 ## Latest implementation checkpoint — 15 October 2026
+- Campaign objective regressions (dead Castle/Town Centre handling and multi-objective victory gating) pass the full configured suite and atlas validation in workflow [#38754834027](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38754834027), commit `3dfe8be83f97b517db5932fea1c34a87b0eb8564`. Live mission completion and Xbox behaviour remain unverified.
 
 - Code commit: `94a22c18d363e49e3a54df892ba46fe49a957c9d` adds a real-engine boot-and-tick smoke test for all 19 defined campaign missions; the same tested branch contains the corrected benchmark for 100, 200 and 400 **total** live units rather than adding that many to the seeded army.
 - The benchmark warms both sides of the current 64-unit separation fallback threshold and reports median/range across three simulation-only samples for each population.
