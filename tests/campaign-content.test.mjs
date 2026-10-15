@@ -24,7 +24,7 @@ test('Causeway campaign uses the navigable strait layout and a staged land-and-s
   const nextMission = html.indexOf("\n{t:", start + 1);
   const end = nextMission === -1 ? html.indexOf("\n \n]}", start) : nextMission;
   const mission = html.slice(start, end === -1 ? undefined : end);
-  assert.ok(mission.includes('layout:12'), 'The mission must select King\\'s Causeway');
+  assert.ok(mission.includes('layout:12'), 'The mission must use map layout 12');
   assert.ok(html.includes('mapLayout=Number.isInteger(sc.layout)?sc.layout:0;if(mapLayout)applyMapLayout()'),
     'Starting a mission must apply its specific map layout');
   assert.ok(mission.includes("t:'Build a Dock'"), 'The mission must require a coastal dock');
