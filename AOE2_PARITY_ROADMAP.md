@@ -158,3 +158,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Aligned the AI's age-up decision gate with the actual age research rules: only completed, living structures eligible for the current age count toward the two-building requirement.
 - This avoids dead or wrong-age buildings falsely satisfying the AI's age-up gate and affecting villager production. Regression assertion added to `tests/ai-rebuild-destroyed-buildings.test.mjs`.
+
+
+### Destroyed buildings stop processing work — 15 October 2026
+
+- `upB` now skips buildings with zero or negative health as well as unfinished buildings. A structure destroyed earlier in the current simulation tick cannot still finish research, spawn queued production, or fire a defensive weapon in that tick.
+- Regression guard: `tests/destroyed-building-work.test.mjs`. Full runtime and gameplay verification remain required.
