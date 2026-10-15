@@ -4,58 +4,59 @@
 **Repository:** https://github.com/johnstacey16-ui/crown-and-kingdoms  
 **Branch:** `main`
 
-## Why this file exists
+## Purpose
 
-This is the single handover checkpoint intended to stop repeated audits and repeated claims of progress. Update it when a meaningful implementation or verification result changes. Before starting work, compare the live HEAD and workflow to this ledger. Do not redo a resolved item unless new evidence reproduces it.
+This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
-## Latest implementation checkpoint — 15 October 2026
+## Latest implementation checkpoint
 
-- Latest `main` HEAD before this change: `9658f963af27edd9c181c24753c1d7f84e7c8724`; workflow [#930](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744444974) completed successfully.
-- New work in progress: Town Bell shelter assignment now builds the eligible shelter list once, pre-counts garrisoned and en-route occupancy in one pass, and updates reservations as villagers are assigned. This removes repeated full-unit-list scans from the inner assignment loop while preserving nearest-available-shelter selection and capacity reservations. Focused regression assertions and full CI are being added/run in this change.
+- **Code commit:** `c64e353e0487c51c0d3922c2211bb74d32fd6556` — `test: benchmark exact large-army populations`.
+- **CI status at this documentation edit:** workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) was still running; do not treat this checkpoint as green until that workflow finishes successfully.
+- Corrected the large-army smoke benchmark so 100, 200 and 400 mean **total live units**, including the seeded starting force, rather than adding 100/200/400 on top of it. Timing still covers simulation steps only, uses three samples per population and reports median/range.
+- Corrected the benchmark warm-up comment to reflect the current 64-unit separation fallback threshold.
+- Previously verified optimisation: the separation fallback is limited to 64 or fewer units; larger armies use pooled spatial-grid separation. The earlier 120/220/420-unit measurements demonstrated the benefit but are not exact 100/200/400 population results and must not be reported as such.
+- Town Bell shelter assignment was optimised to build eligible shelters once, count existing/en-route occupancy in one pass, and update reservations as villagers are assigned. Behavioural coverage checks that assignment never overbooks shelter capacity.
 
-## Last verified code checkpoint
+## Last known successful workflow before the latest benchmark correction
 
-- **Code commit:** `10a9a2f7209236385b57d31e7f71f1e844147d78` — `fix: accept indexed entity references in valid saves`.
-- **Green workflow:** [#923](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38742305191), which passed the configured source checks, complete standalone regression suite, and sprite-atlas validation.
-- The regression was an over-escaped digit matcher in the indexed entity-reference validator in `js/save.js`, causing valid indexed IDs to be rejected. The correction was followed by a passing full test workflow.
-- Subsequent documentation-only commits were also checked by [workflow #926](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744134109), which completed successfully for commit `488638d5593385382bbea4378973ef3fb67df441`.
-- The documentation refresh commits after #926 must have their own CI result checked before claiming the latest HEAD is green.
+- Code checkpoint `a2187d200dfcd6e2c75d339c5fda8fbd3fae8039`, workflow [#947](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746092399), passed the configured source checks, standalone regression tests and atlas validation.
+- Later documentation checkpoint `fe030d76ba8a9e5a8e055c6a5d4f0e7c8b51e323`, workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015), also completed successfully.
+- These historical green runs do not validate the new exact-population benchmark commit until its own workflow passes.
 
-## What the configured CI actually verifies
+## What CI verifies
 
 Workflow: `.github/workflows/game-regression.yml`
 
 1. `node scripts/check-game.mjs` — script parsing and source invariants.
 2. Every `tests/*.test.mjs` standalone regression test.
-3. `node tests/validate-atlas.mjs` — local sprite atlas metadata and frame bounds.
+3. `node tests/validate-atlas.mjs` — sprite-atlas metadata and frame bounds.
 
-This is automated source/regression/asset validation. It is **not** proof of complete gameplay, an end-to-end browser playthrough, successful deployment, 400-unit frame rate, robust multiplayer, or physical Xbox compatibility.
+The browser-like harness executes the real classic-script game engine for selected behaviours including research completion, construction, trade routes, naval movement/combat/repair, campaign objectives, save/load, AI growth and Town Bell assignments. These checks are stronger than source-only assertions, but still do not prove full-match balance, successful live deployment, or physical Xbox performance.
 
 ## Status snapshot
 
-| Area | Current evidence-based status |
+| Area | Evidence-based status |
 | --- | --- |
-| Save validator indexed references | **Fixed; full regression suite passed** at code checkpoint above |
-| Manual save/autosave and campaign save/load | Automated regression coverage exists; browser-level storage failure/recovery still requires verification |
-| Engine and script loading | Source checks pass; cold-start and long-session browser runtime still require verification |
-| AI, economy, combat and technology | Substantial implementation and focused regression tests exist; complete-match behaviour and balance are not established by CI |
-| Campaign content/progression | Mission/objective regression tests exist; every mission has not been certified through a full real playthrough |
-| Maps/pathfinding/naval | Static/connectivity/pathing tests exist; real unit/ship movement across representative maps requires runtime verification |
-| Rendering/assets | Atlas metadata/frame validation passes; visual quality and performance require browser/hardware review |
-| Controller-only UX | Input/UI regression tests exist; complete controller-only journey requires physical-controller validation |
-| Large armies | A spatial separation reuse optimisation and a separation-pool test exist; repeatable 100/200/400-unit profiling is still required |
-| Multiplayer | Lightweight Supabase Realtime lobby/session scope only; do not describe it as authoritative full RTS synchronization |
-| Xbox Series S / Edge | **Not physically verified in this ledger** |
+| Save validation and indexed entity references | Fixed at the previously green code checkpoint; valid campaign save/load round-trip is covered |
+| Local autosave | One rolling `ck_autosave` slot at 60-second intervals in active local play; multiplayer autosave suppressed; browser storage denial/recovery still needs live verification |
+| Technology | Many researched effects have source guards and runtime smoke tests for Gather Rate, Man-at-Arms HP, Bloodlines, Chemistry and newly created units; not every technology is fully balance-tested |
+| Campaign | Mission setup, objective-specific regressions and selected real objective completion are covered; every mission has not been completed in a full playthrough |
+| AI | Growth, age progression, coordinated siege, defensive response, research priority, retreat and naval threat logic have focused coverage; complete-match strategy remains unverified |
+| Maps/naval | Generated-map connectivity and selected real ship movement/combat/repair paths are covered; every layout and coastal edge case is not certified |
+| Rendering/assets | Atlas metadata/frame validation is automated; graphics quality and performance require visual browser/hardware review |
+| Controller-only UX | Controller-oriented input/menu checks exist; full controller-only journey still needs live browser and physical-controller validation |
+| Large armies | Pooled separation path above 64 units; exact 100/200/400 total-population benchmark was corrected in commit above and awaits that commit's CI result |
+| Multiplayer | Lightweight Supabase Realtime lobby/session only; not full authoritative RTS state synchronization |
+| Xbox Series S / Edge | **Not physically verified** |
 
-## Next work — do not loop
+## Next implementation work — no repeat-audit loop
 
-1. Check the current live `main` HEAD and latest workflow; do not assume the checkpoint above is still the latest.
-2. Add behavioural runtime coverage that loads the actual classic scripts in a browser-like harness and exercises startup, new game, simulation stepping, pause/resume, save/load and campaign start. Prefer a shared harness over adding more brittle source-regex tests.
-3. Run repeatable simulation benchmarks at small, medium and large populations (including a 400-unit target), capture elapsed time and exceptions, and optimise only measured bottlenecks.
-4. Address the highest-impact reproducible gameplay/runtime gap revealed by those tests.
-5. Update the relevant roadmap and this ledger in the same change as implementation; rerun the entire workflow and record the exact commit/run.
-6. Continue through campaign coverage, map movement/naval behaviour, controller-only flows, and physical Xbox validation when hardware is available.
+1. Confirm workflow for `c64e353` completes; inspect the test output and record exact 100/200/400 total-unit timings.
+2. Continue the highest-impact gameplay work: close measurable technology-effect gaps, deepen AI/naval/campaign behavioural coverage, and fix reproducible defects rather than adding redundant source regexes.
+3. Keep the development ledger and parity roadmap aligned with every meaningful implementation and exact CI result.
+4. Run live browser playthroughs for cold start, pause/resume, save/load, campaign completion, naval routes and end conditions when a browser session is available.
+5. Validate deployment and physical Xbox Series S / Edge controller/performance separately; never infer those results from Node CI.
 
 ## Working rule
 
-A passing assertion is not the same as a finished feature. A feature is complete only when implementation, meaningful behavioural coverage, integration and the relevant runtime verification agree. Never weaken a correct test to get a green build. Never claim physical Xbox testing without actually performing it.
+A passing assertion is not the same as a finished feature. Mark work as implemented, regression-checked, browser-playtested or Xbox-verified only at the corresponding evidence level. Never weaken a correct test to obtain a green build, and never claim physical Xbox testing without actually performing it.
