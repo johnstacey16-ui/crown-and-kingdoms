@@ -4,11 +4,12 @@ function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.
 
 function raidShipPos(e){
  const docks=S.bs.filter(b=>b.t===1&&b.k==='dock'&&b.hp>0);
- const anchors=docks.length?docks:[e],seen=new Set();let best=null,bd=Infinity;
- for(const a of anchors)for(let r=1;r<=18;r++)for(let y=Math.max(1,(a.y|0)-r);y<=Math.min(H-2,(a.y|0)+r);y++)for(let x=Math.max(1,(a.x|0)-r);x<=Math.min(W-2,(a.x|0)+r);x++){
-  const i=y*W+x;if(seen.has(i)||S.wt[i]!==1||S.nd[i]||S.g[i])continue;seen.add(i);
-  const d=Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2));
-  if(d<bd){bd=d;best=[x+.5,y+.5]}
+ const anchors=docks.length?docks:[e];let best=null,bd=Infinity;
+ for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
+  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||S.g[i])continue;
+  let d=Infinity;
+  for(const a of anchors){const q=Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2));if(q<d)d=q}
+  if(d<bd&&d<=18){bd=d;best=[x+.5,y+.5]}
  }
  return best
 }
