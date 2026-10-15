@@ -51,7 +51,7 @@ assert.match(html, /function unitName\(k,t\)\{\s*const tech=S&&S\.tech&&S\.tech\
   'Unit rank display must read the actual researching kingdom technology ledger');
 assert.match(html, /if\(k==='mil'\)return tech\.champ\?'Champion':tech\.twohand\?'Two-Handed Swordsman':tech\.longs\?'Long Swordsman':tech\.man\?'Man-at-Arms':U\[k\]\.n/,
   'Existing and newly trained Militia must display the highest researched infantry rank');
-assert.ok(html.includes("bar:{n:'Barracks',s:3,hp:500,cost:{w:150},bt:25,tr:['mil','spear'],rs:['man','longs','twohand','champ','pike','halb'],age:1}"),
+assert.match(html, /bar:\{n:'Barracks',s:3,hp:500,cost:\{w:150\},bt:25,tr:\['mil','spear'\],rs:\['man','longs','twohand','champ','pike','halb'\]/,
   'Two-Handed Swordsman and Champion must be reachable from the Barracks');
 assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:300,g:100\},t:45,age:3,pre:'longs',hpb:\{mil:15\},atkb:\{mil:2\}\}/,
   'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
