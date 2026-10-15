@@ -14,4 +14,9 @@ assert.match(ai, /if\(k==='atkR2'&&ownRanged<2\)score-=28/, 'AI should not waste
 assert.match(ai, /if\(k==='armI'&&humanRanged>=3\)score\+=12/,
   'enemy ranged pressure can still influence defensive research without overriding own-unit value');
 
+assert.match(ai, /const navalThreatCount=S\.us\.filter\(e=>isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\.sh&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\.length/,
+  'AI fleet planning must count hostile combat ships without counting fishing, transport or trade ships');
+assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
+  'AI war-galley production must scale from a four-ship baseline up to twelve against hostile fleets');
+
 console.log('ai-research-priority: military upgrades respond to own army composition');
