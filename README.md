@@ -48,6 +48,10 @@ node tests/validate-atlas.mjs
 
 GitHub Actions discovers and runs every `tests/*.test.mjs` test. The suite is primarily static syntax, source-invariant, regression and asset-metadata validation. It does not simulate complete matches or prove frame rate, visual quality, deployment correctness, networking resilience or physical Xbox compatibility.
 
+## Local autosave
+
+During active local play, the game attempts an autosave every 60 seconds into one rolling `ck_autosave` slot; each successful save replaces the previous autosave. Manual save slots are separate. Autosave is suppressed for active multiplayer sessions, including pause/blur-triggered saves, because the current lobby is not a complete authoritative multiplayer save system. Browser storage failures can still prevent a save, so autosave is not a substitute for verified storage durability.
+
 ## Development rules
 
 1. Preserve controller-only usability, existing save compatibility and the fixed-step simulation contract.
