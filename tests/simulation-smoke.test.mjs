@@ -714,6 +714,7 @@ globalThis.__CK_TEST__ = {
       time: S.t,
       ticks: S.vt,
       layout: mapLayout,
+      mapAudit: S.mapAudit ? { ...S.mapAudit } : null,
       enemyGalleys: S.us.filter((u) => u.t === 1 && u.k === 'gal' && u.hp > 0).length,
       units: S.us.length,
       buildings: S.bs.length,
@@ -1092,6 +1093,27 @@ for (let mission = 0; mission < 19; mission += 1) {
 }
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
+
+// Exercise every named generated-map layout through the actual game initializer.
+// This catches disconnected starts and bad map-layout seeds that static tests miss.
+const generatedMapAudits = [];
+for (let layout = 1; layout <= 13; layout += 1) {
+  const state = game.startLayout(layout, 4);
+  assert.equal(state.layout, layout, `Map layout ${layout} should remain selected after initialization`);
+  assert.ok(state.mapAudit, `Map layout ${layout} must publish its generated-map audit`);
+  assert.equal(state.mapAudit.landReachable, true, `Map layout ${layout} must connect all four starting land regions`);
+  assert.equal(state.mapAudit.starts, 4, `Map layout ${layout} must audit all four starting positions`);
+  assert.ok(state.units >= 20, `Map layout ${layout} must initialize a starting economy for all four kingdoms`);
+  generatedMapAudits.push({ layout, attempts: state.mapAudit.attempts ?? null, water: state.mapAudit.waterCells, dockableStarts: state.mapAudit.dockableStarts });
+}
+for (const layout of [2, 4, 12, 13]) {
+  for (const teams of [2, 3]) {
+    const state = game.startLayout(layout, teams);
+    assert.equal(state.mapAudit?.landReachable, true, `Map layout ${layout} must connect ${teams} kingdoms`);
+    assert.equal(state.mapAudit?.starts, teams, `Map layout ${layout} must audit ${teams} starting positions`);
+  }
+}
+console.log('generated-map-matrix: '+generatedMapAudits.length+' named layouts passed four-kingdom connectivity; Twin Rivers, Island Reach, Kings Causeway and Broken Isles also passed two/three-kingdom starts');
 
 const skirmish = game.runSkirmish(60);
 assert.equal(skirmish.teams, 4, 'Long skirmish stress test must include four kingdoms');
