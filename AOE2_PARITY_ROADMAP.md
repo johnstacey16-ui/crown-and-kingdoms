@@ -233,3 +233,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - **Implemented in source:** the performance overlay and strategic overview drawing functions now live in `js/ui.js`, loaded before `engine.js`. The extraction preserves the function names and bodies.
 - **Regression protection:** script order, function ownership and inclusion in the source syntax checks and offline shell cache are covered by the updated checks.
 - **Remaining:** the main HUD, pause/menu screens, campaign UI and save-slot UI remain in `engine.js`. Continue in small dependency-aware groups; avoid claiming that the entire UI has been modularised.
+
+
+## Engine modularisation — kingdom systems
+
+- Extracted diplomacy relationships, hostility helpers, the controller diplomacy menu, resource tribute transfers, and villager-priority automation from `engine.js` into `js/kingdom.js`.
+- Loaded the module after `js/simulation.js` and before `engine.js`, preserving the classic-script shared scope and the existing controller commands.
+- Added the module to the offline service-worker cache and regression harnesses. This is a structural refactor only: it does not change diplomacy rules, tribute amounts, worker priorities, or save fields.
