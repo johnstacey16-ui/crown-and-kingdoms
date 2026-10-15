@@ -158,6 +158,38 @@ globalThis.__CK_TEST__ = {
       else S.tech[0].cons = previous;
     }
   },
+  auditAttackResearchDamage() {
+    const attacker = S.us.find(u => u.t === 0 && u.k === 'mil' && u.hp > 0);
+    const target = S.us.find(u => u.t === 1 && u.k === 'mil' && u.hp > 0);
+    if (!attacker || !target) throw new Error('Attack research audit requires opposing infantry');
+    const tech = S.tech[0], oldM = tech.atkM, oldM2 = tech.atkM2, oldR = tech.atkR, oldR2 = tech.atkR2;
+    const oldHp = target.hp, oldDead = target.dead;
+    const damage = (key, value) => {
+      delete tech.atkM; delete tech.atkM2; delete tech.atkR; delete tech.atkR2;
+      if (key) tech[key] = value;
+      target.hp = 100000; target.dead = 0;
+      dmgT(attacker, target);
+      return 100000 - target.hp;
+    };
+    try {
+      const meleeBase = damage(null, 0);
+      const meleeBasic = damage('atkM', 1);
+      const meleeAdvanced = damage('atkM2', 1);
+      attacker.k = 'xbow';
+      const rangedBase = damage(null, 0);
+      const rangedBasic = damage('atkR', 1);
+      const rangedAdvanced = damage('atkR2', 1);
+      return { meleeBase, meleeBasic, meleeAdvanced, rangedBase, rangedBasic, rangedAdvanced };
+    } finally {
+      attacker.k = 'mil';
+      target.hp = oldHp; target.dead = oldDead;
+      for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
+      if (oldM !== undefined) tech.atkM = oldM;
+      if (oldM2 !== undefined) tech.atkM2 = oldM2;
+      if (oldR !== undefined) tech.atkR = oldR;
+      if (oldR2 !== undefined) tech.atkR2 = oldR2;
+    }
+  },
   auditSpatialTargets() {
     const originalUnits=S.us,originalBuildings=S.bs;
     const probes=[
