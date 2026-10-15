@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 assert.match(html, /for\(let t=1;t<S\.teamN;t\+\+\)if\(diplomacyRelation\(0,t\)==='ally'&&\(S\.bs\.some\(b=>b\.t===t&&b\.hp>0\)\|\|S\.us\.some\(u=>u\.t===t&&u\.hp>0\)\)\)allies\.push\(t\)/,
   'Tribute recipients must include surviving allied kingdoms without a Town Centre');
