@@ -48,6 +48,7 @@ function attemptLoad(raw) {
   const sandbox = {
     localStorage: { getItem: () => raw },
     skey: () => 'slot-1',
+    slot: 0,
     note: message => messages.push(message),
     SZ: [72, 96, 128, 176],
     S: sentinel,
