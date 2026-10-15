@@ -44,7 +44,7 @@ test('the core engine is external and loads before multiplayer integration', () 
 
 
 test('IndexedDB backs up saved slots without replacing the localStorage compatibility path', () => {
-  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
+  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/js\/config\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
   assert.match(persistence, /mirrorSave, restoreMissing/);
   assert.match(engine, /mirrorSave\(skey\(slot\),payload\)/);
