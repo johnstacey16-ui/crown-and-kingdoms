@@ -193,7 +193,7 @@ globalThis.__CK_TEST__ = {
     const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
     const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
     const tech = S.tech[0], armour = S.tech[1];
-    const oldArmI = armour.armI, oldArmR = armour.armR;
+    const oldArmI = armour.armI, oldArmR = armour.armR, oldArmC = armour.armC;
     const oldAtkM = tech.atkM, oldAtkM2 = tech.atkM2, oldAtkR = tech.atkR, oldAtkR2 = tech.atkR2;
     const oldKind = target.k, oldHp = target.hp, oldDead = target.dead;
     const damage = (attackerKind, targetKind, armourKey) => {
@@ -211,12 +211,15 @@ globalThis.__CK_TEST__ = {
         infantryArmour: damage('mil', 'mil', 'armI'),
         rangedBase: damage('xbow', 'arc', null),
         rangedArmour: damage('xbow', 'arc', 'armR'),
+        cavalryBase: damage('mil', 'knight', null),
+        cavalryArmour: damage('mil', 'knight', 'armC'),
       };
     } finally {
       attacker.k = 'mil'; target.k = oldKind; target.hp = oldHp; target.dead = oldDead;
-      for (const key of ['armI','armR']) delete armour[key];
+      for (const key of ['armI','armR','armC']) delete armour[key];
       if (oldArmI !== undefined) armour.armI = oldArmI;
       if (oldArmR !== undefined) armour.armR = oldArmR;
+      if (oldArmC !== undefined) armour.armC = oldArmC;
       for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
       if (oldAtkM !== undefined) tech.atkM = oldAtkM;
       if (oldAtkM2 !== undefined) tech.atkM2 = oldAtkM2;
@@ -784,7 +787,9 @@ assert.equal(armourResearch.infantryBase - armourResearch.infantryArmour, 1,
   'Infantry Armour research must reduce incoming melee damage by exactly one');
 assert.equal(armourResearch.rangedBase - armourResearch.rangedArmour, 1,
   'Archer Armour research must reduce incoming ranged damage by exactly one');
-console.log('armour-research-smoke: infantry and archer armour upgrades reduce live incoming damage by one');
+assert.equal(armourResearch.cavalryBase - armourResearch.cavalryArmour, 1,
+  'Cavalry Armour research must reduce incoming melee damage by exactly one');
+console.log('armour-research-smoke: infantry, archer and cavalry armour upgrades each reduce matching live incoming damage by one');
 
 const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
