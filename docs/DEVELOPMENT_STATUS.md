@@ -144,3 +144,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Dead or stale garrison references no longer falsely consume shelter capacity; valid shelter reservations and same-command capacity accounting are retained.
 - Regression guard: `tests/town-bell-garrison-capacity.test.mjs`.
 - Source-level checks only; Node test execution and Xbox/browser gameplay remain unverified.
+
+
+## 15 October 2026 — Building placement input validation
+
+- `okPlace` now rejects missing game state, unknown building definitions, invalid team indices and non-integer coordinates before reading building dimensions or checking map tiles.
+- Existing map-edge, terrain, water and player-exploration checks remain intact.
+- Regression guard: `tests/building-placement-input-validation.test.mjs`.
+- Source-level checks only; Node execution and browser/controller testing remain outstanding.
