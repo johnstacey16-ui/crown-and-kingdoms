@@ -37,7 +37,7 @@ test('the sprite atlas manifest is external JSON and loaded without blocking sta
 
 
 test('the core engine is external and loads before multiplayer integration', () => {
-  assert.match(html, /<script src="\.\/js\/config\.js"><\/script><script src="\.\/js\/audio\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
+  assert.match(html, /<script src="\.\/js\/config\.js"><\/script><script src="\.\/js\/audio\.js"><\/script><script src="\.\/js\/save\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
   assert.match(html, /<script src="\.\/multiplayer\.js"><\/script>/);
   assert.ok(html.indexOf('./js/config.js') < html.indexOf('./js/audio.js'));
   assert.ok(html.indexOf('./js/audio.js') < html.indexOf('./js/save.js'));
