@@ -48,7 +48,7 @@ if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&arm.length>=6&&S.nodes.some(n=>n.fi
 /* Fishing ships break off and seek open water when hostile combat ships close in; they resume fishing after the threat passes. */
 const hostileFleet=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.sh&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4);
 for(const s of fish.filter(u=>u.hp>0)){
- const threat=hostileFleet.map(e=>({e,d:Math.hypot(e.x-s.x,e.y-s.y)})).sort((a,b)=>a.d-b.d)[0];
+ let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-s.x,e.y-s.y);if(!threat||d<threat.d)threat={e,d}}
  if((!threat||threat.d>14)&&s.fleeUntil)s.fleeUntil=0;
  if(threat&&threat.d<10&&S.t>=(s.fleeUntil||0)){
   const dx=s.x-threat.e.x,dy=s.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
@@ -71,7 +71,7 @@ for(const s of scouts.filter(u=>u.o==='i')){const x=2+S.r()*(W-4),y=2+S.r()*(H-4
 /* Wounded warships disengage to reachable open water instead of fighting to destruction. */
 for(const ship of galleys.filter(u=>u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'))){
  if(S.t<(ship.navalFallbackUntil||0))continue;
- const threat=hostileFleet.map(e=>({e,d:Math.hypot(e.x-ship.x,e.y-ship.y)})).sort((a,b)=>a.d-b.d)[0];
+ let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-ship.x,e.y-ship.y);if(!threat||d<threat.d)threat={e,d}}
  if(!threat||threat.d>18)continue;
  const dx=ship.x-threat.e.x,dy=ship.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
  for(let r=8;r<=16;r+=2)for(let a=0;a<12;a++){
@@ -85,7 +85,7 @@ for(const ship of galleys.filter(u=>u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='
  let escape=null;for(const spot of spots.slice(0,6)){escape=path(ship,gp(spot.x+.5,spot.y+.5,1.2));if(escape&&escape.length)break;escape=null}
  if(escape){ship.o='m';ship.tg=null;ship.p=escape;ship.navalFallbackUntil=S.t+20}
 }
-const hostileShips=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&U[u.k].sh&&u.k!=='fish'),ptc=S.bs.filter(b=>isHostile(t,b.t)&&b.k==='tc'&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y))[0];for(const ship of galleys.filter(u=>u.o==='i'&&(u.hp/mhp(u)>=.32||S.t>=(u.navalFallbackUntil||0)))){const focus=e=>galleys.filter(u=>u.o==='a'&&u.tg===e).length,navalTargetScore=(e)=>Math.hypot(e.x-ship.x,e.y-ship.y)-(e.k==='gal'?6:0)+(U[e.k].dmg>=4?0:10)-Math.min(3,focus(e))*4,enemy=hostileShips.slice().sort((a,b)=>navalTargetScore(a)-navalTargetScore(b))[0];if(enemy&&Math.hypot(enemy.x-ship.x,enemy.y-ship.y)<28){ship.o='a';ship.tg=enemy;ship.p=[];continue}if(!ptc)continue;const p=path(ship,(x,y)=>S.wt[y*W+x]&&Math.hypot(x-ptc.x,y-ptc.y)<18);if(p&&p.length){ship.o='m';ship.p=p}}}
+const hostileShips=S.us.filter(u=>isHostile(t,u.t)&&u.hp>0&&U[u.k].sh&&u.k!=='fish'),ptc=S.bs.filter(b=>isHostile(t,b.t)&&b.k==='tc'&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y))[0];for(const ship of galleys.filter(u=>u.o==='i'&&(u.hp/mhp(u)>=.32||S.t>=(u.navalFallbackUntil||0)))){const focus=e=>galleys.filter(u=>u.o==='a'&&u.tg===e).length,navalTargetScore=(e)=>Math.hypot(e.x-ship.x,e.y-ship.y)-(e.k==='gal'?6:0)+(U[e.k].dmg>=4?0:10)-Math.min(3,focus(e))*4,enemy=null,enemyScore=Infinity;for(const candidate of hostileShips){const score=navalTargetScore(candidate);if(score<enemyScore){enemyScore=score;enemy=candidate}}if(enemy&&Math.hypot(enemy.x-ship.x,enemy.y-ship.y)<28){ship.o='a';ship.tg=enemy;ship.p=[];continue}if(!ptc)continue;const p=path(ship,(x,y)=>S.wt[y*W+x]&&Math.hypot(x-ptc.x,y-ptc.y)<18);if(p&&p.length){ship.o='m';ship.p=p}}}
 if(vil.length>=7&&S.bs.filter(b=>b.t===t&&b.k==='bar').length<1+(arm.length>=8)+(arm.length>=16))aiBuild(vil,'bar',t);else if(cnt('bar')&&vil.length>=10&&cnt('rng')<1+(arm.length>=12)&&(arm.length>=4))aiBuild(vil,'rng',t);if(vil.length>=6&&cnt('lumber')<1+(S.t>600)+(S.t>1200)+(S.t>1800))aiNear(vil,'lumber',['w'],t);else if(vil.length>=8&&cnt('mill')<1+(S.t>900)+(S.t>1800))aiNear(vil,'mill',['f'],t);else if(vil.length>=11&&cnt('mine')<1+(S.t>600)+(S.t>1200)+(S.t>1800))aiNear(vil,'mine',['g','s'],t);
 else if(cnt('rng')&&S.age[t]>=1&&vil.length>=12&&!cnt('stable')&&(arm.length>=4))aiBuild(vil,'stable',t);else if(cnt('bar')&&S.age[t]>=1&&vil.length>=12&&!cnt('smith')&&(arm.length>=4))aiBuild(vil,'smith',t);else if(S.age[t]>=1&&cnt('tower')<PERS[aip].tw&&vil.length>=12)aiBuild(vil,'tower',t);else if(S.age[t]>=2&&!cnt('castle')&&vil.length>=14)aiBuild(vil,'castle',t);else if(S.age[t]>=2&&!cnt('monastery')&&vil.length>=14)aiBuild(vil,'monastery',t);else if(S.age[t]>=2&&!cnt('siege')&&vil.length>=16)aiBuild(vil,'siege',t);else if(S.age[t]>=2&&!cnt('univ')&&cnt('smith')&&vil.length>=18)aiBuild(vil,'univ',t);else if(vm===1&&S.age[t]>=3&&!cnt('wonder')&&vil.length>=20)aiBuild(vil,'wonder',t);else if(S.age[t]>=1&&!cnt('market')&&vil.length>=14)aiBuild(vil,'market',t);
 if(S.age[t]>=1&&S.t>420&&vil.length>=12&&cnt('tower')<PERS[aip].tw&&can(t,B.tower.cost))aiBuild(vil,'tower',t);
