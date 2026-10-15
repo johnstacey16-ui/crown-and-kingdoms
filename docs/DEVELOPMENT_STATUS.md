@@ -104,3 +104,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Building updates now return immediately for destroyed structures, not just unfinished structures. This prevents a building killed earlier in the same simulation tick from completing research, finishing a queued unit, or firing its defensive attack during its final update.
 - Added `tests/destroyed-building-work.test.mjs` to guard the update order and retain checks that living completed buildings still process research and queues.
 - Focused source assertions are not a claim that the full Node suite or live browser/Xbox playtest has passed.
+
+
+## 15 October 2026 — Production/research command validation
+
+- `train` now rejects missing, destroyed, unfinished, invalid-owner, or incompatible buildings/units before charging resources or adding a queue item.
+- `research` now rejects destroyed and unfinished buildings before spending resources. This closes stale-selection / same-tick command paths that could otherwise charge the player for work that cannot progress.
+- Added `tests/invalid-building-commands.test.mjs` to guard validation ordering and ensure valid commands still reach the resource-payment/queue path.
+- Source checks do not substitute for executing the Node suite or a live gameplay test.
