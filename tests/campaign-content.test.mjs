@@ -15,5 +15,5 @@ test('sequel includes timed mixed naval and land attacks and campaign progressio
   assert.match(html, /at:150,do:\(\)=>raid\(5,\['gal','gal','scout','spear','arc'\]/);
   assert.match(html, /at:300,do:\(\)=>raid\(7,\['ram','knight','arc','spear','gal','gal','arc'\]/);
   assert.match(html, /at:480,do:\(\)=>raid\(8,\['ram','ram','knight','knight','arc','spear','gal','gal'\]/);
-  assert.match(html, /n:'Coastal War',ids:\[12,13\]/);
+  assert.match(html, /n:'Coastal War',ids:\[12,13,14\]/);
 });

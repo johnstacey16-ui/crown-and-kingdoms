@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 15 October 2026  
-**Source checkpoint reviewed for this roadmap update:** `c55a926e2277b61de6d04dad2c0793f0e97fb46f` (main, 15 October 2026).  
+**Source checkpoint reviewed for this continuation:** `ec3c3551fef8b1e4f24634d4833e7c29f25a643a` (main before this change, 15 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -47,7 +47,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** Wonder victory (five-minute hold), relic victory (four-minute hold), Regicide, standard Town Centre victory, score victory with selectable 10-, 15-, 20-, 25- or 30-minute limits, King of the Hill and Sudden Death. Score is a Crown & Kingdoms-specific formula based on held resources, surviving units/buildings, age, researched technologies and stored relics; it is not claimed to match AoE2's exact scoring formula.
 - **Present:** *The Golden Coast*, *The Strait's Last Relic* and *The Siege of Tidewatch*, alongside earlier campaign scenarios. Tidewatch adds an Imperial Age coastal siege, artillery-production objective, fortified Castle/Town Centre targets and timed counter-raids.
 - **Present / source-tested:** natural campaign completion now follows the displayed arc order: Ashford arc missions 0–5 then 8, Frontier Wars 6–7, Royal Campaign 9–11, and Coastal War 12–13. This fixes the previous raw-array progression mismatch; full mission runs remain unverified.
-- **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Twin Rivers now generates two winding waterways with three shallow ford crossings each; Golden Coast adds a variable northern coastline to resource-rich terrain. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
+- **Partial:** map identities are procedural layouts rather than the complete hand-authored/random-map catalogue. Twin Rivers generates two winding waterways with three shallow ford crossings each; Golden Coast adds a variable northern coastline to resource-rich terrain; King's Causeway adds a diagonal navigable strait with three separated shallow crossings. These are repeatable strategic layouts, while full live-game vessel navigation still needs runtime validation. Connectivity diagnostics are not proof that ships can navigate every route in a live game.
 - **Present:** score/time-limit offers 10-, 15-, 20-, 25- and 30-minute durations. The selected duration drives the HUD countdown and winner/draw result and is preserved in settings and save slots.
 - **Partial:** score calculation is a Crown & Kingdoms-specific formula, not AoE2 DE parity; score-mode duration and balance still need full-match testing.
 - **Present / unverified:** King of the Hill has a carved land route from each starting position, a central landmark and minimap marker, AI hill targeting, and a five-minute uncontested military hold condition. End-to-end matches and route behaviour still need live gameplay validation.
@@ -69,7 +69,7 @@ The game is being built feature-first for the single-page Xbox Edge target. The 
 ### Next gameplay and content work
 
 1. **Unit and technology depth:** expand the useful roster and counter relationships; add visibly distinct equipment/rank art rather than relying only on HUD rank labels; keep each new technology tied to real effects on existing and newly produced objects.
-2. **Campaign depth:** continue adding missions with meaningfully different starts, timed events, multi-stage objectives and enemy plans. *The Siege of Tidewatch* is now part of Coastal War and requires a Siege Workshop, two living Bombard Cannons, destruction of the enemy Castle and destruction of the enemy Town Centre before the mission completes.
+2. **Campaign depth:** continue adding missions with meaningfully different starts, timed events, multi-stage objectives and enemy plans. The current progression includes Ashford, Frontier Wars, Royal Campaign, Coastal War and Northern March; keep campaign tests aligned with the displayed arc order. *The Siege of Tidewatch* is now part of Coastal War and requires a Siege Workshop, two living Bombard Cannons, destruction of the enemy Castle and destruction of the enemy Town Centre before the mission completes.
 3. **Map identity and naval routes:** add distinct layouts with clear strategic choices; keep start fairness and land access in mind, and improve actual navigability for ships beyond terrain-only connectivity diagnostics.
 4. **AI and diplomacy:** adaptive counter research/production and allied emergency defence are now present. Remaining gaps include AI-negotiated diplomacy, treaty duration, shared vision, and a more complete allied victory model.
 5. **Combat and economy balance:** review long matches, siege/ship counters, construction and repair rates, market value curves, farm recovery and resource demand at the higher population settings.
