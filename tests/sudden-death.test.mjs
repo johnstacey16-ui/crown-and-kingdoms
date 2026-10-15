@@ -18,7 +18,7 @@ assert.match(html, /if\(vm===6\)note\('Sudden Death: protect your starting Town 
 
 assert.match(html, /function tcEnds\(t\)\{return cmp\?\(t\.t===0\|\|!!CAMP\[cmp\.i\]\.tcw\):\(vm===0\|\|vm===6\)\}/,
   'Town Centre destruction must trigger the standard or Sudden Death rule without changing campaign rules');
-assert.match(html, /function okPlace\(t,k,x,y\)\{if\(vm===6&&k==='tc'\)return false/,
+assert.match(html, /function okPlace\(t,k,x,y\)\{if\(!S\|\|!B\[k\]\|\|!Number\.isInteger\(t\)\|\|!S\.tech\[t\]\|\|!Number\.isInteger\(x\)\|\|!Number\.isInteger\(y\)\)return false;if\(vm===6&&k==='tc'\)return false/,
   'No new Town Centre may be placed during Sudden Death');
 assert.match(html, /if\(vm===6\)\{if\(!S\.bs\.some\(b=>b\.t===0&&b\.k==='tc'&&b\.hp>0\)\)\{endGame\('lose','Your Town Centre fell in Sudden Death'\);return\}/,
   'The player must lose if their starting Town Centre is destroyed');
