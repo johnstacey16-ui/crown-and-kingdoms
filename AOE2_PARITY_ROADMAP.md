@@ -192,3 +192,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Unload commands validate that the building is alive, completed, owned by a valid team, supports garrisoning and actually contains units.
 - Safe-spawn failure leaves units inside; invalid commands provide feedback.
 - Regression test: `tests/garrison-unload-validation.test.mjs`. Runtime testing remains outstanding.
+
+
+### Town Bell capacity correction — 15 October 2026
+
+- Shelter occupancy is derived from unique living units actually garrisoned in the shelter, so stale/dead references cannot make an available shelter appear full.
+- Existing reservation and capacity checks remain in place.
+- Regression test: `tests/town-bell-garrison-capacity.test.mjs`. Runtime validation remains outstanding.
