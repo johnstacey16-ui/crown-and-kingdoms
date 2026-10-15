@@ -28,7 +28,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 1.2 Save and offline compatibility
 - **Present:** localStorage compatibility and IndexedDB backup/restore.
-- **Implemented in source:** `loadG()` rejects malformed JSON, unsupported map dimensions, missing or inconsistent team arrays, invalid terrain encodings, invalid resource values, and malformed unit/building/resource-node coordinates before replacing the current game state. `tests/save-validation.test.mjs` covers malformed payload rejection and verifies the current state is left untouched.
+- **Implemented in source:** `loadG()` rejects malformed JSON, unsupported map dimensions, missing or inconsistent team arrays, invalid terrain encodings, invalid resource values, unknown building/resource-node types, and malformed unit/building/resource-node coordinates before replacing the current game state. `tests/save-validation.test.mjs` covers malformed payload rejection and verifies the current state is left untouched.
 - **Still required:** run the complete Node regression suite against the latest commit and exercise valid older saves; malformed-payload guards do not prove backward compatibility.
 - **Partial/unverified:** exercise the new guard and older save payloads in the complete Node suite; test interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
 - Add autosave only after save integrity and recovery paths are proven safe. Avoid incompatible schema changes without defaults/migration tests.
