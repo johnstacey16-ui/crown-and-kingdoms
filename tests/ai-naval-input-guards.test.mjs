@@ -8,6 +8,6 @@ assert.match(ai, /if\(!e\|\|!Number\.isInteger\(e\.t\)\|\|!isHostile\(t,e\.t\)\|
   'Naval threat scanning must reject malformed, friendly, defeated and unknown ship records');
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'Warship target selection must exclude garrisoned ships and fishing boats');
-assert.match(ai, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;if\(!e\.ld\)hostileFleet\.push\(e\)\}/,
-  'Active threat avoidance excludes garrisoned combat ships while the strategic threat count retains the previous rule');
+assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/,
+  'Garrisoned combat ships must not inflate the naval threat count or trigger fleet-avoidance behaviour');
 console.log('ai-naval-input-guards: consolidated naval threat scan validates unit records');
