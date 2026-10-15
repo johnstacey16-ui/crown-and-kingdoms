@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 const html = ['config','state','mapgen','audio','save','input','render','simulation','ai'].map(name => readFileSync(new URL('../js/'+name+'.js', import.meta.url), 'utf8')).join('\n') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 
-assert.match(ai, /const hostileFleet=\[\],hostileShips=\[\];let navalThreatCount=0;for\(const e of S\.us\)/,
+assert.match(ai, /const hostileFleet=\[\],hostileShips=\[\],humanArmy=\[\],humanShips=\[\];let navalThreatCount=0;for\(const e of S\.us\)/,
   'AI should build hostile naval rosters with one unit-list pass');
 assert.match(ai, /if\(e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'naval target candidates must be valid living hostile ships, not allied ships or fishing boats');
