@@ -8,6 +8,11 @@
 
 This is the single handover checkpoint. Continue from live code and current CI rather than repeating resolved audits. Record implementation, automated evidence, and outstanding runtime/hardware gates separately.
 
+## Campaign objective predicate audit — 15 October 2026
+
+- Strengthened the existing all-19-mission matrix so objective predicates must return a boolean rather than merely avoid throwing, checked both at initialisation and after 40 simulated seconds.
+- Commit: [`93f5ffd`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/93f5ffd6d267db8655d41409241d8b39348ac4f9). CI pending; do not mark the stricter assertion green until the current run completes.
+
 ## Workflow catch-up — 15 October 2026
 - **Latest gameplay regression is complete and green:** [GitHub Actions #38804716971](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38804716971), commit `3caa44506b4e50628a8c4e0354be6917ef1f80bd`, passed all job steps: source parsing/invariants, every standalone regression test, and sprite-atlas validation. Recent verified gameplay checks cover campaign defeat on Town Centre loss, The Last Crown king survival, required-objective campaign victory/progression, and naval AI target reacquisition.
 - **Failed-run reconciliation:** nine failed runs appear in the latest 30-run window, but they are intermediate commits in the recent campaign/naval test iteration, not failures of the latest main head. Logs identify stale naval focus-fire source assertions, a naval test-fixture that did not create the expected nearby enemy galley, and a campaign defeat test that initially expected no completion record while a stale record remained. Later commits updated the naval regression to match target-reacquisition rules, corrected the fixture, and fixed/pinned campaign defeat behaviour. Subsequent runs including [#38804001855](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38804001855) and latest [#38804716971](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38804716971) passed. Historical failed attempts remain in GitHub history; do not rerun them blindly because they target superseded commits.
