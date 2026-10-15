@@ -16,7 +16,7 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 
 The project already contains four-age progression; economy and trading; construction and repair; ground, siege and naval units; research and unit upgrades; rival AI; formations and stances; fog of war and minimap; procedural/fixed maps; campaign missions and timed events; multiple victory modes; local save/load; controller-oriented menus; procedural audio; local SVG sprite atlases with fallbacks; and a lightweight Supabase Realtime lobby.
 
-The main runtime is split into classic scripts. `engine.js` remains responsible for top-level orchestration, frame scheduling, game state and controller command integration. `js/ui.js` owns screen presentation, `js/render.js` owns world drawing, `js/minimap.js` owns minimap rendering and fog-of-war visibility, and dedicated modules own AI, simulation, maps, pathfinding, economy, campaign and related systems. Preserve the current script order and shared globals during further refactoring.
+The main runtime is split into classic scripts. `engine.js` remains responsible for top-level orchestration, frame scheduling, game state and controller command integration. `js/ui.js` owns screen presentation, `js/render.js` owns world drawing, `js/minimap.js` owns minimap rendering and fog-of-war visibility, and `js/campaign.js` now owns shared campaign helpers for Town Centre lookup, building/unit counts, military counts, initial unit groups and completed scenario buildings. Dedicated modules also own AI, simulation, maps, pathfinding, economy and related systems. Preserve the current script order and shared globals during further refactoring.
 
 ## Priority 1 — correctness and release confidence
 
@@ -116,7 +116,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation and the minimap/fog ownership extraction passed on commit `a8b0e31f621334df38471d839dfd4e559454a546`. Unit-separation ownership is now in `js/simulation.js`; the new regression run must pass before treating the extraction as regression-checked.
+1. Run the complete current check suite and fix any failures before additional refactors. Save validation, sprite-atlas validation, minimap/fog ownership and unit-separation ownership checks have passed in earlier runs. Campaign helpers have now moved out of `engine.js`; the latest full suite must confirm the new ownership and script order.
 2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
 3. Audit technology effects and AI decisions with focused tests where gaps are found.
 4. Test naval/map connectivity and campaign completion across scenarios.
