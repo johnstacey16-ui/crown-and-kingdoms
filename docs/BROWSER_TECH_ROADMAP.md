@@ -15,6 +15,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
 - `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/ui.js`: performance overlay, strategic overview, technology tree, objectives and controller help/About screens extracted without changing the classic-script shared-state model.
+- The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
 - Large-army unit separation reuses its spatial bucket map across simulation steps, avoiding a fresh map allocation for each pass. The path still needs measured performance verification at 400 units on the target browser.
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
 - `persistence.js`: IndexedDB mirrors for the existing localStorage save slots; localStorage remains the compatibility source.
