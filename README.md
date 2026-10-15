@@ -6,16 +6,20 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 
 - **`index.html`** — minimal page shell that loads the stylesheet and runtime scripts in dependency order.
 - **`js/config.js`** — shared game constants, balance data and map/configuration settings.
-- **`js/input.js`, `js/audio.js`, `js/save.js`** — controller input, synthesised audio, and save serialization/restoration.
-- **`engine.js`** — core simulation and canvas rendering. This remains the largest file and is the next modularisation target; rendering and UI extraction must preserve classic-script globals and load order.
-- **`persistence.js`** — IndexedDB backup/restore while localStorage remains the compatible primary save path.
-- **`assets/`** — external atlas manifest, original SVG unit/building atlases and local textures. Procedural drawing fallbacks remain available.
-- **`multiplayer.js`** — lobby/configuration and lightweight player-marker integration, not full authoritative RTS simulation synchronisation.
-- **`scripts/`, `tests/` and `sw.js`** — source-level checks, regression guards and same-origin offline-shell caching.
-- **`AOE2_PARITY_ROADMAP.md`** — current implementation status, known gaps and recommended development order.
-- **`GRAPHICS_AUDIO_UPGRADE_PROMPT.md`** — detailed engineering brief for future art, animation, audio and performance work.
+- **`index.html` and `styles.css`** — canonical page shell and full-screen, controller-first canvas styling.
+- **`js/config.js` and `js/state.js`** — shared unit/building/technology data, runtime state, and core helpers.
+- **`js/mapgen.js`** — seeded/procedural map generation and map-layout helpers.
+- **`js/simulation.js`** — simulation systems extracted from the main engine, including economy, combat and AI logic.
+- **`js/input.js`** — gamepad polling, selection, orders and menu navigation.
+- **`js/render.js`** — world, unit, relic and terrain/chunk rendering; sprite atlases are preferred where supported, with procedural drawing fallbacks.
+- **`js/audio.js`** — synthesised sound effects, spatial audio, ambience and adaptive music.
+- **`js/save.js` and `persistence.js`** — compatible save serialization plus IndexedDB backup/restore; localStorage remains the primary compatibility path.
+- **`assets/`** — external atlas manifest and original local SVG sprite atlases. `tests/validate-atlas.mjs` checks frame metadata and bounds.
+- **`multiplayer.js`** — lightweight lobby/player-marker integration using Supabase Realtime; this is not authoritative synchronisation of complete RTS matches.
+- **`scripts/`, `tests/` and `sw.js`** — syntax/invariant checks, regression tests, map-connectivity checks and same-origin offline-shell caching.
+- **`AOE2_PARITY_ROADMAP.md` and `docs/BROWSER_TECH_ROADMAP.md`** — current gameplay gaps, architecture status and future development order.
 
-The root `index.html` is the canonical game entry point. Avoid maintaining competing standalone game builds in the repository root. Runtime scripts are classic scripts rather than ES modules; preserve their dependency order and avoid declaring the same top-level `const`/`let` binding in multiple files.
+The root `index.html` is the canonical entry point. Runtime files are classic scripts sharing globals, so preserve script order and avoid duplicate top-level `const`/`let` declarations. Keep the canvas renderer and all primary interactions controller-accessible; do not add mouse-only or keyboard-only dependencies.
 
 ## Systems currently present in source
 
@@ -27,7 +31,7 @@ The root `index.html` is the canonical game entry point. Avoid maintaining compe
 - Original SVG sprite atlases, team-colour variants, animation metadata, procedural visual fallbacks and synthesised Web Audio.
 - Controller-oriented menus and navigation, including Town Bell and pause-menu diplomacy controls for enemy, neutral and ally relationships. Regicide victory respects hostile relationships. Player-selected AI allies share live fog-of-war vision, can send capped surplus-resource tribute, and can react to attacks near allied Town Centres/Castles. AI-negotiated treaties and time-limited diplomatic agreements remain out of scope for the current diplomacy implementation. Population-limit settings now include 50, 100, 150, 200, 250, 300, 400 and 500; houses still determine the capacity actually available during a match.
 
-These statements describe source-level presence, not guaranteed balance or acceptance on physical Xbox hardware. See the roadmap for partial systems and unverified behaviour.
+These statements describe source-level presence, not guaranteed balance or acceptance on physical Xbox hardware. Sprite-atlas validation checks metadata and frame bounds; it does not prove that every animation looks correct. See the roadmaps for partial systems and unverified behaviour.
 
 ## Run the checks
 
