@@ -111,6 +111,7 @@ globalThis.__CK_TEST__ = {
     }
   },
   exerciseCampaignDefeat() {
+    localStorage.removeItem('ck_camp');
     this.startCampaign(0);
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.hp > 0);
     if (!tc) throw new Error('First Hearth must start with a living player Town Centre');
