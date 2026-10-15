@@ -30,8 +30,8 @@ function diplomacyMenuItems(){
  return items;
 }
 const TRIBUTE_RESOURCES=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
-const TRIBUTE_AMOUNTS=[100,250,500,1000];
-let tributeResource=0,tributeAmount=0;
+const TRIBUTE_AMOUNT_STEP=50,TRIBUTE_AMOUNT_MAX=5000;
+let tributeResource=0,tributeAmount=100;
 function sendTribute(from,to,resourceIndex,amount=100){
  if(!S||!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=S.teamN||to>=S.teamN||from===to)return false;
  const resource=TRIBUTE_RESOURCES[resourceIndex];
@@ -49,9 +49,9 @@ function tributeMenuItems(){
  if(!allies.length)return [];
  const items=[
   {n:'Tribute resource',v:()=>TRIBUTE_RESOURCES[tributeResource].n,l:()=>{tributeResource=(tributeResource+TRIBUTE_RESOURCES.length-1)%TRIBUTE_RESOURCES.length},r:()=>{tributeResource=(tributeResource+1)%TRIBUTE_RESOURCES.length},a:()=>{tributeResource=(tributeResource+1)%TRIBUTE_RESOURCES.length}},
-  {n:'Tribute amount',v:()=>TRIBUTE_AMOUNTS[tributeAmount],l:()=>{tributeAmount=(tributeAmount+TRIBUTE_AMOUNTS.length-1)%TRIBUTE_AMOUNTS.length},r:()=>{tributeAmount=(tributeAmount+1)%TRIBUTE_AMOUNTS.length},a:()=>{tributeAmount=(tributeAmount+1)%TRIBUTE_AMOUNTS.length}}
+  {n:'Tribute amount',v:()=>tributeAmount,l:()=>{tributeAmount=Math.max(TRIBUTE_AMOUNT_STEP,tributeAmount-TRIBUTE_AMOUNT_STEP)},r:()=>{tributeAmount=Math.min(TRIBUTE_AMOUNT_MAX,tributeAmount+TRIBUTE_AMOUNT_STEP)},a:()=>{tributeAmount=Math.min(TRIBUTE_AMOUNT_MAX,tributeAmount+TRIBUTE_AMOUNT_STEP)}}
  ];
- for(const t of allies)items.push({n:'Send tribute: Kingdom '+(t+1),v:()=>TRIBUTE_RESOURCES[tributeResource].n+' / '+TRIBUTE_AMOUNTS[tributeAmount],a:()=>sendTribute(0,t,tributeResource,TRIBUTE_AMOUNTS[tributeAmount])});
+ for(const t of allies)items.push({n:'Send tribute: Kingdom '+(t+1),v:()=>TRIBUTE_RESOURCES[tributeResource].n+' / '+tributeAmount,a:()=>sendTribute(0,t,tributeResource,tributeAmount)});
  return items;
 }
 
