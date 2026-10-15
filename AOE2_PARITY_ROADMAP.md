@@ -178,3 +178,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Patrol is restricted to living, ungarrisoned combat units and warships, excluding workers, fishing boats, traders, transports and monks.
 - Invalid selections receive a clear message; eligible units have stale target/path state cleared before the patrol starts.
 - Regression test: `tests/patrol-order-validation.test.mjs`. Runtime playtesting remains outstanding.
+
+
+### Production cancellation validation — 15 October 2026
+
+- Cancellation validates the building, owner, queue and queued unit before refunding resources.
+- Prevents stale selections or malformed queue entries from triggering invalid refunds; valid cancellations preserve newest-item/full-refund behaviour.
+- Regression test: `tests/production-cancellation-validation.test.mjs`. Runtime validation remains outstanding.
