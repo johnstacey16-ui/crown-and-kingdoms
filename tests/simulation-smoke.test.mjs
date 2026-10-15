@@ -1061,13 +1061,15 @@ for (let mission = 0; mission < 19; mission += 1) {
   assert.equal(before.campaign?.index, mission, `Campaign mission ${mission + 1} should initialise the requested scenario`);
   assert.ok(before.units > 0, `Campaign mission ${mission + 1} should initialise at least one unit`);
   assert.ok(before.buildings > 0, `Campaign mission ${mission + 1} should initialise at least one building`);
-  for (let tick = 0; tick < 30; tick += 1) game.tick(1 / 30);
+  // Keep each real scenario alive for ten simulated seconds so early
+  // scheduled events, first AI decisions and campaign state transitions execute.
+  for (let tick = 0; tick < 300; tick += 1) game.tick(1 / 30);
   const after = game.state();
   assert.equal(after.campaign?.index, mission, `Campaign mission ${mission + 1} should remain active after simulation steps`);
   assert.ok(Number.isFinite(after.time), `Campaign mission ${mission + 1} should retain finite simulation time`);
   campaignBoots.push({ mission: mission + 1, units: after.units, buildings: after.buildings });
 }
-console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 1 simulated second: ' +
+console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 10 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
 
 
