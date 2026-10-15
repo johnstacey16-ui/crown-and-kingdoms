@@ -487,23 +487,23 @@ if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'marke
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall').length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
 if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&arm.length>=6&&S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24))aiDock(vil,tc,t);
 /* Fishing ships break off and seek open water when hostile combat ships close in; they resume fishing after the threat passes. */
+const hostileFleet=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.sh&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4);
 for(const s of fish.filter(u=>u.hp>0)){
- const threat=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.sh&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)
-  .map(e=>({e,d:Math.hypot(e.x-s.x,e.y-s.y)})).sort((a,b)=>a.d-b.d)[0];
- if((!threat||threat.d>14)&&s.fleeUntil) s.fleeUntil=0;
+ const threat=hostileFleet.map(e=>({e,d:Math.hypot(e.x-s.x,e.y-s.y)})).sort((a,b)=>a.d-b.d)[0];
+ if((!threat||threat.d>14)&&s.fleeUntil)s.fleeUntil=0;
  if(threat&&threat.d<10&&S.t>=(s.fleeUntil||0)){
-  let best=null,bestScore=-1e9;
-  const dx=s.x-threat.e.x,dy=s.y-threat.e.y,dd=Math.hypot(dx,dy)||1;
+  const dx=s.x-threat.e.x,dy=s.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
   for(let r=7;r<=15;r+=2)for(let a=0;a<16;a++){
-   const ang=Math.atan2(dy,dx)+((a/16)*Math.PI*2),x=Math.round(s.x+Math.cos(ang)*r),y=Math.round(s.y+Math.sin(ang)*r);
+   const ang=angle+(a/16)*Math.PI*2,x=Math.round(s.x+Math.cos(ang)*r),y=Math.round(s.y+Math.sin(ang)*r);
    if(x<1||y<1||x>=W-1||y>=H-1)continue;
    const ix=y*W+x;
    if(S.wt[ix]!==1||S.nd[ix]||S.g[ix])continue;
-   const danger=Math.min(30,...S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.sh&&U[e.k].dmg>=4).map(e=>Math.hypot(e.x-(x+.5),e.y-(y+.5))));
-   const score=danger-Math.hypot(x-s.x,y-s.y)*.18+(S.ex[ix]?.15:0);
-   if(score>bestScore){const route=path(s,gp(x+.5,y+.5,1.2));if(route&&route.length){best={route};bestScore=score}}
+   let danger=30;for(const e of hostileFleet)danger=Math.min(danger,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
+   spots.push({x,y,score:danger-Math.hypot(x-s.x,y-s.y)*.18+(S.ex[ix]?0.15:0)});
   }
-  if(best){s.o='m';s.tg=null;s.p=best.route;s.fleeUntil=S.t+10}
+  spots.sort((a,b)=>b.score-a.score);
+  let route=null;for(const spot of spots.slice(0,8)){route=path(s,gp(spot.x+.5,spot.y+.5,1.2));if(route&&route.length)break;route=null}
+  if(route){s.o='m';s.tg=null;s.p=route;s.fleeUntil=S.t+10}
  }
 }
 for(const s of fish.filter(u=>u.o==='i'&&S.t>=(u.fleeUntil||0))){let n=findNode(s,'f',32);if(!n&&R.w>=100){deployFishTrap([s]);n=findNode(s,'f',32)}if(n){s.o='g';s.tg=n;s.ct='f';s.p=[];s.ret=0}}
