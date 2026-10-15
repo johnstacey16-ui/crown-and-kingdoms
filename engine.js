@@ -334,11 +334,7 @@ let y=80;for(const n of notes){X.globalAlpha=Math.min(1,n.t);tx(n.s,CW/2,y,24,'#
 if(menu&&!menu.rad){const N=menu.items.length,V=Math.min(N,Math.max(5,((CH-200)/44)|0),11),off=Math.max(0,Math.min(menu.i-(V>>1),N-V)),w=520,x=CW/2-w/2,rh=Math.min(56,(CH-200)/V|0),y0=Math.max(4,(CH-(V*rh+110))/2|0),fs=Math.min(24,rh*.5|0);panel(x,y0,w,V*rh+110);tx(DS[menu.items[menu.i].l]||'',x+20,y0+V*rh+92,18,'#cbd5e1');tx(menu.title+(N>V?'  ('+(menu.i+1)+'/'+N+')':''),x+20,y0+40,28,'#f2c14e');
 for(let i=off;i<off+V;i++){const it=menu.items[i],yy=y0+60+(i-off)*rh;if(i===menu.i){X.fillStyle='#2f63c4';X.fillRect(x+10,yy,w-20,rh-6)}tx(it.l,x+24,yy+rh*.65,fs,it.lk?'#888':'#fff');tx(it.lk||cs(it.c),x+w-24,yy+rh*.65,fs-4,it.lk?'#f99':'#cbd5e1','right')}}}
 
-const RA=[[0,'Select / command'],[1,'Back / cancel'],[2,'Extra order / assign group'],[3,'Shortcut / switch page'],[8,'Objectives'],[10,'Centre camera']];
 const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
-function drawRemap(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);tx('CONTROLLER REMAP',CW/2,90,48,'#f2c14e','center');
-RA.forEach(([id,l],i)=>{const y=170+i*60;if(i===ri){X.fillStyle='#2f63c4';X.fillRect(CW/2-380,y-36,760,50)}tx(l,CW/2-360,y,26);tx(rw&&i===ri?'press a button...':'Button '+(BM[id]!==undefined?BM[id]:id),CW/2+360,y,26,'#fde68a','right')});
-tx('D-pad Up/Down choose   A rebind   X reset all   B or Menu back   (0=A 1=B 2=X 3=Y 4=LB 5=RB 8=View 10=L3)',CW/2,CH-50,18,'#94a3b8','center')}
 const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[];
 function refreshSlots(){SI=[0,1,2].map(n=>{let r=null;try{r=localStorage.getItem(skey(n))}catch(e){}if(!r)return null;try{const j=JSON.parse(r);if(j.v!==1||!Array.isArray(j.us)||!Array.isArray(j.civ))return'bad';return{t:j.t|0,civ:j.civ,w:j.sz,d:j.diff|0,m:j.cmp&&CAMP[j.cmp.i]?CAMP[j.cmp.i].t:null,when:j.when}}catch(e){return'bad'}})}
 function openSlots(m,back){sm=m;sb=back;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE)window.CK_STORAGE.restoreMissing().then(()=>refreshSlots()).catch(()=>{})}
