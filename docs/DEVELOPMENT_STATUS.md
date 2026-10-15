@@ -10,11 +10,12 @@ This is the single handover checkpoint. Continue from live code and current CI r
 
 ## Latest implementation checkpoint
 
-- **Code commit:** `c64e353e0487c51c0d3922c2211bb74d32fd6556` — `test: benchmark exact large-army populations`.
-- **Green code workflow:** [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612) completed successfully for this commit, including source checks, all standalone regression tests and atlas validation.
+- **Code commit:** `94a22c18d363e49e3a54df892ba46fe49a957c9d` — `test: boot every campaign mission in real engine`.
+- **Green code workflow:** [#38747030117](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747030117) completed successfully for this commit, including source checks, all standalone regression tests and atlas validation.
 - Corrected the large-army smoke benchmark so 100, 200 and 400 mean **total live units**, including the seeded starting force, rather than adding 100/200/400 on top of it. Timing still covers simulation steps only, uses three samples per population and reports median/range.
+- Added real-engine campaign matrix coverage: every one of the 17 campaign missions was initialised, checked for a live scenario and advanced for one simulated second without an exception. This verifies mission startup only, not mission completion or balance.
 - Corrected the benchmark warm-up comment to reflect the current 64-unit separation fallback threshold.
-- **Verified simulation-only benchmark (Node CI runner; 30 steps, 3 repeats):** 100 total units median 4.99 ms (4.66–5.88); 200 total units median 8.94 ms (8.15–9.15); 400 total units median 15.89 ms (15.03–15.97). These timings cover simulation steps only and are not Xbox frame-rate or browser-render timings.
+- **Latest simulation-only benchmark (Node CI runner; 30 steps, 3 repeats):** 100 total units median 6.24 ms (6.11–6.26); 200 total units median 10.97 ms (10.94–11.16); 400 total units median 20.64 ms (20.58–24.32). These timings cover simulation steps only and are not Xbox frame-rate or browser-render timings. An earlier passing run measured 4.99 / 8.94 / 15.89 ms respectively; CI runner load varies.
 - The separation fallback is limited to 64 or fewer units; larger armies use pooled spatial-grid separation. Earlier 120/220/420-unit measurements motivated this threshold change but are superseded by the exact-total benchmark above.
 - Town Bell shelter assignment was optimised to build eligible shelters once, count existing/en-route occupancy in one pass, and update reservations as villagers are assigned. Behavioural coverage checks that assignment never overbooks shelter capacity.
 
@@ -22,7 +23,7 @@ This is the single handover checkpoint. Continue from live code and current CI r
 
 - Code checkpoint `a2187d200dfcd6e2c75d339c5fda8fbd3fae8039`, workflow [#947](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746092399), passed the configured source checks, standalone regression tests and atlas validation.
 - Later documentation checkpoint `fe030d76ba8a9e5a8e055c6a5d4f0e7c8b51e323`, workflow [#949](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746222015), also completed successfully.
-- The exact-population benchmark commit now has its own passing workflow [#38746731612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38746731612).
+- The exact-population benchmark and 17-mission startup matrix passed workflow [#38747030117](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38747030117).
 
 ## What CI verifies
 
@@ -41,18 +42,18 @@ The browser-like harness executes the real classic-script game engine for select
 | Save validation and indexed entity references | Fixed at the previously green code checkpoint; valid campaign save/load round-trip is covered |
 | Local autosave | One rolling `ck_autosave` slot at 60-second intervals in active local play; multiplayer autosave suppressed; browser storage denial/recovery still needs live verification |
 | Technology | Many researched effects have source guards and runtime smoke tests for Gather Rate, Man-at-Arms HP, Bloodlines, Chemistry and newly created units; not every technology is fully balance-tested |
-| Campaign | Mission setup, objective-specific regressions and selected real objective completion are covered; every mission has not been completed in a full playthrough |
+| Campaign | All 17 missions passed real-engine startup plus one simulated second; objective-specific regressions and selected real objective completion are covered; full playthroughs remain unverified |
 | AI | Growth, age progression, coordinated siege, defensive response, research priority, retreat and naval threat logic have focused coverage; complete-match strategy remains unverified |
 | Maps/naval | Generated-map connectivity and selected real ship movement/combat/repair paths are covered; every layout and coastal edge case is not certified |
 | Rendering/assets | Atlas metadata/frame validation is automated; graphics quality and performance require visual browser/hardware review |
 | Controller-only UX | Controller-oriented input/menu checks exist; full controller-only journey still needs live browser and physical-controller validation |
-| Large armies | Pooled separation path above 64 units; exact 100/200/400 total-population benchmark was corrected in commit above and awaits that commit's CI result |
+| Large armies | Pooled separation path above 64 units; exact 100/200/400 total-population simulation benchmark passed CI |
 | Multiplayer | Lightweight Supabase Realtime lobby/session only; not full authoritative RTS state synchronization |
 | Xbox Series S / Edge | **Not physically verified** |
 
 ## Next implementation work — no repeat-audit loop
 
-1. Continue the highest-impact gameplay work: close measurable technology-effect gaps, deepen AI/naval/campaign behavioural coverage, and fix reproducible defects rather than adding redundant source regexes.
+1. Continue the highest-impact gameplay work: close measurable technology-effect gaps, deepen AI/naval/campaign completion coverage, and fix reproducible defects rather than adding redundant source regexes.
 3. Keep the development ledger and parity roadmap aligned with every meaningful implementation and exact CI result.
 4. Run live browser playthroughs for cold start, pause/resume, save/load, campaign completion, naval routes and end conditions when a browser session is available.
 5. Validate deployment and physical Xbox Series S / Edge controller/performance separately; never infer those results from Node CI.
