@@ -7,7 +7,7 @@ assert.match(ai, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHost
 assert.match(ai, /humanShips=S\.us\.filter\(u=>u&&Number\.isInteger\(u\.t\)&&isHostile\(t,u\.t\)&&u\.hp>0&&!u\.ld&&U\[u\.k\]\?\.sh&&u\.k!=='fish'&&u\.k!=='trn'&&u\.k!=='cog'&&U\[u\.k\]\.dmg>=4\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
-assert.match(ai, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\)\)\)/,
+  assert.match(ai, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,
   'low-health disengagement must cover every combat warship, not only galleys');
 assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>u\.o==='i'/,
   'naval focus-fire counts must be built once before ship target scoring');
@@ -24,6 +24,5 @@ assert.match(ai, /\{threat:humanInf,minimum:4,units:\['mang','scor','arc'\]/);
 assert.match(ai, /score:p\.threat-my\.filter\(u=>p\.own\.includes\(u\.k\)\)\.length\*2/,
   'counter production must account for existing counters so mixed threats do not permanently starve other responses');
 
-assert.match(ai, /u\.o==='m'&&u\.tg/, 'wounded combat warships advancing with a target must also be eligible to disengage');
 
 console.log('ai-naval-threats: economic and transport ships do not trigger combat counter-priorities');
