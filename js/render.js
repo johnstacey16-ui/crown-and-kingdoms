@@ -73,13 +73,14 @@ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z
     for(const side of[-1,1]){X.beginPath();X.moveTo(side*2,-23);X.lineTo(side*6,-22);X.lineTo(side*7,-17);X.lineTo(side*3,-15);X.closePath();X.fill();X.stroke()}
     X.strokeStyle='#f0c35e';X.lineWidth=.8;X.beginPath();X.moveTo(-5,-17);X.lineTo(5,-17);X.stroke();
    }
-   X.restore()
-  }
   if(cav){
    /* Metallic flank plate and gold seam make researched barding visible at normal zoom. */
    X.fillStyle='rgba(198,207,216,.86)';X.strokeStyle='#382d22';X.lineWidth=.85;
    X.beginPath();X.moveTo(-11,-17);X.quadraticCurveTo(-6,-21,0,-19);X.quadraticCurveTo(7,-19,11,-16);X.lineTo(9,-10);X.quadraticCurveTo(0,-7,-9,-10);X.closePath();X.fill();X.stroke();
    X.strokeStyle='#f0c35e';X.lineWidth=.9;X.beginPath();X.moveTo(-7,-14);X.lineTo(-2,-12);X.lineTo(4,-12);X.lineTo(8,-14);X.stroke();
+  }
+
+   X.restore()
   }
  }
  if(u.sh&&T.navalHull){
