@@ -37,7 +37,7 @@ test('final Causeway campaign mission requires forward Castles and a decisive To
   const start = html.indexOf("{t:'The Crown Holds the Crossing'");
   assert.notEqual(start, -1, 'The final Causeway mission must exist');
   const nextMission = html.indexOf("\\n{t:", start + 1);
-  const end = nextMission === -1 ? html.indexOf("\\n]}", start) : nextMission;
+  const end = nextMission === -1 ? html.indexOf("]; \\nconst campDone=()", start) : nextMission;
   const mission = html.slice(start, end === -1 ? undefined : end);
   assert.ok(mission.includes('layout:12'), 'The mission must use the Causeway layout');
   assert.ok(mission.includes("t:'Build 2 completed Castles'"), 'The mission must require forward fortifications');
