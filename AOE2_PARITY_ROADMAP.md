@@ -13,6 +13,8 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **AI naval production — improved:** war-galley cap scales from a four-ship baseline to a maximum of twelve based on hostile combat ships; fishing, transport and trade ships are excluded from the threat count. Regression guard added. Still unverified in a full naval match and on Xbox hardware.
+
 
 The project already contains four-age progression; economy and trading; construction and repair; ground, siege and naval units; research and unit upgrades; rival AI; formations and stances; fog of war and minimap; procedural/fixed maps; campaign missions and timed events; multiple victory modes; local save/load; controller-oriented menus; procedural audio; local SVG sprite atlases with fallbacks; and a lightweight Supabase Realtime lobby.
 
