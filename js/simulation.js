@@ -191,7 +191,7 @@ function orderGuardFollow(wx,wy,kind){
  note((kind==='F'?'Following ':'Guarding ')+(U[target.k]?.n||B[target.k]?.n||'target')+' with '+units.length+' unit'+(units.length===1?'':'s'));
  return true;
 }
-function patrol(wx,wy,once){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once};u.o='p';u.p=[]}note('Patrolling')}
+function patrol(wx,wy,once){let n=0;for(const u of S.sel)if(!u.q&&u.hp>0&&!u.ld&&u.k!=='vil'&&u.k!=='fish'&&u.k!=='cart'&&u.k!=='cog'&&u.k!=='trn'&&u.k!=='mon'){u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once};u.o='p';u.tg=null;u.p=[];u.rp=0;n++}if(n)note('Patrolling with '+n+' unit'+(n===1?'':'s'));else note('Select living, ungarrisoned military units or warships to patrol');return n>0}
 function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.includes(u))),base=fresh?S.sel.filter(u=>!u.q):S.all.filter(u=>u.hp>0),ks=[...new Set(base.map(u=>u.k))];if(ks.length<2)return false;if(fresh)S.si=0;S.all=base;S.si=((S.si||0)+d+ks.length+1)%(ks.length+1);S.sel=S.si?base.filter(u=>u.k===ks[S.si-1]):base;note('Group: '+(S.si?U[ks[S.si-1]].n+' x'+S.sel.length:'all '+base.length));return true}
 function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.st=v;if(v===4&&(u.o==='a'||u.o==='v')){u.o='i';u.tg=null;u.p=[]}}note(['Aggressive','Defensive','Stand ground','Passive','No Attack'][v]+' stance');menu=null}
 function unload(b){const cg=b.cg||[];for(const c of cg){let sp=null;for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<=b.s+r&&!sp;dy++)for(let dx=-r;dx<=b.s+r&&!sp;dx++){const x=b.x+dx,y=b.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&!S.wt[y*W+x]&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5]}if(sp){c.x=sp[0];c.y=sp[1];c.ld=null}}b.cg=cg.filter(c=>c.ld);note('Garrison unloaded')}
