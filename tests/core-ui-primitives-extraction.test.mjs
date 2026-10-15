@@ -16,8 +16,9 @@ test('shared panel, match-result and runtime-error drawing live in js/ui.js', ()
   assert.doesNotMatch(engine, /function drawError\(\)\{/);
 });
 
-test('the game-end screen and runtime exception boundary still call the moved renderers', () => {
-  assert.match(engine, /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
+test('game-end presentation is UI-owned while the runtime exception boundary stays in engine.js', () => {
+  assert.match(ui, /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
+  assert.doesNotMatch(engine, /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
   assert.match(engine, /let CK_ERR=null;/);
   assert.match(engine, /function frame\(now\)\{requestAnimationFrame\(frame\);try\{frame2\(now\)\}catch\(e\)/);
   assert.match(engine, /if\(mode!=='error'\)\{CK_ERR=\{/);
