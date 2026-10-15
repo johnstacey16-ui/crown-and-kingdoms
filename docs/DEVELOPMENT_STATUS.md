@@ -22,17 +22,18 @@ node tests/validate-atlas.mjs
 
 ## Latest repository handoff — 2026-10-16
 
-Repository head inspected: [`088aa83d653f354f996a5fc8eee469456ef01294`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/088aa83d653f354f996a5fc8eee469456ef01294) — `Add attack-move order for warships`.
+Repository head updated: [`b9060d3f8eba3ad1bcf12d1be1301f33b6fdff8a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/b9060d3f8eba3ad1bcf12d1be1301f33b6fdff8a) — saved-game validation now rejects invalid unit/building health before replacing the live state, with regression cases for missing, negative and invalid health values.
 
 Recent committed work visible in history:
 - AI retreat recovery and regression coverage.
+- Save-load hardening: reject unit health that is missing, negative or non-finite; reject building health that is missing/negative and maximum health that is not positive/finite. Regression cases were added for these malformed payloads.
 - Naval threat filtering for loaded/garrisoned ships.
 - Varied seeds on failed random-map generation retries.
 - Controller-accessible attack-move orders for land units and warships.
 
 Verification status for this handoff:
 - The repository's documented automated commands remain the source-check script, every `tests/*.test.mjs` test, and sprite-atlas validation.
-- No successful run of that full command set was available to confirm during this handoff. Do not mark the automated suite as passed on the strength of source inspection.
+- The new save-validation regression cases and full command set have not been successfully executed in this environment; do not mark them passed on the strength of source inspection.
 - The Vercel check reports a build-rate-limit failure; this is an external deployment limit, not evidence that the game source failed its own regression suite, and it is not being treated as the main work queue.
 - Full mission playthroughs, live multiplayer resilience, browser gameplay, and physical Xbox Series S / Edge performance remain unverified until directly exercised.
 
