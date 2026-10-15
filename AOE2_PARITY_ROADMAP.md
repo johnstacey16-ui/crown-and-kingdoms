@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 15 October 2026  
-**Source checkpoint reviewed for this roadmap update:** `e929acd3a4a47bd193edd3cd43665fa8484ec33a` (main, 15 October 2026).  
+**Source checkpoint reviewed for this roadmap update:** `8651bc42daf4863fd73c9cd3c901d8d572fd2188` (main, 15 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -25,7 +25,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Present:** relic collection and income while a relic is stored in a monastery; Fishing Ships, renewable fish traps (100 wood, 900 food per trap) and AI fish-trap deployment.
 - **Partial:** gathering/carry rates, trade values, repair/construction rates, farm economy recovery and upgrade balance need systematic gameplay review.
 - **Present:** skirmish diplomacy controls in the pause menu can set each surviving rival to Enemy, Neutral or Ally. The relationship matrix is symmetric and saved/restored; missing diplomacy data in older saves defaults to enemies. Combat damage, manual attacks, automatic target acquisition, AI attack targets, naval target selection and defensive threat scans respect hostility.
-- **Partial:** diplomacy is currently player-controlled against individual rivals and AI-to-AI relationships remain hostile. Player-selected allies can receive conditional surplus-resource tribute and emergency defensive support near allied Town Centres/Castles. Treaty duration, AI-negotiated diplomacy, shared vision and fully developed allied-team victory rules remain gaps.
+- **Partial:** diplomacy is currently player-controlled against individual rivals and AI-to-AI relationships remain hostile. Player-selected allies now share live fog-of-war vision, can receive conditional surplus-resource tribute, and can trigger emergency defensive support near allied Town Centres/Castles. Treaty duration, AI-negotiated diplomacy and fully developed allied-team victory rules remain gaps.
 - **Present:** food, wood, gold and stone tribute from the pause menu to allied surviving kingdoms, with controller-selectable amounts of 100, 250, 500 or 1,000. The sender's balance is checked before the same amount is credited to the ally.
 - **Partial:** player tribute amounts are selectable from 100, 250, 500 or 1,000; arbitrary custom amounts and negotiated tribute agreements are not implemented.
 - **Present:** controller-adjustable worker targets for Food, Wood, Gold and Stone; newly created player villagers are assigned automatically while automation is enabled, idle automated workers retry after resources deplete, and settings are saved/restored. Manual orders and Stop disable reassignment for that villager.
