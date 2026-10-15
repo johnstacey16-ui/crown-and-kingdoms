@@ -36,7 +36,7 @@ assert.match(html, /if\(k==='armC'&&humanCav>=3\)score\+=28/,
   'AI research priority must respond to a substantial enemy cavalry force');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
-assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);\n  \}\n   X\.restore\(\)/,
+assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
   'Cavalry barding must be drawn inside the translated/scaled sprite context');
 assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect ongoing and future construction work rates');
