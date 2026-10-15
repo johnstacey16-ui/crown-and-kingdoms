@@ -14,6 +14,7 @@ const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const pathfinding = readFileSync(new URL('../js/pathfinding.js', import.meta.url), 'utf8');
 const kingdom = readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8');
 const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8');
@@ -21,7 +22,7 @@ const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8
 const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
 const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 const minimap = readFileSync(new URL('../js/minimap.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + engineSource;
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + ai + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -94,6 +95,10 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/simulation.js'));
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./js/pathfinding.js'));
+  assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./js/ai.js'));
+  assert.ok(html.indexOf('./js/ai.js') < html.indexOf('./js/pathfinding.js'));
+  assert.ok(ai.includes('function aiTeam(t,dt)'));
+  assert.ok(!simulation.includes('function aiTeam(t,dt)'));
   assert.ok(html.indexOf('./js/pathfinding.js') < html.indexOf('./js/kingdom.js'));
   assert.ok(pathfinding.includes('function path(u,goal)'));
   assert.ok(pathfinding.includes('function d2(px,py,t)'));

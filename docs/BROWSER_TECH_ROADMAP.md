@@ -219,3 +219,9 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - The extracted routine retains strict mode explicitly, because it previously inherited the `engine.js` strict directive.
 - Added a focused ownership and runtime-wiring test. This makes map initialization easier to isolate from rendering, frame scheduling and controller orchestration without changing the classic-script model.
 - Regression, save/load and physical Xbox startup are still required before this boundary should be treated as release-verified.
+
+### Rival AI subsystem extraction — 15 October 2026
+
+- Moved the rival AI subsystem from `js/simulation.js` into dedicated `js/ai.js`; core simulation remains responsible for fixed-step unit/building updates and calls the same `ai(dt)` entry point.
+- Preserved shared global function names for the classic-script architecture. The AI script loads after simulation and before pathfinding-dependent runtime use, then is syntax-checked and cached for offline use.
+- Updated source-regression bundles to include the extracted subsystem and added an ownership/load-order regression test. Physical Xbox runtime profiling remains a separate release gate.

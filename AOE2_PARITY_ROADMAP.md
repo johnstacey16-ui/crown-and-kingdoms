@@ -370,3 +370,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - It applies the shared health/attack upgrade pathway to current and later-trained spear units and adds a dedicated +6 anti-cavalry bonus on top of the spear unit's normal target bonus. The target list uses the spear unit's existing `bn` list, preserving current counter definitions.
 - Unit names, AI research priority and battlefield polearm visuals now resolve to Halberdier after research. The research-integrity suite expects 38 technology records.
 - Live combat balance and TV-distance readability still require real browser/Xbox playtesting.
+
+### Rival AI module boundary — 15 October 2026
+
+- **Implemented:** extracted the dedicated rival AI block (~22 KB) from `js/simulation.js` into `js/ai.js`. The fixed-step simulation still calls the same `ai(dt)` entry point.
+- **Retained:** expansion, villager balancing, age research, technology priorities based on hostile unit composition, building repair, defensive responses, grouped attack waves, ship repair/retreat, galleys focusing enemy fleets and fish-ship evasive behaviour.
+- **Wiring:** loaded AI immediately after simulation and before pathfinding; added the file to offline caching, syntax/load-order checks, simulation smoke and the static gameplay regression bundles.
+- **Verification:** the existing source checks continue to inspect the combined simulation-plus-AI source bundle. This extraction is not a claim that strategy balance or 400-unit performance has been measured on Xbox.

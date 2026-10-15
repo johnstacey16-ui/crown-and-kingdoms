@@ -8,7 +8,9 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 - **`index.html` and `styles.css`** — canonical page shell and full-screen, controller-first canvas styling.
 - **`js/config.js` and `js/state.js`** — shared unit/building/technology definitions, runtime state, and core helpers.
 - **`js/mapgen.js`** — seeded/procedural map generation and map-layout helpers.
-- **`js/simulation.js`** — simulation systems extracted from the main engine, including economy, combat and AI logic.
+- **`js/simulation.js`** — fixed-step world simulation, economy and combat rules.
+- **`js/ai.js`** — rival-kingdom strategy, economic expansion, composition-aware technology selection, defensive response, coordinated attack waves and naval decision-making.
+- **`js/entities.js`** — shared resource, building and unit creation with placement and technology-upgrade handling.
 - **`js/input.js`** — gamepad polling, selection, orders and menu navigation.
 - **`js/render.js`** — world, building, node, unit, relic, particle, terrain palettes/chunks and procedural sprite rendering; deterministic tile variation and team foliage palettes live beside the painters, with local sprite-atlas and procedural fallbacks.
 - **Canvas primitives:** `js/render.js` owns shared shapes/progress drawing (`dia`, `poly`, `bar`); `js/ui.js` owns the common canvas text helper (`tx`). `engine.js` keeps orchestration and game/input state, not these primitive declarations.
