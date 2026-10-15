@@ -6,6 +6,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
+const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
 test('the game loads its shared stylesheet from the same-origin root', () => {
   assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css">/);
@@ -38,4 +39,14 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(engine.length > 200000);
   assert.ok(multiplayer.length > 0);
   assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
+});
+
+
+test('IndexedDB backs up saved slots without replacing the localStorage compatibility path', () => {
+  assert.match(html, /<script src="\.\/persistence\.js"><\/script><script src="\.\/engine\.js"><\/script>/);
+  assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
+  assert.match(persistence, /mirrorSave, restoreMissing/);
+  assert.match(engine, /mirrorSave\(skey\(slot\),payload\)/);
+  assert.match(engine, /restoreMissing\(\)\.then\(\(\)=>refreshSlots\(\)\)/);
+  assert.match(engine, /localStorage\.setItem\(skey\(slot\),payload\)/);
 });
