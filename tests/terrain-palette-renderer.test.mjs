@@ -15,3 +15,10 @@ test('terrain colour palettes and deterministic tile variation belong to js/rend
   assert.match(render, /function paintTile\(g,x,y,cx,cy\)[\s\S]*?PALS\[/);
   assert.match(render, /function paintTileDetail\(g,x,y,cx,cy\)[\s\S]*?hsh\(/);
 });
+
+test('units retain a high-contrast team marker at strategic zoom', () => {
+  assert.match(render, /if\(z<\.8\)\{const my=sy\+z\+1;X\.fillStyle='#17130f'/,
+    'A dark outline must keep the zoomed-out unit marker visible against varied terrain');
+  assert.match(render, /X\.fillStyle=teamColor\(u\.t\);X\.beginPath\(\);X\.moveTo\(sx,my-2\)/,
+    'The inner marker must use the owning kingdom colour');
+});
