@@ -4,6 +4,15 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
+test('timed raids safely stop after the enemy Town Centre is destroyed', () => {
+  const raidStart = html.indexOf('function raid(');
+  const raidEnd = html.indexOf('\nconst CAMP=', raidStart);
+  const raid = html.slice(raidStart, raidEnd);
+  assert.ok(raidStart >= 0 && raidEnd > raidStart, 'The campaign raid helper must remain identifiable');
+  assert.match(raid, /const e=tcOf\(1\);if\(!e\)return;const tg=/,
+    'The raid helper must return before using the enemy Town Centre position');
+});
+
 test('campaign arcs define the actual mission progression order', () => {
   const arcOrder = html.match(/const CAMP_ARCS=\[([^;]+)\];/)?.[1];
   assert.ok(arcOrder, 'The named campaign arcs must remain identifiable');
