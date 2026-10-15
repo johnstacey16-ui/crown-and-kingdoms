@@ -5,9 +5,8 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 ## Source of truth
 
 - **`index.html`** — minimal page shell that loads the stylesheet and runtime scripts in dependency order.
-- **`js/config.js`** — shared game constants, balance data and map/configuration settings.
 - **`index.html` and `styles.css`** — canonical page shell and full-screen, controller-first canvas styling.
-- **`js/config.js` and `js/state.js`** — shared unit/building/technology data, runtime state, and core helpers.
+- **`js/config.js` and `js/state.js`** — shared unit/building/technology definitions, runtime state, and core helpers.
 - **`js/mapgen.js`** — seeded/procedural map generation and map-layout helpers.
 - **`js/simulation.js`** — simulation systems extracted from the main engine, including economy, combat and AI logic.
 - **`js/input.js`** — gamepad polling, selection, orders and menu navigation.
@@ -17,7 +16,9 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 - **`assets/`** — external atlas manifest and original local SVG sprite atlases. `tests/validate-atlas.mjs` checks frame metadata and bounds.
 - **`multiplayer.js`** — lightweight lobby/player-marker integration using Supabase Realtime; this is not authoritative synchronisation of complete RTS matches.
 - **`scripts/`, `tests/` and `sw.js`** — syntax/invariant checks, regression tests, map-connectivity checks and same-origin offline-shell caching.
-- **`AOE2_PARITY_ROADMAP.md` and `docs/BROWSER_TECH_ROADMAP.md`** — current gameplay gaps, architecture status and future development order.
+- **`AOE2_PARITY_ROADMAP.md` and `docs/BROWSER_TECH_ROADMAP.md`** — maintained roadmaps for gameplay/content gaps and browser architecture/performance.
+
+These three Markdown files are the maintained project documentation. Completed one-off prompt documents are removed once their requirements have been transferred into the code, README or roadmaps; do not treat deleted prompts as missing game features.
 
 The root `index.html` is the canonical entry point. Runtime files are classic scripts sharing globals, so preserve script order and avoid duplicate top-level `const`/`let` declarations. Keep the canvas renderer and all primary interactions controller-accessible; do not add mouse-only or keyboard-only dependencies.
 
@@ -43,7 +44,7 @@ for test in tests/*.test.mjs; do node "$test" || exit 1; done
 node tests/validate-atlas.mjs
 ```
 
-The GitHub Actions workflow uses the same discovery rule: every `tests/*.test.mjs` file is run automatically, so newly added regression tests cannot silently be omitted from a manually maintained CI list. Most tests are static syntax, source-pattern or asset-metadata checks. They do **not** simulate complete matches and cannot replace browser, deployment, network or Xbox controller testing.
+The GitHub Actions workflow uses the same discovery rule: every `tests/*.test.mjs` file is run automatically, so newly added regression tests cannot silently be omitted from a manually maintained CI list. Most tests are static syntax, source-pattern or asset-metadata checks. They do **not** simulate complete matches and cannot replace browser, deployment, network or Xbox controller testing. A regression test can confirm that a known crash path is guarded; it cannot prove that all runtime errors are gone.
 
 ## Project boundaries
 
