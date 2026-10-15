@@ -24,4 +24,6 @@ assert.match(ai, /\{threat:humanInf,minimum:4,units:\['mang','scor','arc'\]/);
 assert.match(ai, /score:p\.threat-my\.filter\(u=>p\.own\.includes\(u\.k\)\)\.length\*2/,
   'counter production must account for existing counters so mixed threats do not permanently starve other responses');
 
+assert.match(ai, /u\.o==='m'&&u\.tg/, 'wounded combat warships advancing with a target must also be eligible to disengage');
+
 console.log('ai-naval-threats: economic and transport ships do not trigger combat counter-priorities');
