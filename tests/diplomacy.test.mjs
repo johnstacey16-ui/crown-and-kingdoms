@@ -35,7 +35,7 @@ assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0
   'AI attack waves must choose targets only from hostile kingdoms');
 assert.match(html, /S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&U\[u\.k\]\.sh&&u\.k!=='fish'\)/,
   'Naval AI must ignore allied/neutral warships');
-assert.match(html, /S\.us\.some\(e=>isHostile\(t,e\.t\)&&!e\.ld&&e\.hp>0&&U\[e\.k\]\.dmg>3/,
+assert.match(html, /for\(const e of S\.us\)\{if\(!e\|\|e\.hp<=0\|\|e\.ld\|\|!isHostile\(t,e\.t\)\|\|!\(U\[e\.k\]\?\.dmg>3\)\)continue;/,
   'AI defensive threat detection must ignore non-hostile units');
 assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,vp:S\.vp,diff/,
   'Save data must preserve diplomacy relationships');
