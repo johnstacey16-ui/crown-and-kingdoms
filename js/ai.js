@@ -193,7 +193,7 @@ if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
  if(responders.length)A.lastAllyHelp=S.t;
 }
 /* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
-const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle'].includes(b.k))
+const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle','tower','gate','wall','dock'].includes(b.k))
  .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
 let raid=null;
 for(const site of economicSites){
