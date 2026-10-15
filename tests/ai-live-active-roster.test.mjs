@@ -7,7 +7,7 @@ const end = ai.indexOf('\nconst navalThreatCount=', start);
 assert.ok(start >= 0 && end > start, 'AI team roster classification must be available');
 
 const roster = ai.slice(start, end);
-assert.match(roster, /for\(const u of S\.us\)if\(u\.t===t&&u\.hp>0\)\{my\.push\(u\)/,
+assert.match(roster, /for\(const u of S\.us\)if\(u&&u\.t===t&&u\.hp>0&&U\[u\.k\]\)\{my\.push\(u\)/,
   'Defeated units must not inflate AI roster, villager, or army counts');
 assert.match(roster, /if\(u\.k==='vil'&&!u\.ld\)vil\.push\(u\)/,
   'Garrisoned villagers must not be counted as available workers');
