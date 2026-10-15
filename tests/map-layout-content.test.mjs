@@ -16,4 +16,6 @@ assert.ok(html.includes('S.wt[i]=ford?2:1;S.g[i]=ford?0:1;S.gt[i]=0'),
   'crossings must be passable by ground units while retaining navigable shallow water');
 assert.match(html, /mapLayout=\(mapLayout\+12\)%13/,
   'controller navigation must include the new layout without skipping the first item');
+assert.match(html, /mapLayout=cl\(st\.mapLayout\|0,0,12\)/,
+  'saved settings must restore the Causeway rather than clamp it to the previous last layout');
 console.log('map-layout-content: King\'s Causeway assertions passed');
