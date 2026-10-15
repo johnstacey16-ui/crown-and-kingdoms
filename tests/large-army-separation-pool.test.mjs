@@ -2,12 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
+const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 test('large-army separation recycles spatial bucket arrays instead of allocating each tick', () => {
-  assert.match(engine, /const SEP_GRID=new Map\(\),SEP_BUCKET_POOL=\[\]/);
-  const start = engine.indexOf('function sep(){');
-  const end = engine.indexOf('function compactPositive', start);
+  assert.match(simulation, /const SEP_GRID=new Map\(\),SEP_BUCKET_POOL=\[\]/);
+  assert.doesNotMatch(engine, /SEP_GRID|function sep\(\)/, 'Separation ownership must stay in simulation.js');
+  const start = simulation.indexOf('function sep(){');
+  const end = simulation.indexOf('function compactPositive', start);
   assert.ok(start >= 0 && end > start, 'Separation function must remain isolated');
   const sep = engine.slice(start, end);
   assert.match(sep, /if\(us\.length<=128\)/, 'Small armies retain the straightforward linear path');
