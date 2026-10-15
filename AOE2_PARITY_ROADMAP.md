@@ -23,7 +23,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Implemented:** moved `ico()`, `topbar()` and `hud()` into `js/ui.js`; `engine.js` continues to call the same `hud()` entry point. HUD status labels and the three affected source bundles have regression coverage; no frame-rate gain is claimed.
 - **Implemented:** moved `slotItems()` and `drawSlots()` into `js/ui.js`; slot parsing/restoration, controller selection and save serialisation remain in place. A focused test checks single ownership and preserved save/load callback wiring.
 - **Implemented:** moved shared `titleBg()` and `drawList()` helpers into `js/ui.js`; title, setup/options, campaign and save-slot screens still call the same global functions. A focused regression test checks ownership and caller integration.
-- **Implemented:** moved `panel()`, `shade()` and `drawError()` into `js/ui.js`; match-end and runtime-error callers retain the same entry points. Error state, the frame exception catch and simulation-stop behaviour remain in `engine.js,` and a focused test guards the split.
+- **Implemented:** moved `panel()`, `shade()` and `drawError()` into `js/ui.js`; match-end and runtime-error callers retain the same entry points. Error state, the frame exception catch and simulation-stop behaviour remain in `engine.js`, and a focused test guards the split.
 - **Implemented:** moved campaign screen/objective drawing (`cmpHud()`, `cmpObj()`, `wrapT()`, `drawCamp()`, `drawBrief()`) into `js/ui.js`; mission data, objective evaluation, timed events, progression and controller handlers stay in `js/campaign.js`. Source composition and a focused regression test protect the split.
 - **Implemented:** moved main menu/setup/options drawing (`drawTitle()`, `drawSetup()`, `drawOpts()`) into `js/ui.js`; settings models and controller handlers remain in `js/menus.js`. A focused test protects the module boundary.
 - **Implemented:** moved in-game radial/control-group/quick-select drawing and the associated stat/description labels into `js/ui.js`; command state, selection logic and controller actions remain in their existing engine/input path. A focused regression test verifies caller wiring.
@@ -236,18 +236,20 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - **Documentation inventory:** the maintained Markdown set is `README.md`, this roadmap, and `docs/BROWSER_TECH_ROADMAP.md`. The completed graphics/audio prompt was removed after its applicable work was incorporated. Keep the README and both roadmaps; do not recreate a prompt file as a substitute for updating these canonical documents.
 - **Immediate engineering order:**
   1. Keep closing runtime regressions found during real play; add a focused regression test for each fixed failure.
-  2. Continue dependency-aware separation of the remaining menu drawing functions in `js/menus.js`; preserve menu models/controller actions and keep changes behaviour-preserving.
+  2. Continue auditing the smaller remainder of `engine.js` for coherent render/runtime boundaries; title, setup, options, campaign and pause-menu presentation have already moved to `js/ui.js`. Keep input, game state and controller command behaviour unchanged.
   3. Improve visibly distinct unit ranks/equipment and building silhouettes without replacing the current art fallback path.
   4. Continue meaningful campaign and strategic-map variety, with objectives, prerequisites and mission ordering covered by checks.
   5. Profile 200- and 400-population matches and verify navigation, save/load, audio and controller focus in an actual browser/Xbox session when available.
 - **Do not mark complete based only on static checks:** full-match balance, online resilience, animation quality, TV-distance readability, and Xbox Series S / Edge performance remain unverified until directly tested.
 
 
-### UI modularisation follow-on — 15 October 2026
+### UI and renderer modularisation follow-on — 15 October 2026
 
-- **Implemented in source:** the performance overlay and strategic overview drawing functions now live in `js/ui.js`, loaded before `engine.js`. The extraction preserves the function names and bodies.
-- **Regression protection:** script order, function ownership and inclusion in the source syntax checks and offline shell cache are covered by the updated checks.
-- **Remaining:** the main HUD, pause/menu screens, campaign UI and save-slot UI remain in `engine.js`. Continue in small dependency-aware groups; avoid claiming that the entire UI has been modularised.
+- **Implemented in source:** `js/ui.js` owns the main HUD/resource bar, pause menu, controller-remap presentation, title/setup/options screens, campaign list/briefing/objective overlays, save-slot screen, technology/objectives/help/About screens, radial command menu, control-group overlay, quick-select bar, generic list/title helpers, framed panels, match-end overlay and runtime-error drawing. The global function names and classic-script shared scope are preserved.
+- **Renderer ownership:** `js/render.js` owns world-object painters, procedural unit/siege/ship artwork, terrain palettes, particle drawing, and shared canvas shape/progress primitives (`bar`, `dia`, `poly`). The shared text primitive `tx` lives in `js/ui.js`.
+- **Logic boundaries:** `js/menus.js` retains menu models and controller actions; `js/campaign.js` retains mission data, objective checks, progression and events; `js/input.js` retains controller polling/rebinding; `engine.js` retains world/game state, selection/commands, zoom control, the top-level draw dispatcher and frame loop.
+- **Regression protection:** focused ownership tests cover the moved groups. The complete GitHub Actions test suite and atlas metadata/frame-bound checks passed on commit `43f9dde5d82d352a6a882033e8519dea89d12a4a`.
+- **Still unverified:** public Vercel deployment and physical Xbox Series S/Edge behaviour. Passing static/browser-source tests does not establish the game has been visually or performance-tested on Xbox.
 
 
 ## Engine modularisation — kingdom systems
@@ -259,8 +261,8 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 ## Campaign engine extraction
 
-- Moved campaign scenario data, campaign progression, objective tracking/HUD, mission briefing flow and raid-event dispatch into `js/campaign.js`.
-- Kept campaign helpers in the same shared classic-script scope, loaded after kingdom systems and before `engine.js`; campaign logic remains controller-driven.
+- Moved campaign scenario data, arc ordering, progression state, objective evaluation, timed events and controller action handlers into `js/campaign.js`; campaign list/briefing/objective drawing is owned by `js/ui.js`.
+- Kept campaign helpers in the same shared classic-script scope, loaded after kingdom systems and before `engine.js`; mission logic remains controller-driven.
 - Updated offline caching and test harnesses. No mission goals, resource rules, or victory conditions were intentionally changed by this structural move.
 
 
@@ -272,7 +274,7 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 ## Controller menu module extraction
 
-- Moved new-game setup rows, options rows, title/setup/options drawing and controller handlers, and score-limit choices into `js/menus.js`.
+- Moved new-game setup rows, options rows, controller handlers and score-limit choices into `js/menus.js`; title/setup/options drawing now belongs to `js/ui.js`.
 - Kept the current game-mode options, menu text, button navigation and setup restoration behavior intact. The module is loaded before the core engine and included in offline caching and source-level regression harnesses.
 
 
@@ -287,4 +289,4 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Moved A* route search, diagonal corner-cut prevention, path reconstruction, target-distance helpers and point-goal construction into `js/pathfinding.js`.
 - Preserved the shared reusable path workspace, route cost/heuristic, walkability checks and existing return format. Loaded before kingdom automation and included in offline caching, syntax checks and pathing/simulation regressions.
 
-- Campaign module now also owns arc ordering, mission selection, briefing layout and campaign controller handlers, leaving the shared title background renderer in the core UI.
+- Campaign module owns arc ordering, mission selection, objective/progression state and campaign controller handlers; its screen drawing and the shared title background/list renderers live in `js/ui.js`.
