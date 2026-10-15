@@ -144,9 +144,9 @@ test('IndexedDB backs up saved slots without replacing the localStorage compatib
   assert.ok(html.indexOf('./persistence.js') < html.indexOf('./js/config.js'));
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
   assert.match(persistence, /mirrorSave, restoreMissing/);
-  assert.match(engine, /mirrorSave\(skey\(slot\),payload\)/);
+  assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\);if\(window\.CK_STORAGE\)window\.CK_STORAGE\.mirrorSave\(key,payload\)/);
   assert.match(engine, /restoreMissing\(\)\.then\(\(\)=>refreshSlots\(\)\)/);
-  assert.match(engine, /localStorage\.setItem\(skey\(slot\),payload\)/);
+  assert.match(save, /localStorage\.setItem\(key,payload\)/);
 });
 
 
