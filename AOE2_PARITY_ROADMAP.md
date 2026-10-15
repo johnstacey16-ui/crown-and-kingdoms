@@ -171,5 +171,5 @@ The roadmap is intentionally consolidated: current state belongs in the sections
 ### Gameplay consistency follow-on — 15 October 2026
 
 - **Diplomacy persistence:** the pause menu continues to list a rival kingdom after its Town Centre falls if any units or buildings survive, so the player can still change its relationship.
-- **Tribute consistency:** allied surviving kingdoms remain eligible tribute recipients under the same condition; losing a Town Centre no longer removes the tribute option while the ally still has forces or buildings.
+- **Tribute consistency:** player and AI tribute-recipient eligibility both use the same surviving-force rule; losing a Town Centre no longer removes access while an allied kingdom still has any living unit or building.
 - **Regression coverage:** the diplomacy source test checks the relationship-state matrix, surviving-force menu eligibility and matching tribute-recipient eligibility. These are static source assertions, not a substitute for playing through kingdom elimination and diplomacy changes.
