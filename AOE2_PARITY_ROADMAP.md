@@ -152,3 +152,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 - Extended the living-building filter beyond generic production counts: AI construction anchors now require a living Town Centre, dead walls/Barracks/Houses/Docks no longer suppress planning, dead structures do not block AI resource-site rebuilds, and trade planning ignores destroyed enemy Markets/Docks.
 - Expanded the focused regression test at `tests/ai-rebuild-destroyed-buildings.test.mjs`. The full AI recovery behaviour still requires gameplay simulation/playtesting.
+
+
+### AI age-up planning uses valid current-age buildings — 15 October 2026
+
+- Aligned the AI's age-up decision gate with the actual age research rules: only completed, living structures eligible for the current age count toward the two-building requirement.
+- This avoids dead or wrong-age buildings falsely satisfying the AI's age-up gate and affecting villager production. Regression assertion added to `tests/ai-rebuild-destroyed-buildings.test.mjs`.
