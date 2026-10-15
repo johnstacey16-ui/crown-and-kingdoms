@@ -11,7 +11,10 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/audio.js`: procedural SFX, spatial audio and adaptive music.
 - `js/save.js`: save-slot serialisation and restoration functions.
 - `js/input.js`: controller polling, selection, orders and menu navigation.
-- `js/render.js`: extracted world-render entry point.
+- `js/mapgen.js`: map generation/layout helpers extracted from the main engine.
+- `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
+- `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
+- In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
 - `persistence.js`: IndexedDB mirrors for the existing localStorage save slots; localStorage remains the compatibility source.
 - `sw.js`: versioned same-origin offline shell cache, network-first code refresh, and cached fallbacks.
 - Regression checks cover module syntax, load order, storage compatibility, audio resume rejection handling, cache policy and sprite atlas bounds.
@@ -19,9 +22,8 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 ## Next implementation phases
 
 ### Phase 1 — finish safe engine separation
-- Extract terrain generation and map-layout logic to `js/mapgen.js`.
-- Separate simulation/economy/combat/AI into `js/simulation.js`.
-- Continue moving menu/HUD/overlay functions into `js/ui.js`.
+- Map generation/layout and simulation stepping have been extracted to `js/mapgen.js` and `js/simulation.js`.
+- Continue moving menu/HUD/overlay functions into `js/ui.js`, preserving shared global bindings and testing script order after each move.
 - Preserve function names and behaviour during extraction; do not rewrite systems while moving them.
 - Keep `multiplayer.js` as the separate Supabase Realtime integration.
 
