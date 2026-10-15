@@ -33,7 +33,7 @@ assert.match(html, /function nearestFoeUnit\(u,r\)\{[\s\S]{0,700}!isHostile\(u\.
   'Indexed automatic target acquisition must ignore neutral/allied, dead and garrisoned units');
 assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
   'AI attack waves must choose targets only from hostile kingdoms');
-assert.match(html, /S\.us\.filter\(u=>u&&Number\.isInteger\(u\.t\)&&isHostile\(t,u\.t\)&&u\.hp>0&&!u\.ld&&U\[u\.k\]\?\.sh&&u\.k!=='fish'\)/,
+assert.match(html, /S\\.us\\.filter\\(u=>u&&Number\\.isInteger\\(u\\.t\\)&&isHostile\\(t,u\\.t\\)&&u\\.hp>0&&!u\\.ld&&U\\[u\\.k\\]\\?\\.sh&&u\\.k!=='fish'&&u\\.k!=='trn'&&u\\.k!=='cog'/,
   'Naval AI must ignore allied/neutral warships');
 assert.match(html, /for\(const e of S\.us\)\{if\(!e\|\|e\.hp<=0\|\|e\.ld\|\|!isHostile\(t,e\.t\)\|\|!\(U\[e\.k\]\?\.dmg>3\)\)continue;/,
   'AI defensive threat detection must ignore non-hostile units');
