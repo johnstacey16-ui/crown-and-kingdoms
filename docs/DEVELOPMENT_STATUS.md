@@ -152,3 +152,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Existing map-edge, terrain, water and player-exploration checks remain intact.
 - Regression guard: `tests/building-placement-input-validation.test.mjs`.
 - Source-level checks only; Node execution and browser/controller testing remain outstanding.
+
+
+## 15 October 2026 — Production queue shape validation
+
+- `train` now rejects a missing or malformed production queue before checking queue length or spending resources.
+- Existing owner/building/unit compatibility, age, resource, population-cap and queue-capacity checks remain in place.
+- Regression guard: `tests/production-queue-shape-validation.test.mjs`.
+- Source-level checks only; Node execution and browser/controller testing remain outstanding.
