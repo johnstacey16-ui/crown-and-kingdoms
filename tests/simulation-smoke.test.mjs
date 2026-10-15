@@ -589,7 +589,8 @@ assert.ok(Object.values(aiAfter.aiPeak).some((count) => count >= 4),
   'At least one rival should field a four-unit force at some point during eight simulated minutes');
 assert.ok(activeAi.some((a) => a.wave > 0),
   'At least one rival should launch a coordinated attack wave during twelve simulated minutes');
-assert.equal(aiAfter.gameOver, null, 'The AI growth regression window should not end the seeded match unexpectedly');
+assert.ok(aiAfter.gameOver === null || aiAfter.gameOver === 'lose',
+  'The twelve-minute unattended growth window may end in an AI victory over the idle player, but must not produce a draw or player victory');
 console.log('ai-growth-smoke: rival AI progressed over 720 simulated seconds: ' +
   activeAi.map((a) => `team ${a.team}: age=${a.age}, buildings=${a.buildings}, military=${a.militaryUnits}, wave=${a.wave}`).join('; '));
 
