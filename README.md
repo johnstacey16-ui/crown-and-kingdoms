@@ -4,14 +4,18 @@ Crown & Kingdoms is an original, controller-first medieval real-time strategy ga
 
 ## Source of truth
 
-- **`index.html`** — primary game page, canvas renderer, simulation and embedded local sprite-atlas manifest.
-- **`assets/`** — original SVG unit/building atlases and local textures. The renderer keeps procedural drawing fallbacks.
-- **`multiplayer.js`** — separate multiplayer integration code. Its presence is not proof that network play is reliable or fully tested.
-- **`scripts/` and `tests/`** — source-level checks and regression guards.
+- **`index.html`** — minimal page shell that loads the stylesheet and runtime scripts in dependency order.
+- **`js/config.js`** — shared game constants, balance data and map/configuration settings.
+- **`js/input.js`, `js/audio.js`, `js/save.js`** — controller input, synthesised audio, and save serialization/restoration.
+- **`engine.js`** — core simulation and canvas rendering. This remains the largest file and is the next modularisation target; rendering and UI extraction must preserve classic-script globals and load order.
+- **`persistence.js`** — IndexedDB backup/restore while localStorage remains the compatible primary save path.
+- **`assets/`** — external atlas manifest, original SVG unit/building atlases and local textures. Procedural drawing fallbacks remain available.
+- **`multiplayer.js`** — lobby/configuration and lightweight player-marker integration, not full authoritative RTS simulation synchronisation.
+- **`scripts/`, `tests/` and `sw.js`** — source-level checks, regression guards and same-origin offline-shell caching.
 - **`AOE2_PARITY_ROADMAP.md`** — current implementation status, known gaps and recommended development order.
 - **`GRAPHICS_AUDIO_UPGRADE_PROMPT.md`** — detailed engineering brief for future art, animation, audio and performance work.
 
-The root `index.html` is the canonical game entry point. Avoid maintaining competing standalone game builds in the repository root.
+The root `index.html` is the canonical game entry point. Avoid maintaining competing standalone game builds in the repository root. Runtime scripts are classic scripts rather than ES modules; preserve their dependency order and avoid declaring the same top-level `const`/`let` binding in multiple files.
 
 ## Systems currently present in source
 
