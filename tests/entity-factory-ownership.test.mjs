@@ -7,6 +7,7 @@ const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 const checker = readFileSync(new URL('../scripts/check-game.mjs', import.meta.url), 'utf8');
 const entities = readFileSync(new URL('../js/entities.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const simulationSmoke = readFileSync(new URL('./simulation-smoke.test.mjs', import.meta.url), 'utf8');
 
 test('world entity factory functions have one owner outside engine orchestration', () => {
   for (const name of ['addN', 'addB', 'addU']) {
@@ -36,4 +37,6 @@ test('entity module dependency order and offline cache are maintained', () => {
     'syntax checker must parse entities.js');
   assert.ok(checker.includes(" + '\\n' + entities + '\\n' + campaign"),
     'static source harness must include the entity module');
+  assert.ok(simulationSmoke.includes("new URL('../js/entities.js', import.meta.url)"),
+    'runtime smoke harness must load the entity module before calling newGame');
 });
