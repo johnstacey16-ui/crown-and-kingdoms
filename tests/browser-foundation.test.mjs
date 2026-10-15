@@ -12,7 +12,8 @@ const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + engineSource;
+const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + simulation + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -66,7 +67,10 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(!engineSource.includes('function drawHill(o)'));
   assert.ok(!engineSource.includes('function chunkOf(cx,cy)'));
   assert.ok(!engineSource.includes('function drawChunks(x0,x1,y0,y1)'));
-  assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
+  assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./engine.js'));
+  assert.ok(simulation.includes('function step(dt)'));
+  assert.ok(!engineSource.includes('function step(dt)'));
   assert.ok(multiplayer.length > 0);
   assert.doesNotMatch(html, /<script>\s*['"]use strict['"]/);
 });
