@@ -149,7 +149,7 @@ The GitHub Actions workflow `.github/workflows/game-regression.yml` runs `script
 - trade routes and fishing economy;
 - fish traps and technology effects;
 - all current technology definitions exposed through building research lists, required cost/time/age metadata, prerequisite references, and research-request validation;
-- AI retreats, siege support, defensive threat priorities and naval targeting;
+- AI retreats, siege support, defensive threat priorities and naval targeting with a focus-fire bias so nearby friendly galleys concentrate on a shared warship target;
 - campaign content;
 - map connectivity/generation diagnostics;
 - sprite-atlas metadata and frame bounds.
