@@ -22,7 +22,7 @@ const CAMP=[
  ev:[{at:6,do:()=>note('Monks can carry relics. Select one and order it onto a relic, then to your Monastery.')},{at:420,do:()=>raid(4,['scout','skirm','scout','skirm'],'Turkish scouts are probing your lands. Protect your monks!')}]},
 {t:'Siege of Kronburg',b:'The Byzantine lord holds Kronburg, a Town Centre ringed with a castle and towers. You have only a small army and three rams. Keep your spearmen close to the rams, shoot the defenders with archers, then bring the castle down and burn the Town Centre.',civ:5,en:3,mt:3,msz:1,seed:55,diff:1,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2},
- goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle')},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
+ goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:5,do:()=>note('Rams are strong against buildings but weak against melee. Guard them.')},{at:90,do:()=>note('Archers are fragile: keep them behind your spearmen.')}]},
 {t:'The Last Crown',b:'Only two claimants remain. The Viking jarl will not yield, and the crown goes to whichever king survives. Defend your king, break the jarl\'s armies and bring down his king.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
  setup(){S.res[0]={f:400,w:400,g:200,s:100}},
