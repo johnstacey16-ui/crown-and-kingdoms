@@ -13,6 +13,7 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **Farm reseeding — delayed-resource recovery improved:** exhausted farm plots are retained when wood is temporarily below 60, then automatically reseeded when the owning kingdom can pay. Each reseed costs 60 wood; farms with enough wood at depletion still reseed immediately. Automated suite validation is pending for this batch; worker assignment and economy balance need in-game verification.
 - **Campaign objective integrity:** ranged-army, land-army, war-galley and bombard-cannon objectives now use a guarded active-unit roster; dead, garrisoned, null and unknown-unit entries do not count. Source regression added. Campaign balance and in-game validation remain outstanding.
 - **AI enemy-composition safety:** counter-unit planning ignores malformed and garrisoned enemy records; naval threat and building-repair scans guard missing/unknown unit metadata. Automated source regression added; live strategic balance remains unverified.
 - **AI production and naval scan hardening:** AI no longer attempts training at destroyed production buildings or technology research at destroyed research buildings; queue shape is checked before training decisions. Naval threat/target scans guard invalid unit records, and galley-cap calculations ignore malformed dock queues. Focused regression guards added; full-match balance and Xbox validation remain outstanding.
