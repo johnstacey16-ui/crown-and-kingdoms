@@ -1,17 +1,17 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
- let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.done):null;
+ let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.done&&b.hp>0):null;
  if(!src){
-  src=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0]||null;
+  src=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0]||null;
   u.tradeFromKey=src?keyOf(src):null;u.tradeDestKey=null;u.tradeReturning=false;u.p=[];
  }
  if(!src){u.o='i';return}
- let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.t!==u.t&&b.k===endpoint):null;
+ let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.hp>0&&b.t!==u.t&&b.k===endpoint):null;
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';return}
-  dest=S.bs.filter(b=>b.done&&b.k===endpoint&&b.t!==u.t).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b))[0]||null;
+  dest=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b))[0]||null;
   if(!dest){u.trWait=2;u.o='i';return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
