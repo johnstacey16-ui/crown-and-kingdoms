@@ -23,3 +23,14 @@ test('large-army separation recycles spatial bucket arrays instead of allocating
   assert.match(sep, /if\(b\.ld\|\|b\.hp<=0\|\|Math\.abs\(a\.x-b\.x\)>.5/, 'Large-army separation must ignore defeated neighbours');
   assert.match(sep, /if\(a\.hp<=0\)continue;for\(let j=i\+1;j<us\.length;j\+\+\)/, 'Small-army separation must skip defeated units too');
 });
+
+
+test('A* reuses heap buffers between sequential path searches', () => {
+  const pathfinding = readFileSync(new URL('../js/pathfinding.js', import.meta.url), 'utf8');
+  assert.match(pathfinding, /const PATH_HEAP_K=\[\],PATH_HEAP_V=\[\]/,
+    'A* heap arrays should be allocated once and retained for subsequent searches');
+  assert.match(pathfinding, /const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk\.length=0;hv\.length=0/,
+    'each search must clear both reusable buffers before pushing its start node');
+  assert.doesNotMatch(pathfinding, /hr=goal\.hr\|\|0,hk=\[\],hv=\[\]/,
+    'A* should not allocate fresh heap arrays for every unit path request');
+});
