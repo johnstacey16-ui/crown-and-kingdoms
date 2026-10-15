@@ -19,12 +19,16 @@ test('sequel includes timed mixed naval and land attacks and campaign progressio
 });
 
 test('Causeway campaign uses the navigable strait layout and a staged land-and-sea objective set', () => {
-  assert.match(html, /t:'The Causeway Muster'/);
-  assert.match(html, /t:'The Causeway Muster'[\\s\\S]{0,220}layout:12/);
-  assert.match(html, /mapLayout=Number\\.isInteger\\(sc\\.layout\\)\\?sc\\.layout:0;if\\(mapLayout\\)applyMapLayout\\(\\)/);
-  assert.match(html, /t:'Build a Dock'/);
-  assert.match(html, /t:'Have 3 War Galleys alive'/);
-  assert.match(html, /t:'Build 2 completed Towers'/);
-  assert.match(html, /n:'The Causeway Campaign',ids:\\\\[16\\\\]/);
+  const start = html.indexOf("{t:'The Causeway Muster'");
+  assert.notEqual(start, -1, 'The Causeway Muster must exist as a playable mission');
+  const nextMission = html.indexOf("\n{t:", start + 1);
+  const end = nextMission === -1 ? html.indexOf("\n \n]}", start) : nextMission;
+  const mission = html.slice(start, end === -1 ? undefined : end);
+  assert.ok(mission.includes('layout:12'), 'The mission must select King\\'s Causeway');
+  assert.ok(html.includes('mapLayout=Number.isInteger(sc.layout)?sc.layout:0;if(mapLayout)applyMapLayout()'),
+    'Starting a mission must apply its specific map layout');
+  assert.ok(mission.includes("t:'Build a Dock'"), 'The mission must require a coastal dock');
+  assert.ok(mission.includes("t:'Have 3 War Galleys alive'"), 'The mission must require a functioning fleet');
+  assert.ok(mission.includes("t:'Build 2 completed Towers'"), 'The mission must require defended land approaches');
+  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16]"), 'The mission must be included in natural campaign progression');
 });
-
