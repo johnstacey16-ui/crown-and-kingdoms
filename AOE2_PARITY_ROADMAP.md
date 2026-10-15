@@ -183,3 +183,11 @@ The roadmap is intentionally consolidated: current state belongs in the sections
 - **Performance backlog:** add visibility culling for units/buildings/effects only after confirming the world-to-screen bounds for isometric sprites and tall structures; profile combat/pathfinding at 200 and 400 population before changing update cadence. The existing viewport terrain bounds and spatial separation grid do not prove the whole renderer or simulation is within budget.
 - **Persistence/audio follow-up:** IndexedDB is currently an asynchronous backup/restore path for the three compatible local slots, not a replacement save format. Keep localStorage as the synchronous compatibility source until migration and interrupted-write recovery are tested. Audio is synthesised and must remain lazy/resumable under browser autoplay and suspend policies.
 - **Validation:** existing Node checks parse source and assert invariants. Each extraction should add script-order/syntax coverage and retain all current tests. Browser execution, network sessions, deployment status, and Xbox Series S / Edge performance remain explicitly unverified until actually run there.
+
+
+## 15 October 2026 — renderer extraction continuation
+
+- Extracted `drawWorld()`, `drawUnit()` and `drawRelic()` into `js/render.js`; their existing function names and drawing logic are preserved.
+- `index.html` loads the renderer before `engine.js`; rendering functions resolve shared classic-script globals at runtime.
+- The service worker core asset list includes the renderer, and source-composition checks include it in page load order.
+- This is a maintainability change, not a claim of measured frame-rate improvement. Xbox Edge and live deployment still require a successful deployment and device validation.
