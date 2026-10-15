@@ -6,7 +6,7 @@ const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 
 assert.match(simulation, /const SEP_GRID=new Map\(\),SEP_BUCKET_POOL=\[\];/, 'simulation module must own reusable spatial separation buckets');
-assert.match(simulation, /function sep\(\)\{const us=S\.us;if\(us\.length<=128\)/, 'simulation module must preserve the small-army separation path');
+assert.match(simulation, /function sep\(\)\{const us=S\.us;if\(us\.length<=64\)/, 'simulation module must preserve the linear path only for armies of 64 units or fewer');
 assert.match(simulation, /SEP_BUCKET_POOL\.pop\(\)\|\|\[\]/, 'large-army separation must reuse pooled bucket arrays');
 assert.doesNotMatch(engine, /SEP_GRID|function sep\(\)/, 'engine orchestration must not own the separation algorithm');
 assert.ok(html.indexOf('src="./js/simulation.js"') < html.indexOf('src="./engine.js"'), 'simulation must load before the engine calls sep()');
