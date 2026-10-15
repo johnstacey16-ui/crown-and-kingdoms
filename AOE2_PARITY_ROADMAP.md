@@ -13,6 +13,8 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 - **Gap:** the requested capability is not yet implemented to the intended standard.
 
 ## Current foundation
+- **AI input safety — improved:** roster planning skips invalid unit records before unit metadata access and validates the Town Centre queue shape before production decisions. Regression guard added; full simulation and console validation remain outstanding.
+
 - **AI roster correctness — improved, not complete:** AI strategic counts now use living units; garrisoned units are excluded from active worker and combat/naval pools. This prevents stale dead records and sheltered units from suppressing replacement production or inflating field strength. Regression test added; full skirmish balance and Xbox performance still require live testing.
 
 - **Naval AI response — improved, not complete:** hostile combat ships can trigger dock construction even when no nearby fish node is present, and war-galley production cap scales from 4 to 12 by threat count. Source-level regression guards are in place; map-valid dock placement, actual ship production, combat tactics and Xbox performance remain unverified in live play.
