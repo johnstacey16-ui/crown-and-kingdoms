@@ -8,6 +8,11 @@
 
 This is the single handover checkpoint intended to stop repeated audits and repeated claims of progress. Update it when a meaningful implementation or verification result changes. Before starting work, compare the live HEAD and workflow to this ledger. Do not redo a resolved item unless new evidence reproduces it.
 
+## Latest implementation checkpoint — 15 October 2026
+
+- Latest `main` HEAD before this change: `9658f963af27edd9c181c24753c1d7f84e7c8724`; workflow [#930](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/38744444974) completed successfully.
+- New work in progress: Town Bell shelter assignment now builds the eligible shelter list once, pre-counts garrisoned and en-route occupancy in one pass, and updates reservations as villagers are assigned. This removes repeated full-unit-list scans from the inner assignment loop while preserving nearest-available-shelter selection and capacity reservations. Focused regression assertions and full CI are being added/run in this change.
+
 ## Last verified code checkpoint
 
 - **Code commit:** `10a9a2f7209236385b57d31e7f71f1e844147d78` — `fix: accept indexed entity references in valid saves`.
