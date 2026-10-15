@@ -534,7 +534,7 @@ for(const base of alliedBases){
  if(invaders.length){distress={base,enemy:invaders[0]};break}
 }
 if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
- const responders=arm.filter(u=>u.o==='i'&&!u.retreating&&u.k!=='mon'&&Math.hypot(u.x-(distress.base.x+distress.base.s/2),u.y-(distress.base.y+distress.base.s/2))<32)
+ const responders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&u.k!=='mon'&&Math.hypot(u.x-(distress.base.x+distress.base.s/2),u.y-(distress.base.y+distress.base.s/2))<32)
   .sort((a,b)=>Math.hypot(a.x-distress.base.x,a.y-distress.base.y)-Math.hypot(b.x-distress.base.x,b.y-distress.base.y)).slice(0,8);
  for(const u of responders){u.o='a';u.tg=distress.enemy;u.p=[]}
  if(responders.length)A.lastAllyHelp=S.t;
