@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
-const engine = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
+const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const engine = config + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -73,4 +75,13 @@ test('offline cache can survive temporary hosting errors as well as network loss
   const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
   assert.match(serviceWorker, /return await cache\.match\(request\) \|\| response/);
   assert.match(serviceWorker, /const cached = await cache\.match\(request\);\s*if \(cached\) return cached/);
+});
+
+
+test('game balance data is separated from runtime code and resize work is debounced', () => {
+  assert.match(config, /const U=\{/);
+  assert.match(config, /const B=\{/);
+  assert.match(config, /const AG=\[/);
+  assert.doesNotMatch(engineSource, /const U=\{|const B=\{|const AG=\[/);
+  assert.match(engineSource, /clearTimeout\(resizeTimer\);resizeTimer=setTimeout\(rs,80\)/);
 });
