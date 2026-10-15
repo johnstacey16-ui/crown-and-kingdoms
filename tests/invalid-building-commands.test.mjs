@@ -16,7 +16,7 @@ assert.match(train, /^function train\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|!
 assert.match(train, /pay\(t,d\.cost\);b\.q\.push/,
   'Valid production must still charge resources and queue the unit');
 
-const research = body('research', 'MILITARY_PRODUCTION_BUILDINGS');
+const research = body('research', 'trainRate');
 assert.match(research, /^function research\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|!S\|\|!Number\.isInteger\(b\.t\)\|\|!S\.tech\[b\.t\]\|\|!B\[b\.k\]\)return false;/,
   'Research must reject dead or unfinished buildings before charging resources');
 assert.match(research, /pay\(t,d\.cost\);b\.rs=\{k,t:d\.t\}/,
