@@ -45,16 +45,17 @@ if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.a
 if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
 const hit=(a,t)=>{if(U[a.k].rng>2){sfx(U[a.k].sg?'launch':'bow',a.x,a.y);S.pj.push({x:a.x,y:a.y,t,a})}else dmgT(a,t)};
 function pjs(dt){for(const p of S.pj){const h=(p.t.s||0)/2,tx=p.t.x+h,ty=p.t.y+h,dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy),st=14*dt;if(p.t.hp<=0)p.dead=1;else if(d<=st+.3){dmgT(p.a,p.t);const sp=U[p.a.k]&&U[p.a.k].spl;if(sp){const ix=p.t.x+h,iy=p.t.y+h;for(const e of S.us)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp)dmgT(p.a,e);for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e);}p.dead=1}else{p.x+=dx/d*st;p.y+=dy/d*st}}compactNotFlag(S.pj,'dead')}
-const FOE_CELL=8,FOE_BUCKETS=new Map();
+const FOE_CELL=8,FOE_BUCKETS=new Map(),FOE_BUCKET_POOL=[];
 let foeGridDirty=true,foeGridEpoch=0;
 function rebuildFoeGrid(){
  foeGridEpoch++;
- for(const bin of FOE_BUCKETS.values())bin.length=0;
+ for(const bin of FOE_BUCKETS.values()){bin.length=0;FOE_BUCKET_POOL.push(bin)}
+ FOE_BUCKETS.clear();
  for(let i=0;i<S.us.length;i++){
   const e=S.us[i];if(!e||e.hp<=0||e.ld)continue;
   const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
   let bin=FOE_BUCKETS.get(key);
-  if(!bin){bin=[];FOE_BUCKETS.set(key,bin)}
+  if(!bin){bin=FOE_BUCKET_POOL.pop()||[];FOE_BUCKETS.set(key,bin)}
   bin.epoch=foeGridEpoch;bin.push(i)
  }
  for(const [key,bin]of FOE_BUCKETS)if(bin.epoch!==foeGridEpoch)FOE_BUCKETS.delete(key);
