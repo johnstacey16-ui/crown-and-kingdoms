@@ -284,3 +284,11 @@ if(k==='trn'){g.fillStyle='#8a6a3a';g.fillRect(-10,-17,8,6);g.fillRect(-1,-17,8,
 function paintUnit(g,k,tc,st,fr){if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{conq:{cloth:'#8a3a2a',pant:'#2a2a30',helm:'kettle',wpn:'gun',mail:1,tab:1},genoa:{cloth:'#3a6a9a',pant:'#2a3a4a',helm:'kettle',wpn:'xbow',mail:1,tab:1,shield:'kite'},huskarl:{cloth:'#5a5a6a',pant:'#3a3a40',helm:'great',wpn:'axe',shield:'round',mail:1},jaguar:{cloth:'#b08a2a',pant:'#6a4a2a',helm:'feather',wpn:'axe',shield:'round'},plumed:{cloth:'#2a8a6a',pant:'#4a3a24',helm:'feather',wpn:'bow',quiv:1},kamayuk:{cloth:'#a0603a',pant:'#5a4030',helm:'band',wpn:'spear',shield:'kite'},shotel:{cloth:'#3a8a3a',pant:'#2a2a30',helm:'band',wpn:'sword'},gbeto:{cloth:'#8a6a2a',pant:'#4a3a24',helm:'band',wpn:'jav'}});
 const USZ=k=>U[k].sh?[110,90]:k==='ele'||k==='eled'?[130,120]:(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb')?[100,90]:(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='mamel')?[90,86]:[56,72];
+
+/* Deterministic terrain variation, team foliage colours and tile palettes. */
+const hsh=(x,y)=>{let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296};
+const GC=['#5c9a45','#579642','#62a049','#52903e','#5a9a4c','#4e8c40'],SC={};
+const shd=(c,f)=>SC[c+f]||(SC[c+f]=(()=>{const n=parseInt(c.slice(1),16);return 'rgb('+Math.min(255,(n>>16&255)*f|0)+','+Math.min(255,(n>>8&255)*f|0)+','+Math.min(255,(n&255)*f|0)+')'})());
+const GCd=GC.map(c=>shd(c,.86)),GCl=GC.map(c=>shd(c,1.09));
+const PALS=[{g:GC,d:GCd,l:GCl,coast:'#cdbd82',dirt:['#8d7b4c','#867449']}];
+{const mk=(a,c,dk)=>({g:a,d:a.map(x=>shd(x,.9)),l:a.map(x=>shd(x,1.06)),coast:c,dirt:dk});PALS.push(mk(['#d8c48a','#d2bd80','#dcc890','#cdb676','#d6c286','#d0ba7c'],'#e6d8a8',['#b89a60','#b0925a']),mk(['#e8f0f4','#dde8ee','#f0f6f8','#d4e2ea','#e2ecf0','#d9e6ec'],'#c3d0d6',['#8e8a84','#86827c']),mk(['#7f9a62','#789358','#86a068','#718c54','#7c9660','#7a945a'],'#b8b090',['#7d7568','#766e62']))}

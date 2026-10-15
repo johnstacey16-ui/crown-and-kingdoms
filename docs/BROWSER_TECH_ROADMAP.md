@@ -183,3 +183,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the building/node artwork data and painters (`BG`, `CK_TEX`, `BP`, `paintBld()`, `drawBld()`, `paintNode()`, `drawNode()`) and procedural unit/siege/ship artists (`SPC`, `spr()`, `blit()`, `MP`, `man()`, `mnt()`, `sgp()`, `shp()`, `paintUnit()`, `USZ`) from `engine.js` into `js/render.js` without changing function names or drawing bodies.
 - `setZoom()`, particle emission/lifetime simulation, world state, game rules, selection and controller actions remain in their original owners. The renderer was already loaded before `engine.js`; no extra script was added.
 - `tests/world-object-renderer-extraction.test.mjs` verifies single ownership and confirms world draw paths still call the moved painters. This is a structural refactor; visual quality and frame time still require real-browser/Xbox verification.
+
+
+### Terrain palette ownership — 15 October 2026
+
+- Moved the deterministic tile hash (`hsh()`), foliage colour/shading cache (`GC`, `SC`, `shd`, `GCd`, `GCl`) and `PALS` terrain palette definitions into `js/render.js`.
+- Tile and detail painters already live in that module, so palette ownership is now adjacent to use. `engine.js` no longer declares renderer-only palette state.
+- Added `tests/terrain-palette-renderer.test.mjs` to check single ownership and the palette call path. This is code organisation, not a measured frame-time gain.
