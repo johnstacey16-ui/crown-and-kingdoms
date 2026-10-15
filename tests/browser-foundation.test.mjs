@@ -14,7 +14,8 @@ const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + engineSource;
+const kingdom = readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8');
+const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + kingdom + '\n' + engineSource;
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -86,6 +87,11 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(!engineSource.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./js/kingdom.js'));
+  assert.ok(html.indexOf('./js/kingdom.js') < html.indexOf('./engine.js'));
+  assert.ok(kingdom.includes('function createDiplomacy(n,source=null)'));
+  assert.ok(kingdom.includes('function sendTribute(from,to,resourceIndex,amount=100)'));
+  assert.ok(!engineSource.includes('const DIPLOMACY_STATES='));
   assert.ok(html.indexOf('./js/simulation.js') < html.indexOf('./engine.js'));
   assert.ok(simulation.includes('function step(dt)'));
   assert.ok(!engineSource.includes('function step(dt)'));
