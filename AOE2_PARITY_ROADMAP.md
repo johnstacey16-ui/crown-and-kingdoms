@@ -191,3 +191,4 @@ The roadmap is intentionally consolidated: current state belongs in the sections
 - `index.html` loads the renderer before `engine.js`; rendering functions resolve shared classic-script globals at runtime.
 - The service worker core asset list includes the renderer, and source-composition checks include it in page load order.
 - This is a maintainability change, not a claim of measured frame-rate improvement. Xbox Edge and live deployment still require a successful deployment and device validation.
+- Continued the extraction with `paintTile()`, `paintTileDetail()` and `drawHill()` moved into `js/render.js`; added regression assertions that these helpers live in the renderer rather than `engine.js`. Existing global helper names and drawing bodies are preserved. This is structural cleanup only; no performance gain is claimed without runtime profiling.
