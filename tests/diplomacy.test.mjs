@@ -42,7 +42,7 @@ assert.match(html, /dip:createDiplomacy\(\(j\.res\|\|\[\]\)\.length\|\|2,j\.dip\
 assert.match(html, /if\(!S\.bs\.some\(b=>b\.k==='tc'&&isHostile\(0,b\.t\)&&b\.hp>0\)\)endGame\('win','All hostile Town Centres have fallen'\)/,
   'Town Centre victory must consider current hostile relationships');
 
-assert.match(html, /for\\(let ally=0;ally<S\\.teamN;ally\\+\\+\\)if\\(ally!==t&&diplomacyRelation\\(t,ally\\)==='ally'&&\\(S\\.bs\\.some\\(b=>b\\.t===ally&&b\\.hp>0\\)\\|\\|S\\.us\\.some\\(u=>u\\.t===ally&&u\\.hp>0\\)\\)\\)allies\\.push\\(ally\\)/,
+assert.match(html, /for\(let ally=0;ally<S\.teamN;ally\+\+\)if\(ally!==t&&diplomacyRelation\(t,ally\)==='ally'&&\(S\.bs\.some\(b=>b\.t===ally&&b\.hp>0\)\|\|S\.us\.some\(u=>u\.t===ally&&u\.hp>0\)\)\)allies\.push\(ally\)/,
   'AI tribute must remain available to allied kingdoms with surviving units or buildings even after Town Centre loss');
 
 console.log('diplomacy: all source regression assertions passed');
