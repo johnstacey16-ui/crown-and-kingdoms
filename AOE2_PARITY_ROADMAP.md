@@ -16,7 +16,7 @@ This roadmap tracks meaningful remaining work, not a claim of full Age of Empire
 
 The project already contains four-age progression; economy and trading; construction and repair; ground, siege and naval units; research and unit upgrades; rival AI; formations and stances; fog of war and minimap; procedural/fixed maps; campaign missions and timed events; multiple victory modes; local save/load; controller-oriented menus; procedural audio; local SVG sprite atlases with fallbacks; and a lightweight Supabase Realtime lobby.
 
-The main runtime is split into classic scripts. `engine.js` remains responsible for top-level orchestration, frame scheduling, game state and controller command integration. `js/ui.js` owns screen presentation, `js/render.js` owns world drawing, and dedicated modules own AI, simulation, maps, pathfinding, economy, campaign and related systems. Preserve the current script order and shared globals during further refactoring.
+The main runtime is split into classic scripts. `engine.js` remains responsible for top-level orchestration, frame scheduling, game state and controller command integration. `js/ui.js` owns screen presentation, `js/render.js` owns world drawing, `js/minimap.js` owns minimap rendering and fog-of-war visibility, and dedicated modules own AI, simulation, maps, pathfinding, economy, campaign and related systems. Preserve the current script order and shared globals during further refactoring.
 
 ## Priority 1 — correctness and release confidence
 
@@ -116,7 +116,7 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 
 ## Next work order
 
-1. Run the complete current check suite and fix any failures before additional refactors.
+1. Run the complete current check suite and fix any failures before additional refactors. The save-validation regression suite and sprite-atlas validation passed on commit `95d3c1519256b7eadf373c42e49a1ea1be30eaaf`.
 2. Exercise cold start, pause/resume, save/load and representative campaign/skirmish flows in a browser.
 3. Audit technology effects and AI decisions with focused tests where gaps are found.
 4. Test naval/map connectivity and campaign completion across scenarios.
