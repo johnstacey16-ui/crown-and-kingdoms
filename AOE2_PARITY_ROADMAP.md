@@ -201,3 +201,19 @@ The roadmap is intentionally consolidated: current state belongs in the sections
 - Updated the in-game About panel to describe local SVG atlases, team-colour/animation metadata, procedural fallback art, synthesised spatial/adaptive audio, the limited scope of the Realtime lobby, and the fact that browser/deployment/Xbox validation is not yet confirmed.
 - Added a regression test for the accuracy of that About copy. Updated README and browser technology roadmap to match the current module layout and scope.
 - Remaining graphics-brief gates: run the complete Node checks, inspect sprites/animations in a real browser, test audio autoplay/resume and controller navigation, and profile larger armies on the target Xbox. Metadata checks alone cannot establish visual quality or frame rate.
+
+
+## Current continuation checkpoint — 15 October 2026
+
+This checkpoint supersedes older dated notes where they conflict with the current source layout.
+
+- **Latest known runtime regression addressed in source:** audio voice classification now checks whether a unit definition exists before reading its `mt` field. This addresses the reported crash when a controller action requested audio for an unknown or non-unit entity key. Regression coverage was added. It does not prove that every runtime crash is fixed.
+- **Deployment caveat:** the Vercel build-rate limit was reported during this continuation. A GitHub commit does not mean the public site has deployed it; confirm the status of the exact commit before relying on the hosted page.
+- **Documentation inventory:** the maintained Markdown set is `README.md`, this roadmap, and `docs/BROWSER_TECH_ROADMAP.md`. The completed graphics/audio prompt was removed after its applicable work was incorporated. Keep the README and both roadmaps; do not recreate a prompt file as a substitute for updating these canonical documents.
+- **Immediate engineering order:**
+  1. Keep closing runtime regressions found during real play; add a focused regression test for each fixed failure.
+  2. Continue dependency-aware UI extraction into `js/ui.js) only when the function group and its global dependencies are understood. Update `index.html`, source checks and `sw.js` together; preserve classic-script order and controller behaviour.
+  3. Improve visibly distinct unit ranks/equipment and building silhouettes without replacing the current art fallback path.
+  4. Continue meaningful campaign and strategic-map variety, with objectives, prerequisites and mission ordering covered by checks.
+  5. Profile 200- and 400-population matches and verify navigation, save/load, audio and controller focus in an actual browser/Xbox session when available.
+- **Do not mark complete based only on static checks:** full-match balance, online resilience, animation quality, TV-distance readability, and Xbox Series S / Edge performance remain unverified until directly tested.
