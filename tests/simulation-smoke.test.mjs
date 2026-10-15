@@ -108,7 +108,7 @@ globalThis.__CK_TEST__ = {
       {t:1,k:'mil',x:8,y:8,hp:0},
       {t:1,k:'mil',x:8.1,y:8,hp:100,ld:1},
     ]);
-    for(let i=0;i<360;i++)units.push({
+    for(let i=0;i<396;i++)units.push({
       t:1+(i%3),k:'mil',x:4+((i*17)%176),y:4+((i*31)%176),
       hp:i%29===0?0:100,ld:i%19===0?1:0
     });
@@ -593,7 +593,7 @@ const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
 assert.equal(targetAudit.mismatches,0,'Spatial target search must match the original linear nearest-hostile scan');
 assert.equal(targetAudit.tiePreserved,true,'Equidistant targets must preserve original unit-order tie breaking');
-assert.ok(targetAudit.units>=360,'Spatial target audit must cover a large synthetic army');
+assert.ok(targetAudit.units>=400,'Spatial target audit must cover a 400-unit synthetic army');
 assert.ok(targetAudit.buckets>1,'Spatial target index must partition the army into local buckets');
 console.log('spatial-target-smoke: '+targetAudit.queries+' queries matched linear targeting across '+targetAudit.units+' units and '+targetAudit.buckets+' buckets');
 const before = game.state();

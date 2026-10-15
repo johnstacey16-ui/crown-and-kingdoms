@@ -27,8 +27,10 @@ assert.match(html, /if\(!isHostile\(a\.t,t\.t\)\)return;const ak=U\[a\.k\]/,
   'All damage must be blocked against neutral/allied kingdoms');
 assert.match(html, /if\(tg&&tg\.t>0&&\(tg\.q\|\|U\[tg\.k\]\)&&!isHostile\(us\[0\]\.t,tg\.t\)\)/,
   'Manual attacks must reject non-hostile targets');
-assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}isHostile\(u\.t,e\.t\)/,
-  'Automatic target acquisition must ignore neutral/allied kingdoms');
+assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}b=nearestFoeUnit\(u,r\);if\(b\)return b/,
+  'Siege building priority must remain intact before indexed unit targeting');
+assert.match(html, /function nearestFoeUnit\(u,r\)\{[\s\S]{0,700}!isHostile\(u\.t,e\.t\)[\s\S]{0,180}e\.hp<=0\|\|e\.ld/,
+  'Indexed automatic target acquisition must ignore neutral/allied, dead and garrisoned units');
 assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
   'AI attack waves must choose targets only from hostile kingdoms');
 assert.match(html, /S\.us\.filter\(u=>isHostile\(t,u\.t\)&&u\.hp>0&&U\[u\.k\]\.sh&&u\.k!=='fish'\)/,
