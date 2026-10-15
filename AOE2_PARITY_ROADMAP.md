@@ -240,3 +240,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - Extracted diplomacy relationships, hostility helpers, the controller diplomacy menu, resource tribute transfers, and villager-priority automation from `engine.js` into `js/kingdom.js`.
 - Loaded the module after `js/simulation.js` and before `engine.js`, preserving the classic-script shared scope and the existing controller commands.
 - Added the module to the offline service-worker cache and regression harnesses. This is a structural refactor only: it does not change diplomacy rules, tribute amounts, worker priorities, or save fields.
+
+
+## Campaign engine extraction
+
+- Moved campaign scenario data, campaign progression, objective tracking/HUD, mission briefing flow and raid-event dispatch into `js/campaign.js`.
+- Kept campaign helpers in the same shared classic-script scope, loaded after kingdom systems and before `engine.js`; campaign logic remains controller-driven.
+- Updated offline caching and test harnesses. No mission goals, resource rules, or victory conditions were intentionally changed by this structural move.
