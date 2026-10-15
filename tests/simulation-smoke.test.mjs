@@ -1283,13 +1283,13 @@ combatSamples.sort((a, b) => a - b);
 console.log('large-army-combat-runtime: requested=400 ticks=30 repeats=3 simulationOnly=true medianMs='+combatSamples[1].toFixed(2)+' rangeMs='+combatSamples[0].toFixed(2)+'-'+combatSamples[2].toFixed(2));
 
 // Four-way, 2,000-unit live-engine stress battle: 500 units per kingdom, with
-// real simulation ticks and directed attack orders. This is a short stress run,
-// not a claim that the battle is complete or that Xbox performance is certified.
-const massBattle = game.runFourKingdomMassBattle(500, 30);
+// 300 real simulation ticks (10 simulated seconds) and directed attack orders.
+// This is a bounded stress run, not a claim that a full match or Xbox performance is certified.
+const massBattle = game.runFourKingdomMassBattle(500, 300);
 assert.equal(massBattle.teams, 4, 'Mass battle must contain four kingdoms');
 assert.equal(massBattle.requestedTotal, 2000, 'Mass battle must request 2,000 total units');
 assert.equal(massBattle.actualUnits, 2000, 'Mass battle must retain all 2,000 unit records after the run');
-assert.equal(massBattle.ticksCompleted, 30, 'Mass battle must complete all 30 fixed simulation ticks');
+assert.equal(massBattle.ticksCompleted, 300, 'Mass battle must complete all 300 fixed simulation ticks');
 assert.equal(massBattle.tickError, null, 'Mass battle must not throw during simulation');
 assert.equal(massBattle.invalidUnits, 0, 'Mass battle must not create units with invalid coordinates or health');
 assert.ok(Number.isFinite(massBattle.elapsedMs) && massBattle.elapsedMs >= 0, 'Mass battle timing must be finite');
