@@ -50,3 +50,9 @@ test('IndexedDB backs up saved slots without replacing the localStorage compatib
   assert.match(engine, /restoreMissing\(\)\.then\(\(\)=>refreshSlots\(\)\)/);
   assert.match(engine, /localStorage\.setItem\(skey\(slot\),payload\)/);
 });
+
+
+test('audio resume attempts cannot create unhandled autoplay-policy rejections', () => {
+  assert.match(engine, /AC\.resume\(\)\.catch\(\(\)=>\{\}\)/);
+  assert.doesNotMatch(engine, /AC\.resume\(\)(?!\.catch)/);
+});
