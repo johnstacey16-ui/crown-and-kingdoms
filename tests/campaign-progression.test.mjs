@@ -56,4 +56,14 @@ test('destroy-castle objectives ignore destroyed castle records', () => {
   }
 });
 
+test('multi-objective naval campaigns cannot bypass remaining objectives on Town Centre destruction', () => {
+  assert.doesNotMatch(html, /tcw:1/,
+    'Campaign Town Centre destruction must be evaluated by cmpTick alongside the mission\'s other objectives, not force an immediate win');
+  const tickStart = html.indexOf('function cmpTick(');
+  const tickEnd = html.indexOf('\nfunction endA()', tickStart);
+  const tick = html.slice(tickStart, tickEnd);
+  assert.match(tick, /if\(all\)\{S\.over='win';mode='end';campMark\(cmp\.i\)/,
+    'Campaign victory must wait until every listed objective has completed');
+});
+
 console.log('campaign-progression: regression assertions passed');
