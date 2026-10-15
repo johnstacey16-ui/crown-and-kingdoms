@@ -20,6 +20,9 @@ for (const required of [
   '!j.us.every(u=>u&&typeof u===\'object\'&&!Array.isArray(u)&&typeof u.k===\'string\'&&!!U[u.k]&&Number.isInteger(u.t)&&u.t>=0&&u.t<j.res.length&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<j.sz&&u.y<j.sz)',
   '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&!!B[b.k]&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
   '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&[\'f\',\'w\',\'g\',\'s\'].includes(n.k)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
+  '!Array.isArray(j.rel)&&j.rel!==undefined',
+  '!j.us.every(u=>refOK(u.tg,counts)&&refOK(u.ld,counts)',
+  '!j.bs.every(b=>b.cg===undefined||Array.isArray(b.cg)',
   "typeof j.wt!=='string'",
   "typeof j.ex!=='string'",
   'j.wt.length!==j.sz*j.sz',
@@ -78,6 +81,10 @@ for (const [label, raw] of [
   ['node outside map', JSON.stringify({ ...validShape(), nodes: [{ k: 'f', x: 1, y: 99, amt: 10 }] })],
   ['unknown building type', JSON.stringify({ ...validShape(), bs: [{ k: 'not-a-building', t: 0, x: 1, y: 1, s: 1 }] })],
   ['unknown resource-node type', JSON.stringify({ ...validShape(), nodes: [{ k: 'not-a-resource', x: 1, y: 1, amt: 10 }] })],
+  ['unit reference outside entity arrays', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 1, y: 1, tg: 'b9' }] })],
+  ['non-array unit cargo references', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 1, y: 1, cg: 'not-an-array' }] })],
+  ['invalid relic record', JSON.stringify({ ...validShape(), rel: [{ x: 99, y: 1, c: null, m: null }] })],
+  ['non-array relic collection', JSON.stringify({ ...validShape(), rel: {} })],
 ]) {
   const attempt = attemptLoad(raw);
   assert.equal(attempt.result, false, `${label} must be rejected`);
