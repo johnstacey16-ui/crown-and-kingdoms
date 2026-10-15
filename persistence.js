@@ -1,5 +1,5 @@
-/* Crown & Kingdoms — asynchronous IndexedDB backup for the three local save slots.
-   localStorage remains the synchronous primary store for compatibility with existing saves. */
+/* Crown & Kingdoms — IndexedDB backup for manual slots and the rolling autosave.
+   localStorage remains the synchronous primary store for compatibility. */
 (function () {
   'use strict';
   const DB_NAME = 'ck-persistence-v1';
@@ -49,7 +49,7 @@
           const cursor = request.result;
           if (!cursor) return;
           const key = cursor.key;
-          if (typeof key === 'string' && /^ck_save(?:[2-3])?$/.test(key)) {
+          if (typeof key === 'string' && (/^ck_save(?:[2-3])?$/.test(key) || key === 'ck_autosave')) {
             let existing = null;
             try { existing = window.localStorage.getItem(key); } catch (_) {}
             if (existing == null && typeof cursor.value === 'string') {
@@ -58,7 +58,7 @@
           }
           cursor.continue();
         };
-        tx.oncomplete = () => resolve(restored > 0);
+        tx.oncomplete = () => { try { if (typeof hs !== 'undefined' && window.localStorage.getItem('ck_autosave')) hs = 1; } catch (_) {} resolve(restored > 0); };
         tx.onerror = () => resolve(false);
         tx.onabort = () => resolve(false);
       } catch (_) { resolve(false); }
