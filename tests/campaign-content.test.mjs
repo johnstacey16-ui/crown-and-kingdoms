@@ -30,14 +30,14 @@ test('Causeway campaign uses the navigable strait layout and a staged land-and-s
   assert.ok(mission.includes("t:'Build a Dock'"), 'The mission must require a coastal dock');
   assert.ok(mission.includes("t:'Have 3 War Galleys alive'"), 'The mission must require a functioning fleet');
   assert.ok(mission.includes("t:'Build 2 completed Towers'"), 'The mission must require defended land approaches');
-  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16]"), 'The mission must be included in natural campaign progression');
+  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The mission must be included in natural campaign progression');
 });
 
 test('final Causeway campaign mission requires forward Castles and a decisive Town Centre assault', () => {
   const start = html.indexOf("{t:'The Crown Holds the Crossing'");
   assert.notEqual(start, -1, 'The final Causeway mission must exist');
-  const nextMission = html.indexOf("\\n{t:", start + 1);
-  const end = nextMission === -1 ? html.indexOf("]; \\nconst campDone=()", start) : nextMission;
+  const nextMission = html.indexOf("{t:", start + 1);
+  const end = nextMission === -1 ? html.indexOf("const campDone=()", start) : nextMission;
   const mission = html.slice(start, end === -1 ? undefined : end);
   assert.ok(mission.includes('layout:12'), 'The mission must use the Causeway layout');
   assert.ok(mission.includes("t:'Build 2 completed Castles'"), 'The mission must require forward fortifications');
