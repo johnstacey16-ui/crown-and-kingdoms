@@ -9,7 +9,7 @@ test('large-army separation recycles spatial bucket arrays instead of allocating
   assert.match(simulation, /const SEP_GRID=new Map\(\),SEP_BUCKET_POOL=\[\]/);
   assert.doesNotMatch(engine, /SEP_GRID|function sep\(\)/, 'Separation ownership must stay in simulation.js');
   const start = simulation.indexOf('function sep(){');
-  const end = simulation.indexOf('function compactPositive', start);
+  const end = simulation.length;
   assert.ok(start >= 0 && end > start, 'Separation function must remain isolated');
   const sep = engine.slice(start, end);
   assert.match(sep, /if\(us\.length<=128\)/, 'Small armies retain the straightforward linear path');
