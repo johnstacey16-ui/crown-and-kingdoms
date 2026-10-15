@@ -108,7 +108,7 @@ const techPriority=k=>{
  if(k==='armC'&&humanCav>=3)score+=28;
  if(k==='siegeup'&&humanSiege>=1)score+=42;
  if(k==='navalHull'&&humanShips.length)score+=95;
- if(k==='navalAtk'&&humanShips.some(u=>u.k==='gal'))score+=105;
+ if(k==='navalAtk'&&humanShips.length)score+=105;
  if(k==='atkM'&&humanInf>=4)score+=18;
  if(k==='atkR'&&humanRanged>=4)score+=18;
  if(k==='gath'&&vil.length>=8)score+=15;
