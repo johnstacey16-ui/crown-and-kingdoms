@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 // Both left/right controller actions in the setup menu must offer the same limits.
 const choices = '[50,100,150,200,250,300,400,500]';
