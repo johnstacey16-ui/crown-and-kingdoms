@@ -8,5 +8,7 @@ assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
 assert.match(ai, /navalTargetScore=\(e\)=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\(e\.k==='gal'\?6:0\)\+\(U\[e\.k\]\.dmg>=4\?0:10\)-Math\.min\(3,focus\(e\)\)\*4/,
   'warships must prioritize combat-capable enemy ships over economic and transport vessels');
 assert.match(ai, /if\(k==='navalAtk'&&humanShips\.some\(u=>u\.k==='gal'\)\)score\+=105/);
+assert.match(ai, /counters=isDock\?\(enemyShips>=1\?\['gal'\]:\[\]\)/,
+  'AI docks must train a war galley in response to even one confirmed enemy combat ship');
 
 console.log('ai-naval-threats: economic and transport ships do not trigger combat counter-priorities');
