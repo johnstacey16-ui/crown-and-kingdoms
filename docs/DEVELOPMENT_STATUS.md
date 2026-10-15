@@ -112,3 +112,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - `research` now rejects destroyed and unfinished buildings before spending resources. This closes stale-selection / same-tick command paths that could otherwise charge the player for work that cannot progress.
 - Added `tests/invalid-building-commands.test.mjs` to guard validation ordering and ensure valid commands still reach the resource-payment/queue path.
 - Source checks do not substitute for executing the Node suite or a live gameplay test.
+
+
+## 15 October 2026 — Patrol command eligibility
+
+- Patrol orders now apply only to living, ungarrisoned non-worker combat units and warships. Fishing boats, trade units, transports, monks and villagers keep their existing role instead of having work/orders overwritten.
+- Patrol clears stale target/path state and reports when no eligible units were selected.
+- Regression guard: `tests/patrol-order-validation.test.mjs`.
+- Source assertions have been added; full test execution and controller/browser gameplay validation remain pending.
