@@ -22,7 +22,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 1.1 Runtime stability
 - **Unverified:** play complete skirmishes and campaign missions from cold start through victory/defeat, including pause/resume, save/load, age-up, queued production, garrison/unload, diplomacy and naval combat.
-- Reproduce every newly reported runtime error, fix the underlying path and add a focused regression test.
+- Reproduce every newly reported runtime error, fix the underlying path and add a focused regression test. The campaign timed-raid helper now exits safely if the enemy Town Centre has already been destroyed, with a regression assertion in `tests/campaign-progression.test.mjs`.
 - Check error-overlay recovery and ensure a caught frame error cannot leave the game silently half-running.
 - **Acceptance:** automated checks pass and the critical flows above are exercised in a real browser. Xbox acceptance remains a separate gate.
 
