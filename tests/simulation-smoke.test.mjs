@@ -123,6 +123,7 @@ globalThis.__CK_TEST__ = {
   },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
   runSkirmish(seconds = 60) {
+    kingdoms = 4;
     this.start(24680);
     for (let tick = 0; tick < Math.round(seconds * 30); tick++) this.tick(1 / 30);
     return {
