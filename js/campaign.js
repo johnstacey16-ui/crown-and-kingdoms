@@ -2,7 +2,17 @@ const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(
 const grp=(t,k,n)=>{const tc=tcOf(t);for(let i=0;i<n;i++){const p=tc&&spawnPos(tc);if(p)addU(t,k,p[0]+(i%4)*.3,p[1]+(i%3)*.3)}};
 function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true)}return null}
 
-function raid(n,ks,msg){const e=tcOf(1);if(!e)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;for(let i=0;i<n;i++){const p=spawnPos(e);if(!p)continue;const u=addU(1,ks[i%ks.length],p[0],p[1]);u.o='a';u.tg=tg;u.p=[]}if(msg)note(msg)}
+function raidShipPos(e){
+ const docks=S.bs.filter(b=>b.t===1&&b.k==='dock'&&b.hp>0);
+ const anchors=docks.length?docks:[e],seen=new Set();let best=null,bd=Infinity;
+ for(const a of anchors)for(let r=1;r<=18;r++)for(let y=Math.max(1,(a.y|0)-r);y<=Math.min(H-2,(a.y|0)+r);y++)for(let x=Math.max(1,(a.x|0)-r);x<=Math.min(W-2,(a.x|0)+r);x++){
+  const i=y*W+x;if(seen.has(i)||S.wt[i]!==1||S.nd[i]||S.g[i])continue;seen.add(i);
+  const d=Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2));
+  if(d<bd){bd=d;best=[x+.5,y+.5]}
+ }
+ return best
+}
+function raid(n,ks,msg){const e=tcOf(1);if(!e)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?raidShipPos(e):spawnPos(e);if(!p)continue;const u=addU(1,k,p[0],p[1]);if(!ship){u.o='a';u.tg=tg;u.p=[]}}if(msg)note(msg)}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.res[0]={f:500,w:600,g:100,s:100}},
