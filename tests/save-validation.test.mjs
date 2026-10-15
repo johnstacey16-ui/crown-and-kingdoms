@@ -18,8 +18,8 @@ for (const required of [
   '!Array.isArray(j.tech)',
   '!Array.isArray(j.pl)',
   '!j.us.every(u=>u&&typeof u===\'object\'&&!Array.isArray(u)&&typeof u.k===\'string\'&&Number.isInteger(u.t)&&u.t>=0&&u.t<j.res.length&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<j.sz&&u.y<j.sz)',
-  '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
-  '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&typeof n.k===\'string\'&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
+  '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&!!B[b.k]&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
+  '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&[\'f\',\'w\',\'g\',\'s\'].includes(n.k)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
   "typeof j.wt!=='string'",
   "typeof j.ex!=='string'",
   'j.wt.length!==j.sz*j.sz',
@@ -53,7 +53,7 @@ function attemptLoad(raw) {
     skey: () => 'slot-1',
     slot: 0,
     note: message => messages.push(message),
-    SZ: [72, 96, 128, 176],
+    SZ: [72, 96, 128, 176],\n    B: { tc: {}, house: {} },
     S: sentinel,
   };
   vm.runInNewContext(save, sandbox, { filename: 'js/save.js' });
@@ -68,7 +68,7 @@ for (const [label, raw] of [
   ['negative resource', JSON.stringify({ ...validShape(), res: [{ f: -1, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }] })],
   ['missing resources', JSON.stringify({ ...validShape(), res: undefined })],
   ['unit outside map', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 200, y: 1 }] })],
-  ['node outside map', JSON.stringify({ ...validShape(), nodes: [{ k: 'f', x: 1, y: 99, amt: 10 }] })],
+  ['node outside map', JSON.stringify({ ...validShape(), nodes: [{ k: 'f', x: 1, y: 99, amt: 10 }] })],\n  ['unknown building type', JSON.stringify({ ...validShape(), bs: [{ k: 'not-a-building', t: 0, x: 1, y: 1, s: 1 }] })],\n  ['unknown resource-node type', JSON.stringify({ ...validShape(), nodes: [{ k: 'not-a-resource', x: 1, y: 1, amt: 10 }] })],
 ]) {
   const attempt = attemptLoad(raw);
   assert.equal(attempt.result, false, `${label} must be rejected`);
