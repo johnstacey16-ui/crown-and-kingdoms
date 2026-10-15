@@ -23,6 +23,6 @@ test('title, options, campaign and save-slot screens continue using the shared r
   assert.match(menus, /function drawSetup\(\)\{titleBg\(\);drawList\(/);
   assert.match(menus, /function drawOpts\(\)\{titleBg\(\);drawList\(/);
   assert.match(campaign, /function drawCamp\(\)\{titleBg\(\);drawList\(/);
-  assert.match(campaign, /function drawBrief\(\)\{titleBg\(\)/);
+  assert.match(ui, /function drawBrief\(\)\{titleBg\(\)/);
   assert.match(ui, /function drawSlots\(\)\{titleBg\(\);drawList\(/);
 });
