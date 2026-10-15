@@ -9,6 +9,8 @@ assert.match(ai, /if\(k==='armI'&&ownInf>=3\)score\+=30/);
 assert.match(ai, /if\(k==='armC'&&ownCav>=3\)score\+=32/);
 assert.match(ai, /if\(k==='atkM'&&ownInf>=4\)score\+=24/);
 assert.match(ai, /if\(k==='atkR'&&ownRanged>=4\)score\+=24/);
+assert.match(ai, /if\(k==='atkM2'&&ownInf\+ownCav<2\)score-=28/, 'AI should not waste expensive advanced melee attack research before fielding melee troops');
+assert.match(ai, /if\(k==='atkR2'&&ownRanged<2\)score-=28/, 'AI should not waste expensive advanced ranged attack research before fielding ranged troops');
 assert.match(ai, /if\(k==='armI'&&humanRanged>=3\)score\+=12/,
   'enemy ranged pressure can still influence defensive research without overriding own-unit value');
 
