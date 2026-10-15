@@ -140,6 +140,42 @@ globalThis.__CK_TEST__ = {
       scenario.goals.forEach((goal, index) => { goal.ok = original[index]; });
     }
   },
+  exerciseKingHillControl() {
+    this.start(123456);
+    const previousVm = vm;
+    const originalUnits = S.us;
+    const center = { x: W / 2, y: H / 2 };
+    const unit = (t, k, extra = {}) => ({ t, k, x: center.x, y: center.y, hp: 50, ...extra });
+    try {
+      vm = 5;
+      S.over = null; S.why = ''; mode = 'play';
+      S.kh = Array(S.teamN).fill(0);
+      S.us = [unit(0, 'mil'), unit(1, 'mil')];
+      kingHillControl(10);
+      const contestedProgress = [...S.kh];
+      S.us = [unit(0, 'vil'), unit(0, 'cart'), unit(0, 'gal')];
+      kingHillControl(300);
+      const excludedUnitsProgress = [...S.kh];
+      S.over = null; S.why = ''; mode = 'play';
+      S.kh = Array(S.teamN).fill(0);
+      S.us = [unit(0, 'mil')];
+      kingHillControl(299);
+      const beforeWin = { progress: S.kh[0], over: S.over };
+      kingHillControl(1);
+      const playerWin = { progress: S.kh[0], over: S.over, reason: S.why };
+      S.over = null; S.why = ''; mode = 'play';
+      S.kh = Array(S.teamN).fill(0);
+      S.us = [unit(1, 'mil')];
+      kingHillControl(300);
+      const enemyWin = { progress: S.kh[1], over: S.over, reason: S.why };
+      return { contestedProgress, excludedUnitsProgress, beforeWin, playerWin, enemyWin };
+    } finally {
+      vm = previousVm;
+      S.us = originalUnits;
+      S.over = null; S.why = '';
+      mode = 'play';
+    }
+  },
   auditCurrentCampaignObjectives() {
     if (!cmp || !CAMP[cmp.i]) return null;
     const goals = CAMP[cmp.i].goals || [];
@@ -964,6 +1000,16 @@ new vm.Script(source + '\n' + harness, { filename: 'index.html:simulation-smoke'
 
 const game = sandbox.__CK_TEST__;
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
+const kingHill = game.exerciseKingHillControl();
+assert.ok(kingHill.contestedProgress.every(value => value === 0), 'Contested hill control must reset every kingdom progress counter');
+assert.ok(kingHill.excludedUnitsProgress.every(value => value === 0), 'Villagers, trade carts and ships must not capture the central hill');
+assert.equal(kingHill.beforeWin.progress, 299, 'A kingdom must accumulate its own uninterrupted hill-control time');
+assert.equal(kingHill.beforeWin.over, null, 'King of the Hill must not end before five uninterrupted minutes');
+assert.equal(kingHill.playerWin.over, 'win', 'Player military control must win after 300 seconds');
+assert.match(kingHill.playerWin.reason, /held the central hill for 5 minutes/, 'Player victory must explain the hill-control win');
+assert.equal(kingHill.enemyWin.over, 'lose', 'A hostile kingdom holding the hill for 300 seconds must defeat the player');
+assert.match(kingHill.enemyWin.reason, /held the central hill for 5 minutes/, 'Enemy victory must explain the hill-control loss');
+console.log('king-of-the-hill-smoke: contested control resets; non-military/economic units excluded; player/enemy five-minute wins verified');
 game.start(123456);
 const conscriptionRates = game.auditConscriptionRates();
 for (const key of ['barracks','castle','monastery','galley']) {
