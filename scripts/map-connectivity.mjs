@@ -31,6 +31,11 @@ export function floodFill(grid, start, isPassable, neighbours = 4) {
       const nx = x + dx, ny = y + dy, k = key(nx, ny);
       if (nx < 0 || ny < 0 || nx >= width || ny >= height || reached.has(k)) continue;
       if (!isPassable(nx, ny, grid[ny][nx])) continue;
+      // Match the live A* pathfinder: diagonal movement cannot squeeze between
+      // two blocked orthogonal cells, or audits can certify impossible routes.
+      if (dx !== 0 && dy !== 0 &&
+          (!isPassable(x + dx, y, grid[y][x + dx]) ||
+           !isPassable(x, y + dy, grid[y + dy][x]))) continue;
       reached.add(k);
       queue.push({ x: nx, y: ny });
     }
