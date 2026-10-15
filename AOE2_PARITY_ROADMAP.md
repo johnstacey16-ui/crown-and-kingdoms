@@ -253,3 +253,9 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 - Moved the market trade-row builder and buy/sell transaction handler into `js/economy.js`.
 - Kept existing trade prices, price movement, resource checks and controller menu callbacks unchanged; the module is loaded before `engine.js` and included in offline caching and simulation regression setup.
+
+
+## Controller menu module extraction
+
+- Moved new-game setup rows, options rows, title/setup/options drawing and controller handlers, and score-limit choices into `js/menus.js`.
+- Kept the current game-mode options, menu text, button navigation and setup restoration behavior intact. The module is loaded before the core engine and included in offline caching and source-level regression harnesses.
