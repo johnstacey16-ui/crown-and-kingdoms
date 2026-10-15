@@ -150,6 +150,33 @@ if(!bl.some(b=>!b.done&&b.hp>0)&&S.t-(A.lastBuildingRepair??-99)>=4){
 for(const v of vil)if(v.o==='i'){const ub=bl.find(b=>!b.done&&b.hp>0&&!vil.some(u=>u.o==='b'&&u.tg===b));if(ub){v.o='b';v.tg=ub;v.p=[];continue}const nv=vil.length;let k=wk('f')<(S.age[t]>=1&&arm.length<6?Math.max(8,nv*.45|0):Math.max(5,nv*.32|0))?'f':wk('w')<Math.max(6,nv*.3|0)?'w':wk('g')<Math.max(3,nv*.2|0)?'g':wk('s')<Math.max(2,nv*.1|0)&&S.age[t]>=1?'s':'f',n=findNode(v,k,36);
 if(k==='f'&&R.w>=60+((S.age[t]>=1&&cnt('bar')&&arm.length<6)?50:0)&&(!n||S.nodes.filter(m=>m.fm&&m.amt>0&&Math.hypot(m.x-tc.x,m.y-tc.y)<12).length<Math.max(4,nv*.25|0)))for(let i=0,pf=0;i<20&&!pf;i++){const x=(tc.x+1+(S.r()-.5)*14)|0,y=(tc.y+1+(S.r()-.5)*14)|0;if(Math.hypot(x-tc.x,y-tc.y)>3&&!cor(tc,x,y)&&okPlace(t,'farm',x,y)){pay(t,B.farm.cost);n=addN('f',x,y,farmFood(t),1);if(n)n.t=t;pf=1}}
 if(!n){k='w';n=findNode(v,'w',30)}if(n){v.o='g';v.tg=n;v.ct=n.k;v.p=[];v.ret=0}}
+/* Villagers evacuate from nearby raiders, then resume their previous work once they reach safety. */
+for(const v of vil){
+ if(v.hp<=0||v.ld||v.o==='B')continue;
+ const threat=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k]?.dmg>3)
+  .map(e=>({e,d:Math.hypot(e.x-v.x,e.y-v.y)})).sort((a,b)=>a.d-b.d)[0];
+ if(v.aiEvac){
+  const ev=v.aiEvac,near=threat&&threat.d<7,safe=ev.shelter&&Math.hypot(v.x-(ev.shelter.x+ev.shelter.s/2),v.y-(ev.shelter.y+ev.shelter.s/2))<3;
+  if(!near&&(safe||S.t>=ev.until)){
+   const target=ev.tg,valid=target&&(target.s?target.hp>0:target.amt>0);
+   v.o=valid?ev.o:'i';v.tg=valid?target:null;v.ct=ev.ct||v.ct;v.p=[];v.rp=0;v.aiEvac=null;
+  }else if(near&&ev.shelter&&Math.hypot(v.x-(ev.shelter.x+ev.shelter.s/2),v.y-(ev.shelter.y+ev.shelter.s/2))>3&&(!v.p||!v.p.length)){
+   const route=path(v,goalNear(ev.shelter,1));if(route){v.o='m';v.tg=ev.shelter;v.p=route}
+  }
+  continue;
+ }
+ if(!threat||threat.d>5.5||v.o==='B')continue;
+ const shelters=bl.filter(b=>b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle'))
+  .sort((a,b)=>Math.hypot(v.x-(a.x+a.s/2),v.y-(a.y+a.s/2))-Math.hypot(v.x-(b.x+b.s/2),v.y-(b.y+b.s/2)));
+ let shelter=null,route=null;
+ for(const b of shelters){const p=path(v,goalNear(b,1));if(p){shelter=b;route=p;break}}
+ if(!shelter){
+  const dx=v.x-threat.e.x,dy=v.y-threat.e.y,len=Math.max(.01,Math.hypot(dx,dy)),x=Math.max(1,Math.min(W-2,Math.round(v.x+dx/len*7))),y=Math.max(1,Math.min(H-2,Math.round(v.y+dy/len*7)));
+  route=path(v,gp(x,y,1.2));if(route){v.aiEvac={o:v.o,tg:v.tg,ct:v.ct,shelter:null,until:S.t+8};v.o='m';v.tg=null;v.p=route}
+  continue;
+ }
+ v.aiEvac={o:v.o,tg:v.tg,ct:v.ct,shelter,until:S.t+18};v.o='m';v.tg=shelter;v.p=route;v.rp=1;
+}
 aiRebal(vil,R,t);{const thr=S.us.some(e=>isHostile(t,e.t)&&!e.ld&&e.hp>0&&U[e.k].dmg>3&&Math.hypot(e.x-tc.x,e.y-tc.y)<12);if(thr){const intr=S.us.filter(e=>isHostile(t,e.t)&&e.hp>0&&!e.ld&&U[e.k].dmg>3&&Math.hypot(e.x-tc.x,e.y-tc.y)<13).sort((a,b)=>(Math.hypot(a.x-tc.x,a.y-tc.y)-(['ram','mang','scor','treb','bomb'].includes(a.k)?8:0))-(Math.hypot(b.x-tc.x,b.y-tc.y)-(['ram','mang','scor','treb','bomb'].includes(b.k)?8:0)))[0];if(intr)for(const d of arm)if(d.o==='i'&&Math.hypot(d.x-tc.x,d.y-tc.y)<18){d.o='a';d.tg=intr;d.p=[]}for(const v of vil.concat(my.filter(u=>u.k==='king')))if(v.o!=='B'&&!v.ld&&Math.hypot(v.x-tc.x,v.y-tc.y)<16&&(tc.cg||[]).length<15){v.o='B';v.tg=tc;v.p=[]}A.gu=S.t}else if(tc.cg&&tc.cg.length&&S.t-(A.gu||0)>15)unload(tc)}
 /* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
 const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
