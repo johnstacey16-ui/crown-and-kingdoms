@@ -94,6 +94,22 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
+  exerciseTimedCampaignEvent() {
+    this.startCampaign(0);
+    const event = CAMP[0].ev[0];
+    if (!event || !Number.isFinite(event.at)) throw new Error('First Hearth must expose its first timed event');
+    const original = event.do;
+    let calls = 0;
+    event.do = () => { calls++; original(); };
+    try {
+      for (let tick = 0; tick < 240; tick++) cmpTick(0.05);
+      const afterDueWindow = { calls, fired: !!cmp.e[0], time: cmp.t };
+      for (let tick = 0; tick < 120; tick++) cmpTick(0.05);
+      return { ...afterDueWindow, callsAfterRepeat: calls, firedAfterRepeat: !!cmp.e[0], timeAfterRepeat: cmp.t };
+    } finally {
+      event.do = original;
+    }
+  },
   auditCurrentCampaignObjectives() {
     if (!cmp || !CAMP[cmp.i]) return null;
     const goals = CAMP[cmp.i].goals || [];
@@ -1228,6 +1244,16 @@ for (let mission = 0; mission < 19; mission += 1) {
 }
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
+
+// Exercise campaign event dispatch itself, not just the shape of event definitions.
+// The first timed tutorial event must fire when due and remain one-shot afterwards.
+const timedCampaignEvent = game.exerciseTimedCampaignEvent();
+assert.ok(timedCampaignEvent.time >= 2, 'Campaign event test must advance beyond the event deadline');
+assert.equal(timedCampaignEvent.fired, true, 'The due timed campaign event must be marked as fired');
+assert.equal(timedCampaignEvent.calls, 1, 'The timed campaign event action must execute exactly once');
+assert.equal(timedCampaignEvent.callsAfterRepeat, 1, 'Further campaign ticks must not execute a fired event again');
+assert.equal(timedCampaignEvent.firedAfterRepeat, true, 'The event fired marker must remain set after additional ticks');
+console.log('campaign-event-dispatch: timed event fired once and remained one-shot across 18 seconds of campaign time');
 
 // Exercise every named generated-map layout through the actual game initializer.
 // This catches disconnected starts and bad map-layout seeds that static tests miss.
