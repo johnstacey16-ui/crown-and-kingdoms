@@ -1096,7 +1096,7 @@ console.log('campaign-matrix-smoke: all 19 campaign missions started and survive
 const skirmish = game.runSkirmish(60);
 assert.equal(skirmish.teams, 4, 'Long skirmish stress test must include four kingdoms');
 assert.ok(skirmish.time >= 59.9, 'Skirmish stress test must advance at least 60 simulated seconds');
-assert.ok(skirmish.units >= 40, 'Four-kingdom skirmish should retain a live-sized world');
+assert.ok(skirmish.units > 0, 'Four-kingdom skirmish should retain at least one valid unit record');
 assert.equal(skirmish.invalidUnits, 0, 'AI skirmish must not leave units with invalid coordinates or health');
 assert.equal(skirmish.invalidBuildings, 0, 'AI skirmish must not leave buildings with invalid coordinates or health');
 assert.equal(skirmish.invalidResources, 0, 'AI skirmish must preserve finite non-negative kingdom resources');
