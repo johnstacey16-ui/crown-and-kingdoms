@@ -53,7 +53,8 @@ function attemptLoad(raw) {
     skey: () => 'slot-1',
     slot: 0,
     note: message => messages.push(message),
-    SZ: [72, 96, 128, 176],\n    B: { tc: {}, house: {} },
+    SZ: [72, 96, 128, 176],
+    B: { tc: {}, house: {} },
     S: sentinel,
   };
   vm.runInNewContext(save, sandbox, { filename: 'js/save.js' });
@@ -68,7 +69,9 @@ for (const [label, raw] of [
   ['negative resource', JSON.stringify({ ...validShape(), res: [{ f: -1, w: 0, g: 0, s: 0 }, { f: 0, w: 0, g: 0, s: 0 }] })],
   ['missing resources', JSON.stringify({ ...validShape(), res: undefined })],
   ['unit outside map', JSON.stringify({ ...validShape(), us: [{ k: 'vil', t: 0, x: 200, y: 1 }] })],
-  ['node outside map', JSON.stringify({ ...validShape(), nodes: [{ k: 'f', x: 1, y: 99, amt: 10 }] })],\n  ['unknown building type', JSON.stringify({ ...validShape(), bs: [{ k: 'not-a-building', t: 0, x: 1, y: 1, s: 1 }] })],\n  ['unknown resource-node type', JSON.stringify({ ...validShape(), nodes: [{ k: 'not-a-resource', x: 1, y: 1, amt: 10 }] })],
+  ['node outside map', JSON.stringify({ ...validShape(), nodes: [{ k: 'f', x: 1, y: 99, amt: 10 }] })],
+  ['unknown building type', JSON.stringify({ ...validShape(), bs: [{ k: 'not-a-building', t: 0, x: 1, y: 1, s: 1 }] })],
+  ['unknown resource-node type', JSON.stringify({ ...validShape(), nodes: [{ k: 'not-a-resource', x: 1, y: 1, amt: 10 }] })],
 ]) {
   const attempt = attemptLoad(raw);
   assert.equal(attempt.result, false, `${label} must be rejected`);
