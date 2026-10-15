@@ -42,7 +42,8 @@ assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.is
 assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
 assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
 assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result');
-assert.match(save, /const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/, 'a rejected asynchronous backup mirror must be handled without blocking the primary save');\nassert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
+assert.match(save, /const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/, 'a rejected asynchronous backup mirror must be handled without blocking the primary save');
+assert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
