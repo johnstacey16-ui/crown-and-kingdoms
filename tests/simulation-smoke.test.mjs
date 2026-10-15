@@ -94,6 +94,26 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startCampaign(index) { startScenario(index); return this.state(); },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
+  auditConscriptionRates() {
+    const previous = S.tech[0].cons;
+    try {
+      S.tech[0].cons = 1;
+      return {
+        barracks: trainRate({ t: 0, k: 'bar' }, 'mil'),
+        castle: trainRate({ t: 0, k: 'castle' }, 'knight'),
+        monastery: trainRate({ t: 0, k: 'monastery' }, 'mon'),
+        galley: trainRate({ t: 0, k: 'dock' }, 'gal'),
+        villager: trainRate({ t: 0, k: 'tc' }, 'vil'),
+        cart: trainRate({ t: 0, k: 'market' }, 'cart'),
+        fish: trainRate({ t: 0, k: 'dock' }, 'fish'),
+        transport: trainRate({ t: 0, k: 'dock' }, 'trn'),
+        tradeCog: trainRate({ t: 0, k: 'dock' }, 'cog'),
+      };
+    } finally {
+      if (previous === undefined) delete S.tech[0].cons;
+      else S.tech[0].cons = previous;
+    }
+  },
   auditSpatialTargets() {
     const originalUnits=S.us,originalBuildings=S.bs;
     const probes=[
@@ -589,6 +609,14 @@ new vm.Script(source + '\n' + harness, { filename: 'index.html:simulation-smoke'
 const game = sandbox.__CK_TEST__;
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
 game.start(123456);
+const conscriptionRates = game.auditConscriptionRates();
+for (const key of ['barracks','castle','monastery','galley']) {
+  assert.equal(conscriptionRates[key], 4 / 3, 'Conscription should speed military production at ' + key);
+}
+for (const key of ['villager','cart','fish','transport','tradeCog']) {
+  assert.equal(conscriptionRates[key], 1, 'Conscription must not speed economic or transport queue ' + key);
+}
+console.log('conscription-smoke: military queues run at 4/3 speed; economy/trade/transport queues remain unchanged');
 const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
 assert.equal(targetAudit.mismatches,0,'Spatial target search must match the original linear nearest-hostile scan');

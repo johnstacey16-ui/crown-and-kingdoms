@@ -68,3 +68,6 @@ For the authoritative current gaps and next steps, see [the parity roadmap](AOE2
 
 
 - **Infantry sword-line expansion:** Barracks research now progresses Man-at-Arms → Long Swordsman → Two-Handed Swordsman → Champion. Each tier updates existing and newly trained Militia-class units through the shared health/attack ledger, rank names across menus/HUD, AI research weighting and visible battlefield equipment cues.
+
+
+- **Conscription:** Castle research (150 food, 150 gold; 60 seconds; Imperial Age) speeds military production queues by 33⅓%, including units already queued. It does not speed villagers, trade carts/cogs, fishing ships or transport ships.

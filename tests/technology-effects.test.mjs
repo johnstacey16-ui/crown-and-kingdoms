@@ -57,6 +57,18 @@ assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:300,g:100\},t:45
   'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
 assert.match(html, /champ:\{n:'Champion',cost:\{f:750,g:350\},t:60,age:3,pre:'twohand',hpb:\{mil:20\},atkb:\{mil:3\}\}/,
   'Champion must require Two-Handed Swordsman and add real health and attack');
+assert.ok(html.includes("castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons']}"),
+  'Conscription must be researchable at the Castle');
+assert.match(html, /cons:\{n:'Conscription',cost:\{f:150,g:150\},t:60,age:3\}/,
+  'Conscription must have explicit cost, research time and Imperial Age requirement');
+assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','dock'\]\)/,
+  'Conscription must cover all military production buildings');
+assert.match(html, /function trainRate\(b,k\)\{return S\.tech\[b\.t\]&&S\.tech\[b\.t\]\.cons&&MILITARY_PRODUCTION_BUILDINGS\.has\(b\.k\)&&!\['vil','cart','fish','trn','cog'\]\.includes\(k\)\?4\/3:1\}/,
+  'Conscription must only speed military units, not villagers, traders, fishing or transport ships');
+assert.match(html, /q\.t-=dt\*trainRate\(b,q\.k\)/,
+  'Conscription must accelerate the live unit production queue, including units already queued');
+assert.match(html, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
+  'AI must value Conscription once it has a substantial army');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
 assert.match(html, /if\(rank==='man'\|\|rank==='long'\|\|rank==='twohand'\|\|rank==='champ'\)/,
@@ -87,7 +99,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','armC','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
+const handledFlags = new Set(['gath','carry','atkM','atkR','armI','armR','armC','cons','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);
