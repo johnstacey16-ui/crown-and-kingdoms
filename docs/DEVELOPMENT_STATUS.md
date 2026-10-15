@@ -97,3 +97,10 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - Corrected the AI's villager-production/age-up gate to count only completed, living buildings that qualify for the current age. It now matches the actual `research(b,'age')` requirement check, including the building's age.
 - Prevents destroyed or wrong-age structures from falsely satisfying the AI's two-building age-up requirement and suppressing villager production.
 - Added a focused assertion to `tests/ai-rebuild-destroyed-buildings.test.mjs`. Full match behaviour remains subject to the regression suite and gameplay testing.
+
+
+## 15 October 2026 — Destroyed-building work cancellation
+
+- Building updates now return immediately for destroyed structures, not just unfinished structures. This prevents a building killed earlier in the same simulation tick from completing research, finishing a queued unit, or firing its defensive attack during its final update.
+- Added `tests/destroyed-building-work.test.mjs` to guard the update order and retain checks that living completed buildings still process research and queues.
+- Focused source assertions are not a claim that the full Node suite or live browser/Xbox playtest has passed.
