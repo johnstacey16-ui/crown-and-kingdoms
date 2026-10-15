@@ -648,21 +648,32 @@ globalThis.__CK_TEST__ = {
     if (!n) throw new Error('The seeded match must contain a wood resource node');
     u.o = 'g'; u.tg = n; u.ct = n.k; u.car = 0; u.ret = 0; u.p = []; u.rp = 0; u.autoWorker = 0;
   },
-  benchmarkArmy(count, ticks = 15) {
+  benchmarkArmy(count, ticks = 15, combat = false) {
     this.start(13579);
     const baseCount = S.us.length;
     const toAdd = Math.max(0, count - baseCount);
+    const synthetic = [];
     for (let i = 0; i < toAdd; i++) {
-      const x = 4 + (i % 20) * 4;
-      const y = 4 + Math.floor(i / 20) * 3.5;
-      const unit = addU(i % Math.min(4, S.teamN), 'mil', x, y);
+      const x = combat ? W / 2 + (i % 20 - 9.5) * 1.35 : 4 + (i % 20) * 4;
+      const y = combat ? H / 2 + (Math.floor(i / 20) % 20 - 9.5) * 1.25 : 4 + Math.floor(i / 20) * 3.5;
+      const team = combat ? i % Math.min(2, S.teamN) : i % Math.min(4, S.teamN);
+      const unit = addU(team, 'mil', x, y);
       unit.o = 'i'; unit.tg = null; unit.p = []; unit.sc = 1000; unit.as = 0; unit.retreating = 0;
+      synthetic.push(unit);
+    }
+    if (combat) for (const unit of synthetic) {
+      let target = null, best = Infinity;
+      for (const enemy of synthetic) if (enemy.t !== unit.t && enemy.hp > 0) {
+        const distance = Math.hypot(enemy.x - unit.x, enemy.y - unit.y);
+        if (distance < best) { best = distance; target = enemy; }
+      }
+      if (target) { unit.o = 'a'; unit.tg = target; }
     }
     const added = S.us.length - baseCount;
     const started = performance.now();
     for (let i = 0; i < ticks; i++) step(1 / 30);
     const elapsedMs = performance.now() - started;
-    return { requested: count, added, units: S.us.length, ticks, elapsedMs, time: S.t, mapSize: W };
+    return { requested: count, added, units: S.us.length, ticks, elapsedMs, time: S.t, mapSize: W, combat };
   },
   auditTownBellReservations() {
     const shelters = S.bs.filter((b) => b.t === 0 && b.done && b.hp > 0 && GAR[b.k]);
