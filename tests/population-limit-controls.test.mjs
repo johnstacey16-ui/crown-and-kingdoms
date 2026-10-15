@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 // Population settings offer 50, 100, 150, 200, 250, 300, 400 and 500.
 // Both controller directions must wrap over the entire list, not just its first four values.
