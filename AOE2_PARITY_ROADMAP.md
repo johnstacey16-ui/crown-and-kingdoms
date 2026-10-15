@@ -146,3 +146,9 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - AI building-count checks now ignore structures with `hp <= 0`, so destroyed production/economy buildings no longer permanently suppress replacement planning.
 - Living foundations remain counted to avoid duplicate builds while construction is in progress.
 - Regression guard: `tests/ai-rebuild-destroyed-buildings.test.mjs`. Treat this as implemented with a focused source regression guard; full-match recovery still needs playtesting.
+
+
+### AI recovery after structure loss — expanded — 15 October 2026
+
+- Extended the living-building filter beyond generic production counts: AI construction anchors now require a living Town Centre, dead walls/Barracks/Houses/Docks no longer suppress planning, dead structures do not block AI resource-site rebuilds, and trade planning ignores destroyed enemy Markets/Docks.
+- Expanded the focused regression test at `tests/ai-rebuild-destroyed-buildings.test.mjs`. The full AI recovery behaviour still requires gameplay simulation/playtesting.
