@@ -17,8 +17,8 @@ assert.match(html, /if\(!S\.res\[from\]\|\|!S\.res\[to\]\|\|S\.res\[from\]\[reso
   'Tribute must reject unaffordable transfers before changing either kingdom');
 assert.match(html, /S\.res\[from\]\[resource\.k\]-=amount;S\.res\[to\]\[resource\.k\]\+=amount/,
   'A successful tribute must subtract and add exactly the same resource amount');
-assert.match(html, /for\(let t=1;t<S\.teamN;t\+\+\)if\(diplomacyRelation\(0,t\)==='ally'&&S\.bs\.some\(b=>b\.t===t&&b\.k==='tc'&&b\.hp>0\)\)allies\.push\(t\)/,
-  'Only allied kingdoms with a surviving Town Centre should receive tribute menu entries');
+assert.ok(html.includes("for(let t=1;t<S.teamN;t++)if(diplomacyRelation(0,t)==='ally'&&(S.bs.some(b=>b.t===t&&b.hp>0)||S.us.some(u=>u.t===t&&u.hp>0)))allies.push(t)"),
+  'Allied kingdoms with surviving units or buildings should receive tribute menu entries even after Town Centre loss');
 assert.match(html, /if\(!allies\.length\)return \[\]/,
   'Tribute selectors should not appear when no eligible ally exists');
 assert.match(html, /n:'Tribute resource',v:\(\)=>TRIBUTE_RESOURCES\[tributeResource\]\.n,l:\(\)=>\{tributeResource=/,
