@@ -973,7 +973,7 @@ console.log('causeway-campaign-smoke: mission 17 loaded on layout 12 with connec
 // for one simulated second. This catches mission-specific setup/runtime crashes
 // without pretending that a startup smoke test is a completed playthrough.
 const campaignBoots = [];
-for (let mission = 0; mission < 17; mission += 1) {
+for (let mission = 0; mission < 20; mission += 1) {
   const before = game.startCampaign(mission);
   assert.equal(before.campaign?.index, mission, `Campaign mission ${mission + 1} should initialise the requested scenario`);
   assert.ok(before.units > 0, `Campaign mission ${mission + 1} should initialise at least one unit`);
@@ -984,7 +984,7 @@ for (let mission = 0; mission < 17; mission += 1) {
   assert.ok(Number.isFinite(after.time), `Campaign mission ${mission + 1} should retain finite simulation time`);
   campaignBoots.push({ mission: mission + 1, units: after.units, buildings: after.buildings });
 }
-console.log('campaign-matrix-smoke: all 17 campaign missions started and survived 1 simulated second: ' +
+console.log('campaign-matrix-smoke: all 20 campaign missions started and survived 1 simulated second: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
 
 
