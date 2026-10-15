@@ -19,6 +19,7 @@ assert.match(ai, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>
   'AI fleet planning must count hostile combat ships without counting fishing, transport or trade ships');
 assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length\+bl\.filter\(b2=>b2\.k==='dock'&&b2\.hp>0&&Array\.isArray\(b2\.q\)\)\.reduce\(\(n,b2\)=>n\+b2\.q\.filter\(q=>q==='gal'\)\.length,0\)<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
   'AI war-galley production must scale from a four-ship baseline to twelve and include queued ships to prevent overproduction');
+assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/, 'Garrisoned or otherwise loaded ships must not trigger enemy fleet threat responses');
 assert.match(ai, /if\(S\.age\[t\]>=1&&vil\.length>=9&&!cnt\('dock'\)&&\(arm\.length>=6\|\|navalThreatCount>0\)&&\(navalThreatCount>0\|\|S\.nodes\.some\(n=>n\.fi&&Math\.hypot\(n\.x-tc\.x,n\.y-tc\.y\)<24\)\)\)aiDock\(vil,tc,t\)/,
   'AI must attempt a dock when hostile combat ships threaten it, even without a nearby fish node');
 console.log('ai-research-priority: military upgrades respond to own army composition and naval threats');
