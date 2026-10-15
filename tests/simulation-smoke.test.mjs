@@ -35,7 +35,6 @@ const document = {
   documentElement: { clientWidth: 1280, clientHeight: 720 },
   getElementById(id) {
     if (id === 'c') return canvas;
-    if (id === 'ck-assets') return { tagName: 'SCRIPT', textContent: '{"atlases":[]}' };
     return null;
   },
   createElement(tag) {
