@@ -147,7 +147,7 @@ function sendTribute(from,to,resourceIndex,amount=100){
 function tributeMenuItems(){
  if(!S||cmp)return [];
  const allies=[];
- for(let t=1;t<S.teamN;t++)if(diplomacyRelation(0,t)==='ally'&&S.bs.some(b=>b.t===t&&b.k==='tc'&&b.hp>0))allies.push(t);
+ for(let t=1;t<S.teamN;t++)if(diplomacyRelation(0,t)==='ally'&&(S.bs.some(b=>b.t===t&&b.hp>0)||S.us.some(u=>u.t===t&&u.hp>0)))allies.push(t);
  if(!allies.length)return [];
  const items=[
   {n:'Tribute resource',v:()=>TRIBUTE_RESOURCES[tributeResource].n,l:()=>{tributeResource=(tributeResource+TRIBUTE_RESOURCES.length-1)%TRIBUTE_RESOURCES.length},r:()=>{tributeResource=(tributeResource+1)%TRIBUTE_RESOURCES.length},a:()=>{tributeResource=(tributeResource+1)%TRIBUTE_RESOURCES.length}},
