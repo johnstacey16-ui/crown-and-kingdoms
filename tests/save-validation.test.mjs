@@ -42,7 +42,7 @@ assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.is
 assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
 assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
 assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result');
-assert.match(save, /try\{if\(window\.CK_STORAGE&&typeof window\.CK_STORAGE\.mirrorSave==='function'\)window\.CK_STORAGE\.mirrorSave\(key,payload\)\}catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
+assert.match(save, /const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/, 'a rejected asynchronous backup mirror must be handled without blocking the primary save');\nassert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
@@ -116,4 +116,28 @@ assert.equal(backupFailureSandbox.saveG(true), true,
 assert.ok(writes.has('ck_autosave'),
   'the primary rolling autosave must be written even when the backup adapter throws');
 
-console.log('save-validation: malformed JSON, missing arrays, invalid map dimensions and incomplete terrain data are rejected before restore');
+// A rejected asynchronous mirror must have a rejection handler attached immediately.
+let rejectionHandled = false;
+const asyncMirrorSandbox = {
+  window: { CK_STORAGE: { mirrorSave() {
+    return { catch(handler) { rejectionHandled = typeof handler === 'function'; return this; } };
+  } } },
+  localStorage: {
+    setItem(key, value) { writes.set(key, value); },
+    getItem(key) { return writes.get(key) ?? null; },
+  },
+  S: {
+    nodes: [], bs: [], us: [], rel: [], wt: [], ex: [], res: [], age: [], tech: [], ai: [],
+    t: 0, pal: 0, kh: [], vc: [], px: [], civ: [0, 1], dip: [], vp: [],
+  },
+  W: 72, vm: 0, scoreLimit: 1200, aip: 0, cmp: null, diff: 0, cam: {},
+  slot: 0, skey: () => 'ck_save', hs: 0,
+  note() {},
+};
+vm.runInNewContext(save, asyncMirrorSandbox, { filename: 'js/save.js' });
+assert.equal(asyncMirrorSandbox.saveG(true), true,
+  'an asynchronous backup mirror must not block the primary autosave');
+assert.equal(rejectionHandled, true,
+  'the save path must attach a rejection handler to asynchronous backup mirroring');
+
+console.log('save-validation: malformed saves rejected before restore; synchronous and asynchronous backup failures cannot block primary saves');
