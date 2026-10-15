@@ -106,6 +106,17 @@ globalThis.__CK_TEST__ = {
     }
     return { index: cmp.i, count: goals.length, ids, unique: ids.every((id) => typeof id === 'string' && id.length > 0) && new Set(ids).size === ids.length, predicateErrors };
   },
+  auditCurrentCampaignEvents() {
+    if (!cmp || !CAMP[cmp.i]) return null;
+    const events = CAMP[cmp.i].ev || [];
+    let invalid = 0;
+    for (const event of events) {
+      const hasTime = Number.isFinite(event?.at) && event.at >= 0;
+      const hasCondition = typeof event?.when === 'function';
+      if (typeof event?.do !== 'function' || (!hasTime && !hasCondition)) invalid++;
+    }
+    return { index: cmp.i, count: events.length, invalid };
+  },
   saveLoadRoundTrip() {
     slot = 0;
     const snapshot = () => ({
@@ -1098,6 +1109,9 @@ for (let mission = 0; mission < 19; mission += 1) {
   const before = game.startCampaign(mission);
   assert.equal(before.campaign?.index, mission, `Campaign mission ${mission + 1} should initialise the requested scenario`);
   const objectiveAudit = game.auditCurrentCampaignObjectives();
+  const eventAudit = game.auditCurrentCampaignEvents();
+  assert.ok(eventAudit, `Campaign mission ${mission + 1} must expose its event schedule`);
+  assert.equal(eventAudit.invalid, 0, `Campaign mission ${mission + 1} events must have a valid trigger and action`);
   assert.ok(objectiveAudit && objectiveAudit.count > 0, `Campaign mission ${mission + 1} must define at least one objective`);
   assert.equal(objectiveAudit.unique, true, `Campaign mission ${mission + 1} must use unique, non-empty objective IDs`);
   assert.equal(objectiveAudit.predicateErrors, 0, `Campaign mission ${mission + 1} objective predicates must execute and return booleans at scenario start`);
@@ -1106,6 +1120,8 @@ for (let mission = 0; mission < 19; mission += 1) {
   // Keep each real scenario alive for forty simulated seconds so early
   // scheduled events, repeated AI decisions and campaign state transitions execute.
   for (let tick = 0; tick < 1200; tick += 1) game.tick(1 / 30);
+  const eventAuditAfterSimulation = game.auditCurrentCampaignEvents();
+  assert.ok(eventAuditAfterSimulation && eventAuditAfterSimulation.invalid === 0, `Campaign mission ${mission + 1} must retain valid event definitions after simulation`);
   const objectiveAuditAfterSimulation = game.auditCurrentCampaignObjectives();
   assert.ok(objectiveAuditAfterSimulation && objectiveAuditAfterSimulation.count > 0, `Campaign mission ${mission + 1} must retain its objective set after scheduled events and AI ticks`);
   assert.equal(objectiveAuditAfterSimulation.unique, true, `Campaign mission ${mission + 1} objective IDs must remain unique after simulation`);
