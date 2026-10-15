@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 assert.match(ai, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,
   'naval repair threat scans must skip null or malformed unit records before reading their fields');
+assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
+  'Naval target selection must ignore garrisoned hostile ships');
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
