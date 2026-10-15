@@ -381,6 +381,53 @@ globalThis.__CK_TEST__ = {
     const unit = addU(0, 'mil', p[0], p[1]);
     unit.testTechNew = true;
   },
+  beginChemistryResearch() {
+    S.age[0] = 3;
+    this.beginNavalCombat();
+    const attacker = S.us.find((u) => u.t === 0 && u.k === 'gal' && u.o === 'a' && u.tg?.testNavalTarget);
+    const target = S.us.find((u) => u.testNavalTarget === true);
+    if (!attacker || !target) throw new Error('Could not prepare the Chemistry naval-combat test');
+    attacker.o = 'i'; attacker.tg = null; attacker.p = [];
+    attacker.testChemistryAttacker = true;
+    S.tech[1] = {};
+    const targetHp = target.hp;
+    dmgT(attacker, target);
+    attacker.testChemistryBaseDamage = targetHp - target.hp;
+    target.hp = targetHp; target.dead = 0;
+    let university = S.bs.find((b) => b.t === 0 && b.k === 'univ' && b.done);
+    if (!university) {
+      const size = B.univ.s;
+      let site = null;
+      for (let y = 2; y < H - size - 1 && !site; y++) for (let x = 2; x < W - size - 1 && !site; x++) {
+        let clear = true;
+        for (let dy = 0; dy < size && clear; dy++) for (let dx = 0; dx < size; dx++) {
+          const index = (y + dy) * W + x + dx;
+          if (S.g[index] || S.wt[index] || S.nd[index]) { clear = false; break; }
+        }
+        if (clear) site = { x, y };
+      }
+      if (!site) throw new Error('Could not find a clear site for a completed test University');
+      university = addB(0, 'univ', site.x, site.y, true);
+    }
+    S.res[0].f = 1000; S.res[0].g = 1000; S.res[0].w = 1000; S.res[0].s = 1000;
+    if (!research(university, 'chem')) throw new Error('University should accept affordable Chemistry research');
+    return { baselineDamage: attacker.testChemistryBaseDamage };
+  },
+  resolveChemistryShot() {
+    const attacker = S.us.find((u) => u.testChemistryAttacker === true);
+    const target = S.us.find((u) => u.testNavalTarget === true);
+    if (!attacker || !target) throw new Error('Chemistry combatants are missing');
+    S.tech[1] = {};
+    attacker.hp = U[attacker.k].hp; attacker.dead = 0;
+    target.hp = U[target.k].hp; target.dead = 0;
+    const before = target.hp;
+    dmgT(attacker, target);
+    return {
+      baselineDamage: attacker.testChemistryBaseDamage,
+      actualDamage: before - target.hp,
+      attackBonus: S.tech[0].atkb?.gal || 0
+    };
+  },
   beginBloodlinesResearch() {
     S.age[0] = 2;
     let stable = S.bs.find((b) => b.t === 0 && b.k === 'stable' && b.done);
@@ -571,6 +618,18 @@ assert.equal(newBloodlineKnight.maxHp, bloodlinesBefore.beforeMax + 20,
 assert.equal(newBloodlineKnight.hp, newBloodlineKnight.maxHp,
   'New cavalry must spawn at its upgraded maximum HP');
 console.log('bloodlines-smoke: Stable research improves existing and newly created cavalry without erasing existing damage');
+
+game.start(123456, 1);
+const chemistryBefore = game.beginChemistryResearch();
+for (let tick = 0; tick < 1830; tick += 1) game.tick(1 / 30);
+const chemistryAfter = game.state();
+assert.equal(chemistryAfter.research.chemistry, 1, 'Chemistry research should complete through the real University timer');
+const chemistryShot = game.resolveChemistryShot();
+assert.equal(chemistryShot.attackBonus, 1, 'Completed Chemistry must add its ship-attack bonus to the technology ledger');
+assert.equal(chemistryShot.actualDamage, chemistryBefore.baselineDamage + 1,
+  'A researched War Galley shot must deal exactly one more damage than the same unresearched shot');
+console.log('chemistry-smoke: University research increased real War Galley damage by one');
+
 
 game.start(123456);
 const plannedHouse = game.beginHouseConstruction();
