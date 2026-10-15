@@ -185,3 +185,10 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 - Cancellation validates the building, owner, queue and queued unit before refunding resources.
 - Prevents stale selections or malformed queue entries from triggering invalid refunds; valid cancellations preserve newest-item/full-refund behaviour.
 - Regression test: `tests/production-cancellation-validation.test.mjs`. Runtime validation remains outstanding.
+
+
+### Garrison unload validation — 15 October 2026
+
+- Unload commands validate that the building is alive, completed, owned by a valid team, supports garrisoning and actually contains units.
+- Safe-spawn failure leaves units inside; invalid commands provide feedback.
+- Regression test: `tests/garrison-unload-validation.test.mjs`. Runtime testing remains outstanding.
