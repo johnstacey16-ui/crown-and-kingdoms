@@ -36,7 +36,7 @@ test('Causeway campaign uses the navigable strait layout and a staged land-and-s
   assert.ok(mission.includes("t:'Have 3 War Galleys alive'"), 'The mission must require a functioning fleet');
   assert.ok(mission.includes("t:'Build 2 completed Towers'"), 'The mission must require defended land approaches');
   assert.ok(mission.includes("for(const gy of [.34,.42,.66])"), 'The rival must start with a galley patrol positioned along the strait');
-  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The mission must be included in natural campaign progression');
+  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17,18,19]"), 'The mission must be included in natural campaign progression');
 });
 
 test('final Causeway campaign mission requires forward Castles and a decisive Town Centre assault', () => {
@@ -49,5 +49,5 @@ test('final Causeway campaign mission requires forward Castles and a decisive To
   assert.ok(mission.includes("t:'Build 2 completed Castles'"), 'The mission must require forward fortifications');
   assert.ok(mission.includes("t:'Destroy the enemy Town Centre'"), 'The mission must require a decisive assault');
   assert.ok(mission.includes("at:260,do:()=>raid(9,['ram','ram','bomb'"), 'The mission must include a timed heavy-siege counterattack');
-  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The final mission must be reachable in campaign progression');
+  assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17,18,19]"), 'The final mission must be reachable in campaign progression');
 });
