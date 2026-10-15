@@ -57,6 +57,8 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(render.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(render.includes('function paintTileDetail(g,x,y,cx,cy)'));
   assert.ok(render.includes('function drawHill(o)'));
+  assert.match(render, /Three overlapping rock planes/);
+  assert.match(render, /Math\.sin\(gt\*4\)/);
   assert.ok(render.includes('function chunkOf(cx,cy)'));
   assert.ok(render.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(!engineSource.includes('function drawWorld()'));
