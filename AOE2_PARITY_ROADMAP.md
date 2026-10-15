@@ -314,3 +314,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - **Preserved:** `engine.js` still updates the animation clock and particles, warms sprites, clears the canvas, advances in-match notes, draws the world and delegates live overlays. A true/false return explicitly preserves the old early-return behavior for full-screen views, including the multiplayer fallback to the title screen when network integration is unavailable.
 - **Regression coverage:** added `tests/front-end-screen-routing-ui-extraction.test.mjs` for screen ownership, load order and routing-before-world-draw. CI discovers the new test automatically.
 - **Verification boundary:** structural refactor only; it makes no frame-rate claim. Menu/controller flows still need direct browser and Xbox validation.
+
+
+### Large-army targeting optimisation — 15 October 2026
+
+- `foe()` now uses a cached spatial bucket index for nearby hostile units rather than scanning all `S.us` on every query. The grid is refreshed for each simulation step, and the query keeps exact distance checks, diplomacy/hostility rules, live/garrison filters, and stable tie ordering.
+- Siege-building priority and the later building fallback are unchanged. The index's bucket arrays are reused to avoid recreating every local array each step.
+- Regression coverage compares spatial and linear target selection over a synthetic 368-unit set and guards the cache invalidation/path structure. Treat this as an O(N) build plus local-neighbour query design; actual gains depend on army distribution and still require console/browser profiling.

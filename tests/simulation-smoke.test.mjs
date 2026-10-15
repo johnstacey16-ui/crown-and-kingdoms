@@ -94,6 +94,51 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startCampaign(index) { startScenario(index); return this.state(); },
   tick(dt) { step(dt); for (let team = 1; team < S.teamN; team++) aiPeak[team] = Math.max(aiPeak[team] || 0, aiMilitaryCount(team)); },
+  auditSpatialTargets() {
+    const originalUnits=S.us,originalBuildings=S.bs;
+    const probes=[
+      {t:0,k:'knight',x:8,y:8,hp:100},
+      {t:1,k:'knight',x:31.8,y:32.1,hp:100},
+      {t:2,k:'knight',x:64,y:63.9,hp:100},
+      {t:0,k:'knight',x:128,y:128,hp:100},
+    ];
+    const units=probes.concat([
+      {t:1,k:'mil',x:8.5,y:8,hp:100},
+      {t:1,k:'mil',x:7.5,y:8,hp:100},
+      {t:1,k:'mil',x:8,y:8,hp:0},
+      {t:1,k:'mil',x:8.1,y:8,hp:100,ld:1},
+    ]);
+    for(let i=0;i<360;i++)units.push({
+      t:1+(i%3),k:'mil',x:4+((i*17)%176),y:4+((i*31)%176),
+      hp:i%29===0?0:100,ld:i%19===0?1:0
+    });
+    const linear=(u,r)=>{
+      let best=null,bd=r;
+      for(const e of S.us)if(isHostile(u.t,e.t)&&e.hp>0&&!e.ld){
+        const d=Math.hypot(e.x-u.x,e.y-u.y);
+        if(d<bd){bd=d;best=e}
+      }
+      return best
+    };
+    let queries=0,mismatches=0,tiePreserved=false;
+    try {
+      S.us=units;S.bs=[];foeGridDirty=true;
+      const cases=[[probes[0],1],[probes[0],6],[probes[1],9],[probes[2],4],[probes[3],12]];
+      for(const [u,r] of cases){
+        const expected=linear(u,r),actual=foe(u,r);
+        if(actual!==expected)mismatches++;
+        if(u===probes[0]&&r===1)tiePreserved=actual===units[4];
+        queries++;
+      }
+      units[9].x=probes[0].x+0.2;units[9].y=probes[0].y+0.1;
+      foeGridDirty=true;
+      if(foe(probes[0],2)!==linear(probes[0],2))mismatches++;
+      queries++;
+      return {queries,mismatches,tiePreserved,units:units.length,buckets:FOE_BUCKETS.size};
+    } finally {
+      S.us=originalUnits;S.bs=originalBuildings;foeGridDirty=true;
+    }
+  },
   completeFirstCampaignMission() {
     startScenario(0);
     const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
@@ -544,6 +589,13 @@ new vm.Script(source + '\n' + harness, { filename: 'index.html:simulation-smoke'
 const game = sandbox.__CK_TEST__;
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
 game.start(123456);
+const targetAudit=game.auditSpatialTargets();
+assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
+assert.equal(targetAudit.mismatches,0,'Spatial target search must match the original linear nearest-hostile scan');
+assert.equal(targetAudit.tiePreserved,true,'Equidistant targets must preserve original unit-order tie breaking');
+assert.ok(targetAudit.units>=360,'Spatial target audit must cover a large synthetic army');
+assert.ok(targetAudit.buckets>1,'Spatial target index must partition the army into local buckets');
+console.log('spatial-target-smoke: '+targetAudit.queries+' queries matched linear targeting across '+targetAudit.units+' units and '+targetAudit.buckets+' buckets');
 const before = game.state();
 assert.ok(before.units > 0, 'A real match should spawn units');
 assert.ok(before.buildings > 0, 'A real match should create starting buildings');

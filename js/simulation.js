@@ -44,7 +44,48 @@ if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.a
 if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
 const hit=(a,t)=>{if(U[a.k].rng>2){sfx(U[a.k].sg?'launch':'bow',a.x,a.y);S.pj.push({x:a.x,y:a.y,t,a})}else dmgT(a,t)};
 function pjs(dt){for(const p of S.pj){const h=(p.t.s||0)/2,tx=p.t.x+h,ty=p.t.y+h,dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy),st=14*dt;if(p.t.hp<=0)p.dead=1;else if(d<=st+.3){dmgT(p.a,p.t);const sp=U[p.a.k]&&U[p.a.k].spl;if(sp){const ix=p.t.x+h,iy=p.t.y+h;for(const e of S.us)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp)dmgT(p.a,e);for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e);}p.dead=1}else{p.x+=dx/d*st;p.y+=dy/d*st}}compactNotFlag(S.pj,'dead')}
-function foe(u,r){let b=null,bd=r;if(U[u.k]?.sg){for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}if(b)return b}for(const e of S.us)if(isHostile(u.t,e.t)&&e.hp>0&&!e.ld){const d=Math.hypot(e.x-u.x,e.y-u.y);if(d<bd){bd=d;b=e}}if(b)return b;for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}return b}
+const FOE_CELL=8,FOE_BUCKETS=new Map();
+let foeGridDirty=true,foeGridEpoch=0;
+function rebuildFoeGrid(){
+ foeGridEpoch++;
+ for(const bin of FOE_BUCKETS.values())bin.length=0;
+ for(let i=0;i<S.us.length;i++){
+  const e=S.us[i];if(!e)continue;
+  const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
+  let bin=FOE_BUCKETS.get(key);
+  if(!bin){bin=[];FOE_BUCKETS.set(key,bin)}
+  bin.epoch=foeGridEpoch;bin.push(i)
+ }
+ for(const [key,bin]of FOE_BUCKETS)if(bin.epoch!==foeGridEpoch)FOE_BUCKETS.delete(key);
+ foeGridDirty=false
+}
+function nearestFoeUnit(u,r){
+ if(foeGridDirty)rebuildFoeGrid();
+ let b=null,bd=r,bi=Infinity;
+ /* One-cell margin tolerates units crossing a bucket boundary during this fixed step. */
+ const minX=Math.floor((u.x-r)/FOE_CELL)-1,maxX=Math.floor((u.x+r)/FOE_CELL)+1;
+ const minY=Math.floor((u.y-r)/FOE_CELL)-1,maxY=Math.floor((u.y+r)/FOE_CELL)+1;
+ for(let cy=minY;cy<=maxY;cy++)for(let cx=minX;cx<=maxX;cx++){
+  const bin=FOE_BUCKETS.get(cx+','+cy);if(!bin)continue;
+  for(const i of bin){
+   const e=S.us[i];
+   if(!e||!isHostile(u.t,e.t)||e.hp<=0||e.ld)continue;
+   const d=Math.hypot(e.x-u.x,e.y-u.y);
+   if(d<bd||(d===bd&&d<r&&i<bi)){bd=d;b=e;bi=i}
+  }
+ }
+ return b
+}
+function foe(u,r){
+ let b=null,bd=r;
+ if(U[u.k]?.sg){
+  for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}
+  if(b)return b
+ }
+ b=nearestFoeUnit(u,r);if(b)return b;
+ for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}
+ return b
+}
 /* ===== ECONOMY / UNIT BEHAVIOUR ===== */
 function findNode(u,k,r=16){let b=null,bd=r;for(const n of S.nodes)if(n.k===k&&n.amt>0&&!n.fi===!u.sh){const d=Math.hypot(n.x-u.x,n.y-u.y);if(d<bd){bd=d;b=n}}return b}
 function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
@@ -363,7 +404,7 @@ function kingHillControl(dt){
 }
 function vict(dt){if(vm===5){kingHillControl(dt);return}if(vm===3){if(!S.us.some(u=>u.t===0&&u.k==='king')){endGame('lose','Your King has fallen');return}if(!Array.from({length:S.teamN-1},(_,i)=>isHostile(0,i+1)&&S.us.some(u=>u.t===i+1&&u.k==='king')).some(Boolean))endGame('win','All hostile Kings have fallen');return}if(vm===4){const limit=scoreLimit;if(S.t<limit)return;if(!kingdomAlive(0)){endGame('lose','Your kingdom was eliminated before the score limit');return}const ranked=Array.from({length:S.teamN},(_,t)=>({t,score:kingdomScore(t)})).filter(q=>q.t===0||(isHostile(0,q.t)&&kingdomAlive(q.t))).sort((a,b)=>b.score-a.score);if(!ranked.length){endGame('lose','No kingdom survived the time limit');return}const leaders=ranked.filter(q=>q.score===ranked[0].score);if(leaders.length>1){endGame('draw','Draw at the '+Math.round(scoreLimit/60)+'-minute score limit: '+leaders.map(q=>CIV[S.civ[q.t]].n).join(' and ')+' tied on '+leaders[0].score+' points');return}const winner=ranked[0];endGame(winner.t===0?'win':'lose',CIV[S.civ[winner.t]].n+' wins on score at the '+Math.round(scoreLimit/60)+'-minute time limit ('+winner.score+' points)');return}const v=S.vc||(S.vc=Array(S.teamN).fill(0));for(let t=0;t<S.teamN;t++){if(t>0&&!isHostile(0,t)){v[t]=0;continue}let ok=false;if(vm===1)ok=S.bs.some(b=>b.t===t&&b.k==='wonder'&&b.done);else if(vm===2)ok=S.rel.length>0&&S.rel.every(r=>r.m&&r.m.t===t&&r.m.done);v[t]=ok?v[t]+dt:0;if(v[t]>=(vm===1?300:240)){endGame(t===0?'win':'lose',(t===0?'You':'A hostile kingdom')+(vm===1?' held a Wonder for 5 minutes':' held every relic for 4 minutes'));return}}}
 
-function step(dt){S.t+=dt;for(const u of S.us)upU(u,dt);sep();WL(dt);if(cmp)cmpTick(dt);if(vm)vict(dt);if(!cmp&&S.vt%30===0)elim();if(S.vt%150===0){for(const q of S.px)for(const k in q)q[k]+=q[k]<100?1:q[k]>100?-1:0;if(menu&&menu.items)for(const r of menu.items)if(r.up)r.up()}for(const q of S.rel){if(q.c){if(q.c.hp<=0)q.c=null;else{q.x=q.c.x;q.y=q.c.y}}if(q.m&&q.m.hp<=0){q.x=q.m.x+1;q.y=q.m.y+1;q.m=null}}
+function step(dt){foeGridDirty=true;S.t+=dt;for(const u of S.us)upU(u,dt);sep();WL(dt);if(cmp)cmpTick(dt);if(vm)vict(dt);if(!cmp&&S.vt%30===0)elim();if(S.vt%150===0){for(const q of S.px)for(const k in q)q[k]+=q[k]<100?1:q[k]>100?-1:0;if(menu&&menu.items)for(const r of menu.items)if(r.up)r.up()}for(const q of S.rel){if(q.c){if(q.c.hp<=0)q.c=null;else{q.x=q.c.x;q.y=q.c.y}}if(q.m&&q.m.hp<=0){q.x=q.m.x+1;q.y=q.m.y+1;q.m=null}}
 for(const s of S.us)if(s.cg&&s.cg.length){if(s.hp<=0)s.cg.forEach(c=>c.hp=0);else s.cg.forEach(c=>{c.x=s.x;c.y=s.y})}for(const b of S.bs)upB(b,dt);pjs(dt);if(!(cmp&&CAMP[cmp.i].noai))ai(dt);
 for(const f of fx)f.l-=dt;compactPositive(fx,'l');compactPositive(S.us,'hp');compactPositive(S.bs,'hp');compactPositive(S.sel,'hp');
 if(++S.vt%30===0)S.scoreCache=Array.from({length:S.teamN},(_,t)=>kingdomScore(t));if(S.vt%6===0){fog();if(S.vt%(W*H>20000?24:W*H>9000?12:6)===0)mmUp()}}

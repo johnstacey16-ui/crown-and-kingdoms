@@ -197,3 +197,11 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the generic canvas shape/progress primitives `bar()`, `dia()` and `poly()` to `js/render.js` and the text helper `tx()` to `js/ui.js`.
 - This preserves their global classic-script function names and existing callers. The renderer/UI scripts already load before `engine.js`; `js/minimap.js` continues to use `dia()` from the renderer.
 - Added `tests/canvas-primitives-ownership.test.mjs` to protect one-owner declarations and the current load/caller order.
+
+
+### Large-army hostile-target index — 15 October 2026
+
+- Added an 8-world-unit bucket grid for unit-to-unit target acquisition. The index rebuilds lazily on the first query after each simulation step invalidates it, then shares those buckets across combat, attack-move and patrol target queries for that step.
+- Queries inspect nearby cells, perform the same exact Euclidean radius check, and keep the hostile/dead/garrisoned filters and original array-order tie-break. Siege units still prioritise buildings in range; other units still fall back to the existing building scan when no hostile unit is in range.
+- Buckets reuse their arrays across rebuilds to limit per-tick garbage. `tests/simulation-smoke.test.mjs` compares indexed targets with the original linear reference over a 368-unit synthetic army, including ties, dead/garrisoned targets and an invalidated rebuild. `tests/spatial-target-index.test.mjs` protects index wiring.
+- No frame-rate gain is claimed until the 100–400 unit workloads are profiled on the target browser/Xbox runtime.

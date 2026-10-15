@@ -62,3 +62,6 @@ For the authoritative current gaps and next steps, see [the parity roadmap](AOE2
 
 
 - **Cavalry Armour +1:** available at the Blacksmith, reduces incoming damage for mounted units through class-specific combat logic, and adds a visible metallic barding cue. AI research priority rises when facing at least three hostile mounted units.
+
+
+- **Large-army target search:** enemy-unit acquisition now uses an 8-world-unit spatial bucket index rebuilt lazily once per simulation step. It retains exact distance/hostility/dead/garrisoned filters and original tie-breaking, while siege/building target priority stays unchanged. This is an algorithmic optimization, not yet an Xbox FPS claim.
