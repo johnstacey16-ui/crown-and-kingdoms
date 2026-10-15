@@ -128,11 +128,11 @@ test('offline cache can survive temporary hosting errors as well as network loss
 
 
 test('in-game About copy describes the real asset, audio and verification boundaries', () => {
-  assert.match(engineSource, /Original local SVG sprite atlases, team colours, animation metadata and procedural fallbacks/);
-  assert.match(engineSource, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
-  assert.match(engineSource, /not full authoritative match synchronisation/);
-  assert.match(engineSource, /Browser, live deployment and physical Xbox Series S testing are not yet verified/);
-  assert.doesNotMatch(engineSource, /All art is drawn in code\. No external assets or network calls/);
+  assert.match(engine, /Original local SVG sprite atlases, team colours, animation metadata and procedural fallbacks/);
+  assert.match(engine, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
+  assert.match(engine, /not full authoritative match synchronisation/);
+  assert.match(engine, /Browser, live deployment and physical Xbox Series S testing are not yet verified/);
+  assert.doesNotMatch(engine, /All art is drawn in code\. No external assets or network calls/);
 });
 
 test('audio voice classification tolerates entities without unit definitions', () => {
