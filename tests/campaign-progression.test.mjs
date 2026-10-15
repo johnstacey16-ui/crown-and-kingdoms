@@ -73,4 +73,23 @@ test('destroyed Town Centres no longer block campaign objectives or timed-raid s
     'Timed raids must stop once the enemy Town Centre has no remaining health');
 });
 
+
+test('leaving campaign restores every pre-campaign setup option', () => {
+  assert.match(html,
+    /function restoreCampaignPrefs\(\)\{if\(PRF\)\{\(\{civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit\}=PRF\);PRF=null\}\}/,
+    'Leaving campaign must restore civilisation, map, difficulty, AI, victory mode and score duration');
+  assert.match(html,
+    /function leaveCampaign\(\)\{restoreCampaignPrefs\(\);cmp=null;seedOv=null;aiCiv=-1;mode='title'\}/,
+    'Campaign exit must clear campaign state and restore normal title-menu mode');
+  assert.match(html,
+    /\{n:'Back',a:\(\)=>\{leaveCampaign\(\)\}\}/,
+    'The campaign list Back action must use the shared exit handler');
+  assert.match(html,
+    /function campCtl\(\)\{[^}]*if\(E\[1\]\)leaveCampaign\(\)\}/,
+    'The controller Back input must use the shared exit handler');
+  assert.match(html,
+    /function endB\(\)\{if\(cmp\)\{if\(S\.over==='win'&&nextCampaignMission\(cmp\.i\)===null\)\{leaveCampaign\(\)\}else\{mode='camp';ci=0\}\}else leaveCampaign\(\)\}/,
+    'Leaving the final mission results screen must restore the saved setup');
+});
+
 console.log('campaign-progression: regression assertions passed');
