@@ -136,3 +136,11 @@ A passing assertion is not the same as a finished feature. Mark work as implemen
 - A clear message is shown for invalid requests. Units that cannot find a safe, free tile remain garrisoned rather than being silently released into blocked terrain.
 - Regression guard: `tests/garrison-unload-validation.test.mjs`.
 - Source-level checks only; Node suite and controller/browser gameplay testing remain outstanding.
+
+
+## 15 October 2026 — Town Bell shelter capacity
+
+- Town Bell now counts unique, living units whose `ld` reference confirms they are actually inside each shelter, rather than trusting the raw garrison-array length.
+- Dead or stale garrison references no longer falsely consume shelter capacity; valid shelter reservations and same-command capacity accounting are retained.
+- Regression guard: `tests/town-bell-garrison-capacity.test.mjs`.
+- Source-level checks only; Node test execution and Xbox/browser gameplay remain unverified.
