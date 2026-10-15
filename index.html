@@ -391,7 +391,7 @@ if(u.o==='B'){if(!tg||tg.hp<=0||(tg.cg||[]).length>=(tg.q?GAR[tg.k]:5)){u.o='i';
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.7));u.rp=.8;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(u.o==='U'){const q=u.ut;if(!q){u.o='i';return}if(!u.p.length||u.rp<=0){const p=path(u,gp(q[0],q[1],3));u.rp=1;if(!p){u.o='i';u.ut=null;return}u.p=p}
 if(walk(u,dt)){const cg=u.cg||[];for(const c of cg){let sp=null;for(let r=1;r<=4&&!sp;r++)for(let dy=-r;dy<=r&&!sp;dy++)for(let dx=-r;dx<=r&&!sp;dx++){const x=(u.x|0)+dx,y=(u.y|0)+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&!S.wt[y*W+x])sp=[x+.5,y+.5]}if(sp){c.x=sp[0];c.y=sp[1];c.ld=null}}u.cg=cg.filter(c=>c.ld);u.o='i';u.ut=null}return}
-if(u.o==='rep'){if(!tg||tg.hp<=0||tg.t!==u.t||!tg.sh||tg.hp>=U[tg.k].hp){u.o='i';u.tg=null;return}if(d2(u.x,u.y,tg)<=1.5){u.p=[];tg.hp=Math.min(U[tg.k].hp,tg.hp+U[tg.k].hp*dt/40);if(tg.hp>=U[tg.k].hp){u.o='i';u.tg=null;if(u.t===0)note('Ship repaired')}}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.2));u.rp=1;if(!p){u.o='i';u.tg=null;return}u.p=p}walk(u,dt)}return}
+if(u.o==='rep'){if(!tg||tg.hp<=0||tg.t!==u.t||!tg.sh||tg.hp>=mhp(tg){u.o='i';u.tg=null;return}if(d2(u.x,u.y,tg)<=1.5){u.p=[];tg.hp=Math.min(mhp(tg),tg.hp+mhp(tg)*dt/40);if(tg.hp>=U[tg.k].hp){u.o='i';u.tg=null;if(u.t===0)note('Ship repaired')}}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.2));u.rp=1;if(!p){u.o='i';u.tg=null;return}u.p=p}walk(u,dt)}return}
 if(u.o==='v'){if(!tg||tg.hp<=0||tg.t===u.t||tg.q){u.o='i';u.tg=null;return}
 if(Math.hypot(tg.x-u.x,tg.y-u.y)<=5){u.p=[];if(u.cd<=0){u.cv=(u.cv||0)+dt;if(u.cv>=3){u.cv=0;u.cd=8;fx.push({x:tg.x,y:tg.y,l:.5,k:'p'});if(S.r()<.7){tg.t=u.t;tg.o='i';tg.p=[];tg.tg=null;tg.car=0;if(tg.rel){tg.rel.c=null;tg.rel=null}note((u.t===0?'Converted enemy ':'Your ')+U[tg.k].n+(u.t===0?'!':' was converted!'))}u.o='i'}}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,4.5));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt)}return}
@@ -469,7 +469,16 @@ if(S.t-(A.lastTributeAt??-90)>=90){
  }
  if(transfer){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
 }
-aiRetreat(t,my,tc,bl);const cnt=k=>bl.filter(b=>b.k===k).length;
+aiRetreat(t,my,tc,bl);
+const damagedFleet=my.filter(u=>u.sh&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>a.hp/mhp(a)-b.hp/mhp(b));
+if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
+ const target=damagedFleet[0],underFire=S.us.some(e=>isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
+ if(!underFire){
+  const repairer=my.find(u=>u!==target&&u.sh&&u.hp>mhp(u)*.7&&u.o==='i'&&!['fish','trn','cog'].includes(u.k));
+  if(repairer){repairer.o='rep';repairer.tg=target;repairer.p=[]}
+ }
+}
+const cnt=k=>bl.filter(b=>b.k===k).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
 if(vil.length<([18,28,40][diff]*PERS[aip].v|0)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&AG[S.age[t]+1].needs.includes(x.k)).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
@@ -716,7 +725,7 @@ let noAttackBlocked=0;for(const u of us){u.p=[];u.pt=null;u.as=0;u.autoWorker=0;
 if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}if(u.st===2)u.st=0;u.o=u.k==='mon'&&!tg.q?'v':'a';u.tg=tg}
 else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){if(u.ct!==tg.k)u.car=0;u.o='g';u.tg=tg;u.ct=tg.k;u.ret=0}
-else if(tg&&tg.t===0&&tg.sh&&tg.hp<U[tg.k].hp&&u.k==='vil'){u.o='rep';u.tg=tg}
+else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||u.sh)){u.o='rep';u.tg=tg}
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&u.k==='vil'){u.o='b';u.tg=tg}
 else if(tg&&tg.t===0&&((tg.cg&&!tg.q)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.cg&&u.cg.length&&!S.wt[(wy|0)*W+(wx|0)]){u.o='U';u.ut=[wx,wy];u.p=[]}
