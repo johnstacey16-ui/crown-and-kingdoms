@@ -28,8 +28,9 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 1.2 Save and offline compatibility
 - **Present:** localStorage compatibility and IndexedDB backup/restore.
-- **Partial/unverified:** test older save payloads, interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
-- Add autosave only after the save payload and recovery paths are proven safe. Avoid incompatible schema changes without defaults/migration tests.
+- **Implemented in source:** `loadG()` now rejects malformed JSON, unsupported map dimensions, incomplete team arrays, invalid terrain encodings and invalid resource values before replacing the current game state. `tests/save-validation.test.mjs` guards these checks.
+- **Partial/unverified:** exercise the new guard and older save payloads in the complete Node suite; test interrupted writes, quota/storage denial, campaign progression, diplomacy and mode-specific state through save/load; test service-worker updates from older cached versions.
+- Add autosave only after save integrity and recovery paths are proven safe. Avoid incompatible schema changes without defaults/migration tests.
 
 ### 1.3 Controller and accessibility
 - **Present:** controller navigation, command menus, pause/resume and remapping.
@@ -39,7 +40,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 ## Priority 2 — gameplay depth
 
 ### 2.1 Technologies and unit progression
-- **Present:** age-gated research and shared effects for many upgrades, including infantry sword-line ranks, Pikeman/Halberdier, Cavalry Armour and Conscription.
+- **Present:** age-gated research and shared effects for many upgrades, including infantry sword-line ranks, Pikeman/Halberdier, Cavalry Armour, Conscription and Husbandry. Husbandry increases mounted-unit movement by 10%; the implementation includes the mounted special-unit roster and AI research valuation.
 - **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback.
 - Ensure each technology has a real, testable gameplay effect rather than a UI-only entry. Check stacking, repeated research prevention and save/load persistence.
 - Keep balance values labelled as project rules; do not imply exact official AoE2 values unless independently verified.
@@ -120,11 +121,3 @@ GitHub Actions discovers all `tests/*.test.mjs` files. These checks cover source
 4. Test naval/map connectivity and campaign completion across scenarios.
 5. Profile large armies and improve the most visible graphics defects based on live observation.
 6. Validate the exact deployment and perform physical Xbox controller/performance testing when available.
-
-
-## Husbandry mounted-speed upgrade — 15 October 2026
-
-- Added **Husbandry** to the Stable research list (150 food/150 gold, 40 seconds, Castle Age).
-- `unitSpeed()` applies a 1.1 multiplier to mounted units during path-following movement, affecting existing and later-produced cavalry without modifying base unit roster speeds. The mounted class set also includes Conquistadors, Boyars and Tarkans for Cavalry Armour and Husbandry consistency.
-- AI research priority rises when it has at least three mounted units. Runtime smoke asserts a Knight moves at 2.31 instead of 2.1, while infantry and transport-ship speeds remain unchanged.
-- Balance and actual Xbox movement feel remain unverified.
