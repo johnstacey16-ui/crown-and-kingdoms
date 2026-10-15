@@ -15,6 +15,7 @@ assert.match(ai, /galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='a'&&\(!u\.tg\|\|
   'war galleys must reacquire targets after their current target dies, is garrisoned, or is no longer hostile');
 assert.match(ai, /for\(const candidate of hostileShips\)\{const score=navalTargetScore\(candidate\);if\(score<enemyScore\)\{enemyScore=score;enemy=candidate\}\}/,
   'galleys must select a target using the shared naval scoring function');
+assert.match(ai, /u\.o==='m'&&!u\.tg/, 'AI war galleys moving without a target must be eligible to reacquire nearby hostile ships');
 assert.match(ai, /if\(enemy&&Math\.hypot\(enemy\.x-ship\.x,enemy\.y-ship\.y\)<28\)/,
   'galleys should engage nearby hostile ships before switching to a land objective');
 assert.match(html, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
