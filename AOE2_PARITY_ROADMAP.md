@@ -271,3 +271,5 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 - Moved A* route search, diagonal corner-cut prevention, path reconstruction, target-distance helpers and point-goal construction into `js/pathfinding.js`.
 - Preserved the shared reusable path workspace, route cost/heuristic, walkability checks and existing return format. Loaded before kingdom automation and included in offline caching, syntax checks and pathing/simulation regressions.
+
+- Campaign module now also owns arc ordering, mission selection, briefing layout and campaign controller handlers, leaving the shared title background renderer in the core UI.
