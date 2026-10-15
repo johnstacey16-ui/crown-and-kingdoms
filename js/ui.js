@@ -132,3 +132,6 @@ tx('CONTROL GROUPS',cx,cy-6,26,'#f2c14e','center');tx('Left stick: pick   X: ass
 
 function quickBar(){const iv=S.us.filter(u=>u.t===0&&!u.ld&&(u.k==='vil'||u.k==='fish')&&u.o==='i').length,mil=S.us.filter(isMil).length,sup=S.us.filter(u=>u.t===0&&!u.ld&&u.k==='mon').length,x0=mm.x-262,y0=CH-112;
 [[0,iv,'Idle'],[1,sup,'Support'],[2,S.bs.filter(b=>b.t===0&&b.k==='tc').length,'Town C.'],[3,mil,'Military']].forEach(q=>{const d=q[0],x=x0+d*62,y=y0;X.fillStyle='rgba(20,14,8,.85)';X.fillRect(x,y,56,86);X.strokeStyle='#c9a24a';X.lineWidth=1.5;X.strokeRect(x,y,56,86);X.fillStyle='#f2c14e';const t3=[[[0,-8],[7,6],[-7,6]],[[8,0],[-6,7],[-6,-7]],[[0,8],[7,-6],[-7,-6]],[[-8,0],[6,7],[6,-7]]][d];poly(t3.map(p=>[x+28+p[0],y+18+p[1]]));X.fill();tx(q[2],x+28,y+50,12,'#cbd5e1','center');tx(String(q[1]),x+28,y+76,22,q[1]?'#fff':'#777','center')})}
+
+/* Shared canvas text primitive used by menus, HUD and engine overlays. */
+function tx(s,x,y,sz=20,c='#fff',al='left'){X.font=`bold ${sz}px system-ui,sans-serif`;X.fillStyle=c;X.textAlign=al;X.fillText(s,x,y)}

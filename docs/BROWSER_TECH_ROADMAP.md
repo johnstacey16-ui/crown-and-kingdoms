@@ -190,3 +190,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved the deterministic tile hash (`hsh()`), foliage colour/shading cache (`GC`, `SC`, `shd`, `GCd`, `GCl`) and `PALS` terrain palette definitions into `js/render.js`.
 - Tile and detail painters already live in that module, so palette ownership is now adjacent to use. `engine.js` no longer declares renderer-only palette state.
 - Added `tests/terrain-palette-renderer.test.mjs` to check single ownership and the palette call path. This is code organisation, not a measured frame-time gain.
+
+
+### Shared canvas primitive ownership — 15 October 2026
+
+- Moved the generic canvas shape/progress primitives `bar()`, `dia()` and `poly()` to `js/render.js` and the text helper `tx()` to `js/ui.js`.
+- This preserves their global classic-script function names and existing callers. The renderer/UI scripts already load before `engine.js`; `js/minimap.js` continues to use `dia()` from the renderer.
+- Added `tests/canvas-primitives-ownership.test.mjs` to protect one-owner declarations and the current load/caller order.
