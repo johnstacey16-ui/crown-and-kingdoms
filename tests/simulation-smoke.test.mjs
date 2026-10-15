@@ -110,6 +110,27 @@ globalThis.__CK_TEST__ = {
       event.do = original;
     }
   },
+  exerciseCampaignCompletion() {
+    this.startCampaign(0);
+    const scenario = CAMP[0];
+    const original = scenario.goals.map(goal => goal.ok);
+    try {
+      scenario.goals.forEach(goal => { goal.ok = () => false; });
+      const pulse = () => { for (let tick = 0; tick < 15; tick++) cmpTick(0.05); };
+      pulse();
+      const before = { over: S.over, completed: { ...cmp.d }, mode };
+      for (let index = 0; index < scenario.goals.length; index++) {
+        scenario.goals[index].ok = () => true;
+        pulse();
+        if (index < scenario.goals.length - 1 && S.over === 'win') throw new Error('Campaign ended before all objectives were complete');
+      }
+      const won = { over: S.over, completed: { ...cmp.d }, mode, time: cmp.t };
+      endA();
+      return { before, won, nextBriefing: { mode, index: bi }, savedCompletion: JSON.parse(localStorage.getItem('ck_camp') || '{}') };
+    } finally {
+      scenario.goals.forEach((goal, index) => { goal.ok = original[index]; });
+    }
+  },
   auditCurrentCampaignObjectives() {
     if (!cmp || !CAMP[cmp.i]) return null;
     const goals = CAMP[cmp.i].goals || [];
