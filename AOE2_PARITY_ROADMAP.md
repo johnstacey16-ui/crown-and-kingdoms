@@ -84,7 +84,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 ## Priority 3 — visuals, audio and feedback
 
 - **Present:** original SVG atlas assets, animation metadata, procedural fallbacks, team-colour cues, equipment/rank cues, terrain details and synthesised spatial/adaptive audio.
-- **Partial:** make unit ranks and equipment more distinct at gameplay zoom; improve building silhouettes, animation readability, terrain contrast and ownership cues without obscuring selection or health bars.
+- **Partial:** units now gain a dark-outlined team-colour ground marker below strategic zoom (`zm < 0.8`), with a source regression guard. This is a readability aid, not a substitute for inspecting unit equipment, building silhouettes, animation and terrain contrast in a real browser/TV; that visual acceptance remains outstanding.
 - **Unverified:** inspect real frames in a browser and on a TV at normal viewing distance. Atlas metadata validation does not confirm visual quality or correct animation playback.
 - Verify audio autoplay/resume, mute/volume controls and graceful handling when browser audio is unavailable.
 
