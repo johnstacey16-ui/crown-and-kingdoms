@@ -381,6 +381,41 @@ globalThis.__CK_TEST__ = {
     const unit = addU(0, 'mil', p[0], p[1]);
     unit.testTechNew = true;
   },
+  beginBloodlinesResearch() {
+    S.age[0] = 2;
+    let stable = S.bs.find((b) => b.t === 0 && b.k === 'stable' && b.done);
+    if (!stable) {
+      const size = B.stable.s;
+      let site = null;
+      for (let y = 2; y < H - size - 1 && !site; y++) for (let x = 2; x < W - size - 1 && !site; x++) {
+        let clear = true;
+        for (let dy = 0; dy < size && clear; dy++) for (let dx = 0; dx < size; dx++) {
+          const index = (y + dy) * W + x + dx;
+          if (S.g[index] || S.wt[index] || S.nd[index]) { clear = false; break; }
+        }
+        if (clear) site = { x, y };
+      }
+      if (!site) throw new Error('Could not find a clear site for a completed test Stable');
+      stable = addB(0, 'stable', site.x, site.y, true);
+    }
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    const p = spawnPos(tc);
+    if (!p) throw new Error('Could not spawn the existing cavalry test unit');
+    const unit = addU(0, 'knight', p[0], p[1]);
+    const beforeMax = mhp(unit);
+    unit.hp = beforeMax - 10;
+    unit.testBloodlinesTarget = true;
+    S.res[0].f = 1000; S.res[0].g = 1000; S.res[0].w = 1000; S.res[0].s = 1000;
+    if (!research(stable, 'blood')) throw new Error('Stable should accept affordable Bloodlines research');
+    return { beforeMax, beforeHp: unit.hp };
+  },
+  addPostUpgradeKnight() {
+    const tc = S.bs.find((b) => b.t === 0 && b.k === 'tc' && b.done);
+    const p = spawnPos(tc);
+    if (!p) throw new Error('Could not find a spawn position for a post-Bloodlines Knight');
+    const unit = addU(0, 'knight', p[0], p[1]);
+    unit.testBloodlinesNew = true;
+  },
   orderWoodGather() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
     if (!u) throw new Error('The seeded match must contain a player villager');
@@ -427,11 +462,17 @@ globalThis.__CK_TEST__ = {
       research: {
         gatherRate: S.tech[0].gath || 0,
         manAtArms: S.tech[0].man || 0,
+        bloodlines: S.tech[0].blood || 0,
+        chemistry: S.tech[0].chem || 0,
         townCentreResearch: (S.bs.find((b) => b.t === 0 && b.k === 'tc') || {}).rs || null,
       },
       upgradedUnits: {
         existing: (() => { const u = S.us.find((u) => u.testTechTarget); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
         newlyTrained: (() => { const u = S.us.find((u) => u.testTechNew); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
+      },
+      bloodlineUnits: {
+        existing: (() => { const u = S.us.find((u) => u.testBloodlinesTarget); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
+        newlyCreated: (() => { const u = S.us.find((u) => u.testBloodlinesNew); return u ? { hp: u.hp, maxHp: mhp(u) } : null; })(),
       },
       mapAudit: S.mapAudit ? { ...S.mapAudit } : null,
       aiPeak: { ...aiPeak },
@@ -513,6 +554,23 @@ assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 15,
 assert.equal(hpWithNewUnit.hp, hpWithNewUnit.maxHp,
   'New Militia should spawn at its upgraded maximum HP');
 console.log('technology-hp-smoke: completed Man-at-Arms research upgrades existing injured units and newly created units without erasing damage');
+
+game.start(123456, 1);
+const bloodlinesBefore = game.beginBloodlinesResearch();
+for (let tick = 0; tick < 1230; tick += 1) game.tick(1 / 30);
+const bloodlinesAfter = game.state();
+assert.equal(bloodlinesAfter.research.bloodlines, 1, 'Bloodlines research should complete in the real Stable timer');
+assert.equal(bloodlinesAfter.bloodlineUnits.existing.maxHp, bloodlinesBefore.beforeMax + 20,
+  'Bloodlines must increase the maximum HP of cavalry that already exists');
+assert.equal(bloodlinesAfter.bloodlineUnits.existing.hp, bloodlinesBefore.beforeHp + 20,
+  'Bloodlines must preserve existing cavalry damage while adding HP');
+game.addPostUpgradeKnight();
+const newBloodlineKnight = game.state().bloodlineUnits.newlyCreated;
+assert.equal(newBloodlineKnight.maxHp, bloodlinesBefore.beforeMax + 20,
+  'New cavalry created after Bloodlines must inherit its HP bonus');
+assert.equal(newBloodlineKnight.hp, newBloodlineKnight.maxHp,
+  'New cavalry must spawn at its upgraded maximum HP');
+console.log('bloodlines-smoke: Stable research improves existing and newly created cavalry without erasing existing damage');
 
 game.start(123456);
 const plannedHouse = game.beginHouseConstruction();
