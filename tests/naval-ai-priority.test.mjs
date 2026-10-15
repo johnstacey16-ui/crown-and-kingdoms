@@ -7,5 +7,9 @@ test('AI war galleys favour enemy warships and focus a shared target', () => {
   assert.match(html, /const focus=e=>galleys\.filter\(u=>u\.o==='a'&&u\.tg===e\)\.length,enemy=hostileShips\.slice\(\)\.sort/);
   assert.match(html, /Math\.min\(3,focus\(a\)\)\*4/);
   assert.match(html, /Math\.min\(3,focus\(b\)\)\*4/);
+  assert.match(html, /navalTargetScore=\(e\)=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\(e\.k==='gal'\?6:0\)\+\(U\[e\.k\]\.dmg>=4\?0:10\)-Math\.min\(3,focus\(e\)\)\*4/,
+    'naval target scoring must combine distance, combat capability, galley priority and coordinated focus');
+  assert.match(html, /hostileShips\.slice\(\)\.sort\(\(a,b\)=>navalTargetScore\(a\)-navalTargetScore\(b\)\)/,
+    'galleys must choose targets using the shared naval scoring function');
   assert.match(html, /if\(enemy&&Math\.hypot\(enemy\.x-ship\.x,enemy\.y-ship\.y\)<28\)/);
 });
