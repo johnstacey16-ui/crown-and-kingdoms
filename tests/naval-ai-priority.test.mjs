@@ -11,7 +11,7 @@ assert.match(ai, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a
   'AI must track focus fire across its galley fleet');
 assert.match(ai, /navalTargetScore=e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\(e\.k==='gal'\?6:0\)\+\(U\[e\.k\]\.dmg>=4\?0:10\)-Math\.min\(3,focusCounts\.get\(e\)\|\|0\)\*4/,
   'naval target scoring must combine distance, combat capability, galley priority and coordinated focus');
-assert.match(ai, /galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
+assert.match(ai, /galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
   'war galleys must reacquire targets after their current target dies, is garrisoned, or is no longer hostile');
 assert.match(ai, /for\(const candidate of hostileShips\)\{const score=navalTargetScore\(candidate\);if\(score<enemyScore\)\{enemyScore=score;enemy=candidate\}\}/,
   'galleys must select a target using the shared naval scoring function');
