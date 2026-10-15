@@ -135,6 +135,13 @@ test('in-game About copy describes the real asset, audio and verification bounda
   assert.doesNotMatch(engine, /All art is drawn in code\. No external assets or network calls/);
 });
 
+test('unit equipment rendering reads technology state and exposes researched armour visually', () => {
+  assert.match(render, /function drawUnit\(u\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
+  assert.match(render, /T\.armI&&INFARM\.has\(k\)/);
+  assert.match(render, /T\.armR&&ARCHARM\.has\(k\)/);
+  assert.match(render, /Blacksmith armour upgrades receive a small battlefield-visible cue/);
+});
+
 test('audio voice classification tolerates entities without unit definitions', () => {
   assert.match(audio, /\(U\[k\]&&U\[k\]\.mt\)\|\|\['scout','knight','camel','mgd','cata','mamel','ele','eled'\]\.includes\(k\)\?'cav'/);
 });
