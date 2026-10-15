@@ -217,3 +217,10 @@ This checkpoint supersedes older dated notes where they conflict with the curren
   4. Continue meaningful campaign and strategic-map variety, with objectives, prerequisites and mission ordering covered by checks.
   5. Profile 200- and 400-population matches and verify navigation, save/load, audio and controller focus in an actual browser/Xbox session when available.
 - **Do not mark complete based only on static checks:** full-match balance, online resilience, animation quality, TV-distance readability, and Xbox Series S / Edge performance remain unverified until directly tested.
+
+
+### UI modularisation follow-on — 15 October 2026
+
+- **Implemented in source:** the performance overlay and strategic overview drawing functions now live in `js/ui.js`, loaded before `engine.js`. The extraction preserves the function names and bodies.
+- **Regression protection:** script order, function ownership and inclusion in the source syntax checks and offline shell cache are covered by the updated checks.
+- **Remaining:** the main HUD, pause/menu screens, campaign UI and save-slot UI remain in `engine.js`. Continue in small dependency-aware groups; avoid claiming that the entire UI has been modularised.
