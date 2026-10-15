@@ -15,8 +15,8 @@ assert.match(ai, /if\(k==='atkR2'&&ownRanged<2\)score-=28/, 'AI should not waste
 assert.match(ai, /if\(k==='armI'&&humanRanged>=3\)score\+=12/,
   'enemy ranged pressure can still influence defensive research without overriding own-unit value');
 
-assert.match(ai, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;if\(!e\.ld\)hostileFleet\.push\(e\)\}/,
-  'AI fleet planning must count hostile combat ships without counting fishing, transport or trade ships');
+assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/,
+  'AI fleet planning must count only active hostile combat ships, excluding loaded, fishing, transport and trade ships');
 assert.match(ai, /my\.filter\(u=>u\.k==='gal'\)\.length\+bl\.filter\(b2=>b2\.k==='dock'&&b2\.hp>0&&Array\.isArray\(b2\.q\)\)\.reduce\(\(n,b2\)=>n\+b2\.q\.filter\(q=>q==='gal'\)\.length,0\)<Math\.min\(12,Math\.max\(4,2\+2\*navalThreatCount\)\)/,
   'AI war-galley production must scale from a four-ship baseline to twelve and include queued ships to prevent overproduction');
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/, 'Garrisoned or otherwise loaded ships must not trigger enemy fleet threat responses');
