@@ -17,7 +17,7 @@ const CORE_ASSETS = [
   './js/input.js',
   './js/render.js',
   './js/ui.js',
-  './js/simulation.js','./js/kingdom.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js',
+  './js/simulation.js','./js/kingdom.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js',
   './engine.js',
   './persistence.js',
   './multiplayer.js',
