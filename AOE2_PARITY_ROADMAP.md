@@ -44,7 +44,7 @@ The main runtime is split into classic scripts. `engine.js` remains responsible 
 
 ### 2.1 Technologies and unit progression
 - **Present:** age-gated research and shared effects for many upgrades, including infantry sword-line ranks, Pikeman/Halberdier, Cavalry Armour, Conscription and Husbandry. Husbandry increases mounted-unit movement by 10%; the implementation includes the mounted special-unit roster and AI research valuation.
-- **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback. AI now applies a stronger penalty to advanced melee/ranged attack research when it has fewer than two matching troops; `tests/ai-research-priority.test.mjs` guards this. Latest workflow execution is pending.
+- **Partial:** audit the complete technology list for correct prerequisites, costs, research duration, existing-unit effects, newly trained unit effects, AI valuation and visible battlefield feedback. AI applies a stronger penalty to advanced melee/ranged attack research when it has fewer than two matching troops; `tests/ai-research-priority.test.mjs` guards this. The real-engine simulation smoke test now measures live damage deltas for Melee Attack +2/+5 and Ranged Attack +1/+3, instead of relying solely on source matching. Latest workflow execution is pending.
 - Ensure each technology has a real, testable gameplay effect rather than a UI-only entry. Check stacking, repeated research prevention and save/load persistence.
 - Keep balance values labelled as project rules; do not imply exact official AoE2 values unless independently verified.
 
