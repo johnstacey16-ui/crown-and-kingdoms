@@ -157,6 +157,56 @@ globalThis.__CK_TEST__ = {
       invalidResources: S.res.filter(r => !r || !['f','w','g','s'].every(k => Number.isFinite(r[k]) && r[k] >= 0)).length,
     };
   },
+
+  runFourKingdomWar(economySeconds = 180, combatSeconds = 60) {
+    kingdoms = 4;
+    this.start(86420);
+    const ticksPerSecond = 30;
+    const runTicks = (seconds) => {
+      for (let tick = 0; tick < Math.round(seconds * ticksPerSecond); tick++) this.tick(1 / ticksPerSecond);
+    };
+    const snapshot = () => Array.from({ length: 4 }, (_, team) => {
+      const units = S.us.filter(u => u && u.t === team && u.hp > 0);
+      const buildings = S.bs.filter(b => b && b.t === team && b.hp > 0);
+      const resources = S.res[team] || {};
+      return {
+        team, units: units.length, buildings: buildings.length,
+        villagers: units.filter(u => u.k === 'vil').length,
+        military: aiMilitaryCount(team),
+        gathering: units.filter(u => u.o === 'g' && u.tg && Number.isFinite(u.tg.amt)).length,
+        constructing: units.filter(u => u.o === 'b' || u.o === 'build').length,
+        resources: { food: resources.f || 0, wood: resources.w || 0, gold: resources.g || 0, stone: resources.s || 0 },
+        buildingKinds: buildings.reduce((out, b) => { out[b.k] = (out[b.k] || 0) + 1; return out; }, {}),
+      };
+    });
+    const before = snapshot();
+    runTicks(economySeconds);
+    const economy = snapshot();
+
+    // Preserve the developed economies, then order each surviving army against
+    // the next kingdom. This makes the second phase a genuine live-engine war.
+    for (let team = 0; team < 4; team++) {
+      const enemies = S.us.filter(u => u && u.t !== team && u.hp > 0);
+      for (const unit of S.us.filter(u => u && u.t === team && u.hp > 0 && u.k !== 'vil' && u.k !== 'cart' && u.k !== 'fish' && u.k !== 'trn' && u.k !== 'cog')) {
+        let target = null, best = Infinity;
+        for (const enemy of enemies) {
+          const distance = Math.hypot(enemy.x - unit.x, enemy.y - unit.y);
+          if (distance < best) { best = distance; target = enemy; }
+        }
+        if (target) { unit.o = 'a'; unit.tg = target; unit.p = []; }
+      }
+    }
+    runTicks(combatSeconds);
+    const after = snapshot();
+    const invalidUnits = S.us.filter(u => !u || !Number.isFinite(u.x) || !Number.isFinite(u.y) || u.x < 0 || u.y < 0 || u.x >= W || u.y >= H || !Number.isFinite(u.hp)).length;
+    const invalidBuildings = S.bs.filter(b => !b || !Number.isFinite(b.x) || !Number.isFinite(b.y) || b.x < 0 || b.y < 0 || b.x >= W || b.y >= H || !Number.isFinite(b.hp)).length;
+    const invalidResources = S.res.filter(r => !r || !['f','w','g','s'].every(k => Number.isFinite(r[k]) && r[k] >= 0)).length;
+    return {
+      teams: S.teamN, economySeconds, combatSeconds, simulatedSeconds: S.t,
+      before, economy, after, invalidUnits, invalidBuildings, invalidResources,
+      elapsedMs: 0,
+    };
+  },
   auditHusbandrySpeeds() {
     const previous = S.tech[0].husb;
     try {
@@ -1209,6 +1259,19 @@ assert.equal(skirmish.invalidUnits, 0, 'AI skirmish must not leave units with in
 assert.equal(skirmish.invalidBuildings, 0, 'AI skirmish must not leave buildings with invalid coordinates or health');
 assert.equal(skirmish.invalidResources, 0, 'AI skirmish must preserve finite non-negative kingdom resources');
 console.log('four-kingdom-skirmish-smoke: '+skirmish.time.toFixed(1)+'s, '+skirmish.units+' units, '+skirmish.buildings+' buildings, invalid units/buildings/resources='+skirmish.invalidUnits+'/'+skirmish.invalidBuildings+'/'+skirmish.invalidResources);
+
+// Longer four-kingdom economy-to-war run: allow the actual AI to gather, build,
+// train and manage its economy for three simulated minutes, then send each
+// surviving army against a rival and continue the live simulation for one minute.
+const war = game.runFourKingdomWar(180, 60);
+assert.equal(war.teams, 4, 'Extended AI war must run four kingdoms');
+assert.ok(war.simulatedSeconds >= 239.9, 'Extended AI war must simulate at least four minutes');
+assert.ok(war.before.every(t => t.units > 0 && t.buildings > 0), 'Each AI kingdom must start with units and buildings');
+assert.ok(war.economy.every(t => t.units > 0 && t.buildings > 0), 'Each AI kingdom must retain units and buildings after economy phase');
+assert.equal(war.invalidUnits, 0, 'Extended AI war must preserve valid unit states');
+assert.equal(war.invalidBuildings, 0, 'Extended AI war must preserve valid building states');
+assert.equal(war.invalidResources, 0, 'Extended AI war must preserve finite non-negative resources');
+console.log('four-kingdom-economy-war: simulated='+war.simulatedSeconds.toFixed(1)+'s (economy='+war.economySeconds+'s, attack='+war.combatSeconds+'s), teams='+war.after.map(t=>'T'+t.team+' units='+t.units+' buildings='+t.buildings+' villagers='+t.villagers+' military='+t.military+' gathering='+t.gathering+' resources='+JSON.stringify(t.resources)).join(' | ')+', invalid='+war.invalidUnits+'/'+war.invalidBuildings+'/'+war.invalidResources);
 
 
 
