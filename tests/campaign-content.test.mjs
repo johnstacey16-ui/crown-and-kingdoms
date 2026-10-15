@@ -3,6 +3,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
+test('campaign arcs reference every defined mission exactly once', () => {
+  const campaign = html.match(/const CAMP=\[([\s\S]*?)\n\];/);
+  assert.ok(campaign, 'Campaign mission definitions must be present');
+  const missionCount = (campaign[1].match(/\{t:/g) || []).length;
+  assert.ok(missionCount > 0, 'Campaign must define missions');
+  const arcs = html.match(/const CAMP_ARCS=\[([\s\S]*?)\];/);
+  assert.ok(arcs, 'Campaign arc definitions must be present');
+  const ids = [...arcs[1].matchAll(/ids:\[([^\]]*)\]/g)]
+    .flatMap((match) => match[1].split(',').map((value) => Number(value.trim())));
+  assert.equal(ids.length, missionCount, 'Every mission must appear in exactly one campaign arc');
+  assert.equal(new Set(ids).size, ids.length, 'Campaign arcs must not duplicate mission IDs');
+  assert.deepEqual([...ids].sort((a, b) => a - b), Array.from({ length: missionCount }, (_, index) => index),
+    'Campaign arcs must reference valid contiguous mission IDs with no missing or out-of-range entries');
+});
+
 test('campaign HUD can display every active objective in five-goal tutorial missions', () => {
   assert.match(html, /function cmpHud\(\)[\s\S]*?sc\.goals\.filter\(q=>!cmp\.d\[q\.id\]\)\.slice\(0,5\)/);
   assert.match(html, /g\.forEach\(\(q,i\)=>tx\('- '\+q\.t,24,104\+i\*26,16,'#fff'\)\)/);
