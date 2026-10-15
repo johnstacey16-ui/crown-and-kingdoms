@@ -1,7 +1,7 @@
 # Crown & Kingdoms — implementation roadmap
 
 **Audit date:** 15 October 2026  
-**Source checkpoint reviewed for this continuation:** `ec3c3551fef8b1e4f24634d4833e7c29f25a643a` (main before this change, 15 October 2026).  
+**Source checkpoint reviewed for this continuation:** `d9b7080ee6c95df388de9eb86a51c5c96806f0ef` (main, 15 October 2026).  
 **Target:** browser canvas RTS, with controller-first operation on Xbox Series S / Microsoft Edge.
 
 This is a practical development roadmap, not a claim of full Age of Empires II: Definitive Edition parity. “Implemented” means relevant code exists; it does not automatically mean the feature is balanced, complete, or verified on an Xbox.
@@ -69,7 +69,7 @@ The game is being built feature-first for the single-page Xbox Edge target. The 
 ### Next gameplay and content work
 
 1. **Unit and technology depth:** expand the useful roster and counter relationships; add visibly distinct equipment/rank art rather than relying only on HUD rank labels; keep each new technology tied to real effects on existing and newly produced objects.
-2. **Campaign depth:** continue adding missions with meaningfully different starts, timed events, multi-stage objectives and enemy plans. The progression now includes Ashford, Frontier Wars, Royal Campaign, Coastal War, Northern March and The Causeway Campaign. The Causeway Muster uses layout 12 and combines dock, galley, tower and fortress objectives; keep mission-order regression checks aligned with the displayed arc order. *The Siege of Tidewatch* is now part of Coastal War and requires a Siege Workshop, two living Bombard Cannons, destruction of the enemy Castle and destruction of the enemy Town Centre before the mission completes.
+2. **Campaign depth:** continue adding missions with meaningfully different starts, timed events, multi-stage objectives and enemy plans. The progression now includes Ashford, Frontier Wars, Royal Campaign, Coastal War, Northern March and The Causeway Campaign. The Causeway Muster uses layout 12 and combines dock, galley, tower and fortress objectives. The follow-on *The Crown Holds the Crossing* adds an Imperial Age fortification challenge: build two completed Castles, withstand timed heavy-siege raids and destroy the enemy Town Centre. Both missions use layout 12 and are ordered in the Causeway Campaign. *The Siege of Tidewatch* is now part of Coastal War and requires a Siege Workshop, two living Bombard Cannons, destruction of the enemy Castle and destruction of the enemy Town Centre before the mission completes.
 3. **Map identity and naval routes:** add distinct layouts with clear strategic choices; keep start fairness and land access in mind, and improve actual navigability for ships beyond terrain-only connectivity diagnostics.
 4. **AI and diplomacy:** adaptive counter research/production and allied emergency defence are now present. Remaining gaps include AI-negotiated diplomacy, treaty duration, shared vision, and a more complete allied victory model.
 5. **Combat and economy balance:** review long matches, siege/ship counters, construction and repair rates, market value curves, farm recovery and resource demand at the higher population settings.
