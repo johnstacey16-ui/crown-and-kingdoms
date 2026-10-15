@@ -220,7 +220,7 @@ if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.p
 const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'),cb=(k,t=0)=>S.bs.filter(b=>b.t===t&&b.k===k&&b.done).length,cu=(k,t=0)=>S.us.filter(u=>u.t===t&&(!k||u.k===k)).length,cmil=t=>S.us.filter(u=>u.t===t&&u.k!=='vil'&&u.k!=='mon'&&u.k!=='king'&&!U[u.k].sh).length;
 const grp=(t,k,n)=>{const tc=tcOf(t);for(let i=0;i<n;i++){const p=tc&&spawnPos(tc);if(p)addU(t,k,p[0]+(i%4)*.3,p[1]+(i%3)*.3)}};
 function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true)}return null}
-function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode==='title')return drawTitle();if(mode==='multiplayer')return window.CK_NET?window.CK_NET.drawLobby():drawTitle();if(mode==='remap')return drawRemap();if(mode==='info')return drawInfo2();if(mode==='setup')return drawSetup();if(mode==='opts')return drawOpts();if(mode==='slots')return drawSlots();if(mode==='camp')return drawCamp();if(mode==='brief')return drawBrief();if(mode==='obj')return drawObj();if(mode==='tree')return drawTree();
+function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');drawWorld();
 drawGameOverlays(dt)}
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
