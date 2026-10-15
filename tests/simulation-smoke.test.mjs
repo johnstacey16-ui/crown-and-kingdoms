@@ -189,6 +189,41 @@ globalThis.__CK_TEST__ = {
       if (oldR2 !== undefined) tech.atkR2 = oldR2;
     }
   },
+  auditArmourResearchDamage() {
+    const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
+    const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
+    const tech = S.tech[0], armour = S.tech[1];
+    const oldArmI = armour.armI, oldArmR = armour.armR;
+    const oldAtkM = tech.atkM, oldAtkM2 = tech.atkM2, oldAtkR = tech.atkR, oldAtkR2 = tech.atkR2;
+    const oldKind = target.k, oldHp = target.hp, oldDead = target.dead;
+    const damage = (attackerKind, targetKind, armourKey) => {
+      attacker.k = attackerKind;
+      target.k = targetKind;
+      delete armour.armI; delete armour.armR;
+      if (armourKey) armour[armourKey] = 1;
+      target.hp = 100000; target.dead = 0;
+      dmgT(attacker, target);
+      return 100000 - target.hp;
+    };
+    try {
+      return {
+        infantryBase: damage('mil', 'mil', null),
+        infantryArmour: damage('mil', 'mil', 'armI'),
+        rangedBase: damage('xbow', 'arc', null),
+        rangedArmour: damage('xbow', 'arc', 'armR'),
+      };
+    } finally {
+      attacker.k = 'mil'; target.k = oldKind; target.hp = oldHp; target.dead = oldDead;
+      for (const key of ['armI','armR']) delete armour[key];
+      if (oldArmI !== undefined) armour.armI = oldArmI;
+      if (oldArmR !== undefined) armour.armR = oldArmR;
+      for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
+      if (oldAtkM !== undefined) tech.atkM = oldAtkM;
+      if (oldAtkM2 !== undefined) tech.atkM2 = oldAtkM2;
+      if (oldAtkR !== undefined) tech.atkR = oldAtkR;
+      if (oldAtkR2 !== undefined) tech.atkR2 = oldAtkR2;
+    }
+  },
   auditSpatialTargets() {
     const originalUnits=S.us,originalBuildings=S.bs;
     const probes=[
@@ -744,6 +779,12 @@ assert.equal(attackResearch.meleeAdvanced - attackResearch.meleeBase, 5, 'Melee 
 assert.equal(attackResearch.rangedBasic - attackResearch.rangedBase, 1, 'Ranged Attack +1 must increase live ranged damage by exactly one');
 assert.equal(attackResearch.rangedAdvanced - attackResearch.rangedBase, 3, 'Ranged Attack +3 must increase live ranged damage by exactly three');
 console.log('attack-research-smoke: basic and advanced melee/ranged upgrades verified against live combat damage');
+const armourResearch = game.auditArmourResearchDamage();
+assert.equal(armourResearch.infantryBase - armourResearch.infantryArmour, 1,
+  'Infantry Armour research must reduce incoming melee damage by exactly one');
+assert.equal(armourResearch.rangedBase - armourResearch.rangedArmour, 1,
+  'Archer Armour research must reduce incoming ranged damage by exactly one');
+console.log('armour-research-smoke: infantry and archer armour upgrades reduce live incoming damage by one');
 
 const targetAudit=game.auditSpatialTargets();
 assert.equal(targetAudit.queries,6,'Spatial target audit must compare several radii and bucket boundaries');
