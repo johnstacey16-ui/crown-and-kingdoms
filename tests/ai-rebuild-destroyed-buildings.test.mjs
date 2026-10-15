@@ -24,7 +24,7 @@ assert.match(ai, /S\.bs\.filter\(b=>b\.t===t&&b\.k==='bar'&&b\.hp>0\)\.length/,
   'Destroyed Barracks must not satisfy the AI minimum Barracks count');
 assert.match(ai, /bl\.filter\(b=>b\.k==='house'&&b\.hp>0&&!b\.done\)\.length/,
   'Destroyed unfinished Houses must not suppress population-cap construction');
-assert.match(ai, /bl\.filter\(b2=>b2\.k==='dock'&&b2\.hp>0\)\.reduce/,
+assert.match(ai, /bl\.filter\(b2=>b2\.k==='dock'&&b2\.hp>0&&Array\.isArray\(b2\.q\)\)\.reduce/,
   'Destroyed Docks must not contribute queued naval production to AI capacity');
 
 assert.match(ai, /S\.bs\.filter\(x=>x\.t===t&&x\.done&&x\.hp>0&&AG\[S\.age\[t\]\+1\]\.needs\.includes\(x\.k\)&&B\[x\.k\]&&\(B\[x\.k\]\.age\|\|0\)===S\.age\[t\]\)/,
