@@ -265,3 +265,9 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 
 - Moved minimap terrain colour data, minimap texture refresh, world/minimap coordinate transforms, display filters and minimap drawing into `js/minimap.js`.
 - Kept player viewport, explored-terrain, team markers, pings, flares and King of the Hill marker rendering in place. Added the module to script-order checks, offline cache and simulation/KOTH harnesses.
+
+
+## Pathfinding module extraction
+
+- Moved A* route search, diagonal corner-cut prevention, path reconstruction, target-distance helpers and point-goal construction into `js/pathfinding.js`.
+- Preserved the shared reusable path workspace, route cost/heuristic, walkability checks and existing return format. Loaded before kingdom automation and included in offline caching, syntax checks and pathing/simulation regressions.
