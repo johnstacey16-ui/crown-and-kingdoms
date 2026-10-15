@@ -15,7 +15,7 @@ This roadmap tracks the controller-first Canvas 2D game runtime. Preserve the ex
 - `js/simulation.js`: simulation stepping and related simulation systems extracted from the main engine.
 - `js/render.js`: world, unit, relic, terrain tile, hill and cached terrain-chunk rendering; local atlas sprites remain backed by procedural drawing fallbacks.
 - `js/assets.js`: optional sprite-atlas registration, metadata/frame validation, asynchronous image loading and animation-frame lookup, with procedural fallback preserved.
-- `js/ui.js`: shared title-background/generic list rendering, performance overlay, strategic overview, technology tree, objectives, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; save serialization remains in `js/save.js`.
+- `js/ui.js`: shared title-background/generic list rendering and framed panels, match-result/runtime-error overlays, performance overlay, strategic overview, technology tree, objectives, controller help/About screens, pause-menu model/drawing, controller-remap labels/drawing, save-slot presentation, and in-match resource-bar/HUD drawing extracted without changing the classic-script shared-state model. Controller navigation and rebinding remain in `js/input.js`; save serialization remains in `js/save.js`.
 - The renderer adds subtle armour highlights when infantry or ranged armour research is active; campaign objective HUD shows up to five active objectives. Keep these overlays low-cost and verify at gameplay zoom on target hardware.
 - Large-army unit separation reuses its spatial bucket map across simulation steps, avoiding a fresh map allocation for each pass. The path still needs measured performance verification at 400 units on the target browser.
 - In-game About copy now describes the actual local SVG assets, synthesised Web Audio, lightweight multiplayer scope and unverified Xbox/deployment status.
@@ -87,7 +87,7 @@ A passing GitHub Actions run verifies source invariants and the automated regres
 - Moved `drawPerfOverlay(dt)`, `ovr()` and `drawOv()` from `engine.js` into `js/ui.js` without rewriting their function bodies.
 - Added `js/ui.js` to `index.html` before `engine.js` (and before simulation's script slot), the service-worker core cache, source syntax checks and browser-foundation regression checks.
 - The module depends on shared classic-script globals at call time; no new duplicate state declarations were introduced. This is a maintainability extraction only and does not claim a performance improvement.
-- The pause-menu, controller-remap, in-match HUD, save-slot presentation and shared title/list renderers now live in `js/ui.js`; controller input/rebinding remains in `js/input.js`, and save serialization remains in `js/save.js`. Next extraction can target smaller campaign presentation helpers after mapping dependencies.
+- The pause-menu, controller-remap, in-match HUD, save-slot presentation, shared title/list renderers and diagnostic/panel primitives now live in `js/ui.js`; controller input/rebinding remains in `js/input.js`, and save serialization remains in `js/save.js`. Next work should audit the remaining presentation logic already shared across `js/menus.js` and `js/campaign.js` rather than move gameplay state.
 
 
 ### Engine refactor update
@@ -142,3 +142,10 @@ A* route search, diagonal corner checks, path reconstruction and route-target he
 - Moved `titleBg()` and `drawList()` to `js/ui.js`, preserving both bodies and function names. The title menu, new-game/options lists, campaign list/briefing and save-slot screen continue to call the same global helpers.
 - `panel()` remains in `engine.js` as the reusable panel primitive used across gameplay and menu screens.
 - Added `tests/shared-menu-rendering-ui-extraction.test.mjs` to protect single ownership and all current caller groups.
+
+
+### Shared panel and diagnostic overlay extraction — 15 October 2026
+
+- Moved `panel()`, `shade()` and `drawError()` into `js/ui.js` with their bodies preserved. The end-of-match renderer and runtime exception handler still call the same functions by name.
+- `CK_ERR`, the `try/catch` frame boundary and the simulation halt-on-runtime-exception behaviour remain in `engine.js`; only drawing moved.
+- `tests/core-ui-primitives-extraction.test.mjs` protects the rendering function ownership and both existing runtime call paths.

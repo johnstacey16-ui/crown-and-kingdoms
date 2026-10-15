@@ -23,6 +23,7 @@ This is a practical development roadmap, not a claim of full Age of Empires II: 
 - **Implemented:** moved `ico()`, `topbar()` and `hud()` into `js/ui.js`; `engine.js` continues to call the same `hud()` entry point. HUD status labels and the three affected source bundles have regression coverage; no frame-rate gain is claimed.
 - **Implemented:** moved `slotItems()` and `drawSlots()` into `js/ui.js`; slot parsing/restoration, controller selection and save serialisation remain in place. A focused test checks single ownership and preserved save/load callback wiring.
 - **Implemented:** moved shared `titleBg()` and `drawList()` helpers into `js/ui.js`; title, setup/options, campaign and save-slot screens still call the same global functions. A focused regression test checks ownership and caller integration.
+- **Implemented:** moved `panel()`, `shade()` and `drawError()` into `js/ui.js`; match-end and runtime-error callers retain the same entry points. Error state, the frame exception catch and simulation-stop behaviour remain in `engine.js,` and a focused test guards the split.
 - **Implemented:** added more saddle tack, stitched details and cavalry barding accents to the procedural mounted-unit art.
 - **Implemented:** reuse the spatial separation grid for large armies to reduce repeated allocations. This is a targeted allocation reduction, not proof of 400-unit performance; Xbox Edge profiling remains unverified.
 - **Implemented:** researched infantry and ranged armour upgrades now have a subtle metal-and-gold visual cue in the battlefield renderer; `drawUnit` explicitly keeps its team technology state available to the equipment passes.
@@ -228,7 +229,7 @@ This checkpoint supersedes older dated notes where they conflict with the curren
 - **Documentation inventory:** the maintained Markdown set is `README.md`, this roadmap, and `docs/BROWSER_TECH_ROADMAP.md`. The completed graphics/audio prompt was removed after its applicable work was incorporated. Keep the README and both roadmaps; do not recreate a prompt file as a substitute for updating these canonical documents.
 - **Immediate engineering order:**
   1. Keep closing runtime regressions found during real play; add a focused regression test for each fixed failure.
-  2. Continue dependency-aware UI separation only for cohesive drawing groups; keep gameplay systems and controller action logic in their existing modules and extend regression source composition whenever UI-owned content moves.
+  2. Continue dependency-aware separation only for cohesive presentation code; audit any remaining drawing inside `js/menus.js` and `js/campaign.js` without moving mission progression, game state or controller actions merely to relocate code.
   3. Improve visibly distinct unit ranks/equipment and building silhouettes without replacing the current art fallback path.
   4. Continue meaningful campaign and strategic-map variety, with objectives, prerequisites and mission ordering covered by checks.
   5. Profile 200- and 400-population matches and verify navigation, save/load, audio and controller focus in an actual browser/Xbox session when available.
