@@ -110,6 +110,14 @@ globalThis.__CK_TEST__ = {
       event.do = original;
     }
   },
+  exerciseCampaignDefeat() {
+    this.startCampaign(0);
+    const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.hp > 0);
+    if (!tc) throw new Error('First Hearth must start with a living player Town Centre');
+    tc.hp = 0;
+    for (let tick = 0; tick < 15; tick++) cmpTick(0.05);
+    return { over: S.over, mode, reason: S.why, campaignTime: cmp.t, savedCompletion: localStorage.getItem('ck_camp') };
+  },
   exerciseCampaignCompletion() {
     this.startCampaign(0);
     const scenario = CAMP[0];
