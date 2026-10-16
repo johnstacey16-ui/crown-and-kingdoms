@@ -1247,6 +1247,7 @@ const shouldRunCampaignMission = index => !skipCampaignPlaythroughs && (requeste
 if (skipCampaignPlaythroughs) console.log('campaign-playthrough-mode: skipped all 19 scripted playthroughs (CK_SKIP_CAMPAIGN=1)');
 else if (requestedMission !== null) console.log('campaign-playthrough-mode: running mission '+(requestedMission+1)+' only (CK_MISSION='+requestedMission+')');
 
+if (requestedMission === null) {
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
 const kingHill = game.exerciseKingHillControl();
 assert.ok(kingHill.contestedProgress.every(value => value === 0), 'Contested hill control must reset every kingdom progress counter');
@@ -1584,7 +1585,8 @@ for (let mission = 0; mission < 19; mission += 1) {
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
 
-// Directly exercise every campaign goal predicate, mission victory, and both defeat routes.
+// Directly exercise every campaign goal predicate, mission victory, and both defeat routes.}
+
 const campaignGoalAudit = timed('campaign-goal-reachability-19-missions', () => game.auditCampaignGoalReachability());
 assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
 for (const mission of campaignGoalAudit.results) {
@@ -1679,6 +1681,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length);
 }
 
+if (requestedMission === null) {
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
 const timedCampaignEvent = game.exerciseTimedCampaignEvent();
@@ -1859,3 +1862,5 @@ for (const team of massBattle.result) {
 console.log('four-kingdom-mass-battle: '+massBattle.requestedTotal+' units, 500/team, ticks='+massBattle.ticksCompleted+', simulated='+massBattle.simulatedSeconds.toFixed(2)+'s, elapsedMs='+massBattle.elapsedMs.toFixed(2)+', survivors='+massBattle.result.map(t=>'T'+t.team+':'+t.alive).join('/')+', invalid='+massBattle.invalidUnits);
 
 
+
+}
