@@ -921,7 +921,7 @@ globalThis.__CK_TEST__ = {
       const a = y * W + x, b = a + 1;
       if (S.wt[a] || S.wt[b] || S.g[a] || S.g[b] || S.nd[a] || S.nd[b]) continue;
       worker.x = x + 0.5; worker.y = y + 0.5;
-      node = addN('f', x + 1, y, 0.01, 1);
+      node = addN('f', x + 1, y, 0.01, 1); if (node) node.t = 0;
     }
     if (!node) throw new Error('Could not find two adjacent open land tiles for farm reseeding');
     node.testFarmReseed = true;
