@@ -1595,7 +1595,7 @@ for (let mission = 0; mission < 19; mission += 1) {
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
 
-// Directly exercise every campaign goal predicate, mission victory, and both defeat routes.}
+// Directly exercise every campaign goal predicate, mission victory, and both defeat routes.
 
 const campaignGoalAudit = timed('campaign-goal-reachability-19-missions', () => game.auditCampaignGoalReachability());
 assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
