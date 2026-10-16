@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -171,6 +171,7 @@ globalThis.__CK_TEST__ = {
         if (woodWorker) assignWood(woodWorker);
       }
       for (const [unitKind, targetCount] of Object.entries(plan.units || {})) {
+        if (U[unitKind] && U[unitKind].age > S.age[0]) { trainingGate = unitKind + ' requires age ' + U[unitKind].age; continue; }
         const live = S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length;
         const producer = S.bs.find(building => building.t === 0 && building.done && building.hp > 0 && Array.isArray(B[building.k].tr) && B[building.k].tr.includes(unitKind));
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
@@ -1595,6 +1596,13 @@ console.log('campaign-scripted-playthrough: The Golden Coast '+(goldenCoastPlayt
 const tidewatchPlaythrough = game.playCampaignScenario(14, 1200);
 assert.ok(['win', 'lose'].includes(tidewatchPlaythrough.over), 'The Siege of Tidewatch must reach a real victory or defeat transition: '+JSON.stringify(tidewatchPlaythrough));
 console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+tidewatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+tidewatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+tidewatchPlaythrough.objectives.length);
+const northernWatchPlaythrough = game.playCampaignScenario(6, 600);
+assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
+assert.ok(['win', 'lose'].includes(northernWatchPlaythrough.over), 'The Northern Watch must reach a real victory or defeat transition: '+JSON.stringify(northernWatchPlaythrough));
+console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length);
+const redwaterPlaythrough = game.playCampaignScenario(7, 600);
+assert.ok(['win', 'lose'].includes(redwaterPlaythrough.over), 'Crossing at Redwater must reach a real victory or defeat transition: '+JSON.stringify(redwaterPlaythrough));
+console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+redwaterPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+redwaterPlaythrough.objectives.filter(objective => objective.complete).length+'/'+redwaterPlaythrough.objectives.length);
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
