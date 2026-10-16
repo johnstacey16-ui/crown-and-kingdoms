@@ -94,6 +94,64 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
+  playFirstHearth(maxSeconds = 240) {
+    this.startCampaign(0);
+    const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
+    if (!tc) throw new Error('First Hearth bot requires a live Town Centre');
+    const assignFood = unit => {
+      const node = S.nodes.filter(n => n && n.k === 'f' && n.amt > 0)
+        .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
+      if (!node) return false;
+      unit.o = 'g'; unit.tg = node; unit.ct = 'f'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
+      return true;
+    };
+    const placeBuilding = kind => {
+      if (S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) return true;
+      if (!can(0, B[kind].cost)) return false;
+      const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
+      const worker = workers.find(unit => unit.o !== 'b') || workers[0];
+      if (!worker) return false;
+      let site = null;
+      for (let radius = 2; radius <= 14 && !site; radius++) {
+        for (let dy = -radius; dy <= radius && !site; dy++) for (let dx = -radius; dx <= radius && !site; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
+          const x = Math.floor(worker.x) + dx, y = Math.floor(worker.y) + dy;
+          if (okPlace(0, kind, x, y)) site = [x, y];
+        }
+      }
+      if (!site) return false;
+      pay(0, B[kind].cost);
+      const building = addB(0, kind, site[0], site[1], false);
+      worker.o = 'b'; worker.tg = building; worker.p = []; worker.rp = 0;
+      return true;
+    };
+    for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
+    let trainingGate = null;
+    for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
+      const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
+      if (villagers < 10 && tc.q.length < 5) train(tc, 'vil');
+      for (const kind of ['house', 'lumber', 'bar']) {
+        if (!S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) placeBuilding(kind);
+      }
+      const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
+      if (barracks && cmil(0) < 4 && barracks.q.length < 5) {
+        if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
+        else train(barracks, 'mil');
+      }
+      for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld)) {
+        if (unit.o === 'i') assignFood(unit);
+      }
+      this.tick(1 / 30);
+    }
+    return {
+      over: S.over, time: S.t, campaignTime: cmp.t, mode,
+      age: S.age[0], trainingGate,
+      objectives: CAMP[0].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
+      villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
+      soldiers: cmil(0),
+      buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
+    };
+  },
   auditCampaignGoalReachability() {
     const results = [];
     const addBuilding = (kind, count) => {
@@ -1456,6 +1514,11 @@ assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its 
 for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true, `Mission ${mission.index + 1} must reach defeat when its Town Centre is destroyed`);
 assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
 console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
+const firstHearthPlaythrough = game.playFirstHearth(240);
+assert.equal(firstHearthPlaythrough.over, 'win', 'A scripted player using real building, gathering and training orders must win First Hearth within four simulated minutes');
+assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite');
+assert.ok(firstHearthPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'First Hearth must naturally complete every objective through the simulation');
+console.log('campaign-scripted-playthrough: First Hearth won through real building, gathering and production orders in '+firstHearthPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
