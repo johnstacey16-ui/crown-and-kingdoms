@@ -153,6 +153,9 @@ globalThis.__CK_TEST__ = {
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
       buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
+      unfinished: S.bs.filter(building => building.t === 0 && !building.done && building.hp > 0).map(building => ({ kind: building.k, x: building.x, y: building.y, progress: building.pr, builder: S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.tg === building)?.o || null })),
+      workerOrders: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).map(unit => ({ order: unit.o, target: unit.tg?.k || null, loaded: !!unit.ld })),
+      resources: { ...S.res[0] },
     };
   },
   auditCampaignGoalReachability() {
