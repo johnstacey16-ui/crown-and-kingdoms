@@ -150,6 +150,15 @@ globalThis.__CK_TEST__ = {
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
       }
       if (S.age[0] < plan.ages && !tc.rs) research(tc, 'age');
+      if (index === 3) {
+        const monks = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'mon' && unit.hp > 0 && !unit.ld);
+        const reserved = new Set(monks.filter(unit => unit.o === 'r' && unit.tg && !unit.rel && !unit.tg.c && !unit.tg.m).map(unit => unit.tg));
+        for (const monk of monks) {
+          if (monk.rel || (monk.o === 'r' && monk.tg && !monk.tg.c && !monk.tg.m)) continue;
+          const relic = S.rel.find(item => item.rl && !item.c && !item.m && !reserved.has(item));
+          if (relic) { monk.o = 'r'; monk.tg = relic; monk.p = []; monk.rp = 0; reserved.add(relic); }
+        }
+      }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
       const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
       if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
