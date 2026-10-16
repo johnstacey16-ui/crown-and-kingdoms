@@ -71,6 +71,34 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Update the README and this roadmap to describe actual results, remaining defects and verified limitations.
 - [ ] Report the exact tested commit and distinguish automated results from live gameplay and hardware results.
 
+## Audit findings and implementation status (16 October 2026)
+
+This register consolidates the recent parity audit so findings do not keep cycling back into new checklists. A source-level correction is not a claim of verified match balance or Xbox performance.
+
+### Corrected in the current implementation batch
+- **Farm durability and construction:** farms now have 480 HP, cost 60 wood and take 15 seconds to build; the former 1-HP, instant-build definition was not viable.
+- **Castle Age prerequisites:** eligible Feudal buildings are the barracks, archery range, stable, blacksmith, market and dock. The existing age-research rule requires two distinct eligible buildings, rather than allowing walls, gates, towers and outposts to satisfy progression.
+- **Trebuchet minimum range:** trebuchets now declare a 3-tile minimum firing range and the combat command moves them back out of minimum range instead of trying to fire point-blank.
+- **Spanish Supremacy:** the effect now improves villagers (+40 HP and +6 attack) instead of incorrectly improving Conquistadors.
+- **Offline cache:** the optional atlas manifest was already removed from the required install cache in an earlier commit; do not re-open this as an outstanding defect unless the cache implementation changes.
+
+### Confirmed existing behaviour from source inspection
+- Town Centre and Castle arrow output already scales with garrisoned military units (up to the current cap).
+- Siege splash damage already filters secondary targets to hostile units/buildings, so it does not intentionally damage allies through that splash loop.
+- The game already has 26 civ definitions and multiple map layouts; “missing civs/maps” should mean parity and quality gaps, not that those systems are wholly absent.
+- Multiplayer currently provides lobby/presence/markers rather than authoritative synchronized simulation. Treat it as a prototype, not completed multiplayer.
+
+### Still open — requires implementation and/or gameplay evidence
+- **Combat:** elevation/high-ground modifiers; verify all projectile and splash edge cases; test siege minimum range/packing as a complete controller command flow; audit armour classes and counter bonuses against every unit.
+- **Technology:** add and implement missing economic, military, monk and naval technologies (including Loom, Wheelbarrow, Hand Cart, Ballistics, Squires and Arson) only with real effects, UI availability, AI valuation and save/load coverage. Do not add placeholder entries that appear researched but do nothing.
+- **AI:** test full-length no-cheat matches for economy sustainability, scouting, mixed armies, counter adaptation, technology timing, retreat/repair, siege and naval decisions. Existing heuristics are not proof of competitive behaviour.
+- **Scale/content:** raise the current four-kingdom and 200-population limits only after measuring memory, simulation time, rendering and controller latency; expand map sizes beyond the current 72–176 range with connectivity/resource validation.
+- **Naval/maps:** verify islands, shore access, narrow channels, transport loading/unloading, ship repair and unreachable resource handling across generated and fixed layouts.
+- **Graphics:** improve unit silhouettes/equipment/animation, distinct age-appropriate buildings, terrain and water layering, and kingdom readability while preserving procedural fallbacks.
+- **Campaigns:** the 19 mission CI isolation jobs are automated regression evidence only; they do not prove full mission playthroughs, objective balance or progression.
+- **Multiplayer:** implement the authoritative simulation protocol and explicit disconnect/host-loss behaviour before describing matches as synchronized.
+- **Hardware:** browser and desktop checks cannot establish Xbox Series S / Edge performance. Record real console measurements separately.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
