@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -191,10 +191,11 @@ globalThis.__CK_TEST__ = {
       if (plan.attack && Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount)) {
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
+        const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
-            : (enemyCastle || enemyTC);
+            : (enemyKing && !enemyKing.ld ? enemyKing : (enemyCastle || enemyTC));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
         }
       }
@@ -1615,6 +1616,9 @@ const redwaterPlaythrough = game.playCampaignScenario(7, 600);
 assert.equal(redwaterPlaythrough.over, 'win', 'A scripted player must build the Market and two Towers and survive Crossing at Redwater: '+JSON.stringify(redwaterPlaythrough));
 assert.ok(redwaterPlaythrough.objectives.every(objective => objective.complete), 'Crossing at Redwater must naturally complete all three objectives: '+JSON.stringify(redwaterPlaythrough));
 console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlaythrough.over === 'win' ? 'won' : redwaterPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+redwaterPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+redwaterPlaythrough.objectives.filter(objective => objective.complete).length+'/'+redwaterPlaythrough.objectives.length);
+const lastCrownPlaythrough = game.playCampaignScenario(5, 1200);
+assert.ok(['win', 'lose', null].includes(lastCrownPlaythrough.over), 'The Last Crown must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(lastCrownPlaythrough));
+console.log('campaign-scripted-playthrough: The Last Crown '+(lastCrownPlaythrough.over === 'win' ? 'won' : lastCrownPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+lastCrownPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+lastCrownPlaythrough.objectives.filter(objective => objective.complete).length+'/'+lastCrownPlaythrough.objectives.length);
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
