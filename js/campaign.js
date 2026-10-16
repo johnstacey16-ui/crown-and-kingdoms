@@ -41,11 +41,11 @@ const CAMP=[
  ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')}]}
 ,
 {t:'The Northern Watch',b:'The first snows have arrived, and raiders are gathering beyond the pine forests. Fortify the northern approach, train a dependable force of archers and spearmen, and hold your settlement until the raiding season passes.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
- setup(){S.res[0]={f:600,w:600,g:250,s:150}},
+ setup(){S.age[0]=1;S.res[0]={f:600,w:600,g:250,s:150}},
  goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>aliveUnits(0).filter(u=>U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
  ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching!')},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!')}]},
 {t:'Crossing at Redwater',b:'A vital trade road crosses the Redwater river. Build a market and two towers to secure the crossing, then survive the enemy raids long enough for your merchants to reopen the road.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
- setup(){S.res[0]={f:700,w:700,g:350,s:250}},
+ setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
  goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480}],
  ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')}]},
 {t:'Crown of Ashford',b:'The rival claimant has fortified the capital and refuses all terms. Muster a field army, break the outer defences and destroy the enemy Town Centre to reunite the kingdom under one crown.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
