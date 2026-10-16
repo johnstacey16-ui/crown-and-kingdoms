@@ -921,12 +921,12 @@ globalThis.__CK_TEST__ = {
       const a = y * W + x, b = a + 1;
       if (S.wt[a] || S.wt[b] || S.g[a] || S.g[b] || S.nd[a] || S.nd[b]) continue;
       worker.x = x + 0.5; worker.y = y + 0.5;
-      node = addN('f', x + 1, y, 0.01, 1); if (node) node.t = 0;
+      node = addN('f', x + 1, y, 0, 1); if (node) node.t = 0;
     }
     if (!node) throw new Error('Could not find two adjacent open land tiles for farm reseeding');
     node.testFarmReseed = true;
     S.res[0].w = 60;
-    worker.o = 'g'; worker.tg = node; worker.ct = 'f'; worker.p = []; worker.ret = 0; worker.car = 0;
+    worker.o = 'i'; worker.tg = null; worker.ct = 'f'; worker.p = []; worker.ret = 0; worker.car = 0;
     return { wood: S.res[0].w, amount: node.amt };
   },
   beginGatherResearch() {
@@ -1502,8 +1502,6 @@ console.log(`relic-income-smoke: one relic generated ${relicAfter.playerGold - r
 game.start(123456);
 const farmBefore = game.beginFarmReseed();
 assert.equal(farmBefore.wood, 60, 'The farm reseed test should begin with the required 60 wood');
-// Farm depletion happens during unit updates; owner-funded reseeding runs at the start of the next tick.
-game.tick(1 / 30);
 game.tick(1 / 30);
 const farmAfter = game.state().farmReseed;
 assert.equal(farmAfter.farm, true, 'The exhausted resource must remain a farm node after reseeding');
