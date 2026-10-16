@@ -255,6 +255,7 @@ globalThis.__CK_TEST__ = {
         if (/Bombard Cannons/.test(title)) addUnits('bomb', 2);
         if (/12 land soldiers/.test(title)) addUnits('knight', 12);
         if (/8 land soldiers/.test(title)) addUnits('spear', 8);
+        if (/15 land soldiers/.test(title)) addUnits('spear', 15);
         if (/Reach the (?:Feudal|Castle) Age/.test(title)) S.age[0] = 3;
         if (/8:00/.test(title)) cmp.t = Math.max(cmp.t, 480);
         if (/10:00/.test(title)) cmp.t = Math.max(cmp.t, 600);
