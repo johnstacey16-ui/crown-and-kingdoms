@@ -18,6 +18,18 @@ node tests/validate-atlas.mjs
 
 These automated checks do not replace full campaign playthroughs, live multiplayer testing, browser verification or measurements on a physical Xbox Series S.
 
+## Architecture constraints
+
+- Preserve classic browser-script load order, controller behaviour, simulation correctness and save compatibility.
+- When adding or renaming runtime files, update `index.html`, the service-worker cache in `sw.js`, source checks and regression tests together.
+- Keep system ownership clear: simulation updates in `js/simulation.js`, AI decisions in `js/ai.js`, campaign objectives/events in `js/campaign.js`, rendering/UI in `js/render.js` and `js/ui.js`, and controller input in `js/input.js`.
+
+## Verification policy
+
+- Report the exact commit tested. A passing CI run proves only the automated checks that actually ran on that commit.
+- Browser gameplay, all 19 campaign playthroughs, live multiplayer resilience and physical Xbox Series S / Edge performance require separate direct verification.
+- Keep status concise and evidence-based; do not copy old workflow results forward or mark untested roadmap items complete.
+
 ## Project structure
 
 - `index.html`, `styles.css`: browser entry point and presentation.
