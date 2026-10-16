@@ -1502,6 +1502,8 @@ console.log(`relic-income-smoke: one relic generated ${relicAfter.playerGold - r
 game.start(123456);
 const farmBefore = game.beginFarmReseed();
 assert.equal(farmBefore.wood, 60, 'The farm reseed test should begin with the required 60 wood');
+// Farm depletion happens during unit updates; owner-funded reseeding runs at the start of the next tick.
+game.tick(1 / 30);
 game.tick(1 / 30);
 const farmAfter = game.state().farmReseed;
 assert.equal(farmAfter.farm, true, 'The exhausted resource must remain a farm node after reseeding');
