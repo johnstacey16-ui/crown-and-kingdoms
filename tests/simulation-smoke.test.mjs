@@ -94,6 +94,88 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
+  auditCampaignGoalReachability() {
+    const results = [];
+    const addBuilding = (kind, count) => {
+      for (let n = 0; n < count; n++) {
+        const existing = S.bs.filter(b => b.t === 0 && b.k === kind && b.done && b.hp > 0).length;
+        if (existing >= count) break;
+        const slot = S.bs.length + n;
+        addB(0, kind, 2 + (slot * 3) % Math.max(1, W - 8), 2 + (Math.floor(slot * 3 / Math.max(1, W - 8)) * 3) % Math.max(1, H - 8), true);
+      }
+    };
+    const addUnits = (kind, count) => {
+      for (let n = 0; n < count; n++) addU(0, kind, 4 + (n % 12), 4 + (Math.floor(n / 12) % 12));
+    };
+    for (let index = 0; index < CAMP.length; index++) {
+      this.startCampaign(index);
+      const scenario = CAMP[index];
+      const initialTrue = scenario.goals.filter(goal => goal.ok()).map(goal => goal.t);
+      const failedPredicates = [];
+      for (const goal of scenario.goals) {
+        const title = goal.t;
+        if (/House/.test(title)) addBuilding('house', 1);
+        if (/Lumber Camp/.test(title)) addBuilding('lumber', 1);
+        if (/Barracks/.test(title)) addBuilding('bar', 1);
+        if (/Market/.test(title)) addBuilding('market', 1);
+        if (/Monastery/.test(title)) addBuilding('monastery', 1);
+        if (/Dock/.test(title)) addBuilding('dock', 1);
+        if (/Siege Workshop/.test(title)) addBuilding('siege', 1);
+        if (/Wall sections/.test(title)) addBuilding('wall', 6);
+        if (/2 completed Castles/.test(title)) addBuilding('castle', 2);
+        if (/2 (?:completed )?Towers/.test(title)) addBuilding('tower', 2);
+        if (/Watch Tower/.test(title)) addBuilding('tower', 1);
+        if (/villagers/.test(title)) addUnits('vil', 10);
+        if (/Train 4 soldiers/.test(title)) addUnits('mil', 4);
+        if (/Train 8 soldiers/.test(title)) addUnits('mil', 8);
+        if (/ranged soldiers/.test(title)) addUnits('arc', 6);
+        if (/3 War Galleys/.test(title)) addUnits('gal', 3);
+        if (/12 land soldiers/.test(title)) addUnits('knight', 12);
+        if (/8 land soldiers/.test(title)) addUnits('spear', 8);
+        if (/Reach the (?:Feudal|Castle) Age/.test(title)) S.age[0] = 3;
+        if (/8:00/.test(title)) cmp.t = Math.max(cmp.t, 480);
+        if (/10:00/.test(title)) cmp.t = Math.max(cmp.t, 600);
+        if (/9:00/.test(title)) cmp.t = Math.max(cmp.t, 540);
+        if (/relics/.test(title)) {
+          const count = /3 relics/.test(title) ? 3 : 2;
+          while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done).length < count) {
+            S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: { t: 0, done: true } });
+          }
+        }
+        if (/Destroy .*Castle/.test(title)) {
+          cmp.t = Math.max(cmp.t, 4);
+          if (index === 4) cmp.d.cas = 1;
+          S.bs.filter(building => building.t === 1 && building.k === 'castle').forEach(building => { building.hp = 0; });
+        }
+        if (/Destroy .*Town Centre/.test(title)) {
+          cmp.t = Math.max(cmp.t, 4);
+          S.bs.filter(building => building.t === 1 && building.k === 'tc').forEach(building => { building.hp = 0; });
+        }
+        if (/Slay the enemy King/.test(title)) {
+          cmp.t = Math.max(cmp.t, 4);
+          S.us.filter(unit => unit && unit.t === 1 && unit.k === 'king').forEach(unit => { unit.hp = 0; });
+        }
+      }
+      for (const goal of scenario.goals) {
+        try { if (goal.ok() !== true) failedPredicates.push(goal.t); }
+        catch { failedPredicates.push(goal.t + ' (threw)'); }
+      }
+      for (let tick = 0; tick < 15; tick++) cmpTick(0.05);
+      results.push({ index, initialTrue, failedPredicates, won: S.over === 'win', goals: scenario.goals.length });
+    }
+    const defeats = [];
+    for (let index = 0; index < CAMP.length; index++) {
+      this.startCampaign(index);
+      const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.hp > 0);
+      if (tc) tc.hp = 0;
+      cmpTick(0.05);
+      defeats.push({ index, lost: S.over === 'lose' });
+    }
+    this.startCampaign(5);
+    S.us.filter(unit => unit && unit.t === 0 && unit.k === 'king').forEach(unit => { unit.hp = 0; });
+    cmpTick(0.05);
+    return { results, defeats, kingDefeat: S.over === 'lose' && S.why === 'Your King has fallen' };
+  },
   exerciseTimedCampaignEvent() {
     this.startCampaign(0);
     const event = CAMP[0].ev[0];
@@ -1360,6 +1442,19 @@ for (let mission = 0; mission < 19; mission += 1) {
 }
 console.log('campaign-matrix-smoke: all 19 campaign missions started and survived 40 simulated seconds: ' +
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
+
+// Directly exercise every campaign goal predicate, mission victory, and both defeat routes.
+const campaignGoalAudit = game.auditCampaignGoalReachability();
+assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
+for (const mission of campaignGoalAudit.results) {
+  assert.deepEqual(mission.initialTrue, [], `Mission ${mission.index + 1} must not start with a completed objective`);
+  assert.deepEqual(mission.failedPredicates, [], `Mission ${mission.index + 1} goals must be satisfiable through direct game-state changes`);
+  assert.equal(mission.won, true, `Mission ${mission.index + 1} must reach victory when every goal condition is satisfied`);
+}
+assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its Town Centre defeat route checked');
+for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true, `Mission ${mission.index + 1} must reach defeat when its Town Centre is destroyed`);
+assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
+console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
