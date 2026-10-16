@@ -8,6 +8,20 @@ on:
 permissions:
   contents: read
 jobs:
+  campaign-playthroughs:
+    name: Campaign mission ${{ matrix.mission }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mission: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run isolated campaign playthrough
+        run: CK_MISSION=${{ matrix.mission }} node tests/simulation-smoke.test.mjs
   node-checks:
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +43,7 @@ jobs:
           fi
           for test_file in "${tests[@]}"; do
             echo "::group::${test_file}"
-            node "${test_file}"
+            CK_SKIP_CAMPAIGN=1 node "${test_file}"
             echo "::endgroup::"
           done
       - name: Validate local sprite atlas metadata and frame bounds
