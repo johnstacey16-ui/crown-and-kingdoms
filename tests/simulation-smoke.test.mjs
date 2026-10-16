@@ -94,10 +94,12 @@ globalThis.__CK_TEST__ = {
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
   startCampaign(index) { startScenario(index); return this.state(); },
-  playFirstHearth(maxSeconds = 240) {
-    this.startCampaign(0);
+  playCampaignScenario(index = 0, maxSeconds = 240) {
+    this.startCampaign(index);
+    const plan = index === 0 ? { buildings: ['house', 'lumber', 'bar'], villagers: 10, soldiers: 4 } : index === 1 ? { buildings: ['house', 'bar'], villagers: 0, soldiers: 8 } : null;
+    if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
-    if (!tc) throw new Error('First Hearth bot requires a live Town Centre');
+    if (!tc) throw new Error('Campaign bot requires a live Town Centre');
     const assignFood = unit => {
       const node = S.nodes.filter(n => n && n.k === 'f' && n.amt > 0)
         .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
@@ -133,13 +135,13 @@ globalThis.__CK_TEST__ = {
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
       const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
-      if (villagers + queuedVillagers < 10 && tc.q.length < 5) train(tc, 'vil');
-      for (const kind of ['house', 'lumber', 'bar']) {
+      if (plan.villagers > 0 && villagers + queuedVillagers < plan.villagers && tc.q.length < 5) train(tc, 'vil');
+      for (const kind of plan.buildings) {
         if (!S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) placeBuilding(kind);
       }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
       const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
-      if (barracks && cmil(0) + queuedMilitia < 4 && barracks.q.length < 5) {
+      if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
         if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
         else train(barracks, 'mil');
       }
@@ -151,7 +153,7 @@ globalThis.__CK_TEST__ = {
     return {
       over: S.over, time: S.t, campaignTime: cmp.t, mode,
       age: S.age[0], trainingGate,
-      objectives: CAMP[0].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
+      objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
       buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
@@ -1522,11 +1524,16 @@ assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its 
 for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true, `Mission ${mission.index + 1} must reach defeat when its Town Centre is destroyed`);
 assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
 console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
-const firstHearthPlaythrough = game.playFirstHearth(240);
+const firstHearthPlaythrough = game.playCampaignScenario(0, 240);
 assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite: '+JSON.stringify(firstHearthPlaythrough));
 assert.equal(firstHearthPlaythrough.over, 'win', 'A scripted player using real building, gathering and training orders must win First Hearth within four simulated minutes: '+JSON.stringify(firstHearthPlaythrough));
 assert.ok(firstHearthPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'First Hearth must naturally complete every objective through the simulation: '+JSON.stringify(firstHearthPlaythrough));
 console.log('campaign-scripted-playthrough: First Hearth won through real building, gathering and production orders in '+firstHearthPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+const raidersAtFordPlaythrough = game.playCampaignScenario(1, 600);
+assert.equal(raidersAtFordPlaythrough.trainingGate, null, 'Raiders at the Ford must allow its required soldiers to be trained: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.equal(raidersAtFordPlaythrough.over, 'win', 'A scripted player must build a Barracks, train eight soldiers and survive the timed raids in Raiders at the Ford: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'Raiders at the Ford must naturally complete every objective: '+JSON.stringify(raidersAtFordPlaythrough));
+console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
