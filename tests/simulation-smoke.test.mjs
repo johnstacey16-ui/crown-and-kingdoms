@@ -1229,6 +1229,18 @@ const vmContext = vm.createContext(sandbox);
 new vm.Script(source + '\n' + harness, { filename: 'index.html:simulation-smoke' }).runInContext(vmContext, { timeout: 15000 });
 
 const game = sandbox.__CK_TEST__;
+
+const timed = (label, run) => {
+  const startedAt = Date.now();
+  try {
+    return run();
+  } finally {
+    console.log('section-timing: '+label+' elapsedMs='+(Date.now()-startedAt));
+  }
+};
+const playCampaignScenarioTimed = (index, maxSeconds) =>
+  timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
+
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
 const kingHill = game.exerciseKingHillControl();
 assert.ok(kingHill.contestedProgress.every(value => value === 0), 'Contested hill control must reset every kingdom progress counter');
@@ -1567,7 +1579,7 @@ console.log('campaign-matrix-smoke: all 19 campaign missions started and survive
   campaignBoots.map((m) => `M${m.mission}=${m.units}u/${m.buildings}b`).join(', '));
 
 // Directly exercise every campaign goal predicate, mission victory, and both defeat routes.
-const campaignGoalAudit = game.auditCampaignGoalReachability();
+const campaignGoalAudit = timed('campaign-goal-reachability-19-missions', () => game.auditCampaignGoalReachability());
 assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
 for (const mission of campaignGoalAudit.results) {
   assert.equal(mission.initialTrue.length, 0, `Mission ${mission.index + 1} must not start with a completed objective: ${mission.initialTrue.join(', ')}`);
@@ -1700,7 +1712,7 @@ for (const layout of [2, 4, 12, 13]) {
 }
 console.log('generated-map-matrix: '+generatedMapAudits.length+' named layouts passed four-kingdom connectivity; Twin Rivers, Island Reach, Kings Causeway and Broken Isles also passed two/three-kingdom starts');
 
-const skirmish = game.runSkirmish(60);
+const skirmish = timed('four-kingdom-skirmish', () => game.runSkirmish(60));
 assert.equal(skirmish.teams, 4, 'Long skirmish stress test must include four kingdoms');
 assert.ok(skirmish.time >= 59.9, 'Skirmish stress test must advance at least 60 simulated seconds');
 assert.ok(skirmish.units > 0, 'Four-kingdom skirmish should retain at least one valid unit record');
@@ -1712,7 +1724,7 @@ console.log('four-kingdom-skirmish-smoke: '+skirmish.time.toFixed(1)+'s, '+skirm
 // Longer four-kingdom economy-to-war run: enable the existing AI decision function
 // for team 0 as well as the three native AI teams, allow six simulated minutes of
 // gathering/building/training, then order surviving armies to attack rivals for one minute.
-const war = game.runFourKingdomWar(360, 60);
+const war = timed('four-kingdom-economy-war', () => game.runFourKingdomWar(360, 60));
 assert.equal(war.teams, 4, 'Extended AI war must run four kingdoms');
 assert.ok(war.simulatedSeconds >= 419.9, 'Extended AI war must simulate at least seven minutes');
 assert.ok(war.before.every(t => t.units > 0 && t.buildings > 0), 'Each AI kingdom must start with units and buildings');
@@ -1733,14 +1745,14 @@ console.log('four-kingdom-economy-war: simulated='+war.simulatedSeconds.toFixed(
 
 game.startCampaign(16);
 for (let tick = 0; tick < 90; tick += 1) game.tick(1 / 30);
-const autosave = game.exerciseAutosaveOverwrite();
+const autosave = timed('rolling-autosave-overwrite-and-load', () => game.exerciseAutosaveOverwrite());
 assert.equal(autosave.overwritten, true, 'A second autosave must overwrite the single rolling autosave payload');
 assert.equal(autosave.loaded, true, 'The latest rolling autosave must restore successfully');
 assert.equal(autosave.restoredTime, autosave.secondTime, 'Autosave loading must restore the newest saved simulation time');
 assert.equal(autosave.manualSlotsUnchanged, true, 'Autosaving must not overwrite the three independent manual save slots');
 assert.equal(autosave.autosaveCount, 1, 'Autosave must retain one dedicated rolling slot');
 console.log('rolling-autosave-smoke: latest snapshot overwrites the previous autosave, restores successfully and leaves manual slots untouched');
-const saveRoundTrip = game.saveLoadRoundTrip();
+const saveRoundTrip = timed('campaign-save-load-round-trip', () => game.saveLoadRoundTrip());
 assert.equal(saveRoundTrip.loaded, true, 'A valid local save must restore successfully');
 assert.equal(saveRoundTrip.version, 1, 'The save round-trip must preserve the current versioned format');
 assert.ok(saveRoundTrip.bytes > 1000, 'The active campaign must write a non-empty world snapshot');
