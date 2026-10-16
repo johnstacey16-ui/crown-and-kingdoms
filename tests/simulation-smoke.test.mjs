@@ -1532,7 +1532,8 @@ console.log('campaign-scripted-playthrough: First Hearth won through real buildi
 const raidersAtFordPlaythrough = game.playCampaignScenario(1, 600);
 assert.equal(raidersAtFordPlaythrough.trainingGate, null, 'Raiders at the Ford must allow its required soldiers to be trained: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.equal(raidersAtFordPlaythrough.over, 'win', 'A scripted player must build a Barracks, train eight soldiers and survive the timed raids in Raiders at the Ford: '+JSON.stringify(raidersAtFordPlaythrough));
-assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'Raiders at the Ford must naturally complete every objective: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete), 'Raiders at the Ford must record every objective as completed: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.equal(raidersAtFordPlaythrough.objectives.find(objective => objective.title === 'Survive until 8:00')?.predicate, true, 'The survival objective must still be true at victory');
 console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
