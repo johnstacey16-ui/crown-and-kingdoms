@@ -109,13 +109,15 @@ globalThis.__CK_TEST__ = {
       if (S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) return true;
       if (!can(0, B[kind].cost)) return false;
       const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
-      const worker = workers.find(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
+      const available = workers.filter(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
+      const worker = available.sort((a, b) => Math.hypot(a.x - (tc.x + tc.s / 2), a.y - (tc.y + tc.s / 2)) - Math.hypot(b.x - (tc.x + tc.s / 2), b.y - (tc.y + tc.s / 2)))[0];
       if (!worker) return false;
       let site = null;
-      for (let radius = 2; radius <= 14 && !site; radius++) {
+      const originX = Math.floor(tc.x + tc.s / 2), originY = Math.floor(tc.y + tc.s / 2);
+      for (let radius = 3; radius <= 18 && !site; radius++) {
         for (let dy = -radius; dy <= radius && !site; dy++) for (let dx = -radius; dx <= radius && !site; dx++) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
-          const x = Math.floor(worker.x) + dx, y = Math.floor(worker.y) + dy;
+          const x = originX + dx, y = originY + dy;
           const candidate = { x, y, s: B[kind].s };
           if (okPlace(0, kind, x, y) && path(worker, goalNear(candidate, 1))) site = [x, y];
         }
