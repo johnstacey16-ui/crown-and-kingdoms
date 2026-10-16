@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2 } : index === 3 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -105,6 +105,13 @@ globalThis.__CK_TEST__ = {
         .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
       if (!node) return false;
       unit.o = 'g'; unit.tg = node; unit.ct = 'f'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
+      return true;
+    };
+    const assignWood = unit => {
+      const node = S.nodes.filter(n => n && n.k === 'w' && n.amt > 0)
+        .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
+      if (!node) return false;
+      unit.o = 'g'; unit.tg = node; unit.ct = 'w'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
       return true;
     };
     const placeBuilding = (kind, count = 1) => {
@@ -148,6 +155,11 @@ globalThis.__CK_TEST__ = {
       if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
         if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
         else train(barracks, 'mil');
+      }
+      const woodNeeded = index === 2 && S.res[0].w < 180;
+      if (woodNeeded) {
+        const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b');
+        if (woodWorker) assignWood(woodWorker);
       }
       for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld)) {
         if (unit.o === 'i') assignFood(unit);
