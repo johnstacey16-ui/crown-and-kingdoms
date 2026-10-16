@@ -1447,8 +1447,8 @@ console.log('campaign-matrix-smoke: all 19 campaign missions started and survive
 const campaignGoalAudit = game.auditCampaignGoalReachability();
 assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
 for (const mission of campaignGoalAudit.results) {
-  assert.deepEqual(mission.initialTrue, [], `Mission ${mission.index + 1} must not start with a completed objective`);
-  assert.deepEqual(mission.failedPredicates, [], `Mission ${mission.index + 1} goals must be satisfiable through direct game-state changes`);
+  assert.equal(mission.initialTrue.length, 0, `Mission ${mission.index + 1} must not start with a completed objective: ${mission.initialTrue.join(', ')}`);
+  assert.equal(mission.failedPredicates.length, 0, `Mission ${mission.index + 1} goals must be satisfiable through direct game-state changes: ${mission.failedPredicates.join(', ')}`);
   assert.equal(mission.won, true, `Mission ${mission.index + 1} must reach victory when every goal condition is satisfied`);
 }
 assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its Town Centre defeat route checked');
