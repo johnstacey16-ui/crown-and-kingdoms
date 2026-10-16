@@ -4,7 +4,7 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v1';
+const CACHE_NAME = 'ck-shell-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,6 @@ const CORE_ASSETS = [
   './engine.js',
   './persistence.js',
   './multiplayer.js',
-  './assets/atlas-manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
