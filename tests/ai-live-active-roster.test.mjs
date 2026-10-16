@@ -23,8 +23,8 @@ assert.match(threatScan, /for\(const e of S\.us\)/,
   'AI naval threat rosters should be built in a single pass over the unit list');
 assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'Naval target candidates must exclude garrisoned ships and fishing boats');
-assert.match(threatScan, /if\(e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;if\(!e\.ld\)hostileFleet\.push\(e\)\}/,
-  'Threat count must include garrisoned combat ships as before while the active flee/avoidance fleet excludes them');
+assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/,
+  'Garrisoned or otherwise loaded ships must not count toward the naval threat or the active fleet');
 assert.doesNotMatch(ai, /const hostileFleet=S\.us\.filter|const hostileShips=S\.us\.filter/,
   'Do not re-scan the entire unit list separately for the same naval rosters');
 console.log('ai-live-active-roster: naval threat lists are consolidated into one source scan');
