@@ -4,6 +4,29 @@
 
 This is the single gameplay roadmap. The eight goals below define the work required to complete the game. Mark a goal complete only when its acceptance requirements have been tested; source code or a passing unit test alone is not proof of complete gameplay.
 
+## Prioritised implementation backlog — identified gaps
+
+These are concrete code-level gaps to implement; they are not marked complete by being recorded here. Keep each change small, add a focused regression test, and wait for CI before starting the next change.
+
+### P0 — core economy and progression
+- [ ] **Farm lifecycle:** current config defines farms as `hp:1` and `bt:0`. Give farms sensible durability and a non-zero construction time; verify placement, construction progress, damage/destruction, food depletion and automatic reseeding.
+- [ ] **Technology audit and effects:** implement and test missing core tech where absent: Loom, Wheelbarrow, Hand Cart, Ballistics, Squires, Arson, monk upgrades and naval upgrades. Check costs, age/building prerequisites, AI research choice, effects on existing/new units, stacking and save/load.
+- [ ] **Building and unit progression:** audit age-up requirements, building prerequisites, population accounting, production queues and upgrade application against each unit/building class.
+- [ ] **Combat parity:** test elevation advantage, friendly-fire rules, trebuchet packed/unpacked state and minimum range, and Town Center arrow damage scaling with garrison occupancy.
+
+### P1 — strategy, naval and content
+- [ ] **Civilisation bonuses and unique technologies:** audit each bonus/unique technology against its description and affected classes. Specifically verify the Spanish Supremacy/Inquisition effect and correct any Conquistador-only misapplication.
+- [ ] **AI decision quality:** improve worker allocation, scouting, counter-unit composition, technology timing, siege use, retreating/repairing and coordinated attacks; test without hidden economy or combat bonuses.
+- [ ] **Naval completeness:** validate fishing, trade, transport, ship repair, shore targeting, naval counters and island logistics end-to-end.
+- [ ] **Map and content breadth:** audit map-size choices, connected starting areas, resource access, shore access, additional units/civilisations and campaign variety; prioritise broken or unreachable gameplay over adding content volume.
+
+### P2 — presentation, scale and reliability
+- [ ] **Visual clarity:** improve readable unit silhouettes/equipment/animations, distinct buildings, terrain and water layering, selection states and kingdom colours while retaining procedural fallbacks.
+- [ ] **Scale/performance:** profile simulation, pathfinding and rendering separately at 100, 200 and 400 units; optimise measured bottlenecks and keep controller input responsive.
+- [ ] **Multiplayer truthfulness:** distinguish lobby/presence markers from shared authoritative simulation; implement and test host-authoritative state, disconnect/reconnect handling and consistent match termination before calling multiplayer complete.
+
+---
+
 ## 1. Campaigns — all 19 missions
 
 - [ ] Play every mission from its briefing through a real victory or defeat.
