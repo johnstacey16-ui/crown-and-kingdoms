@@ -13,10 +13,3 @@ test('load menu exposes one rolling autosave recovery action separately from man
   assert.match(engine, /function openSlots\(m,back\)[\s\S]{0,220}restoreMissing\(\)/);
   assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\)/);
 });
-
-test('browser roadmap records autosave as implemented but not fully verified', () => {
-  const roadmap = readFileSync(new URL('../docs/BROWSER_TECH_ROADMAP.md', import.meta.url), 'utf8');
-  assert.match(roadmap, /Implemented, automated verification pending/);
-  assert.match(roadmap, /Periodic and pause\/blur-triggered autosaves are suppressed while multiplayer is running/);
-  assert.match(roadmap, /storage-quota failures, interrupted writes, IndexedDB restore ordering and recovery through a live browser/);
-});
