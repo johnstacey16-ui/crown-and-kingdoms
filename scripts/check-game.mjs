@@ -53,7 +53,7 @@ if (!html.includes('<script src="./js/config.js"></script><script src="./js/stat
 if (!html.includes('<script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
-  ['age advancement uses reference resource costs and research times', source.includes("const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['bar','rng','stable','smith','market','dock','tower','wall','gate','outpost']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','castle']}]")],
+  ['age advancement uses reference resource costs and research times', source.includes("const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['bar','rng','stable','smith','market','dock']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','castle']}]")],
   ['age advancement requires two distinct completed current-age buildings', /const built=\[\.\.\.new Set\(S\.bs\.filter\(x=>x\.t===t&&x\.done&&x\.hp>0&&g\.needs\.includes\(x\.k\)&&B\[x\.k\]&&\(B\[x\.k\]\.age\|\|0\)===S\.age\[t\]\)\.map\(x=>x\.k\)\)\];if\(built\.length<2\)/.test(source)],
   ['farm capacity uses researched technologies', /function farmFood\(t\)[\s\S]{0,180}q\.coll\?75[\s\S]{0,80}q\.plow\?125[\s\S]{0,80}q\.crop\?175/.test(source)],
   ['player-built farms record ownership', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);if\(n\)n\.t=0/.test(source)],
