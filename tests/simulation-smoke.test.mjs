@@ -1240,6 +1240,12 @@ const timed = (label, run) => {
 };
 const playCampaignScenarioTimed = (index, maxSeconds) =>
   timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
+const requestedMission = process.env.CK_MISSION === undefined ? null : Number(process.env.CK_MISSION);
+if (requestedMission !== null) assert.ok(Number.isInteger(requestedMission) && requestedMission >= 0 && requestedMission < 19, 'CK_MISSION must be an integer from 0 to 18');
+const skipCampaignPlaythroughs = process.env.CK_SKIP_CAMPAIGN === '1';
+const shouldRunCampaignMission = index => !skipCampaignPlaythroughs && (requestedMission === null || requestedMission === index);
+if (skipCampaignPlaythroughs) console.log('campaign-playthrough-mode: skipped all 19 scripted playthroughs (CK_SKIP_CAMPAIGN=1)');
+else if (requestedMission !== null) console.log('campaign-playthrough-mode: running mission '+(requestedMission+1)+' only (CK_MISSION='+requestedMission+')');
 
 assert.ok(game, 'Test hooks must be attached after the real game script initialises');
 const kingHill = game.exerciseKingHillControl();
@@ -1590,47 +1596,67 @@ assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its 
 for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true, `Mission ${mission.index + 1} must reach defeat when its Town Centre is destroyed`);
 assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
 console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
+if (shouldRunCampaignMission(0)) {
 const firstHearthPlaythrough = playCampaignScenarioTimed(0, 240);
 assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite: '+JSON.stringify(firstHearthPlaythrough));
 assert.equal(firstHearthPlaythrough.over, 'win', 'A scripted player using real building, gathering and training orders must win First Hearth within four simulated minutes: '+JSON.stringify(firstHearthPlaythrough));
 assert.ok(firstHearthPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'First Hearth must naturally complete every objective through the simulation: '+JSON.stringify(firstHearthPlaythrough));
 console.log('campaign-scripted-playthrough: First Hearth won through real building, gathering and production orders in '+firstHearthPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+}
+if (shouldRunCampaignMission(1)) {
 const raidersAtFordPlaythrough = playCampaignScenarioTimed(1, 600);
 assert.equal(raidersAtFordPlaythrough.trainingGate, null, 'Raiders at the Ford must allow its required soldiers to be trained: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.equal(raidersAtFordPlaythrough.over, 'win', 'A scripted player must build a Barracks, train eight soldiers and survive the timed raids in Raiders at the Ford: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete), 'Raiders at the Ford must record every objective as completed: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.equal(raidersAtFordPlaythrough.objectives.find(objective => objective.title === 'Survive until 8:00')?.predicate, true, 'The survival objective must still be true at victory');
 console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+}
+if (shouldRunCampaignMission(2)) {
 const feudalFrontierPlaythrough = playCampaignScenarioTimed(2, 900);
 assert.ok(['win', 'lose'].includes(feudalFrontierPlaythrough.over), 'The Feudal Frontier must reach a real victory or defeat transition: '+JSON.stringify(feudalFrontierPlaythrough));
 assert.ok(feudalFrontierPlaythrough.objectives.find(objective => objective.title === 'Reach the Feudal Age')?.complete, 'The Feudal Frontier bot must naturally reach Feudal Age: '+JSON.stringify(feudalFrontierPlaythrough));
 const frontierOutcome = feudalFrontierPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified';
 console.log('campaign-scripted-playthrough: The Feudal Frontier '+frontierOutcome+' after '+feudalFrontierPlaythrough.campaignTime.toFixed(1)+' simulated seconds; age='+feudalFrontierPlaythrough.age+', objectives='+feudalFrontierPlaythrough.objectives.filter(objective => objective.complete).length+'/'+feudalFrontierPlaythrough.objectives.length);
+}
+if (shouldRunCampaignMission(3)) {
 const relicRoadPlaythrough = playCampaignScenarioTimed(3, 600);
 assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and recover three relics in the first Relic Road: '+JSON.stringify(relicRoadPlaythrough));
 assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+}
+if (shouldRunCampaignMission(11)) {
 const secondRelicRoadPlaythrough = playCampaignScenarioTimed(11, 600);
 assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
 assert.ok(secondRelicRoadPlaythrough.objectives.every(objective => objective.complete), 'The second Relic Road must record both objectives complete: '+JSON.stringify(secondRelicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: the second Relic Road won through real monastery construction and monk relic behaviour in '+secondRelicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+}
+if (shouldRunCampaignMission(12)) {
 const goldenCoastPlaythrough = playCampaignScenarioTimed(12, 1200);
 assert.ok(['win', 'lose'].includes(goldenCoastPlaythrough.over), 'The Golden Coast must reach a real victory or defeat transition: '+JSON.stringify(goldenCoastPlaythrough));
 console.log('campaign-scripted-playthrough: The Golden Coast '+(goldenCoastPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+goldenCoastPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+goldenCoastPlaythrough.objectives.filter(objective => objective.complete).length+'/'+goldenCoastPlaythrough.objectives.length);
+}
+if (shouldRunCampaignMission(14)) {
 const tidewatchPlaythrough = playCampaignScenarioTimed(14, 1200);
 assert.ok(['win', 'lose'].includes(tidewatchPlaythrough.over), 'The Siege of Tidewatch must reach a real victory or defeat transition: '+JSON.stringify(tidewatchPlaythrough));
 console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+tidewatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+tidewatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+tidewatchPlaythrough.objectives.length);
+}
+if (shouldRunCampaignMission(6)) {
 const northernWatchPlaythrough = playCampaignScenarioTimed(6, 600);
 assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
 assert.ok(['win', 'lose', null].includes(northernWatchPlaythrough.over), 'The Northern Watch must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(northernWatchPlaythrough));
 console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length);
+}
+if (shouldRunCampaignMission(7)) {
 const redwaterPlaythrough = playCampaignScenarioTimed(7, 600);
 assert.equal(redwaterPlaythrough.over, 'win', 'A scripted player must build the Market and two Towers and survive Crossing at Redwater: '+JSON.stringify(redwaterPlaythrough));
 assert.ok(redwaterPlaythrough.objectives.every(objective => objective.complete), 'Crossing at Redwater must naturally complete all three objectives: '+JSON.stringify(redwaterPlaythrough));
 console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlaythrough.over === 'win' ? 'won' : redwaterPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+redwaterPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+redwaterPlaythrough.objectives.filter(objective => objective.complete).length+'/'+redwaterPlaythrough.objectives.length);
+}
+if (shouldRunCampaignMission(5)) {
 const lastCrownPlaythrough = playCampaignScenarioTimed(5, 1200);
 assert.ok(['win', 'lose', null].includes(lastCrownPlaythrough.over), 'The Last Crown must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(lastCrownPlaythrough));
 console.log('campaign-scripted-playthrough: The Last Crown '+(lastCrownPlaythrough.over === 'win' ? 'won' : lastCrownPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+lastCrownPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+lastCrownPlaythrough.objectives.filter(objective => objective.complete).length+'/'+lastCrownPlaythrough.objectives.length);
+}
 for (const [index, label, limit] of [
   [10, 'The King’s Road', 700],
   [13, 'The Strait’s Last Relic', 1200],
@@ -1639,6 +1665,7 @@ for (const [index, label, limit] of [
   [17, 'The Crown Holds the Crossing', 1200],
   [18, 'The Iron Pass', 700],
 ]) {
+  if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, limit);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   const completed = result.objectives.filter(objective => objective.complete).length;
@@ -1646,6 +1673,7 @@ for (const [index, label, limit] of [
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|'));
 }
 for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'], [9, 'Siege of Greywatch']]) {
+  if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length);
