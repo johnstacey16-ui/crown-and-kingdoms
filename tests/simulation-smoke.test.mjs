@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -150,7 +150,7 @@ globalThis.__CK_TEST__ = {
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
       }
       if (S.age[0] < plan.ages && !tc.rs) research(tc, 'age');
-      if (index === 3) {
+      if (index === 3 || index === 11) {
         const monks = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'mon' && unit.hp > 0 && !unit.ld);
         const reserved = new Set(monks.filter(unit => unit.o === 'r' && unit.tg && !unit.rel && !unit.tg.c && !unit.tg.m).map(unit => unit.tg));
         for (const monk of monks) {
@@ -1569,6 +1569,10 @@ const relicRoadPlaythrough = game.playCampaignScenario(3, 600);
 assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and recover three relics in the first Relic Road: '+JSON.stringify(relicRoadPlaythrough));
 assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+const secondRelicRoadPlaythrough = game.playCampaignScenario(11, 600);
+assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
+assert.ok(secondRelicRoadPlaythrough.objectives.every(objective => objective.complete), 'The second Relic Road must record both objectives complete: '+JSON.stringify(secondRelicRoadPlaythrough));
+console.log('campaign-scripted-playthrough: the second Relic Road won through real monastery construction and monk relic behaviour in '+secondRelicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
