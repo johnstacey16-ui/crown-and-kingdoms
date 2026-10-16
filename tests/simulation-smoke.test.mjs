@@ -1238,8 +1238,18 @@ const timed = (label, run) => {
     console.log('section-timing: '+label+' elapsedMs='+(Date.now()-startedAt));
   }
 };
-const playCampaignScenarioTimed = (index, maxSeconds) =>
-  timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
+const playCampaignScenarioTimed = (index, maxSeconds) => {
+  const result = timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
+  console.log('campaign-isolation-result: '+JSON.stringify({
+    mission: index,
+    outcome: result.over === 'win' ? 'win' : result.over === 'lose' ? 'lose' : 'timeout',
+    campaignTime: Number(result.campaignTime.toFixed(1)),
+    completedObjectives: result.objectives.filter(objective => objective.complete).map(objective => objective.title),
+    objectiveCount: result.objectives.filter(objective => objective.complete).length,
+    totalObjectives: result.objectives.length
+  }));
+  return result;
+};
 const requestedMission = process.env.CK_MISSION === undefined ? null : Number(process.env.CK_MISSION);
 if (requestedMission !== null) assert.ok(Number.isInteger(requestedMission) && requestedMission >= 0 && requestedMission < 19, 'CK_MISSION must be an integer from 0 to 18');
 const skipCampaignPlaythroughs = process.env.CK_SKIP_CAMPAIGN === '1';
