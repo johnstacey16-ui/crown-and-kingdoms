@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -169,6 +169,22 @@ globalThis.__CK_TEST__ = {
       if (woodNeeded) {
         const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b');
         if (woodWorker) assignWood(woodWorker);
+      }
+      for (const [unitKind, targetCount] of Object.entries(plan.units || {})) {
+        const live = S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length;
+        const producer = S.bs.find(building => building.t === 0 && building.done && building.hp > 0 && Array.isArray(B[building.k].tr) && B[building.k].tr.includes(unitKind));
+        const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
+        if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
+      }
+      if (plan.attack && Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount)) {
+        const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
+        const enemyTC = tcOf(1);
+        for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
+          const target = U[unit.k].sh
+            ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
+            : (enemyCastle || enemyTC);
+          if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
+        }
       }
       for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld)) {
         if (unit.o === 'i') assignFood(unit);
@@ -1573,6 +1589,12 @@ const secondRelicRoadPlaythrough = game.playCampaignScenario(11, 600);
 assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
 assert.ok(secondRelicRoadPlaythrough.objectives.every(objective => objective.complete), 'The second Relic Road must record both objectives complete: '+JSON.stringify(secondRelicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: the second Relic Road won through real monastery construction and monk relic behaviour in '+secondRelicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+const goldenCoastPlaythrough = game.playCampaignScenario(12, 1200);
+assert.ok(['win', 'lose'].includes(goldenCoastPlaythrough.over), 'The Golden Coast must reach a real victory or defeat transition: '+JSON.stringify(goldenCoastPlaythrough));
+console.log('campaign-scripted-playthrough: The Golden Coast '+(goldenCoastPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+goldenCoastPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+goldenCoastPlaythrough.objectives.filter(objective => objective.complete).length+'/'+goldenCoastPlaythrough.objectives.length);
+const tidewatchPlaythrough = game.playCampaignScenario(14, 1200);
+assert.ok(['win', 'lose'].includes(tidewatchPlaythrough.over), 'The Siege of Tidewatch must reach a real victory or defeat transition: '+JSON.stringify(tidewatchPlaythrough));
+console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+tidewatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+tidewatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+tidewatchPlaythrough.objectives.length);
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
