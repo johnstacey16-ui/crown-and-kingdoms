@@ -96,7 +96,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: ['house', 'lumber', 'bar'], villagers: 10, soldiers: 4 } : index === 1 ? { buildings: ['house', 'bar'], villagers: 0, soldiers: 8 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2 } : index === 3 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -107,8 +107,10 @@ globalThis.__CK_TEST__ = {
       unit.o = 'g'; unit.tg = node; unit.ct = 'f'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
       return true;
     };
-    const placeBuilding = kind => {
-      if (S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) return true;
+    const placeBuilding = (kind, count = 1) => {
+      const existing = S.bs.filter(building => building.t === 0 && building.k === kind && building.hp > 0);
+      if (existing.length >= count || existing.some(building => !building.done)) return true;
+      if ((B[kind].age || 0) > S.age[0]) return false;
       if (!can(0, B[kind].cost)) return false;
       const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
       const available = workers.filter(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
@@ -136,9 +138,11 @@ globalThis.__CK_TEST__ = {
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
       const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
       if (plan.villagers > 0 && villagers + queuedVillagers < plan.villagers && tc.q.length < 5) train(tc, 'vil');
-      for (const kind of plan.buildings) {
-        if (!S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) placeBuilding(kind);
+      for (const entry of plan.buildings) {
+        const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0).length;
+        if (existing < entry.count) placeBuilding(entry.kind, entry.count);
       }
+      if (S.age[0] < plan.ages && !tc.rs) research(tc, 'age');
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
       const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
       if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
@@ -1535,6 +1539,15 @@ assert.equal(raidersAtFordPlaythrough.over, 'win', 'A scripted player must build
 assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete), 'Raiders at the Ford must record every objective as completed: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.equal(raidersAtFordPlaythrough.objectives.find(objective => objective.title === 'Survive until 8:00')?.predicate, true, 'The survival objective must still be true at victory');
 console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+const feudalFrontierPlaythrough = game.playCampaignScenario(2, 900);
+assert.equal(feudalFrontierPlaythrough.over, 'win', 'A scripted player must reach Castle Age, build two Towers and a Market in The Feudal Frontier: '+JSON.stringify(feudalFrontierPlaythrough));
+assert.ok(feudalFrontierPlaythrough.objectives.every(objective => objective.complete), 'The Feudal Frontier must record all objectives complete: '+JSON.stringify(feudalFrontierPlaythrough));
+assert.equal(feudalFrontierPlaythrough.age, 2, 'The Feudal Frontier victory must be reached in Castle Age');
+console.log('campaign-scripted-playthrough: The Feudal Frontier won through real age research and construction in '+feudalFrontierPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+const relicRoadPlaythrough = game.playCampaignScenario(3, 600);
+assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and recover three relics in the first Relic Road: '+JSON.stringify(relicRoadPlaythrough));
+assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
+console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
 // The first timed tutorial event must fire when due and remain one-shot afterwards.
