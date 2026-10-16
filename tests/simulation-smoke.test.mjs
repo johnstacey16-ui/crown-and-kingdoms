@@ -109,14 +109,15 @@ globalThis.__CK_TEST__ = {
       if (S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) return true;
       if (!can(0, B[kind].cost)) return false;
       const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
-      const worker = workers.find(unit => unit.o !== 'b') || workers[0];
+      const worker = workers.find(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
       if (!worker) return false;
       let site = null;
       for (let radius = 2; radius <= 14 && !site; radius++) {
         for (let dy = -radius; dy <= radius && !site; dy++) for (let dx = -radius; dx <= radius && !site; dx++) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
           const x = Math.floor(worker.x) + dx, y = Math.floor(worker.y) + dy;
-          if (okPlace(0, kind, x, y)) site = [x, y];
+          const candidate = { x, y, s: B[kind].s };
+          if (okPlace(0, kind, x, y) && path(worker, goalNear(candidate, 1))) site = [x, y];
         }
       }
       if (!site) return false;
@@ -129,12 +130,14 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
-      if (villagers < 10 && tc.q.length < 5) train(tc, 'vil');
+      const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
+      if (villagers + queuedVillagers < 10 && tc.q.length < 5) train(tc, 'vil');
       for (const kind of ['house', 'lumber', 'bar']) {
         if (!S.bs.some(building => building.t === 0 && building.k === kind && building.hp > 0)) placeBuilding(kind);
       }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
-      if (barracks && cmil(0) < 4 && barracks.q.length < 5) {
+      const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
+      if (barracks && cmil(0) + queuedMilitia < 4 && barracks.q.length < 5) {
         if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
         else train(barracks, 'mil');
       }
