@@ -130,6 +130,7 @@ globalThis.__CK_TEST__ = {
         if (/Train 8 soldiers/.test(title)) addUnits('mil', 8);
         if (/ranged soldiers/.test(title)) addUnits('arc', 6);
         if (/3 War Galleys/.test(title)) addUnits('gal', 3);
+        if (/Bombard Cannons/.test(title)) addUnits('bomb', 2);
         if (/12 land soldiers/.test(title)) addUnits('knight', 12);
         if (/8 land soldiers/.test(title)) addUnits('spear', 8);
         if (/Reach the (?:Feudal|Castle) Age/.test(title)) S.age[0] = 3;
