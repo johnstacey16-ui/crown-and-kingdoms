@@ -176,8 +176,8 @@ test('offline cache can survive temporary hosting errors as well as network loss
 test('in-game About copy describes the real asset, audio and verification boundaries', () => {
   assert.match(engine, /Original local SVG sprite atlases, team colours, animation metadata and procedural fallbacks/);
   assert.match(engine, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
-  assert.match(engine, /not full authoritative match synchronisation/);
-  assert.match(engine, /Browser, live deployment and physical Xbox Series S testing are not yet verified/);
+  assert.match(engine, /Multiplayer reliability and host-authoritative match state are active development goals/);
+  assert.match(engine, /measure Xbox performance and verify multiplayer/);
   assert.doesNotMatch(engine, /All art is drawn in code\. No external assets or network calls/);
 });
 
