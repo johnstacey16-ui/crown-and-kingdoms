@@ -1515,9 +1515,9 @@ for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true
 assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
 console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
 const firstHearthPlaythrough = game.playFirstHearth(240);
-assert.equal(firstHearthPlaythrough.over, 'win', 'A scripted player using real building, gathering and training orders must win First Hearth within four simulated minutes');
-assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite');
-assert.ok(firstHearthPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'First Hearth must naturally complete every objective through the simulation');
+assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite: '+JSON.stringify(firstHearthPlaythrough));
+assert.equal(firstHearthPlaythrough.over, 'win', 'A scripted player using real building, gathering and training orders must win First Hearth within four simulated minutes: '+JSON.stringify(firstHearthPlaythrough));
+assert.ok(firstHearthPlaythrough.objectives.every(objective => objective.complete && objective.predicate), 'First Hearth must naturally complete every objective through the simulation: '+JSON.stringify(firstHearthPlaythrough));
 console.log('campaign-scripted-playthrough: First Hearth won through real building, gathering and production orders in '+firstHearthPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 
 // Exercise campaign event dispatch itself, not just the shape of event definitions.
