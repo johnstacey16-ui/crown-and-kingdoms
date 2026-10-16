@@ -1874,3 +1874,4 @@ console.log('four-kingdom-mass-battle: '+massBattle.requestedTotal+' units, 500/
 
 
 }
+}
