@@ -1,3 +1,12 @@
+## Development workflow — standing owner instructions
+
+- **Commit directly to `main` only.** Do not create feature branches or pull-request branches unless the owner explicitly requests them.
+- **Prioritise meaningful gameplay implementation** (campaigns, AI, combat, economy, controller controls, visuals, performance and saves) over adding more tests or repeating source audits.
+- **Work in the largest practical batches**, completing multiple related gameplay improvements before reporting back. Do not stop after one or two trivial commits.
+- **Avoid test loops.** Add or run focused tests only when they meaningfully verify a changed feature, fix a demonstrated bug, or protect a critical save/gameplay path. Do not repeatedly audit unchanged systems.
+- **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
+- **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
+
 # Crown & Kingdoms — Main Development Goals
 
 **Target:** Controller-first browser RTS for Xbox Series S / Microsoft Edge.
