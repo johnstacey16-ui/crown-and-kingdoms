@@ -165,8 +165,12 @@ const techPriority=k=>{
  if(k==='mas'&&bl.some(b=>b.k==='tc'&&b.hp<b.mh*.8))score+=15;
  return score
 };
+const nextAge=AG[S.age[t]+1],agePrereqs=nextAge&&new Set(bl.filter(x=>x.done&&x.hp>0&&nextAge.needs.includes(x.k)&&B[x.k]&&(B[x.k].age||0)===S.age[t]).map(x=>x.k)).size;
+const savingForAge=!!(nextAge&&agePrereqs>=2&&vil.length>=10&&!tc.rs&&S.age[t]<3);
 for(const b of bl)if(b.done&&b.hp>0&&rsOf(b).length&&!b.rs&&(!Array.isArray(b.q)||!b.q.length)){
- const choices=rsOf(b).filter(k=>{const e=TE[k];return!!e&&!S.tech[t][k]&&!bl.some(other=>other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost)});
+ const choices=rsOf(b).filter(k=>{const e=TE[k];if(!e||S.tech[t][k]||bl.some(other=>other.rs&&other.rs.k===k)||e.age>S.age[t]||(e.pre&&!S.tech[t][e.pre])||!can(t,e.cost))return false;
+ if(savingForAge&&k!=='loom'&&k!=='gath'&&k!=='wheel'&&k!=='axe'&&k!=='saw'){const cost=nextAge.cost;return Object.keys(cost).every(res=>(R[res]||0)-(e.cost[res]||0)>=cost[res]*.75)}
+ return true});
  choices.sort((a,b)=>techPriority(b)-techPriority(a));
  if(choices.length)research(b,choices[0])
 }
