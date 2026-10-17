@@ -17,6 +17,8 @@ assert.ok(path(soldier, gp(8.5, 8.5, 0.6)), 'unblocked land route exists');
 assert.equal(path(null, gp(8.5, 8.5, 0.6)), null, 'missing unit is rejected');
 assert.equal(path(soldier, null), null, 'missing goal is rejected');
 assert.equal(path({ ...soldier, x: NaN }, gp(8.5, 8.5, 0.6)), null, 'invalid unit position is rejected');
+assert.equal(path({ ...soldier, x: -0.2 }, gp(8.5, 8.5, 0.6)), null, 'fractional negative coordinates are rejected');
+assert.equal(path({ ...soldier, x: W + 0.1 }, gp(8.5, 8.5, 0.6)), null, 'fractional off-map coordinates are rejected');
 S.g[2 * W + 2] = 1;
 assert.equal(path(soldier, gp(8.5, 8.5, 0.6)), null, 'land unit cannot start inside blocked terrain');
 S.g[2 * W + 2] = 0;
