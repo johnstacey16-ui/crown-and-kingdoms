@@ -27,7 +27,7 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 {n:'Cursor speed',v:()=>cspd+'x',l:()=>{cspd=Math.max(.5,cspd-.25)},r:()=>{cspd=Math.min(2,cspd+.25)}},
 {n:'Brightness',v:()=>br.toFixed(1),l:()=>{br=Math.max(.6,+(br-.1).toFixed(1));rs()},r:()=>{br=Math.min(1.5,+(br+.1).toFixed(1));rs()}},
 {n:'UI scale',v:()=>ui+'x',l:()=>{const L=[.8,1,1.25,1.5];ui=L[Math.max(0,L.indexOf(ui)-1)];rs()},r:()=>{const L=[.8,1,1.25,1.5];ui=L[Math.min(3,L.indexOf(ui)+1)];rs()}},
-{n:'Zoom',v:()=>zm.toFixed(1)+'x',l:()=>setZoom(Math.max(1,+(zm-.2).toFixed(1))),r:()=>setZoom(Math.min(2,+(zm+.2).toFixed(1)))},
+{n:'Zoom',v:()=>zm.toFixed(1)+'x',l:()=>setZoom(Math.max(.8,+(zm-.2).toFixed(1))),r:()=>setZoom(Math.min(2,+(zm+.2).toFixed(1)))},
 {n:'Camera speed',v:()=>camspd+'x',l:()=>{camspd=Math.max(.5,camspd-.25)},r:()=>{camspd=Math.min(2,camspd+.25)}},
 {n:'Left stick dead zone',v:()=>dz.toFixed(2),l:()=>{dz=Math.max(.05,dz-.05)},r:()=>{dz=Math.min(.4,dz+.05)}},
 {n:'Right stick dead zone',v:()=>dzr.toFixed(2),l:()=>{dzr=Math.max(.05,dzr-.05)},r:()=>{dzr=Math.min(.4,dzr+.05)}},
