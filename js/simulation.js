@@ -21,7 +21,7 @@ function tickTrader(u,dt){
   if(u.t===0){u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.rp=0;u.o='i';u.tradePaused=true;return}
   u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';u.p=[];u.rp=0;return}
-  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).map(b=>{
+  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&Number.isInteger(b.t)&&b.t>=0&&b.t<S.teamN&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).map(b=>{
    const distance=Math.hypot(b.x-src.x,b.y-src.y);
    let danger=0;
    for(const e of S.us)if(e&&e.hp>0&&!e.ld&&isHostile(u.t,e.t)&&U[e.k]?.dmg>0&&!!U[e.k].sh===!!U[u.k].sh){
