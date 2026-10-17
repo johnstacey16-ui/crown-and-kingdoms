@@ -2,7 +2,7 @@
 function auditGeneratedMap(starts){
  const seenLand=new Uint8Array(W*H),seenWater=new Uint8Array(W*H),landComponents=[],waterComponents=[];
  const flood=(sx,sy,kind,seen)=>{
-  const pass=i=>kind==='land'?(S.wt[i]!==1):(S.wt[i]===1||S.wt[i]===2);
+  const pass=i=>kind==='land'?(S.wt[i]===0):(S.wt[i]===1||S.wt[i]===2);
   const start=sy*W+sx;if(!Number.isInteger(sx)||!Number.isInteger(sy)||sx<0||sy<0||sx>=W||sy>=H||!pass(start)||seen[start])return [];
   const q=[start];seen[start]=1;
   for(let h=0;h<q.length;h++){const i=q[h],x=i%W,y=(i/W)|0;
@@ -10,7 +10,7 @@ function auditGeneratedMap(starts){
    for(const n of ns)if(n>=0&&!seen[n]&&pass(n)){seen[n]=1;q.push(n)}
   }return q;
  };
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]!==1&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand).length);if((S.wt[i]===1||S.wt[i]===2)&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater).length)}
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(S.wt[i]===0&&!seenLand[i])landComponents.push(flood(x,y,'land',seenLand).length);if((S.wt[i]===1||S.wt[i]===2)&&!seenWater[i])waterComponents.push(flood(x,y,'water',seenWater).length)}
  const startCells=starts.map(([x,y])=>Number.isInteger(x)&&Number.isInteger(y)&&x>=0&&y>=0&&x<W&&y<H?y*W+x:-1);
  const startReach=new Uint8Array(W*H),first=starts[0],reached=first?flood(first[0],first[1],'land',startReach):[];
  const landReachable=!!first&&reached.length>0&&startCells.every(i=>startReach[i]===1);
