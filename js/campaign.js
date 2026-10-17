@@ -104,7 +104,7 @@ function endA(){if(!cmp){start();return}if(S.over==='win'){const next=nextCampai
 function endB(){if(cmp){if(S.over==='win'&&nextCampaignMission(cmp.i)===null){leaveCampaign()}else{mode='camp';ci=0}}else leaveCampaign()}
 
 const CAMP_ARCS=[{n:'The Crown of Ashford',ids:[0,1,2,3,4,5,8]},{n:'Frontier Wars',ids:[6,7]},{n:'The Royal Campaign',ids:[9,10,11]},{n:'Coastal War',ids:[12,13,14]},{n:'Northern March',ids:[15,18]},{n:'The Causeway Campaign',ids:[16,17]}];
-function nextCampaignMission(i){const order=CAMP_ARCS.flatMap(arc=>arc.ids),p=order.indexOf(i);return p>=0&&p<order.length-1?order[p+1]:null}
+function nextCampaignMission(i){const arc=CAMP_ARCS.find(a=>a.ids.includes(i));if(!arc)return null;const p=arc.ids.indexOf(i);return p>=0&&p<arc.ids.length-1?arc.ids[p+1]:null}
 const campItems=()=>{const dn=campDone(),arc=CAMP_ARCS[ca]||CAMP_ARCS[0],ids=arc.ids.filter(i=>Number.isInteger(i)&&CAMP[i]&&typeof CAMP[i].t==='string');return[{n:'Campaign: '+arc.n,v:()=>((ca+1)+' / '+CAMP_ARCS.length),d:()=> 'Use Left/Right to switch campaign.',l:()=>{ca=(ca+CAMP_ARCS.length-1)%CAMP_ARCS.length;ci=0},r:()=>{ca=(ca+1)%CAMP_ARCS.length;ci=0}},...ids.map((i,j)=>{const m=CAMP[i],locked=j>0&&!dn[ids[j-1]];return{n:(j+1)+'. '+m.t+(dn[i]?'  (complete)':locked?'  (locked)':''),d:()=>String(m.b||'Mission briefing unavailable.').slice(0,100)+'...',a:()=>{if(!locked){bi=i;mode='brief'}}}}),{n:'Back',a:()=>{leaveCampaign()}}]};
 function campCtl(){const it=campItems(),n=it.length;if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;const r=it[ci];if(E[14]&&r.l)r.l();if(E[15]&&r.r)r.r();if(E[0]&&r.a)r.a();if(E[1])leaveCampaign()}
 function briefCtl(){if(E[0])startScenario(bi);if(E[1])mode='camp'}
