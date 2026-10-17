@@ -20,14 +20,17 @@ assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.05) < 1e-9);
 assert.equal(speed({ k: 'vil', t: 1 }), U.vil.sp, 'other kingdoms unaffected');
 assert.equal(speed({ k: 'mil', t: 0 }), U.mil.sp, 'soldiers unaffected');
 
-assert.ok(simulation.includes("(u.k==='vil'&&S.tech[u.t].wheel?3:0)"),
-  'Wheelbarrow capacity must apply only to villagers');
-assert.ok(simulation.includes("(u.k==='vil'&&S.tech[u.t].handcart?7:0)"),
-  'Hand Cart capacity must apply only to villagers');
-const CAP = 10;
-const capacity = tech => CAP + (tech.carry ? 5 : 0) + (tech.wheel ? 3 : 0);
-assert.equal(capacity({}), 10);
-assert.equal(capacity({ wheel: 1 }), 13);
-assert.equal(capacity({ carry: 1 }), 15);
-assert.equal(capacity({ wheel: 1, carry: 1 }), 18);
+const capStart = simulation.indexOf('function gatherCapacity(u){');
+const capEnd = simulation.indexOf('function unitSpeed(u){', capStart);
+assert.ok(capStart >= 0 && capEnd > capStart, 'gathering capacity helper exists');
+context.CAP = 10;
+vm.runInContext(simulation.slice(capStart, capEnd), context);
+const capacity = vm.runInContext('gatherCapacity', context);
+assert.equal(capacity({ k: 'vil', t: 0 }), 13, 'villagers receive cart upgrades');
+assert.equal(capacity({ k: 'mil', t: 0 }), 10, 'military units do not receive cart capacity');
+assert.equal(capacity({ k: 'vil', t: 1 }), 10, 'enemy villagers are unaffected');
+S.tech[0].carry = 1;
+assert.equal(capacity({ k: 'vil', t: 0 }), 18, 'carry and cart bonuses stack');
+assert.equal(capacity({ k: 'mil', t: 0 }), 15, 'generic carrying upgrade still applies');
+assert.ok(simulation.includes('u.car>=gatherCapacity(u)'), 'gathering uses capacity helper');
 console.log('wheelbarrow-economy: passed');
