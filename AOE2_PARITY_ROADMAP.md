@@ -124,6 +124,13 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Save compatibility:** the loader validates production queues and research timers before restoring a match, rejects invalid civilization ages and initializes missing legacy building queues to empty arrays.
 - **Scope of verification:** source changes and regression fixtures are committed, but full CI, real save-slot round trips, extended matches and Xbox browser tests still need to be performed.
 
+### Further reliability work — 17 October 2026
+
+- **Save integrity:** restored training queues must belong to their production buildings; restored research must belong to its research site, including Town Centre-only age advancement.
+- **Combat:** direct damage guards invalid target unit types, non-finite health and missing attacker technology state.
+- **Movement and navigation:** unit movement rejects out-of-bounds/non-finite positions; land units cannot enter deep water. Shallow water (`wt=2`) remains a traversable ford for land units and navigable for ships, as intended by the map layouts. Pathfinding, movement and map auditing retain that distinction.
+- **Testing:** added source regression tests for save production, movement bounds, ford traversal and combat validation. Live browser and Xbox acceptance remain pending.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
