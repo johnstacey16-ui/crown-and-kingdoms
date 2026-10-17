@@ -36,7 +36,7 @@ S.g.fill(0);
 S.wt.fill(0);
 assert.equal(spawnPos(dock), null, 'ships require water');
 S.wt[3 * W + 4] = 2;
-assert.equal(spawnPos(dock), null, 'ships cannot spawn on non-navigable water');
+assert.deepEqual(Array.from(spawnPos(dock)), [4.5, 3.5], 'ships support both water terrain types');
 S.wt[3 * W + 4] = 1;
 assert.deepEqual(Array.from(spawnPos(dock)), [4.5, 3.5], 'ships spawn on navigable water');
 S.nd[3 * W + 4] = { k: 'fish' };
