@@ -14,4 +14,7 @@ for (const rally of [{ x: -1, y: 4 }, { x: 24, y: 2 }, { x: 1, y: Infinity }, { 
   assert.equal(Boolean(valid({ rally }, 24)), false, 'invalid rally rejected: ' + JSON.stringify(rally));
 }
 assert.ok(src.includes('validSavedRally(b,j.sz)'), 'save loader uses rally validator');
+assert.ok(src.includes('t:rf(b.rally.t)'), 'save serializes resource rally reference');
+assert.ok(src.includes('refOK(b.rally&&b.rally.t,counts)'), 'load validates rally target references');
+assert.ok(src.includes('b.rally.t=r2(b.rally.t)'), 'load resolves rally target to live resource object');
 console.log('save-rally-validation: passed');
