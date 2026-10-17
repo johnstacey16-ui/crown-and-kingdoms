@@ -30,8 +30,12 @@ const speed = vm.runInContext('unitSpeed', context);
 const upB = vm.runInContext('upB', context);
 
 function complete(tech) {
-  tc.rs = { k: tech, t: TE[tech].t };
-  upB(tc, TE[tech].t);
+  const duration = TE[tech].t;
+  tc.rs = { k: tech, t: duration };
+  upB(tc, duration / 2);
+  assert.equal(tc.rs.k, tech, `${tech} is still in progress at halfway`);
+  assert.equal(S.tech[0][tech], undefined, `${tech} does not apply early`);
+  upB(tc, duration / 2);
   assert.equal(tc.rs, null, `${tech} completes`);
   assert.equal(S.tech[0][tech], 1, `${tech} is applied`);
 }
@@ -39,6 +43,8 @@ function complete(tech) {
 assert.equal(capacity(worker), 10);
 assert.equal(speed(worker), U.vil.sp);
 complete('loom');
+upB(tc, TE.loom.t);
+assert.equal(worker.hp, U.vil.hp + 15, 'completed Loom must not apply twice');
 assert.equal(worker.hp, U.vil.hp + 15);
 assert.equal(enemy.hp, U.vil.hp);
 complete('wheel');
