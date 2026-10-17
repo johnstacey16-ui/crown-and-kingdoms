@@ -2,18 +2,18 @@ const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(
 const grp=(t,k,n)=>{const tc=tcOf(t);for(let i=0;i<n;i++){const p=tc&&spawnPos(tc);if(p)addU(t,k,p[0]+(i%4)*.3,p[1]+(i%3)*.3)}};
 function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true)}return null}
 
-function raidShipPos(e){
- const docks=S.bs.filter(b=>b.t===1&&b.k==='dock'&&b.hp>0);
- const anchors=docks.length?docks:[e];let best=null,bd=Infinity;
+function raidShipPositions(e,count){
+ const docks=S.bs.filter(b=>b.t===1&&b.k==='dock'&&b.hp>0),anchors=docks.length?docks:[e],spots=[],occupied=new Set();
+ for(const u of S.us)if(u.hp>0&&!u.ld&&U[u.k]?.sh)occupied.add((u.y|0)*W+(u.x|0));
  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
-  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||S.g[i])continue;
-  let d=Infinity;
-  for(const a of anchors){const q=Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2));if(q<d)d=q}
-  if(d<bd&&d<=18){bd=d;best=[x+.5,y+.5]}
+  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||S.g[i]||occupied.has(i))continue;
+  let d=Infinity;for(const a of anchors)d=Math.min(d,Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2)));
+  if(d<=18)spots.push({x,y,d});
  }
- return best
+ spots.sort((a,b)=>a.d-b.d);
+ return spots.slice(0,count).map(p=>[p.x+.5,p.y+.5])
 }
-function raid(n,ks,msg){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalAnchor=ks.some(k=>U[k]?.sh)?raidShipPos(e):null;for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalAnchor:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const enemy=S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];if(enemy){u.o='a';u.tg=enemy;u.p=[]}}else{land++;u.o='a';u.tg=tg;u.p=[]}}if(msg&&(land||ships))note(msg)}
+function raid(n,ks,msg){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const enemy=S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];if(enemy){u.o='a';u.tg=enemy;u.p=[]}}else{land++;u.o='a';u.tg=tg;u.p=[]}}if(msg&&(land||ships))note(msg)}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
