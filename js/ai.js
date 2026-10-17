@@ -34,6 +34,13 @@ if(S.t-(A.lastTributeAt??-90)>=90){
  if(transfer){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
 }
 aiRetreat(t,my,tc,bl);
+// Assign nearby idle warships to protect merchant cogs threatened by enemy fleets.
+for(const merchant of my.filter(u=>u.k==='cog'&&!u.ld&&u.hp>0)){
+ if(!hostileFleet.some(e=>Math.hypot(e.x-merchant.x,e.y-merchant.y)<13))continue;
+ if(galleys.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0))continue;
+ const escorts=galleys.filter(g=>g.hp>mhp(g)*.45&&!g.ld&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<20).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
+ for(const escort of escorts.slice(0,3)){const route=path(escort,goalNear(merchant,2));if(!route)continue;escort.o='G';escort.tg=merchant;escort.p=route;escort.rp=1;break}
+}
 const damagedFleet=my.filter(u=>u.sh&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>a.hp/mhp(a)-b.hp/mhp(b));
 if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
  const target=damagedFleet[0],underFire=S.us.some(e=>e&&Number.isInteger(e.t)&&isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
