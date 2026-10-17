@@ -66,6 +66,15 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Prevent clients from continuing a match with divergent state or reporting a false successful result.
 - [ ] Clearly distinguish implemented networking from any still-prototype functionality.
 
+## Controller-first match setup and in-game economy controls
+
+- [x] Offer classic three-villager and expanded five-, ten- and fifteen-villager starting options for skirmishes.
+- [x] Offer Low, Standard, Medium, High, Very High and Ultra High starting-resource presets for skirmishes.
+- [x] Provide in-game controller zoom without requiring the pause/options menu (LT + D-pad Up/Down).
+- [x] Provide in-game automatic villager resource selection and target adjustment (LT + D-pad Left/Right, X/B) and automation toggle (LT + A).
+- [ ] Verify the new shortcuts on a physical Xbox controller in Edge, including interactions with selection, minimap and command menus.
+- [ ] Playtest every starting-villager/resource preset across multiple map sizes and kingdoms, and balance economy pacing against AoE II: DE.
+
 ## 8. Final verification and documentation
 
 - [ ] Run the complete regression suite against the latest main-branch commit.
