@@ -82,10 +82,10 @@ function queueWarm(){WQ=[];const uu=new Set(CIV.map(c=>c.uu)),mine=new Set((S.ci
 function warm(){if(!WQ.length)return;const t0=performance.now();while(WQ.length&&performance.now()-t0<3){const q=WQ.pop(),k=q[0],sz=USZ(k);spr(k+'|'+q[1]+'|'+q[2]+'|'+q[3],sz[0],sz[1],g=>paintUnit(g,k,teamColor(q[1]),q[2],q[3]))}}
 
 const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
-const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[],deleteSlotTarget=null;
+const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[],deleteSlotTarget=null,overwriteSlotTarget=null;
 function refreshSlots(){SI=[0,1,2].map(n=>{let r=null;try{r=localStorage.getItem(skey(n))}catch(e){}if(!r)return null;try{const j=JSON.parse(r);if(j.v!==1||!Array.isArray(j.us)||!Array.isArray(j.civ))return'bad';return{t:j.t|0,civ:j.civ,w:j.sz,d:j.diff|0,m:j.cmp&&CAMP[j.cmp.i]?CAMP[j.cmp.i].t:null,when:j.when}}catch(e){return'bad'}})}
-function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE&&typeof window.CK_STORAGE.restoreMissing==='function')window.CK_STORAGE.restoreMissing().then(()=>{refreshSlots();hs=SI.some(Boolean)||!!localStorage.getItem('ck_autosave')}).catch(()=>{})}
-function slotsCtl(){const it=slotItems(),n=it.length;if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots()}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:'auto';if(target==='auto'||SI[target])deleteSlotTarget=target}if(E[1])mode=sb}
+function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;overwriteSlotTarget=null;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE&&typeof window.CK_STORAGE.restoreMissing==='function')window.CK_STORAGE.restoreMissing().then(()=>{refreshSlots();hs=SI.some(Boolean)||!!localStorage.getItem('ck_autosave')}).catch(()=>{})}
+function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==null){if(E[1]){overwriteSlotTarget=null;return}if(E[0]){slot=overwriteSlotTarget;overwriteSlotTarget=null;if(saveG()){refreshSlots();mode=sb}}return}if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots()}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:'auto';if(target==='auto'||SI[target])deleteSlotTarget=target}if(E[1])mode=sb}
 
 
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
