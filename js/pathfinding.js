@@ -1,6 +1,6 @@
 /* Reuse A* heap buffers between synchronous searches to reduce per-path garbage on large maps. */
 const PATH_HEAP_K=[],PATH_HEAP_V=[];
-function path(u,goal){if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isInteger(u.t)||!S||!PA)return null;const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H)return null;
+function path(u,goal){if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!Number.isInteger(u.t)||!S||!PA)return null;const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H)return null;
 const hf=hx===undefined?()=>0:(x,y)=>{const dx=Math.abs(x+.5-hx),dy=Math.abs(y+.5-hy);return Math.max(0,Math.max(dx,dy)+.414*Math.min(dx,dy)-hr-.7)};
 const push=(k,n)=>{let i=hk.length;hk.push(k);hv.push(n);while(i>0){const p=(i-1)>>1;if(hk[p]<=k)break;hk[i]=hk[p];hv[i]=hv[p];i=p}hk[i]=k;hv[i]=n};
 const pop=()=>{const r=hv[0],kl=hk.pop(),vl=hv.pop(),n=hk.length;if(n){let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&hk[c+1]<hk[c])c++;if(hk[c]>=kl)break;hk[i]=hk[c];hv[i]=hv[c];i=c}hk[i]=kl;hv[i]=vl}return r};
