@@ -70,7 +70,7 @@ for(const s of fish.filter(u=>u.hp>0)){
  }
 }
 for(const s of fish.filter(u=>u.o==='i'&&S.t>=(u.fleeUntil||0))){let n=findNode(s,'f',32);if(!n&&R.w>=100){deployFishTrap([s]);n=findNode(s,'f',32)}if(n){const route=path(s,goalNear(n,1));if(route){s.o='g';s.tg=n;s.ct='f';s.p=route;s.rp=1;s.ret=0}}}
-for(const s of scouts.filter(u=>u.o==='i')){const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p}}
+for(const s of scouts.filter(u=>u.o==='i'&&S.t>=(u.nextScoutRoute||0))){s.nextScoutRoute=S.t+8;for(let attempt=0;attempt<4;attempt++){const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p;s.rp=1;break}}}
 {
 /* Wounded warships disengage to reachable open water instead of fighting to destruction. */
 for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog'].includes(u.k)&&U[u.k].dmg>=4&&!u.ld&&u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'||(u.o==='m'&&u.tg)))){
