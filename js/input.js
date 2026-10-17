@@ -19,7 +19,7 @@ if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  const home=homes.slice(0,24).find(b=>path(u,goalNear(b,1))),route=home?path(u,goalNear(tg,1)):null;
  if(!route){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;continue}
  const key=b=>[b.t,b.k,b.x,b.y].join(':');
- u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.tradeFleeing=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
+ u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.tradeFleeing=false;u.manualTradeMove=false;u.tradeThreatCheckAt=0;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
 }
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  if(u.k==='vil'&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
