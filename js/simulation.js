@@ -35,7 +35,7 @@ function tickTrader(u,dt){
  }
  u.o='m';walk(u,dt)
 }
-function unitSpeed(u){return U[u.k].sp*((S.tech[u.t]&&S.tech[u.t].husb&&CAVARM.has(u.k))?1.1:1)}
+function unitSpeed(u){const tech=S.tech[u.t]||{};return U[u.k].sp*((tech.husb&&CAVARM.has(u.k))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)}
 function walk(u,dt){const p=u.p;if(!p.length)return true;const[tx,ty]=p[0];if((u.sh?!(S.wt[(ty|0)*W+(tx|0)]&&!S.nd[(ty|0)*W+(tx|0)]):S.g[(ty|0)*W+(tx|0)]&&S.gt[(ty|0)*W+(tx|0)]!==u.t+1)&&p.length>1){u.p=[];u.rp=0;return true}
 const dx=tx-u.x,dy=ty-u.y,d=Math.hypot(dx,dy),st=unitSpeed(u)*dt,tl=p.length>1?.45:u.o==='m'?.6:0;if(d<=st){u.x=tx;u.y=ty;p.shift()}else if(d<=tl)p.shift();else{u.x+=dx/d*st;u.y+=dy/d*st}return!p.length}
 /* ===== COMBAT ===== */
