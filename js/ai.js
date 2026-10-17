@@ -190,12 +190,14 @@ if(!bl.some(b=>!b.done&&b.hp>0)&&S.t-(A.lastBuildingRepair??-99)>=4){
 for(const v of vil)if(v.o==='i'&&v.hp>0&&!v.ld&&!v.aiEvac){let buildRoute=null,buildChecks=0;const ub=bl.find(b=>{if(b.done||b.hp<=0||vil.some(u=>u.o==='b'&&u.tg===b))return false;if(++buildChecks>8)return false;buildRoute=path(v,goalNear(b,1));return !!buildRoute});if(ub){v.o='b';v.tg=ub;v.p=buildRoute;v.rp=1;continue}const nv=vil.length;let k=wk('f')<(S.age[t]>=1&&arm.length<6?Math.max(8,nv*.45|0):Math.max(5,nv*.32|0))?'f':wk('w')<Math.max(6,nv*.3|0)?'w':wk('g')<Math.max(3,nv*.2|0)?'g':wk('s')<Math.max(2,nv*.1|0)&&S.age[t]>=1?'s':'f',n=findNode(v,k,36);
 if(k==='f'&&can(t,B.farm.cost)&&R.w>=B.farm.cost.w+((S.age[t]>=1&&cnt('bar')&&arm.length<6)?50:0)&&(!n||S.nodes.filter(m=>m.fm&&m.amt>0&&Math.hypot(m.x-tc.x,m.y-tc.y)<12).length<Math.max(4,nv*.25|0)))for(let i=0,pf=0;i<20&&!pf;i++){const x=(tc.x+1+(S.r()-.5)*14)|0,y=(tc.y+1+(S.r()-.5)*14)|0;if(Math.hypot(x-tc.x,y-tc.y)>3&&!cor(tc,x,y)&&okPlace(t,'farm',x,y)&&path(v,gp(x+.5,y+.5,1.5))){const farm=addN('f',x,y,farmFood(t),1);if(!farm)continue;pay(t,B.farm.cost);farm.t=t;n=farm;pf=1}}
 if(!n){k='w';n=findNode(v,'w',30)}if(n){let route=path(v,goalNear(n,1));if(!route){let attempts=0;for(const alternative of S.nodes){if(alternative===n||alternative.amt<=0||alternative.an||alternative.fi||!['f','w','g','s'].includes(alternative.k)||Math.hypot(alternative.x-v.x,alternative.y-v.y)>36)continue;if(++attempts>12)break;const candidate=path(v,goalNear(alternative,1));if(candidate){n=alternative;route=candidate;break}}}if(route){v.o='g';v.tg=n;v.ct=n.k;v.p=route;v.rp=1;v.ret=0}}}
+/* Reuse a single live hostile threat roster for villager evacuation, base defence and allied relief. */
+const nearbyRaiders=S.us.filter(e=>e&&e.hp>0&&!e.ld&&Number.isInteger(e.t)&&isHostile(t,e.t)&&U[e.k]?.dmg>3);
 /* Villagers evacuate from nearby raiders, then resume their previous work once they reach safety. */
 for(const v of vil){
  if(v.hp<=0||v.ld||v.o==='B')continue;
  /* Single-pass nearest-raider scan avoids filter/map/sort allocations for every villager. */
  let threat=null;
- for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-v.x,e.y-v.y);if(!threat||d<threat.d)threat={e,d}}
+ for(const e of nearbyRaiders){const d=Math.hypot(e.x-v.x,e.y-v.y);if(!threat||d<threat.d)threat={e,d}}
  if(v.aiEvac){
   const ev=v.aiEvac,near=threat&&threat.d<7,safe=ev.shelter&&ev.shelter.hp>0&&Math.hypot(v.x-(ev.shelter.x+ev.shelter.s/2),v.y-(ev.shelter.y+ev.shelter.s/2))<3;
   if(!near&&(safe||S.t>=ev.until||ev.shelter&&ev.shelter.hp<=0)){
@@ -218,13 +220,13 @@ for(const v of vil){
  }
  v.aiEvac={o:v.o,tg:v.tg,ct:v.ct,shelter,until:S.t+18};v.o='m';v.tg=shelter;v.p=route;v.rp=1;
 }
-aiRebal(vil,R,t);{let thr=false,intr=null,best=Infinity;for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-tc.x,e.y-tc.y);if(d<12)thr=true;if(d<13){const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?8:0);if(score<best){best=score;intr=e}}}if(thr){if(intr)for(const d of arm)if(d.o==='i'&&Math.hypot(d.x-tc.x,d.y-tc.y)<18){d.o='a';d.tg=intr;d.p=[]}for(const v of vil.concat(my.filter(u=>u.k==='king')))if(v.o!=='B'&&!v.ld&&Math.hypot(v.x-tc.x,v.y-tc.y)<16&&(tc.cg||[]).length<15){v.o='B';v.tg=tc;v.p=[]}A.gu=S.t}else if(tc.cg&&tc.cg.length&&S.t-(A.gu||0)>15)unload(tc)}
+aiRebal(vil,R,t);{let thr=false,intr=null,best=Infinity;for(const e of nearbyRaiders){const d=Math.hypot(e.x-tc.x,e.y-tc.y);if(d<12)thr=true;if(d<13){const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?8:0);if(score<best){best=score;intr=e}}}if(thr){if(intr)for(const d of arm)if(d.o==='i'&&Math.hypot(d.x-tc.x,d.y-tc.y)<18){d.o='a';d.tg=intr;d.p=[]}for(const v of vil.concat(my.filter(u=>u.k==='king')))if(v.o!=='B'&&!v.ld&&Math.hypot(v.x-tc.x,v.y-tc.y)<16&&(tc.cg||[]).length<15){v.o='B';v.tg=tc;v.p=[]}A.gu=S.t}else if(tc.cg&&tc.cg.length&&S.t-(A.gu||0)>15)unload(tc)}
 /* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
 const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
  let intruder=null,best=Infinity;const bx=base.x+base.s/2,by=base.y+base.s/2;
- for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-bx,e.y-by);if(d>=13)continue;const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?7:0);if(score<best){best=score;intruder=e}}
+ for(const e of nearbyRaiders){const d=Math.hypot(e.x-bx,e.y-by);if(d>=13)continue;const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?7:0);if(score<best){best=score;intruder=e}}
  if(intruder){distress={base,enemy:intruder};break}
 }
 if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
@@ -239,7 +241,7 @@ const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market
 let raid=null;
 for(const site of economicSites){
  let intruder=null;const sx=site.x+(site.s||0)/2,sy=site.y+(site.s||0)/2;
- for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(t,e.t)||!(U[e.k]?.dmg>3))continue;const d=Math.hypot(e.x-sx,e.y-sy);if(d<8.5&&(!intruder||d<intruder.d))intruder={e,d}}
+ for(const e of nearbyRaiders){const d=Math.hypot(e.x-sx,e.y-sy);if(d<8.5&&(!intruder||d<intruder.d))intruder={e,d}}
  if(intruder){raid={site,e:intruder.e};break}
 }
 if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
