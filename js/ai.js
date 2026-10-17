@@ -43,7 +43,7 @@ for(const guard of my.filter(u=>u.o==='G'&&u.tg&&(u.tg.k==='cart'||u.tg.k==='cog
 for(const merchant of my.filter(u=>u.k==='cart'&&!u.ld&&u.hp>0)){
  if(!humanArmy.some(e=>U[e.k]?.dmg>0&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<11))continue;
  if(arm.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0))continue;
- const guards=arm.filter(g=>g.hp>mhp(g)*.5&&!g.ld&&g.k!=='mon'&&!['ram','mang','scor','treb','bomb'].includes(g.k)&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<15).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
+ const guards=arm.filter(g=>g.hp>mhp(g)*.5&&!g.ld&&!(A.wu||[]).includes(g)&&g.k!=='mon'&&!['ram','mang','scor','treb','bomb'].includes(g.k)&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<15).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
  for(const guard of guards.slice(0,3)){const route=path(guard,goalNear(merchant,2));if(!route)continue;guard.o='G';guard.tg=merchant;guard.p=route;guard.rp=1;guard.tradeEscortUntil=S.t+20;break}
 }
 // Assign nearby idle warships to protect merchant cogs threatened by enemy fleets.
