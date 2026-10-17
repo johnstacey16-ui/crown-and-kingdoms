@@ -13,7 +13,7 @@ function tickTrader(u,dt){
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';return}
-  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b));dest=null;for(const candidate of candidates.slice(0,12)){if(path(u,goalNear(candidate,1))){dest=candidate;break}}
+  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b));dest=null;for(const candidate of candidates.slice(0,12)){if(path(u,goalNear(candidate,1))&&path({x:src.x+src.s/2,y:src.y+src.s/2,t:u.t,sh:U[u.k].sh},goalNear(candidate,1))){dest=candidate;break}}
   if(!dest){u.trWait=6;u.o='i';return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
