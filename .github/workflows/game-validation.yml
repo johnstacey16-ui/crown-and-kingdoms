@@ -1,0 +1,33 @@
+name: Game validation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate game source
+        run: node scripts/check-game.mjs
+      - name: Run regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test_file in tests/*.test.mjs; do
+            echo "Running $test_file"
+            node "$test_file"
+          done
+      - name: Validate sprite atlas
+        run: node tests/validate-atlas.mjs
