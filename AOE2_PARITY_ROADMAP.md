@@ -21,6 +21,9 @@
 - **Allied unit/building repair, autonomous AI tribute and automatic defensive/retreat routines:** verify game-rule fairness and reference behaviour before expanding them.
 - **400/500 population options:** review against AoE2 DE Xbox's supported population settings.
 
+
+**Fidelity implementation update (17 October):** The setup UI explicitly labels Fast Economy and extra starting-army presets as custom rather than AoE2 DE Xbox modes. AI ally tribute now requires an active alliance and valid, sufficient resource balances; it does not mint resources. No gameplay features have been removed, and unverified reference differences remain open for deliberate review.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
