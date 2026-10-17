@@ -4,7 +4,7 @@ function tickTrader(u,dt){
  // AoE2 DE Xbox fidelity: trade units follow their assigned routes; they do not
  // autonomously flee enemy forces or choose a new escape destination.
  // Clear the legacy flee state when restoring older saves.
- if(u.tradeFleeing){u.tradeFleeing=false;u.p=[];u.rp=0;u.tradeThreatCheckAt=0;}
+ if(u.tradeFleeing){u.tradeFleeing=false;u.tradeThreatCheckAt=0;u.p=[];u.rp=0;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;}
 
  let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0):null;
  if(!src){
