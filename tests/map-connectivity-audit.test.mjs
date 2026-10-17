@@ -7,7 +7,7 @@ const start = source.indexOf('function auditGeneratedMap(starts){');
 const end = source.indexOf('\nfunction prepareHillMap(starts){', start);
 assert.ok(start >= 0 && end > start, 'map connectivity audit must exist');
 const W = 32, H = 32;
-const S = { wt: new Uint8Array(W * H) };
+const S = { wt: new Uint8Array(W * H), g: new Uint8Array(W * H), nd: new Array(W * H).fill(null) };
 const context = { W, H, S };
 vm.createContext(context);
 vm.runInContext(source.slice(start, end), context);
