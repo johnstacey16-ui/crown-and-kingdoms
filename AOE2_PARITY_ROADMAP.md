@@ -251,6 +251,14 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Save/load economy:** restored per-player market prices are normalized to valid bounded values, including malformed legacy prices.
 - **Remaining:** full test-suite execution, physical Xbox controller acceptance, campaign playthroughs, deeper difficulty calibration and multiplayer synchronization.
 
+### Controller and AI reliability — 17 October 2026
+
+- AI structure rosters exclude destroyed buildings; merchant escorts stop following cargo that is embarked or destroyed.
+- AI team decision ticks reject invalid team indices and missing team resources rather than running with corrupted state.
+- Xbox/browser controller polling accepts array-like GamepadButtonList values and invalid stored button remappings fall back to original button indices.
+- Campaign briefing rejects malformed mission identifiers before unlocking checks.
+- Acceptance still pending: actual Xbox controller playtests, full campaign playthroughs and complete automated suite execution.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
