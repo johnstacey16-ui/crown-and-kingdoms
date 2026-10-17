@@ -20,8 +20,10 @@ assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.05) < 1e-9);
 assert.equal(speed({ k: 'vil', t: 1 }), U.vil.sp, 'other kingdoms unaffected');
 assert.equal(speed({ k: 'mil', t: 0 }), U.mil.sp, 'soldiers unaffected');
 
-const gatherThreshold = simulation.match(/if\(u\.car>=CAP\+\(S\.tech\[u\.t\]\.carry\?5:0\)\+\(S\.tech\[u\.t\]\.wheel\?3:0\)\)/);
-assert.ok(gatherThreshold, 'gathering must apply both carry bonuses');
+assert.ok(simulation.includes("(u.k==='vil'&&S.tech[u.t].wheel?3:0)"),
+  'Wheelbarrow capacity must apply only to villagers');
+assert.ok(simulation.includes("(u.k==='vil'&&S.tech[u.t].handcart?7:0)"),
+  'Hand Cart capacity must apply only to villagers');
 const CAP = 10;
 const capacity = tech => CAP + (tech.carry ? 5 : 0) + (tech.wheel ? 3 : 0);
 assert.equal(capacity({}), 10);
