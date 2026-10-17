@@ -143,7 +143,7 @@ test('the core engine is external and loads before multiplayer integration', () 
 test('IndexedDB backs up saved slots without replacing the localStorage compatibility path', () => {
   assert.ok(html.indexOf('./persistence.js') < html.indexOf('./js/config.js'));
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
-  assert.match(persistence, /mirrorSave, deleteSave, restoreMissing/);
+  assert.match(persistence, /mirrorSave, deleteSave, restoreMissing, clearDeletionMarker/);
   assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\);try\{if\(window\.CK_STORAGE&&typeof window\.CK_STORAGE\.mirrorSave==='function'\)\{const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)\}\}catch\(e\)\{\}/);
   assert.match(engine, /restoreMissing\(\)\.then\(\(\)=>refreshSlots\(\)\)/);
   assert.match(save, /localStorage\.setItem\(key,payload\)/);
