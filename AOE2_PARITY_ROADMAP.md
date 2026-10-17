@@ -38,6 +38,8 @@
 
 **AI and villager control maintenance (18 October):** Retreating AI units now repath from the narrow band just outside shelter arrival distance instead of remaining stranded. Villager priority rebalancing exits when automation is disabled, and target increments are clamped to finite supported values. These changes need gameplay verification before marking Xbox parity complete.
 
+**Villager automation disable and save defaults (18 October):** Switching player villager automation off clears automation ownership flags without cancelling existing gathering orders. Applying priority assignments while disabled now does nothing; omitted resource targets in saved settings retain defaults rather than becoming zero. Verify toggle/re-enable and restored-save behaviour in gameplay.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
