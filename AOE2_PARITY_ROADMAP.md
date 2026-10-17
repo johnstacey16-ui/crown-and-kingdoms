@@ -112,6 +112,12 @@ The following changes are committed to `main` and covered by source-level regres
 
 These changes still require the full automated suite and live gameplay acceptance checks. The eight top-level goals remain open until their stated criteria are met.
 
+### Further implementation — 17 October 2026
+
+- **Combat robustness:** projectile impacts and direct damage now reject defeated, transported, invalid or no-longer-hostile targets. Dedicated tests exercise both impact and direct-hit paths.
+- **Map auditing:** invalid/fractional spawn coordinates are rejected rather than silently clamped. Dock access now checks buildable land and unobstructed adjacent water, with regression coverage for blocked shores.
+- **Verification status:** these commits are source changes with tests committed, not verified full-suite results. The map connectivity audit is an approximation and does not replace pathfinding or full match tests.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
