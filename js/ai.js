@@ -32,7 +32,7 @@ if(S.t-(A.lastTributeAt??-90)>=90){
   for(const q of shortage){const amount=Math.min(250,Math.floor(q.deficit/100)*100);if(amount>=100&&R[q.k]>=reserves[q.k]+amount){transfer={ally,k:q.k,amount};break}}
   if(transfer)break;
  }
- if(transfer){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
+ if(transfer&&Number.isSafeInteger(R[transfer.k])&&Number.isSafeInteger(S.res[transfer.ally]?.[transfer.k])&&Number.isSafeInteger(S.res[transfer.ally][transfer.k]+transfer.amount)&&R[transfer.k]>=transfer.amount&&diplomacyRelation(t,transfer.ally)==='ally'){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
 }
 aiRetreat(t,my,tc,bl);
 // Return merchant escorts to the army after danger has passed.
