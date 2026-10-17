@@ -222,6 +222,16 @@ These changes still require the full automated suite and live gameplay acceptanc
 - Briefing confirm rechecks the prior mission's completion so stale or directly selected locked briefings cannot launch.
 - **Verification pending:** execute the full Node test suite and all 19 campaign playthroughs; controller and Xbox browser checks remain open.
 
+### Market and campaign robustness batch — 17 October 2026
+
+- Market buy/sell actions validate player index, resource kind, action, price and resource quantities; rejected transactions return `false` without changing resources, successful transactions return `true`.
+- Added executable market trade tests covering rejection, pricing, insufficient stock and insufficient gold.
+- Campaign completion records normalize to a fixed 19-mission array; invalid completion indices are ignored.
+- Naval reinforcement position selection rejects invalid spawn requests and skips malformed/dead ship entries.
+- Campaign menu selection recovers from stale/out-of-range cursor indices.
+- Added campaign safety runtime tests and corrected an outdated campaign-arc progression regression assertion.
+- **Still to verify:** run Node test suite, full 19-mission playthrough, sustained AI difficulty calibration and Xbox Series S controller/browser testing.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
