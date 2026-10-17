@@ -223,7 +223,7 @@ if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
  for(const u of defenders){u.o='a';u.tg=raid.e;u.p=[]}
  if(defenders.length)A.lastRaidDefense=S.t;
 }
-if(bl.some(b=>b.k==='market'&&b.done&&b.hp>0)&&S.t-(A.lastMarketTrade??-99)>=15){for(const k of ['f','w','s']){if(R[k]>1100&&R.g<400){if(trade(t,k,'sell')!==false)A.lastMarketTrade=S.t;break}else if(R[k]<80&&R.g>600&&k!=='s'){if(trade(t,k,'buy')!==false)A.lastMarketTrade=S.t;break}}}
+if(bl.some(b=>b.k==='market'&&b.done&&b.hp>0)&&S.t-(A.lastMarketTrade??-99)>=15){for(const k of ['f','w','s']){if(R[k]>1100&&R.g<400){trade(t,k,'sell');A.lastMarketTrade=S.t;break}else if(R[k]<80&&R.g>600&&k!=='s'){trade(t,k,'buy');A.lastMarketTrade=S.t;break}}}
 if(A.stg){const wu=(A.wu||[]).filter(u=>u.hp>0&&u.k!=='mon'&&!u.retreating);if(wu.every(u=>u.o!=='m')||S.t-A.stg.t>50){for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='a';u.tg=['ram','mang','scor','treb','bomb'].includes(u.k)&&A.stg.siegeT&&A.stg.siegeT.hp>0?A.stg.siegeT:A.stg.tg;u.p=[]}A.stg=null}}
 {A.kn=A.kn||new Set();for(const b of S.bs)if(isHostile(t,b.t)&&b.hp>0&&!A.kn.has(b)&&my.some(u=>Math.hypot(u.x-b.x,u.y-b.y)<9))A.kn.add(b);
 if(A.on){A.wu=A.wu.filter(u=>u.hp>0);if(A.wu.length<A.ws*.4){A.on=0;for(const u of A.wu){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.tg=null}}A.nx=S.t+[240,180,120][diff];note('The enemy army is retreating!')}else if(A.wu.every(u=>u.o==='i'))A.on=0}
