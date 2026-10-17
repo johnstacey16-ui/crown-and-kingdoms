@@ -138,6 +138,13 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Save-game movement:** serialized waypoint lists are validated for structure, finite in-bounds coordinates and reasonable length. Legacy saves without paths initialize them as empty lists.
 - **Regression coverage:** added waypoint collision, gate ownership, paused-step and save-path tests. Full automated and live console-browser acceptance remain pending.
 
+### Navigation and save-rally improvements — 17 October 2026
+
+- **A* input safety:** pathfinding rejects fractional off-map unit coordinates, non-finite heuristic coordinates, incomplete coordinate pairs and negative heuristic radii.
+- **Save-game rally fidelity:** resource-target rally references are serialized, validated and reconnected to live resource nodes on load, so newly trained villagers can resume resource-directed rally orders after restoration.
+- **Save-game validation:** rally coordinates are checked for finite, in-bounds values; legacy saves without rally targets remain supported.
+- **Verification:** source-level regression tests have been committed, but automated suite execution, save/load round trips in a browser, long-match playtests and Xbox validation remain outstanding.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
