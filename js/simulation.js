@@ -20,12 +20,10 @@ function tickTrader(u,dt){
  const goal=u.tradeReturning?src:dest;
  if(d2(u.x,u.y,goal)<=1.1){
   u.p=[];u.rp=0;
-  if(u.tradeReturning){u.tradeReturning=false;u.tradeSourceWait=0;}
+  if(u.tradeReturning){const earned=Math.max(0,u.tradeCargo||0);if(earned){S.res[u.t].g+=earned;if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold')}u.tradeCargo=0;u.tradeReturning=false;u.tradeSourceWait=0;}
   else{
    const distance=Math.hypot((src.x+src.s/2)-(dest.x+dest.s/2),(src.y+src.s/2)-(dest.y+dest.s/2));
-   const earned=Math.max(2,Math.round(distance*0.35));
-   S.res[u.t].g+=earned;
-   if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold');
+   u.tradeCargo=Math.max(2,Math.round(distance*0.35));
    u.tradeReturning=true;
   }
   u.o='i';return;
