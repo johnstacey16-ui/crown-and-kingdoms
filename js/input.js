@@ -23,8 +23,8 @@ else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){if(u.ct!==tg.k)u.car=0;u.o='g';u.tg=tg;u.ct=tg.k;u.ret=0}
 else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg}
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&u.k==='vil'){u.o='b';u.tg=tg}
-else if(tg&&tg.t===0&&((tg.cg&&!tg.q)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
-else if(u.cg&&u.cg.length&&U[u.k].sh&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const p=path(u,gp(wx,wy,3));if(p){u.o='U';u.ut=[wx,wy];u.p=p;u.rp=1}else note('No water route to that landing area')}
+else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
+else if(u.k==='trn'&&u.cg&&u.cg.some(c=>c&&c.hp>0&&c.ld===u)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const p=path(u,gp(wx,wy,3));if(p){u.o='U';u.ut=[wx,wy];u.p=p;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
 else{const n=us.length,i=us.indexOf(u),fo=fslot(us,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>gp(gx,gy,r),p=path(u,gl(.8))||path(u,gl(2));if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else note('No route to that location')}}
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
