@@ -27,6 +27,8 @@ assert.equal(spawnPos(tc), null, 'surrounded production building cannot spawn un
 S.g[3 * W + 4] = 0;
 S.wt[3 * W + 4] = 1;
 assert.equal(spawnPos(tc), null, 'land units cannot spawn in water');
+S.wt[3 * W + 4] = 2;
+assert.deepEqual(Array.from(spawnPos(tc)), [4.5, 3.5], 'land units can spawn on shallow ford terrain');
 S.wt[3 * W + 4] = 0;
 S.nd[3 * W + 4] = { k: 'tree' };
 assert.equal(spawnPos(tc), null, 'land units cannot spawn on resource nodes');
