@@ -34,19 +34,24 @@ if(S.t-(A.lastTributeAt??-90)>=90){
  if(transfer){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
 }
 aiRetreat(t,my,tc,bl);
+// Return merchant escorts to the army after danger has passed.
+for(const guard of my.filter(u=>u.o==='G'&&u.tg&&(u.tg.k==='cart'||u.tg.k==='cog')&&S.t>=(u.tradeEscortUntil||0))){
+ const merchant=guard.tg,hostiles=merchant.k==='cog'?hostileFleet:humanArmy;
+ if(merchant.hp<=0||!hostiles.some(e=>Math.hypot(e.x-merchant.x,e.y-merchant.y)<18)){guard.o='i';guard.tg=null;guard.p=[];guard.rp=0;guard.tradeEscortUntil=0}
+}
 // Protect exposed trade carts with available infantry or cavalry.
 for(const merchant of my.filter(u=>u.k==='cart'&&!u.ld&&u.hp>0)){
  if(!humanArmy.some(e=>Math.hypot(e.x-merchant.x,e.y-merchant.y)<11))continue;
  if(arm.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0))continue;
  const guards=arm.filter(g=>g.hp>mhp(g)*.5&&!g.ld&&g.k!=='mon'&&!['ram','mang','scor','treb','bomb'].includes(g.k)&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<15).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
- for(const guard of guards.slice(0,3)){const route=path(guard,goalNear(merchant,2));if(!route)continue;guard.o='G';guard.tg=merchant;guard.p=route;guard.rp=1;break}
+ for(const guard of guards.slice(0,3)){const route=path(guard,goalNear(merchant,2));if(!route)continue;guard.o='G';guard.tg=merchant;guard.p=route;guard.rp=1;guard.tradeEscortUntil=S.t+20;break}
 }
 // Assign nearby idle warships to protect merchant cogs threatened by enemy fleets.
 for(const merchant of my.filter(u=>u.k==='cog'&&!u.ld&&u.hp>0)){
  if(!hostileFleet.some(e=>Math.hypot(e.x-merchant.x,e.y-merchant.y)<13))continue;
  if(galleys.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0))continue;
  const escorts=galleys.filter(g=>g.hp>mhp(g)*.45&&!g.ld&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<20).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
- for(const escort of escorts.slice(0,3)){const route=path(escort,goalNear(merchant,2));if(!route)continue;escort.o='G';escort.tg=merchant;escort.p=route;escort.rp=1;break}
+ for(const escort of escorts.slice(0,3)){const route=path(escort,goalNear(merchant,2));if(!route)continue;escort.o='G';escort.tg=merchant;escort.p=route;escort.rp=1;escort.tradeEscortUntil=S.t+20;break}
 }
 const damagedFleet=my.filter(u=>u.sh&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>a.hp/mhp(a)-b.hp/mhp(b));
 if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
