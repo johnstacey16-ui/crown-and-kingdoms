@@ -16,6 +16,7 @@ const S = { tech: [{}, {}], us: [villager, enemy], bs: [tc], res: [{}, {}] };
 const context = {
   S, U, B, TE, W: 64, Sfx: {},
   note: () => {}, sfx: () => {}, emit: () => {}, rumble: () => {},
+  foe: () => null,
 };
 vm.createContext(context);
 vm.runInContext(simulation.slice(start, end), context);
