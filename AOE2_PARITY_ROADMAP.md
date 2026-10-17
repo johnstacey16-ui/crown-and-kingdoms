@@ -83,6 +83,15 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify the new shortcuts on a physical Xbox controller in Edge, including interactions with selection, minimap and command menus.
 - [ ] Playtest every starting-villager/resource preset across multiple map sizes and kingdoms, and balance economy pacing against AoE II: DE.
 
+## Save-game management and rolling autosave — 17 October 2026
+
+- [x] Add a controller-accessible delete action for manual save slots and the recovery autosave, with explicit A-confirm/B-cancel.
+- [x] Delete IndexedDB backups alongside localStorage saves so the recovery adapter does not recreate deleted games.
+- [x] Keep autosave in a **single dedicated rolling recovery slot** (`ck_autosave`) which is overwritten by the current match; do not silently overwrite player-selected manual saves.
+- [x] Restart the autosave schedule on new matches and verify the stored payload after each write.
+- [ ] Test save/delete/restart/recover sequences in Xbox Edge, including IndexedDB restoration, storage quotas, corrupted saves, and loss of power.
+- [ ] Add automated tests for confirmed/cancelled deletion, IndexedDB cleanup, and latest-match autosave replacement. Keep this distinct from technology/AI/campaign work to avoid repeating the same polish indefinitely.
+
 ## 8. Final verification and documentation
 
 - [ ] Run the complete regression suite against the latest main-branch commit.
