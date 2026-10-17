@@ -22,6 +22,13 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 
 ## 2. AI strategy
 
+**Current AI development pass (17 October): improve economic decision quality after introducing six difficulty tiers.**
+- [x] Reserve a portion of age-up resources before spending on optional technologies once prerequisites are in place.
+- [x] Filter AI military production by affordability before choosing counter-units, preventing repeated failed training decisions.
+- [x] Add source-level regression tests for age-up savings, unit affordability and monotonic difficulty pacing.
+- [ ] Measure AI age-up times, resource float, idle production, population cap stalls and first-attack timings in full land/coastal/island matches; tune each tier from evidence.
+- [ ] Next distinct workstream: map/naval combat and transport reliability, followed by campaign playthroughs; return to AI only for observed match issues.
+
 - [ ] Build a sustainable economy and rebalance workers as resource needs change.
 - [ ] Choose useful units and mixed armies based on enemy composition and available resources.
 - [ ] Research appropriate technologies at sensible times.
