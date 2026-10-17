@@ -21,4 +21,8 @@ for (const bad of [
   { rs: { k: 'loom', t: -2 } }, { rs: [] },
 ]) assert.equal(Boolean(valid(bad)), false, 'corrupt production record must be rejected: ' + JSON.stringify(bad));
 assert.ok(save.includes('validSavedProduction(b)'), 'load validation invokes production checks');
+assert.ok(save.includes('Number.isInteger(a)&&a>=0&&a<AG.length'),
+  'save loader rejects invalid civilization ages');
+assert.ok(save.includes('if(!Array.isArray(b.q))b.q=[]'),
+  'legacy saves without queues receive empty queues');
 console.log('save-production-validation: passed');
