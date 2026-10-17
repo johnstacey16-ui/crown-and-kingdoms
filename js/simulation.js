@@ -1,6 +1,24 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
+ // Civilian merchants retreat from nearby enemies instead of sailing or driving into combat.
+ if(u.tradeFleeing){
+  if(u.p&&u.p.length){if(walk(u,dt)){u.tradeFleeing=false;u.p=[];u.rp=0}return}
+  u.tradeFleeing=false;
+ }
+ if(S.t>=(u.tradeThreatCheckAt||0)){
+  u.tradeThreatCheckAt=S.t+2;
+  const danger=S.us.some(e=>e&&e.hp>0&&!e.ld&&e.t!==u.t&&isHostile(u.t,e.t)&&U[e.k]&&U[e.k].dmg>0&&!!U[e.k].sh===!!U[u.k].sh&&Math.hypot(e.x-u.x,e.y-u.y)<6);
+  if(danger){
+   const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
+   for(const home of homes.slice(0,12)){
+    if(d2(u.x,u.y,home)<2)break;
+    const retreat=path(u,goalNear(home,1));
+    if(retreat&&retreat.length){u.tradeFleeing=true;u.p=retreat;u.rp=1;u.tradeFromKey=keyOf(home);u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;walk(u,dt);return}
+   }
+  }
+ }
+
  let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0):null;
  if(!src){
   if((u.tradeSourceWait||0)>0){u.tradeSourceWait=Math.max(0,u.tradeSourceWait-dt);u.o='i';u.p=[];u.rp=0;return}
