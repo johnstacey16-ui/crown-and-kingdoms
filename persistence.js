@@ -38,6 +38,21 @@
     })).catch(() => false);
   }
 
+  const pendingDeletes = new Set();
+  function deleteSave(key) {
+    if (!/^ck_save(?:[2-3])?$/.test(key) && key !== 'ck_autosave') return Promise.resolve(false);
+    pendingDeletes.add(key);
+    return openDatabase().then((db) => new Promise((resolve) => {
+      if (!db) { resolve(false); return; }
+      let tx;
+      try { tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).delete(key); }
+      catch (_) { resolve(false); return; }
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
+    })).catch(() => false).then((ok) => { pendingDeletes.delete(key); return ok; });
+  }
+
   function restoreMissing() {
     return openDatabase().then((db) => new Promise((resolve) => {
       if (!db) { resolve(false); return; }
@@ -52,7 +67,7 @@
           if (typeof key === 'string' && (/^ck_save(?:[2-3])?$/.test(key) || key === 'ck_autosave')) {
             let existing = null;
             try { existing = window.localStorage.getItem(key); } catch (_) {}
-            if (existing == null && typeof cursor.value === 'string') {
+            if (existing == null && !pendingDeletes.has(key) && typeof cursor.value === 'string') {
               try { window.localStorage.setItem(key, cursor.value); restored++; } catch (_) {}
             }
           }
@@ -65,5 +80,5 @@
     })).catch(() => false);
   }
 
-  window.CK_STORAGE = { mirrorSave, restoreMissing };
+  window.CK_STORAGE = { mirrorSave, deleteSave, restoreMissing };
 })();
