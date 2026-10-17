@@ -58,6 +58,14 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 
 ## 4. Naval systems and maps
 
+**Naval development pass (17 October): dock placement, shoreline feedback and map auditing.**
+- [x] Prevent AI dock placement beside tiny isolated ponds by checking for a substantial connected navigable water area.
+- [x] Distinguish complete starting-kingdom naval access from partial access in generated-map diagnostics.
+- [x] Report successfully unloaded transport passengers and warn when some remain aboard.
+- [x] Add focused naval-access tests for small ponds, open water and map-audit flags.
+- [ ] Test boarding and unloading on real coastlines, shallow-water crossings and islands, including blocked landing tiles and partial unloads.
+- [ ] Next major workstream: campaign mission playthroughs and progression regression coverage; then revisit naval mechanics only for observed failures.
+
 - [ ] Test land and naval pathfinding across narrow passages, islands, coastlines and blocked routes.
 - [ ] Verify ships can reach valid shore targets, docks and repair locations.
 - [ ] Test ship target acquisition, combat, retreat, repair and transport interactions.
