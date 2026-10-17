@@ -214,6 +214,14 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Tests:** added unit-order save validation and training-queue recovery regressions; retained source-level tests for shallow-ford spawning and mutually exclusive training/research.
 - **Acceptance remains open:** CI execution, full gameplay verification, campaigns, multiplayer synchronization and Xbox hardware profiling are not claimed complete.
 
+### Campaign defensive checks — 17 October 2026
+
+- Mission entry rejects invalid, negative, fractional and out-of-range indices before indexing scenario definitions.
+- Campaign completion writes ignore invalid mission indices.
+- Campaign ticks safely handle missing campaign state and conditional event callbacks.
+- Briefing confirm rechecks the prior mission's completion so stale or directly selected locked briefings cannot launch.
+- **Verification pending:** execute the full Node test suite and all 19 campaign playthroughs; controller and Xbox browser checks remain open.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
