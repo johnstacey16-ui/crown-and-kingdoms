@@ -20,7 +20,7 @@ function tickTrader(u,dt){
  const goal=u.tradeReturning?src:dest;
  if(d2(u.x,u.y,goal)<=1.1){
   u.p=[];u.rp=0;
-  if(u.tradeReturning)u.tradeReturning=false;
+  if(u.tradeReturning){u.tradeReturning=false;u.tradeSourceWait=0;}
   else{
    const distance=Math.hypot((src.x+src.s/2)-(dest.x+dest.s/2),(src.y+src.s/2)-(dest.y+dest.s/2));
    const earned=Math.max(2,Math.round(distance*0.35));
