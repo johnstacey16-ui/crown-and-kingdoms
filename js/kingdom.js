@@ -67,7 +67,7 @@ const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',
 function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===k).length:0}
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
 function skipAutoNode(u,n){if(!u||!n)return;const key=autoNodeKey(n);if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];if(!u.autoSkipNodes.includes(key)){if(u.autoSkipNodes.length>=128)u.autoSkipNodes.shift();u.autoSkipNodes.push(key)}}
-function findReachableAutoNode(u,k,r=36){
+function findReachableAutoNode(u,k,r=18){
  const all=S.nodes.filter(n=>n.amt>0&&!n.fi===!u.sh),live=new Set(all.map(autoNodeKey));
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(key=>live.has(key)).slice(-128);
  const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!u.autoSkipNodes.includes(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
@@ -90,7 +90,7 @@ function assignAutoVillager(u,force=false){
  const needs=keys.filter(k=>counts[k]<p[k]).sort((a,b)=>(p[b]-counts[b])-(p[a]-counts[a]));
  const rest=keys.filter(k=>!needs.includes(k)).sort((a,b)=>(counts[a]/p[a])-(counts[b]/p[b])||counts[a]-counts[b]);
  for(const k of needs.concat(rest)){
-  const found=findReachableAutoNode(u,k,36);
+  const found=findReachableAutoNode(u,k,18);
   if(!found)continue;
   u.o='g';u.tg=found.n;u.ct=k;u.p=found.route;u.pt=null;u.ret=0;u.rp=1;u.autoWorker=1;return true;
  }
