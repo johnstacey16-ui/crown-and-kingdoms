@@ -36,6 +36,8 @@
 
 **AI regroup and villager priority follow-up (18 October):** AI retreat decisions now leave units resting at a reached shelter instead of issuing a new move order each decision tick; destroyed or missing shelters clear stale retreat orders. Player villager resource priority selection now accepts only recognised gatherable resource types. These are implementation fixes, not verified Xbox behaviour; run full-match tests before marking parity complete.
 
+**AI and villager control maintenance (18 October):** Retreating AI units now repath from the narrow band just outside shelter arrival distance instead of remaining stranded. Villager priority rebalancing exits when automation is disabled, and target increments are clamped to finite supported values. These changes need gameplay verification before marking Xbox parity complete.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
