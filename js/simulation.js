@@ -3,6 +3,7 @@ function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
  // Civilian merchants retreat from nearby enemies instead of sailing or driving into combat.
  if(u.tradeFleeing){
+  u.o='m';
   if(u.p&&u.p.length){if(walk(u,dt)){u.tradeFleeing=false;u.p=[];u.rp=0;u.tradeThreatCheckAt=S.t+3}return}
   u.tradeFleeing=false;
  }
