@@ -135,8 +135,8 @@ if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){ov=1;aDown=null;boxR=null;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cgo={sel:-1,done:0};yc=1;aDown=null;boxR=null;return}
 if(E[3])yc=0;if(P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){if(!yc)yShort(false);yc=0}
 if(lt&&!P[7]&&!P[4]&&!P[py]){
- if(E[12]){setZoom(Math.min(2,+(zm+.2).toFixed(1)));note('Zoom '+zm.toFixed(1)+'x')}
- if(E[13]){setZoom(Math.max(.8,+(zm-.2).toFixed(1)));note('Zoom '+zm.toFixed(1)+'x')}
+ if(E[12]){setZoom(Math.min(2,+(zm+.2).toFixed(1)));sset();note('Zoom '+zm.toFixed(1)+'x')}
+ if(E[13]){setZoom(Math.max(.8,+(zm-.2).toFixed(1)));sset();note('Zoom '+zm.toFixed(1)+'x')}
  if(E[14]||E[15]){workerQuick=(workerQuick+(E[15]?1:3))%4;note('Villagers: '+WORKER_TARGETS[workerQuick].n+' target '+(S.vp||createVillagerPriority())[WORKER_TARGETS[workerQuick].k])}
  if(E[2])changeVillagerTarget(WORKER_TARGETS[workerQuick].k,1);
  if(E[1])changeVillagerTarget(WORKER_TARGETS[workerQuick].k,-1);
