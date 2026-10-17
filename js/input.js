@@ -6,13 +6,21 @@ function pick(wx,wy){let b=null,bd=.9;for(const u of S.us)if(vis(u)&&!u.ld){cons
 for(const q of S.bs)if((q.t===0||S.ex[q.y*W+q.x])&&wx>=q.x-.3&&wx<=q.x+q.s+.3&&wy>=q.y-.3&&wy<=q.y+q.s+.3)return q;
 const i=(wy|0)*W+(wx|0),n=S.nd[i];if(n&&S.ex[i]&&n.amt>0)return n;return S.rel.find(q=>!q.m&&!q.c&&S.ex[(q.y|0)*W+(q.x|0)]&&Math.hypot(q.x-wx,q.y-wy)<.9)||null}
 function orderSel(tg,wx,wy){const us=S.sel.filter(e=>!e.q);if(!us.length){const b=S.sel[0];if(b&&b.t===0&&b.done&&B[b.k].tr){b.rally={x:wx,y:wy,t:tg&&tg.amt>0?tg:null};fx.push({x:wx,y:wy,l:.5,k:'p'});note('Rally point set');return true}return false}
-if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(us[0].t,tg.t)){
+const tradeTarget=!!(tg&&tg.q&&tg.done&&tg.hp>0&&(tg.k==='market'||tg.k==='dock')&&tg.t!==0&&!isHostile(0,tg.t));
+if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(us[0].t,tg.t)&&!(tradeTarget&&us.every(u=>u.k===(tg.k==='market'?'cart':'cog')))){
  const allied=diplomacyRelation(us[0].t,tg.t)==='ally',
   canRepairBuilding=allied&&!!tg.q&&(!tg.done||tg.hp<tg.mh)&&us.some(u=>u.k==='vil'),
   canRepairShip=allied&&!!tg.sh&&tg.hp<mhp(tg)&&us.some(u=>u.k==='vil'||(u.sh&&u!==tg));
  if(!canRepairBuilding&&!canRepairShip){note('That kingdom is not hostile; villagers can help repair allied buildings or ships');return false}
 }
 let noAttackBlocked=0;for(const u of us){u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
+if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
+ const endpoint=tg.k,homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
+ const home=homes.slice(0,24).find(b=>path(u,goalNear(b,1))),route=home?path(u,goalNear(tg,1)):null;
+ if(!route){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;continue}
+ const key=b=>[b.t,b.k,b.x,b.y].join(':');
+ u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.tradeFleeing=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
+}
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  if(u.k==='vil'&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
  if(tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg;continue}
