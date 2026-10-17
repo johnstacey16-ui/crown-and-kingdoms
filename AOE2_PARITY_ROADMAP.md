@@ -30,6 +30,8 @@
 
 **Local automation correction (18 October):** Xbox-style player villager resource priority searches are now limited to an 18-tile radius (previously 36) and still require a reachable resource; this is a practical local-only approximation, not a verified Xbox engine distance. Human merchants now pause when their home market or dock is destroyed or missing, requiring a new player trade order. Verify behaviour with saved matches and on Xbox Edge before checking off parity.
 
+**Follow-up correction (18 October):** Closed a remaining player trade loophole: if the assigned home depot becomes invalid, merchants pause rather than choosing a new one. Villager auto-resource selection now excludes animal and malformed resource nodes. Confirm these paths with restored saves and active matches before marking complete.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
