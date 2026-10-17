@@ -7,6 +7,22 @@
 - **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
 - **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
 
+## AoE2 DE Xbox fidelity guardrails — owner requirement
+
+**Reference target:** Age of Empires II: Definitive Edition on Xbox. Match its player-facing mechanics, controller automation, game modes and AI fairness; do not introduce extra player powers or independent gameplay systems merely because they are possible to code. Enemy AI may make tactical decisions, but it must obey the same game rules as the player. Before expanding automation, compare against the Xbox reference and record whether the feature is confirmed, an approximation, or a deviation.
+
+**Confirmed development rule:** Do not silently expand AI abilities, resource cheats, autonomous player army management or non-AoE2 victory modes. For existing deviations, audit and either align, remove or clearly label them before treating parity as complete.
+
+**Potential deviations found in current code (not yet removed):**
+- **Fast Economy** is a custom match preset, not the standard AoE2 DE Xbox game-mode label. Compare with the reference's actual mode list.
+- **Starting army presets** (scout patrol, field force, siege force) are custom presets. AoE2 DE has starting-age/resources settings, but these specific presets should not be presented as Xbox-equivalent features.
+- **King of the Hill / Sudden Death / Score at time limit:** verify rule details and naming against AoE2 DE Xbox; avoid assuming this implementation matches the reference.
+- **Automatic player trade routing, merchant fleeing and AI merchant escorts:** review individually; enemy AI logistics is not the same as an extra player command.
+- **Allied unit/building repair, autonomous AI tribute and automatic defensive/retreat routines:** verify game-rule fairness and reference behaviour before expanding them.
+- **400/500 population options:** review against AoE2 DE Xbox's supported population settings.
+
+**Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
+
 # Crown & Kingdoms — Main Development Goals
 
 **Target:** Controller-first browser RTS for Xbox Series S / Microsoft Edge.
