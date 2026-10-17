@@ -25,7 +25,7 @@ test('campaign arcs define the actual mission progression order', () => {
 
 test('mission completion follows the next item in the campaign arc', () => {
   assert.match(html,
-    /function nextCampaignMission\(i\)\{const order=CAMP_ARCS\.flatMap\(arc=>arc\.ids\),p=order\.indexOf\(i\);return p>=0&&p<order\.length-1\?order\[p\+1\]:null\}/,
+    /function nextCampaignMission\(i\)\{const arc=CAMP_ARCS\.find\(a=>a\.ids\.includes\(i\)\);if\(!arc\)return null;const p=arc\.ids\.indexOf\(i\);return p>=0&&p<arc\.ids\.length-1\?arc\.ids\[p\+1\]:null\}/,
     'The next mission must come from the declared campaign arc order');
   assert.match(html,
     /function endA\(\)\{if\(!cmp\)\{start\(\);return\}if\(S\.over==='win'\)\{const next=nextCampaignMission\(cmp\.i\);if\(next!==null\)\{bi=next;mode='brief'\}else\{mode='camp';ci=0\}\}else startScenario\(cmp\.i\)\}/,
