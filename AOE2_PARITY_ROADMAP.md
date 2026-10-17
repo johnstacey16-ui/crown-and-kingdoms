@@ -36,6 +36,13 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 
 ## 3. Technology effects
 
+**Current focus: core economy and technology correctness (after save-management pass).**
+- [x] Fix double-counting of queued population in unit training and AI house-building forecasts. Queued units already count toward the game's population total.
+- [x] Extend Treadmill Crane to speed building repairs as well as construction.
+- [x] Add focused population and Crane regression tests for the above gameplay behaviours.
+- [ ] Run the full Node test suite, verify technology costs/prerequisites and existing/new unit effects, then test economy balance in actual matches.
+- [ ] Continue with AI difficulty tiers and full-match outcomes after this technology audit; avoid returning to completed save/controller features without a concrete bug.
+
 - [ ] Audit every technology against its stated cost, age, prerequisites and intended effect.
 - [ ] Verify effects during gameplay, including effects on existing units and newly created units where relevant.
 - [ ] Check upgrade stacking, duplicate research prevention, UI state, AI valuation and save/load persistence.
