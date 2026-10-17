@@ -90,7 +90,9 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [x] Keep autosave in a **single dedicated rolling recovery slot** (`ck_autosave`) which is overwritten by the current match; do not silently overwrite player-selected manual saves.
 - [x] Restart the autosave schedule on new matches and verify the stored payload after each write.
 - [ ] Test save/delete/restart/recover sequences in Xbox Edge, including IndexedDB restoration, storage quotas, corrupted saves, and loss of power.
-- [ ] Add automated tests for confirmed/cancelled deletion, IndexedDB cleanup, and latest-match autosave replacement. Keep this distinct from technology/AI/campaign work to avoid repeating the same polish indefinitely.
+- [x] Add focused automated save-management regression tests for manual/auto deletion, persistent tombstones and autosave slot isolation; update the browser persistence contract.
+- [x] Confirm before overwriting an occupied manual save slot, and preserve the previous save on cancellation or failed write.
+- [ ] Extend integration tests for controller confirmation/cancellation, actual IndexedDB transactions and latest-match autosave recovery after browser restart. Move on to technology and AI after this save-management pass.
 
 ## 8. Final verification and documentation
 
