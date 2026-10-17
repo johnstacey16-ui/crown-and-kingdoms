@@ -68,7 +68,7 @@ function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
 function skipAutoNode(u,n){if(!u||!n)return;const key=autoNodeKey(n);if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];if(!u.autoSkipNodes.includes(key)){if(u.autoSkipNodes.length>=128)u.autoSkipNodes.shift();u.autoSkipNodes.push(key)}}
 function findReachableAutoNode(u,k,r=18){
- const all=S.nodes.filter(n=>n&&n.amt>0&&!n.an&&!n.fi&&Number.isFinite(n.x)&&Number.isFinite(n.y)),live=new Set(all.map(autoNodeKey));
+ const all=S.nodes.filter(n=>n&&n.amt>0&&!n.an&&!n.fi&&WORKER_TARGETS.some(r=>r.k===n.k)&&Number.isFinite(n.x)&&Number.isFinite(n.y)),live=new Set(all.map(autoNodeKey));
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(key=>live.has(key)).slice(-128);
  const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!u.autoSkipNodes.includes(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
  let failed=0;
