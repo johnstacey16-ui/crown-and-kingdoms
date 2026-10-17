@@ -32,7 +32,7 @@ function tickTrader(u,dt){
  }
  if(!u.p.length||u.rp<=0){
   const p=path(u,goalNear(goal,1));u.rp=1;
-  if(!p){u.tradeDestKey=null;u.p=[];u.trWait=2;u.o='i';return}
+  if(!p){if(u.tradeReturning)u.tradeFromKey=null;else u.tradeDestKey=null;u.p=[];u.trWait=5;u.o='i';return}
   u.p=p;
  }
  u.o='m';walk(u,dt)
