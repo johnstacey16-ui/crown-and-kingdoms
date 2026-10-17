@@ -20,6 +20,11 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Improve scouting, defence, attack timing, target selection, retreats and siege use.
 - [ ] Improve naval production, fleet composition, escorting, target choice and retreat/repair behaviour.
 - [ ] Test multiple rival kingdoms in full-length matches without cheats or resource/damage bonuses.
+- [ ] **Difficulty and playability parity with Age of Empires II: Definitive Edition:** make computer opponents enjoyable and consistently distinct from beginner-friendly through expert-level play. Treat this as a major AI milestone, not as complete merely because difficulty settings exist.
+- [ ] Define and balance six meaningful AI tiers (Easiest, Easy, Moderate, Hard, Hardest, Extreme), or document equivalent in-game names; vary strategic decision-making, economic efficiency, expansion, aggression, counter-unit choices and coordination rather than relying on unfair resource/damage bonuses.
+- [ ] Protect beginner experience: allow time to learn, recover and build; avoid overwhelming early rushes or punishing attacks on the easiest tiers while ensuring higher tiers remain genuinely challenging.
+- [ ] Validate each tier with repeated full-length AI-vs-AI and player-style matches on land, coastal and island maps, from opening economy through late-game victory/defeat. Record win rates, age-up timings, idle economy, attack timing, unit composition, stalled games and performance.
+- [ ] Calibrate difficulty progressively against the *experience* of AoE II: DE without claiming identical AI strength until comparative gameplay evidence supports it. Prioritize core AI stability and match completion first, then balance and polish the tiers before final release.
 
 ## 3. Technology effects
 
