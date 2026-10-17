@@ -41,7 +41,17 @@ function tickTrader(u,dt){
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';u.p=[];u.rp=0;return}
-  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).sort((a,b)=>d2(src.x,src.y,b)-d2(src.x,src.y,a));dest=null;for(const candidate of candidates.slice(0,24)){if(path(u,goalNear(candidate,1))){dest=candidate;break}}
+  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).map(b=>{
+   const distance=Math.hypot(b.x-src.x,b.y-src.y);
+   let danger=0;
+   for(const e of S.us)if(e&&e.hp>0&&!e.ld&&isHostile(u.t,e.t)&&U[e.k]?.dmg>0&&!!U[e.k].sh===!!U[u.k].sh){
+    const dx=b.x-src.x,dy=b.y-src.y,denom=dx*dx+dy*dy||1;
+    const fraction=Math.max(0,Math.min(1,((e.x-src.x)*dx+(e.y-src.y)*dy)/denom));
+    if(Math.hypot(e.x-(src.x+fraction*dx),e.y-(src.y+fraction*dy))<7)danger++;
+   }
+   return {b,score:distance-danger*12}
+  }).sort((a,b)=>b.score-a.score);
+  dest=null;for(const candidate of candidates.slice(0,24)){if(path(u,goalNear(candidate.b,1))){dest=candidate.b;break}}
   if(!dest){u.trWait=6;u.o='i';u.p=[];u.rp=0;return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
