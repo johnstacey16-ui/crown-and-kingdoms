@@ -131,6 +131,13 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Movement and navigation:** unit movement rejects out-of-bounds/non-finite positions; land units cannot enter deep water. Shallow water (`wt=2`) remains a traversable ford for land units and navigable for ships, as intended by the map layouts. Pathfinding, movement and map auditing retain that distinction.
 - **Testing:** added source regression tests for save production, movement bounds, ford traversal and combat validation. Live browser and Xbox acceptance remain pending.
 
+### Movement, gates and save-path resilience — 17 October 2026
+
+- **Waypoint execution:** walking now uses the same collision-checked movement primitive as other unit displacement, preventing paths from stepping through newly blocked tiles or directly into buildings. Invalid/off-map waypoints are discarded and blocked paths can be recalculated.
+- **Gates and terrain:** friendly gates remain passable while enemy gates are blocked; deep water stops land units and shallow fords remain walkable.
+- **Save-game movement:** serialized waypoint lists are validated for structure, finite in-bounds coordinates and reasonable length. Legacy saves without paths initialize them as empty lists.
+- **Regression coverage:** added waypoint collision, gate ownership, paused-step and save-path tests. Full automated and live console-browser acceptance remain pending.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
