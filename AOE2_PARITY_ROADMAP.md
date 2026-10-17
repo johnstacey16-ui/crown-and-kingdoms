@@ -26,6 +26,8 @@
 
 **Implemented parity correction (18 October):** Removed autonomous merchant threat detection and escape routing from trade simulation for both human and AI merchants. Merchants now follow their trade routes without an extra automatic flee command; old saves with an active flee state are normalized back into trade routing. Retained enemy AI escort decisions for now because these are strategic orders using ordinary military units, not an additional player-side automatic ability. Still requires comparison and live playtesting; no claim of complete AoE2 DE Xbox parity.
 
+**Trade-route fidelity pass (18 October):** Human-owned trade carts and cogs now stop when their foreign trading destination is lost instead of autonomously selecting a replacement. A new explicit order resumes trading. Enemy merchants retain strategic destination selection but filter invalid team identifiers. Further playtesting is required, including saved trade routes and allied market destruction.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
