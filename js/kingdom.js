@@ -106,6 +106,7 @@ function applyVillagerPriorities(t=0){
 function rebalanceVillagerPriorities(t=0){
  if(!S)return 0;
  const p=S.vp||(S.vp=createVillagerPriority());
+ if(!p.enabled)return 0;
  for(const {k} of WORKER_TARGETS){
   let excess=villagerAssignedCount(t,k)-(p[k]||0);
   if(excess<=0)continue;
