@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+
+const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
+const { B, U, TE, AG } = vm.runInNewContext(config + '\n;({B,U,TE,AG})');
+const a = source.indexOf('function research(b,k){');
+const b = source.indexOf('\nconst MILITARY_PRODUCTION_BUILDINGS=', a);
+const c = source.indexOf('function train(b,k){');
+const d = source.indexOf('\nfunction cancelQ(', c);
+assert.ok(a >= 0 && b > a && c > b && d > c);
+const S = { tech: [{}, {}], age: [0,0], bs: [], res: [{f:1000,w:1000,g:1000,s:1000},{f:1000,w:1000,g:1000,s:1000}] };
+let payments = 0;
+const context = { B, U, TE, AG, S, note: () => {}, can: () => true,
+  pay: () => { payments++; }, popOf: () => 0, queuedPopulation: () => 0, capOf: () => 20 };
+vm.createContext(context);
+vm.runInContext(source.slice(a, b) + '\n' + source.slice(c, d), context);
+const research = vm.runInContext('research', context);
+const train = vm.runInContext('train', context);
+const tc = { k: 'tc', t: 0, hp: 100, done: true, q: [{ k: 'vil', t: 10 }], rs: null };
+S.bs.push(tc);
+assert.equal(research(tc, 'loom'), false, 'research cannot overlap queued training');
+assert.equal(payments, 0, 'rejected research does not spend resources');
+tc.q = [];
+assert.equal(research(tc, 'loom'), true, 'research starts when production queue is empty');
+assert.equal(train(tc, 'vil'), false, 'training cannot overlap research');
+assert.equal(payments, 1, 'rejected training does not spend resources');
+tc.rs = null;
+assert.equal(train(tc, 'vil'), true, 'training resumes after research completes');
+assert.equal(payments, 2);
+console.log('production-research-exclusion: passed');
