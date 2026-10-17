@@ -39,9 +39,17 @@
   }
 
   const pendingDeletes = new Set();
+  const tombstoneKey = (key) => 'ck_deleted_' + key;
+  function clearDeletionMarker(key) {
+    try { window.localStorage.removeItem(tombstoneKey(key)); } catch (_) {}
+  }
+  function markDeleted(key) {
+    try { window.localStorage.setItem(tombstoneKey(key), '1'); } catch (_) {}
+  }
   function deleteSave(key) {
     if (!/^ck_save(?:[2-3])?$/.test(key) && key !== 'ck_autosave') return Promise.resolve(false);
     pendingDeletes.add(key);
+    markDeleted(key);
     return openDatabase().then((db) => new Promise((resolve) => {
       if (!db) { resolve(false); return; }
       let tx;
@@ -67,7 +75,7 @@
           if (typeof key === 'string' && (/^ck_save(?:[2-3])?$/.test(key) || key === 'ck_autosave')) {
             let existing = null;
             try { existing = window.localStorage.getItem(key); } catch (_) {}
-            if (existing == null && !pendingDeletes.has(key) && typeof cursor.value === 'string') {
+            if (existing == null && !pendingDeletes.has(key) && window.localStorage.getItem(tombstoneKey(key)) !== '1' && typeof cursor.value === 'string') {
               try { window.localStorage.setItem(key, cursor.value); restored++; } catch (_) {}
             }
           }
@@ -80,5 +88,5 @@
     })).catch(() => false);
   }
 
-  window.CK_STORAGE = { mirrorSave, deleteSave, restoreMissing };
+  window.CK_STORAGE = { mirrorSave, deleteSave, restoreMissing, clearDeletionMarker };
 })();
