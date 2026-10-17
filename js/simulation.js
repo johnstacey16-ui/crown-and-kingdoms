@@ -14,7 +14,7 @@ function tickTrader(u,dt){
   u.tradeDestKey=null;u.tradeReturning=false;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';return}
   const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b));dest=null;for(const candidate of candidates.slice(0,12)){if(path(u,goalNear(candidate,1))){dest=candidate;break}}
-  if(!dest){u.trWait=6;u.o='i';return}
+  if(!dest){u.trWait=6;u.o='i';u.p=[];u.rp=0;return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
  const goal=u.tradeReturning?src:dest;
