@@ -16,6 +16,9 @@ function tickTrader(u,dt){
  u.tradeSourceWait=0;
  let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.hp>0&&b.t!==u.t&&b.k===endpoint&&!isHostile(u.t,b.t)):null;
  if(!dest){
+  // Player trade routes require an explicit foreign market/dock order.
+  // Do not silently pick a replacement destination on the player's behalf.
+  if(u.t===0){u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.rp=0;u.o='i';u.tradePaused=true;return}
   u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';u.p=[];u.rp=0;return}
   const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).map(b=>{
