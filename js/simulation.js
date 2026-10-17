@@ -3,7 +3,7 @@ function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
  let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0):null;
  if(!src){
-  if((u.tradeSourceWait||0)>0){u.tradeSourceWait=Math.max(0,u.tradeSourceWait-dt);u.o='i';return}
+  if((u.tradeSourceWait||0)>0){u.tradeSourceWait=Math.max(0,u.tradeSourceWait-dt);u.o='i';u.p=[];u.rp=0;return}
   const sources=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));src=sources.slice(0,24).find(b=>path(u,goalNear(b,1)))||null;
   u.tradeFromKey=src?keyOf(src):null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.rp=0;
  }
@@ -13,7 +13,7 @@ function tickTrader(u,dt){
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';u.p=[];u.rp=0;return}
-  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)).sort((a,b)=>d2(src.x,src.y,a)-d2(src.x,src.y,b));dest=null;for(const candidate of candidates.slice(0,24)){if(path(u,goalNear(candidate,1))){dest=candidate;break}}
+  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&b.t!==u.t&&!isHostile(u.t,b.t)).sort((a,b)=>d2(src.x,src.y,b)-d2(src.x,src.y,a));dest=null;for(const candidate of candidates.slice(0,24)){if(path(u,goalNear(candidate,1))){dest=candidate;break}}
   if(!dest){u.trWait=6;u.o='i';u.p=[];u.rp=0;return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
