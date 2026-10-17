@@ -40,7 +40,7 @@ if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
 }
 const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+queuedPopulation(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&b.hp>0&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
-if(vil.length+queuedPopulation(t)<([18,28,40][diff]*PERS[aip].v|0)&&Array.isArray(tc.q)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&x.hp>0&&AG[S.age[t]+1].needs.includes(x.k)&&B[x.k]&&(B[x.k].age||0)===S.age[t]).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
+if(vil.length+tc.q.filter(q=>q&&q.k==='vil').length<([18,28,40][diff]*PERS[aip].v|0)&&Array.isArray(tc.q)&&tc.q.length<2&&!(AG[S.age[t]+1]&&new Set(S.bs.filter(x=>x.t===t&&x.done&&x.hp>0&&AG[S.age[t]+1].needs.includes(x.k)&&B[x.k]&&(B[x.k].age||0)===S.age[t]).map(x=>x.k)).size>=2&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
