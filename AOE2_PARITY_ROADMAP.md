@@ -241,6 +241,16 @@ These changes still require the full automated suite and live gameplay acceptanc
 - Added campaign safety runtime tests and corrected an outdated campaign-arc progression regression assertion.
 - **Still to verify:** run Node test suite, full 19-mission playthrough, sustained AI difficulty calibration and Xbox Series S controller/browser testing.
 
+### Gameplay and Xbox-input implementation batch — 17 October 2026
+
+- **AI economy:** market-trade cooldown is consumed only when the transaction succeeds, allowing failed market orders to fall through to another useful resource trade.
+- **Economy:** market prices must remain within the actual 25–400 range; transactions reject unsafe or overflowing resource amounts rather than corrupting player resources.
+- **Controller/gameplay:** selection rejects off-map and non-finite cursor coordinates; unit orders skip dead/garrisoned selections, and rally placement checks for live production buildings.
+- **Xbox controller resilience:** gamepad polling tolerates missing button records; analog sticks, deadzones and trigger values are clamped to valid ranges.
+- **AI performance:** villager evacuation, base defence, allied assistance and economic raid responses share one filtered live-hostile roster per AI decision tick instead of rescanning every unit independently.
+- **Save/load economy:** restored per-player market prices are normalized to valid bounded values, including malformed legacy prices.
+- **Remaining:** full test-suite execution, physical Xbox controller acceptance, campaign playthroughs, deeper difficulty calibration and multiplayer synchronization.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
