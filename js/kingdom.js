@@ -111,7 +111,7 @@ function rebalanceVillagerPriorities(t=0){
   let excess=villagerAssignedCount(t,k)-(p[k]||0);
   if(excess<=0)continue;
   const auto=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.autoWorker&&u.o==='g'&&u.ct===k).reverse();
-  for(const u of auto){if(excess<=0)break;u.o='i';u.tg=null;u.p=[];u.pt=null;u.autoTry=0;excess--}
+  for(const u of auto){if(excess<=0)break;u.o='i';u.tg=null;u.p=[];u.pt=null;u.autoTry=0;u.autoWorker=0;excess--}
  }
  return p.enabled?applyVillagerPriorities(t):0;
 }
