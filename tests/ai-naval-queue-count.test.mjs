@@ -4,8 +4,10 @@ import { readFileSync } from 'node:fs';
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 assert.match(sim, /b\.q\.push\(\{k,t:d\.t\}\)/, 'training queues store objects with a unit key');
-assert.ok(ai.includes("b2.q.filter(q=>q&&q.k==='gal').length"),
-  'AI counts queued war galleys by their unit key');
+assert.ok(ai.includes("const queuedUnits=k=>bl.reduce("), 'AI counts queued units by type');
+for (const kind of ['gal', 'fish', 'scout', 'cart', 'cog']) {
+  assert.ok(ai.includes("queuedUnits('"+kind+"')"), `AI accounts for queued ${kind} units`);
+}
 assert.ok(!ai.includes("q=>q==='gal'"), 'AI must not compare queued objects directly to strings');
 
 const queuedGalleys = buildings => buildings
