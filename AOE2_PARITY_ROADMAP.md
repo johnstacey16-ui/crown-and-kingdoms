@@ -151,6 +151,13 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Shallow-water production:** land units can spawn on traversable shallow fords when no dry spawn tile is available; deep water and resource nodes remain blocked.
 - **Regression coverage:** added production/research exclusivity tests and extended save validation and terrain-spawn tests. Automated execution and full match acceptance remain outstanding.
 
+### Save and production resilience — 17 October 2026
+
+- **Unit-state validation:** loading a save now checks unit path retry timers, attack cooldowns and carried-resource quantities. Negative elapsed timers remain valid because the simulation naturally decrements them below zero.
+- **Training recovery:** corrupt training queue heads are discarded safely, and invalid/nonpositive elapsed time cannot advance a production queue.
+- **Tests:** added unit-order save validation and training-queue recovery regressions; retained source-level tests for shallow-ford spawning and mutually exclusive training/research.
+- **Acceptance remains open:** CI execution, full gameplay verification, campaigns, multiplayer synchronization and Xbox hardware profiling are not claimed complete.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
