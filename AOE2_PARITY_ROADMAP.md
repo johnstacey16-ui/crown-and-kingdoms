@@ -6,6 +6,14 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 
 ## 1. Campaigns — all 19 missions
 
+**Current development focus (17 October): campaign correctness and progression, then technology-effect audit.** Move between major roadmap areas after meaningful batches rather than repeatedly polishing the same merchant/controller systems.
+- [x] Fix next-mission navigation to stay within the current campaign story arc.
+- [x] Evaluate timed mission events every simulation tick instead of waiting for the objective polling interval.
+- [x] Recheck live-unit and held-relic objectives at victory, so a previously achieved but subsequently lost army/relic cannot satisfy a live objective.
+- [x] Sanitize persisted campaign completion flags and reject invalid mission launches.
+- [ ] Add regression coverage for campaign arc boundaries, timed events, live objectives and save/load mission state; then playtest all 19 missions.
+- [ ] Next major batch: audit technology effects and their AI/UI integration, then return to AI difficulty calibration and map/naval playability.
+
 - [ ] Play every mission from its briefing through a real victory or defeat.
 - [ ] Verify every primary and secondary objective, including objectives that depend on living units or destroyed buildings.
 - [ ] Verify timed events fire at the correct time and only as intended.
