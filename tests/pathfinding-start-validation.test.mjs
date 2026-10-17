@@ -25,4 +25,8 @@ assert.equal(path(ship, gp(8.5, 8.5, 0.6)), null, 'ship cannot start on dry land
 for (let y = 1; y <= 9; y++) for (let x = 1; x <= 9; x++) { S.wt[y * W + x] = 1; S.g[y * W + x] = 1; }
 assert.ok(path(ship, gp(8.5, 8.5, 0.6)), 'ship can navigate connected water');
 assert.equal(path(soldier, gp(8.5, 8.5, 0.6)), null, 'land unit cannot start in flooded terrain when blocked');
+S.wt.fill(0); S.g.fill(0);
+S.wt[2 * W + 2] = 2;
+assert.ok(path(soldier, gp(8.5, 8.5, 0.6)), 'land unit can begin on shallow ford terrain');
+assert.ok(path(ship, gp(8.5, 8.5, 0.6)) === null, 'ship on isolated shallow tile has no water route');
 console.log('pathfinding-start-validation: passed');
