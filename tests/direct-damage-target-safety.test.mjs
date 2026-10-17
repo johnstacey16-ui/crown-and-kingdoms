@@ -28,6 +28,9 @@ for (const victim of [{ ...make(), hp: 0 }, { ...make(), ld: { k: 'trn' } }, { .
 }
 dmgT(attacker, null);
 dmgT({ k: 'missing', t: 0 }, make());
+dmgT(attacker, { ...make(), k: 'missing' });
+dmgT(attacker, { ...make(), hp: NaN });
+dmgT({ ...attacker, t: 7 }, make());
 const victim = make();
 dmgT(attacker, victim);
 assert.ok(victim.hp < 25, 'hostile living target still takes damage');
