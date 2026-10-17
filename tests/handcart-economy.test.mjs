@@ -22,8 +22,8 @@ assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.05 * 1.05) < 1e-9,
 assert.equal(speed({ k: 'vil', t: 1 }), U.vil.sp, 'opponents are unaffected');
 assert.equal(speed({ k: 'mil', t: 0 }), U.mil.sp, 'infantry are unaffected');
 
-assert.ok(simulation.includes('+(S.tech[u.t].handcart?7:0)'),
-  'gathering capacity includes Hand Cart bonus');
+assert.ok(simulation.includes("(u.k==='vil'&&S.tech[u.t].handcart?7:0)"),
+  'Hand Cart capacity is restricted to villagers');
 const capacity = tech => 10 + (tech.carry ? 5 : 0) + (tech.wheel ? 3 : 0) + (tech.handcart ? 7 : 0);
 assert.equal(capacity({}), 10);
 assert.equal(capacity({ wheel: 1 }), 13);
