@@ -39,6 +39,16 @@ assert.equal(island.landReachable, false, 'island start cannot walk to mainland'
 assert.equal(island.landComponents, 2);
 assert.equal(island.waterComponents, 1);
 S.wt.fill(0);
+for (let y = 0; y < H; y++) S.wt[y * W + 16] = 1;
+const nearShore = [[14, 14]];
+assert.equal(audit(nearShore).navalAccess, true, 'unobstructed shore supports dock construction');
+S.g.fill(1);
+assert.equal(audit(nearShore).navalAccess, false, 'occupied shore is not dockable');
+S.g.fill(0);
+for (let y = 0; y < H; y++) S.nd[y * W + 16] = { k: 'fish' };
+assert.equal(audit(nearShore).navalAccess, false, 'water blocked by resource nodes is not usable dock frontage');
+S.nd.fill(null);
+S.wt.fill(0);
 for (const invalid of [[[-1, 4], [27, 27]], [[4, H], [27, 27]], [[4.5, 4], [27, 27]]]) {
   assert.equal(audit(invalid).landReachable, false, 'invalid start coordinates cannot be treated as reachable');
 }
