@@ -28,6 +28,8 @@
 
 **Trade-route fidelity pass (18 October):** Human-owned trade carts and cogs now stop when their foreign trading destination is lost instead of autonomously selecting a replacement. A new explicit order resumes trading. Enemy merchants retain strategic destination selection but filter invalid team identifiers. Further playtesting is required, including saved trade routes and allied market destruction.
 
+**Local automation correction (18 October):** Xbox-style player villager resource priority searches are now limited to an 18-tile radius (previously 36) and still require a reachable resource; this is a practical local-only approximation, not a verified Xbox engine distance. Human merchants now pause when their home market or dock is destroyed or missing, requiring a new player trade order. Verify behaviour with saved matches and on Xbox Edge before checking off parity.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
