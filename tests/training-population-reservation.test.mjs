@@ -18,7 +18,7 @@ const context = {
   popOf: team => population[team], capOf: team => caps[team],
 };
 vm.createContext(context);
-const begin = simulation.indexOf('function train(b,k){');
+const begin = simulation.indexOf('function queuedPopulation(t){');
 const end = simulation.indexOf('\nfunction okPlace(', begin);
 assert.ok(begin >= 0 && end > begin);
 vm.runInContext(simulation.slice(begin, end), context);
