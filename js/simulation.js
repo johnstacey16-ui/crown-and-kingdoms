@@ -7,7 +7,7 @@ function tickTrader(u,dt){
   u.tradeFromKey=src?keyOf(src):null;u.tradeDestKey=null;u.tradeReturning=false;u.p=[];
  }
  if(!src){u.o='i';return}
- let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.hp>0&&b.t!==u.t&&b.k===endpoint):null;
+ let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.hp>0&&b.t!==u.t&&b.k===endpoint&&!isHostile(u.t,b.t)):null;
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';return}
