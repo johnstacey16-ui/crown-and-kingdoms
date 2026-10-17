@@ -118,7 +118,8 @@ function rebalanceVillagerPriorities(t=0){
 function changeVillagerTarget(k,dir){
  if(!S||!WORKER_TARGETS.some(r=>r.k===k))return false;
  const p=S.vp||(S.vp=createVillagerPriority());
- p[k]=Math.max(0,Math.min(40,p[k]+dir));
+ const current=Number.isFinite(p[k])?p[k]:0,step=Number.isFinite(dir)?Math.sign(dir):0;
+ p[k]=Math.max(0,Math.min(40,Math.round(current+step)));
  if(p.enabled)rebalanceVillagerPriorities(0);
  const name=WORKER_TARGETS.find(r=>r.k===k).n;
  note(name+' target: '+p[k]);
