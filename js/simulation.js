@@ -10,6 +10,7 @@ function tickTrader(u,dt){
   u.tradeThreatCheckAt=S.t+2;
   const threats=S.us.filter(e=>e&&e.hp>0&&!e.ld&&e.t!==u.t&&isHostile(u.t,e.t)&&U[e.k]&&U[e.k].dmg>0&&!!U[e.k].sh===!!U[u.k].sh&&Math.hypot(e.x-u.x,e.y-u.y)<6);
   if(threats.length){
+   u.tradeThreatCheckAt=S.t+4;
    const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
    for(const home of homes.slice(0,12)){
     if(d2(u.x,u.y,home)<2)break;
