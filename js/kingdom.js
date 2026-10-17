@@ -84,7 +84,6 @@ function assignAutoVillager(u,force=false){
  if(!S||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld)return false;
  const p=S.vp||(S.vp=createVillagerPriority());
  if(!force&&!p.enabled)return false;
- u.autoWorker=1;
  const keys=WORKER_TARGETS.filter(r=>p[r.k]>0).map(r=>r.k);
  if(!keys.length)return false;
  const counts=Object.fromEntries(keys.map(k=>[k,villagerAssignedCount(u.t,k)]));
