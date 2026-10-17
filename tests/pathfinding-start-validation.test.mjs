@@ -22,6 +22,9 @@ assert.equal(path(soldier, badGoal), null, 'non-finite heuristic coordinates are
 const badRadius = gp(8.5, 8.5, 0.6);
 badRadius.hr = -1;
 assert.equal(path(soldier, badRadius), null, 'negative heuristic radius is rejected');
+const partialGoal = (x, y) => x === 8 && y === 8;
+partialGoal.hx = 8.5;
+assert.equal(path(soldier, partialGoal), null, 'incomplete heuristic coordinate pairs are rejected');
 assert.equal(path({ ...soldier, x: NaN }, gp(8.5, 8.5, 0.6)), null, 'invalid unit position is rejected');
 assert.equal(path({ ...soldier, x: -0.2 }, gp(8.5, 8.5, 0.6)), null, 'fractional negative coordinates are rejected');
 assert.equal(path({ ...soldier, x: W + 0.1 }, gp(8.5, 8.5, 0.6)), null, 'fractional off-map coordinates are rejected');
