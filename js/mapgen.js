@@ -17,7 +17,7 @@ function auditGeneratedMap(starts){
  const waterCells=waterComponents.reduce((a,b)=>a+b,0),largestWaterComponent=waterComponents.length?Math.max(...waterComponents):0,waterNetworkCoverage=waterCells?Math.round(largestWaterComponent/waterCells*100):0;
  const coastStarts=starts.filter(([x,y])=>{for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1)return true}return false}).length;
  const dockableStarts=starts.filter(([sx,sy])=>{for(let y=Math.max(1,sy-24);y<Math.min(H-2,sy+24);y++)for(let x=Math.max(1,sx-24);x<Math.min(W-2,sx+24);x++){let land=true;for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)if(S.wt[(y+dy)*W+x+dx]!==0||S.g[(y+dy)*W+x+dx]||S.nd[(y+dy)*W+x+dx])land=false;if(!land)continue;let shore=false;for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++)if((dx<0||dy<0||dx>=2||dy>=2)&&x+dx>=0&&y+dy>=0&&x+dx<W&&y+dy<H&&S.wt[(y+dy)*W+x+dx]===1&&!S.nd[(y+dy)*W+x+dx])shore=true;if(shore)return true}return false}).length;
- return {ok:landReachable,landReachable,landComponents:landComponents.length,waterComponents:waterComponents.length,waterCells,largestWaterComponent,waterNetworkCoverage,navigableWaterConnected:waterCells>0&&waterComponents.length===1,coastalStarts:coastStarts,dockableStarts,navalAccess:dockableStarts>0,starts:starts.length};
+ return {ok:landReachable,landReachable,landComponents:landComponents.length,waterComponents:waterComponents.length,waterCells,largestWaterComponent,waterNetworkCoverage,navigableWaterConnected:waterCells>0&&waterComponents.length===1,coastalStarts:coastStarts,dockableStarts,navalAccess:dockableStarts===starts.length&&starts.length>0,partialNavalAccess:dockableStarts>0,starts:starts.length};
 }
 
 function prepareHillMap(starts){
