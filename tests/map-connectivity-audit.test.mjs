@@ -38,4 +38,9 @@ const island = audit([[5, 5], [27, 27]]);
 assert.equal(island.landReachable, false, 'island start cannot walk to mainland');
 assert.equal(island.landComponents, 2);
 assert.equal(island.waterComponents, 1);
+S.wt.fill(0);
+for (const invalid of [[[-1, 4], [27, 27]], [[4, H], [27, 27]], [[4.5, 4], [27, 27]]]) {
+  assert.equal(audit(invalid).landReachable, false, 'invalid start coordinates cannot be treated as reachable');
+}
+assert.equal(audit([]).landReachable, false, 'empty start list cannot be reachable');
 console.log('map-connectivity-audit: passed');
