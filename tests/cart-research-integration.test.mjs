@@ -37,6 +37,7 @@ assert.ok(buildingStart >= 0 && buildingEnd > buildingStart);
 context.U = U;
 context.sfx = () => {};
 context.foe = () => null;
+context.trainRate = () => 1;
 vm.runInContext(simulation.slice(buildingStart, buildingEnd), context);
 const upB = vm.runInContext('upB', context);
 player.q = [];
