@@ -52,7 +52,7 @@ function tickTrader(u,dt){
   else{
    const distance=Math.hypot((src.x+src.s/2)-(dest.x+dest.s/2),(src.y+src.s/2)-(dest.y+dest.s/2));
    u.tradeCargo=Math.max(2,Math.round(distance*0.35));
-   u.tradeReturning=true;
+   u.tradeReturning=true;u.rp=0;
   }
   u.o='i';return;
  }
