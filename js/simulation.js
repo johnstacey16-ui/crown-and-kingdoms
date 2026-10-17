@@ -3,10 +3,12 @@ function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
  let src=u.tradeFromKey?S.bs.find(b=>keyOf(b)===u.tradeFromKey&&b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0):null;
  if(!src){
+  if((u.tradeSourceWait||0)>0){u.tradeSourceWait=Math.max(0,u.tradeSourceWait-dt);u.o='i';return}
   const sources=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));src=sources.slice(0,12).find(b=>path(u,goalNear(b,1)))||null;
   u.tradeFromKey=src?keyOf(src):null;u.tradeDestKey=null;u.tradeReturning=false;u.p=[];
  }
- if(!src){u.o='i';return}
+ if(!src){u.tradeSourceWait=4;u.o='i';return}
+ u.tradeSourceWait=0;
  let dest=u.tradeDestKey?S.bs.find(b=>keyOf(b)===u.tradeDestKey&&b.done&&b.hp>0&&b.t!==u.t&&b.k===endpoint&&!isHostile(u.t,b.t)):null;
  if(!dest){
   u.tradeDestKey=null;u.tradeReturning=false;u.p=[];u.trWait=(u.trWait||0)-dt;
