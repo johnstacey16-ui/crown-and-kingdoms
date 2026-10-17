@@ -1,5 +1,5 @@
 const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(b=>b.t===t&&b.k===k&&b.done&&b.hp>0).length,cu=(k,t=0)=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&(!k||u.k===k)).length,cmil=t=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&U[u.k]&&u.k!=='vil'&&u.k!=='mon'&&u.k!=='king'&&!U[u.k].sh).length,aliveUnits=(t,k)=>S.us.filter(u=>u&&Number.isInteger(u.t)&&u.t===t&&u.hp>0&&!u.ld&&U[u.k]&&(!k||u.k===k));
-const grp=(t,k,n)=>{const tc=tcOf(t);for(let i=0;i<n;i++){const p=tc&&spawnPos(tc);if(p)addU(t,k,p[0]+(i%4)*.3,p[1]+(i%3)*.3)}};
+const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;for(let i=0;i<n;i++){const p=spawnPos(tc);if(!p)break;addU(t,k,p[0],p[1])}};
 function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true)}return null}
 
 function raidShipPositions(e,count){
