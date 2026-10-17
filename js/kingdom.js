@@ -130,6 +130,7 @@ function toggleVillagerAutomation(){
  const p=S.vp||(S.vp=createVillagerPriority());
  p.enabled=!p.enabled;
  if(p.enabled)rebalanceVillagerPriorities(0);
+ else for(const u of S.us)if(u.t===0&&u.k==='vil'&&u.hp>0){u.autoWorker=0;u.autoTry=0}
  note('Villager automation '+(p.enabled?'on':'off'));
 }
 function villagerPriorityMenuItems(){
