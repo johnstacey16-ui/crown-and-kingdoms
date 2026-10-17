@@ -93,7 +93,7 @@ for(let c=0;c<Math.round(W*H/700*MT[mt].m);c++){const k2=r()<(MT[mt].gd?.85:.45)
 for(let i=0;i<W*H;i++)if(S.wt[i]===1&&!S.nd[i]&&r()<.12&&D8.every(([dx,dy])=>S.wt[i+dy*W+dx]===1&&!S.nd[i+dy*W+dx])){const n={k:'f',x:i%W,y:i/W|0,s:1,amt:300,fi:1};S.nodes.push(n);S.nd[i]=n}
 if(vm===5)prepareHillMap(bs);bs.forEach(([bx,by],t)=>{const sx=bx<W/2?1:-1,sy=by<H/2?1:-1,Q=(k,dx,dy,n,a)=>{for(let i=0;i<n;i++)addN(k,bx+dx*sx+(r()-.5)*4,by+dy*sy+(r()-.5)*4,a)};
 Q('f',6,-3,7,120);Q('w',-7,-2,18,100);Q('w',3,-8,14,100);Q('g',9,3,7,300);Q('s',4,8,7,300);
-addB(t,'tc',bx-1,by-1,true);for(let i=0;i<5;i++)addU(t,'vil',bx+(i-2)*.8,by+2.5)});
+const tc=addB(t,'tc',bx-1,by-1,true),villagers=cmp?5:[3,5,10,15][startVillagers]||5;for(let i=0;i<Math.min(5,villagers);i++)addU(t,'vil',bx+(i-2)*.8,by+2.5);for(let i=5;i<villagers;i++){const p=spawnPos(tc);if(p)addU(t,'vil',p[0],p[1])}});
 {const p=S.bs.find(b=>b.t===0&&b.k==='tc');if(tries<8&&p&&S.us.some(u=>u.t>0&&u.k==='vil'&&!path(u,goalNear(p,1))))return newGame(tries+1)}
 S.civ=Array(S.teamN);S.civ[0]=civ;const usedCivs=new Set([civ]);for(let t=1;t<S.teamN;t++){let c=t===1&&aiCiv>=0?aiCiv:(civ+1+((S.r()*(CIV.length-1))|0))%CIV.length,guard=0;while(usedCivs.has(c)&&guard++<CIV.length)c=(c+1)%CIV.length;S.civ[t]=c;usedCivs.add(c)}for(let t=0;t<S.teamN;t++)CIV[S.civ[t]].fx(t);
 S.mapAudit={...S.mapAudit,attempts:tries+1};ctr(10.5,H-9.5);cur={x:CW/2,y:CH/2};fog();mmUp()}
