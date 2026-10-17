@@ -118,6 +118,12 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Map auditing:** invalid/fractional spawn coordinates are rejected rather than silently clamped. Dock access now checks buildable land and unobstructed adjacent water, with regression coverage for blocked shores.
 - **Verification status:** these commits are source changes with tests committed, not verified full-suite results. The map connectivity audit is an approximation and does not replace pathfinding or full match tests.
 
+### Save integrity and navigation — 17 October 2026
+
+- **Navigation:** A* now rejects malformed unit/goal inputs and starts on impassable tiles. Tests cover blocked land starts, dry-land ship starts and valid water routes.
+- **Save compatibility:** the loader validates production queues and research timers before restoring a match, rejects invalid civilization ages and initializes missing legacy building queues to empty arrays.
+- **Scope of verification:** source changes and regression fixtures are committed, but full CI, real save-slot round trips, extended matches and Xbox browser tests still need to be performed.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
