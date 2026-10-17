@@ -99,6 +99,19 @@ This register consolidates the recent parity audit so findings do not keep cycli
 - **Multiplayer:** implement the authoritative simulation protocol and explicit disconnect/host-loss behaviour before describing matches as synchronized.
 - **Hardware:** browser and desktop checks cannot establish Xbox Series S / Edge performance. Record real console measurements separately.
 
+## Implementation updates — 17 October 2026
+
+The following changes are committed to `main` and covered by source-level regression tests; **they are not a substitute for campaign playthroughs, live multiplayer sessions, browser profiling or Xbox hardware verification**.
+
+- **Production capacity:** training reserves population slots across live buildings, and completed units wait rather than exceeding the cap if housing is lost before spawning. Destroyed buildings no longer reserve slots.
+- **AI economy:** housing forecasts include queued units; worker targets count queued villagers specifically, avoiding unnecessary worker overproduction.
+- **AI fleet and support units:** production limits include queued war galleys, fishing ships, scouts, trade carts and trade cogs, not only units already on the map.
+- **Military research:** Bloodlines AI priority now responds to cavalry composition. Hit-point research no longer adds health to already defeated units; the existing Bloodlines and Reinforced Hulls effects have additional regression coverage.
+- **Production terrain:** land units avoid water and resource nodes when spawned; dock-produced ships retain both supported water terrain types.
+- **Catalogue checks:** automated integrity tests inspect technology research sites, prerequisites, effect target references, costs and production definitions.
+
+These changes still require the full automated suite and live gameplay acceptance checks. The eight top-level goals remain open until their stated criteria are met.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
