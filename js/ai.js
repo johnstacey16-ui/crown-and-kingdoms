@@ -68,7 +68,7 @@ for(const s of fish.filter(u=>u.hp>0)){
   if(route){s.o='m';s.tg=null;s.p=route;s.fleeUntil=S.t+10}
  }
 }
-for(const s of fish.filter(u=>u.o==='i'&&S.t>=(u.fleeUntil||0))){let n=findNode(s,'f',32);if(!n&&R.w>=100){deployFishTrap([s]);n=findNode(s,'f',32)}if(n){s.o='g';s.tg=n;s.ct='f';s.p=[];s.ret=0}}
+for(const s of fish.filter(u=>u.o==='i'&&S.t>=(u.fleeUntil||0))){let n=findNode(s,'f',32);if(!n&&R.w>=100){deployFishTrap([s]);n=findNode(s,'f',32)}if(n){const route=path(s,goalNear(n,1));if(route){s.o='g';s.tg=n;s.ct='f';s.p=route;s.rp=1;s.ret=0}}}
 for(const s of scouts.filter(u=>u.o==='i')){const x=2+S.r()*(W-4),y=2+S.r()*(H-4),p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p}}
 {
 /* Wounded warships disengage to reachable open water instead of fighting to destruction. */
