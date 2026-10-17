@@ -16,7 +16,7 @@ function tickTrader(u,dt){
    for(const home of homes.slice(0,12)){
     if(d2(u.x,u.y,home)<2)break;
     const retreat=path(u,goalNear(home,1));
-    if(retreat&&retreat.length){u.tradeFleeing=true;u.p=retreat;u.rp=1;u.tradeFromKey=keyOf(home);u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;walk(u,dt);return}
+    if(retreat&&retreat.length){u.tradeFleeing=true;u.p=retreat;u.rp=1;u.tradeFromKey=keyOf(home);if(!u.tradeReturning||!u.tradeCargo)u.tradeDestKey=null;walk(u,dt);return}
    }
    // If the home depot is inaccessible, run to navigable ground or water away from the closest attacker.
    const enemy=threats.sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
