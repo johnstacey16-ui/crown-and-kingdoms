@@ -8,13 +8,22 @@ function tickTrader(u,dt){
  }
  if(S.t>=(u.tradeThreatCheckAt||0)){
   u.tradeThreatCheckAt=S.t+2;
-  const danger=S.us.some(e=>e&&e.hp>0&&!e.ld&&e.t!==u.t&&isHostile(u.t,e.t)&&U[e.k]&&U[e.k].dmg>0&&!!U[e.k].sh===!!U[u.k].sh&&Math.hypot(e.x-u.x,e.y-u.y)<6);
-  if(danger){
+  const threats=S.us.filter(e=>e&&e.hp>0&&!e.ld&&e.t!==u.t&&isHostile(u.t,e.t)&&U[e.k]&&U[e.k].dmg>0&&!!U[e.k].sh===!!U[u.k].sh&&Math.hypot(e.x-u.x,e.y-u.y)<6);
+  if(threats.length){
    const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
    for(const home of homes.slice(0,12)){
     if(d2(u.x,u.y,home)<2)break;
     const retreat=path(u,goalNear(home,1));
     if(retreat&&retreat.length){u.tradeFleeing=true;u.p=retreat;u.rp=1;u.tradeFromKey=keyOf(home);u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;walk(u,dt);return}
+   }
+   // If the home depot is inaccessible, run to navigable ground or water away from the closest attacker.
+   const enemy=threats.sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
+   const away=Math.atan2(u.y-enemy.y,u.x-enemy.x);
+   for(const angle of [0,-.55,.55,-1.1,1.1,Math.PI]){
+    const x=u.x+Math.cos(away+angle)*9,y=u.y+Math.sin(away+angle)*9;
+    if(x<1||y<1||x>=W-1||y>=H-1)continue;
+    const retreat=path(u,gp(x,y,1.5));
+    if(retreat&&retreat.length){u.tradeFleeing=true;u.p=retreat;u.rp=1;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;walk(u,dt);return}
    }
   }
  }
