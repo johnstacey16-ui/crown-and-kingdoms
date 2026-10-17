@@ -32,6 +32,8 @@
 
 **Follow-up correction (18 October):** Closed a remaining player trade loophole: if the assigned home depot becomes invalid, merchants pause rather than choosing a new one. Villager auto-resource selection now excludes animal and malformed resource nodes. Confirm these paths with restored saves and active matches before marking complete.
 
+**AI retreat fidelity correction (18 October):** Removed non-reference passive healing for wounded AI military standing near Town Centres/Castles. They now briefly regroup without gaining HP; actual healing still depends on legitimate unit abilities/monks. Added a cooldown to avoid repeated retreat-to-shelter loops for low-HP units. Gameplay testing is still required for AI behaviour and retreat timing.
+
 **Disposition:** This is a fidelity review, not authorization to delete working features without assessing saves, campaigns and user expectations. Prioritize preserving core matches and recording differences before changing mechanics. Mark parity only after an actual Xbox comparison and gameplay verification.
 
 # Crown & Kingdoms — Main Development Goals
