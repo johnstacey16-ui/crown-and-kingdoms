@@ -95,17 +95,19 @@ if(PERS[aip].rg&&cnt('bar')&&cnt('rng')<2&&vil.length>=10&&(arm.length>=4||R.w>=
 const humanCav=humanArmy.filter(u=>CAVARM.has(u.k)).length,humanRanged=humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,humanSiege=humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,humanInf=humanArmy.filter(u=>['mil','spear','pike','halb','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length;
 for(const b of bl)if(b.done&&b.hp>0&&B[b.k]?.tr&&b.k!=='tc'&&Array.isArray(b.q)&&b.q.length<2){const o=trOf(b).filter(k=>U[k].age<=S.age[t]&&k!=='trn'&&(k!=='fish'||my.filter(u=>u.k==='fish').length<3)&&(k!=='gal'||my.filter(u=>u.k==='gal').length+bl.filter(b2=>b2.k==='dock'&&b2.hp>0&&Array.isArray(b2.q)).reduce((n,b2)=>n+b2.q.filter(q=>q==='gal').length,0)<Math.min(12,Math.max(4,2+2*navalThreatCount)))&&(k!=='scout'||my.filter(u=>u.k==='scout').length<2)&&(k!=='cart'||(my.filter(u=>u.k==='cart').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='market'&&b2.done&&b2.hp>0)))&&(k!=='cog'||(my.filter(u=>u.k==='cog').length<2&&S.bs.some(b2=>b2.t!==t&&b2.k==='dock'&&b2.done&&b2.hp>0))));if(o.length){const isDock=b.k==='dock',enemyShips=humanShips.length,counterPlans=isDock?(enemyShips?[{threat:enemyShips,units:['gal']}]:[]):[{threat:humanCav,minimum:2,units:['halb','pike','spear','camel'],own:['halb','pike','spear','camel']},{threat:humanRanged,minimum:3,units:['skirm','knight','cata'],own:['skirm','knight','cata']},{threat:humanSiege,minimum:1,units:['knight','mil','scout'],own:['knight','mil','scout']},{threat:humanInf,minimum:4,units:['mang','scor','arc'],own:['mang','scor','arc']}].filter(p=>p.threat>=p.minimum).map(p=>({...p,score:p.threat-my.filter(u=>p.own.includes(u.k)).length*2})).sort((a,b)=>b.score-a.score);const counterChoices=counterPlans.flatMap(p=>p.units.map(k=>({k,score:p.score,owned:my.filter(u=>u.k===k).length}))).filter(q=>o.includes(q.k)).sort((a,b)=>(b.score-a.score)+(a.owned-b.owned)*4);train(b,counterChoices[0]?.k||pickW(o))}}
 const techPriority=k=>{
- const base={gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,atkM:62,atkR:62,atkM2:72,atkR2:72,armI:60,armR:60,armC:60,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,squires:64,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57};
+ const base={gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,atkM:62,atkR:62,atkM2:72,atkR2:72,armI:60,armR:60,armC:60,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,squires:64,arson:56,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57};
  let score=base[k]||20;
  if(k==='pike'&&humanCav>=2)score+=90;
  if(k==='halb'&&humanCav>=2)score+=85;
  const ownInf=arm.filter(u=>INFARM.has(u.k)).length,ownRanged=arm.filter(u=>ARCHARM.has(u.k)).length,ownCav=arm.filter(u=>CAVARM.has(u.k)).length;
  if(k==='husb'&&ownCav>=3)score+=22;
  if(k==='squires'&&ownInf>=3)score+=22;
+ if(k==='arson'&&ownInf>=4)score+=18;
  if(k==='elsk'&&humanRanged>=4)score+=60;
  /* Avoid spending scarce resources on upgrades for unit classes not yet fielded. */
  if(k==='husb'&&ownCav<2)score-=24;
  if(k==='squires'&&ownInf<2)score-=24;
+ if(k==='arson'&&ownInf<3)score-=24;
  if(k==='armR'&&ownRanged<2)score-=28;
  if(k==='armI'&&ownInf<2)score-=28;
  if(k==='armC'&&ownCav<2)score-=28;
