@@ -9,9 +9,9 @@ const a = source.indexOf('function upB(b,dt){');
 const b = source.indexOf('\nfunction queuedPopulation(t){', a);
 assert.ok(a >= 0 && b > a);
 const tc = { k: 'tc', t: 0, done: true, hp: 100, x: 4, y: 4, s: 3, q: [null, { k: 'vil', t: 3 }] };
-const S = { bs: [tc], res: [{ f: 0, g: 0, w: 0, s: 0 }], tech: [{}], pl: { tr: 0 } };
+const S = { bs: [tc], res: [{ f: 0, g: 0, w: 0, s: 0 }], tech: [{}], pl: { tr: 0 }, pj: [] };
 let spawned = 0;
-const context = { U, B, TE, S, note: () => {}, sfx: () => {}, unitName: k => k,
+const context = { U, B, TE, S, note: () => {}, sfx: () => {}, foe: () => null, unitName: k => k,
   popOf: () => 0, capOf: () => 20, spawnPos: () => [3.5, 3.5],
   addU: () => { spawned++; return { k: 'vil' }; }, trainRate: () => 1 };
 vm.createContext(context);
