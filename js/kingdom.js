@@ -59,7 +59,7 @@ function createVillagerPriority(source=null){
  const p={enabled:true,f:2,w:2,g:1,s:0};
  if(source&&typeof source==='object'){
   if(typeof source.enabled==='boolean')p.enabled=source.enabled;
-  for(const k of['f','w','g','s']){const n=Number(source[k]);if(Number.isFinite(n))p[k]=Math.max(0,Math.min(40,Math.round(n)))}
+  for(const k of['f','w','g','s']){if(source[k]===null||source[k]===undefined||source[k]==='')continue;const n=Number(source[k]);if(Number.isFinite(n))p[k]=Math.max(0,Math.min(40,Math.round(n)))}
  }
  return p;
 }
