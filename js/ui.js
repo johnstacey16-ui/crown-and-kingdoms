@@ -138,7 +138,13 @@ function tx(s,x,y,sz=20,c='#fff',al='left'){X.font=`bold ${sz}px system-ui,sans-
 
 // Controller-first in-match presentation. Simulation and controller state remain owned by engine.js/input.js.
 function drawGameOverlays(dt){if(mode==='play'){const[wx,wy]=s2w(cur.x,cur.y);hud();if(ov)drawOv();if(boxR){X.strokeStyle='#8cff3c';X.lineWidth=2;X.setLineDash([7,5]);X.strokeRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0));X.setLineDash([]);X.fillStyle='rgba(140,255,60,.12)';X.fillRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0))}if(menu&&menu.rad)drawRadial();if(cgo)drawCg();const h=pick(wx,wy);
-X.strokeStyle='#fff';X.lineWidth=3;X.beginPath();X.arc(cur.x,cur.y,12,0,7);X.moveTo(cur.x-20,cur.y);X.lineTo(cur.x+20,cur.y);X.moveTo(cur.x,cur.y-20);X.lineTo(cur.x,cur.y+20);X.stroke();X.lineWidth=1;if(pat)tx(pat===2?'ATTACK MOVE: A set point, B cancel':pat===3?'FOLLOW: select a friendly target, B cancel':pat===4?'GUARD: select a friendly target, B cancel':'PATROL: A set point, B cancel',cur.x+22,cur.y+30,20,'#ffd24a');
+X.strokeStyle='#fff';X.lineWidth=3;X.beginPath();X.arc(cur.x,cur.y,12,0,7);X.moveTo(cur.x-20,cur.y);X.lineTo(cur.x+20,cur.y);X.moveTo(cur.x,cur.y-20);X.lineTo(cur.x,cur.y+20);X.stroke();X.lineWidth=1;if(P[6]&&!menu&&!ov&&!cgo&&!place){
+ const p=S.vp||createVillagerPriority(),k=WORKER_TARGETS[workerQuick||0];
+ X.fillStyle='rgba(12,20,31,.87)';X.fillRect(18,CH-108,Math.min(CW-36,740),82);
+ tx('LT + D-pad Up/Down: Zoom '+zm.toFixed(1)+'x   Left/Right: Resource',30,CH-82,16,'#f2c14e');
+ tx('LT + X/B: '+k.n+' target '+p[k.k]+'   LT + A: Auto villagers '+(p.enabled?'ON':'OFF'),30,CH-53,16,'#bce8cd');
+}
+if(pat)tx(pat===2?'ATTACK MOVE: A set point, B cancel':pat===3?'FOLLOW: select a friendly target, B cancel':pat===4?'GUARD: select a friendly target, B cancel':'PATROL: A set point, B cancel',cur.x+22,cur.y+30,20,'#ffd24a');
 if(h&&!(menu&&menu.rad)&&!cgo)tx(h.rl?'Relic':h.q?B[h.k].n+(h.t?' (enemy)':'')+' '+(h.hp|0)+'/'+h.mh:h.k in NM&&!U[h.k]?(h.fi?'Fish':h.an?'Deer':h.fm?'Farm':NM[h.k])+' '+(h.amt|0):(h.t?'Enemy ':'')+U[h.k].n+' '+(h.hp|0)+'/'+mhp(h),cur.x+22,cur.y-14,20,h.t?'#f99':'#fff')}
 else hud();
 if(mode==='pause')drawPause();if(perfHud)drawPerfOverlay(dt);
