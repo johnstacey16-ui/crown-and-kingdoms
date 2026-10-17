@@ -97,7 +97,7 @@ function assignAutoVillager(u,force=false){
  return false;
 }
 function applyVillagerPriorities(t=0){
- if(!S)return 0;
+ if(!S||t===0&&S.vp&&!S.vp.enabled)return 0;
  let assigned=0;
  for(const u of S.us)if(u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='i'){u.autoTry=0;if(assignAutoVillager(u,true))assigned++}
  if(t===0)note('Priority applied to '+assigned+' idle villagers');
