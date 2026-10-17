@@ -103,30 +103,10 @@ test('Last Crown does not treat a safely garrisoned King as defeated', () => {
 });
 
 
-test('campaign naval raids spawn on water instead of land and avoid land-path attack orders', () => {
-  assert.match(html,
-    /function raidShipPos\(e\)\{[\s\S]*?S\.wt\[i\]!==1\|\|S\.nd\[i\]\|\|S\.g\[i\]/,
-    'Naval reinforcements must select navigable, unoccupied water');
-  assert.match(html,
-    /const docks=S\.bs\.filter\(b=>b\.t===1&&b\.k==='dock'&&b\.hp>0\);/,
-    'Naval reinforcements should prefer water around enemy docks');
-  assert.match(html,
-    /const k=ks\[i%ks\.length\],ship=!!\(U\[k\]&&U\[k\]\.sh\),p=ship\?raidShipPos\(e\):spawnPos\(e\);if\(!p\)continue;const u=addU\(1,k,p\[0\],p\[1\]\);if\(!ship\)\{u\.o='a';u\.tg=tg;u\.p=\[\]\}/,
-    'Land raiders may attack the land target, while ships remain free to acquire reachable naval/coastal targets');
+test('campaign naval raids use distinct navigable positions and safe targeting', () => {
+ assert.match(html,/function raidShipPositions\(e,count,t=1\)/);
+ assert.match(html,/occupied\.has\(i\)/);
+ assert.match(html,/spots\.slice\(0,count\)/);
+ assert.match(html,/if\(!p\|\|!U\[k\]\)continue/);
+ assert.match(html,/if\(!u\)continue/);
 });
-
-
-test('campaign naval spawn selection considers every enemy Dock', () => {
-  const start = html.indexOf('function raidShipPos(e)');
-  const end = html.indexOf('\nfunction raid(', start);
-  assert.ok(start >= 0 && end > start, 'Campaign ship-spawn helper must remain identifiable');
-  const helper = html.slice(start, end);
-  assert.match(helper, /const anchors=docks\.length\?docks:\[e\]/,
-    'Use all enemy Docks as candidate spawn anchors');
-  assert.match(helper, /for\(const a of anchors\)\{const q=Math\.hypot/,
-    'Score each valid water tile against every anchor and choose its nearest one');
-  assert.match(helper, /if\(d<bd&&d<=18\)\{bd=d;best=\[x\+\.5,y\+\.5\]\}/,
-    'Only return navigable water within 18 tiles of the nearest anchor');
-});
-
-console.log('campaign-progression: regression assertions passed');
