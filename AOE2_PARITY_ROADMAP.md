@@ -145,6 +145,12 @@ These changes still require the full automated suite and live gameplay acceptanc
 - **Save-game validation:** rally coordinates are checked for finite, in-bounds values; legacy saves without rally targets remain supported.
 - **Verification:** source-level regression tests have been committed, but automated suite execution, save/load round trips in a browser, long-match playtests and Xbox validation remain outstanding.
 
+### Production rules and ford spawning — 17 October 2026
+
+- **Production consistency:** training and research are now mutually exclusive within the same building, preventing simultaneous queue and research progress. Save validation rejects impossible overlapping production states.
+- **Shallow-water production:** land units can spawn on traversable shallow fords when no dry spawn tile is available; deep water and resource nodes remain blocked.
+- **Regression coverage:** added production/research exclusivity tests and extended save validation and terrain-spawn tests. Automated execution and full match acceptance remain outstanding.
+
 ## Completion rule
 
 The game is complete only when all eight goals have passed their relevant acceptance checks. If a test has not been run, a mission has not been played through, or Xbox hardware has not been measured, report it as unverified rather than complete.
