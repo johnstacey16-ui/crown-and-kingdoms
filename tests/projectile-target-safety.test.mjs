@@ -32,6 +32,8 @@ for (const altered of [{ hp: 0 }, { ld: true }, { t: 0 }]) {
 S.pj.push({ x: NaN, y: 1, t: target, a: attacker });
 S.pj.push({ x: 1, y: 1, t: null, a: attacker });
 S.pj.push({ x: 1, y: 1, t: target, a: { k: 'unknown', t: 0 } });
+S.pj.push({ x: 1, y: 1, t: { ...target, x: NaN }, a: attacker });
+S.pj.push({ x: 1, y: 1, t: { ...target, hp: NaN }, a: attacker });
 pjs(1 / 30);
 assert.equal(S.pj.length, 0, 'invalid projectile records are discarded');
 assert.equal(hits, 1);
