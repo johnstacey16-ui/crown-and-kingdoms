@@ -84,7 +84,7 @@ function warm(){if(!WQ.length)return;const t0=performance.now();while(WQ.length&
 const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
 const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[],deleteSlotTarget=null;
 function refreshSlots(){SI=[0,1,2].map(n=>{let r=null;try{r=localStorage.getItem(skey(n))}catch(e){}if(!r)return null;try{const j=JSON.parse(r);if(j.v!==1||!Array.isArray(j.us)||!Array.isArray(j.civ))return'bad';return{t:j.t|0,civ:j.civ,w:j.sz,d:j.diff|0,m:j.cmp&&CAMP[j.cmp.i]?CAMP[j.cmp.i].t:null,when:j.when}}catch(e){return'bad'}})}
-function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE)window.CK_STORAGE.restoreMissing().then(()=>refreshSlots()).catch(()=>{})}
+function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE&&typeof window.CK_STORAGE.restoreMissing==='function')window.CK_STORAGE.restoreMissing().then(()=>{refreshSlots();hs=SI.some(Boolean)||!!localStorage.getItem('ck_autosave')}).catch(()=>{})}
 function slotsCtl(){const it=slotItems(),n=it.length;if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots()}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:'auto';if(target==='auto'||SI[target])deleteSlotTarget=target}if(E[1])mode=sb}
 
 
