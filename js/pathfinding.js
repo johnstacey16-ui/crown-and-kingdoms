@@ -7,7 +7,7 @@ const pop=()=>{const r=hv[0],kl=hk.pop(),vl=hv.pop(),n=hk.length;if(n){let i=0;f
 const s0=sy*W+sx;if(bl(s0))return null;A.st[s0]=v;A.g[s0]=0;A.pr[s0]=-1;push(0,s0);
 while(hk.length){const c=pop();if(A.cl[c]===v)continue;A.cl[c]=v;const cx=c%W,cy=c/W|0;
 if(goal(cx,cy)){const p=[];for(let n=c;A.pr[n]>=0;n=A.pr[n])p.push([n%W+.5,(n/W|0)+.5]);if(!p.length)p.push([cx+.5,cy+.5]);return p.reverse()}
-for(const[dx,dy]of D8){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const n=ny*W+nx;if(A.cl[n]===v||bl(n))continue;if(dx&&dy&&(bl(cy*W+nx)||bl(ny*W+cx)))continue;const ng=A.g[c]+(dx&&dy?1.414:1);if(A.st[n]!==v||ng<A.g[n]){A.st[n]=v;A.g[n]=ng;A.pr[n]=c;push(ng+hf(nx,ny),n)}}}
+for(let dir=0;dir<D8.length;dir++){const dx=D8[dir][0],dy=D8[dir][1],nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const n=ny*W+nx;if(A.cl[n]===v||bl(n))continue;if(dx&&dy&&(bl(cy*W+nx)||bl(ny*W+cx)))continue;const ng=A.g[c]+(dx&&dy?1.414:1);if(A.st[n]!==v||ng<A.g[n]){A.st[n]=v;A.g[n]=ng;A.pr[n]=c;push(ng+hf(nx,ny),n)}}}
 return null}
 function d2(px,py,t){const s=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+s)),dy=Math.max(t.y-py,0,py-(t.y+s));return Math.hypot(dx,dy)}
 const goalNear=(t,r)=>{const rr=r*r,f=(x,y)=>{const px=x+.5,py=y+.5,sz=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+sz)),dy=Math.max(t.y-py,0,py-(t.y+sz));return dx*dx+dy*dy<=rr};f.hx=t.x+(t.s||0)/2;f.hy=t.y+(t.s||0)/2;f.hr=r+(t.s||0)/2;return f};
