@@ -219,7 +219,25 @@ function orderGuardFollow(wx,wy,kind){
 function patrol(wx,wy,once){let n=0;for(const u of S.sel)if(!u.q&&u.hp>0&&!u.ld&&u.k!=='vil'&&u.k!=='fish'&&u.k!=='cart'&&u.k!=='cog'&&u.k!=='trn'&&u.k!=='mon'){u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once};u.o='p';u.tg=null;u.p=[];u.rp=0;n++}if(n)note('Patrolling with '+n+' unit'+(n===1?'':'s'));else note('Select living, ungarrisoned military units or warships to patrol');return n>0}
 function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.includes(u))),base=fresh?S.sel.filter(u=>!u.q):S.all.filter(u=>u.hp>0),ks=[...new Set(base.map(u=>u.k))];if(ks.length<2)return false;if(fresh)S.si=0;S.all=base;S.si=((S.si||0)+d+ks.length+1)%(ks.length+1);S.sel=S.si?base.filter(u=>u.k===ks[S.si-1]):base;note('Group: '+(S.si?U[ks[S.si-1]].n+' x'+S.sel.length:'all '+base.length));return true}
 function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.st=v;if(v===4&&(u.o==='a'||u.o==='v')){u.o='i';u.tg=null;u.p=[]}}note(['Aggressive','Defensive','Stand ground','Passive','No Attack'][v]+' stance');menu=null}
-function unload(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]||!b.cg.length){note('Select a living, completed garrison with units inside');return false}const cg=b.cg;for(const c of cg){let sp=null;for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<=b.s+r&&!sp;dy++)for(let dx=-r;dx<=b.s+r&&!sp;dx++){const x=b.x+dx,y=b.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&!S.wt[y*W+x]&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5]}if(sp){c.x=sp[0];c.y=sp[1];c.ld=null}}b.cg=cg.filter(c=>c.ld);note('Garrison unloaded');return true}
+function unload(b){
+ if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]){note('Select a living, completed garrison with units inside');return false}
+ const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&!U[c.k]?.sh);
+ if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
+ const occupied=new Set(S.us.filter(u=>u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)).map(u=>(u.y|0)*W+(u.x|0)));
+ let released=0;
+ for(const c of cg){
+  let sp=null;
+  for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<b.s+r&&!sp;dy++)for(let dx=-r;dx<b.s+r&&!sp;dx++){
+   const x=b.x+dx,y=b.y+dy,idx=y*W+x;
+   if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[idx]&&S.wt[idx]!==1&&!S.nd[idx]&&!occupied.has(idx)&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5,idx];
+  }
+  if(!sp)continue;
+  occupied.add(sp[2]);c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.p=[];c.rp=0;released++;
+ }
+ b.cg=cg.filter(c=>c.ld===b);
+ note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
+ return released>0;
+}
 function townBell(t){
  const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
  const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]);
