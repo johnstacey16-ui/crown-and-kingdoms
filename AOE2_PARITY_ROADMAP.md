@@ -26,6 +26,8 @@
 
 **Automatic villager search fallback:** Resource gathering now checks up to twelve unreachable candidates per search and widens its search radius from 18 to 30 tiles when no nearby reachable node exists. Implemented on main; match verification pending.
 
+**Controls and save-integrity follow-up (18 October):** Player-side diplomacy is used for friendly-target order checks; save restoration now validates unit path-progress indices and nonnegative cooldowns. Implemented on main; in-game regression checks remain deferred.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
