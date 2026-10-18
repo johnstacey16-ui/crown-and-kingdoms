@@ -64,6 +64,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Coastal route validation (18 October):** Landing search validates ship coordinates, verifies selected water routes terminate beside their chosen beach, and rejects diagonal approaches through blocked shoreline corners. Remaining: end-to-end shoreline unload testing and movement/path corner cases on procedurally generated maps.
+
 **Beach target continuity (18 October):** Landing route selection now records the specific beach beside its reachable water staging tile. Player orders and simulation retries carry this beach target; unloading favours nearby tiles and clears the target after success or failure. This is implementation work, not verified full-match coastline parity.
 
 **Reachable beach staging (18 October):** Added shared transportLandingRoute used by both player commands and simulation retries. It searches unoccupied, passable beaches and adjacent water staging tiles, tries actual water routes, deduplicates candidates and caps path attempts. This replaces broad radius-only approach routing; still needs in-match validation on islands, blocked beaches, docks and save restoration.
