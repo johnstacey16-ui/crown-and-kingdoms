@@ -317,8 +317,10 @@ function unload(b){
  if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]){note('Select a living, completed garrison with units inside');return false}
  const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
  if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
- const occupied=new Set(S.us.filter(u=>u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)).map(u=>(u.y|0)*W+(u.x|0)));
  const size=Number.isInteger(b.s)&&b.s>0?b.s:1,spots=[];
+ /* Only units near the garrison can occupy one of its possible unload tiles. */
+ const occupied=new Set(),left=b.x-6,right=b.x+size+6,top=b.y-6,bottom=b.y+size+6;
+ for(const u of S.us)if(u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=left&&u.x<right&&u.y>=top&&u.y<bottom)occupied.add((u.y|0)*W+(u.x|0));
  for(let r=1;r<=6;r++){
   for(let dy=-r;dy<size+r;dy++)for(let dx=-r;dx<size+r;dx++){
    if(dx>=0&&dy>=0&&dx<size&&dy<size)continue;
