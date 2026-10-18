@@ -355,8 +355,8 @@ function townBell(t){
   for(const b of shelters){
    const ownReservation=u.o==='B'&&u.tg===b?1:0;
    if((occupancy.get(b)||0)-ownReservation>=GAR[b.k])continue;
-   const distance=d2(u.x,u.y,b);
-   if(distance<best){best=distance;shelter=b}
+   const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-(b.x+sz)),dy=Math.max(b.y-u.y,0,u.y-(b.y+sz)),distanceSq=dx*dx+dy*dy;
+   if(distanceSq<best){best=distanceSq;shelter=b}
   }
   if(!shelter)continue;
   if(u.o==='B'&&occupancy.has(u.tg))occupancy.set(u.tg,Math.max(0,occupancy.get(u.tg)-1));
