@@ -10,6 +10,8 @@
 
 **Economy implementation batch (18 October):** Auto-villager resource search now filters the desired resource kind before building candidate lists, cleans up expired resource exclusions, and rejects off-map/malformed worker or node coordinates. These are committed implementation improvements; no owner playthrough or Vercel deployment was requested. Further economy feature work remains open.
 
+**AI naval expansion implementation (18 October):** Dock-site connectivity now counts only navigable, unoccupied water and performs the bounded water-reach search on the nearest shortlisted build locations rather than on every map candidate. These changes are committed; live naval AI match testing remains deferred under the owner's development-first preference.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
