@@ -19,7 +19,7 @@ function transportLandingRoute(u,x,y){
   const key=beach.sy*W+beach.sx+':'+beach.bx+':'+beach.by;
   if(tried.has(key))continue;
   tried.add(key);
-  if(++attempts>48)break;
+  if(++attempts>96)break;
   const route=path(u,gp(beach.sx+.5,beach.sy+.5,.8));
   if(route&&route.length){const end=route[route.length-1];if(Math.hypot(end[0]-(beach.sx+.5),end[1]-(beach.sy+.5))<=1)return {route,beach:[beach.bx,beach.by]};}
  }
