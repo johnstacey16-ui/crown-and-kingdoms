@@ -9,7 +9,7 @@ function transportLandingRoute(u,x,y){
  for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
   const bx=(x|0)+dx,by=(y|0)+dy;
   if(bx<=0||by<=0||bx>=W-1||by>=H-1)continue;
-  const idx=by*W+bx,dist2=(bx+.5-x)**2+(by+.5-y)**2;
+  const offsetX=bx+.5-x,offsetY=by+.5-y,idx=by*W+bx,dist2=offsetX*offsetX+offsetY*offsetY;
   if(dist2>25||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
   for(let dir=0;dir<8;dir++){
    const direction=D8[dir],ox=direction[0],oy=direction[1],sx=bx+ox,sy=by+oy;
