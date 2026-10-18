@@ -20,6 +20,8 @@
 
 **AI resource-management batch (18 October):** Consolidated economic worker reassignment with current resource-assignment counts, valid on-map resource pools, reachable deposit selection, preferred donor-resource ordering, and fallback to another shortage when a transfer fails. Committed on main; balance and long-match gameplay verification remain open and do not block continued development.
 
+**AI construction search follow-up (18 October):** When nearest villagers cannot path to a build site, AI now tries bounded farther-away candidates; resource-depot placement checks up to 32 candidate deposits rather than stopping at 12. Implemented on main; gameplay acceptance remains open.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
