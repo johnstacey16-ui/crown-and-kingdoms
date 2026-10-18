@@ -22,6 +22,9 @@ const formationRoutes=new Map();
 const fallbackRoutes=new Map();
 /* Land and naval units form independent ranks, avoiding water/land slot mixing. */
 const landFormation=us.filter(u=>!u.sh),navalFormation=us.filter(u=>u.sh);
+/* Share formation goal predicates for units assigned the same destination slot. */
+const formationGoals=new Map(),fallbackGoals=new Map();
+const cachedGoal=(cache,x,y,r)=>{const key=x+','+y+','+r;let goal=cache.get(key);if(!goal){goal=gp(x,y,r);cache.set(key,goal)}return goal};
 let landIndex=0,navalIndex=0;
 let noAttackBlocked=0,noRouteCount=0,fallbackCount=0;for(const u of us){const formationUnits=u.sh?navalFormation:landFormation,unitIndex=u.sh?navalIndex++:landIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
@@ -45,14 +48,14 @@ else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&u.k==='vil'){u.o='b';u.tg=tg}
 else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.k==='trn'&&Array.isArray(u.cg)&&u.cg.some(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const landing=transportLandingRoute(u,wx,wy);if(landing?.route?.length){u.o='U';u.ut=[wx,wy];u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
-else{const i=unitIndex,fo=fslot(formationUnits,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>gp(gx,gy,r);
+else{const i=unitIndex,fo=fslot(formationUnits,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>cachedGoal(formationGoals,gx,gy,r);
 const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');
 let p=formationRoutes.get(routeKey);
 if(p===undefined){p=path(u,gl(.8))||path(u,gl(2));formationRoutes.set(routeKey,p||null)}
 if(!p){
  const fallbackKey=[u.t,u.sh?1:0,u.x|0,u.y|0,wx,wy].join(':');
  p=fallbackRoutes.get(fallbackKey);
- if(p===undefined){p=path(u,gp(wx,wy,.8))||path(u,gp(wx,wy,2));fallbackRoutes.set(fallbackKey,p||null)}
+ if(p===undefined){p=path(u,cachedGoal(fallbackGoals,wx,wy,.8))||path(u,cachedGoal(fallbackGoals,wx,wy,2));fallbackRoutes.set(fallbackKey,p||null)}
  if(p)fallbackCount++;
 }
 if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else noRouteCount++}}
