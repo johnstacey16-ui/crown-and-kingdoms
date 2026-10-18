@@ -2,6 +2,8 @@
 const PATH_HEAP_K=[],PATH_HEAP_V=[];
 /* Aggregate A* workload counters for Xbox Edge profiling without retaining routes. */
 const PATH_STATS={requests:0,expanded:0,found:0,exhausted:0,peakOpen:0};
+/* Read-only snapshot for developer profiling; reset is explicit between benchmark runs. */
+window.CK_PATH_DIAGNOSTICS={snapshot:()=>({...PATH_STATS}),reset:()=>{for(const key of Object.keys(PATH_STATS))PATH_STATS[key]=0}};
 function path(u,goal){PATH_STATS.requests++;if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!Number.isInteger(u.t)||!S||!PA)return null;const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i]&&!S.g[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H)return null;
 if((hx===undefined)!==(hy===undefined)||(hx!==undefined&&!Number.isFinite(hx))||(hy!==undefined&&!Number.isFinite(hy))||!Number.isFinite(hr)||hr<0)return null;const hf=hx===undefined?()=>0:(x,y)=>{const dx=Math.abs(x+.5-hx),dy=Math.abs(y+.5-hy);return Math.max(0,Math.max(dx,dy)+.414*Math.min(dx,dy)-hr-.7)};
 const push=(k,n)=>{let i=hk.length;hk.push(k);hv.push(n);if(hk.length>PATH_STATS.peakOpen)PATH_STATS.peakOpen=hk.length;while(i>0){const p=(i-1)>>1;if(hk[p]<=k)break;hk[i]=hk[p];hv[i]=hv[p];i=p}hk[i]=k;hv[i]=n};
