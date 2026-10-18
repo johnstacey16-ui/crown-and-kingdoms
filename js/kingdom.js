@@ -78,16 +78,15 @@ function skipAutoNode(u,n){
 function findReachableAutoNode(u,k,r=18){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y))return null;
  const now=Number.isFinite(S.t)?S.t:0;
- const all=S.nodes.filter(n=>n&&n.amt>0&&!n.an&&!n.fi&&WORKER_TARGETS.some(t=>t.k===n.k)&&Number.isFinite(n.x)&&Number.isFinite(n.y));
+ const all=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isFinite(n.x)&&Number.isFinite(n.y));
  const live=new Set(all.map(autoNodeKey));
- // Legacy save files stored plain keys; discard those permanent exclusions.
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(e=>e&&typeof e==='object'&&typeof e.key==='string'&&Number.isFinite(e.until)&&e.until>now&&live.has(e.key)).slice(-64);
  const skipped=new Set(u.autoSkipNodes.map(e=>e.key));
- const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!skipped.has(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
+ const candidates=all.filter(n=>Math.hypot(n.x-u.x,n.y-u.y)<r&&!skipped.has(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
  let failed=0;
  for(const n of candidates){
   const route=path(u,goalNear(n,1));
-  if(route&&route.length){u.autoSkipNodes=u.autoSkipNodes.filter(e=>e.key!==autoNodeKey(n));return {n,route}};
+  if(route&&route.length){u.autoSkipNodes=u.autoSkipNodes.filter(e=>e.key!==autoNodeKey(n));return {n,route}}
   skipAutoNode(u,n);
   if(++failed>=8)break;
  }
