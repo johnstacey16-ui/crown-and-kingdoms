@@ -64,6 +64,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Transport reliability pass (18 October):** Ship unloading now removes dead and stale passengers from manifests before and after unload attempts, ignores invalid occupied-unit positions, and validates manifest arrays before accepting controller/player shore orders. Still pending: coast/island pathing, blocked landings, partial unload and save/load gameplay tests.
+
 ## 2. AI strategy
 
 **Current AI development pass (17 October): improve economic decision quality after introducing six difficulty tiers.**
@@ -71,7 +73,7 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [x] Filter AI military production by affordability before choosing counter-units, preventing repeated failed training decisions.
 - [x] Add source-level regression tests for age-up savings, unit affordability and monotonic difficulty pacing.
 - [ ] Measure AI age-up times, resource float, idle production, population cap stalls and first-attack timings in full land/coastal/island matches; tune each tier from evidence.
-- [ ] Next distinct workstream: map/naval combat and transport reliability, followed by campaign playthroughs; return to AI only for observed match issues.
+- [ ] Current workstream: naval transport reliability (manifest cleanup, unload validation and landing occupancy), followed by map/naval combat and campaign playthroughs; return to AI only for observed match issues.
 
 - [ ] Build a sustainable economy and rebalance workers as resource needs change.
 - [ ] Choose useful units and mixed armies based on enemy composition and available resources.
