@@ -166,8 +166,51 @@ if(u.o==='F'||u.o==='G'){const target=u.tg;if(!target||target.hp<=0||(!U[target.
 if(u.o==='m'){if(walk(u,dt))u.o='i';return}
 if(u.o==='B'){if(!tg||tg.hp<=0||tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally'||tg.q&&!tg.done||(tg.q?!GAR[tg.k]:!U[tg.k]?.cap)||!!u.sh||(U[tg.k]?.cap&&u.t!==tg.t)||(tg.cg||[]).length>=(tg.q?GAR[tg.k]:U[tg.k].cap)||u===tg||u.ld){u.o='i';u.tg=null;u.p=[];u.rp=0;return}if(tg.q?d2(u.x,u.y,tg)<=1.4:Math.hypot(tg.x-u.x,tg.y-u.y)<=2){u.ld=tg;(tg.cg=tg.cg||[]).push(u);u.ut=null;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.manualTradeMove=false;u.tradeFleeing=false;u.x=tg.x+(tg.s||0)/2;u.y=tg.y+(tg.s||0)/2;u.o='i';u.p=[];u.rp=0;return}
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.7));u.rp=.8;if(!p){u.o='i';u.tg=null;u.p=[];u.rp=0;if(u.t===0)note('No route to board that transport');return}u.p=p}walk(u,dt);return}
-if(u.o==='U'){if(!Array.isArray(u.cg))u.cg=[];u.cg=u.cg.filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);const q=u.ut;if(u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)||q[0]<0||q[1]<0||q[0]>=W||q[1]>=H||S.wt[(q[1]|0)*W+(q[0]|0)]===1||!u.cg.length){u.o='i';u.ut=null;u.unloadBeach=null;u.p=[];u.rp=0;return}if((!u.p.length||u.rp<=0)&&S.t>=(u.unloadRouteRetryAt||0)){const landing=transportLandingRoute(u,q[0],q[1]);const p=landing?.route;if(landing)u.unloadBeach=landing.beach;u.rp=1;u.unloadRouteRetryAt=S.t+2;if(!p||!p.length){u.o='i';u.ut=null;u.unloadBeach=null;u.p=[];u.rp=0;if(u.t===0)note('Transport cannot reach that landing area');return}u.p=p}
-if(!u.p.length&&S.t<(u.unloadRouteRetryAt||0))return;if(u.p.length&&walk(u,dt)){if(!Array.isArray(u.unloadBeach)||u.unloadBeach.length!==2||!u.unloadBeach.every(Number.isFinite)){u.p=[];u.rp=0;u.unloadRouteRetryAt=0;return}const cg=(u.cg||[]).filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);let unloaded=0;const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));for(const c of cg){let sp=null,best=Infinity;for(let r=1;r<=4;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const x=(u.x|0)+dx,y=(u.y|0)+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&S.wt[y*W+x]!==1&&!S.nd[y*W+x]&&!occupied.has(y*W+x)&&Math.hypot(x+.5-q[0],y+.5-q[1])<=5&&Math.hypot(x+.5-u.x,y+.5-u.y)<=4&&(!Array.isArray(u.unloadBeach)||Math.hypot(x-u.unloadBeach[0],y-u.unloadBeach[1])<=3)&&D8.some(([ax,ay])=>{const nx=x+ax,ny=y+ay;return nx>=0&&ny>=0&&nx<W&&ny<H&&S.wt[ny*W+nx]===1})){const score=Math.hypot(x+.5-q[0],y+.5-q[1])+Math.hypot(x+.5-u.x,y+.5-u.y)*.15+r*.05;if(score<best){best=score;sp=[x+.5,y+.5]}}}if(sp){occupied.add((sp[1]|0)*W+(sp[0]|0));c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.ut=null;c.p=[];c.rp=0;c.pt=null;c.as=0;unloaded++}}u.cg=cg.filter(c=>c.ld===u&&c.hp>0&&c.t===u.t&&U[c.k]&&!U[c.k].sh);u.o='i';u.ut=null;u.unloadBeach=null;u.p=[];u.rp=0;if(u.t===0&&cg.length&&!unloaded)note('No safe shore to unload; move closer to land');else if(u.t===0&&u.cg.length)note('Some passengers could not disembark');else if(u.t===0&&unloaded)note('Passengers unloaded: '+unloaded)}return}
+if(u.o==='U'){
+ // Keep manifests consistent with living passengers actually aboard this ship.
+ if(!Array.isArray(u.cg))u.cg=[];
+ u.cg=u.cg.filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);
+ const q=u.ut;
+ const cancel=(message)=>{u.o='i';u.ut=null;u.unloadBeach=null;u.p=[];u.rp=0;u.unloadRouteRetryAt=0;if(message&&u.t===0)note(message)};
+ if(u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)||q[0]<0||q[1]<0||q[0]>=W||q[1]>=H||S.wt[(q[1]|0)*W+(q[0]|0)]===1||!u.cg.length){cancel();return}
+ if(!Array.isArray(u.p))u.p=[];
+ const beach=u.unloadBeach;
+ if(!Array.isArray(beach)||beach.length!==2||!beach.every(Number.isFinite)){
+  u.unloadBeach=null;u.p=[];u.rp=0;
+ }
+ if((!u.p.length||u.rp<=0)&&S.t>=(u.unloadRouteRetryAt||0)){
+  const landing=transportLandingRoute(u,q[0],q[1]);
+  u.unloadRouteRetryAt=S.t+2;
+  if(!landing){cancel('Transport cannot reach a free landing beach');return}
+  u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;
+ }
+ if(!u.p.length)return;
+ if(!walk(u,dt))return;
+ const cg=u.cg,occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
+ const shore=u.unloadBeach,spots=[];
+ // Collect all valid shore tiles once, then assign distinct positions to passengers.
+ for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){
+  const x=(u.x|0)+dx,y=(u.y|0)+dy;
+  if(x<=0||y<=0||x>=W-1||y>=H-1)continue;
+  const idx=y*W+x;
+  if(S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
+  if(Math.hypot(x+.5-q[0],y+.5-q[1])>5||Math.hypot(x+.5-u.x,y+.5-u.y)>4||Math.hypot(x-shore[0],y-shore[1])>3)continue;
+  if(!D8.some(([ax,ay])=>{const nx=x+ax,ny=y+ay;return nx>=0&&ny>=0&&nx<W&&ny<H&&S.wt[ny*W+nx]===1&&!S.nd[ny*W+nx]}))continue;
+  spots.push({x,y,idx,score:Math.hypot(x+.5-q[0],y+.5-q[1])+Math.hypot(x+.5-u.x,y+.5-u.y)*.15});
+ }
+ spots.sort((a,b)=>a.score-b.score);
+ let unloaded=0;
+ for(const c of cg){
+  const sp=spots[unloaded];
+  if(!sp)break;
+  c.x=sp.x+.5;c.y=sp.y+.5;c.ld=null;c.o='i';c.tg=null;c.ut=null;c.p=[];c.rp=0;c.pt=null;c.as=0;
+  unloaded++;
+ }
+ u.cg=cg.filter(c=>c.ld===u&&c.hp>0);
+ cancel();
+ if(u.t===0)note(unloaded?(u.cg.length?'Passengers unloaded: '+unloaded+'; '+u.cg.length+' still aboard':'Passengers unloaded: '+unloaded):'No safe shore to unload; move closer to land');
+ return;
+}
 if(u.o==='rep'){if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||!tg.sh||tg.hp>=mhp(tg)){u.o='i';u.tg=null;return}if(d2(u.x,u.y,tg)<=1.5){u.p=[];tg.hp=Math.min(mhp(tg),tg.hp+mhp(tg)*dt/40);if(tg.hp>=mhp(tg)){u.o='i';u.tg=null;if(u.t===0)note('Ship repaired')}}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.2));u.rp=1;if(!p){u.o='i';u.tg=null;return}u.p=p}walk(u,dt)}return}
 if(u.o==='v'){if(!tg||tg.hp<=0||tg.t===u.t||tg.q){u.o='i';u.tg=null;return}
 if(Math.hypot(tg.x-u.x,tg.y-u.y)<=5){u.p=[];if(u.cd<=0){u.cv=(u.cv||0)+dt;if(u.cv>=3){u.cv=0;u.cd=8;fx.push({x:tg.x,y:tg.y,l:.5,k:'p'});if(S.r()<.7){tg.t=u.t;tg.o='i';tg.p=[];tg.tg=null;tg.car=0;if(tg.rel){tg.rel.c=null;tg.rel=null}note((u.t===0?'Converted enemy ':'Your ')+U[tg.k].n+(u.t===0?'!':' was converted!'))}u.o='i'}}}
