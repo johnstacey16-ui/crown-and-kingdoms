@@ -8,7 +8,23 @@ for(let i=0;i<60;i++){const sp=26+Math.min(60,S.bs.length),x=(tc.x+1+(S.r()-.5)*
 if(okPlace(t,k,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const b=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=b;builder.p=route;return}}}
 const cor=(tc,x,y)=>Math.abs(x-(tc.x+1))<=3||Math.abs(y-(tc.y+1))<=3;
 function aiWall(vs,tc,t=1){if(!can(t,B.wall.cost))return;const cx=tc.x+1,cy=tc.y+1;let n=0;for(let a=-8;a<=8&&n<3;a++)for(const[x,y]of[[cx+a,cy-8],[cx+a,cy+8],[cx-8,cy+a],[cx+8,cy+a]]){if(n>=3)break;if(Math.abs(x-cx)<=2||Math.abs(y-cy)<=2)continue;if(S.bs.some(b=>b.t===t&&b.k==='wall'&&b.hp>0&&b.x===x&&b.y===y))continue;if(!vs.some(aiAvailableBuilder)||!can(t,B.wall.cost))return;if(okPlace(t,'wall',x,y)){const target={x,y,s:B.wall.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const w=addB(t,'wall',x,y,false);pay(t,B.wall.cost);builder.o='b';builder.tg=w;builder.p=route;n++}}}
-function aiDockWaterReach(x,y,minCells=32){const seen=new Set(),queue=[];for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=H)continue;const i=yy*W+xx;if(S.wt[i]&&!S.nd[i]&&!S.g[i]&&!seen.has(i)){seen.add(i);queue.push(i)}}for(let n=0;n<queue.length&&queue.length<minCells;n++){const i=queue[n],xx=i%W,yy=(i/W)|0;for(const j of [xx>0?i-1:-1,xx<W-1?i+1:-1,yy>0?i-W:-1,yy<H-1?i+W:-1])if(j>=0&&S.wt[j]&&!S.nd[j]&&!S.g[j]&&!seen.has(j)){seen.add(j);queue.push(j)}}return queue.length>=minCells}
+function aiDockWaterReach(x,y,minCells=32){
+ const seen=new Set(),queue=[];
+ for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){
+  const xx=x+dx,yy=y+dy;
+  if(xx<0||yy<0||xx>=W||yy>=H)continue;
+  const i=yy*W+xx;
+  if(S.wt[i]&&!S.nd[i]&&!S.g[i]&&!seen.has(i)){seen.add(i);queue.push(i)}
+ }
+ for(let n=0;n<queue.length&&queue.length<minCells;n++){
+  const i=queue[n],xx=i%W,yy=i/W|0;
+  for(const j of [xx>0?i-1:-1,xx<W-1?i+1:-1,yy>0?i-W:-1,yy<H-1?i+W:-1]){
+   if(j<0||!S.wt[j]||S.nd[j]||S.g[j]||seen.has(j))continue;
+   seen.add(j);queue.push(j)
+  }
+ }
+ return queue.length>=minCells;
+}
 function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y)&&aiDockWaterReach(x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);for(const site of sites.slice(0,64)){const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
 function aiRebal(vil,R,t=1){const nv=vil.length,wk=k=>vil.filter(u=>u.o==='g'&&u.ct===k).length,mv=(k,fr='w')=>{const w=vil.find(u=>u.o==='g'&&u.ct===fr&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.car&&!u.ret);if(!w)return;const n=findNode(w,k,36);if(!n)return;let target=n,route=path(w,goalNear(n,1));if(!route){let checked=0;for(const candidate of S.nodes){if(candidate===n||candidate.k!==k||candidate.amt<=0||candidate.an||candidate.fi||Math.hypot(candidate.x-w.x,candidate.y-w.y)>36)continue;if(++checked>8)break;const p=path(w,goalNear(candidate,1));if(p){target=candidate;route=p;break}}}if(route){w.tg=target;w.ct=k;w.p=route;w.rp=1}};
 if(R.w<150&&wk('w')<nv*.4&&Math.max(R.f,R.g)>250)mv('w',R.f>R.g?'f':'g');else if(S.age[t]>=1&&R.s<150&&wk('s')<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)mv('s',R.f>R.g?'f':'g');
