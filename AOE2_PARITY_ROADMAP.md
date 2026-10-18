@@ -16,6 +16,8 @@
 
 **First implementation under this plan (18 October):** Ship A* navigation now excludes occupied/blocked water tiles, and beach staging rejects diagonally adjacent water cells when the corner crossing is obstructed. Both changes are committed to main; no full-match or Xbox acceptance is claimed.
 
+**Save restoration validation (18 October):** Added explicit bounds/type validation for transport unload beaches and retry timers, and for legacy or timed villager resource avoidance entries. Committed to main; actual browser save/load round trips remain unverified. This supports P0 and P3 without changing their acceptance status.
+
 ### P0 — Standard skirmish match end to end (next development priority)
 - [~] Match setup and starting conditions: confirm standard resource, age, population, starting-unit and AI difficulty settings start a playable match; label custom presets as custom.
 - [~] Core economy and progression: villagers gather/deposit each resource, construct and repair, produce units, research technologies, advance ages and respect population/resource costs.
