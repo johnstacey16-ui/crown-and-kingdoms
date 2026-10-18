@@ -46,28 +46,36 @@ function aiDockWaterReach(x,y,minCells=32){
 }
 function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);let checked=0;for(const site of sites){let shore=false;for(let dy=-1;dy<=2&&!shore;dy++)for(let dx=-1;dx<=2;dx++){const xx=site.x+dx,yy=site.y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1&&!S.nd[yy*W+xx]&&!S.g[yy*W+xx]){shore=true;break}}if(!shore||!aiDockWaterReach(site.x,site.y))continue;if(++checked>64)break;const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
 function aiRebal(vil,R,t=1){
- const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac);
- const nv=active.length,wk=k=>active.filter(u=>u.o==='g'&&u.ct===k).length;
- const move=(k,from='w')=>{
-  const workers=active.filter(u=>u.o==='g'&&u.ct===from&&!u.car&&!u.ret&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
+ const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating);
+ const nv=active.length;
+ const assigned={f:0,w:0,g:0,s:0};
+ for(const u of active)if(u.o==='g'&&Object.prototype.hasOwnProperty.call(assigned,u.ct))assigned[u.ct]++;
+ const move=(kind,sources)=>{
+  const sourceSet=new Set(sources);
+  const workers=active.filter(u=>u.o==='g'&&sourceSet.has(u.ct)&&!u.car&&!u.ret&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
+  if(!workers.length)return false;
+  const nodes=S.nodes.filter(n=>n&&n.k===kind&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H);
+  if(!nodes.length)return false;
   for(const w of workers){
-   const nodes=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
+   const near=nodes.filter(n=>Math.hypot(n.x-w.x,n.y-w.y)<=36)
     .sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y));
-   for(const n of nodes.slice(0,12)){
+   for(const n of near.slice(0,12)){
     const route=path(w,goalNear(n,1));
     if(!route||!route.length)continue;
-    w.o='g';w.tg=n;w.ct=k;w.p=route;w.pt=null;w.rp=1;w.ret=0;
+    const old=w.ct;
+    w.o='g';w.tg=n;w.ct=kind;w.p=route;w.pt=null;w.rp=1;w.ret=0;
+    assigned[old]--;assigned[kind]++;
     return true;
    }
   }
   return false;
  };
- if(R.w<150&&wk('w')<nv*.4&&Math.max(R.f,R.g)>250){if(!move('w',R.f>R.g?'f':'g'))move('w',R.f>R.g?'g':'f')}
- else if(S.age[t]>=1&&R.s<150&&wk('s')<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?'f':'g');
+ if(R.w<150&&assigned.w<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?['f','g']:['g','f']);
+ else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
  if(R.w>800){
-  if(R.f<400&&wk('f')<nv*.45){if(!move('f'))move('f','g')}
-  else if(R.s<300&&S.age[t]>=1&&wk('s')<Math.max(3,nv*.12|0))move('s');
-  else if(R.g<300&&wk('g')<nv*.3)move('g');
+  if(R.f<400&&assigned.f<nv*.45)move('f',['w','g']);
+  else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0))move('s',['w']);
+  else if(R.g<300&&assigned.g<nv*.3)move('g',['w']);
  }
 }
 function aiNear(vs,k,nk,t=1){const d=B[k],available=vs.some(aiAvailableBuilder),tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!available||!tc||!can(t,d.cost))return;
