@@ -152,13 +152,14 @@ function findDropoffRoute(u){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H)return null;
  const compatible=S.bs.filter(q=>dropoffCompatible(u,q));
  if(!compatible.length)return null;
- const live=new Set(compatible.map(dropoffKey));
+ const keys=new Map(compatible.map(q=>[q,dropoffKey(q)]));
+ const live=new Set(keys.values());
  u.dropSkipKeys=(Array.isArray(u.dropSkipKeys)?u.dropSkipKeys:[]).filter(key=>live.has(key)).slice(-32);
  const skipped=new Set(u.dropSkipKeys);
- let candidates=compatible.filter(q=>!skipped.has(dropoffKey(q)));
+ let candidates=compatible.filter(q=>!skipped.has(keys.get(q)));
  if(!candidates.length){u.dropSkipKeys=[];candidates=compatible.slice()}
  const distanceSq=q=>{const sz=q.s||0,dx=Math.max(q.x-u.x,0,u.x-(q.x+sz)),dy=Math.max(q.y-u.y,0,u.y-(q.y+sz));return dx*dx+dy*dy};
- candidates.sort((a,b)=>(dropoffKey(a)===u.dropKey?-1:dropoffKey(b)===u.dropKey?1:0)||distanceSq(a)-distanceSq(b));
+ candidates.sort((a,b)=>(keys.get(a)===u.dropKey?-1:keys.get(b)===u.dropKey?1:0)||distanceSq(a)-distanceSq(b));
  let failed=0;
  for(const q of candidates){
   const route=path(u,goalNear(q,1));
