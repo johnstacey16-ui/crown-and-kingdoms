@@ -9,7 +9,7 @@ function transportLandingRoute(u,x,y){
   if(bx<=0||by<=0||bx>=W-1||by>=H-1||Math.hypot(bx+.5-x,by+.5-y)>5||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
   for(const [ox,oy] of D8){
    const sx=bx+ox,sy=by+oy,si=sy*W+sx;
-   if(sx<0||sy<0||sx>=W||sy>=H||S.wt[si]!==1||S.nd[si]||S.g[si])continue;
+   if(sx<0||sy<0||sx>=W||sy>=H||S.wt[si]!==1||S.nd[si]||S.g[si]||Math.abs(ox)+Math.abs(oy)===2&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1))continue;
    beaches.push({sx,sy,bx,by,score:Math.hypot(bx+.5-x,by+.5-y)});
   }
  }
