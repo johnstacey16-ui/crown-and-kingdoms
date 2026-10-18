@@ -8,6 +8,52 @@
 - **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
 - **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
 
+## Delivery plan — playable-first milestones (owner-approved, 18 October 2026)
+
+**North star:** Make a complete, enjoyable standard skirmish reliably playable from match setup through victory/defeat, then calibrate AI and Xbox controls against AoE2: DE Xbox. Prioritise integrated game behaviour over repeated small defensive fixes. Existing implemented code is **not** evidence of full-match acceptance.
+
+**Status legend:** `[ ]` not yet accepted; `[~]` implemented in part, acceptance pending; `[x]` verified with recorded evidence. For each milestone distinguish (1) implementation committed, (2) focused automated checks run, and (3) complete in-browser/Xbox playthrough verified. Do not check a milestone off based solely on source inspection or commits. Record test date, environment and failure/reproduction details.
+
+### P0 — Standard skirmish match end to end (next development priority)
+- [~] Match setup and starting conditions: confirm standard resource, age, population, starting-unit and AI difficulty settings start a playable match; label custom presets as custom.
+- [~] Core economy and progression: villagers gather/deposit each resource, construct and repair, produce units, research technologies, advance ages and respect population/resource costs.
+- [~] Combat and match completion: move/path, select/order, attack, defend, siege, death cleanup, diplomacy and victory/defeat resolution all work together.
+- [~] Land/naval maps: transports, garrisons, coast landing, trade and multi-unit orders function without stranded units or unresponsive commands.
+- [ ] Acceptance: complete at least one standard land skirmish from start to victory and one to defeat, plus one naval/island match; capture any blocker and fix it before marking complete.
+- [ ] Run focused simulation/startup regression checks after integrated changes; distinguish executable checks from browser acceptance.
+
+### P1 — AI difficulty and fairness
+- [~] Audit easy/standard/hard AI build orders, resource gathering, production, expansion, attack/defence, retreats, diplomacy and map navigation.
+- [ ] Play complete matches against easy, standard and hard, documenting economy, military pressure, responsiveness and whether each difficulty is realistically beatable/challenging.
+- [ ] Verify AI obeys the same economy, fog, unit production, movement, healing and combat rules as players; no hidden resource/HP bonuses unless the actual reference mode requires them.
+- [ ] Adjust decision frequency and tactics based on observed playability, not merely unit stat boosts; repeat only targeted difficulty acceptance after fixes.
+
+### P2 — Xbox controller and in-game experience
+- [~] Verify all essential actions in gameplay: camera pan/zoom, cursor, unit/building selection, construction, production, group commands, attack, gather, garrison, unload, rally and pause.
+- [~] Confirm villager resource priorities and automation can be changed during play; match AoE2 DE Xbox behaviour where confirmed.
+- [ ] Test controller navigation and prompts in setup, pause, save/load, options and end-of-match screens; prevent focus traps and accidental orders.
+- [ ] Run actual Xbox Edge/controller acceptance and performance checks; desktop browser/controller checks alone do not certify Xbox compatibility.
+
+### P3 — Saves and recovery
+- [~] Manual save/list/load/delete and autosave slot overwrite exist or have implementation work recorded; verify actual behaviour instead of assuming correctness.
+- [ ] Confirm autosave overwrites the intended last-played match slot without deleting unrelated manual saves; deletion only affects selected slot.
+- [ ] Save during economy, combat, production, trade and loaded transport/garrison; reload and continue long enough to verify AI, paths, queues, diplomacy, resources and victory conditions.
+- [ ] Validate corrupt/legacy save recovery and report user-facing failures without silently losing good slots.
+
+### P4 — Campaigns, parity and polish
+- [~] Play through and fix all 19 campaign missions, including progression, triggers, objectives, failure/retry and persistence.
+- [ ] Review remaining AoE2 DE Xbox feature differences (starting presets, victory modes, population settings, diplomacy/trade automation and AI behaviour); mark verified reference matches separately from custom features.
+- [ ] Profile sustained large-population games, naval pathfinding, effects, memory and input latency on target hardware; fix measured bottlenecks.
+- [ ] Final acceptance: stable skirmishes, calibrated AI, usable Xbox controls, reliable saves and completed campaign playthroughs. No blanket 'complete' claim before evidence.
+
+### Execution sequence for large batches
+1. Start with the highest-impact **unaccepted P0 blocker**, not the most recently edited subsystem. Inspect relevant implementation, make cohesive fixes across files and perform one focused check where feasible.
+2. Continue to the next blocker in the same turn; aim for roughly 30 **meaningful changes**, not 30 artificially split commits. Keep all commits on `main`; do not request repeated permission to continue.
+3. After P0 is demonstrably stable, prioritise P1, then P2, P3 and P4. Critical save or controller blockers discovered during P0 may be fixed immediately.
+4. Update this milestone status and record what was **committed**, what was **actually executed/tested**, and what **still needs a real match/Xbox session**. Avoid redundant test loops and documentation-only batches.
+
+---
+
 ## AoE2 DE Xbox fidelity guardrails — owner requirement
 
 **Reference target:** Age of Empires II: Definitive Edition on Xbox. Match its player-facing mechanics, controller automation, game modes and AI fairness; do not introduce extra player powers or independent gameplay systems merely because they are possible to code. Enemy AI may make tactical decisions, but it must obey the same game rules as the player. Before expanding automation, compare against the Xbox reference and record whether the feature is confirmed, an approximation, or a deviation.
