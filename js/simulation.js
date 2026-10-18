@@ -67,7 +67,7 @@ function tickTrader(u,dt){
    }
    return {b,score:distance-danger*12}
   }).sort((a,b)=>b.score-a.score);
-  dest=null;for(const candidate of candidates.slice(0,24)){if(path(u,goalNear(candidate.b,1))){dest=candidate.b;break}}
+  dest=null;for(let i=0;i<Math.min(24,candidates.length);i++){const candidate=candidates[i];if(path(u,goalNear(candidate.b,1))){dest=candidate.b;break}}
   if(!dest){u.trWait=6;u.o='i';u.p=[];u.rp=0;return}
   u.tradeDestKey=keyOf(dest);u.trWait=0;
  }
