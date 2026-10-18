@@ -3,7 +3,7 @@ const PATH_HEAP_K=[],PATH_HEAP_V=[];
 /* Avoid repeated allocations while exposing route statistics; no path results are retained. */
 /* Aggregate A* workload counters for Xbox Edge profiling without retaining routes. */
 const PATH_STATS={requests:0,expanded:0,found:0,exhausted:0,invalid:0,peakOpen:0,maxExpanded:0,routeWaypoints:0,maxWaypoints:0};
-const pathDiagnosticsSummary=()=>{const p=PATH_STATS;return {...p,averageExpanded:p.requests?p.expanded/p.requests:0,averageWaypoints:p.found?p.routeWaypoints/p.found:0,successRate:p.requests?p.found/p.requests:0}};
+const pathDiagnosticsSummary=()=>{const p=PATH_STATS,valid=p.requests-p.invalid;return {...p,validRequests:valid,averageExpanded:valid?p.expanded/valid:0,averageWaypoints:p.found?p.routeWaypoints/p.found:0,successRate:valid?p.found/valid:0}};
 /* Read-only snapshot for developer profiling; reset is explicit between benchmark runs. */
 window.CK_PATH_DIAGNOSTICS={snapshot:pathDiagnosticsSummary,reset:()=>{for(const key of Object.keys(PATH_STATS))PATH_STATS[key]=0}};
 function path(u,goal){PATH_STATS.requests++;if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!Number.isInteger(u.t)||!S||!PA){PATH_STATS.invalid++;return null}const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i]&&!S.g[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H){PATH_STATS.invalid++;return null}
