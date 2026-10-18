@@ -51,13 +51,15 @@ function tickTrader(u,dt){
   if(u.t===0){u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.rp=0;u.o='i';u.tradePaused=true;return}
   u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.p=[];u.trWait=(u.trWait||0)-dt;
   if(u.trWait>0){u.o='i';u.p=[];u.rp=0;return}
-  const candidates=S.bs.filter(b=>b.done&&b.hp>0&&b.k===endpoint&&Number.isInteger(b.t)&&b.t>=0&&b.t<S.teamN&&b.t!==u.t&&!isHostile(u.t,b.t)&&Math.hypot(b.x-src.x,b.y-src.y)>=6).map(b=>{
-   const distance=Math.hypot(b.x-src.x,b.y-src.y);
+  /* Filter threats once per trade route selection, and use squared corridor checks. */
+  const threats=S.us.filter(e=>e&&e.hp>0&&!e.ld&&isHostile(u.t,e.t)&&U[e.k]?.dmg>0&&!!U[e.k].sh===!!U[u.k].sh);
+  const candidates=S.bs.filter(b=>{const dx=b.x-src.x,dy=b.y-src.y;return b.done&&b.hp>0&&b.k===endpoint&&Number.isInteger(b.t)&&b.t>=0&&b.t<S.teamN&&b.t!==u.t&&!isHostile(u.t,b.t)&&dx*dx+dy*dy>=36}).map(b=>{
+   const dx=b.x-src.x,dy=b.y-src.y,denom=dx*dx+dy*dy,distance=Math.sqrt(denom);
    let danger=0;
-   for(const e of S.us)if(e&&e.hp>0&&!e.ld&&isHostile(u.t,e.t)&&U[e.k]?.dmg>0&&!!U[e.k].sh===!!U[u.k].sh){
-    const dx=b.x-src.x,dy=b.y-src.y,denom=dx*dx+dy*dy||1;
+   for(const e of threats){
     const fraction=Math.max(0,Math.min(1,((e.x-src.x)*dx+(e.y-src.y)*dy)/denom));
-    if(Math.hypot(e.x-(src.x+fraction*dx),e.y-(src.y+fraction*dy))<7)danger++;
+    const ox=e.x-(src.x+fraction*dx),oy=e.y-(src.y+fraction*dy);
+    if(ox*ox+oy*oy<49)danger++;
    }
    return {b,score:distance-danger*12}
   }).sort((a,b)=>b.score-a.score);
