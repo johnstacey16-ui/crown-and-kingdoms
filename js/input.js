@@ -15,7 +15,7 @@ if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!(tradeTarget&&us.every(u=>u
 }
 /* Reuse identical same-tile, same-goal A* results within one formation order. */
 const formationRoutes=new Map();
-let noAttackBlocked=0;let formationIndex=0;for(const u of us){const unitIndex=formationIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
+let noAttackBlocked=0,noRouteCount=0;let formationIndex=0;for(const u of us){const unitIndex=formationIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  const endpoint=tg.k,dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
  const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).map(b=>({b,d:dist2(b)})).sort((a,b)=>a.d-b.d);
@@ -41,7 +41,8 @@ else{const i=unitIndex,fo=fslot(us,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>gp(gx,
 const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');
 let p=formationRoutes.get(routeKey);
 if(p===undefined){p=path(u,gl(.8))||path(u,gl(2));formationRoutes.set(routeKey,p||null)}
-if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else note('No route to that location')}}
+if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else noRouteCount++}}
+if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
