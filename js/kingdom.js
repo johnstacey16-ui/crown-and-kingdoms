@@ -96,7 +96,7 @@ function findReachableAutoNode(u,k,r=18){
 function assignAutoVillager(u,force=false){
  if(!S||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld)return false;
  const p=S.vp||(S.vp=createVillagerPriority());
- if(!force&&!p.enabled)return false;
+ if(!p.enabled)return false;
  const keys=WORKER_TARGETS.filter(r=>p[r.k]>0).map(r=>r.k);
  if(!keys.length)return false;
  const counts=Object.fromEntries(keys.map(k=>[k,villagerAssignedCount(u.t,k)]));
@@ -110,7 +110,7 @@ function assignAutoVillager(u,force=false){
  return false;
 }
 function applyVillagerPriorities(t=0){
- if(!S||t===0&&S.vp&&!S.vp.enabled)return 0;
+ if(!S||t!==0||S.vp&&!S.vp.enabled)return 0;
  let assigned=0;
  for(const u of S.us)if(u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='i'){u.autoTry=0;if(assignAutoVillager(u,true))assigned++}
  if(t===0)note('Priority applied to '+assigned+' idle villagers');
