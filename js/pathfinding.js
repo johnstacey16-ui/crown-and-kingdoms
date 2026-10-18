@@ -11,4 +11,4 @@ for(const[dx,dy]of D8){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=W||ny>=H)conti
 return null}
 function d2(px,py,t){const s=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+s)),dy=Math.max(t.y-py,0,py-(t.y+s));return Math.hypot(dx,dy)}
 const goalNear=(t,r)=>{const f=(x,y)=>d2(x+.5,y+.5,t)<=r;f.hx=t.x+(t.s||0)/2;f.hy=t.y+(t.s||0)/2;f.hr=r+(t.s||0)/2;return f};
-const gp=(x,y,r)=>{const f=(a,b)=>Math.hypot(a+.5-x,b+.5-y)<r;f.hx=x;f.hy=y;f.hr=r;return f};
+const gp=(x,y,r)=>{const rr=r*r,f=(a,b)=>{const dx=a+.5-x,dy=b+.5-y;return dx*dx+dy*dy<rr};f.hx=x;f.hy=y;f.hr=r;return f};
