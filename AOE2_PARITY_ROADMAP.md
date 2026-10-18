@@ -64,6 +64,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Transport passenger validity follow-up (18 October):** Ship unload commands, manifest cleanup and partial unloading now require living friendly land passengers whose loaded reference points to that ship. This hardens restored or stale transport state; blocked landing and coastal pathfinding still require live-match testing.
+
 **Transport reliability pass (18 October):** Ship unloading now removes dead and stale passengers from manifests before and after unload attempts, ignores invalid occupied-unit positions, and validates manifest arrays before accepting controller/player shore orders. Still pending: coast/island pathing, blocked landings, partial unload and save/load gameplay tests.
 
 ## 2. AI strategy
