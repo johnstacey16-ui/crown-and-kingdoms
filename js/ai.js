@@ -78,8 +78,8 @@ function aiRebal(vil,R,t=1){
  if(R.w<150&&assigned.w<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?['f','g']:['g','f']);
  else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
  if(R.w>800){
-  if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300)move('s',['w'])}
-  else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300)move('g',['w'])}
+  if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300&&assigned.s<Math.max(3,nv*.12|0))move('s',['w'])}
+  else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300&&assigned.g<nv*.3)move('g',['w'])}
   else if(R.g<300&&assigned.g<nv*.3)move('g',['w']);
  }
 }
