@@ -347,7 +347,8 @@ function unload(b){
 function townBell(t){
  const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
  const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]);
- const occupancy=new Map(shelters.map(b=>[b,new Set((Array.isArray(b.cg)?b.cg:[]).filter(u=>u&&u.hp>0&&u.ld===b)).size]));
+ const occupancy=new Map();
+ for(const b of shelters){let used=0;for(const passenger of (Array.isArray(b.cg)?b.cg:[]))if(passenger&&passenger.hp>0&&passenger.ld===b)used++;occupancy.set(b,used)}
  for(const v of S.us)if(v.hp>0&&v.t===t&&v.o==='B'&&occupancy.has(v.tg))occupancy.set(v.tg,occupancy.get(v.tg)+1);
  let sent=0;
  for(const u of workers){
