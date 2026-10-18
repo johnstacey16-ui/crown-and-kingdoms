@@ -108,7 +108,7 @@ aiRetreat(t,my,tc,bl);
 // Return merchant escorts to the army after danger has passed.
 for(const guard of my.filter(u=>u.o==='G'&&u.tg&&(u.tg.k==='cart'||u.tg.k==='cog')&&S.t>=(u.tradeEscortUntil||0))){
  const merchant=guard.tg,hostiles=merchant.k==='cog'?hostileFleet:humanArmy;
- if(merchant.hp<=0||merchant.ld||!hostiles.some(e=>e.hp>0&&!e.ld&&U[e.k]?.dmg>0&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<18)){guard.o='i';guard.tg=null;guard.p=[];guard.rp=0;guard.tradeEscortUntil=0}
+ if(guard.hp<=0||guard.ld||guard.retreating||merchant.hp<=0||merchant.ld||!hostiles.some(e=>e.hp>0&&!e.ld&&U[e.k]?.dmg>0&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<18)){guard.o='i';guard.tg=null;guard.p=[];guard.rp=0;guard.tradeEscortUntil=0}
 }
 // Protect exposed trade carts with available infantry or cavalry.
 for(const merchant of my.filter(u=>u.k==='cart'&&!u.ld&&u.hp>0)){
