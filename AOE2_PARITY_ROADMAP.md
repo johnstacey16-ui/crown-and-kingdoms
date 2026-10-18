@@ -36,6 +36,8 @@
 
 **AI baseline economy implementation (18 October):** Idle AI villagers can seek food, wood, gold or stone when their preferred resource is missing; alternative gathering targets are validated and ranked by proximity before bounded pathfinding; idle gathering and repair assignment reject invalid-position workers. These are implementation steps, not verified AoE2 DE AI parity. Full-match validation remains deferred.
 
+**Baseline economy/raid continuation (18 October):** Shared resource-node selection now rejects invalid, occupied and submerged land nodes; AI workforce counts exclude unavailable gatherers; raid evacuation checks valid worker and hostile positions. Changes are implemented on main, with actual skirmish performance and AoE2 DE parity still unverified.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
