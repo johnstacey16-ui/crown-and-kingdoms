@@ -10,5 +10,5 @@ if(goal(cx,cy)){const p=[];for(let n=c;A.pr[n]>=0;n=A.pr[n])p.push([n%W+.5,(n/W|
 for(let dir=0;dir<D8.length;dir++){const direction=D8[dir],dx=direction[0],dy=direction[1],nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const n=ny*W+nx;if(A.cl[n]===v||bl(n))continue;if(dx&&dy&&(bl(cy*W+nx)||bl(ny*W+cx)))continue;const ng=baseCost+(dx&&dy?1.414:1);if(A.st[n]!==v||ng<A.g[n]){A.st[n]=v;A.g[n]=ng;A.pr[n]=c;push(ng+hf(nx,ny),n)}}}
 return null}
 function d2(px,py,t){const s=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+s)),dy=Math.max(t.y-py,0,py-(t.y+s));return Math.hypot(dx,dy)}
-const goalNear=(t,r)=>{const rr=r*r,f=(x,y)=>{const px=x+.5,py=y+.5,sz=t.s||0,dx=Math.max(t.x-px,0,px-(t.x+sz)),dy=Math.max(t.y-py,0,py-(t.y+sz));return dx*dx+dy*dy<=rr};f.hx=t.x+(t.s||0)/2;f.hy=t.y+(t.s||0)/2;f.hr=r+(t.s||0)/2;return f};
+const goalNear=(t,r)=>{const rr=r*r,sz=t.s||0,left=t.x,top=t.y,right=left+sz,bottom=top+sz,f=(x,y)=>{const px=x+.5,py=y+.5,dx=Math.max(left-px,0,px-right),dy=Math.max(top-py,0,py-bottom);return dx*dx+dy*dy<=rr};f.hx=t.x+(t.s||0)/2;f.hy=t.y+(t.s||0)/2;f.hr=r+(t.s||0)/2;return f};
 const gp=(x,y,r)=>{const rr=r*r,f=(a,b)=>{const dx=a+.5-x,dy=b+.5-y;return dx*dx+dy*dy<rr};f.hx=x;f.hy=y;f.hr=r;return f};
