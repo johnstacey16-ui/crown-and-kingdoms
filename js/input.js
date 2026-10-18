@@ -7,7 +7,9 @@ for(const q of S.bs)if((q.t===0||S.ex[q.y*W+q.x])&&wx>=q.x-.3&&wx<=q.x+q.s+.3&&w
 const i=(wy|0)*W+(wx|0),n=S.nd[i];if(n&&S.ex[i]&&n.amt>0)return n;return S.rel.find(q=>!q.m&&!q.c&&S.ex[(q.y|0)*W+(q.x|0)]&&Math.hypot(q.x-wx,q.y-wy)<.9)||null}
 function orderSel(tg,wx,wy){if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return false;const us=S.sel.filter(e=>e&&!e.q&&e.hp>0&&!e.ld&&e.t===0);if(!us.length){const b=S.sel[0];if(b&&b.hp>0&&b.t===0&&b.done&&B[b.k]?.tr){b.rally={x:wx,y:wy,t:tg&&tg.amt>0?tg:null};fx.push({x:wx,y:wy,l:.5,k:'p'});note('Rally point set');return true}return false}
 const tradeTarget=!!(tg&&tg.q&&tg.done&&tg.hp>0&&(tg.k==='market'||tg.k==='dock')&&Number.isInteger(tg.t)&&tg.t>0&&tg.t<S.teamN&&!isHostile(0,tg.t));
-if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!(tradeTarget&&us.every(u=>u.k===(tg.k==='market'?'cart':'cog')))){
+/* A foreign trade order is only valid for a selection of matching merchants. */
+const tradeOnly=tradeTarget&&us.every(u=>u.k===(tg.k==='market'?'cart':'cog'));
+if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!tradeOnly){
  const allied=diplomacyRelation(us[0].t,tg.t)==='ally',
   canRepairBuilding=allied&&!!tg.q&&(!tg.done||tg.hp<tg.mh)&&us.some(u=>u.k==='vil'),
   canRepairShip=allied&&!!tg.sh&&tg.hp<mhp(tg)&&us.some(u=>u.k==='vil'||(u.sh&&u!==tg));
