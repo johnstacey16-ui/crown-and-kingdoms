@@ -64,7 +64,7 @@ function createVillagerPriority(source=null){
  return p;
 }
 const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
-function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===k).length:0}
+function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating&&u.o==='g'&&u.ct===k&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).length:0}
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
 // Temporarily avoid unreachable nodes, but retry after terrain or buildings change.
 function skipAutoNode(u,n){
