@@ -155,7 +155,7 @@ function findDropoffRoute(u){
   const route=path(u,goalNear(q,1));
   if(route&&route.length)return {b:q,route};
   skipDropoff(u,q);
-  if(++failed>=2)break;
+  if(++failed>=6)break;
  }
  return null;
 }
