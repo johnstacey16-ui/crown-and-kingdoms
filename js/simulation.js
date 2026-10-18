@@ -16,7 +16,7 @@ function transportLandingRoute(u,x,y){
  beaches.sort((a,b)=>a.score-b.score);
  const tried=new Set();let attempts=0;
  for(const beach of beaches){
-  const key=beach.sy*W+beach.sx;
+  const key=beach.sy*W+beach.sx+':'+beach.bx+':'+beach.by;
   if(tried.has(key))continue;
   tried.add(key);
   if(++attempts>48)break;
