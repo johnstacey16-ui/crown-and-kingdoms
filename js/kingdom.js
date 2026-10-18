@@ -66,17 +66,30 @@ function createVillagerPriority(source=null){
 const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
 function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===k).length:0}
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
-function skipAutoNode(u,n){if(!u||!n)return;const key=autoNodeKey(n);if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];if(!u.autoSkipNodes.includes(key)){if(u.autoSkipNodes.length>=128)u.autoSkipNodes.shift();u.autoSkipNodes.push(key)}}
+// Temporarily avoid unreachable nodes, but retry after terrain or buildings change.
+function skipAutoNode(u,n){
+ if(!u||!n)return;
+ const key=autoNodeKey(n),until=(Number.isFinite(S?.t)?S.t:0)+30;
+ if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];
+ u.autoSkipNodes=u.autoSkipNodes.filter(e=>e&&typeof e==='object'&&e.key!==key);
+ u.autoSkipNodes.push({key,until});
+ if(u.autoSkipNodes.length>64)u.autoSkipNodes=u.autoSkipNodes.slice(-64);
+}
 function findReachableAutoNode(u,k,r=18){
- const all=S.nodes.filter(n=>n&&n.amt>0&&!n.an&&!n.fi&&WORKER_TARGETS.some(r=>r.k===n.k)&&Number.isFinite(n.x)&&Number.isFinite(n.y)),live=new Set(all.map(autoNodeKey));
- u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(key=>live.has(key)).slice(-128);
- const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!u.autoSkipNodes.includes(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
+ if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y))return null;
+ const now=Number.isFinite(S.t)?S.t:0;
+ const all=S.nodes.filter(n=>n&&n.amt>0&&!n.an&&!n.fi&&WORKER_TARGETS.some(t=>t.k===n.k)&&Number.isFinite(n.x)&&Number.isFinite(n.y));
+ const live=new Set(all.map(autoNodeKey));
+ // Legacy save files stored plain keys; discard those permanent exclusions.
+ u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(e=>e&&typeof e==='object'&&typeof e.key==='string'&&Number.isFinite(e.until)&&e.until>now&&live.has(e.key)).slice(-64);
+ const skipped=new Set(u.autoSkipNodes.map(e=>e.key));
+ const candidates=all.filter(n=>n.k===k&&Math.hypot(n.x-u.x,n.y-u.y)<r&&!skipped.has(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
  let failed=0;
  for(const n of candidates){
   const route=path(u,goalNear(n,1));
   if(route&&route.length)return {n,route};
   skipAutoNode(u,n);
-  if(++failed>=2)break;
+  if(++failed>=8)break;
  }
  return null;
 }
