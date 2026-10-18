@@ -34,6 +34,8 @@
 
 **AI military support continuation (18 October):** Trade escorts now exclude retreating units and are released when active threats disappear or escorts become unavailable. Naval support excludes loaded ships and prioritizes damaged combat vessels over civilian ships. Implemented on main; long-match and naval verification deferred.
 
+**AI baseline economy implementation (18 October):** Idle AI villagers can seek food, wood, gold or stone when their preferred resource is missing; alternative gathering targets are validated and ranked by proximity before bounded pathfinding; idle gathering and repair assignment reject invalid-position workers. These are implementation steps, not verified AoE2 DE AI parity. Full-match validation remains deferred.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
