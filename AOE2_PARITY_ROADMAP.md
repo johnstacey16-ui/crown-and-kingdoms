@@ -42,6 +42,8 @@
 
 **AI trade/naval baseline continuation (18 October):** AI merchant escorts immediately relinquish duty when the escort or merchant is unavailable, can be replaced if retreating, and react to active hostile warships. Damaged military ships retain repair priority, while fishing and trade vessels are no longer permanently excluded from repair targets. Escort automation remains an implementation detail, not an independent parity target; compare trade survival and military responsiveness in later skirmish testing.
 
+**AI army composition and response continuation (18 October):** Attack waves now exclude units on follow/guard duty and units without combat damage; raiding parties, allied relief forces, local economic-site defenders and Town Centre emergency responders require armed units. These changes aim to prevent noncombat assignments and preserve trade defence while the army fights. Full-match AI effectiveness and AoE2 DE parity are not yet verified.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
