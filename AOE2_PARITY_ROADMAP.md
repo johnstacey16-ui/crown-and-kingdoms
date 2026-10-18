@@ -6,6 +6,8 @@
 
 **Further PERF1 implementation:** unit-separation collision buckets reject non-finite positions, and both small-army and spatial-bucket separation paths avoid square roots until two units are within the actual separation radius. This is a targeted CPU reduction, not a measured 4,000-population benchmark.
 
+**Initial PERF2 implementation:** A* point-goal and building-adjacent goal predicates now compare squared distances rather than taking square roots for every expanded candidate. Goal radius boundaries remain strict for point goals and inclusive for building proximity. This is an unbenchmarked per-search CPU optimisation, not yet path sharing or flow-field routing.
+
 **Further CPU/render improvements:** villager resource-node nearest searches use squared distances to avoid repeated square roots; expired/off-camera rubble is skipped before its multi-pass decorative Canvas drawing. Both changes are implemented on main, with real Xbox Edge timings still unmeasured.
 
 **Additional PERF3 culling:** corpses are now camera-filtered before sprite-cache/canvas work; buildings are camera-filtered before visibility checks and projection; relics outside the camera no longer enter the depth-sort list. These optimisations preserve simulation state and remain unbenchmarked on Xbox Edge.
