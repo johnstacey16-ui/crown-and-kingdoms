@@ -232,7 +232,7 @@ function unload(b){
    if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[idx]&&S.wt[idx]!==1&&!S.nd[idx]&&!occupied.has(idx)&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5,idx];
   }
   if(!sp)continue;
-  occupied.add(sp[2]);c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.p=[];c.rp=0;released++;
+  occupied.add(sp[2]);c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.ut=null;c.pt=null;c.as=0;c.p=[];c.rp=0;released++;
  }
  b.cg=cg.filter(c=>c.ld===b);
  note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
