@@ -221,7 +221,7 @@ function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.include
 function setStance(v){for(const u of S.sel)if(!u.q&&u.k!=='vil'){u.st=v;if(v===4&&(u.o==='a'||u.o==='v')){u.o='i';u.tg=null;u.p=[]}}note(['Aggressive','Defensive','Stand ground','Passive','No Attack'][v]+' stance');menu=null}
 function unload(b){
  if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]){note('Select a living, completed garrison with units inside');return false}
- const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&!U[c.k]?.sh);
+ const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
  if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
  const occupied=new Set(S.us.filter(u=>u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)).map(u=>(u.y|0)*W+(u.x|0)));
  let released=0;
