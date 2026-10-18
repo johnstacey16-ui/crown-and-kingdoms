@@ -143,6 +143,7 @@ function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
 function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))}
 function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
 function findDropoffRoute(u){
+ if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H)return null;
  const compatible=S.bs.filter(q=>dropoffCompatible(u,q)).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
  if(!compatible.length)return null;
  const live=new Set(compatible.map(dropoffKey));
