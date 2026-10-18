@@ -30,6 +30,8 @@
 
 **Save compatibility policy (owner instruction, 18 October 2026):** Do not spend development effort preserving compatibility with old save files after game updates. The owner will delete old saves and start fresh; prioritize gameplay improvements and reliable saves created by the current version. Preserve an obvious, confirmed **Delete Save** action for each manual slot (including unreadable files) and autosave. The load menu now has explicit deletion rows in addition to the controller X shortcut; selection is clamped after deletion, and X targets the correct selected save. Autosave remains one rolling checkpoint. Full-game testing deferred.
 
+**AI economy continuation (18 October):** AI resource fallback respects stone/gold worker quotas, worker counts exclude invalid positions, builders reject off-map targets, and AI/player automatic land gathering skips submerged resource nodes. All implemented on main; match verification deferred. Continue prioritizing substantial gameplay batches over save backward compatibility.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
