@@ -329,7 +329,8 @@ function unload(b){
    if(x<=0||y<=0||x>=W-1||y>=H-1)continue;
    const idx=y*W+x;
    if(S.g[idx]||S.wt[idx]===1||S.nd[idx]||occupied.has(idx))continue;
-   spots.push({x,y,idx,score:Math.hypot(Math.max(0,-dx,dx-size+1),Math.max(0,-dy,dy-size+1))});
+   const gapX=Math.max(0,-dx,dx-size+1),gapY=Math.max(0,-dy,dy-size+1);
+   spots.push({x,y,idx,score:gapX*gapX+gapY*gapY});
   }
   if(spots.length>=cg.length)break;
  }
