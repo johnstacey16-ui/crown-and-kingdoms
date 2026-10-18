@@ -2,8 +2,9 @@
 // Find accessible water staging beside a free beach with one multi-goal A* search.
 function transportLandingRoute(u,x,y){
  if(!S||!u||u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
- const occupied=new Set();
- for(const v of S.us)if(v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y))occupied.add((v.y|0)*W+(v.x|0));
+ /* Only units in the landing search square can block a candidate beach tile. */
+ const occupied=new Set(),minX=Math.max(0,(x|0)-5),maxX=Math.min(W-1,(x|0)+5),minY=Math.max(0,(y|0)-5),maxY=Math.min(H-1,(y|0)+5);
+ for(const v of S.us)if(v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)&&v.x>=minX&&v.x<maxX+1&&v.y>=minY&&v.y<maxY+1)occupied.add((v.y|0)*W+(v.x|0));
  const staging=new Map();
  for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
   const bx=(x|0)+dx,by=(y|0)+dy;
