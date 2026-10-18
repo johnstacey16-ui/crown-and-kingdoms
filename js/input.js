@@ -15,8 +15,10 @@ if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!(tradeTarget&&us.every(u=>u
 }
 let noAttackBlocked=0;let formationIndex=0;for(const u of us){const unitIndex=formationIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
- const endpoint=tg.k,homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b));
- const home=homes.slice(0,24).find(b=>path(u,goalNear(b,1))),route=home?path(u,goalNear(tg,1)):null;
+ const endpoint=tg.k,dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
+ const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).map(b=>({b,d:dist2(b)})).sort((a,b)=>a.d-b.d);
+ let home=null;for(let j=0;j<Math.min(24,homes.length);j++){const candidate=homes[j].b;if(path(u,goalNear(candidate,1))){home=candidate;break}}
+ const route=home?path(u,goalNear(tg,1)):null;
  if(!route){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;continue}
  const key=b=>[b.t,b.k,b.x,b.y].join(':');
  u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.tradeFleeing=false;u.manualTradeMove=false;u.tradeThreatCheckAt=0;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
