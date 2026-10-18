@@ -6,7 +6,9 @@ function aiReachableBuilder(vs,target){
  if(!target||!Number.isFinite(target.x)||!Number.isFinite(target.y)||target.x<0||target.y<0||target.x>=W||target.y>=H)return null;
  const candidates=vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
  const priority=u=>u.o==='i'?0:u.o==='g'?5:12;
- candidates.sort((a,b)=>Math.hypot(a.x-target.x,a.y-target.y)+priority(a)-Math.hypot(b.x-target.x,b.y-target.y)-priority(b));
+ /* Cache candidate scores once; building assignment should not repeatedly compute distances during sorting. */
+ const ranked=candidates.map(u=>({u,score:Math.hypot(u.x-target.x,u.y-target.y)+priority(u)})).sort((a,b)=>a.score-b.score);
+ candidates.length=0;for(const entry of ranked)candidates.push(entry.u);
  const goal=goalNear(target,1);
  // A blocked group of nearby builders must not prevent a distant reachable worker from building.
  const tried=new Set();
