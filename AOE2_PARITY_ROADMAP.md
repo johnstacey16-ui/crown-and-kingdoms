@@ -65,6 +65,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Integrated transport and villager pass (18 October):** Transport unloading now precomputes unique, scored coastal landing tiles for its manifest, preserves aboard passengers when shore space is exhausted, and consolidates cancellation/retry state. Landing checks require clear adjacent navigable water. Villager auto-assignment respects the off toggle even when forced, validates worker positions and clears obsolete resource skip entries after successful routes. Focused in-browser and restored-save verification still pending.
+
 **Larger-batch follow-up (18 October):** Coastal beach routing now retains multiple beach candidates sharing a staging tile, searches more irregular-coast alternatives, and forces a fresh landing plan for restored unload orders without valid beach coordinates. Owner's ~30 meaningful changes per turn preference is recorded above. Still pending live gameplay tests; do not treat commit count as parity proof.
 
 **Villager automation recovery (18 October):** Unreachable resource nodes now use expiring 30-second exclusions rather than permanent blacklists, with legacy string exclusions discarded on access. Auto-assignment tries up to eight alternative deposits, prunes expired entries, and retains automated assignment ownership when automation is toggled off so subsequent rebalancing can work. Gameplay verification pending.
