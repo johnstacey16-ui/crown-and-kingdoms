@@ -4,6 +4,8 @@
 
 **Verified code baseline:** `multiplayer.js` limits rooms to **four** participants and presently synchronises lobby/presence and **5 Hz player markers only**, not orders or world state. `js/menus.js` offers **2–4 kingdoms** and a selectable **500 population limit**, with housing still determining usable capacity. Supabase Realtime is already used for signalling/presence; its availability is not equivalent to a dedicated authoritative game server. Multiplayer gameplay, large battles and Xbox Edge performance are **not yet verified**.
 
+**Projectile CPU optimisation:** impact detection compares squared travel distance against the step radius, calculating a square root only when a projectile actually advances; splash damage also uses squared-radius checks for units and buildings. This preserves existing hit radii and still requires Xbox Edge performance validation.
+
 **Combat-index maintenance improvement:** the hostile-unit spatial grid already clears and rebuilds all buckets each refresh, so its redundant epoch stamps, stale-bucket scan and unused target-index tracking have been removed. This cuts bookkeeping per refresh but does not change the multiplayer readiness or Xbox Edge benchmark status.
 
 **Further PERF1 implementation:** unit-separation collision buckets reject non-finite positions, and both small-army and spatial-bucket separation paths avoid square roots until two units are within the actual separation radius. This is a targeted CPU reduction, not a measured 4,000-population benchmark.
