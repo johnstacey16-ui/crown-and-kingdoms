@@ -3,7 +3,7 @@
 function aiAvailableBuilder(u){return u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&!['b','B','a','m','rep'].includes(u.o)}
 function aiBuilderCandidates(vs){return vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).sort((a,b)=>(a.o==='i'?0:a.o==='g'?1:2)-(b.o==='i'?0:b.o==='g'?1:2))}
 function aiReachableBuilder(vs,target){
- if(!target||!Number.isFinite(target.x)||!Number.isFinite(target.y))return null;
+ if(!target||!Number.isFinite(target.x)||!Number.isFinite(target.y)||target.x<0||target.y<0||target.x>=W||target.y>=H)return null;
  const candidates=vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
  const priority=u=>u.o==='i'?0:u.o==='g'?5:12;
  candidates.sort((a,b)=>Math.hypot(a.x-target.x,a.y-target.y)+priority(a)-Math.hypot(b.x-target.x,b.y-target.y)-priority(b));
