@@ -23,7 +23,7 @@ const fallbackRoutes=new Map();
 /* Land and naval units form independent ranks, avoiding water/land slot mixing. */
 const landFormation=us.filter(u=>!u.sh),navalFormation=us.filter(u=>u.sh);
 let landIndex=0,navalIndex=0;
-let noAttackBlocked=0,noRouteCount=0;for(const u of us){const formationUnits=u.sh?navalFormation:landFormation,unitIndex=u.sh?navalIndex++:landIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
+let noAttackBlocked=0,noRouteCount=0,fallbackCount=0;for(const u of us){const formationUnits=u.sh?navalFormation:landFormation,unitIndex=u.sh?navalIndex++:landIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  const endpoint=tg.k,dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
  const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).map(b=>({b,d:dist2(b)})).sort((a,b)=>a.d-b.d);
@@ -53,9 +53,11 @@ if(!p){
  const fallbackKey=[u.t,u.sh?1:0,u.x|0,u.y|0,wx,wy].join(':');
  p=fallbackRoutes.get(fallbackKey);
  if(p===undefined){p=path(u,gp(wx,wy,.8))||path(u,gp(wx,wy,2));fallbackRoutes.set(fallbackKey,p||null)}
+ if(p)fallbackCount++;
 }
 if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else noRouteCount++}}
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
+if(fallbackCount)note(fallbackCount+' unit'+(fallbackCount===1?'':'s')+' moved toward the group destination instead of blocked formation slots');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
