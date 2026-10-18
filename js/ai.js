@@ -62,10 +62,10 @@ function aiRebal(vil,R,t=1){
   }
   return false;
  };
- if(R.w<150&&wk('w')<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?'f':'g');
+ if(R.w<150&&wk('w')<nv*.4&&Math.max(R.f,R.g)>250){if(!move('w',R.f>R.g?'f':'g'))move('w',R.f>R.g?'g':'f')}
  else if(S.age[t]>=1&&R.s<150&&wk('s')<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?'f':'g');
  if(R.w>800){
-  if(R.f<400&&wk('f')<nv*.45)move('f');
+  if(R.f<400&&wk('f')<nv*.45){if(!move('f'))move('f','g')}
   else if(R.s<300&&S.age[t]>=1&&wk('s')<Math.max(3,nv*.12|0))move('s');
   else if(R.g<300&&wk('g')<nv*.3)move('g');
  }
