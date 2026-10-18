@@ -101,7 +101,7 @@ function rebuildFoeGrid(){
  for(const bin of FOE_BUCKETS.values()){bin.length=0;FOE_BUCKET_POOL.push(bin)}
  FOE_BUCKETS.clear();
  for(let i=0;i<S.us.length;i++){
-  const e=S.us[i];if(!e||e.hp<=0||e.ld)continue;
+  const e=S.us[i];if(!e||e.hp<=0||e.ld||!Number.isFinite(e.x)||!Number.isFinite(e.y))continue;
   const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
   let bin=FOE_BUCKETS.get(key);
   if(!bin){bin=FOE_BUCKET_POOL.pop()||[];FOE_BUCKETS.set(key,bin)}
@@ -123,7 +123,7 @@ function nearestFoeUnit(u,r){
    const e=S.us[i];
    if(!e||!isHostile(u.t,e.t)||e.hp<=0||e.ld)continue;
    const dx=e.x-u.x,dy=e.y-u.y,d2=dx*dx+dy*dy;
-   if(d2<bd2||(d2===bd2&&d2<r*r&&i<bi)){bd2=d2;b=e;bi=i}
+   if(d2<bd2){bd2=d2;b=e;bi=i}
   }
  }
  return b
