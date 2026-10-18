@@ -14,6 +14,8 @@
 
 **Status legend:** `[ ]` not yet accepted; `[~]` implemented in part, acceptance pending; `[x]` verified with recorded evidence. For each milestone distinguish (1) implementation committed, (2) focused automated checks run, and (3) complete in-browser/Xbox playthrough verified. Do not check a milestone off based solely on source inspection or commits. Record test date, environment and failure/reproduction details.
 
+**First implementation under this plan (18 October):** Ship A* navigation now excludes occupied/blocked water tiles, and beach staging rejects diagonally adjacent water cells when the corner crossing is obstructed. Both changes are committed to main; no full-match or Xbox acceptance is claimed.
+
 ### P0 — Standard skirmish match end to end (next development priority)
 - [~] Match setup and starting conditions: confirm standard resource, age, population, starting-unit and AI difficulty settings start a playable match; label custom presets as custom.
 - [~] Core economy and progression: villagers gather/deposit each resource, construct and repair, produce units, research technologies, advance ages and respect population/resource costs.
