@@ -20,8 +20,10 @@ function aiReachableBuilder(vs,target){
  };
  for(let i=0;i<Math.min(12,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
  const far=candidates.slice(12);
+ /* Check several idle and gathering workers, not just one blocked candidate of each kind. */
  for(const order of ['i','g']){
-  for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;break}
+  let checked=0;
+  for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;if(++checked>=6)break}
  }
  // Bounded fallback explores more options without unbounded pathfinding on crowded maps.
  for(let i=0;i<Math.min(24,far.length);i++){const choice=attempt(far[i]);if(choice)return choice}
