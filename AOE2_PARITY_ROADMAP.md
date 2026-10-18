@@ -18,6 +18,8 @@
 
 **AI economic adaptation (18 October):** Resource rebalancing now searches multiple reachable deposits before reassigning a worker, excludes invalid/off-map targets and unavailable villagers, and tries a second worker group when emergency food or wood reassignment cannot succeed. Implementation committed to main; gameplay calibration remains deferred.
 
+**AI resource-management batch (18 October):** Consolidated economic worker reassignment with current resource-assignment counts, valid on-map resource pools, reachable deposit selection, preferred donor-resource ordering, and fallback to another shortage when a transfer fails. Committed on main; balance and long-match gameplay verification remain open and do not block continued development.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
