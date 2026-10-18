@@ -34,6 +34,18 @@
 
 **AI military support continuation (18 October):** Trade escorts now exclude retreating units and are released when active threats disappear or escorts become unavailable. Naval support excludes loaded ships and prioritizes damaged combat vessels over civilian ships. Implemented on main; long-match and naval verification deferred.
 
+## AI baseline-first policy — 18 October 2026
+
+**Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
+
+- **Economy and ages:** workers gather all four resources, construct appropriate buildings, maintain population space, recover from depleted/inaccessible resources, and advance ages without prolonged stalls.
+- **Military and defence:** recruit suitable armies, respond to raids, protect vulnerable economy, assemble attacks, handle retreat/recovery, and sustain pressure into the late game.
+- **Difficulty:** beginner/easy offers forgiving pressure and recoverable mistakes; normal maintains a balanced challenge; hard sustains stronger economy, expansion and coordinated attacks. Verify in complete skirmishes later.
+- **Trade and naval:** establish usable trade routes and defend or redirect threatened merchants; fish, build docks and use fleets on water maps. Compare observable outcomes to AoE2 DE, not speculative internal mechanics.
+- **Acceptance:** use scenario checks for idle economy, resource shortages, early raids, midgame expansion, naval maps, late-game rebuilding and full-match outcomes when the owner is ready to test. Mark features *implemented*, *partially implemented*, or *unverified*; never claim parity from code inspection alone.
+- **Scope discipline:** prefer closing baseline gameplay gaps over adding special escort, economic, or tactical features that have no clear AoE2 DE counterpart. Existing extras may remain if harmless, but they are not parity milestones. Revisit custom AI enhancements after the baseline is playable.
+- **Workflow:** continue substantive batches directly on main, update this roadmap periodically, do not prioritize old-save compatibility, and defer owner playtesting and Vercel usage as requested.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
