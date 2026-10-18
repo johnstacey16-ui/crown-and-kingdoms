@@ -315,7 +315,7 @@ for(const site of economicSites){
  if(intruder){raid={site,e:intruder.e};break}
 }
 if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
- const defenders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&Math.hypot(u.x-raid.site.x,u.y-raid.site.y)<21)
+ const defenders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&U[u.k]?.dmg>0&&Math.hypot(u.x-raid.site.x,u.y-raid.site.y)<21)
   .sort((a,b)=>Math.hypot(a.x-raid.site.x,a.y-raid.site.y)-Math.hypot(b.x-raid.site.x,b.y-raid.site.y)).slice(0,4);
  for(const u of defenders){u.o='a';u.tg=raid.e;u.p=[]}
  if(defenders.length)A.lastRaidDefense=S.t;
