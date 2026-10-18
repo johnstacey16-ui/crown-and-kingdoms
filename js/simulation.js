@@ -171,7 +171,7 @@ function findDropoffRoute(u){
  const skipped=new Set(u.dropSkipKeys);
  let candidates=compatible.filter(q=>!skipped.has(info.get(q).key));
  if(!candidates.length){u.dropSkipKeys=[];candidates=compatible.slice()}
- candidates.sort((a,b)=>(info.get(a).key===u.dropKey?-1:info.get(b).key===u.dropKey?1:0)||info.get(a).dist2-info.get(b).dist2);
+ candidates.sort((a,b)=>Number(info.get(b).key===u.dropKey)-Number(info.get(a).key===u.dropKey)||info.get(a).dist2-info.get(b).dist2);
  let failed=0;
  for(const q of candidates){
   const route=path(u,goalNear(q,1));
