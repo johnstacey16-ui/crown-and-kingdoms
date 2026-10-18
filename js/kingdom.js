@@ -71,7 +71,7 @@ function skipAutoNode(u,n){
  if(!u||!n)return;
  const key=autoNodeKey(n),until=(Number.isFinite(S?.t)?S.t:0)+30;
  if(!Array.isArray(u.autoSkipNodes))u.autoSkipNodes=[];
- u.autoSkipNodes=u.autoSkipNodes.filter(e=>e&&typeof e==='object'&&e.key!==key);
+ u.autoSkipNodes=u.autoSkipNodes.filter(e=>e&&typeof e==='object'&&e.key!==key&&Number.isFinite(e.until)&&e.until>(Number.isFinite(S?.t)?S.t:0));
  u.autoSkipNodes.push({key,until});
  if(u.autoSkipNodes.length>64)u.autoSkipNodes=u.autoSkipNodes.slice(-64);
 }
