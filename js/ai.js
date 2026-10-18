@@ -5,6 +5,7 @@ function aiBuilderCandidates(vs){return vs.filter(u=>aiAvailableBuilder(u)&&Numb
 function aiReachableBuilder(vs,target){
  if(!target||!Number.isFinite(target.x)||!Number.isFinite(target.y)||target.x<0||target.y<0||target.x>=W||target.y>=H)return null;
  const candidates=vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
+ if(!candidates.length)return null;
  const priority=u=>u.o==='i'?0:u.o==='g'?5:12;
  /* Cache candidate scores once; building assignment should not repeatedly compute distances during sorting. */
  const ranked=candidates.map(u=>{const dx=u.x-target.x,dy=u.y-target.y;return {u,score:Math.sqrt(dx*dx+dy*dy)+priority(u)}}).sort((a,b)=>a.score-b.score);
