@@ -1,6 +1,5 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
-// Find a reachable water staging tile beside a usable landing beach.
-// Find an accessible water tile beside a free beach with one A* search.
+// Find accessible water staging beside a free beach with one multi-goal A* search.
 function transportLandingRoute(u,x,y){
  if(!S||!u||u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
  const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
@@ -15,7 +14,7 @@ function transportLandingRoute(u,x,y){
    if(sx<0||sy<0||sx>=W||sy>=H)continue;
    const si=sy*W+sx;
    if(S.wt[si]!==1||S.nd[si]||S.g[si])continue;
-   if(ox&&oy&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1))continue;
+   if(ox&&oy&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1||S.nd[by*W+sx]||S.nd[sy*W+bx]||S.g[by*W+sx]||S.g[sy*W+bx]))continue;
    const prev=staging.get(si);
    if(!prev||dist<prev.dist)staging.set(si,{bx,by,dist});
   }
