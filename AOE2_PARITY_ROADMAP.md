@@ -8,6 +8,19 @@
 - **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
 - **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
 
+## Owner development-mode update — 18 October 2026
+
+**Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
+
+- **Now:** build substantial gameplay improvements across economy, AI, combat, controller usability, save robustness, naval systems and campaigns; prefer cohesive batches that materially advance the game.
+- **Lightweight developer checks only when valuable:** static reasoning and targeted tests that can be run without asking the owner to consume deployment or gameplay time. Do not repeat unchanged checks.
+- **Later acceptance phase:** complete skirmish victories/defeats, difficulty calibration, Xbox controller/Edge validation, save/load round trips, all campaign playthroughs and measured performance. Keep these tasks open, not blocking.
+- **Evidence already reported by owner:** extended base-building and fighting sessions, visible autosave, and a successful save load. This is useful preliminary gameplay evidence, **not** proof that recent commits or complete matches have been verified.
+- **Work ordering:** P0–P4 remain feature priorities, but a missing player playthrough is no longer a stop condition for proceeding to P1/P2/P3/P4 implementation. Do not mark acceptance complete without later verification.
+- **Deployment economy:** do not trigger or ask for repeated Vercel deployments for routine source edits. Any automatic deployments caused by main commits depend on the repository's hosting configuration and are not guaranteed to be avoidable.
+
+---
+
 ## Delivery plan — playable-first milestones (owner-approved, 18 October 2026)
 
 **North star:** Make a complete, enjoyable standard skirmish reliably playable from match setup through victory/defeat, then calibrate AI and Xbox controls against AoE2: DE Xbox. Prioritise integrated game behaviour over repeated small defensive fixes. Existing implemented code is **not** evidence of full-match acceptance.
