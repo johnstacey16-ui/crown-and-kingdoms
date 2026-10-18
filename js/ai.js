@@ -26,7 +26,7 @@ function aiReachableBuilder(vs,target){
   for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;if(++checked>=6)break}
  }
  // Bounded fallback explores more options without unbounded pathfinding on crowded maps.
- for(let i=0;i<Math.min(24,far.length);i++){const choice=attempt(far[i]);if(choice)return choice}
+ for(let i=12;i<Math.min(36,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
  return null;
 }
 function aiBuild(vs,k,t=1){const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
