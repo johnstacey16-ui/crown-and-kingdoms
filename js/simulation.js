@@ -1,4 +1,25 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
+// Find a reachable water staging tile beside a usable landing beach.
+function transportLandingRoute(u,x,y){
+ if(!S||!u||u.k!=='trn'||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
+ const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
+ const beaches=[];
+ for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
+  const bx=(x|0)+dx,by=(y|0)+dy,idx=by*W+bx;
+  if(bx<=0||by<=0||bx>=W-1||by>=H-1||Math.hypot(bx+.5-x,by+.5-y)>5||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
+  for(const [ox,oy] of D8){
+   const sx=bx+ox,sy=by+oy,si=sy*W+sx;
+   if(sx<0||sy<0||sx>=W||sy>=H||S.wt[si]!==1||S.nd[si])continue;
+   beaches.push({sx,sy,score:Math.hypot(bx+.5-x,by+.5-y)});
+  }
+ }
+ beaches.sort((a,b)=>a.score-b.score);
+ for(const beach of beaches.slice(0,48)){
+  const route=path(u,gp(beach.sx+.5,beach.sy+.5,.8));
+  if(route&&route.length)return route;
+ }
+ return null;
+}
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
  // AoE2 DE Xbox fidelity: trade units follow their assigned routes; they do not
@@ -140,7 +161,7 @@ if(u.o==='F'||u.o==='G'){const target=u.tg;if(!target||target.hp<=0||(!U[target.
 if(u.o==='m'){if(walk(u,dt))u.o='i';return}
 if(u.o==='B'){if(!tg||tg.hp<=0||tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally'||tg.q&&!tg.done||(tg.q?!GAR[tg.k]:!U[tg.k]?.cap)||!!u.sh||(U[tg.k]?.cap&&u.t!==tg.t)||(tg.cg||[]).length>=(tg.q?GAR[tg.k]:U[tg.k].cap)||u===tg||u.ld){u.o='i';u.tg=null;u.p=[];u.rp=0;return}if(tg.q?d2(u.x,u.y,tg)<=1.4:Math.hypot(tg.x-u.x,tg.y-u.y)<=2){u.ld=tg;(tg.cg=tg.cg||[]).push(u);u.ut=null;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.manualTradeMove=false;u.tradeFleeing=false;u.x=tg.x+(tg.s||0)/2;u.y=tg.y+(tg.s||0)/2;u.o='i';u.p=[];u.rp=0;return}
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.7));u.rp=.8;if(!p){u.o='i';u.tg=null;u.p=[];u.rp=0;if(u.t===0)note('No route to board that transport');return}u.p=p}walk(u,dt);return}
-if(u.o==='U'){if(!Array.isArray(u.cg))u.cg=[];u.cg=u.cg.filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);const q=u.ut;if(u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)||q[0]<0||q[1]<0||q[0]>=W||q[1]>=H||S.wt[(q[1]|0)*W+(q[0]|0)]===1||!u.cg.length){u.o='i';u.ut=null;u.p=[];u.rp=0;return}if((!u.p.length||u.rp<=0)&&S.t>=(u.unloadRouteRetryAt||0)){const p=path(u,gp(q[0],q[1],3));u.rp=1;u.unloadRouteRetryAt=S.t+2;if(!p||!p.length){u.o='i';u.ut=null;u.p=[];u.rp=0;if(u.t===0)note('Transport cannot reach that landing area');return}u.p=p}
+if(u.o==='U'){if(!Array.isArray(u.cg))u.cg=[];u.cg=u.cg.filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);const q=u.ut;if(u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)||q[0]<0||q[1]<0||q[0]>=W||q[1]>=H||S.wt[(q[1]|0)*W+(q[0]|0)]===1||!u.cg.length){u.o='i';u.ut=null;u.p=[];u.rp=0;return}if((!u.p.length||u.rp<=0)&&S.t>=(u.unloadRouteRetryAt||0)){const p=transportLandingRoute(u,q[0],q[1]);u.rp=1;u.unloadRouteRetryAt=S.t+2;if(!p||!p.length){u.o='i';u.ut=null;u.p=[];u.rp=0;if(u.t===0)note('Transport cannot reach that landing area');return}u.p=p}
 if(!u.p.length&&S.t<(u.unloadRouteRetryAt||0))return;if(u.p.length&&walk(u,dt)){const cg=(u.cg||[]).filter(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh);let unloaded=0;const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));for(const c of cg){let sp=null,best=Infinity;for(let r=1;r<=4;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const x=(u.x|0)+dx,y=(u.y|0)+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]&&S.wt[y*W+x]!==1&&!S.nd[y*W+x]&&!occupied.has(y*W+x)&&Math.hypot(x+.5-q[0],y+.5-q[1])<=5&&Math.hypot(x+.5-u.x,y+.5-u.y)<=4&&D8.some(([ax,ay])=>{const nx=x+ax,ny=y+ay;return nx>=0&&ny>=0&&nx<W&&ny<H&&S.wt[ny*W+nx]===1})){const score=Math.hypot(x+.5-q[0],y+.5-q[1])+Math.hypot(x+.5-u.x,y+.5-u.y)*.15+r*.05;if(score<best){best=score;sp=[x+.5,y+.5]}}}if(sp){occupied.add((sp[1]|0)*W+(sp[0]|0));c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.ut=null;c.p=[];c.rp=0;c.pt=null;c.as=0;unloaded++}}u.cg=cg.filter(c=>c.ld===u&&c.hp>0&&c.t===u.t&&U[c.k]&&!U[c.k].sh);u.o='i';u.ut=null;u.p=[];u.rp=0;if(u.t===0&&cg.length&&!unloaded)note('No safe shore to unload; move closer to land');else if(u.t===0&&u.cg.length)note('Some passengers could not disembark');else if(u.t===0&&unloaded)note('Passengers unloaded: '+unloaded)}return}
 if(u.o==='rep'){if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||!tg.sh||tg.hp>=mhp(tg)){u.o='i';u.tg=null;return}if(d2(u.x,u.y,tg)<=1.5){u.p=[];tg.hp=Math.min(mhp(tg),tg.hp+mhp(tg)*dt/40);if(tg.hp>=mhp(tg)){u.o='i';u.tg=null;if(u.t===0)note('Ship repaired')}}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1.2));u.rp=1;if(!p){u.o='i';u.tg=null;return}u.p=p}walk(u,dt)}return}
 if(u.o==='v'){if(!tg||tg.hp<=0||tg.t===u.t||tg.q){u.o='i';u.tg=null;return}
