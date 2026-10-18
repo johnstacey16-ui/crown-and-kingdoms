@@ -19,11 +19,11 @@ function aiReachableBuilder(vs,target){
   return route&&route.length?{builder:u,route}:null;
  };
  for(let i=0;i<Math.min(12,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
- const far=candidates.slice(12);
+ /* Retain ranked candidates in place; blocked nearby builders can fall through to distant workers. */
  /* Check several idle and gathering workers, not just one blocked candidate of each kind. */
  for(const order of ['i','g']){
   let checked=0;
-  for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;if(++checked>=6)break}
+  for(let i=12;i<candidates.length;i++){const u=candidates[i];if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;if(++checked>=6)break}
  }
  // Bounded fallback explores more options without unbounded pathfinding on crowded maps.
  for(let i=12;i<Math.min(36,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
