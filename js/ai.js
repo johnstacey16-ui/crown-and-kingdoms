@@ -18,13 +18,13 @@ function aiReachableBuilder(vs,target){
   const route=path(u,goal);
   return route&&route.length?{builder:u,route}:null;
  };
- for(const u of candidates.slice(0,12)){const choice=attempt(u);if(choice)return choice}
+ for(let i=0;i<Math.min(12,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
  const far=candidates.slice(12);
  for(const order of ['i','g']){
   for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;break}
  }
  // Bounded fallback explores more options without unbounded pathfinding on crowded maps.
- for(const u of far.slice(0,24)){const choice=attempt(u);if(choice)return choice}
+ for(let i=0;i<Math.min(24,far.length);i++){const choice=attempt(far[i]);if(choice)return choice}
  return null;
 }
 function aiBuild(vs,k,t=1){const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
