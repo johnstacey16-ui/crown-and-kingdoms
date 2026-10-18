@@ -44,6 +44,8 @@
 
 **AI army composition and response continuation (18 October):** Attack waves now exclude units on follow/guard duty and units without combat damage; raiding parties, allied relief forces, local economic-site defenders and Town Centre emergency responders require armed units. These changes aim to prevent noncombat assignments and preserve trade defence while the army fights. Full-match AI effectiveness and AoE2 DE parity are not yet verified.
 
+**AI offensive-state continuity (18 October):** New waves, active attack-wave strength, raiding detachments and staged siege assaults now count only on-map troops with valid coordinates. This avoids stalled offensive state caused by invalid-position units. Implemented on main; complete-match offensive pacing and difficulty parity remain unverified.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
