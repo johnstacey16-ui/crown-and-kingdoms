@@ -1,3 +1,5 @@
+/* S.g includes deep-water land barriers. Ships use water and resource occupancy,
+   matching movement and save reconstruction; do not reject S.g on water. */
 /* Reuse A* heap buffers between synchronous searches to reduce per-path garbage on large maps. */
 const PATH_HEAP_K=[],PATH_HEAP_V=[];
 /* Avoid repeated allocations while exposing route statistics; no path results are retained. */
@@ -6,7 +8,7 @@ const PATH_STATS={requests:0,expanded:0,found:0,exhausted:0,invalid:0,peakOpen:0
 const pathDiagnosticsSummary=()=>{const p=PATH_STATS,valid=p.requests-p.invalid;return {...p,validRequests:valid,averageExpanded:valid?p.expanded/valid:0,averageWaypoints:p.found?p.routeWaypoints/p.found:0,successRate:valid?p.found/valid:0}};
 /* Read-only snapshot for developer profiling; reset is explicit between benchmark runs. */
 window.CK_PATH_DIAGNOSTICS={snapshot:pathDiagnosticsSummary,reset:()=>{for(const key of Object.keys(PATH_STATS))PATH_STATS[key]=0},recordFormation:(units,reused,fallback)=>{PATH_STATS.formationOrders++;PATH_STATS.formationUnits+=units;PATH_STATS.formationReuse+=reused;PATH_STATS.fallbackReuse+=fallback}};
-function path(u,goal){PATH_STATS.requests++;if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!Number.isInteger(u.t)||!S||!PA){PATH_STATS.invalid++;return null}const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i]&&!S.g[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H){PATH_STATS.invalid++;return null}
+function path(u,goal){PATH_STATS.requests++;if(!u||typeof goal!=='function'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!Number.isInteger(u.t)||!S||!PA){PATH_STATS.invalid++;return null}const hk=PATH_HEAP_K,hv=PATH_HEAP_V;hk.length=0;hv.length=0;const bl=u.sh?(i=>!(S.wt[i]&&!S.nd[i])):(i=>S.wt[i]===1||S.g[i]&&S.gt[i]!==u.t+1),sx=u.x|0,sy=u.y|0,A=PA,v=++A.v,hx=goal.hx,hy=goal.hy,hr=goal.hr||0;if(sx<0||sy<0||sx>=W||sy>=H){PATH_STATS.invalid++;return null}
 if((hx===undefined)!==(hy===undefined)||(hx!==undefined&&!Number.isFinite(hx))||(hy!==undefined&&!Number.isFinite(hy))||!Number.isFinite(hr)||hr<0){PATH_STATS.invalid++;return null}const hf=hx===undefined?()=>0:(x,y)=>{const dx=Math.abs(x+.5-hx),dy=Math.abs(y+.5-hy);return Math.max(0,Math.max(dx,dy)+.414*Math.min(dx,dy)-hr-.7)};
 const push=(k,n)=>{let i=hk.length;hk.push(k);hv.push(n);if(hk.length>PATH_STATS.peakOpen)PATH_STATS.peakOpen=hk.length;while(i>0){const p=(i-1)>>1;if(hk[p]<=k)break;hk[i]=hk[p];hv[i]=hv[p];i=p}hk[i]=k;hv[i]=n};
 const pop=()=>{const r=hv[0],kl=hk.pop(),vl=hv.pop(),n=hk.length;if(n){let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&hk[c+1]<hk[c])c++;if(hk[c]>=kl)break;hk[i]=hk[c];hv[i]=hv[c];i=c}hk[i]=kl;hv[i]=vl}return r};

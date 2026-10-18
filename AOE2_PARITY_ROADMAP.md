@@ -1,3 +1,14 @@
+## Takeover checkpoint — 18 October 2026
+
+Baseline inspected: `be0f45eb671d6cdeac0e02783d021a686b95545e`.
+
+- Fixed a shared naval regression: generated maps and loaded saves set `S.g=1` on deep water to block land movement. Naval routing, dock spawning/connectivity, campaign ship spawning, fish traps, retreat destinations and transport beach staging must use water/resource occupancy rather than interpreting that land flag as a naval obstacle. Dry-land building placement remains unchanged.
+- Restored stable original-unit-order tie breaking for equally distant hostile targets in the spatial index, while retaining squared-distance comparisons.
+- Added runtime regression coverage using the actual deep-water grid representation; corrected transport fixtures that previously cleared the land barrier on water. Replaced the obsolete targeting implementation-pattern assertion with a runtime check. Refreshed stale farm/splash source invariants without removing their checks.
+- Verification: source checker passes; five naval-grid cases, four transport cases and two spatial-index cases pass locally. The integrated smoke run now passes targeting, naval movement/combat/repair and the First Hearth objective check, then fails its twelve-minute AI attack-wave assertion. This is **not** a complete campaign playthrough or a passing full suite.
+- Baseline suite: 51 of 128 invoked check commands failed before these changes (`CK_SKIP_CAMPAIGN=1`). Many assertions match obsolete source layouts; remaining failures need individual classification. Do not treat that baseline count as the post-change count.
+- Next release work: investigate AI wave readiness/progression with reproducible simulation evidence; repair remaining meaningful regression gates; implement actual two-player command/state synchronisation before raising player limits. Browser/controller acceptance, all nineteen campaign playthroughs, real multiplayer and physical Xbox Edge performance remain unverified.
+
 ## Xbox Edge eight-player / 500-population scalability programme — 18 October 2026
 
 **Owner target (not a current capability):** eight simultaneous human players with up to 500 population each (4,000 combined population) on Xbox Edge, without a dedicated game server. Preserve this as the ultimate goal; unlock only after performance and network acceptance gates. Population includes villagers, military and other population-consuming units; the simulation may also contain buildings, projectiles, wildlife and effects. Do not claim 4,000 active units or eight-player gameplay currently work.

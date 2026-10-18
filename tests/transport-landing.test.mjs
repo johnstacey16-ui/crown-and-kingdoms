@@ -16,7 +16,7 @@ function fixture(beaches, water, endpoint = water[0]) {
  const W = 24, H = 24;
  const S = { us: [], g: new Uint8Array(W * H).fill(1), nd: new Array(W * H).fill(null), wt: new Uint8Array(W * H) };
  for (const [x, y] of beaches) S.g[y * W + x] = 0;
- for (const [x, y] of water) { S.g[y * W + x] = 0; S.wt[y * W + x] = 1; }
+ for (const [x, y] of water) { S.g[y * W + x] = 1; S.wt[y * W + x] = 1; }
  const calls = [];
  const context = { W, H, S, path: (u, goal) => {
   calls.push(goal);
@@ -65,7 +65,7 @@ test('shared staging selects the nearest valid beach and skips blocked neighbour
  assert.equal(diagonal.run(), null);
  const sides = fixture([[10, 10]], [[11, 11], [11, 10], [10, 11]], [11, 11]);
  assert.deepEqual(beachOf(sides.run()), [10, 10]);
- for (const field of ['g', 'nd']) {
+ for (const field of ['nd']) {
   sides.S[field][10 * 24 + 11] = 1;
   assert.equal(sides.run(), null);
   sides.S[field][10 * 24 + 11] = 0;

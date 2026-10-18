@@ -7,7 +7,7 @@ function raidShipPositions(e,count,t=1){
  const docks=S.bs.filter(b=>b.t===t&&b.k==='dock'&&b.hp>0),anchors=docks.length?docks:[e],spots=[],occupied=new Set();
  for(const u of S.us)if(u&&u.hp>0&&!u.ld&&U[u.k]?.sh&&Number.isFinite(u.x)&&Number.isFinite(u.y))occupied.add((u.y|0)*W+(u.x|0));
  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
-  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||S.g[i]||occupied.has(i))continue;
+  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||occupied.has(i))continue;
   let d=Infinity;for(const a of anchors)d=Math.min(d,Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2)));
   if(d<=18)spots.push({x,y,d});
  }

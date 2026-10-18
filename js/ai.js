@@ -42,12 +42,12 @@ function aiDockWaterReach(x,y,minCells=32){
   const xx=x+dx,yy=y+dy;
   if(xx<0||yy<0||xx>=W||yy>=H)continue;
   const start=yy*W+xx;
-  if(checked.has(start)||S.wt[start]!==1||S.nd[start]||S.g[start])continue;
+  if(checked.has(start)||S.wt[start]!==1||S.nd[start])continue;
   const queue=[start];checked.add(start);
   for(let n=0;n<queue.length&&queue.length<minCells;n++){
    const i=queue[n],cx=i%W,cy=i/W|0;
    for(const j of [cx>0?i-1:-1,cx<W-1?i+1:-1,cy>0?i-W:-1,cy<H-1?i+W:-1]){
-    if(j<0||S.wt[j]!==1||S.nd[j]||S.g[j]||checked.has(j))continue;
+    if(j<0||S.wt[j]!==1||S.nd[j]||checked.has(j))continue;
     checked.add(j);queue.push(j);
    }
   }
@@ -55,7 +55,7 @@ function aiDockWaterReach(x,y,minCells=32){
  }
  return false;
 }
-function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);let checked=0;for(const site of sites){let shore=false;for(let dy=-1;dy<=2&&!shore;dy++)for(let dx=-1;dx<=2;dx++){const xx=site.x+dx,yy=site.y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1&&!S.nd[yy*W+xx]&&!S.g[yy*W+xx]){shore=true;break}}if(!shore||!aiDockWaterReach(site.x,site.y))continue;if(++checked>64)break;const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
+function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);let checked=0;for(const site of sites){let shore=false;for(let dy=-1;dy<=2&&!shore;dy++)for(let dx=-1;dx<=2;dx++){const xx=site.x+dx,yy=site.y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1&&!S.nd[yy*W+xx]){shore=true;break}}if(!shore||!aiDockWaterReach(site.x,site.y))continue;if(++checked>64)break;const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
 function aiRebal(vil,R,t=1){
  const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
  const nv=active.length;
@@ -156,7 +156,7 @@ for(const s of fish.filter(u=>u.hp>0)){
    const ang=angle+(a/16)*Math.PI*2,x=Math.round(s.x+Math.cos(ang)*r),y=Math.round(s.y+Math.sin(ang)*r);
    if(x<1||y<1||x>=W-1||y>=H-1)continue;
    const ix=y*W+x;
-   if(S.wt[ix]!==1||S.nd[ix]||S.g[ix])continue;
+   if(S.wt[ix]!==1||S.nd[ix])continue;
    let danger=30;for(const e of hostileFleet)danger=Math.min(danger,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
    spots.push({x,y,score:danger-Math.hypot(x-s.x,y-s.y)*.18+(S.ex[ix]?0.15:0)});
   }
@@ -177,7 +177,7 @@ for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog'].includes(u.k
  for(let r=8;r<=16;r+=2)for(let a=0;a<12;a++){
   const ang=angle+(a/12)*Math.PI*2,x=Math.round(ship.x+Math.cos(ang)*r),y=Math.round(ship.y+Math.sin(ang)*r);
   if(x<1||y<1||x>=W-1||y>=H-1)continue;
-  const ix=y*W+x;if(S.wt[ix]!==1||S.nd[ix]||S.g[ix])continue;
+  const ix=y*W+x;if(S.wt[ix]!==1||S.nd[ix])continue;
   let clearance=30;for(const e of hostileFleet)clearance=Math.min(clearance,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
   spots.push({x,y,score:clearance-Math.hypot(x-ship.x,y-ship.y)*.12});
  }
