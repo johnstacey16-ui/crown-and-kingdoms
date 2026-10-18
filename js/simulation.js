@@ -1,29 +1,32 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
 // Find a reachable water staging tile beside a usable landing beach.
+// Find an accessible water tile beside a free beach with one A* search.
 function transportLandingRoute(u,x,y){
  if(!S||!u||u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
  const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
- const beaches=[];
+ const staging=new Map();
  for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
-  const bx=(x|0)+dx,by=(y|0)+dy,idx=by*W+bx;
-  if(bx<=0||by<=0||bx>=W-1||by>=H-1||Math.hypot(bx+.5-x,by+.5-y)>5||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
+  const bx=(x|0)+dx,by=(y|0)+dy;
+  if(bx<=0||by<=0||bx>=W-1||by>=H-1)continue;
+  const idx=by*W+bx,dist=Math.hypot(bx+.5-x,by+.5-y);
+  if(dist>5||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
   for(const [ox,oy] of D8){
-   const sx=bx+ox,sy=by+oy,si=sy*W+sx;
-   if(sx<0||sy<0||sx>=W||sy>=H||S.wt[si]!==1||S.nd[si]||S.g[si]||Math.abs(ox)+Math.abs(oy)===2&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1))continue;
-   beaches.push({sx,sy,bx,by,score:Math.hypot(bx+.5-x,by+.5-y)});
+   const sx=bx+ox,sy=by+oy;
+   if(sx<0||sy<0||sx>=W||sy>=H)continue;
+   const si=sy*W+sx;
+   if(S.wt[si]!==1||S.nd[si]||S.g[si])continue;
+   if(ox&&oy&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1))continue;
+   const prev=staging.get(si);
+   if(!prev||dist<prev.dist)staging.set(si,{bx,by,dist});
   }
  }
- beaches.sort((a,b)=>a.score-b.score);
- const tried=new Set();let attempts=0;
- for(const beach of beaches){
-  const key=beach.sy*W+beach.sx+':'+beach.bx+':'+beach.by;
-  if(tried.has(key))continue;
-  tried.add(key);
-  if(++attempts>96)break;
-  const route=path(u,gp(beach.sx+.5,beach.sy+.5,.8));
-  if(route&&route.length){const end=route[route.length-1];if(Math.hypot(end[0]-(beach.sx+.5),end[1]-(beach.sy+.5))<=1)return {route,beach:[beach.bx,beach.by]};}
- }
- return null;
+ if(!staging.size)return null;
+ const goal=(a,b)=>staging.has(b*W+a);
+ goal.hx=x;goal.hy=y;goal.hr=7;
+ const route=path(u,goal);
+ if(!route||!route.length)return null;
+ const end=route[route.length-1],tile=staging.get((end[1]|0)*W+(end[0]|0));
+ return tile?{route,beach:[tile.bx,tile.by]}:null;
 }
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
