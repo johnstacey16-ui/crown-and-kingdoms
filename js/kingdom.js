@@ -78,8 +78,13 @@ function skipAutoNode(u,n){
 function findReachableAutoNode(u,k,r=18){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!WORKER_TARGETS.some(t=>t.k===k))return null;
  const now=Number.isFinite(S.t)?S.t:0;
- const all=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H);
- const live=new Set(all.map(autoNodeKey));
+ const all=[],live=new Set();
+ for(const n of S.nodes){
+  if(!n||n.amt<=0||n.an||n.fi||!Number.isInteger(n.x)||!Number.isInteger(n.y)||n.x<0||n.y<0||n.x>=W||n.y>=H)continue;
+  if(!WORKER_TARGETS.some(target=>target.k===n.k))continue;
+  live.add(autoNodeKey(n));
+  if(n.k===k)all.push(n);
+ }
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(e=>e&&typeof e==='object'&&typeof e.key==='string'&&Number.isFinite(e.until)&&e.until>now&&live.has(e.key)).slice(-64);
  const skipped=new Set(u.autoSkipNodes.map(e=>e.key));
  const candidates=all.filter(n=>Math.hypot(n.x-u.x,n.y-u.y)<r&&!skipped.has(autoNodeKey(n))).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
