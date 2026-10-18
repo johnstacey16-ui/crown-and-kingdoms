@@ -38,6 +38,8 @@
 
 **Baseline economy/raid continuation (18 October):** Shared resource-node selection now rejects invalid, occupied and submerged land nodes; AI workforce counts exclude unavailable gatherers; raid evacuation checks valid worker and hostile positions. Changes are implemented on main, with actual skirmish performance and AoE2 DE parity still unverified.
 
+**Resource delivery and villager automation continuation (18 October):** Resource carriers now try up to six viable drop-off routes before giving up, ignore invalid drop-off locations, and avoid routing from invalid worker coordinates. Player automatic gathering quotas count active on-map workers. These are implementation improvements, not complete-match verification; old-save migration remains out of scope.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
