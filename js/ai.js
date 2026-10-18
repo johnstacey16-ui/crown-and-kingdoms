@@ -1,7 +1,7 @@
 /* Crown & Kingdoms — economic, defensive, and naval AI. Loaded after simulation.js. */
 /* ===== ENEMY AI (same rules as player; no resource or damage bonuses) ===== */
 function aiAvailableBuilder(u){return u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&!['b','B','a','m','rep'].includes(u.o)}
-function aiBuilderCandidates(vs){return vs.filter(aiAvailableBuilder).sort((a,b)=>(a.o==='i'?0:a.o==='g'?1:2)-(b.o==='i'?0:b.o==='g'?1:2))}
+function aiBuilderCandidates(vs){return vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).sort((a,b)=>(a.o==='i'?0:a.o==='g'?1:2)-(b.o==='i'?0:b.o==='g'?1:2))}
 function aiReachableBuilder(vs,target){
  if(!target||!Number.isFinite(target.x)||!Number.isFinite(target.y))return null;
  const candidates=vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
