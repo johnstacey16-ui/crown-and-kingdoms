@@ -32,6 +32,8 @@
 
 **AI economy continuation (18 October):** AI resource fallback respects stone/gold worker quotas, worker counts exclude invalid positions, builders reject off-map targets, and AI/player automatic land gathering skips submerged resource nodes. All implemented on main; match verification deferred. Continue prioritizing substantial gameplay batches over save backward compatibility.
 
+**AI military support continuation (18 October):** Trade escorts now exclude retreating units and are released when active threats disappear or escorts become unavailable. Naval support excludes loaded ships and prioritizes damaged combat vessels over civilian ships. Implemented on main; long-match and naval verification deferred.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
