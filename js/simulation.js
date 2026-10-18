@@ -127,13 +127,20 @@ function nearestFoeUnit(u,r){
  return b
 }
 function foe(u,r){
- let b=null,bd=r;
+ let b=null,bd2=r*r;
+ /* Siege still prioritises hostile buildings before searching for units. */
  if(U[u.k]?.sg){
-  for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}
+  for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){
+   const sz=q.s||0,dx=Math.max(q.x-u.x,0,u.x-(q.x+sz)),dy=Math.max(q.y-u.y,0,u.y-(q.y+sz)),d=dx*dx+dy*dy;
+   if(d<bd2){bd2=d;b=q}
+  }
   if(b)return b
  }
  b=nearestFoeUnit(u,r);if(b)return b;
- for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){const d=d2(u.x,u.y,q);if(d<bd){bd=d;b=q}}
+ for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){
+  const sz=q.s||0,dx=Math.max(q.x-u.x,0,u.x-(q.x+sz)),dy=Math.max(q.y-u.y,0,u.y-(q.y+sz)),d=dx*dx+dy*dy;
+  if(d<bd2){bd2=d;b=q}
+ }
  return b
 }
 /* ===== ECONOMY / UNIT BEHAVIOUR ===== */
