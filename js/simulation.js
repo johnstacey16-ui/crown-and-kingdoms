@@ -115,6 +115,8 @@ function nearestFoeUnit(u,r){
  /* Compare squared distances: thousands of nearby combat checks need no square roots. */
  const minX=Math.floor((u.x-r)/FOE_CELL),maxX=Math.floor((u.x+r)/FOE_CELL);
  const minY=Math.floor((u.y-r)/FOE_CELL),maxY=Math.floor((u.y+r)/FOE_CELL);
+ /* Empty or wholly out-of-map search bounds cannot contain indexed units. */
+ if(maxX<0||maxY<0||minX>=Math.ceil(W/FOE_CELL)||minY>=Math.ceil(H/FOE_CELL))return null;
  for(let cy=minY;cy<=maxY;cy++)for(let cx=minX;cx<=maxX;cx++){
   const bin=FOE_BUCKETS.get(cx+','+cy);if(!bin)continue;
   for(const i of bin){
