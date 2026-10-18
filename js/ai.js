@@ -7,16 +7,22 @@ function aiReachableBuilder(vs,target){
  const candidates=vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
  const priority=u=>u.o==='i'?0:u.o==='g'?5:12;
  candidates.sort((a,b)=>Math.hypot(a.x-target.x,a.y-target.y)+priority(a)-Math.hypot(b.x-target.x,b.y-target.y)-priority(b));
- const goal=goalNear(target,1),shortlist=candidates.slice(0,12);
- if(candidates.length>12){
-  const far=candidates.slice(12);
-  for(const order of ['i','g']){const alternate=far.find(u=>u.o===order);if(alternate&&!shortlist.includes(alternate))shortlist.push(alternate)}
-  if(shortlist.length===12)shortlist.push(far[0]);
+ const goal=goalNear(target,1);
+ // A blocked group of nearby builders must not prevent a distant reachable worker from building.
+ const tried=new Set();
+ const attempt=u=>{
+  if(!u||tried.has(u))return null;
+  tried.add(u);
+  const route=path(u,goal);
+  return route&&route.length?{builder:u,route}:null;
+ };
+ for(const u of candidates.slice(0,12)){const choice=attempt(u);if(choice)return choice}
+ const far=candidates.slice(12);
+ for(const order of ['i','g']){
+  for(const u of far){if(u.o!==order)continue;const choice=attempt(u);if(choice)return choice;break}
  }
- for(const builder of shortlist){
-  const route=path(builder,goal);
-  if(route&&route.length)return {builder,route};
- }
+ // Bounded fallback explores more options without unbounded pathfinding on crowded maps.
+ for(const u of far.slice(0,24)){const choice=attempt(u);if(choice)return choice}
  return null;
 }
 function aiBuild(vs,k,t=1){const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
