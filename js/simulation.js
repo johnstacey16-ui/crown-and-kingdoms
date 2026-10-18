@@ -111,9 +111,10 @@ function rebuildFoeGrid(){
  foeGridDirty=false
 }
 function nearestFoeUnit(u,r){
+ if(!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;
  if(foeGridDirty)rebuildFoeGrid();
- let b=null,bd=r,bi=Infinity;
- /* One-cell margin tolerates units crossing a bucket boundary during this fixed step. */
+ let b=null,bd2=r*r,bi=Infinity;
+ /* Compare squared distances: thousands of nearby combat checks need no square roots. */
  const minX=Math.floor((u.x-r)/FOE_CELL)-1,maxX=Math.floor((u.x+r)/FOE_CELL)+1;
  const minY=Math.floor((u.y-r)/FOE_CELL)-1,maxY=Math.floor((u.y+r)/FOE_CELL)+1;
  for(let cy=minY;cy<=maxY;cy++)for(let cx=minX;cx<=maxX;cx++){
@@ -121,8 +122,8 @@ function nearestFoeUnit(u,r){
   for(const i of bin){
    const e=S.us[i];
    if(!e||!isHostile(u.t,e.t)||e.hp<=0||e.ld)continue;
-   const d=Math.hypot(e.x-u.x,e.y-u.y);
-   if(d<bd||(d===bd&&d<r&&i<bi)){bd=d;b=e;bi=i}
+   const dx=e.x-u.x,dy=e.y-u.y,d2=dx*dx+dy*dy;
+   if(d2<bd2||(d2===bd2&&d2<r*r&&i<bi)){bd2=d2;b=e;bi=i}
   }
  }
  return b
