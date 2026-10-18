@@ -95,9 +95,8 @@ if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i+
 const hit=(a,t)=>{if(U[a.k].rng>2){sfx(U[a.k].sg?'launch':'bow',a.x,a.y);S.pj.push({x:a.x,y:a.y,t,a})}else dmgT(a,t)};
 function pjs(dt){for(const p of S.pj){if(!p||!p.t||!p.a||!U[p.a.k]||!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.t.x)||!Number.isFinite(p.t.y)||!Number.isFinite(p.t.hp)){if(p)p.dead=1;continue}const h=(p.t.s||0)/2,tx=p.t.x+h,ty=p.t.y+h,dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy),st=14*dt;if(p.t.hp<=0||p.t.ld||!isHostile(p.a.t,p.t.t))p.dead=1;else if(d<=st+.3){dmgT(p.a,p.t);const sp=U[p.a.k]&&U[p.a.k].spl;if(sp){const ix=p.t.x+h,iy=p.t.y+h;for(const e of S.us)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&Math.hypot(e.x-ix,e.y-iy)<sp)dmgT(p.a,e);for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&Math.hypot(e.x+(e.s||0)/2-ix,e.y+(e.s||0)/2-iy)<sp)dmgT(p.a,e);}p.dead=1}else{p.x+=dx/d*st;p.y+=dy/d*st}}compactNotFlag(S.pj,'dead')}
 const FOE_CELL=8,FOE_BUCKETS=new Map(),FOE_BUCKET_POOL=[];
-let foeGridDirty=true,foeGridEpoch=0;
+let foeGridDirty=true;
 function rebuildFoeGrid(){
- foeGridEpoch++;
  for(const bin of FOE_BUCKETS.values()){bin.length=0;FOE_BUCKET_POOL.push(bin)}
  FOE_BUCKETS.clear();
  for(let i=0;i<S.us.length;i++){
@@ -105,9 +104,8 @@ function rebuildFoeGrid(){
   const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
   let bin=FOE_BUCKETS.get(key);
   if(!bin){bin=FOE_BUCKET_POOL.pop()||[];FOE_BUCKETS.set(key,bin)}
-  bin.epoch=foeGridEpoch;bin.push(i)
+  bin.push(i)
  }
- for(const [key,bin]of FOE_BUCKETS)if(bin.epoch!==foeGridEpoch)FOE_BUCKETS.delete(key);
  foeGridDirty=false
 }
 function nearestFoeUnit(u,r){
