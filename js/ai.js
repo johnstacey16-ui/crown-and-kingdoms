@@ -19,7 +19,7 @@ function aiReachableBuilder(vs,target){
   const route=path(u,goal);
   return route&&route.length?{builder:u,route}:null;
  };
- for(let i=0;i<Math.min(12,candidates.length);i++){const choice=attempt(candidates[i]);if(choice)return choice}
+ for(let i=0,limit=Math.min(12,candidates.length);i<limit;i++){const choice=attempt(candidates[i]);if(choice)return choice}
  /* Retain ranked candidates in place; blocked nearby builders can fall through to distant workers. */
  /* Check several idle and gathering workers, not just one blocked candidate of each kind. */
  for(const order of ['i','g']){
