@@ -11,7 +11,7 @@ for(const c of corp){const age=gt-c.t;if(age>10)continue;const P=w2s(c.x,c.y),sz
 if(c.sh){const k2=Math.min(1,age/1.2);X.translate(0,k2*18*zm);X.scale(1,1-k2*.5);X.globalAlpha*=1-k2*.6}else{const a=Math.min(1,age/.55);if(c.fd<0)X.scale(-1,1);X.rotate(a*1.45);X.translate(0,a*2*zm)}
 X.drawImage(sp,-sz[0]/2*zm,-(sz[1]-8)*zm,sz[0]*zm,sz[1]*zm);X.restore()}X.globalAlpha=1
 for(const b of S.bs){if(b.t!==0&&!S.ex[b.y*W+b.x])continue;const P=w2s(b.x+b.s/2,b.y+b.s/2);if(P[0]<-160||P[0]>CW+160||P[1]<-180||P[1]>CH+180)continue;L.push([b.x+b.y+b.s,1,b])}
-for(const u of S.us){if(u.ld||!vis(u))continue;const P=w2s(u.x,u.y);if(P[0]<-40||P[0]>CW+40||P[1]<-60||P[1]>CH+60)continue;L.push([u.x+u.y,2,u])}
+for(const u of S.us){if(u.ld||u.hp<=0||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<x0-2||u.x>x1+2||u.y<y0-2||u.y>y1+2||!vis(u))continue;const P=w2s(u.x,u.y);if(P[0]<-40||P[0]>CW+40||P[1]<-60||P[1]>CH+60)continue;L.push([u.x+u.y,2,u])}
 for(const q of S.rel)if(!q.m&&(q.c||S.ex[(q.y|0)*W+(q.x|0)]))L.push([q.x+q.y,3,q]);
 if(window.CK_NET&&window.CK_NET.isRunning())for(const marker of window.CK_NET.getRenderEntries())L.push([marker.x+marker.y,4,marker]);
 if(vm===5&&S.ex[(H/2|0)*W+(W/2|0)])L.push([W-.5,5,{x:W/2,y:H/2}]);L.sort((a,b)=>a[0]-b[0]);for(const it of L){const k=it[1],o=it[2];if(k===0)drawNode(o);else if(k===1)drawBld(o);else if(k===2)drawUnit(o);else if(k===3)drawRelic(o);else if(k===4&&window.CK_NET)window.CK_NET.drawMarker(o);else if(k===5)drawHill(o)}
