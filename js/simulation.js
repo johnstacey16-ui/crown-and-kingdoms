@@ -301,7 +301,7 @@ function unload(b){
  for(let r=1;r<=6;r++){
   for(let dy=-r;dy<size+r;dy++)for(let dx=-r;dx<size+r;dx++){
    if(dx>=0&&dy>=0&&dx<size&&dy<size)continue;
-   if(Math.min(Math.abs(dx),Math.abs(dy),Math.abs(dx-size+1),Math.abs(dy-size+1))<0)continue;
+   if(dx!==-r&&dy!==-r&&dx!==size+r-1&&dy!==size+r-1)continue;
    const x=b.x+dx,y=b.y+dy;
    if(x<=0||y<=0||x>=W-1||y>=H-1)continue;
    const idx=y*W+x;
