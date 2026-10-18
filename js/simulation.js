@@ -113,8 +113,8 @@ function nearestFoeUnit(u,r){
  if(foeGridDirty)rebuildFoeGrid();
  let b=null,bd2=r*r;
  /* Compare squared distances: thousands of nearby combat checks need no square roots. */
- const minX=Math.floor((u.x-r)/FOE_CELL)-1,maxX=Math.floor((u.x+r)/FOE_CELL)+1;
- const minY=Math.floor((u.y-r)/FOE_CELL)-1,maxY=Math.floor((u.y+r)/FOE_CELL)+1;
+ const minX=Math.floor((u.x-r)/FOE_CELL),maxX=Math.floor((u.x+r)/FOE_CELL);
+ const minY=Math.floor((u.y-r)/FOE_CELL),maxY=Math.floor((u.y+r)/FOE_CELL);
  for(let cy=minY;cy<=maxY;cy++)for(let cx=minX;cx<=maxX;cx++){
   const bin=FOE_BUCKETS.get(cx+','+cy);if(!bin)continue;
   for(const i of bin){
