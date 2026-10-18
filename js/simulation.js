@@ -188,6 +188,7 @@ if(u.o==='U'){
  if(!walk(u,dt))return;
  const cg=u.cg,occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
  const shore=u.unloadBeach,spots=[];
+ if(!Array.isArray(shore)||shore.length!==2||!shore.every(Number.isFinite)){u.p=[];u.rp=0;u.unloadRouteRetryAt=0;return}
  // Collect all valid shore tiles once, then assign distinct positions to passengers.
  for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){
   const x=(u.x|0)+dx,y=(u.y|0)+dy;
