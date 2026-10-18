@@ -93,7 +93,7 @@ function findReachableAutoNode(u,k,r=18){
   const route=path(u,goalNear(n,1));
   if(route&&route.length){u.autoSkipNodes=u.autoSkipNodes.filter(e=>e.key!==autoNodeKey(n));return {n,route}}
   skipAutoNode(u,n);
-  if(++failed>=8)break;
+  if(++failed>=12)break;
  }
  return null;
 }
