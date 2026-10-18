@@ -14,6 +14,8 @@
 
 **AI dock-placement follow-up (18 October):** Require a single connected navigable water component (not the combined area of isolated pools), search beyond the nearest 64 raw sites when necessary, and reject dry sites before expensive connectivity checks. Committed on main; no live match or Vercel test requested.
 
+**AI construction reliability (18 October):** AI builder candidate selection now requires valid on-map villager positions, excludes non-villagers from construction assignment, and checks reachable building routes before assigning work. Changes committed on main; browser and full-match acceptance remains deferred.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
