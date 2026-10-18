@@ -49,9 +49,9 @@ function aiRebal(vil,R,t=1){
  const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac);
  const nv=active.length,wk=k=>active.filter(u=>u.o==='g'&&u.ct===k).length;
  const move=(k,from='w')=>{
-  const workers=active.filter(u=>u.o==='g'&&u.ct===from&&!u.car&&!u.ret&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y));
+  const workers=active.filter(u=>u.o==='g'&&u.ct===from&&!u.car&&!u.ret&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
   for(const w of workers){
-   const nodes=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isFinite(n.x)&&Number.isFinite(n.y)&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
+   const nodes=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
     .sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y));
    for(const n of nodes.slice(0,12)){
     const route=path(w,goalNear(n,1));
