@@ -13,6 +13,8 @@ if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!(tradeTarget&&us.every(u=>u
   canRepairShip=allied&&!!tg.sh&&tg.hp<mhp(tg)&&us.some(u=>u.k==='vil'||(u.sh&&u!==tg));
  if(!canRepairBuilding&&!canRepairShip){note('That kingdom is not hostile; villagers can help repair allied buildings or ships');return false}
 }
+/* Reuse identical same-tile, same-goal A* results within one formation order. */
+const formationRoutes=new Map();
 let noAttackBlocked=0;let formationIndex=0;for(const u of us){const unitIndex=formationIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  const endpoint=tg.k,dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
@@ -35,7 +37,11 @@ else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&u.k==='vil'){u.o='b';u.tg=tg}
 else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.k==='trn'&&Array.isArray(u.cg)&&u.cg.some(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const landing=transportLandingRoute(u,wx,wy);if(landing?.route?.length){u.o='U';u.ut=[wx,wy];u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
-else{const n=us.length,i=unitIndex,fo=fslot(us,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>gp(gx,gy,r),p=path(u,gl(.8))||path(u,gl(2));if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else note('No route to that location')}}
+else{const i=unitIndex,fo=fslot(us,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],gl=r=>gp(gx,gy,r);
+const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');
+let p=formationRoutes.get(routeKey);
+if(p===undefined){p=path(u,gl(.8))||path(u,gl(2));formationRoutes.set(routeKey,p||null)}
+if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else note('No route to that location')}}
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
