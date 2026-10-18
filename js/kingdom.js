@@ -76,9 +76,9 @@ function skipAutoNode(u,n){
  if(u.autoSkipNodes.length>64)u.autoSkipNodes=u.autoSkipNodes.slice(-64);
 }
 function findReachableAutoNode(u,k,r=18){
- if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y))return null;
+ if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H||!WORKER_TARGETS.some(t=>t.k===k))return null;
  const now=Number.isFinite(S.t)?S.t:0;
- const all=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isFinite(n.x)&&Number.isFinite(n.y));
+ const all=S.nodes.filter(n=>n&&n.k===k&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H);
  const live=new Set(all.map(autoNodeKey));
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(e=>e&&typeof e==='object'&&typeof e.key==='string'&&Number.isFinite(e.until)&&e.until>now&&live.has(e.key)).slice(-64);
  const skipped=new Set(u.autoSkipNodes.map(e=>e.key));
