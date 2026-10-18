@@ -245,7 +245,7 @@ for(const b of bl)if(b.done&&b.hp>0&&rsOf(b).length&&!b.rs&&(!Array.isArray(b.q)
  choices.sort((a,b)=>techPriority(b)-techPriority(a));
  if(choices.length)research(b,choices[0])
 }
-const wk=k=>vil.filter(u=>u.o==='g'&&u.ct===k).length;
+const wk=k=>vil.filter(u=>u.o==='g'&&u.ct===k&&!u.aiEvac&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).length;
 /* Repair important damaged buildings with a small number of idle villagers when construction is not already waiting. */
 if(!bl.some(b=>!b.done&&b.hp>0)&&S.t-(A.lastBuildingRepair??-99)>=4){
  const priority={tc:10,castle:9,tower:8,gate:7,wall:6,monastery:5,market:5,lumber:4,mine:4,mill:4,dock:4,bar:3,rng:3,stable:3,siege:3,house:2};
