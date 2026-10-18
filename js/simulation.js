@@ -111,7 +111,7 @@ function rebuildFoeGrid(){
 function nearestFoeUnit(u,r){
  if(!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;
  if(foeGridDirty)rebuildFoeGrid();
- let b=null,bd2=r*r,bi=Infinity;
+ let b=null,bd2=r*r;
  /* Compare squared distances: thousands of nearby combat checks need no square roots. */
  const minX=Math.floor((u.x-r)/FOE_CELL)-1,maxX=Math.floor((u.x+r)/FOE_CELL)+1;
  const minY=Math.floor((u.y-r)/FOE_CELL)-1,maxY=Math.floor((u.y+r)/FOE_CELL)+1;
@@ -121,7 +121,7 @@ function nearestFoeUnit(u,r){
    const e=S.us[i];
    if(!e||!isHostile(u.t,e.t)||e.hp<=0||e.ld)continue;
    const dx=e.x-u.x,dy=e.y-u.y,d2=dx*dx+dy*dy;
-   if(d2<bd2){bd2=d2;b=e;bi=i}
+   if(d2<bd2){bd2=d2;b=e}
   }
  }
  return b
