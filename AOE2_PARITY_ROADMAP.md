@@ -16,6 +16,8 @@
 
 **AI construction reliability (18 October):** AI builder candidate selection now requires valid on-map villager positions, excludes non-villagers from construction assignment, and checks reachable building routes before assigning work. Changes committed on main; browser and full-match acceptance remains deferred.
 
+**AI economic adaptation (18 October):** Resource rebalancing now searches multiple reachable deposits before reassigning a worker, excludes invalid/off-map targets and unavailable villagers, and tries a second worker group when emergency food or wood reassignment cannot succeed. Implementation committed to main; gameplay calibration remains deferred.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
