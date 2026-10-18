@@ -17,6 +17,9 @@ if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!tradeOnly){
 }
 /* Reuse identical same-tile, same-goal A* results within one formation order. */
 const formationRoutes=new Map();
+/* A blocked formation slot should not strand an entire group: try the common
+   destination after the individual slot, reusing same-tile paths across units. */
+const fallbackRoutes=new Map();
 /* Land and naval units form independent ranks, avoiding water/land slot mixing. */
 const landFormation=us.filter(u=>!u.sh),navalFormation=us.filter(u=>u.sh);
 let landIndex=0,navalIndex=0;
@@ -46,6 +49,11 @@ else{const i=unitIndex,fo=fslot(formationUnits,i,wx,wy),gx=wx+fo[0],gy=wy+fo[1],
 const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');
 let p=formationRoutes.get(routeKey);
 if(p===undefined){p=path(u,gl(.8))||path(u,gl(2));formationRoutes.set(routeKey,p||null)}
+if(!p){
+ const fallbackKey=[u.t,u.sh?1:0,u.x|0,u.y|0,wx,wy].join(':');
+ p=fallbackRoutes.get(fallbackKey);
+ if(p===undefined){p=path(u,gp(wx,wy,.8))||path(u,gp(wx,wy,2));fallbackRoutes.set(fallbackKey,p||null)}
+}
 if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else noRouteCount++}}
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
