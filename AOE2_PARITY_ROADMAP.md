@@ -4,6 +4,8 @@
 
 **Verified code baseline:** `multiplayer.js` limits rooms to **four** participants and presently synchronises lobby/presence and **5 Hz player markers only**, not orders or world state. `js/menus.js` offers **2–4 kingdoms** and a selectable **500 population limit**, with housing still determining usable capacity. Supabase Realtime is already used for signalling/presence; its availability is not equivalent to a dedicated authoritative game server. Multiplayer gameplay, large battles and Xbox Edge performance are **not yet verified**.
 
+**Additional economy-routing optimisation:** drop-off candidate ordering now compares squared distances to building footprints and caches each compatible building's identity key for retry filtering and sorting. Route reachability checks and the six-failure cap are unchanged; this is not yet benchmarked at large populations.
+
 **Villager drop-off routing optimisation:** remove the redundant first sort of compatible drop-off buildings (the candidate list is sorted after retry exclusions) and use a Set for excluded destination membership. This reduces repeated comparisons in economy routing while preserving existing retry limits and destination priority.
 
 **Further combat-targeting CPU improvements:** hostile building selection now uses squared point-to-building-footprint distance while retaining siege building priority; nearest-hostile-unit queries no longer scan an extra ring of spatial buckets beyond the requested radius. These are unbenchmarked optimisations, not proof of Xbox Edge high-population capacity.
