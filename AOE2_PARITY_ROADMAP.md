@@ -8,6 +8,8 @@
 - **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
 - **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
 
+**Economy implementation batch (18 October):** Auto-villager resource search now filters the desired resource kind before building candidate lists, cleans up expired resource exclusions, and rejects off-map/malformed worker or node coordinates. These are committed implementation improvements; no owner playthrough or Vercel deployment was requested. Further economy feature work remains open.
+
 ## Owner development-mode update — 18 October 2026
 
 **Development first; player acceptance deferred.** The owner has already played several extended, unfinished skirmishes with base building and combat, observed autosaving and successfully loaded a saved game. They have not played on the latest updates and want to conserve Vercel's reported daily usage allowance. **Do not request fresh browser playthroughs, repeated deployments, or full-match completion as a prerequisite to continuing implementation.**
