@@ -52,7 +52,7 @@ function aiDockWaterReach(x,y,minCells=32){
 }
 function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);let checked=0;for(const site of sites){let shore=false;for(let dy=-1;dy<=2&&!shore;dy++)for(let dx=-1;dx<=2;dx++){const xx=site.x+dx,yy=site.y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1&&!S.nd[yy*W+xx]&&!S.g[yy*W+xx]){shore=true;break}}if(!shore||!aiDockWaterReach(site.x,site.y))continue;if(++checked>64)break;const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
 function aiRebal(vil,R,t=1){
- const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating);
+ const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
  const nv=active.length;
  const assigned={f:0,w:0,g:0,s:0};
  for(const u of active)if(u.o==='g'&&Object.prototype.hasOwnProperty.call(assigned,u.ct))assigned[u.ct]++;
