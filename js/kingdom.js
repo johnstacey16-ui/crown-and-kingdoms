@@ -87,7 +87,7 @@ function findReachableAutoNode(u,k,r=18){
  let failed=0;
  for(const n of candidates){
   const route=path(u,goalNear(n,1));
-  if(route&&route.length)return {n,route};
+  if(route&&route.length){u.autoSkipNodes=u.autoSkipNodes.filter(e=>e.key!==autoNodeKey(n));return {n,route}};
   skipAutoNode(u,n);
   if(++failed>=8)break;
  }
