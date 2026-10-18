@@ -11,7 +11,7 @@ function aiReachableBuilder(vs,target){
  // A blocked group of nearby builders must not prevent a distant reachable worker from building.
  const tried=new Set();
  const attempt=u=>{
-  if(!u||tried.has(u))return null;
+  if(!u||tried.has(u)||!S||!S.g)return null;
   tried.add(u);
   const route=path(u,goal);
   return route&&route.length?{builder:u,route}:null;
