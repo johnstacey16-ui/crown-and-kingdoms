@@ -40,6 +40,8 @@
 
 **Resource delivery and villager automation continuation (18 October):** Resource carriers now try up to six viable drop-off routes before giving up, ignore invalid drop-off locations, and avoid routing from invalid worker coordinates. Player automatic gathering quotas count active on-map workers. These are implementation improvements, not complete-match verification; old-save migration remains out of scope.
 
+**AI trade/naval baseline continuation (18 October):** AI merchant escorts immediately relinquish duty when the escort or merchant is unavailable, can be replaced if retreating, and react to active hostile warships. Damaged military ships retain repair priority, while fishing and trade vessels are no longer permanently excluded from repair targets. Escort automation remains an implementation detail, not an independent parity target; compare trade survival and military responsiveness in later skirmish testing.
+
 ## AI baseline-first policy — 18 October 2026
 
 **Owner decision:** Treat Age of Empires II: Definitive Edition's observable skirmish AI gameplay as the baseline acceptance target before introducing novel AI features. Aim for comparable behaviour, not copied implementation or identical hidden decision rules.
