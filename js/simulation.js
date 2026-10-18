@@ -7,8 +7,8 @@ function transportLandingRoute(u,x,y){
  for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
   const bx=(x|0)+dx,by=(y|0)+dy;
   if(bx<=0||by<=0||bx>=W-1||by>=H-1)continue;
-  const idx=by*W+bx,dist=Math.hypot(bx+.5-x,by+.5-y);
-  if(dist>5||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
+  const idx=by*W+bx,dist2=(bx+.5-x)**2+(by+.5-y)**2;
+  if(dist2>25||S.g[idx]||S.nd[idx]||S.wt[idx]===1||occupied.has(idx))continue;
   for(const [ox,oy] of D8){
    const sx=bx+ox,sy=by+oy;
    if(sx<0||sy<0||sx>=W||sy>=H)continue;
@@ -16,7 +16,7 @@ function transportLandingRoute(u,x,y){
    if(S.wt[si]!==1||S.nd[si]||S.g[si])continue;
    if(ox&&oy&&(S.wt[by*W+sx]!==1||S.wt[sy*W+bx]!==1||S.nd[by*W+sx]||S.nd[sy*W+bx]||S.g[by*W+sx]||S.g[sy*W+bx]))continue;
    const prev=staging.get(si);
-   if(!prev||dist<prev.dist)staging.set(si,{bx,by,dist});
+   if(!prev||dist2<prev.dist2)staging.set(si,{bx,by,dist2});
   }
  }
  if(!staging.size)return null;
