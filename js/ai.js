@@ -264,7 +264,7 @@ if(!n){for(const fallback of ['w','f','g','s']){if(fallback===k)continue;const c
 const nearbyRaiders=S.us.filter(e=>e&&e.hp>0&&!e.ld&&Number.isInteger(e.t)&&isHostile(t,e.t)&&U[e.k]?.dmg>3);
 /* Villagers evacuate from nearby raiders, then resume their previous work once they reach safety. */
 for(const v of vil){
- if(v.hp<=0||v.ld||v.o==='B')continue;
+ if(v.hp<=0||v.ld||v.o==='B'||!Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<0||v.y<0||v.x>=W||v.y>=H)continue;
  /* Single-pass nearest-raider scan avoids filter/map/sort allocations for every villager. */
  let threat=null;
  for(const e of nearbyRaiders){const d=Math.hypot(e.x-v.x,e.y-v.y);if(!threat||d<threat.d)threat={e,d}}
