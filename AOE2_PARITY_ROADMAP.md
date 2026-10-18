@@ -4,6 +4,8 @@
 
 **Verified code baseline:** `multiplayer.js` limits rooms to **four** participants and presently synchronises lobby/presence and **5 Hz player markers only**, not orders or world state. `js/menus.js` offers **2–4 kingdoms** and a selectable **500 population limit**, with housing still determining usable capacity. Supabase Realtime is already used for signalling/presence; its availability is not equivalent to a dedicated authoritative game server. Multiplayer gameplay, large battles and Xbox Edge performance are **not yet verified**.
 
+**Initial PERF1 implementation:** nearest-hostile-unit lookup now compares squared distances rather than invoking a square root per candidate, and spatial-index construction excludes non-finite positions. This is a small targeted optimisation, not proof of high-population performance; profiling and the wider hotspot audit remain open.
+
 ### Milestones, ordered by dependency
 
 - [ ] **MP1 — real two-human multiplayer:** define unique player/kingdom ownership, authoritative validation of legal orders, stable unit IDs, deterministic fixed-step scheduling, reproducible map/seed/RNG, and synchronised move/attack/build/train/research/economy commands. Do not broadcast every unit position. Choose and verify deterministic lockstep with delayed command frames and peer acknowledgements; assess a host-authoritative fallback if deterministic browser execution proves unreliable. Maintain a functioning lobby and clear disconnect behaviour.
