@@ -107,7 +107,8 @@ function assignAutoVillager(u,force=false){
  const needs=keys.filter(k=>counts[k]<p[k]).sort((a,b)=>(p[b]-counts[b])-(p[a]-counts[a]));
  const rest=keys.filter(k=>!needs.includes(k)).sort((a,b)=>(counts[a]/p[a])-(counts[b]/p[b])||counts[a]-counts[b]);
  for(const k of needs.concat(rest)){
-  const found=findReachableAutoNode(u,k,18);
+  let found=findReachableAutoNode(u,k,18);
+  if(!found)found=findReachableAutoNode(u,k,30);
   if(!found)continue;
   u.o='g';u.tg=found.n;u.ct=k;u.p=found.route;u.pt=null;u.ret=0;u.rp=1;u.autoWorker=1;return true;
  }
