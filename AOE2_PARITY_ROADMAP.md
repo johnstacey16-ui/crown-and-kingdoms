@@ -2,7 +2,8 @@
 
 - **Commit directly to `main` only.** Do not create feature branches or pull-request branches unless the owner explicitly requests them.
 - **Prioritise meaningful gameplay implementation** (campaigns, AI, combat, economy, controller controls, visuals, performance and saves) over adding more tests or repeating source audits.
-- **Work in the largest practical batches**, completing multiple related gameplay improvements before reporting back. Do not stop after one or two trivial commits.
+- **Work in the largest practical batches**: aim for approximately **30 meaningful changes in a turn** when feasible, across several priority systems, and use as much practical execution time as available. The number is a target, not a quota: substantial integrated gameplay improvements matter more than splitting tiny edits into dozens of commits. Do not stop after four or five trivial commits or repeatedly ask the owner to say Continue.
+- **Continue autonomously within each turn**: tackle related roadmap tasks, implement, integrate, commit directly to main and then proceed to the next priority without status-only interruptions. Only stop for a genuine blocker, execution limit, or required user decision; give a consolidated delivery report at the end.
 - **Avoid test loops.** Add or run focused tests only when they meaningfully verify a changed feature, fix a demonstrated bug, or protect a critical save/gameplay path. Do not repeatedly audit unchanged systems.
 - **Keep this roadmap current** with delivered gameplay work, remaining priorities and genuine verification gaps; avoid excessive documentation-only updates.
 - **Be accurate about verification:** commits do not imply automated tests, browser playthroughs or Xbox hardware checks passed.
