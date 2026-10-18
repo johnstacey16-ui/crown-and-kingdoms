@@ -64,6 +64,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Shoreline landing constraints (18 October):** Transport passengers now disembark only on free land tiles immediately adjacent to water and within four map units of their ship; candidate scoring favours the requested shore and proximity to the ship. Player unload orders check for an adjacent passable land tile before routing. Still to verify: complex coastline/island maps, blocked landing zones, navigation around docks and multi-passenger unloads.
+
 **Unload state cleanup (18 October):** Disembarking and garrison-released units now clear stale patrol/attack-move and transport target state. Ship unloading rejects invalid ship coordinates, and post-unload manifests retain only recognised friendly land passengers. Verify restored saves, blocked shores and unit-order behaviour in live matches.
 
 **Shore unload route validation (18 October):** Player unload orders and simulation re-pathing now reject empty sea routes. Unload completion requires an actual route and the already-sanitized passenger manifest, avoiding spurious unloading when a ship is stranded. Continue with reachable-coast selection and full blocked-landing gameplay verification.
