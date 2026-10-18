@@ -154,7 +154,8 @@ function findDropoffRoute(u){
  if(!compatible.length)return null;
  const live=new Set(compatible.map(dropoffKey));
  u.dropSkipKeys=(Array.isArray(u.dropSkipKeys)?u.dropSkipKeys:[]).filter(key=>live.has(key)).slice(-32);
- let candidates=compatible.filter(q=>!u.dropSkipKeys.includes(dropoffKey(q)));
+ const skipped=new Set(u.dropSkipKeys);
+ let candidates=compatible.filter(q=>!skipped.has(dropoffKey(q)));
  if(!candidates.length){u.dropSkipKeys=[];candidates=compatible.slice()}
  candidates.sort((a,b)=>(dropoffKey(a)===u.dropKey?-1:dropoffKey(b)===u.dropKey?1:0)||d2(u.x,u.y,a)-d2(u.x,u.y,b));
  let failed=0;
