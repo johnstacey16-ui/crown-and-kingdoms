@@ -1,7 +1,7 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
 // Find a reachable water staging tile beside a usable landing beach.
 function transportLandingRoute(u,x,y){
- if(!S||!u||u.k!=='trn'||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
+ if(!S||!u||u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
  const occupied=new Set(S.us.filter(v=>v&&v.hp>0&&!v.ld&&Number.isFinite(v.x)&&Number.isFinite(v.y)).map(v=>(v.y|0)*W+(v.x|0)));
  const beaches=[];
  for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
