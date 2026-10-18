@@ -65,6 +65,8 @@ This is the single gameplay roadmap. The eight goals below define the work requi
 - [ ] Verify victory/defeat conditions, campaign saves, mission unlocking and next-mission progression.
 - [ ] Fix softlocks, unreachable objectives, impossible scenarios and incorrect mission text.
 
+**Pathfinding and garrison performance (18 October):** Transport beach routing now performs one multi-goal A* search over valid water staging tiles instead of up to 96 separate route searches. Building garrisons collect distinct passable perimeter positions once and release passengers to unique tiles in nearest-first order. Live gameplay and save/load regression verification still required.
+
 **Integrated transport and villager pass (18 October):** Transport unloading now precomputes unique, scored coastal landing tiles for its manifest, preserves aboard passengers when shore space is exhausted, and consolidates cancellation/retry state. Landing checks require clear adjacent navigable water. Villager auto-assignment respects the off toggle even when forced, validates worker positions and clears obsolete resource skip entries after successful routes. Focused in-browser and restored-save verification still pending.
 
 **Larger-batch follow-up (18 October):** Coastal beach routing now retains multiple beach candidates sharing a staging tile, searches more irregular-coast alternatives, and forces a fresh landing plan for restored unload orders without valid beach coordinates. Owner's ~30 meaningful changes per turn preference is recorded above. Still pending live gameplay tests; do not treat commit count as parity proof.
