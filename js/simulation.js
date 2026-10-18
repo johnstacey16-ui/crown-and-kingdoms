@@ -297,15 +297,24 @@ function unload(b){
  const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
  if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
  const occupied=new Set(S.us.filter(u=>u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)).map(u=>(u.y|0)*W+(u.x|0)));
+ const size=Number.isInteger(b.s)&&b.s>0?b.s:1,spots=[];
+ for(let r=1;r<=6;r++){
+  for(let dy=-r;dy<size+r;dy++)for(let dx=-r;dx<size+r;dx++){
+   if(dx>=0&&dy>=0&&dx<size&&dy<size)continue;
+   if(Math.min(Math.abs(dx),Math.abs(dy),Math.abs(dx-size+1),Math.abs(dy-size+1))<0)continue;
+   const x=b.x+dx,y=b.y+dy;
+   if(x<=0||y<=0||x>=W-1||y>=H-1)continue;
+   const idx=y*W+x;
+   if(S.g[idx]||S.wt[idx]===1||S.nd[idx]||occupied.has(idx))continue;
+   spots.push({x,y,idx,score:Math.hypot(Math.max(0,-dx,dx-size+1),Math.max(0,-dy,dy-size+1))});
+  }
+  if(spots.length>=cg.length)break;
+ }
+ spots.sort((a,b)=>a.score-b.score);
  let released=0;
  for(const c of cg){
-  let sp=null;
-  for(let r=1;r<=5&&!sp;r++)for(let dy=-r;dy<b.s+r&&!sp;dy++)for(let dx=-r;dx<b.s+r&&!sp;dx++){
-   const x=b.x+dx,y=b.y+dy,idx=y*W+x;
-   if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[idx]&&S.wt[idx]!==1&&!S.nd[idx]&&!occupied.has(idx)&&(dx<0||dy<0||dx>=b.s||dy>=b.s))sp=[x+.5,y+.5,idx];
-  }
-  if(!sp)continue;
-  occupied.add(sp[2]);c.x=sp[0];c.y=sp[1];c.ld=null;c.o='i';c.tg=null;c.ut=null;c.pt=null;c.as=0;c.p=[];c.rp=0;released++;
+  const sp=spots[released];if(!sp)break;
+  c.x=sp.x+.5;c.y=sp.y+.5;c.ld=null;c.o='i';c.tg=null;c.ut=null;c.pt=null;c.as=0;c.p=[];c.rp=0;released++;
  }
  b.cg=cg.filter(c=>c.ld===b);
  note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
