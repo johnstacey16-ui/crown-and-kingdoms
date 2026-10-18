@@ -6,6 +6,8 @@
 
 **Further PERF1 implementation:** unit-separation collision buckets reject non-finite positions, and both small-army and spatial-bucket separation paths avoid square roots until two units are within the actual separation radius. This is a targeted CPU reduction, not a measured 4,000-population benchmark.
 
+**Additional PERF3 culling:** corpses are now camera-filtered before sprite-cache/canvas work; buildings are camera-filtered before visibility checks and projection; relics outside the camera no longer enter the depth-sort list. These optimisations preserve simulation state and remain unbenchmarked on Xbox Edge.
+
 **Further PERF3 implementation:** selected-unit ring drawing now uses a per-frame Set lookup instead of scanning the entire selection for every visible unit. This removes a selection-size multiplier from large-army rendering; Xbox Edge benchmark results are still pending.
 
 **Initial PERF3 implementation:** camera-bounded rendering now rejects off-screen units before visibility/projection checks and skips off-screen projectiles and effects. This reduces avoidable Canvas work but does not yet establish a safe Xbox Edge population ceiling; measure frame timings at benchmark population levels before raising live limits.
