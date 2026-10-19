@@ -55,7 +55,8 @@
     lifecycle: 'idle', hostSignature: '', localFailure: '',
     statusText: 'Not connected. Create a room or join using a room code.',
     channel: null, members: new Map(), verified: new Set(), seq: 0,
-    startingGame: false, gameStarted: false, roster: null
+    startingGame: false, gameStarted: false, roster: null,
+    simFrame: 0, checkpointTracker: null, checkpointError: ''
   };
 
   const remotePlayers = new Map();
@@ -536,6 +537,11 @@
     cmp = null; // Multiplayer starts a skirmish, never a campaign mission.
     try {
       start();
+      // Reset the diagnostic clock for this local game. It does not control the
+      // real simulation clock or grant the remote client any command authority.
+      state.simFrame = 0;
+      state.checkpointTracker = window.CK_SIM_SYNC.createCheckpointTracker();
+      state.checkpointError = '';
       const sig = mapSignature();
       seedOv = priorSeed;
       return sig;
@@ -688,6 +694,56 @@
     }
   }
 
+  // These are observational world hashes, NOT synchronized gameplay. The
+  // browser still runs its own game and local controls; no remote commands are
+  // accepted. Hashes are compared only for identical numbered simulation steps.
+  function checkpointResult(outcome) {
+    if (outcome.status === 'desync' || outcome.status === 'conflicting') {
+      state.checkpointError = 'World checkpoint ' + outcome.status + ' at frame ' + outcome.frame;
+      setStatus(state.checkpointError + '. Gameplay is still local (markers only).');
+    }
+  }
+
+  function onSimulationStep() {
+    if (!state.active || !state.gameStarted || state.lifecycle !== 'running' ||
+        !state.checkpointTracker || !window.CK_SIM_SYNC) return;
+    const frame = ++state.simFrame;
+    if (frame % 300 !== 0) return; // One checkpoint per 10 simulated seconds.
+    let cp;
+    try {
+      cp = window.CK_SIM_SYNC.worldCheckpoint(S, frame);
+    } catch (_) {
+      state.checkpointError = 'Could not generate a local world checkpoint';
+      return;
+    }
+    checkpointResult(state.checkpointTracker.recordLocal(cp));
+    if (state.role === 'host' && state.connected && state.verified.size === 1) {
+      // Never broadcast the actual world, units, economy or private player data.
+      // A matching hash does not authenticate a peer or guarantee lockstep.
+      void broadcast('world-checkpoint', {
+        v: window.CK_SIM_SYNC.VERSION, sid: sessionId,
+        frame: cp.frame, hash: cp.hash
+      }, state.epoch);
+    }
+  }
+
+  function acceptWorldCheckpoint(payload, epoch, channel) {
+    if (!channelStillCurrent(epoch, channel) || state.role !== 'guest' ||
+        state.lifecycle !== 'running' || !state.gameStarted ||
+        !state.roster || !state.checkpointTracker || !window.CK_SIM_SYNC) return;
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
+        Object.keys(payload).length !== 4 || payload.v !== window.CK_SIM_SYNC.VERSION ||
+        payload.sid !== state.hostSid || payload.sid !== state.roster.slots[0].sid) return;
+    const host = state.members.get(payload.sid);
+    // Presence and claimed sender IDs are NOT secure identity authentication.
+    // This is only a best-effort diagnostic while the transport remains markers-only.
+    if (!host || host.role !== 'host' || host.sid !== host.hostSid ||
+        host.lifecycle !== 'running' || host.mapSignature !== state.hostSignature) return;
+    checkpointResult(state.checkpointTracker.recordRemote({
+      frame: payload.frame, hash: payload.hash
+    }));
+  }
+
   function startMarkerTimer(epoch) {
     stopMarkerTimer();
     sendMarkerNow(epoch);
@@ -754,6 +810,7 @@
     channel.on('presence', { event: 'join' }, () => reconcilePresence(epoch, channel));
     channel.on('presence', { event: 'leave' }, () => reconcilePresence(epoch, channel));
     channel.on('broadcast', { event: 'marker' }, ({ payload }) => acceptMarker(payload, epoch, channel));
+    channel.on('broadcast', { event: 'world-checkpoint' }, ({ payload }) => acceptWorldCheckpoint(payload, epoch, channel));
     channel.on('broadcast', { event: 'map-ok' }, ({ payload }) => {
       if (!channelStillCurrent(epoch, channel) || state.role !== 'host' || state.lifecycle !== 'running') return;
       if (!payload || payload.v !== PROTOCOL_VERSION || typeof payload.sid !== 'string' || !state.members.has(payload.sid) || payload.sid === sessionId || !state.roster || window.CK_SIM_SYNC.rosterTeam(state.roster, payload.sid) !== 1) return;
@@ -814,6 +871,9 @@
     state.gameStarted = false;
     state.startingGame = false;
     state.roster = null;
+    state.simFrame = 0;
+    state.checkpointTracker = null;
+    state.checkpointError = '';
     state.members = new Map();
     state.verified.clear();
     remotePlayers.clear();
@@ -905,6 +965,9 @@
     state.gameStarted = false;
     state.startingGame = false;
     state.roster = null;
+    state.simFrame = 0;
+    state.checkpointTracker = null;
+    state.checkpointError = '';
     state.members.clear();
     state.verified.clear();
     remotePlayers.clear();
@@ -1155,6 +1218,9 @@
       commandProtocol: window.CK_SIM_SYNC ? window.CK_SIM_SYNC.VERSION : null,
       rosterLocked: !!state.roster,
       assignedTeam: state.roster ? window.CK_SIM_SYNC.rosterTeam(state.roster, sessionId) : null,
+      diagnosticFrame: state.simFrame,
+      checkpointDiagnostics: state.checkpointTracker ? state.checkpointTracker.stats() : null,
+      checkpointError: state.checkpointError,
       // Assignment does not yet alter the local game's team-zero input model.
       synchronizedWorld: false // Explicit: marker sessions are not shared RTS matches yet.
     };
@@ -1165,7 +1231,7 @@
   }
 
   window.CK_NET = {
-    control, drawLobby, getRenderEntries, drawMarker, drawMatchStatus, isRunning, snapshot,
+    control, drawLobby, getRenderEntries, drawMarker, drawMatchStatus, isRunning, snapshot, onSimulationStep,
     openLobby() {
       state.nick = cleanNick(ensureLobbyFields().nick.value) || state.nick || 'Player';
       if (!state.active && !beforeRoomSettings) saveLocalSettings();
