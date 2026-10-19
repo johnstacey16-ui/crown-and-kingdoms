@@ -8,10 +8,17 @@ const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 test('AI production filters unaffordable units before selecting counters',()=>{
  assert.match(ai,/trOf\(b\)\.filter\(k=>U\[k\]&&can\(t,U\[k\]\.cost\)/);
 });
-test('AI saves for age advancement after prerequisites are available',()=>{
+test('AI protects its full next-age budget from optional research',()=>{
+ const canAfford=vm.runInNewContext(ai+'\n;aiCanResearchWhileSaving;');
  assert.match(ai,/const savingForAge=/);
  assert.match(ai,/agePrereqs>=2/);
- assert.match(ai,/Object\.keys\(cost\)\.every\(res=>\(R\[res\]\|\|0\)-\(e\.cost\[res\]\|\|0\)>=cost\[res\]\*\.75\)/);
+ assert.match(ai,/aiCanResearchWhileSaving\(R,e\.cost,nextAge\.cost\)/);
+ assert.equal(canAfford({f:1000,g:400},{f:100,g:150},{f:800,g:200}),true,
+   'research may proceed if enough food and gold remain for advancement');
+ assert.equal(canAfford({f:850,g:200},{f:100,g:25},{f:800,g:200}),false,
+   'research must not spend the next-age budget, even when 75 percent would remain');
+ assert.equal(canAfford({f:900,g:200},{f:100,g:0},{f:800,g:200}),true,
+   'exact remaining age cost is sufficient');
 });
 test('six AI tiers have monotonic decision cadence and attack grace',()=>{
  const cd=[4.5,3.2,2.4,1.8,1.35,1.05];
