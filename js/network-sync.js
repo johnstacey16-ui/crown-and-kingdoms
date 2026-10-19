@@ -217,5 +217,67 @@
     return Object.freeze({ receive, applyFrame, pending: inbox.pending });
   }
 
-  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost });
+  // Produce a stable, gameplay-only state projection for MATCHED-frame
+  // desync checks. The renderer, camera, local selection and audio cues are
+  // intentionally excluded: they differ legitimately between controllers.
+  // This is diagnostic coverage, not an authoritative reconnect snapshot.
+  function worldCheckpoint(world, frame) {
+    if (!isRecord(world) || !Number.isSafeInteger(frame) || frame < 0 ||
+        !Array.isArray(world.us) || !Array.isArray(world.bs) ||
+        !Array.isArray(world.nodes) || !Array.isArray(world.res) ||
+        !Array.isArray(world.age) || !world.r || typeof world.r.state !== 'function') {
+      throw Error('Cannot checksum an invalid simulation world');
+    }
+    const nodes = new Map(world.nodes.map((n, i) => [n, 'n' + i]));
+    const relics = new Map((world.rel || []).map((n, i) => [n, 'r' + i]));
+    const ref = o => {
+      if (!o) return null;
+      if (validId(o.netId)) return o.netId;
+      return nodes.get(o) || relics.get(o) || null;
+    };
+    const sorted = list => list.sort((a, b) => a.id.localeCompare(b.id));
+    const units = sorted(world.us.filter(u => u && u.hp > 0).map(u => ({
+      id: u.netId, team:u.t, kind:u.k, x:u.x, y:u.y, hp:u.hp,
+      order:u.o, path:u.p || [], target:ref(u.tg), load:ref(u.ld),
+      cargo:u.car || 0, cargoType:u.ct, tradeCargo:u.tradeCargo || 0,
+      tradeFromKey:u.tradeFromKey, cd:u.cd, retry:u.rp, ret:u.ret,
+      autoWorker:u.autoWorker, ut:u.ut, unloadBeach:u.unloadBeach,
+      retreating:u.retreating, retreatTarget:ref(u.retreatTarget),
+      garrisoned:(u.cg || []).map(ref)
+    })));
+    const buildings = sorted(world.bs.filter(b => b && b.hp > 0).map(b => ({
+      id:b.netId, team:b.t, kind:b.k, x:b.x, y:b.y,
+      hp:b.hp, maxHealth:b.mh, complete:b.done, progress:b.pr,
+      queue:b.q, researching:b.rs, cooldown:b.cd,
+      rally:b.rally ? {x:b.rally.x,y:b.rally.y,target:ref(b.rally.t)} : null,
+      garrisoned:(b.cg || []).map(ref)
+    })));
+    const projection = {
+      v:VERSION, t:world.t, rng:world.r.state(), netNext:world.netNext,
+      resources:world.res, age:world.age, tech:world.tech,
+      civ:world.civ, diplomacy:world.dip, priorities:world.vp,
+      victory:world.vc, hill:world.kh, victoryTimer:world.vt,
+      landGrid:world.g ? Array.from(world.g) : null,
+      waterGrid:world.wt ? Array.from(world.wt) : null,
+      nodes:world.nodes.map(n => ({
+        kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
+        farm:n.fm, animal:n.an, fish:n.fi, trap:n.trap
+      })),
+      units, buildings,
+      projectiles:(world.pj || []).map(p => ({
+        x:p.x,y:p.y,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t} : null
+      })),
+      relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
+      ai:(world.ai || []).map(a => ({
+        cooldown:a.cd, wave:a.wave, nextAttack:a.nx, strategy:a.rn,
+        lastMarketTrade:a.lastMarketTrade, lastTributeAt:a.lastTributeAt,
+        defenseAt:a.lastRaidDefense, retryAt:a.targetRetryAt,
+        on:a.on, workers:a.ws,
+        workerIds:(a.wu || []).map(ref), knownTargets:[...(a.kn || [])].map(ref).sort()
+      }))
+    };
+    return Object.freeze({ frame, hash:checksum(projection) });
+  }
+
+  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, worldCheckpoint });
 })(typeof window !== 'undefined' ? window : globalThis);
