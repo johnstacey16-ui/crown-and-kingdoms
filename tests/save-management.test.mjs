@@ -88,3 +88,36 @@ test('successful autosaves verify local storage before mirroring and clearing de
  assert.equal(f.context.hs,1);
  assert.equal(JSON.parse(f.data.get('ck_autosave')).t,123);
 });
+
+test('transient IndexedDB opening failure is retryable without restarting the game',async()=>{
+ let opens=0;
+ const writes=[];
+ const fakeDatabase={
+  transaction:(store,mode)=>{
+   assert.equal(store,'game-saves');
+   assert.equal(mode,'readwrite');
+   const tx={objectStore:()=>({put:(value,key)=>{
+    writes.push({key,value});
+    queueMicrotask(()=>tx.oncomplete?.());
+   }})};
+   return tx;
+  }
+ };
+ const window={
+  indexedDB:{open:()=>{
+   opens++;
+   if(opens===1)throw Error('temporary storage denial');
+   const request={result:fakeDatabase};
+   queueMicrotask(()=>request.onsuccess?.());
+   return request;
+  }},
+  localStorage:{getItem:()=>null,setItem(){},removeItem(){}}
+ };
+ vm.runInNewContext(persistence,{window,Promise,Set},{filename:'persistence.js'});
+ assert.equal(await window.CK_STORAGE.mirrorSave('ck_save','first'),false,
+  'first attempt should fail cleanly while storage is temporarily denied');
+ assert.equal(await window.CK_STORAGE.mirrorSave('ck_save','restored'),true,
+  'a subsequent checkpoint must retry opening IndexedDB');
+ assert.equal(opens,2,'a failed open must not remain cached for the entire game session');
+ assert.deepEqual(writes,[{key:'ck_save',value:'restored'}]);
+});
