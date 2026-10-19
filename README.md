@@ -18,7 +18,9 @@ node tests/validate-atlas.mjs
 for mission in $(seq 0 18); do CK_MISSION="$mission" node tests/simulation-smoke.test.mjs || exit 1; done
 ```
 
-GitHub Actions splits responsibilities between `game-validation.yml` (source and sprite atlas) and `game-regression.yml` (all standalone tests and 19 isolated mission simulations). The regression workflow lists every failing file, rather than stopping at the first failure. These automated checks do not replace controller-driven full campaign playthroughs, live multiplayer testing, browser verification or measurements on physical Xbox hardware.
+GitHub Actions splits responsibilities between `game-validation.yml` (quick script/asset checks) and `game-regression.yml` (the independent standalone tests and 19 isolated campaign simulations). The longer workflow does not rerun the quick validators. Documentation-only pushes skip automated checks, while pull requests are always checked; newer pushes cancel superseded runs. All checks can be started manually in GitHub Actions.
+
+**Testing policy:** The `tests/` directory is development-only; its Node scripts are **not loaded by `index.html` or shipped as part of the browser game**. As of 19 October 2026 there are 131 standalone test files, after consolidating three small campaign objective checks into one file with the same assertions. Keep end-to-end smoke tests and bug-prevention checks, consolidate duplicated launch overhead or brittle source-pattern tests as they become relevant, and never delete a behavioural safeguard just to reduce the file count. The success of automated tests does not prove full controller-driven matches, live multiplayer, real browser/Xbox playthroughs or acceptable console performance.
 
 ## Architecture constraints
 
