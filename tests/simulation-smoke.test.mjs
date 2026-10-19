@@ -282,7 +282,7 @@ globalThis.__CK_TEST__ = {
           // An invented object resembling a Monastery is not valid game state.
           addBuilding('monastery', 1);
           const monastery = S.bs.find(b => b.t === 0 && b.k === 'monastery' && b.done && b.hp > 0);
-          assert.ok(monastery, 'Relic-objective fixture must have a live player Monastery');
+          if (!monastery) throw new Error('Relic-objective fixture must have a live player Monastery');
           while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done && relic.m.hp > 0).length < count) {
             S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: monastery });
           }
