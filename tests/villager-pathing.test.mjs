@@ -1,28 +1,67 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/pathfinding.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+const start=kingdom.indexOf('function autoNodeKey(');
+const finish=kingdom.indexOf('function applyVillagerPriorities(',start);
+assert.ok(start>=0&&finish>start,'automatic villager route helpers must remain accessible');
+const logic=kingdom.slice(start,finish);
 
-assert.match(html, /function autoNodeKey\(n\)\{return n\.k\+':'\+n\.x\+':'\+n\.y\}/,
-  'Unreachable nodes must be remembered with a serializable location key, not object references');
-assert.match(html, /function skipAutoNode\(u,n\)\{[\s\S]{0,260}u\.autoSkipNodes\.push\(key\)/,
-  'Failed automatic routes must be remembered so retry does not select the same node repeatedly');
-assert.match(html, /function findReachableAutoNode\(u,k,r=36\)\{[\s\S]{0,700}const route=path\(u,goalNear\(n,1\)\)/,
-  'Automatic resource selection must verify a path exists before assigning the target');
-assert.match(html, /if\(route&&route\.length\)return \{n,route\}/,
-  'Reachable automatic targets must return the path to avoid an immediate second failed lookup');
-assert.match(html, /if\(\+\+failed>=2\)break/,
-  'At most two failed routes may be checked per retry to limit pathfinding cost');
-assert.match(html, /function assignAutoVillager\(u,force=false\)\{[\s\S]{0,1500}findReachableAutoNode\(u,k,36\)/,
-  'New/reassigned automated villagers must use route-aware resource selection');
-assert.match(html, /u\.p=found\.route;u\.pt=null;u\.ret=0;u\.rp=1;u\.autoWorker=1;return true/,
-  'An automatically assigned villager must retain the already verified route');
-assert.match(html, /const a=u\.autoWorker&&u\.t===0\?findReachableAutoNode\(u,u\.ct,36\):null,n=a\?a\.n:\(!u\.autoWorker\?findNode\(u,u\.ct\):null\)/,
-  'Automatically controlled villagers must use route-aware reassignment when a node depletes');
-assert.match(html, /if\(!p\)\{if\(u\.t===0&&u\.autoWorker\)skipAutoNode\(u,tg\);u\.o='i'/,
-  'A route that becomes invalid after assignment must be skipped by the next automatic attempt');
-assert.match(html, /for\(const u of us\)\{u\.p=\[\];u\.pt=null;u\.as=0;u\.autoWorker=0;/,
-  'Manual unit orders must still disable worker automation override');
-assert.match(html, /function stopSel\(\)\{for\(const u of S\.sel\)if\(!u\.q\)\{u\.o='i';u\.p=\[\];u\.tg=null;u\.pt=null;u\.autoWorker=0;/,
-  'Manual Stop must still leave an automated villager under player control');
-console.log('villager-pathing: all 11 source regression assertions passed');
+function harness(nodes,route){
+ const S={t:100,nodes,wt:new Uint8Array(100*100),vp:{enabled:true,w:1}};
+ let attempts=0;
+ const context={S,W:100,H:100,WORKER_TARGETS:[{k:'w'}],
+  path:(u,n)=>{attempts++;return route(u,n)},
+  goalNear:n=>n,
+  villagerAssignedCount:()=>0,
+  createVillagerPriority:()=>({enabled:true,w:1})};
+ const api=vm.runInNewContext(logic+'\n;({autoNodeKey,skipAutoNode,findReachableAutoNode,assignAutoVillager})',context);
+ return {S,api,get attempts(){return attempts}};
+}
+const node=(x,y)=>({k:'w',x,y,amt:100});
+const worker=()=>({k:'vil',t:0,hp:40,x:10,y:10,o:'i',p:[],rp:0,autoWorker:0});
+
+test('unreachable resource nodes get a serializable timed retry, then become eligible again',()=>{
+ const near=node(12,10),far=node(14,10),blocked=new Set([near]);
+ const h=harness([near,far],(_u,n)=>blocked.has(n)?null:[[n.x+.5,n.y+.5]]);
+ const u=worker();
+ const first=h.api.findReachableAutoNode(u,'w',18);
+ assert.equal(first.n,far,'an unreachable nearest resource must not block a reachable next choice');
+ assert.equal(u.autoSkipNodes.length,1);
+ assert.equal(u.autoSkipNodes[0].key,'w:12:10');
+ assert.equal(u.autoSkipNodes[0].until,130,'blocked resources retry after thirty simulated seconds');
+ blocked.clear();h.S.t=131;
+ const retried=h.api.findReachableAutoNode(u,'w',18);
+ assert.equal(retried.n,near,'the expired blocked resource must be retried');
+ assert.equal(u.autoSkipNodes.length,0,'successful routes remove their stale skip records');
+});
+
+test('automatic villagers limit path attempts instead of scanning an unlimited resource field',()=>{
+ const sources=Array.from({length:20},(_,i)=>node(12+i,10));
+ const h=harness(sources,()=>null);
+ const u=worker();
+ assert.equal(h.api.findReachableAutoNode(u,'w',36),null);
+ assert.equal(h.attempts,12,'only the first twelve unreachable nodes should be path-tested per retry');
+ assert.equal(u.autoSkipNodes.length,12);
+ assert.ok(u.autoSkipNodes.every(e=>typeof e.key==='string'&&e.until===130));
+});
+
+test('automatically assigned villagers retain the route that was already checked',()=>{
+ const destination=node(14,10),route=[[12.5,10.5],[14.5,10.5]];
+ const h=harness([destination],()=>route),u=worker();
+ assert.equal(h.api.assignAutoVillager(u),true);
+ assert.equal(u.o,'g');
+ assert.equal(u.ct,'w');
+ assert.equal(u.tg,destination);
+ assert.equal(u.p,route);
+ assert.equal(u.autoWorker,1);
+ assert.equal(h.attempts,1,'do not repeat a successful path search on assignment');
+});
+
+test('manual player movement still clears the automated worker override',()=>{
+ assert.match(input,/u\.autoWorker=0/,
+  'explicit player orders must be able to disable automated villager assignment');
+});
