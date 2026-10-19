@@ -10,8 +10,12 @@ const b = save.indexOf('\nfunction loadG(', a);
 assert.ok(a >= 0 && b > a, 'save production validator is defined');
 const valid = vm.runInNewContext(save.slice(a, b) + '\nvalidSavedProduction', { U, B, TE });
 assert.ok(valid({ k: 'tc', q: [], rs: null }), 'empty queue is valid');
-assert.ok(valid({ k: 'tc', q: [{ k: 'vil', t: 5 }], rs: { k: 'loom', t: 4 } }), 'normal production is valid');
-assert.ok(valid({ k: 'tc', q: [{ k: 'vil', t: 0 }], rs: { k: 'age', t: 12 } }), 'completed training and age research are valid');
+assert.ok(valid({ k: 'tc', q: [{ k: 'vil', t: 5 }] }), 'normal production without overlapping research is valid');
+assert.ok(valid({ k: 'tc', q: [], rs: { k: 'loom', t: 4 } }), 'normal technology research without training is valid');
+assert.ok(valid({ k: 'tc', q: [{ k: 'vil', t: 0 }] }), 'completed training awaiting a free population slot is valid');
+assert.ok(valid({ k: 'tc', q: [], rs: { k: 'age', t: 12 } }), 'age research at a Town Centre is valid');
+assert.equal(valid({ k: 'tc', q: [{ k: 'vil', t: 0 }], rs: { k: 'age', t: 12 } }), false,
+  'a completed but queued unit still prevents overlapping age research on save restoration');
 assert.ok(valid({ k: 'bar', q: [{ k: 'mil', t: 0 }] }), 'barracks military training is valid');
 assert.equal(Boolean(valid({ k: 'tc', q: [{ k: 'vil', t: 3 }], rs: { k: 'loom', t: 5 } })), false, 'save cannot restore overlapping research and production');
 assert.equal(Boolean(valid({ k: 'bar', rs: { k: 'age', t: 12 } })), false, 'age research requires a town centre');
