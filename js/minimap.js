@@ -7,7 +7,7 @@ for(const b of S.bs)if(sharesVision(b.t)&&b.hp>0)m(b,b.k==='tc'?11:b.k==='outpos
 const MC={sh:[95,159,196],w:[47,106,153],t:[30,90,30],g:[232,192,48],s:[150,160,160],f:[210,60,60],l:[75,135,60],k:[0,0,0]};
 function mmUp(){const d=mmd.data;for(let i=0;i<W*H;i++){let c=MC.k,f=1;if(S.ex[i]){const n=S.nd[i];c=S.wt[i]===2?MC.sh:S.wt[i]?MC.w:n&&n.amt>0?n.k==='w'?MC.t:n.k==='g'?MC.g:n.k==='s'?MC.s:MC.f:MC.l;if(!S.vs[i])f=.6}
 d[i*4]=c[0]*f;d[i*4+1]=c[1]*f;d[i*4+2]=c[2]*f;d[i*4+3]=255}mmx.putImageData(mmd,0,0)}
-/* ===== PATHFINDING (BFS, 8-dir, no corner cutting) ===== */
+/* Minimap coordinate transforms, filters and overlays. */
 
 const w2m=(r,x,y)=>[r.x+r.w/2+(x/W-y/H)*r.w/2,r.y+(x/W+y/H)*r.h/2];
 const m2w=(r,px,py)=>{const a=(px-r.x-r.w/2)/(r.w/2),b=(py-r.y)/(r.h/2);return[cl((a+b)/2,0,1)*W,cl((b-a)/2,0,1)*H]};
