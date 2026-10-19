@@ -21,6 +21,7 @@ const CORE_ASSETS = [
   './engine.js',
   './persistence.js',
   './js/network-sync.js',
+  './js/network-commands.js',
   './multiplayer.js',
 ];
 
