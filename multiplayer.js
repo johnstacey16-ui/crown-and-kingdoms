@@ -9,12 +9,12 @@
   // Publishable client key only. Never put a service-role/secret key here.
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wj7wH708NGPxJscwv77pug_8Lf6XR7u';
   const PROTOCOL_VERSION = 1;
-  const CONFIG_VERSION = 3; // Seeded unit retry timers change initial RNG consumption; reject older lobby clients.
+  const CONFIG_VERSION = 4; // Two-human roster lock requires both clients to use the new match handshakes.
   const CHANNEL_PREFIX = 'ck:v1:';
   const MAX_PACKET_BYTES = 1024; // Conservative app-level budget for UTF-8 JSON payload bytes.
   const SEND_INTERVAL_MS = 200; // 5 Hz; coalesce stale positions rather than queueing them.
   // Four is the game's maximum kingdom count; it bounds Broadcast fan-out too.
-  const MAX_PLAYERS = 4;
+  const MAX_PLAYERS = 2; // First synchronized-play milestone: one host and one guest.
   const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const MARKER_COLORS = ['#ff6b6b', '#4dd0e1', '#ffd166', '#c792ea', '#7ee081', '#ff9f43', '#82aaff', '#f48fb1'];
   // Supabase's default client Presence limit is 5 track/untrack calls per 30 seconds.
@@ -55,7 +55,7 @@
     lifecycle: 'idle', hostSignature: '', localFailure: '',
     statusText: 'Not connected. Create a room or join using a room code.',
     channel: null, members: new Map(), verified: new Set(), seq: 0,
-    startingGame: false, gameStarted: false
+    startingGame: false, gameStarted: false, roster: null
   };
 
   const remotePlayers = new Map();
@@ -290,7 +290,7 @@
       schema: CONFIG_VERSION, sid: sessionId, nick: state.nick,
       role: 'host', hostSid: sessionId, config: state.config,
       lifecycle: lifecycle || state.lifecycle,
-      mapSignature: state.hostSignature || '', ready: true
+      mapSignature: state.hostSignature || '', roster: state.roster, ready: true
     };
   }
 
@@ -358,9 +358,20 @@
       setStatus('Room membership limit reached. Leave and create a smaller room.');
       return;
     }
+    // A locked human roster cannot be expanded by room-code discovery.
+    // Unknown Presence records are ignored in gameplay, not granted a team.
+    // They must not terminate an otherwise valid running match.
     state.members = members;
+    if (state.roster && state.gameStarted) {
+      const host = members.get(state.roster.slots[0].sid);
+      if (state.role === 'guest' && host && host.roster &&
+          JSON.stringify(host.roster) !== JSON.stringify(state.roster)) {
+        failLocal('The host changed the locked player/team roster. Match stopped safely.');
+        return;
+      }
+    }
     for (const sid of remotePlayers.keys()) {
-      if (!members.has(sid) || sid === sessionId) {
+      if (!members.has(sid) || sid === sessionId || state.roster && window.CK_SIM_SYNC.rosterTeam(state.roster, sid) === null) {
         remotePlayers.delete(sid);
         lastSeqBySid.delete(sid);
         state.verified.delete(sid);
@@ -538,7 +549,7 @@
   async function startHostGame(epoch, channel) {
     if (!channelStillCurrent(epoch, channel) || state.busy || state.role !== 'host' || state.lifecycle !== 'lobby') return;
     const others = Array.from(state.members.values()).filter(m => m.sid !== sessionId && m.sid && m.ready !== false);
-    if (!state.connected || !state.tracked || !state.config || !others.length) {
+    if (!state.connected || !state.tracked || !state.config || others.length !== 1 || state.members.size !== 2) {
       setStatus('Start requires a connected host, a valid configuration and at least one other player.');
       return;
     }
@@ -551,8 +562,14 @@
       setStatus('Cannot start: host map configuration is invalid.');
       return;
     }
+    const guest = others[0];
+    if (guest.role !== 'guest' || guest.hostSid !== sessionId || !window.CK_SIM_SYNC) {
+      setStatus('Exactly one verified guest session is required to start.');
+      return;
+    }
     state.busy = true;
     state.config = cfg;
+    state.roster = window.CK_SIM_SYNC.lockRoster(sessionId, guest.sid, cfg.kingdoms);
     try {
       // The validated immutable map config was already published in lobby Presence.
       // Publish the map signature and running lifecycle after deterministic generation.
@@ -585,8 +602,13 @@
       setStatus('Host map configuration/signature is not ready. Waiting…');
       return;
     }
+    if (!window.CK_SIM_SYNC || !window.CK_SIM_SYNC.validRoster(host.roster, host.sid, sessionId, cfg.kingdoms)) {
+      failLocal('This room does not include your session in its locked two-player roster.');
+      return;
+    }
     state.startingGame = true;
     state.config = cfg;
+    state.roster = host.roster;
     setStatus('Generating and checking the host map…');
     try {
       if (!state.tracked) {
@@ -696,7 +718,7 @@
     if (!channelStillCurrent(epoch, channel) || state.lifecycle !== 'running') return;
     if (!payload || typeof payload !== 'object' || payload.v !== PROTOCOL_VERSION) return;
     if (typeof payload.sid !== 'string' || payload.sid.length < 3 || payload.sid.length > 80 || payload.sid === sessionId) return;
-    if (!state.members.has(payload.sid)) return;
+    if (!state.members.has(payload.sid) || !state.roster || window.CK_SIM_SYNC.rosterTeam(state.roster, payload.sid) === null) return;
     const nick = cleanNick(payload.nick);
     if (!nick || payload.nick !== nick) return;
     if (!Number.isFinite(payload.x) || !Number.isFinite(payload.y)) return;
@@ -734,7 +756,7 @@
     channel.on('broadcast', { event: 'marker' }, ({ payload }) => acceptMarker(payload, epoch, channel));
     channel.on('broadcast', { event: 'map-ok' }, ({ payload }) => {
       if (!channelStillCurrent(epoch, channel) || state.role !== 'host' || state.lifecycle !== 'running') return;
-      if (!payload || payload.v !== PROTOCOL_VERSION || typeof payload.sid !== 'string' || !state.members.has(payload.sid) || payload.sid === sessionId) return;
+      if (!payload || payload.v !== PROTOCOL_VERSION || typeof payload.sid !== 'string' || !state.members.has(payload.sid) || payload.sid === sessionId || !state.roster || window.CK_SIM_SYNC.rosterTeam(state.roster, payload.sid) !== 1) return;
       if (payload.signature !== state.hostSignature) {
         failRoom('A joining client reported a different map signature. Match stopped safely.', epoch, channel);
       } else {
@@ -744,7 +766,7 @@
     });
     channel.on('broadcast', { event: 'map-fail' }, ({ payload }) => {
       if (!channelStillCurrent(epoch, channel) || state.role !== 'host' || state.lifecycle !== 'running') return;
-      if (!payload || payload.v !== PROTOCOL_VERSION || typeof payload.sid !== 'string' || !state.members.has(payload.sid) || payload.sid === sessionId) return;
+      if (!payload || payload.v !== PROTOCOL_VERSION || typeof payload.sid !== 'string' || !state.members.has(payload.sid) || payload.sid === sessionId || !state.roster || window.CK_SIM_SYNC.rosterTeam(state.roster, payload.sid) !== 1) return;
       failRoom('Initial map signature mismatch reported by another player. Match stopped safely.', epoch, channel);
     });
     channel.on('broadcast', { event: 'room-failed' }, ({ payload }) => {
@@ -791,6 +813,7 @@
     state.localFailure = '';
     state.gameStarted = false;
     state.startingGame = false;
+    state.roster = null;
     state.members = new Map();
     state.verified.clear();
     remotePlayers.clear();
@@ -881,6 +904,7 @@
     state.localFailure = '';
     state.gameStarted = false;
     state.startingGame = false;
+    state.roster = null;
     state.members.clear();
     state.verified.clear();
     remotePlayers.clear();
@@ -1129,6 +1153,9 @@
       memberCount: state.members.size, remoteMarkerCount: remotePlayers.size,
       mapSignature: state.hostSignature, status: state.statusText,
       commandProtocol: window.CK_SIM_SYNC ? window.CK_SIM_SYNC.VERSION : null,
+      rosterLocked: !!state.roster,
+      assignedTeam: state.roster ? window.CK_SIM_SYNC.rosterTeam(state.roster, sessionId) : null,
+      // Assignment does not yet alter the local game's team-zero input model.
       synchronizedWorld: false // Explicit: marker sessions are not shared RTS matches yet.
     };
   }
