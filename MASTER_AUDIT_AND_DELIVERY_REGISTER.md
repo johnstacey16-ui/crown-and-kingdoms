@@ -7,6 +7,15 @@
 
 This is the reconciled, evidence-based work register created from three independent audits and actual source/CI inspection. It supersedes unsupported conclusions in those audits; it does not replace the historical AOE2_PARITY_ROADMAP.md, which remains a technical change log. Updates must cite a specific commit, test run and environment.
 
+## Current verified CI baseline — 19 October 2026
+
+**Both GitHub Actions workflows are green at commit [8440b461712ae491499d8d08945d2b3b1c086885](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/8440b461712ae491499d8d08945d2b3b1c086885).**
+
+- [Complete regression workflow, run 39205968121](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39205968121): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
+- [Source/atlas validation workflow, run 39205968115](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39205968115): **success**.
+- There are **zero known failing automated regression files on that commit**. Future commits require their own matching CI verification. Earlier counts (38, 34, 29, 19, 1 failing) appearing below are dated historical checkpoints, not the current result.
+- **This verifies only the existing automated coverage:** physical Xbox Series S/X Edge gameplay, complete human-controller match and mission sessions, reliable long-game saves, actual shared multiplayer and Xbox DE reference-feature fidelity still require dedicated acceptance evidence.
+
 ## Ground rules
 
 - Two independent completion gates are required: **functional readiness** (the game works) and **reference fidelity** (the agreed Xbox reference mechanics and included base content match). A working prototype is not necessarily reference-equivalent.
@@ -54,8 +63,8 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 
 | ID | Prio | Track / task | Status | Implementation/evidence and acceptance requirement |
 |---|---|---|---|---|
-| CK-001 | P0 | Comprehensive CI failure inventory | PARTIAL | Updated game-regression workflow runs all tests; capture passing/failing files by exact commit, distinguish real failures and stale assertions, preserve coverage. |
-| CK-002 | P0 | Repair genuine regression failures | OPEN | For every failure in CK-001, document reproduction, cause, code/test change, passing focused test; both workflows must eventually pass. |
+| CK-001 | P0 | Comprehensive CI failure inventory | VERIFIED (automated) | All 133 standalone files are run and reported; current 8440b461 regression CI is green. Preserve full failure summaries and classify any new issues by type. |
+| CK-002 | P0 | Repair current regression failures | VERIFIED (current baseline) | All prior failures cleared at 8440b461, 133/133 standalone checks and 19/19 isolated missions pass; continuously revalidate after changes. Does not imply complete game readiness. |
 | CK-003 | P0 | Basic complete land skirmish | UNVERIFIED | engine.js, simulation.js, ai.js, mapgen.js: match start → economy → ages → combat → win/lose → results. Record actual in-browser gameplay and controlled AI full-match simulation. |
 | CK-004 | P0 | AI ability to finish matches | UNVERIFIED | ai.js has substantial economy/combat/recovery logic and focused tests. Run reproducible moderate/hard/late-game matches with clear winner and resource/accounting diagnostics. |
 | CK-005 | P0 | Current-version save round-trip | PARTIAL | save.js and persistence.js support references, RNG state, localStorage/IndexedDB. Verify saves during economy, troop movement, research, transport/garrison, relics, campaigns; compare state before/after. |
@@ -97,7 +106,7 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 
 ## Immediate implementation batches
 
-**Batch A — baseline and CI:** Collect complete failures from the new exhaustive regression workflow. Categorise by true runtime fault, obsolete source signature or fixture. Keep issue IDs in CK-001/002 and produce small integrated repairs; ensure no assertion is discarded to hide a genuine defect.
+**Batch A — baseline and CI (completed for current commit):** Both CI workflows are green at 8440b461. Keep them green after every code change; any new failure must be diagnosed as a gameplay defect, obsolete source signature or fixture, with coverage preserved.
 
 **Batch B — integrated solo game:** Use current simulation and tests to drive standard land matches through a winner/loser and late-game economy. Fix the first real blocker, verify save/load, then repeat on naval/island and harder AI. Do not expand the roster before the core mechanics are dependable.
 
@@ -174,3 +183,17 @@ This is another evidence-based repository hygiene and regression tranche, follow
 **Still open:** 19 failed regression files at the cited checkpoint, not all proven runtime bugs. Several still assert obsolete implementation layouts. Critical acceptance gaps remain: full skirmish end-to-end, robust current saves, controller-only hardware validation, competent match-winning AI, synced human multiplayer, and complete base Xbox content fidelity. Physical hardware acceptance and full human mission playthroughs remain unverified.
 
 **Cleanup policy reaffirmed:** Track and test before deleting. Existing tiny modules may still own runtime functions; broad comment or file deletion is not equivalent to removing demonstrably unused code. Keep all current-version game behaviour and valid protections intact.
+
+## Final regression cleanup checkpoint — 19 October 2026
+
+Commit `8440b461712ae491499d8d08945d2b3b1c086885` has verified **133/133 standalone regression files passing**, **19/19 isolated campaign simulations passing**, and green independent source/atlas validation. This supersedes all earlier failing-file checkpoint counts listed above.
+
+**Changes in the final cleanup tranche:**
+
+- Retired obsolete AI retreat tests expecting automatic shelter healing. New runtime tests verify critically wounded-unit retreat, completed reachable shelter selection, 65% HP recovery release, and exclusion from coordinated attack waves, without reintroducing free healing.
+- Replaced old siege-wave assertions with runtime testing of castle/tower/town-centre priority, reachability, dead/friendly target exclusions and retreat-safe release.
+- Tested diplomacy damage and indexed target acquisition against actual enemy-only filtering, including non-hostile and garrisoned entities.
+- Replaced obsolete transport, fishing, fish-trap, naval target ranking and dock connectivity assumptions with the current connected-water and occupied-tile fixtures, six-candidate reachable naval targeting, timed fishing routes and partial-unload notices.
+- **Corrected a real simulation bug:** `townBell` now counts each genuine living, same-owner garrisoned passenger once instead of treating duplicate or stale references as occupied capacity. New executable tests verify available capacity, duplicate references, pre-existing reservations, no overfill, nearest valid shelter and actual controller-menu integration.
+- Modernised save-slot confirmations, deletion hints, autosave validation fixtures, technology effects, King of the Hill AI pacing, spatial foe-grid tests and zero-distance-safe separation buffer checks. Existing invalid-save and failed-backup scenarios were retained; no smoke or regression tests were disabled to attain green.
+- This is a **test-baseline and targeted housekeeping milestone**, not proof that every file is free of unused functions or that the game is Xbox or multiplayer complete. Continue with CK-003–040 acceptance gates. Do not restart an unnecessary wholesale cleanup of currently functioning systems.
