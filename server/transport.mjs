@@ -49,7 +49,7 @@ export function createTransport({ now = Date.now, ttl = 30 * 60_000,
       // No CORS: the production reverse proxy must serve this on the game origin.
       if (req.headers['sec-fetch-site'] === 'cross-site') throw fail(403, 'Cross-site request rejected');
       expire();
-      const path = req.url;
+      const path = req.url.startsWith('/api/multiplayer/') ? req.url.slice('/api/multiplayer'.length) : req.url;
       if (path === '/sessions' && req.method === 'POST') {
         keys(await body(req), []);
         if (sessions.size >= maxSessions) throw fail(503, 'Session capacity reached');

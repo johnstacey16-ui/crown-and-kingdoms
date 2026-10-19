@@ -58,3 +58,45 @@ Full queues terminate the match rather than silently dropping game frames.
   establish none of those acceptance criteria.
 
 Do not advertise this prototype as production-ready multiplayer.
+
+## Browser adapter
+
+`js/network-transport.js` is loaded by the game and exposes
+`CK_AUTH_TRANSPORT.createClient()`. Loading it performs no network requests. The
+adapter uses `/api/multiplayer` on the page's origin; the Node server accepts this
+prefix directly, so a same-origin reverse proxy can preserve the request path.
+HTTPS is required except on loopback development origins. Redirects and cookies
+are disabled; credentials stay in memory and every request bypasses caches.
+
+```js
+const host = CK_AUTH_TRANSPORT.createClient();
+const room = await host.connect(); // phase: waiting
+// Privately pass room.roomId to the guest on another browser.
+const guest = CK_AUTH_TRANSPORT.createClient();
+await guest.connect(room.roomId);
+await host.refreshRoster(); // phase: ready; server-owned roster is now locked
+```
+
+Call `send(kind, payload)` with the existing command/frame protocol envelopes.
+Call `poll(async (kind, payload, trustedSenderSid) => { ...; return true; })`
+to process a batch. Pass `trustedSenderSid` to the command/frame validator;
+never take it from the payload. Returning anything other than `true`, throwing,
+a malformed batch, an HTTP failure or an eight-second request timeout fails the
+session closed and attempts to revoke its credential. Overlapping polls share
+one operation. `close()` aborts pending work and revokes the session. A fresh
+client and match are required after any failure; there is no automatic reconnect.
+The future game driver must stop advancing whenever an operation fails.
+
+The adapter validates the whole batch before processing, then acknowledges only
+after successful callbacks. `snapshot()` exposes the state/roster and invitation,
+not bearer credentials. The service worker excludes the API, authenticated
+requests and no-store requests from its shell cache. There is no timer or game
+menu integration yet; the adapter does not replace `CK_NET` or start a match.
+
+`tests/network-http-transport.test.mjs` runs the classic browser adapter in VM
+contexts against real loopback HTTP sockets. It sends a paid guest training order
+through the existing authoritative inbox and replays 20 frames into two actual
+production simulations, comparing every world hash. It also checks forged
+senders, gaps, rejected callbacks, cancellation, timeouts, concurrent polls and
+service-worker cache exclusion. Browser rendering, 30 Hz network performance,
+human controls, AI suppression and deployed TLS remain separately unverified.

@@ -4,7 +4,7 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v2';
+const CACHE_NAME = 'ck-shell-v3';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ const CORE_ASSETS = [
   './js/network-commands.js',
   './js/network-delivery.js',
   './js/network-uplink.js',
+  './js/network-transport.js',
   './multiplayer.js',
 ];
 
@@ -51,6 +52,9 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Authenticated relay responses must never enter or fall back to shell caches.
+  if (url.pathname.startsWith('/api/multiplayer/') ||
+      request.headers.has('Authorization') || request.cache === 'no-store') return;
 
   const networkFirst = request.mode === 'navigate' ||
     /\.(?:html|js|css|json)$/i.test(url.pathname);
@@ -85,3 +89,4 @@ self.addEventListener('fetch', (event) => {
     return response;
   })());
 });
+

@@ -1,54 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
-import { readFileSync } from 'node:fs';
-import { headlessGame } from './helpers/headless-game.mjs';
-
-const protocol=readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8');
-const commands=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
-const delivery=readFileSync(new URL('../js/network-delivery.js',import.meta.url),'utf8');
-const uplink=readFileSync(new URL('../js/network-uplink.js',import.meta.url),'utf8');
-
-function newWorld(){
-  const {source,sandbox}=headlessGame();
-  const harness=`
-    seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;
-    startAge=0;startRes=0;startArmy=0;start();
-    const sync=window.CK_SIM_SYNC,commands=window.CK_GAME_COMMANDS;
-    const delivery=window.CK_FRAME_DELIVERY,uplink=window.CK_COMMAND_UPLINK;
-    const roster=sync.lockRoster('host-session','guest-session',2);
-    const matchId='production_world_match_nonce_v2';
-    const host=sync.createCommandHost({roster,mapSize:W,delayFrames:1,
-      lookupEntity:commands.lookup,execute:commands.execute});
-    const ingress=uplink.createCommandIngress({roster,matchId,mapSize:W,host});
-    const client=uplink.createCommandSender({roster,matchId,mapSize:W,
-      sid:'guest-session',retryTicks:2,maxAttempts:4});
-    const outbox=delivery.createOutbox({roster,mapSize:W,startFrame:0});
-    const replica=sync.createFrameReplica({roster,mapSize:W,
-      execute:commands.execute,startFrame:0});
-    let steps=0;
-    const advance=()=>{step(DT);steps++;return true};
-    const receiver=delivery.createReceiver({roster,mapSize:W,replica,advance});
-    const clock=delivery.createHostClock({host,outbox,advance,startFrame:0});
-    globalThis.TEST_LINK={
-      tc:t=>S.bs.find(b=>b.t===t&&b.k==='tc').netId,
-      submit:(order,frame)=>client.submit(order,frame),
-      send:tick=>client.poll(tick),
-      request:(envelope,sid)=>ingress.receive(envelope,sid,clock.state().frame),
-      receipt:(message,sid)=>client.acknowledge(message,sid),
-      tick:()=>clock.tick(),
-      transmit:tick=>outbox.poll(tick),
-      receive:(message,sid)=>receiver.receive(message,sid),
-      ack:(message,sid)=>outbox.acknowledge(message,sid),
-      hash:frame=>sync.worldCheckpoint(S,frame).hash,
-      queue:t=>S.bs.find(b=>b.t===t&&b.k==='tc').q.length,
-      steps:()=>steps
-    };
-  `;
-  vm.runInNewContext(source+'\n'+protocol+'\n'+commands+'\n'+delivery+
-    '\n'+uplink+'\n'+harness,sandbox,{filename:'network-full-command-trip.js'});
-  return sandbox.TEST_LINK;
-}
+import { networkWorld as newWorld } from './helpers/network-world.mjs';
 
 test('guest input retries → host command → 20 frame journals → guest simulation parity',()=>{
   const host=newWorld(),guest=newWorld();
@@ -96,3 +48,4 @@ test('cross-match or forged guest packets never mutate either production world',
   assert.equal(host.queue(1),0);
   assert.equal(host.hash(0),guest.hash(0));
 });
+
