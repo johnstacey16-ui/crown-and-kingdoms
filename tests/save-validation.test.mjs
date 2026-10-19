@@ -29,8 +29,13 @@ assert.match(save,/try\{j=JSON\.parse\(localStorage\.getItem\(auto\?'ck_autosave
   'malformed JSON must be reported as an invalid save rather than a loader crash');
 assert.match(save,/const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/,
   'an asynchronous backup rejection must not interrupt the primary save');
-assert.match(save,/catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/,
-  'an optional backup failure must not prevent the primary save write');
+const primaryWrite=save.indexOf('localStorage.setItem(key,payload)');
+const primaryVerified=save.indexOf('if(localStorage.getItem(key)!==payload)throw 0;');
+const secondaryWrite=save.indexOf('window.CK_STORAGE.mirrorSave(key,payload)');
+assert.ok(primaryWrite>=0&&primaryVerified>primaryWrite&&secondaryWrite>primaryVerified,
+  'the verified primary save must be written before its optional secondary mirror');
+assert.match(save,/catch\(e\)\{\}/,
+  'an optional backup failure must not prevent the already verified primary save');
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
