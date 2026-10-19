@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
@@ -23,8 +24,17 @@ assert.match(html, /for\(let t=1;t<S\.teamN;t\+\+\)if\(S\.bs\.some\(b=>b\.t===t&
   'Diplomacy must remain available when a kingdom loses its Town Centre but still has surviving forces or buildings');
 assert.match(html, /function diplomacyMenuItems\(\)\{[\s\S]{0,500}l:\(\)=>rotateDiplomacy\(0,t,-1\),r:\(\)=>rotateDiplomacy\(0,t,1\),a:\(\)=>rotateDiplomacy\(0,t,1\)/,
   'Enemy, neutral and ally states must be changeable with the pause-menu controller');
-assert.match(html, /if\(!isHostile\(a\.t,t\.t\)\)return;const ak=U\[a\.k\]/,
-  'All damage must be blocked against neutral/allied kingdoms');
+assert.match(html, /function dmgT\(a,t\)\{if\(!a\|\|!t\|\|!U\[a\.k\]\|\|\(!t\.s&&!U\[t\.k\]\)\|\|!Number\.isFinite\(t\.hp\)\|\|t\.hp<=0\|\|t\.ld\|\|!S\.tech\[a\.t\]\|\|!isHostile\(a\.t,t\.t\)\)return;/,
+  'Damage must guard missing, dead and non-hostile targets before applying any combat effects');
+const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const begin=simulation.indexOf('function dmgT(');
+const finish=simulation.indexOf('\nconst hit=',begin);
+assert.ok(begin>=0&&finish>begin,'direct damage simulation must remain available');
+const context={U:{mil:{rng:1,sp:1,dmg:5},spear:{rng:1,sp:1,dmg:4}},S:{tech:[{},{}]},isHostile:()=>false};
+const dmgT=vm.runInNewContext(simulation.slice(begin,finish)+'\n;dmgT;',context);
+const attacker={k:'mil',t:0,x:1,y:1,hp:100},target={k:'spear',t:1,x:2,y:2,hp:100};
+assert.doesNotThrow(()=>dmgT(attacker,target),'combat must reject allied/neutral damage before reading other combat dependencies');
+assert.equal(target.hp,100,'allied or neutral targets take no damage');
 assert.match(html, /if\(tg&&tg\.t>0&&\(tg\.q\|\|U\[tg\.k\]\)&&!isHostile\(us\[0\]\.t,tg\.t\)\)/,
   'Manual attacks must reject non-hostile targets');
 assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}b=nearestFoeUnit\(u,r\);if\(b\)return b/,
