@@ -7,7 +7,7 @@ is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 This is a server prototype, not a deployed service. The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
 existing Supabase marker room is unchanged. A limited live economy preview now
-connects training, cancellation and movement orders to the shared simulation clock; the full
+connects training, cancellation, movement and rally orders to the shared simulation clock; the full
 RTS controller interface is not enabled.
 
 ## Identity and membership
@@ -150,7 +150,7 @@ execution result; the host sends `result` only after applying the requested fram
 
 `CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
 authoritative inbox, host clock, frame replica and delivery acknowledgments.
-The driver allows train, cancel and move orders. Attack, construction and other
+The driver allows train, cancel, move and rally orders. Attack, construction and other
 battlefield commands remain unavailable, including those lacking visibility checks.
 Host and guest orders both pass through identity/team/ownership validation.
 
@@ -187,7 +187,7 @@ resources, terrain and the shared team-zero fog array are not exposed by this UI
 Blue dots are owned units; gold rectangles are owned buildings.
 
 Click a unit and then a destination to submit one typed move order. With the map
-focused, D-pad or arrow keys move its cursor; A or Enter selects/moves, X clears
+focused, D-pad or arrow keys move its cursor; A or Enter selects/orders, X clears
 selection, and B returns to the surrounding controls. Menu still leaves the
 preview. Pointer coordinates are scaled to the actual map dimensions, including
 small/mobile canvases. Loaded/dead selections are discarded. The projection
@@ -197,7 +197,13 @@ Move orders use the same authenticated sender/team and entity ownership checks,
 ordered execution, production pathfinding, frame replay and checksum ACKs as
 paid production orders. A failed path reports unsuccessful execution. Commands
 wait for their authoritative frame instead of moving units optimistically.
-The preview run handshake is version 2 so older preview clients fail before
-accepting a movement-enabled session. Combat, building/resource orders, terrain
+Select a completed town centre, then a destination to set its rally point.
+The selected town centre shows its confirmed rally marker and connecting line.
+Rally points apply to future trained units; existing units keep their orders.
+If no route exists, the new unit stays idle rather than keeping an automatic
+gathering assignment.
+Unfinished buildings cannot be selected for rally orders.
+The preview run handshake is version 3 so older preview clients fail before
+accepting a rally-enabled session. Combat, building/resource orders, terrain
 rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
 remain outstanding. The Node relay still requires separate deployment.

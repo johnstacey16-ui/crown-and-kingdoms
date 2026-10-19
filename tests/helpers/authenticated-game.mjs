@@ -17,6 +17,10 @@ function game(origin, preferences) {
     globalThis.testWorld=()=>({time:S.t,mode,resources:S.res,age:S.age,units:S.us.length,
       buildings:S.bs.length,width:W});
     globalThis.testTeam=t=>({food:S.res[t].f,units:S.us.filter(u=>u.t===t&&u.hp>0).length,tc:S.bs.find(b=>b.t===t&&b.k==='tc').netId,queue:S.bs.find(b=>b.t===t&&b.k==='tc').q.length});
+    globalThis.testRally=t=>JSON.parse(JSON.stringify(S.bs.find(b=>b.t===t&&b.k==='tc').rally||null));
+    globalThis.testRallyPoint=t=>{const b=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(b),u={...S.us.find(u=>u.t===t&&u.k==='vil'),x:p[0],y:p[1]};for(let y=2;y<H-2;y++)for(let x=2;x<W-2;x++){if(Math.hypot(x-u.x,y-u.y)<5||Math.hypot(x-u.x,y-u.y)>10)continue;const route=path(u,gp(x,y,1.5));if(route&&route.length>3)return {x,y};}throw Error('No fixture rally route');};
+    globalThis.testFastTraining=()=>{U.vil.t=0.1;};
+    globalThis.testNewestUnit=t=>{const u=S.us.filter(u=>u.t===t&&u.k==='vil').at(-1);return {id:u.netId,order:u.o,path:u.p,autoWorker:u.autoWorker};};
     globalThis.testAi=()=>JSON.stringify(S.ai);
     globalThis.testHash=()=>window.CK_SIM_SYNC.worldCheckpoint(S,Math.round(S.t/DT)).hash;
     globalThis.testUnit=t=>{const u=S.us.find(u=>u.t===t&&u.k==='vil');return {id:u.netId,x:u.x,y:u.y,order:u.o};};

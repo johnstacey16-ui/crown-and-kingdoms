@@ -68,3 +68,31 @@ test('refresh drops dead/loaded selections, validates bounds and preserves simul
   f.map.choose({x:25,y:25});assert.equal(f.orders.length,0);
   assert.equal(source.vs.some(Boolean),false);
 });
+
+test('completed own town centre submits rally without optimistic mutation and drops invalid selection',()=>{
+  const f=fixture(),source=world(),town=source.bs[1];
+  f.map.refresh(source,1,32,32,true);f.map.choose({x:18,y:18});
+  assert.equal(f.map.selected(),null,'unfinished town is not selectable');
+  town.done=true;town.rally={x:27,y:28};
+  f.map.refresh(source,1,32,32,true);
+  const projection=api.project(source,1,32,32);
+  projection.buildings[0].rally.x=0;
+  assert.equal(town.rally.x,27,'rally projection is copied');
+  f.map.choose({x:18,y:18});assert.equal(f.map.selected(),'b2');
+  f.map.choose({x:25,y:26});
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'rally',entities:['b2'],point:{x:25,y:26}}]));
+  assert.equal(town.rally.x,27,'no optimistic rally change');
+  f.map.choose({x:24,y:24});assert.equal(f.orders.length,1);
+  town.hp=0;f.map.refresh(source,1,32,32,true);
+  assert.equal(f.map.selected(),null);
+});
+
+test('keyboard/controller cursor can select town centre and submit a rally point',()=>{
+  const f=fixture(),source=world();source.us=[];source.bs[1].done=true;
+  f.map.refresh(source,1,32,32,true);
+  f.handlers.get('keydown')({key:'Enter',preventDefault(){}});
+  assert.equal(f.map.selected(),'b2');
+  for(let i=0;i<5;i++)f.map.control({15:true});
+  f.map.control({0:true});
+  assert.equal(f.orders[0].type,'rally');assert.equal(f.orders[0].point.x,23);
+});

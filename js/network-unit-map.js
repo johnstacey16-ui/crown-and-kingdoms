@@ -9,14 +9,15 @@
     // shared fog arrays or mutable simulation objects to this UI projection.
     return {width,height,team,
       units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y})),
-      buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1}))};
+      buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
+        rallyable:b.k==='tc'&&!!b.done,rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
   }
   function create({canvas,description,submit,leave,nameOf=()=> 'unit'}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,cursor=null,enabled=false;
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Click a unit then a destination. D-pad moves the cursor, A selects or moves, X clears, B leaves the map.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Select a unit to move or a completed town centre to set its rally point. D-pad moves the cursor, A selects or orders, X clears, B leaves the map.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       context.fillStyle='#090d16';context.fillRect(0,0,680,680);
@@ -26,7 +27,16 @@
       for(let cell=0;cell<=view.width;cell+=8){context.beginPath();context.moveTo(cell*sx,0);context.lineTo(cell*sx,680);context.stroke();}
       for(let cell=0;cell<=view.height;cell+=8){context.beginPath();context.moveTo(0,cell*sy);context.lineTo(680,cell*sy);context.stroke();}
       context.fillStyle='#c9a24a';
-      for(const b of view.buildings)context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
+      for(const b of view.buildings){
+        context.fillStyle=b.id===selected?'#ffe78a':'#c9a24a';
+        context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
+        if(b.id===selected&&b.rally){
+          context.strokeStyle='#ffe78a';context.beginPath();
+          context.moveTo((b.x+b.size/2)*sx,(b.y+b.size/2)*sy);
+          context.lineTo(b.rally.x*sx,b.rally.y*sy);context.stroke();
+          context.fillRect(b.rally.x*sx-3,b.rally.y*sy-3,6,6);
+        }
+      }
       for(const u of view.units){
         context.fillStyle=u.id===selected?'#ffe78a':'#73c9ff';context.beginPath();
         context.arc(u.x*sx,u.y*sy,u.id===selected?6:4,0,Math.PI*2);context.fill();
@@ -39,10 +49,10 @@
     }
     function refresh(world,team,width,height,canCommand) {
       view=project(world,team,width,height);enabled=canCommand;
-      if(selected&&!view.units.some(u=>u.id===selected))selected=null;
+      if(selected&&!view.units.some(u=>u.id===selected)&&!view.buildings.some(b=>b.id===selected&&b.rallyable))selected=null;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
-      if(!selected)description.textContent='Your units are blue and your buildings gold. Select a unit, then choose a destination. Enemy positions and terrain are not shown.';
+      if(!selected)description.textContent='Your units are blue and your buildings gold. Select a unit to move, or a completed town centre to set its rally point. Enemy positions and terrain are not shown.';
       draw();
     }
     function choose(point) {
@@ -52,12 +62,15 @@
       const radius=Math.max(0.8,view.width*8/680);
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
+      const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
       if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. Choose a destination; X clears selection.';}
+      else if(town){selected=town.id;description.textContent='Town centre selected. Choose a rally point for newly trained units; X clears selection.';}
       else if(selected){
-        const result=submit({type:'move',entities:[selected],point:{...point}});
-        description.textContent=result.ok?'Move submitted. The unit moves only after host execution.':'Move not submitted. Wait for the previous order or select another unit.';
+        const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
+        const result=submit({type:rally?'rally':'move',entities:[selected],point:{...point}});
+        description.textContent=result.ok?(rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Wait for the previous order or select another entity.';
         if(result.ok)enabled=false;
-      }else description.textContent='Select one of your blue units first.';
+      }else description.textContent='Select one of your blue units or completed town centres first.';
       draw();
     }
     canvas.addEventListener('click',event=>{

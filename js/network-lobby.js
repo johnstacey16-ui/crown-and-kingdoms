@@ -68,7 +68,7 @@
     overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:#090d16;color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
-    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers and move your own units. Combat and building controls are not enabled yet.';
+    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers, move your own units and set town-centre rally points. Combat and construction controls are not enabled yet.';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 43;

@@ -116,6 +116,64 @@ test('guest cannot move an opposing unit and malformed destinations never enter 
   assert.equal(JSON.stringify(p.hostGame.testUnit(0)),JSON.stringify(enemy));
 });
 
+test('both town centres accept synchronized rally orders without changing existing unit orders',async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const units=[p.hostGame.testUnit(0),p.hostGame.testUnit(1)];
+  const points=[p.hostGame.testRallyPoint(0),p.hostGame.testRallyPoint(1)];
+  for(const [team,session] of [[0,p.hostLive],[1,p.guestLive]]){
+    assert.equal(session.submit({type:'rally',entities:[p.hostGame.testTeam(team).tc],point:points[team]}).ok,true);
+  }
+  for(let i=0;i<10;i++)await p.cycle();
+  for(const team of [0,1]){
+    assert.equal(JSON.stringify(p.hostGame.testRally(team)),JSON.stringify({...points[team],t:null}));
+    assert.equal(JSON.stringify(p.hostGame.testRally(team)),JSON.stringify(p.guestGame.testRally(team)));
+    assert.equal(p.hostGame.testUnit(team).order,units[team].order);
+  }
+  assert.equal(p.hostLive.snapshot().lastResult.ok,true);
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  // Shorten only the fixture's training duration; production payment, spawning,
+  // rally pathfinding and frame execution still use the real game code.
+  const population=[p.hostGame.testTeam(0).units,p.hostGame.testTeam(1).units];
+  p.hostGame.testFastTraining();p.guestGame.testFastTraining();
+  for(const [team,session] of [[0,p.hostLive],[1,p.guestLive]]){
+    assert.equal(session.submit({type:'train',entities:[p.hostGame.testTeam(team).tc],value:'vil'}).ok,true);
+  }
+  for(let i=0;i<14;i++)await p.cycle();
+  for(const team of [0,1]){
+    assert.equal(p.hostGame.testTeam(team).units,population[team]+1);
+    const unit=p.hostGame.testNewestUnit(team);
+    assert.equal(unit.order,'m');assert.ok(unit.path.length>0);
+    assert.equal(unit.autoWorker,0);
+    assert.equal(JSON.stringify(unit),JSON.stringify(p.guestGame.testNewestUnit(team)));
+  }
+});
+
+test('guest rally cannot modify the opposing town centre',async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const before=JSON.stringify(p.hostGame.testRally(0));
+  assert.equal(p.guestLive.submit({type:'rally',entities:[p.hostGame.testTeam(0).tc],point:{x:20,y:22}}).ok,true);
+  await p.guestLive.pump();await assert.rejects(p.hostLive.pump(),/Command rejected/);
+  assert.equal(JSON.stringify(p.hostGame.testRally(0)),before);
+});
+
+test('unreachable rally leaves a newly trained host villager idle instead of retaining automatic gathering',async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const unit=p.hostGame.testUnit(0),tc=p.hostGame.testTeam(0).tc;
+  // This seeded world's offset is unreachable from the town-centre spawn.
+  assert.equal(p.hostLive.submit({type:'rally',entities:[tc],point:{x:unit.x+5,y:unit.y+5}}).ok,true);
+  for(let i=0;i<10;i++)await p.cycle();
+  p.hostGame.testFastTraining();p.guestGame.testFastTraining();
+  assert.equal(p.hostLive.submit({type:'train',entities:[tc],value:'vil'}).ok,true);
+  for(let i=0;i<14;i++)await p.cycle();
+  const spawned=p.hostGame.testNewestUnit(0);
+  assert.notEqual(spawned.id,unit.id);assert.equal(spawned.order,'i');
+  assert.equal(spawned.path.length,0);assert.equal(spawned.autoWorker,0);
+  assert.equal(JSON.stringify(spawned),JSON.stringify(p.guestGame.testNewestUnit(0)));
+});
+
 test('host cannot step past an unacknowledged frame and timeout terminates the room', async t=>{
   const p=await livePair(t);
   await p.hostLive.begin();await p.cycle();
