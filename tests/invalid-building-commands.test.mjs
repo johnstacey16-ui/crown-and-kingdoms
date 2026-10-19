@@ -18,7 +18,7 @@ assert.match(train, /pay\(t,d\.cost\);b\.q\.push/,
   'Valid production must still charge resources and queue the unit');
 
 // Exercise the production function's preconditions without calling the economy.
-const trainFn=vm.runInNewContext(train+'\ntrain;');
+const trainFn=vm.runInNewContext(train+'\ntrain;', {S:{tech:[{}]},B:{tc:{tr:['vil']}},U:{vil:{}}});
 for(const building of [null,{hp:0,done:true,t:0,k:'tc',q:[]},
   {hp:20,done:false,t:0,k:'tc',q:[]},
   {hp:20,done:true,t:0,k:'tc',q:[],rs:{k:'loom',t:5}}]){
