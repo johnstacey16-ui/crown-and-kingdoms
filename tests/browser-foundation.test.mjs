@@ -144,7 +144,13 @@ test('IndexedDB backs up saved slots without replacing the localStorage compatib
   assert.ok(html.indexOf('./persistence.js') < html.indexOf('./js/config.js'));
   assert.match(persistence, /indexedDB\.open\(DB_NAME, 1\)/);
   assert.match(persistence, /mirrorSave, deleteSave, restoreMissing, clearDeletionMarker/);
-  assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\);try\{if\(window\.CK_STORAGE&&typeof window\.CK_STORAGE\.mirrorSave==='function'\)\{const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)\}\}catch\(e\)\{\}/);
+  const write=save.indexOf('localStorage.setItem(key,payload)');
+  const confirmed=save.indexOf('if(localStorage.getItem(key)!==payload)throw 0;');
+  const mirrored=save.indexOf('window.CK_STORAGE.mirrorSave(key,payload)');
+  assert.ok(write>=0&&confirmed>write&&mirrored>confirmed,
+    'optional IndexedDB backup must run only after a verified synchronous localStorage save');
+  assert.match(save,/if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/,
+    'asynchronous backup failure must not replace or reject a valid local checkpoint');
   assert.match(engine, /restoreMissing\(\)\.then\(\(\)=>refreshSlots\(\)\)/);
   assert.match(save, /localStorage\.setItem\(key,payload\)/);
 });
