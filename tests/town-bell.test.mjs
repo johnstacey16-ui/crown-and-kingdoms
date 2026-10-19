@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
-const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const start=simulation.indexOf('function townBell(t){');
 const end=simulation.indexOf('\nfunction gm(',start);
 assert.ok(start>=0&&end>start,'Town Bell simulation helper must be available');
@@ -41,5 +41,5 @@ test('Town Bell does not send dead, enemy or already garrisoned villagers',()=>{
 });
 
 test('Town Bell remains available through Town Centre controller interactions',()=>{
- assert.match(ui,/if\(s\.k==='tc'\)\{it\.push\(\{l:'Town Bell: Garrison villagers'/);
+ assert.match(input,/if\(s\.k==='tc'\)\{it\.push\(\{l:'Town Bell: Garrison villagers'/);
 });
