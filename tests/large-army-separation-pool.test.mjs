@@ -17,8 +17,8 @@ test('large-army separation recycles spatial bucket arrays instead of allocating
     'Occupied buckets must be emptied and returned to the reuse pool each large-army tick');
   assert.match(sep, /const next=SEP_BUCKET_POOL\.pop\(\)\|\|\[\];next\.push\(i\);grid\.set\(k,next\)/,
     'Newly occupied cells must reuse a pooled array before allocating a fallback');
-  assert.match(sep, /const p=\(\.5-d\)\*\.25;dx\/=d;dy\/=d;mv\(a,dx\*p,dy\*p\);mv\(b,-dx\*p,-dy\*p\)/,
-    'Collision radius and separation displacement must remain unchanged');
+  assert.match(sep, /const dist=Math\.sqrt\(ds\)\|\|\.01,p=\(\.5-dist\)\*\.25;dx\/=dist;dy\/=dist;mv\(a,dx\*p,dy\*p\);mv\(b,-dx\*p,-dy\*p\)/,
+    'Collision separation must maintain the half-tile radius while safely avoiding division by zero');
   assert.match(sep, /if\(a\.ld\|\|a\.hp<=0\)continue/, 'Large-army grid must not insert defeated units into spatial buckets');
   assert.match(sep, /if\(b\.ld\|\|b\.hp<=0\|\|Math\.abs\(a\.x-b\.x\)>.5/, 'Large-army separation must ignore defeated neighbours');
   assert.match(sep, /if\(a\.hp<=0\)continue;for\(let j=i\+1;j<us\.length;j\+\+\)/, 'Small-army separation must skip defeated units too');
