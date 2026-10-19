@@ -26,7 +26,7 @@ assert.match(html, /function diplomacyMenuItems\(\)\{[\s\S]{0,500}l:\(\)=>rotate
   'Enemy, neutral and ally states must be changeable with the pause-menu controller');
 assert.match(html, /function dmgT\(a,t\)\{if\(!a\|\|!t\|\|!U\[a\.k\]\|\|\(!t\.s&&!U\[t\.k\]\)\|\|!Number\.isFinite\(t\.hp\)\|\|t\.hp<=0\|\|t\.ld\|\|!S\.tech\[a\.t\]\|\|!isHostile\(a\.t,t\.t\)\)return;/,
   'Damage must guard missing, dead and non-hostile targets before applying any combat effects');
-const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+
 const begin=simulation.indexOf('function dmgT(');
 const finish=simulation.indexOf('\nconst hit=',begin);
 assert.ok(begin>=0&&finish>begin,'direct damage simulation must remain available');
