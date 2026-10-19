@@ -31,11 +31,11 @@ assert.match(html, /Your kingdom held the central hill for 5 minutes/,
 assert.match(html, /' held the central hill for 5 minutes'/,
   'A rival victory result must identify the hill objective');
 
-assert.match(html, /tgt=vm===5\?\{x:W\/2,y:H\/2,t:-1,k:'hill',hp:1\}/,
-  'AI attack groups must target the central hill in this mode');
+assert.match(html, /if\(launchReady\)\{if\(vm===5\)tgt=\{x:W\/2,y:H\/2,t:-1,k:'hill',hp:1\}/,
+  'Ready AI attack groups must target the central hill in this mode');
 assert.match(html, /const sx=vm===5\?W\/2:tc\.x\+\(tgt\.x-tc\.x\)\*\.35,sy=vm===5\?H\/2:tc\.y\+\(tgt\.y-tc\.y\)\*\.35/,
   'AI must move its attack rally point to the hill rather than stopping short');
-assert.match(html, /const fo=vm===5\?\[\(i%5-2\),\(\(Math\.floor\(i\/5\)%5\)-2\)\]:fslot/,
+assert.match(html, /const fo=vm===5\?\[\(i%5-2\),\(\(Math\.floor\(i\/5\)%5\)-2\)\]:slots\(i\)/,
   'AI combat units must gather in a compact capture formation');
 
 assert.match(html, /'King of the Hill','Sudden Death'\]\[vm\]/,
@@ -63,8 +63,8 @@ assert.match(html, /diplomacyRelation\(0,u\.t\)!=='neutral'/,
   'Neutral units must not count as capture units');
 assert.match(html, /nx:\(vm===5\?180:/,
   'AI should begin its first hill attack earlier than a standard attack wave');
-assert.match(html, /A\.nx=S\.t\+\(vm===5\?\[180,150,120\]\[diff\]:\[300,240,180\]\[diff\]\)/,
-  'AI should make repeated attempts to capture or retake a hill');
+assert.match(html, /A\.nx=S\.t\+\(vm===5\?\[240,200,170,145,125,105\]\[diff\]:\[420,340,280,230,190,155\]\[diff\]\)\*PERS\[aip\]\.g/,
+  'AI must schedule repeated hill attempts on all six difficulty levels using the current aggression profile');
 assert.match(html, /S\.mapAudit=\{\.\.\.auditGeneratedMap\(starts\),hillReachable:true\}/,
   'Map connectivity should be refreshed after the hill roads are carved');
 
