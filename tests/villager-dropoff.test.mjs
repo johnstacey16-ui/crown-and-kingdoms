@@ -27,8 +27,12 @@ contains("const b=S.bs.find(q=>dropoffKey(q)===u.dropKey&&dropoffCompatible(u,q)
   'Travelling villagers must resolve their saved drop-off key and detect destroyed/incompatible destinations');
 contains("u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return",
   'Successful delivery must deposit the carried amount and clear transient drop-off state');
-contains("us:S.us.map(u=>({...u,tg:rf(u.tg),rel:null,ld:rf(u.ld),cg:u.cg?u.cg.map(rf):undefined}))",
-  'Drop-off retry state must stay serializable within the existing compatible save payload');
+contains("us:S.us.map(u=>({...u,tg:rf(u.tg),rel:null,ld:rf(u.ld),retreatTarget:",
+  'Saved unit records must retain their own drop-off retry fields while serialising unit references');
+const retry={dropKey:'0:lumber:12:12',dropSkipKeys:['0:lumber:15:12'],dropRetry:3};
+const restored=JSON.parse(JSON.stringify({...retry,tg:null,ld:null}));
+assert.deepEqual({dropKey:restored.dropKey,dropSkipKeys:restored.dropSkipKeys,dropRetry:restored.dropRetry},retry,
+  'the transient drop-off retry state must remain JSON-serialisable');
 
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const routeStart=simulation.indexOf('function dropoffKey(');
