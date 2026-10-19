@@ -68,7 +68,7 @@
     overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:#090d16;color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
-    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then try the live economy preview: both players can train and cancel villagers in their own kingdom. Full battlefield controls are not enabled yet.';
+    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers and move your own units. Combat and building controls are not enabled yet.';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 43;
@@ -81,13 +81,19 @@
     const verify = makeButton('Verify shared map'), leave = makeButton('Leave setup');
     const run = makeButton('Run live preview'), trainButton = makeButton('Train villager'), cancelButton = makeButton('Cancel training');
     const economy = document.createElement('p'); economy.setAttribute('aria-live','polite');
-    for (const element of [host,input,join,verify,run,trainButton,cancelButton,leave]) {
+    const mapButton = makeButton('Control units on map');
+    const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
+    mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = true;
+    const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,
+      submit:order=>live&&!stopped?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
+      nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
+    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,leave]) {
       element.style.cssText = 'display:block;width:min(100%,680px);box-sizing:border-box;margin:14px 0;padding:14px;border:2px solid #c9a24a;border-radius:6px;background:#15243c;color:#fff;font:inherit';
     }
-    verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = true;
-    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,status,leave);
+    verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
+    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,unitCanvas,mapDescription,status,leave);
     document.body.appendChild(overlay);
-    const controls = [host,input,join,verify,run,trainButton,cancelButton,leave];
+    const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,unitCanvas,leave];
     function close() {
       if (closed) return;
       closed = true; root.clearTimeout(timer);
@@ -101,7 +107,8 @@
       stopped = true; root.clearTimeout(timer);
       if (live) live.close(); else if (connection) connection.close();
       status.textContent = 'Room setup stopped. The other player may have left, the connection failed, or the worlds did not match. Leave setup to try again.';
-      verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = true;
+      verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
+      unitCanvas.hidden = mapDescription.hidden = true;
       leave.focus();
     }
     async function update() {
@@ -134,6 +141,9 @@
                 (state.lastResult.ok ? 'Last order executed' : 'Last order could not execute. Check resources, population space and the training queue.') :
                 'Train or cancel villagers in your own kingdom');
             const team = room.team, town = S.bs.find(b=>b.t===team&&b.k==='tc'&&b.hp>0);
+            mapButton.disabled = state.phase !== 'running';
+            unitCanvas.hidden = mapDescription.hidden = false;
+            unitMap.refresh(S,team,W,H,state.phase === 'running'&&!state.commandPending);
             economy.textContent = 'Your kingdom: ' + (team+1) + ' · Food: ' + Math.floor(S.res[team].f) +
               ' · Population: ' + popOf(team) + '/' + capOf(team) +
               ' · Villagers: ' + S.us.filter(u=>u.t===team&&u.k==='vil'&&u.hp>0).length +
@@ -184,11 +194,12 @@
     }
     trainButton.addEventListener('click',()=>order('train'));
     cancelButton.addEventListener('click',()=>order('cancel'));
+    mapButton.addEventListener('click',()=>unitCanvas.focus());
     leave.addEventListener('click', close);
     overlay.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); close(); }
       if (event.key === 'Tab') {
-        const available = controls.filter(element => !element.disabled);
+        const available = controls.filter(element => !element.disabled && !element.hidden);
         const at = available.indexOf(document.activeElement);
         if (event.shiftKey && at <= 0) { event.preventDefault(); available[available.length-1].focus(); }
         else if (!event.shiftKey && at === available.length-1) { event.preventDefault(); available[0].focus(); }
@@ -196,8 +207,9 @@
     });
     root.addEventListener('pagehide', close);
     panel = { close, control() {
+      if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E); return; }
       if (E[1] || E[9]) { close(); return; }
-      const available = controls.filter(element => !element.disabled);
+      const available = controls.filter(element => !element.disabled && !element.hidden);
       if (E[12] || E[13]) {
         const at = Math.max(0,available.indexOf(document.activeElement));
         available[(at+(E[12]?-1:1)+available.length)%available.length].focus();

@@ -7,7 +7,7 @@ is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 This is a server prototype, not a deployed service. The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
 existing Supabase marker room is unchanged. A limited live economy preview now
-connects training/cancellation orders to the shared simulation clock; the full
+connects training, cancellation and movement orders to the shared simulation clock; the full
 RTS controller interface is not enabled.
 
 ## Identity and membership
@@ -150,7 +150,7 @@ execution result; the host sends `result` only after applying the requested fram
 
 `CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
 authoritative inbox, host clock, frame replica and delivery acknowledgments.
-The driver allows only train/cancel orders. Attack, construction and other
+The driver allows train, cancel and move orders. Attack, construction and other
 battlefield commands remain unavailable, including those lacking visibility checks.
 Host and guest orders both pass through identity/team/ownership validation.
 
@@ -177,3 +177,27 @@ paid orders for both teams, refunds, population rejection reporting, world parit
 AI suppression, duplicate delivery, backpressure, timeout, desync, unauthorized
 ownership and DOM/controller event-driven preview buttons and teardown. The DOM
 fixture does not establish visual browser or Xbox hardware acceptance.
+
+## Own-kingdom unit map
+
+The live preview now includes **Control units on map**. This is a simple
+team-relative tactical grid, not the full game renderer: only the current
+player's living, ungarrisoned units and buildings are projected. Enemy entities,
+resources, terrain and the shared team-zero fog array are not exposed by this UI.
+Blue dots are owned units; gold rectangles are owned buildings.
+
+Click a unit and then a destination to submit one typed move order. With the map
+focused, D-pad or arrow keys move its cursor; A or Enter selects/moves, X clears
+selection, and B returns to the surrounding controls. Menu still leaves the
+preview. Pointer coordinates are scaled to the actual map dimensions, including
+small/mobile canvases. Loaded/dead selections are discarded. The projection
+copies display data and never mutates the simulation.
+
+Move orders use the same authenticated sender/team and entity ownership checks,
+ordered execution, production pathfinding, frame replay and checksum ACKs as
+paid production orders. A failed path reports unsuccessful execution. Commands
+wait for their authoritative frame instead of moving units optimistically.
+The preview run handshake is version 2 so older preview clients fail before
+accepting a movement-enabled session. Combat, building/resource orders, terrain
+rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
+remain outstanding. The Node relay still requires separate deployment.

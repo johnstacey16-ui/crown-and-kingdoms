@@ -85,6 +85,37 @@ test('retransmitted frame and duplicate acknowledgments never step either world 
   assert.equal(p.hostGame.testHash(),hash);assert.equal(p.guestGame.testHash(),hash);
 });
 
+test('host and guest move their own villagers over HTTP with identical positions and hashes', async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const before=[p.hostGame.testUnit(0),p.guestGame.testUnit(1)];
+  for(const [team,session] of [[0,p.hostLive],[1,p.guestLive]]){
+    const unit=before[team];
+    assert.equal(session.submit({type:'move',entities:[unit.id],point:{x:unit.x+3,y:unit.y+3}}).ok,true);
+  }
+  for(let i=0;i<20;i++)await p.cycle();
+  assert.equal(p.hostLive.snapshot().lastResult.ok,true);
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  for(const team of [0,1]){
+    const after=p.hostGame.testUnit(team),replica=p.guestGame.testUnit(team);
+    assert.ok(Math.hypot(after.x-before[team].x,after.y-before[team].y)>0.1);
+    assert.equal(JSON.stringify(after),JSON.stringify(replica));
+  }
+});
+
+test('guest cannot move an opposing unit and malformed destinations never enter the uplink', async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const own=p.guestGame.testUnit(1),enemy=p.hostGame.testUnit(0);
+  for(const point of [{x:-1,y:1},{x:NaN,y:1},{x:10000,y:1}]){
+    assert.equal(p.guestLive.submit({type:'move',entities:[own.id],point}).ok,false);
+  }
+  assert.equal(p.guestLive.submit({type:'move',entities:[enemy.id],point:{x:enemy.x+3,y:enemy.y+3}}).ok,true);
+  await p.guestLive.pump();
+  await assert.rejects(p.hostLive.pump(),/Command rejected/);
+  assert.equal(JSON.stringify(p.hostGame.testUnit(0)),JSON.stringify(enemy));
+});
+
 test('host cannot step past an unacknowledged frame and timeout terminates the room', async t=>{
   const p=await livePair(t);
   await p.hostLive.begin();await p.cycle();

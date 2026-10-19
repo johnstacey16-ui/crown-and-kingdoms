@@ -11,7 +11,7 @@ function game(origin, preferences) {
   const { source, sandbox } = headlessGame();
   Object.assign(sandbox, { location:{origin}, URL, AbortController, TextEncoder, fetch, setTimeout, clearTimeout });
   vm.runInNewContext(source + '\n' + read('network-sync') + '\n' + read('network-transport') +
-    '\n' + read('network-commands') + '\n' + read('network-delivery') + '\n' + read('network-uplink') + '\n' + startupSource + '\n' + read('network-session') + '\n' + read('network-lobby') + '\n' + preferences + `
+    '\n' + read('network-commands') + '\n' + read('network-delivery') + '\n' + read('network-uplink') + '\n' + startupSource + '\n' + read('network-session') + '\n' + read('network-unit-map') + '\n' + read('network-lobby') + '\n' + preferences + `
     globalThis.testSettings=()=>({msz,mt,kingdoms,civ,aiCiv,diff,aip,vm,mapLayout,startAge,
       startRes,startArmy,startVillagers,popLimit,gameMode,scoreLimit,seedOv,cmp,gs});
     globalThis.testWorld=()=>({time:S.t,mode,resources:S.res,age:S.age,units:S.us.length,
@@ -19,6 +19,7 @@ function game(origin, preferences) {
     globalThis.testTeam=t=>({food:S.res[t].f,units:S.us.filter(u=>u.t===t&&u.hp>0).length,tc:S.bs.find(b=>b.t===t&&b.k==='tc').netId,queue:S.bs.find(b=>b.t===t&&b.k==='tc').q.length});
     globalThis.testAi=()=>JSON.stringify(S.ai);
     globalThis.testHash=()=>window.CK_SIM_SYNC.worldCheckpoint(S,Math.round(S.t/DT)).hash;
+    globalThis.testUnit=t=>{const u=S.us.find(u=>u.t===t&&u.k==='vil');return {id:u.netId,x:u.x,y:u.y,order:u.o};};
     globalThis.testChangeFood=()=>{S.res[1].f++;};
     globalThis.testPreviewDefaults=()=>{startArmy=0;startVillagers=1;startAge=0;startRes=0;gameMode=0;vm=0;};
     globalThis.testControl=button=>{E=[];E[button]=true;window.CK_AUTH_LOBBY.control();E=[];};
@@ -44,6 +45,8 @@ export function attachDOM(game) {
     const handlers = new Map();
     const element = {tag,style:{},children:[],value:'',disabled:false,textContent:'',
       setAttribute(name,value){this[name]=value;},
+      getContext(){return new Proxy({},{get:()=>()=>{}});},
+      getBoundingClientRect(){return {left:0,top:0,width:680,height:680};},
       append(...children){this.children.push(...children);},
       addEventListener(name,handler){handlers.set(name,handler);},
       focus(){document.activeElement=this;}, select(){}, remove(){this.removed=true;},

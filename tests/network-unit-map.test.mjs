@@ -1,0 +1,70 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { readFileSync } from 'node:fs';
+
+const context={};
+vm.runInNewContext(readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8'),context);
+const api=context.CK_UNIT_MAP;
+const world=()=>({teamN:2,us:[
+  {netId:'u1',t:0,k:'vil',hp:25,x:5,y:6},
+  {netId:'u2',t:1,k:'vil',hp:25,x:20,y:22},
+  {netId:'u3',t:1,k:'vil',hp:0,x:21,y:22},
+  {netId:'u4',t:1,k:'vil',hp:25,x:21,y:22,ld:{}}
+],bs:[{netId:'b1',t:0,k:'tc',hp:100,x:3,y:3,s:3},{netId:'b2',t:1,k:'tc',hp:100,x:18,y:18,s:3}],
+  res:[{f:100},{f:200}],vs:new Uint8Array(32*32),nodes:[{x:19,y:19,k:'g'}]});
+function fixture() {
+  const handlers=new Map(),orders=[];
+  let left=false;
+  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},
+    addEventListener:(name,fn)=>handlers.set(name,fn),focus(){},
+    getBoundingClientRect:()=>({left:100,top:50,width:340,height:340})};
+  const description={textContent:''};
+  const map=api.create({canvas,description,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
+  return {map,handlers,orders,description,canvas,left:()=>left};
+}
+
+test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
+  const source=world(),before=JSON.stringify(source);
+  const view=api.project(source,1,32,32);
+  assert.equal(JSON.stringify(view.units),JSON.stringify([{id:'u2',kind:'vil',x:20,y:22}]));
+  assert.equal(view.buildings.length,1);assert.equal(view.buildings[0].id,'b2');
+  assert.equal(Object.hasOwn(view,'nodes'),false);assert.equal(Object.hasOwn(view,'res'),false);
+  view.units[0].x=0;view.buildings[0].size=100;
+  assert.equal(JSON.stringify(source),before);
+  assert.throws(()=>api.project(source,2,32,32),/Invalid/);
+});
+
+test('selection and scaled pointer coordinates emit a typed move for the selected own unit only',()=>{
+  const f=fixture(),source=world(),before=JSON.stringify(source);
+  f.map.refresh(source,1,32,32,true);
+  const click=(x,y)=>f.handlers.get('click')({clientX:100+x*340/32,clientY:50+y*340/32});
+  click(5,6); // Enemy location is never selectable.
+  assert.equal(f.map.selected(),null);assert.equal(f.orders.length,0);
+  click(20,22);assert.equal(f.map.selected(),'u2');
+  click(24,25);
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'move',entities:['u2'],point:{x:24,y:25}}]));
+  click(26,27);assert.equal(f.orders.length,1,'wait for command readiness');
+  assert.equal(JSON.stringify(source),before,'UI must not move simulation objects');
+});
+
+test('D-pad/A moves the map cursor; X clears selection and B returns focus',()=>{
+  const f=fixture();f.map.refresh(world(),1,32,32,true);
+  const press=index=>{const buttons=[];buttons[index]=true;f.map.control(buttons);};
+  press(0);assert.equal(f.map.selected(),'u2');
+  press(15);press(15);press(15);press(0);
+  assert.equal(f.orders[0].point.x,23);assert.equal(f.orders[0].point.y,22);
+  press(2);assert.equal(f.map.selected(),null);
+  press(1);assert.equal(f.left(),true);
+});
+
+test('refresh drops dead/loaded selections, validates bounds and preserves simulation and fog state',()=>{
+  const f=fixture(),source=world();
+  f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});
+  for(const point of [{x:-1,y:1},{x:32,y:22},{x:NaN,y:1}])f.map.choose(point);
+  assert.equal(f.orders.length,0);
+  source.us[1].ld={};f.map.refresh(source,1,32,32,true);
+  assert.equal(f.map.selected(),null);
+  f.map.choose({x:25,y:25});assert.equal(f.orders.length,0);
+  assert.equal(source.vs.some(Boolean),false);
+});
