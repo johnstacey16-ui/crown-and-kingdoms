@@ -8,6 +8,6 @@ assert.ok(start >= 0 && end > start, 'AI team planning block must exist');
 const roster = ai.slice(start, end);
 assert.match(roster, /for\(const u of S\.us\)if\(u&&u\.t===t&&u\.hp>0&&U\[u\.k\]\)\{my\.push\(u\)/,
   'AI planning must ignore null, defeated, or unknown-unit records before accessing unit metadata');
-assert.match(ai, /if\(vil\.length<[\s\S]{0,100}&&Array\.isArray\(tc\.q\)&&tc\.q\.length<2&&/,
-  'AI must not read a Town Centre production queue length unless the queue is an array');
+assert.match(ai, /if\(tc\.done&&!tc\.rs&&Array\.isArray\(tc\.q\)&&!aiTownTechReady\(t,tc,vil\.length\)&&vil\.length\+tc\.q\.filter\(/,
+  'AI must validate the Town Centre production queue before counting queued villagers');
 console.log('ai-planning-input-guards: malformed unit and Town Centre queue records cannot crash roster planning');
