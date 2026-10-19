@@ -486,7 +486,16 @@
       hash ^= canonical.charCodeAt(i);
       hash = Math.imul(hash, 0x01000193) >>> 0;
     }
-    return 'fnv1a32-' + hash.toString(16).padStart(8, '0') + '-' + canonical.length.toString(16);
+    // Map geometry alone is insufficient: different opening economies or RNG
+    // states can diverge after the first simulation tick even with identical maps.
+    // This is only an initial-state gate, not live-world synchronisation.
+    const opening = window.CK_SIM_SYNC.checksum({
+      time: S.t, rng: S.r && typeof S.r.state === 'function' ? S.r.state() : null,
+      resources: S.res, ages: S.age, technologies: S.tech, civilisations: S.civ,
+      unitHealth: S.us.map(u => [u.k, u.t, u.hp]),
+      buildingHealth: S.bs.map(b => [b.k, b.t, b.hp, b.done])
+    });
+    return 'fnv1a32-' + hash.toString(16).padStart(8, '0') + '-' + canonical.length.toString(16) + '-' + opening;
   }
 
   function saveLocalSettings() {
@@ -1118,7 +1127,9 @@
       protocol: PROTOCOL_VERSION, sessionId, roomCode: state.roomCode, role: state.role,
       lifecycle: state.lifecycle, connected: state.connected,
       memberCount: state.members.size, remoteMarkerCount: remotePlayers.size,
-      mapSignature: state.hostSignature, status: state.statusText
+      mapSignature: state.hostSignature, status: state.statusText,
+      commandProtocol: window.CK_SIM_SYNC ? window.CK_SIM_SYNC.VERSION : null,
+      synchronizedWorld: false // Explicit: marker sessions are not shared RTS matches yet.
     };
   }
 
