@@ -163,3 +163,84 @@ test('IndexedDB version changes close obsolete connections and allow new backups
   {key:'ck_save',value:'after-upgrade',connection:2}
  ]);
 });
+
+function restoreFixture(records,storage){
+ const backedUp=Object.entries(records);
+ let transactions=0;
+ const fakeDb={
+  close(){},
+  transaction(_store,mode){
+   assert.equal(mode,'readonly','restore must only read its backup database');
+   transactions++;
+   let index=0,request;
+   const tx={
+    objectStore:()=>({openCursor(){
+     request={};
+     queueMicrotask(next);
+     return request;
+    }})
+   };
+   function next(){
+    const entry=backedUp[index++];
+    request.result=entry?{
+     key:entry[0],value:entry[1],
+     continue:()=>queueMicrotask(next)
+    }:null;
+    request.onsuccess?.();
+    if(!entry)queueMicrotask(()=>tx.oncomplete?.());
+   }
+   return tx;
+  }
+ };
+ const window={
+  localStorage:storage,
+  indexedDB:{open(){
+   const request={result:fakeDb};
+   queueMicrotask(()=>request.onsuccess?.());
+   return request;
+  }}
+ };
+ vm.runInNewContext(persistence,{window,Promise,Set},{filename:'persistence.js'});
+ return {storage,window,get transactions(){return transactions}};
+}
+test('IndexedDB recovery respects deleted slots and never overwrites existing saves',async()=>{
+ const data=new Map([
+  ['ck_save2','newer local checkpoint'],
+  ['ck_deleted_ck_save3','1']
+ ]);
+ const storage={
+  getItem:key=>data.get(key)??null,
+  setItem:(key,value)=>data.set(key,value),
+  removeItem:key=>data.delete(key)
+ };
+ const f=restoreFixture({
+  ck_save:'recover first slot',
+  ck_save2:'obsolete second slot',
+  ck_save3:'deleted third slot',
+  ck_autosave:'recover rolling autosave',
+  random_key:'never recover unrecognised data'
+ },storage);
+ assert.equal(await f.window.CK_STORAGE.restoreMissing(),true);
+ assert.equal(data.get('ck_save'),'recover first slot');
+ assert.equal(data.get('ck_save2'),'newer local checkpoint');
+ assert.equal(data.get('ck_save3'),undefined,'deleted saves must not be resurrected');
+ assert.equal(data.get('ck_autosave'),'recover rolling autosave');
+ assert.equal(data.get('random_key'),undefined);
+ assert.equal(f.transactions,1);
+});
+test('save recovery refuses inaccessible deletion markers without aborting cursor processing',async()=>{
+ const data=new Map();
+ const storage={
+  getItem:key=>{
+   if(key.startsWith('ck_deleted_'))throw Error('browser storage access denied');
+   return data.get(key)??null;
+  },
+  setItem:(key,value)=>data.set(key,value),
+  removeItem:key=>data.delete(key)
+ };
+ const f=restoreFixture({ck_save:'untrusted backup',ck_autosave:'old autosave'},storage);
+ assert.equal(await f.window.CK_STORAGE.restoreMissing(),false,
+   'no backup may be restored if its deletion state cannot be checked');
+ assert.equal(data.size,0);
+ assert.equal(f.transactions,1,'the cursor should finish even after denied marker access');
+});
