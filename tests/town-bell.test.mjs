@@ -1,39 +1,45 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
-const source = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' +
-  readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const start = source.indexOf('function townBell(t){');
-const end = source.indexOf('function gm(', start);
-assert.ok(start >= 0 && end > start, 'Town Bell must remain an isolated simulation helper');
-const townBell = source.slice(start, end);
+const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const start=simulation.indexOf('function townBell(t){');
+const end=simulation.indexOf('\nfunction gm(',start);
+assert.ok(start>=0&&end>start,'Town Bell simulation helper must be available');
+const source=simulation.slice(start,end);
 
-assert.match(townBell, /const workers=S\.us\.filter\(u=>u\.t===t&&u\.k==='vil'&&u\.hp>0&&!u\.ld\)/,
-  'Town Bell must target live, ungarrisoned villagers belonging to the selected kingdom');
-assert.match(townBell, /const shelters=S\.bs\.filter\(b=>b\.t===t&&b\.done&&b\.hp>0&&GAR\[b\.k\]\)/,
-  'Town Bell must build its eligible shelter list once per command');
-assert.match(townBell, /const occupancy=new Map\(shelters\.map\(b=>\[b,new Set\(\(Array\.isArray\(b\.cg\)\?b\.cg:\[\]\)\.filter\(u=>u&&u\.hp>0&&u\.ld===b\)\)\.size\]\)\)/,
-  'Town Bell must pre-count garrisoned villagers once per shelter');
-assert.match(townBell, /for\(const v of S\.us\)if\(v\.hp>0&&v\.t===t&&v\.o==='B'&&occupancy\.has\(v\.tg\)\)/,
-  'Town Bell must reserve capacity for villagers already en route');
-assert.match(townBell, /const ownReservation=u\.o==='B'&&u\.tg===b\?1:0/,
-  'A villager must not consume its own previously reserved shelter slot when choosing again');
-assert.match(townBell, /const distance=d2\(u\.x,u\.y,b\)/,
-  'Town Bell must choose the nearest shelter with available capacity');
-assert.doesNotMatch(townBell, /S\.us\.filter\(v=>/,
-  'Town Bell must not rescan all units inside the per-villager shelter loop');
-assert.match(townBell, /occupancy\.set\(shelter,\(occupancy\.get\(shelter\)\|\|0\)\+1\)/,
-  'Town Bell must reserve each newly assigned slot immediately');
-assert.match(source, /if\(s\.k==='tc'\)\{it\.push\(\{l:'Town Bell: Garrison villagers'/,
-  'Town Bell must be reachable from the Town Centre controller menu');
-assert.match(townBell, /u\.o='B';u\.tg=shelter/,
-  'Town Bell must issue the existing movement-to-garrison order rather than teleport villagers');
+function fixture(cap=2){
+ const a={t:0,k:'tc',x:6,y:6,s:3,hp:500,done:true,cg:[]};
+ const b={t:0,k:'castle',x:26,y:26,s:4,hp:1200,done:true,cg:[]};
+ const S={us:[],bs:[a,b]};
+ const messages=[];
+ const context={S,GAR:{tc:cap,castle:cap},note:m=>messages.push(m)};
+ const bell=vm.runInNewContext(source+'\n;townBell;',context);
+ const villager=(x,y)=>({t:0,k:'vil',hp:30,x,y,o:'i',p:[],tg:null});
+ return {S,a,b,bell,villager,messages};
+}
 
-console.log('town-bell: occupancy is pre-counted, reservations preserved, nearest available shelter selected');
+test('Town Bell sends player villagers to the nearest completed shelter and reserves a slot',()=>{
+ const h=fixture(),near=h.villager(4,5),far=h.villager(25,24);
+ h.S.us.push(near,far);
+ assert.equal(h.bell(0),2);
+ assert.equal(near.o,'B');assert.equal(near.tg,h.a);
+ assert.equal(far.o,'B');assert.equal(far.tg,h.b);
+ assert.equal(near.p.length,0);assert.equal(far.p.length,0);
+ assert.match(h.messages.at(-1),/2 villagers sent to shelter/);
+});
+
+test('Town Bell does not send dead, enemy or already garrisoned villagers',()=>{
+ const h=fixture(),live=h.villager(5,5),dead={...h.villager(7,7),hp:0},
+ enemy={...h.villager(7,7),t:1},loaded={...h.villager(7,7),ld:h.a};
+ h.S.us.push(live,dead,enemy,loaded);
+ assert.equal(h.bell(0),1);
+ assert.equal(live.o,'B');
+ assert.notEqual(dead.o,'B');assert.notEqual(enemy.o,'B');assert.notEqual(loaded.o,'B');
+});
+
+test('Town Bell remains available through Town Centre controller interactions',()=>{
+ assert.match(ui,/if\(s\.k==='tc'\)\{it\.push\(\{l:'Town Bell: Garrison villagers'/);
+});
