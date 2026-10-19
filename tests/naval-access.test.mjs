@@ -11,7 +11,7 @@ test('AI dock placement rejects isolated ponds and accepts navigable sea',()=>{
  const W=24,H=24,wt=new Uint8Array(W*H);
  for(let y=5;y<7;y++)for(let x=5;x<7;x++)wt[y*W+x]=1;
  for(let y=10;y<20;y++)for(let x=10;x<20;x++)wt[y*W+x]=1;
- const fn=vm.runInNewContext(source+';aiDockWaterReach',{W,H,S:{wt}});
+ const fn=vm.runInNewContext(source+';aiDockWaterReach',{W,H,S:{wt,nd:new Array(W*H)}});
  assert.equal(fn(5,5),false);
  assert.equal(fn(11,11),true);
 });
@@ -23,5 +23,8 @@ test('transport unload reports successful disembarkation and retained passengers
  const sim=fs.readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
  assert.match(sim,/u\.cg=cg\.filter\(c=>c\.ld\)/);
  assert.match(sim,/note\('Passengers unloaded: '\+unloaded\)/);
- assert.match(sim,/note\('Some passengers could not disembark'\)/);
+ assert.match(sim,/u\.cg\.length\?'Passengers unloaded: '\+unloaded\+'; '\+u\.cg\.length\+' still aboard'/,
+   'Partial unloading must disclose how many passengers remain aboard');
+ assert.match(sim,/No safe shore to unload; move closer to land/,
+   'Completely blocked shores must produce actionable feedback');
 });
