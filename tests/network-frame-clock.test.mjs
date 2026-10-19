@@ -17,7 +17,7 @@ function world(capacity=32) {
     const sync=window.CK_SIM_SYNC, api=window.CK_GAME_COMMANDS;
     const link=window.CK_FRAME_DELIVERY;
     const roster=sync.lockRoster('host-session','guest-session',2);
-    const host=sync.createCommandHost({roster,mapSize:W,
+    const host=sync.createCommandHost({roster,mapSize:W,delayFrames:1,
       lookupEntity:api.lookup,execute:api.execute});
     const outbox=link.createOutbox({roster,mapSize:W,startFrame:0,
       capacity:${capacity},maxBytes:1024,retryTicks:2,maxAttempts:5});
@@ -33,7 +33,7 @@ function world(capacity=32) {
     globalThis.CLOCK_TEST = {
       tc:t=>S.bs.find(b=>b.t===t&&b.k==='tc').netId,
       submit:(sid,team,seq,frame,order)=>host.receive({
-        v:sync.VERSION,sid,team,seq,frame,order},sid,0),
+        v:sync.VERSION,sid,team,seq,frame,order},sid,clock.state().frame),
       tick:()=>clock.tick(),
       receive:(msg,sid='host-session')=>receiver.receive(msg,sid),
       poll:time=>outbox.poll(time),
