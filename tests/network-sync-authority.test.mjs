@@ -98,4 +98,37 @@ test('host rejects bad entity categories, expired buildings and malformed comman
 
 test('authoritative queue can execute the real game training operation for BOTH teams', () => {
   const { source, sandbox } = headlessGame();
-  const harness = 
+  const harness = [
+    "globalThis.__NETWORK_MATCH_TEST__ = () => {",
+    " seedOv=123456; msz=0; kingdoms=2; cmp=null; gameMode=0; startAge=0; startRes=0; startArmy=0; start();",
+    " const byTeam = [0,1].map(t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.done));",
+    " if(byTeam.some(x=>!x))throw Error('Missing starting Town Centre');",
+    " const roster=window.CK_SIM_SYNC.lockRoster('host-session','guest-session',2);",
+    " const host=window.CK_SIM_SYNC.createCommandHost({",
+    "   roster,mapSize:W,",
+    "   lookupEntity:id=>S.us.find(u=>u.netId===id)||S.bs.find(b=>b.netId===id),",
+    "   execute:(order,team)=>{if(order.type!=='train')return false;const b=S.bs.find(x=>x.netId===order.entities[0]);return b.t===team&&train(b,order.value);}",
+    " });",
+    " const first=byTeam.map(b=>({id:b.netId,queue:b.q.length,food:S.res[b.t].f}));",
+    " const mkPacket=(sid,team,id)=>({v:window.CK_SIM_SYNC.VERSION,sid,team,seq:1,frame:6,order:{type:'train',entities:[id],value:'vil'}});",
+    " const guest=host.receive(mkPacket('guest-session',1,first[1].id),'guest-session',2);",
+    " const hostOrder=host.receive(mkPacket('host-session',0,first[0].id),'host-session',2);",
+    " const crossTeam=host.receive({...mkPacket('host-session',0,first[1].id),seq:2},'host-session',2);",
+    " const early=host.applyFrame(5);",
+    " const applied=host.applyFrame(6);",
+    " return {guest:guest.ok,hostOrder:hostOrder.ok,crossTeam:crossTeam.reason,",
+    "   early:early.length,applied:applied.map(r=>r.ok),queued:byTeam.map(b=>b.q.length),",
+    "   foodSpent:byTeam.map(b=>first[b.t].food-S.res[b.t].f),sameIds:byTeam.map(b=>b.netId)};",
+    "};"
+  ].join('\n');
+  vm.runInNewContext(source+'\n'+syncSource+'\n'+harness,sandbox,{filename:'headless-network-host-execution.js'});
+  const out = sandbox.__NETWORK_MATCH_TEST__();
+  assert.equal(out.guest,true);
+  assert.equal(out.hostOrder,true);
+  assert.equal(out.crossTeam,'unauthorized-order');
+  assert.equal(out.early,0);
+  assert.deepEqual(Array.from(out.applied),[true,true]);
+  assert.deepEqual(Array.from(out.queued),[1,1]);
+  assert.ok(out.foodSpent.every(x=>x>0), 'normal train() must deduct real resources');
+  assert.notEqual(out.sameIds[0],out.sameIds[1]);
+});
