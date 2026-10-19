@@ -247,6 +247,7 @@
         maxCommands < 1 || maxCommands > 96) throw Error('Invalid frame replica configuration');
     const hostSid = roster.slots[0].sid;
     let lastFrame = startFrame, halted = false;
+    const appliedSeq = new Map();
     function receive(journal, trustedSenderSid) {
       if (halted) return { ok:false, reason:'halted' };
       if (trustedSenderSid !== hostSid) return { ok:false, reason:'untrusted-host' };
@@ -258,6 +259,7 @@
       if (journal.frame !== lastFrame + 1) return { ok:false, reason:'missing-frame' };
       // Validate the COMPLETE batch before applying a single operation.
       const seen = new Set();
+      const nextSeq = new Map();
       let previous = null;
       for (const p of journal.commands) {
         if (!validPacket(p, mapSize) || p.frame !== journal.frame ||
@@ -266,6 +268,11 @@
         const key = p.sid + ':' + p.seq;
         if (seen.has(key)) return { ok:false, reason:'duplicate-order' };
         seen.add(key);
+        // A legitimate denied host order may leave a gap in the accepted
+        // journal, but a guest must never replay an older accepted sequence.
+        const prior = nextSeq.has(p.sid) ? nextSeq.get(p.sid) : (appliedSeq.get(p.sid) || 0);
+        if (p.seq <= prior) return { ok:false, reason:'replayed-command' };
+        nextSeq.set(p.sid, p.seq);
         if (previous && (previous.team > p.team ||
             previous.team === p.team && (previous.sid > p.sid ||
             previous.sid === p.sid && previous.seq >= p.seq))) {
@@ -285,6 +292,7 @@
         }
       }
       lastFrame = journal.frame;
+      for (const [sid, seq] of nextSeq) appliedSeq.set(sid, seq);
       return { ok:true, frame:lastFrame, applied:journal.commands.length };
     }
     return Object.freeze({ receive, state:()=>Object.freeze({ lastFrame, halted }) });
