@@ -1,6 +1,21 @@
 /* Crown & Kingdoms — economic, defensive, and naval AI. Loaded after simulation.js. */
 /* ===== ENEMY AI (same rules as player; no resource or damage bonuses) ===== */
 // Siege should neutralise reachable fortifications before ordinary town centres.
+/* Select a siege-weighted threat from the already filtered shared hostile roster.
+ * Keep selection pure so real prioritisation is regression-tested independently. */
+function aiBaseDefenceThreat(nearbyRaiders,base){
+ if(!base||!Array.isArray(nearbyRaiders))return null;
+ let intruder=null,best=Infinity;
+ const bx=base.x+base.s/2,by=base.y+base.s/2;
+ for(const e of nearbyRaiders){
+  if(!e||!Number.isFinite(e.x)||!Number.isFinite(e.y))continue;
+  const d=Math.hypot(e.x-bx,e.y-by);
+  if(d>=13)continue;
+  const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?7:0);
+  if(score<best){best=score;intruder=e}
+ }
+ return intruder;
+}
 function aiSiegeTarget(leader,buildings,fallback){
  if(!leader)return fallback;
  const priority={castle:0,tower:1,tc:2};
@@ -320,8 +335,7 @@ aiRebal(vil,R,t);{let thr=false,intr=null,best=Infinity;for(const e of nearbyRai
 const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
- let intruder=null,best=Infinity;const bx=base.x+base.s/2,by=base.y+base.s/2;
- for(const e of nearbyRaiders){const d=Math.hypot(e.x-bx,e.y-by);if(d>=13)continue;const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?7:0);if(score<best){best=score;intruder=e}}
+ const intruder=aiBaseDefenceThreat(nearbyRaiders,base);
  if(intruder){distress={base,enemy:intruder};break}
 }
 if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
