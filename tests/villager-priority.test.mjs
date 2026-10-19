@@ -23,8 +23,8 @@ assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,vp:S\.vp,diff/,
   'Save data must persist villager priority settings');
 assert.match(html, /vp:createVillagerPriority\(j\.vp\)/,
   'Load data must restore settings and supply defaults for legacy saves');
-assert.match(html, /for\(const u of us\)\{u\.p=\[\];u\.pt=null;u\.as=0;u\.autoWorker=0;/,
-  'Direct player commands must override automated worker assignment');
+assert.match(html, /for\(const u of us\)\{const unitIndex=u\.sh\?navalIndex\+\+:landIndex\+\+;u\.p=\[\];u\.pt=null;u\.as=0;u\.autoWorker=0;/,
+  'Direct player commands must override automated worker assignment while preserving mixed land/naval indexing');
 assert.match(html, /function stopSel\(\)\{for\(const u of S\.sel\)if\(!u\.q\)\{u\.o='i';u\.p=\[\];u\.tg=null;u\.pt=null;u\.autoWorker=0;u\.guardTarget=null\}/,
   'A manual Stop order must leave the villager idle and clear stale Guard/Follow state');
 assert.match(html, /function changeVillagerTarget\(k,dir\)\{[\s\S]{0,350}rebalanceVillagerPriorities\(0\)/,
