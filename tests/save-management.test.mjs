@@ -121,3 +121,45 @@ test('transient IndexedDB opening failure is retryable without restarting the ga
  assert.equal(opens,2,'a failed open must not remain cached for the entire game session');
  assert.deepEqual(writes,[{key:'ck_save',value:'restored'}]);
 });
+
+test('IndexedDB version changes close obsolete connections and allow new backups',async()=>{
+ let opens=0,closed=0,activeDatabase;
+ const backedUp=[];
+ const window={
+  indexedDB:{open:()=>{
+   opens++;
+   const db={
+    close:()=>{closed++},
+    transaction:(store,mode)=>{
+     assert.equal(store,'game-saves');
+     assert.equal(mode,'readwrite');
+     const tx={
+      objectStore:()=>({put:(value,key)=>{
+       backedUp.push({key,value,connection:opens});
+       queueMicrotask(()=>tx.oncomplete?.());
+      }})
+     };
+     return tx;
+    }
+   };
+   activeDatabase=db;
+   const req={result:db};
+   queueMicrotask(()=>req.onsuccess?.());
+   return req;
+  }},
+  localStorage:{getItem:()=>null,setItem(){},removeItem(){}}
+ };
+ vm.runInNewContext(persistence,{window,Promise,Set},{filename:'persistence.js'});
+ assert.equal(await window.CK_STORAGE.mirrorSave('ck_save','before-upgrade'),true);
+ assert.equal(opens,1);
+ assert.equal(typeof activeDatabase.onversionchange,'function',
+  'the open connection must subscribe to IndexedDB schema-change events');
+ activeDatabase.onversionchange();
+ assert.equal(closed,1,'old connection must be closed so another tab can upgrade');
+ assert.equal(await window.CK_STORAGE.mirrorSave('ck_save','after-upgrade'),true);
+ assert.equal(opens,2,'the next backup must acquire a new connection');
+ assert.deepEqual(backedUp,[
+  {key:'ck_save',value:'before-upgrade',connection:1},
+  {key:'ck_save',value:'after-upgrade',connection:2}
+ ]);
+});
