@@ -15,6 +15,17 @@ for (const p of [null, '1,2', [null], [[NaN,2]], [[-1,2]], [[10,2]], [[2]], [[2,
 }
 assert.equal(Boolean(valid({ p: Array.from({ length: 101 }, () => [1,1]) }, 10)), false,
   'unbounded saved path rejected');
-assert.ok(src.includes('validSavedPath(u,j.sz)'), 'save loader invokes path validation');
+assert.match(src.slice(b), /j\.us\.every\(u=>validSavedUnitOrders\(u,j\.sz\)/,
+  'save loader must use the comprehensive unit-order validator, including movement paths');
+const unitOrderStart=src.indexOf('function validSavedUnitOrders(u,sz){');
+const unitOrderEnd=src.indexOf('\nfunction loadG(',unitOrderStart);
+assert.ok(unitOrderStart>=0&&unitOrderEnd>unitOrderStart,'saved order validator is present');
+const validOrders=vm.runInNewContext(src.slice(a,unitOrderEnd)+'\nvalidSavedUnitOrders');
+assert.equal(validOrders({p:[[1.5,2.5]],rp:-0.25,cd:0.5},10),true,
+  'valid waypoints and fractional order timers survive loading');
+assert.equal(validOrders({p:[[10,2]]},10),false,
+  'the comprehensive validator rejects an out-of-map waypoint');
+assert.equal(validOrders({p:[[1,2]],cd:Infinity},10),false,
+  'the comprehensive validator rejects invalid cooldown timers');
 assert.ok(src.includes('if(!Array.isArray(u.p))u.p=[]'), 'legacy missing paths initialize safely');
 console.log('save-path-validation: passed');
