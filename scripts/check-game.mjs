@@ -26,6 +26,7 @@ const source = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + sav
 const netSync = readFileSync(new URL('../js/network-sync.js', import.meta.url), 'utf8');
 const netCommands = readFileSync(new URL('../js/network-commands.js', import.meta.url), 'utf8');
 const netDelivery = readFileSync(new URL('../js/network-delivery.js', import.meta.url), 'utf8');
+const netUplink = readFileSync(new URL('../js/network-uplink.js', import.meta.url), 'utf8');
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
@@ -52,11 +53,12 @@ new vm.Script(game, { filename: 'engine.js' });
 new vm.Script(netSync, { filename: 'js/network-sync.js' });
 new vm.Script(netCommands, { filename: 'js/network-commands.js' });
 new vm.Script(netDelivery, { filename: 'js/network-delivery.js' });
+new vm.Script(netUplink, { filename: 'js/network-uplink.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
 new vm.Script(persistence, { filename: 'persistence.js' });
 new vm.Script(serviceWorker, { filename: 'sw.js' });
 if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/mapgen.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./js/render.js"></script><script src="./js/ui.js"></script><script src="./js/simulation.js"></script><script src="./js/ai.js"></script><script src="./js/pathfinding.js"></script><script src="./js/kingdom.js"></script><script src="./js/entities.js"></script><script src="./js/campaign.js"></script><script src="./js/economy.js"></script><script src="./js/formations.js"></script><script src="./js/menus.js"></script><script src="./js/minimap.js"></script><script src="./js/assets.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine in dependency order');
-if (!html.includes('<script src="./js/network-sync.js"></script><script src="./js/network-commands.js"></script><script src="./js/network-delivery.js"></script><script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
+if (!html.includes('<script src="./js/network-sync.js"></script><script src="./js/network-commands.js"></script><script src="./js/network-delivery.js"></script><script src="./js/network-uplink.js"></script><script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
   ['age advancement uses reference resource costs and research times', source.includes("const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['bar','rng','stable','smith','market','dock']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','castle']}]")],
@@ -78,4 +80,4 @@ for (const [name, ok] of checks) {
   if (!ok) throw new Error(`FAIL: ${name}`);
   console.log(`PASS: ${name}`);
 }
-console.log('PASS: parsed external config.js, state.js, mapgen.js, audio.js, save.js, input.js, render.js, ui.js, simulation.js, engine.js, persistence.js, sw.js, network-commands.js, network-delivery.js and multiplayer.js');
+console.log('PASS: parsed external config.js, state.js, mapgen.js, audio.js, save.js, input.js, render.js, ui.js, simulation.js, engine.js, persistence.js, sw.js, network-commands.js, network-delivery.js, network-uplink.js and multiplayer.js');
