@@ -279,5 +279,72 @@
     return Object.freeze({ frame, hash:checksum(projection) });
   }
 
-  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, worldCheckpoint });
+  // Diagnostic-only live checkpoint pairing. Different render rates may cause
+  // packets to arrive before or after the corresponding local simulation frame.
+  // Pair ONLY identical frame numbers, keep bounded history, and never mistake
+  // a matching hash for authenticated/authoritative multiplayer.
+  function createCheckpointTracker({ cadence = 300, capacity = 12 } = {}) {
+    if (!Number.isSafeInteger(cadence) || cadence < 1 ||
+        !Number.isSafeInteger(capacity) || capacity < 2 || capacity > 120) {
+      throw Error('Invalid checkpoint tracker configuration');
+    }
+    const local = new Map(), remote = new Map(), seenRemote = new Map();
+    let latestLocalFrame = 0, compared = 0, mismatches = 0, last = null;
+    const result = (status, frame) => Object.freeze({ status, frame });
+    function valid(cp) {
+      return isRecord(cp) && Object.keys(cp).length === 2 &&
+        Number.isSafeInteger(cp.frame) && cp.frame > 0 && cp.frame % cadence === 0 &&
+        typeof cp.hash === 'string' &&
+        /^fnv1a32-[0-9a-f]{8}-[0-9a-f]+$/.test(cp.hash);
+    }
+    function resolve(frame) {
+      if (!local.has(frame) || !remote.has(frame)) return result('waiting', frame);
+      const status = compareCheckpoint(
+        { frame, hash: local.get(frame) },
+        { frame, hash: remote.get(frame) }
+      );
+      local.delete(frame);
+      remote.delete(frame);
+      compared++;
+      if (status === 'desync') mismatches++;
+      last = result(status, frame);
+      return last;
+    }
+    function trim() {
+      const oldest = Math.max(0, latestLocalFrame - cadence * capacity);
+      for (const bucket of [local, remote, seenRemote]) {
+        for (const frame of bucket.keys()) if (frame <= oldest) bucket.delete(frame);
+      }
+    }
+    function recordLocal(cp) {
+      if (!valid(cp)) return result('invalid', -1);
+      if (cp.frame <= latestLocalFrame) return result('stale', cp.frame);
+      latestLocalFrame = cp.frame;
+      local.set(cp.frame, cp.hash);
+      const outcome = resolve(cp.frame);
+      trim();
+      return outcome;
+    }
+    function recordRemote(cp) {
+      if (!valid(cp)) return result('invalid', -1);
+      if (cp.frame <= latestLocalFrame - cadence * capacity ||
+          cp.frame > latestLocalFrame + cadence * capacity) {
+        return result('out-of-window', cp.frame);
+      }
+      if (seenRemote.has(cp.frame)) {
+        return result(seenRemote.get(cp.frame) === cp.hash ? 'duplicate' : 'conflicting', cp.frame);
+      }
+      seenRemote.set(cp.frame, cp.hash);
+      remote.set(cp.frame, cp.hash);
+      const outcome = resolve(cp.frame);
+      trim();
+      return outcome;
+    }
+    function stats() {
+      return Object.freeze({ compared, mismatches, latestLocalFrame, last });
+    }
+    return Object.freeze({ recordLocal, recordRemote, stats });
+  }
+
+  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, worldCheckpoint, createCheckpointTracker });
 })(typeof window !== 'undefined' ? window : globalThis);
