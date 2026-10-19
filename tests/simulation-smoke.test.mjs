@@ -278,8 +278,13 @@ globalThis.__CK_TEST__ = {
         if (/9:00/.test(title)) cmp.t = Math.max(cmp.t, 540);
         if (/relics/.test(title)) {
           const count = /3 relics/.test(title) ? 3 : 2;
-          while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done).length < count) {
-            S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: { t: 0, done: true } });
+          // Campaign victory requires a real, completed, living player Monastery.
+          // An invented object resembling a Monastery is not valid game state.
+          addBuilding('monastery', 1);
+          const monastery = S.bs.find(b => b.t === 0 && b.k === 'monastery' && b.done && b.hp > 0);
+          assert.ok(monastery, 'Relic-objective fixture must have a live player Monastery');
+          while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done && relic.m.hp > 0).length < count) {
+            S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: monastery });
           }
         }
         if (/Destroy .*Castle/.test(title)) {
