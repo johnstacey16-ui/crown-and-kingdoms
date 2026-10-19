@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
-const start = source.indexOf('for(const b of S.bs)if(b.t===t){bl.push(b);');
+const start = source.indexOf('for(const b of S.bs)if(b&&b.t===t&&b.hp>0){bl.push(b);');
 const end = source.indexOf('if(!tc)return;', start);
 assert.ok(start >= 0 && end > start, 'town-centre selection logic exists');
 function choose(buildings) {
