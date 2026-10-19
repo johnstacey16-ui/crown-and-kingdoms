@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/entities.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
@@ -22,8 +23,22 @@ assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
   'Double-bit Axe and Bow Saw must affect wood gathering');
 assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\.15\*!!t\.smine/,
   'Gold Mining and Stone Mining must affect the matching resource gathering rates');
-assert.match(html, /S\.tech\[u\.t\]\.carry\?15:CAP/,
-  'Carry Capacity research must affect already-working villagers when they next reach the carrying threshold');
+assert.match(html, /function gatherCapacity\(u\)\{const tech=S\.tech\[u\.t\]\|\|\{\};return CAP\+\(tech\.carry\?5:0\)\+\(u\.k==='vil'&&tech\.wheel\?3:0\)\+\(u\.k==='vil'&&tech\.handcart\?7:0\)\}/,
+  'Carrying capacity must use the actual researched upgrades for current workers');
+assert.match(html, /u\.car>=gatherCapacity\(u\)/,
+  'Gatherers must query current capacity when deciding to return with resources');
+const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const begin=sim.indexOf('function gatherCapacity(u){');
+const finish=sim.indexOf('\nfunction unitSpeed(',begin);
+assert.ok(begin>=0&&finish>begin,'carry calculation must remain available');
+const context={CAP:10,S:{tech:[{}]}};
+const gatherCapacity=vm.runInNewContext(sim.slice(begin,finish)+'\n;gatherCapacity;',context);
+const workingVillager={t:0,k:'vil'};
+assert.equal(gatherCapacity(workingVillager),10);
+context.S.tech[0].carry=1;
+assert.equal(gatherCapacity(workingVillager),15,'an existing villager gains the carrying upgrade immediately');
+context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
+assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
 assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)\+\(CAVARM\.has\(t\.k\)&&ta\.armC\?1:0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
