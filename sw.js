@@ -22,6 +22,7 @@ const CORE_ASSETS = [
   './persistence.js',
   './js/network-sync.js',
   './js/network-commands.js',
+  './js/network-delivery.js',
   './multiplayer.js',
 ];
 
