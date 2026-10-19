@@ -95,8 +95,8 @@ assert.match(html, /q\.t-=dt\*trainRate\(b,q\.k\)/,
   'Conscription must accelerate the live unit production queue, including units already queued');
 assert.match(html, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
   'AI must value Conscription once it has a substantial army');
-assert.ok(html.includes("bar:{n:'Barracks',s:3,hp:500,cost:{w:150},bt:25,tr:['mil','spear'],rs:['man','longs','twohand','champ','pike','halb'],age:1}"),
-  'Halberdier must be reachable through the Barracks upgrade line');
+assert.ok(['pike','halb'].every(id=>technologyBuildings.bar.rs.includes(id)),
+  'Pikeman and Halberdier must remain in the Barracks research list without excluding other valid upgrades');
 assert.match(html, /halb:\{n:'Halberdier',cost:\{f:300,g:200\},t:45,age:3,pre:'pike',hpb:\{spear:20\},atkb:\{spear:2\}\}/,
   'Halberdier must require Pikeman and add health/attack effects');
 assert.match(html, /a\.k==='spear'&&tk\.halb&&ak\.bn&&\(ak\.bn\[t\.k\]\|\|ak\.bn\[U\[t\.k\]\.lk\]\)\?6:0/,
