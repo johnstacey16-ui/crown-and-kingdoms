@@ -24,8 +24,8 @@ assert.match(ai, /const queuedUnits=k=>aiQueuedUnits\(bl,k\)/,
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)\{navalThreatCount\+\+;hostileFleet\.push\(e\)\}/, 'Garrisoned or otherwise loaded ships must not trigger enemy fleet threat responses');
 assert.match(ai, /if\(S\.age\[t\]>=1&&vil\.length>=9&&!cnt\('dock'\)&&\(arm\.length>=6\|\|navalThreatCount>0\)&&\(navalThreatCount>0\|\|S\.nodes\.some\(n=>n\.fi&&Math\.hypot\(n\.x-tc\.x,n\.y-tc\.y\)<24\)\)\)aiDock\(vil,tc,t\)/,
   'AI must attempt a dock when hostile combat ships threaten it, even without a nearby fish node');
-assert.match(ai, /if\(u\.retreating\)\{const safe=u\.retreatTarget;if\(ratio>=\.55\|\|!safe\|\|safe\.hp<=0\)\{u\.retreating=false;u\.retreatTarget=null;/,
-  'AI units must rejoin the army after recovery or when their retreat shelter is no longer valid');
+assert.match(ai, /if\(u\.retreating\)\{const safe=u\.retreatTarget;if\(ratio>=\.65\|\|!safe\|\|safe\.hp<=0\|\|!safe\.done\)\{u\.retreating=false;u\.retreatTarget=null;/,
+  'AI retreat releases recovered units at 65 percent HP and refuses destroyed or unfinished shelters');
 assert.match(ai, /if\(u\.tg===safe\)\{u\.o='i';u\.tg=null;u\.p=\[\];u\.rp=0\}/,
   'Ending a retreat must clear the obsolete movement order so the unit can receive new commands');
 console.log('ai-research-priority: military upgrades respond to own army composition and naval threats');
