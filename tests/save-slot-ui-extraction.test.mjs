@@ -17,8 +17,12 @@ test('save-slot menu model and drawing live in js/ui.js', () => {
 test('save-slot orchestration and existing callbacks remain intact', () => {
   assert.match(engine, /function refreshSlots\(\)\{/);
   assert.match(engine, /function openSlots\(m,back\)\{/);
-  assert.match(engine, /function slotsCtl\(\)\{const it=slotItems\(\),n=it\.length;/);
-  assert.match(ui, /if\(sm==='save'\)\{slot=n;saveG\(\);refreshSlots\(\);mode=sb\}else if\(ok\)\{slot=n;if\(loadG\(\)\)mode='play'\}/);
+  assert.match(engine, /function slotsCtl\(\)\{const it=slotItems\(\),n=it\.length;if\(overwriteSlotTarget!==null\)/,
+    'Existing slots must require explicit overwrite confirmation');
+  assert.match(ui, /if\(sm==='save'\)\{if\(ok&&deleteSlotTarget===null\)\{overwriteSlotTarget=n;return\}slot=n;if\(saveG\(\)\)\{refreshSlots\(\);mode=sb\}\}else if\(ok\)\{slot=n;if\(loadG\(\)\)mode='play'\}/,
+    'Save and load callbacks must preserve overwrite confirmation and report successful saves');
+  assert.match(engine, /deleteSavedGame\(deleteSlotTarget\);deleteSlotTarget=null;refreshSlots\(\)/,
+    'Deleting a slot must explicitly confirm and refresh the listing');
   assert.match(ui, /x==='bad'\?'This slot cannot be read\.'/);
   assert.match(ui, /A: '\+\(sm==='save'\?'save here':'load'\)\+'    B: back'/);
 });
