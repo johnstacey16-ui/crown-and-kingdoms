@@ -20,7 +20,12 @@
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => resolve(null);
       request.onblocked = () => resolve(null);
-    }).catch(() => null);
+    }).catch(() => null).then((db) => {
+      // A blocked or temporarily unavailable IndexedDB open must not permanently
+      // disable backup and restore attempts until the next page reload.
+      if (!db) opening = null;
+      return db;
+    });
     return opening;
   }
 
