@@ -201,20 +201,89 @@
       const result = inbox.receive(packet, trustedSenderSid, currentFrame);
       return result;
     }
-    function applyFrame(frame) {
-      // Return separate execution results; a rejected order is never silently
-      // treated as applied. Never execute a packet until its agreed frame.
-      return inbox.drain(frame).map(p => {
-        if (!allowed(p.order, p.team)) return { sid: p.sid, seq: p.seq, frame, ok: false, reason: 'stale-ownership' };
-        try {
-          const ok = execute(p.order, p.team, frame) === true;
-          return { sid: p.sid, seq: p.seq, frame, ok, reason: ok ? null : 'rejected-by-simulation' };
-        } catch (_) {
-          return { sid: p.sid, seq: p.seq, frame, ok: false, reason: 'simulation-error' };
+    function applyFrameWithJournal(frame) {
+      // Only successfully executed actions enter the immutable replay journal.
+      // Rejected orders still receive individual application acknowledgements.
+      const commands = [], results = [];
+      for (const p of inbox.drain(frame)) {
+        let reason = null, ok = false;
+        if (!allowed(p.order, p.team)) reason = 'stale-ownership';
+        else {
+          try {
+            ok = execute(JSON.parse(JSON.stringify(p.order)), p.team, frame) === true;
+            if (!ok) reason = 'rejected-by-simulation';
+          } catch (_) { reason = 'simulation-error'; }
         }
+        results.push(Object.freeze({ sid:p.sid, seq:p.seq, frame, ok, reason }));
+        if (ok) commands.push(Object.freeze({
+          v:VERSION, sid:p.sid, seq:p.seq, frame, team:p.team,
+          order:Object.freeze(JSON.parse(JSON.stringify(p.order)))
+        }));
+      }
+      return Object.freeze({
+        frame,
+        results:Object.freeze(results),
+        journal:Object.freeze({ v:VERSION, frame, commands:Object.freeze(commands) })
       });
     }
-    return Object.freeze({ receive, applyFrame, pending: inbox.pending });
+    function applyFrame(frame) { return applyFrameWithJournal(frame).results; }
+    return Object.freeze({ receive, applyFrame, applyFrameWithJournal, pending: inbox.pending });
+  }
+
+  // A future authenticated guest transport can feed this one-frame-at-a-time
+  // replay gate. It never trusts a Broadcast packet's claimed host identity;
+  // the caller MUST supply a server-verified sender identity independently.
+  // No live transport invokes this code yet.
+  function createFrameReplica({ roster, mapSize, execute, startFrame = 0, maxCommands = 96 }) {
+    if (!roster || !Array.isArray(roster.slots) || roster.slots.length !== 2 ||
+        !validRoster(roster, roster.slots[0].sid, roster.slots[0].sid, roster.kingdomCount) ||
+        typeof execute !== 'function' || !Number.isInteger(mapSize) ||
+        mapSize < 1 || mapSize > 1024 || !Number.isSafeInteger(startFrame) ||
+        startFrame < 0 || !Number.isInteger(maxCommands) ||
+        maxCommands < 1 || maxCommands > 96) throw Error('Invalid frame replica configuration');
+    const hostSid = roster.slots[0].sid;
+    let lastFrame = startFrame, halted = false;
+    function receive(journal, trustedSenderSid) {
+      if (halted) return { ok:false, reason:'halted' };
+      if (trustedSenderSid !== hostSid) return { ok:false, reason:'untrusted-host' };
+      if (!isRecord(journal) || Object.keys(journal).length !== 3 ||
+          journal.v !== VERSION || !Number.isSafeInteger(journal.frame) ||
+          journal.frame < 1 || !Array.isArray(journal.commands) ||
+          journal.commands.length > maxCommands) return { ok:false, reason:'invalid' };
+      if (journal.frame <= lastFrame) return { ok:false, reason:'replay' };
+      if (journal.frame !== lastFrame + 1) return { ok:false, reason:'missing-frame' };
+      // Validate the COMPLETE batch before applying a single operation.
+      const seen = new Set();
+      let previous = null;
+      for (const p of journal.commands) {
+        if (!validPacket(p, mapSize) || p.frame !== journal.frame ||
+            rosterTeam(roster, p.sid) !== p.team ||
+            !p.order.entities.length) return { ok:false, reason:'invalid-order' };
+        const key = p.sid + ':' + p.seq;
+        if (seen.has(key)) return { ok:false, reason:'duplicate-order' };
+        seen.add(key);
+        if (previous && (previous.team > p.team ||
+            previous.team === p.team && (previous.sid > p.sid ||
+            previous.sid === p.sid && previous.seq >= p.seq))) {
+          return { ok:false, reason:'unsorted-orders' };
+        }
+        previous = p;
+      }
+      for (const p of journal.commands) {
+        try {
+          if (execute(JSON.parse(JSON.stringify(p.order)), p.team, journal.frame) !== true) {
+            halted = true;
+            return { ok:false, reason:'replica-application-failed', frame:journal.frame };
+          }
+        } catch (_) {
+          halted = true;
+          return { ok:false, reason:'replica-application-failed', frame:journal.frame };
+        }
+      }
+      lastFrame = journal.frame;
+      return { ok:true, frame:lastFrame, applied:journal.commands.length };
+    }
+    return Object.freeze({ receive, state:()=>Object.freeze({ lastFrame, halted }) });
   }
 
   // Produce a stable, gameplay-only state projection for MATCHED-frame
@@ -346,5 +415,5 @@
     return Object.freeze({ recordLocal, recordRemote, stats });
   }
 
-  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, worldCheckpoint, createCheckpointTracker });
+  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, createFrameReplica, worldCheckpoint, createCheckpointTracker });
 })(typeof window !== 'undefined' ? window : globalThis);
