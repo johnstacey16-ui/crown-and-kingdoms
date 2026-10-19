@@ -1042,23 +1042,30 @@
       if (state.lifecycle !== 'lobby') return setStatus('This room has started or is unavailable. Recreate it to use a different map.');
       return void startHostGame(state.epoch, state.channel);
     }
-    if (selectedRow === 8) return failOpenRoom();
+    if (selectedRow === 8) {
+      if (state.active) return setStatus('Leave the marker room before opening authenticated setup.');
+      showLobbyFields(false);
+      window.CK_AUTH_LOBBY.open(() => { mode = 'multiplayer'; showLobbyFields(true); });
+      return;
+    }
+    if (selectedRow === 9) return failOpenRoom();
   }
 
-  const rowCount = 9;
+  const rowCount = 10;
 
   function control() {
+    if (window.CK_AUTH_LOBBY && window.CK_AUTH_LOBBY.active()) { window.CK_AUTH_LOBBY.control(); return; }
     ensureLobbyFields();
     showLobbyFields(true);
     if (E[12]) selectedRow = (selectedRow + rowCount - 1) % rowCount;
     if (E[13]) selectedRow = (selectedRow + 1) % rowCount;
     if (E[14]) {
       if (selectedRow >= 4 && selectedRow <= 6) updateLocalSetting(selectedRow, -1);
-      else if (selectedRow === 8) failOpenRoom();
+      else if (selectedRow === 9) failOpenRoom();
     }
     if (E[15]) {
       if (selectedRow >= 4 && selectedRow <= 6) updateLocalSetting(selectedRow, 1);
-      else if (selectedRow === 8) failOpenRoom();
+      else if (selectedRow === 9) failOpenRoom();
     }
     if (E[0]) actionForRow();
     if (E[1] || E[9]) failOpenRoom();
@@ -1077,6 +1084,7 @@
       { label: 'Map type', value: cfg ? (MT[cfg.mt] ? MT[cfg.mt].n : 'Invalid') : 'Waiting for host' },
       { label: 'Kingdom count', value: cfg ? (cfg.kingdoms === 2 ? 'Two kingdoms' : 'Four kingdoms') : 'Waiting for host' },
       { label: 'Start Marker Match', value: !hostMode ? 'Host only' : running ? 'Already running' : 'Requires another player' },
+      { label: 'Authenticated room setup', value: 'Check a shared starting map' },
       { label: 'Leave Multiplayer', value: state.active ? 'Disconnect and return to title' : 'Return to title' }
     ];
   }
@@ -1087,6 +1095,7 @@
   }
 
   function drawLobby() {
+    if (window.CK_AUTH_LOBBY && window.CK_AUTH_LOBBY.active()) return;
     showLobbyFields(true);
     X.save();
     X.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1107,16 +1116,16 @@
     tx('Connection: ' + (state.connected ? 'CONNECTED' : 'NOT CONNECTED'), x + 26, y + h * 0.43, 16, state.connected ? '#9ae6b4' : '#fca5a5');
     const rows = lobbyRows();
     const rowY = y + h * 0.47;
-    const rowH = Math.min(36, Math.max(26, (h * 0.43) / rowCount));
+    const rowH = Math.min(32, Math.max(18, (h * 0.43) / rowCount));
     rows.forEach((r, i) => {
       const yy = rowY + i * rowH;
       if (i === selectedRow) {
         X.fillStyle = '#234b8c';
-        X.fillRect(x + 14, yy - 21, Math.min(510, w * 0.61), rowH - 2);
+        X.fillRect(x + 14, yy - rowH * 0.8, Math.min(510, w * 0.61), rowH - 2);
       }
       const canChange = i >= 4 && i <= 6 && !state.active;
-      tx((i === selectedRow ? '› ' : '  ') + r.label, x + 28, yy, 17, canChange ? '#fff' : '#e2e8f0');
-      tx(r.value, x + Math.min(505, w * 0.6), yy, 14, '#fde68a');
+      tx((i === selectedRow ? '› ' : '  ') + r.label, x + 28, yy, Math.min(17, rowH * 0.72), canChange ? '#fff' : '#e2e8f0');
+      tx(r.value, x + Math.min(505, w * 0.6), yy, Math.min(14, rowH * 0.65), '#fde68a');
     });
 
     const rightX = x + Math.min(550, w * 0.65);
@@ -1263,3 +1272,4 @@
     stopMarkerTimer();
   });
 })();
+

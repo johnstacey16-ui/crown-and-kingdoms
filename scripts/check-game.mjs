@@ -28,6 +28,8 @@ const netCommands = readFileSync(new URL('../js/network-commands.js', import.met
 const netDelivery = readFileSync(new URL('../js/network-delivery.js', import.meta.url), 'utf8');
 const netUplink = readFileSync(new URL('../js/network-uplink.js', import.meta.url), 'utf8');
 const netTransport = readFileSync(new URL('../js/network-transport.js', import.meta.url), 'utf8');
+const netStartup = readFileSync(new URL('../js/network-startup.js', import.meta.url), 'utf8');
+const netLobby = readFileSync(new URL('../js/network-lobby.js', import.meta.url), 'utf8');
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
@@ -56,11 +58,13 @@ new vm.Script(netCommands, { filename: 'js/network-commands.js' });
 new vm.Script(netDelivery, { filename: 'js/network-delivery.js' });
 new vm.Script(netUplink, { filename: 'js/network-uplink.js' });
 new vm.Script(netTransport, { filename: 'js/network-transport.js' });
+new vm.Script(netStartup, { filename: 'js/network-startup.js' });
+new vm.Script(netLobby, { filename: 'js/network-lobby.js' });
 new vm.Script(multiplayer, { filename: 'multiplayer.js' });
 new vm.Script(persistence, { filename: 'persistence.js' });
 new vm.Script(serviceWorker, { filename: 'sw.js' });
 if (!html.includes('<script src="./js/config.js"></script><script src="./js/state.js"></script><script src="./js/mapgen.js"></script><script src="./js/audio.js"></script><script src="./js/save.js"></script><script src="./js/input.js"></script><script src="./js/render.js"></script><script src="./js/ui.js"></script><script src="./js/simulation.js"></script><script src="./js/ai.js"></script><script src="./js/pathfinding.js"></script><script src="./js/kingdom.js"></script><script src="./js/entities.js"></script><script src="./js/campaign.js"></script><script src="./js/economy.js"></script><script src="./js/formations.js"></script><script src="./js/menus.js"></script><script src="./js/minimap.js"></script><script src="./js/assets.js"></script><script src="./engine.js"></script>')) throw new Error('index.html does not load the external game engine in dependency order');
-if (!html.includes('<script src="./js/network-sync.js"></script><script src="./js/network-commands.js"></script><script src="./js/network-delivery.js"></script><script src="./js/network-uplink.js"></script><script src="./js/network-transport.js"></script><script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
+if (!html.includes('<script src="./js/network-sync.js"></script><script src="./js/network-commands.js"></script><script src="./js/network-delivery.js"></script><script src="./js/network-uplink.js"></script><script src="./js/network-transport.js"></script><script src="./js/network-startup.js"></script><script src="./js/network-lobby.js"></script><script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
   ['age advancement uses reference resource costs and research times', source.includes("const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['bar','rng','stable','smith','market','dock']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','castle']}]")],

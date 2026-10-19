@@ -4,9 +4,9 @@ Run `node server/transport.mjs` (Node 22+; no dependencies). The default listene
 is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 `node --test tests/server-transport.test.mjs`.
 
-This is a separate server prototype, not a deployed service or a browser-game
-integration. The existing Supabase marker room is unchanged. It does not make
-the game playable online yet.
+This is a server prototype, not a deployed service. The game now includes an
+opt-in authenticated room setup screen that verifies the opening world. The
+existing Supabase marker room is unchanged; shared online gameplay is not enabled.
 
 ## Identity and membership
 
@@ -25,8 +25,9 @@ DELETE `/session`, session expiry, or queue overflow ends the whole room.
 
 ## Relay contract
 
-POST `/messages` with `{matchId, kind, payload}`. Host kinds are `frame` and
-`receipt`; guest kinds are `command` and `ack`. The server appends `senderSid`,
+POST `/messages` with `{matchId, kind, payload}`. Host kinds are `frame`, `receipt`, `setup` and `commit`; guest kinds are
+`command`, `ack`, `ready` and `committed`. The final four kinds implement the
+opening-state handshake and remain restricted to the appropriate team. The server appends `senderSid`,
 `team`, per-recipient `sequence`, and `matchId` from its authenticated membership.
 Never use `payload.sid` as transport identity. Future adapters must pass the
 envelope's verified `senderSid` to the existing strict command/frame validators.
@@ -51,8 +52,8 @@ Full queues terminate the match rather than silently dropping game frames.
   limits. The in-memory capacity cap is not protection against distributed abuse.
 - Use one process: storage is in memory, restart ends every match, and multiple
   workers do not share state. There is no reconnect/resume or persistence yet.
-- Integrate browser session/room lifecycle, authenticated envelope handling,
-  gameplay controls for both teams, host clocks and AI suppression before play.
+- Finish gameplay controls for both teams, host clocks, AI suppression and
+  the handoff from verified opening state to the shared game loop before play.
 - Measure polling latency/throughput at the target simulation cadence and test
   actual disconnects, two-browser gameplay and Xbox controllers. Local HTTP tests
   establish none of those acceptance criteria.
@@ -90,8 +91,8 @@ The future game driver must stop advancing whenever an operation fails.
 The adapter validates the whole batch before processing, then acknowledges only
 after successful callbacks. `snapshot()` exposes the state/roster and invitation,
 not bearer credentials. The service worker excludes the API, authenticated
-requests and no-store requests from its shell cache. There is no timer or game
-menu integration yet; the adapter does not replace `CK_NET` or start a match.
+requests and no-store requests from its shell cache. The adapter itself has no timer. The authenticated lobby polls it every half
+second; it does not replace `CK_NET` or start a playable match.
 
 `tests/network-http-transport.test.mjs` runs the classic browser adapter in VM
 contexts against real loopback HTTP sockets. It sends a paid guest training order
@@ -100,3 +101,34 @@ production simulations, comparing every world hash. It also checks forged
 senders, gaps, rejected callbacks, cancellation, timeouts, concurrent polls and
 service-worker cache exclusion. Browser rendering, 30 Hz network performance,
 human controls, AI suppression and deployed TLS remain separately unverified.
+
+## Authenticated room setup screen and startup barrier
+
+Open Multiplayer, select **Authenticated room setup**, then create a room or
+paste a case-sensitive 43-character invitation. The host chooses **Verify shared
+map** after the guest connects. D-pad/A/B and native keyboard/touch controls are
+supported; the modal traps Tab focus and Escape leaves. The relay must be running
+at the same-origin API path above. Static hosting alone does not provide it.
+
+`CK_MATCH_STARTUP.create({transport, validateConfig, prepare})` exchanges a
+versioned host setup (complete immutable numeric settings plus opening hash),
+guest ready, host commit, and guest committed confirmation. It rejects invalid
+settings, wrong peers/versions, unexpected message order, differing opening hashes
+and a 30-second startup timeout. Call `begin(settings)` on the host and `pump()`
+on each client. The host becomes verified only after the final guest confirmation.
+The browser transport separately binds these messages to the server match nonce.
+
+`CK_AUTH_LOBBY` stages the real production world with all starting settings,
+including the previously omitted layout, resources, army, villagers, age,
+population, game mode and score time limit. The initial checksum includes these
+settings, production-world hash and terrain grid. Two kingdoms are required for
+this first two-player milestone. Conflicting local guest preferences cannot leak
+into the prepared world. Preparation returns to multiplayer mode synchronously
+before any frame can advance, and leaving restores the previous settings without
+writing a save or changing persisted preferences.
+
+Verification deliberately leaves the world frozen at time zero. Neither human
+team input nor the network simulation clock is enabled yet. `verified` means
+agreement on the initial state, not completion of multiplayer or proof against a
+cheating host. The next integration must hand off the transport consumer, disable
+AI for human teams, route player commands and drive both worlds from host frames.

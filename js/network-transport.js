@@ -91,7 +91,7 @@
     async function send(kind, payload) {
       if (phase !== 'ready') throw Error('Peer not ready');
       return guard(async () => {
-        if (!(team === 0 ? ['frame', 'receipt'] : ['command', 'ack']).includes(kind) ||
+        if (!(team === 0 ? ['frame', 'receipt', 'setup', 'commit'] : ['command', 'ack', 'ready', 'committed']).includes(kind) ||
             !payload || typeof payload !== 'object' || Array.isArray(payload) || bytes(payload) > 1024) throw Error('Invalid outgoing message');
         const result = await request('/messages', 'POST', { matchId, kind, payload });
         if (!exact(result, ['sequence']) || !Number.isSafeInteger(result.sequence) || result.sequence < 1) throw Error('Invalid send receipt');
@@ -104,7 +104,7 @@
       polling = guard(async () => {
         const result = await request('/messages');
         if (!exact(result, ['messages']) || !Array.isArray(result.messages) || result.messages.length > 32) throw Error('Invalid message batch');
-        const allowed = team === 0 ? ['command', 'ack'] : ['frame', 'receipt'];
+        const allowed = team === 0 ? ['command', 'ack', 'ready', 'committed'] : ['frame', 'receipt', 'setup', 'commit'];
         // Validate the entire batch before invoking any gameplay callback.
         let previous = null;
         for (const message of result.messages) {
