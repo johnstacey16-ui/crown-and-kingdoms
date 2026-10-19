@@ -156,6 +156,19 @@ test('outbox messages are frozen and cannot be modified after validation',()=>{
   assert.equal(message.journal.commands[0].order.value,'vil');
 });
 
+test('host packet ordering is independent of local browser collation rules',()=>{
+  const sandbox={window:{}};
+  vm.runInNewContext(syncCode,sandbox);
+  const sync=sandbox.window.CK_SIM_SYNC;
+  const inbox=sync.createInbox({mapSize:64,teamForSid:()=>0,
+    ownsEntity:id=>id==='u1'});
+  const packet=sid=>({v:sync.VERSION,sid,seq:1,frame:8,team:0,
+    order:{type:'move',entities:['u1'],point:{x:3,y:4}}});
+  assert.equal(inbox.receive(packet('ä-client'),'ä-client',2).ok,true);
+  assert.equal(inbox.receive(packet('z-client'),'z-client',2).ok,true);
+  assert.deepEqual(Array.from(inbox.drain(8),p=>p.sid),['z-client','ä-client']);
+});
+
 test('module stays disconnected from live self-reported Supabase Broadcast identities',()=>{
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
