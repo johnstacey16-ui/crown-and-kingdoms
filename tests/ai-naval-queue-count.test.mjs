@@ -1,21 +1,20 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 assert.match(sim, /b\.q\.push\(\{k,t:d\.t\}\)/, 'training queues store objects with a unit key');
-assert.ok(ai.includes("const queuedUnits=k=>bl.reduce("), 'AI counts queued units by type');
+assert.ok(ai.includes("const queuedUnits=k=>aiQueuedUnits(bl,k)"), 'AI uses centralized unit queue-counting policy');
+const aiQueuedUnits=vm.runInNewContext(ai+'\n;aiQueuedUnits;');
 for (const kind of ['gal', 'fish', 'scout', 'cart', 'cog']) {
   assert.ok(ai.includes("queuedUnits('"+kind+"')"), `AI accounts for queued ${kind} units`);
 }
 assert.ok(!ai.includes("q=>q==='gal'"), 'AI must not compare queued objects directly to strings');
 
-const queuedGalleys = buildings => buildings
-  .filter(b => b.k === 'dock' && b.hp > 0 && Array.isArray(b.q))
-  .reduce((n, b) => n + b.q.filter(q => q && q.k === 'gal').length, 0);
-assert.equal(queuedGalleys([
+assert.equal(aiQueuedUnits([
   { k: 'dock', hp: 100, q: [{ k: 'gal', t: 10 }, { k: 'fish', t: 4 }] },
   { k: 'dock', hp: 100, q: [{ k: 'gal', t: 5 }, { k: 'gal', t: 8 }] },
   { k: 'dock', hp: 0, q: [{ k: 'gal', t: 2 }] },
-]), 3, 'only active docks count their queued galleys');
+], 'gal'), 3, 'only living production buildings count their queued galleys');
 console.log('ai-naval-queue-count: passed');
