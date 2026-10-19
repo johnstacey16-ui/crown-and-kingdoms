@@ -17,7 +17,16 @@
         const db = request.result;
         if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
       };
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const db = request.result;
+        // A different tab may upgrade the database; release the old connection
+        // and allow the next backup or restore to open a fresh one.
+        db.onversionchange = () => {
+          try { db.close(); } catch (_) {}
+          opening = null;
+        };
+        resolve(db);
+      };
       request.onerror = () => resolve(null);
       request.onblocked = () => resolve(null);
     }).catch(() => null).then((db) => {
