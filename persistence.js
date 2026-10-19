@@ -87,9 +87,14 @@
           if (!cursor) return;
           const key = cursor.key;
           if (typeof key === 'string' && (/^ck_save(?:[2-3])?$/.test(key) || key === 'ck_autosave')) {
-            let existing = null;
-            try { existing = window.localStorage.getItem(key); } catch (_) {}
-            if (existing == null && !pendingDeletes.has(key) && window.localStorage.getItem(tombstoneKey(key)) !== '1' && typeof cursor.value === 'string') {
+            let existing = null, deleted = true;
+            // If storage access is denied, fail closed: never resurrect a
+            // potentially deleted backup without checking its tombstone.
+            try {
+              existing = window.localStorage.getItem(key);
+              deleted = window.localStorage.getItem(tombstoneKey(key)) === '1';
+            } catch (_) {}
+            if (existing == null && !deleted && !pendingDeletes.has(key) && typeof cursor.value === 'string') {
               try { window.localStorage.setItem(key, cursor.value); restored++; } catch (_) {}
             }
           }
