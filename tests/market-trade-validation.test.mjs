@@ -31,3 +31,17 @@ test('market cannot trade without enough stock or gold',()=>{
  S.res[0].f=99;assert.equal(trade(0,'f','sell'),false);assert.equal(S.res[0].g,500);
  S.res[0].g=0;assert.equal(trade(0,'f','buy'),false);assert.equal(S.res[0].f,99);
 });
+test('market accepts fractional resource balances produced by gathering and relic income',()=>{
+ const {S,trade}=market();
+ S.res[0].f=200.25;S.res[0].g=500.5;
+ assert.equal(trade(0,'f','sell'),true);
+ assert.equal(S.res[0].f,100.25);assert.equal(S.res[0].g,570.5);
+ assert.equal(trade(0,'f','buy'),true);
+ assert.equal(S.res[0].f,200.25);assert.equal(S.res[0].g,444.5);
+});
+test('market rejects non-finite, negative and overflowing balances without mutation',()=>{
+ for(const [field,value,action] of [['g',NaN,'sell'],['f',Infinity,'buy'],['g',-1,'sell'],['f',-1,'buy'],['g',Number.MAX_SAFE_INTEGER-1,'sell'],['f',Number.MAX_SAFE_INTEGER-1,'buy']]){
+  const {S,trade}=market();S.res[0][field]=value;const before=structuredClone(S);
+  assert.equal(trade(0,'f',action),false);assert.deepEqual(S,before);
+ }
+});

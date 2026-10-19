@@ -37,6 +37,7 @@ test('entity module dependency order and offline cache are maintained', () => {
     'syntax checker must parse entities.js');
   assert.ok(checker.includes(" + '\\n' + entities + '\\n' + campaign"),
     'static source harness must include the entity module');
-  assert.ok(simulationSmoke.includes("new URL('../js/entities.js', import.meta.url)"),
+  assert.ok(simulationSmoke.includes("from './helpers/headless-game.mjs'") && simulationSmoke.includes('headlessGame()') &&
+    readFileSync(new URL('./helpers/headless-game.mjs', import.meta.url), 'utf8').includes("new URL('../../js/entities.js', import.meta.url)"),
     'runtime smoke harness must load the entity module before calling newGame');
 });

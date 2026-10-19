@@ -77,3 +77,9 @@ jobs:
             echo "::error::${failed} of ${#tests[@]} standalone regression files failed; see job summary and grouped output."
             exit 1
           fi
+      - name: Complete seeded land skirmishes with production AI
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/run-skirmish.mjs
+          CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs

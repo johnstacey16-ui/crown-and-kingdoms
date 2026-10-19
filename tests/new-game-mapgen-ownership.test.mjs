@@ -23,6 +23,7 @@ test('map regeneration, connectivity validation and runtime startup wiring are r
   const engineAt = html.indexOf('./engine.js');
   assert.ok(generator >= 0 && engineAt > generator,
     'Map creation must load before engine start/campaign actions can invoke it');
-  assert.ok(smoke.includes("new URL('../js/mapgen.js', import.meta.url)"),
+  assert.ok(smoke.includes("from './helpers/headless-game.mjs'") && smoke.includes('headlessGame()') &&
+    readFileSync(new URL('./helpers/headless-game.mjs', import.meta.url), 'utf8').includes("new URL('../../js/mapgen.js', import.meta.url)"),
     'Simulation smoke test must include the real map generator');
 });

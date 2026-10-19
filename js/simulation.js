@@ -72,7 +72,7 @@ function tickTrader(u,dt){
  const goal=u.tradeReturning?src:dest;
  if(d2(u.x,u.y,goal)<=1.1){
   u.p=[];u.rp=0;
-  if(u.tradeReturning){const earned=Number.isSafeInteger(u.tradeCargo)&&u.tradeCargo>0?u.tradeCargo:0,bank=S.res[u.t];if(earned&&bank&&Number.isSafeInteger(bank.g)&&Number.isSafeInteger(bank.g+earned)){bank.g+=earned;if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold')}u.tradeCargo=0;u.tradeReturning=false;u.tradeSourceWait=0;}
+  if(u.tradeReturning){const earned=Number.isSafeInteger(u.tradeCargo)&&u.tradeCargo>0?u.tradeCargo:0,bank=S.res[u.t];if(earned&&bank&&Number.isFinite(bank.g)&&bank.g>=0&&bank.g<=Number.MAX_SAFE_INTEGER-earned){bank.g+=earned;if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold')}u.tradeCargo=0;u.tradeReturning=false;u.tradeSourceWait=0;}
   else{
    const distance=Math.hypot((src.x+src.s/2)-(dest.x+dest.s/2),(src.y+src.s/2)-(dest.y+dest.s/2));
    u.tradeCargo=Number.isFinite(distance)?Math.max(2,Math.round(distance*0.35)):0;

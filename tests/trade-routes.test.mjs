@@ -84,3 +84,10 @@ test('player trade routes pause rather than silently replace a destroyed destina
  assert.equal(trader.tradeDestKey,null);
  assert.equal(trader.o,'i');
 });
+test('trade deliveries preserve fractional gold already earned from gathering or relics',()=>{
+ for(const kind of ['cart','cog']){
+  const {S,trader,tickTrader}=setup(kind);S.res[0].g=100.125;
+  trader.x=17;tickTrader(trader,1/30);trader.x=1;tickTrader(trader,1/30);
+  assert.equal(S.res[0].g,106.125);assert.equal(trader.tradeCargo,0);
+ }
+});

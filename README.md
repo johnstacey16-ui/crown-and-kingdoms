@@ -14,13 +14,18 @@ Requires Node.js 22 or a compatible current release. No package installation is 
 node scripts/check-game.mjs
 for t in tests/*.test.mjs; do CK_SKIP_CAMPAIGN=1 node "$t" || exit 1; done
 node tests/validate-atlas.mjs
+# Full seeded simulation: production AI versus a passive starting kingdom
+node scripts/run-skirmish.mjs
+CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
 # The isolated 19-mission suite (also exercised by GitHub Actions):
 for mission in $(seq 0 18); do CK_MISSION="$mission" node tests/simulation-smoke.test.mjs || exit 1; done
 ```
 
 GitHub Actions splits responsibilities between `game-validation.yml` (quick script/asset checks) and `game-regression.yml` (the independent standalone tests and 19 isolated campaign simulations). The longer workflow does not rerun the quick validators. Documentation-only pushes skip automated checks, while pull requests are always checked; newer pushes cancel superseded runs. All checks can be started manually in GitHub Actions.
 
-**Testing policy:** The `tests/` directory is development-only; its Node scripts are **not loaded by `index.html` or shipped as part of the browser game**. As of 19 October 2026 there are 131 standalone test files, after consolidating three small campaign objective checks into one file with the same assertions. Keep end-to-end smoke tests and bug-prevention checks, consolidate duplicated launch overhead or brittle source-pattern tests as they become relevant, and never delete a behavioural safeguard just to reduce the file count. The success of automated tests does not prove full controller-driven matches, live multiplayer, real browser/Xbox playthroughs or acceptable console performance.
+**Testing policy:** The `tests/` directory is development-only; its Node scripts are **not loaded by `index.html` or shipped as part of the browser game**. As of 19 October 2026 there are 131 standalone test files, after consolidating three small campaign objective checks into one file with the same assertions. Keep end-to-end smoke tests and bug-prevention checks, consolidate duplicated launch overhead or brittle source-pattern tests as they become relevant, and never delete a behavioural safeguard just to reduce the file count. The skirmish runner logs seed, difficulty, per-minute economy/population/AI/path diagnostics and a natural defeat; its optional checkpoint compares persisted gameplay fields before and after loading. It does not simulate an actively commanding human or render the browser UI.
+
+The success of automated tests does not prove full controller-driven matches, live multiplayer, real browser/Xbox playthroughs or acceptable console performance.
 
 ## Architecture constraints
 
