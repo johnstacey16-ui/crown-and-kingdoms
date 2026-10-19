@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const code=readFileSync(new URL('../js/formations.js',import.meta.url),'utf8');
+const ctx=vm.createContext({fm:1});
+const plan=vm.runInContext(code+';formationSlots',ctx);
+const units=[{x:0,y:0},{x:0,y:0},{x:0,y:0}];
+const close=(actual,expected)=>actual.forEach((v,i)=>assert.ok(Math.abs(v-expected[i])<1e-10,`${actual} != ${expected}`));
+test('all formation shapes retain expected slot geometry',()=>{
+ close(plan(units,10,0,0)(0),[-.55,-.55]);
+ close(plan(units,10,0,1)(0),[0,-1.2]);
+ close(plan(units,10,0,1)(2),[0,1.2]);
+ close(plan(units,10,0,2)(0),[-1.1,0]);
+ close(plan(units,10,0,3)(1),[.9,-.65]);
+ close(plan(units,10,0,4)(0),[.6,0]);
+ close(plan(units,10,0,4)(1),[-.25,-.75]);
+ close(plan(units,10,0,4)(2),[-.25,.75]);
+ close(plan([],10,0,1)(0),[0,0]);
+});
+test('a 500-unit order reads positions once and each order captures its own facing and shape',()=>{
+ let reads=0;
+ const army=Array.from({length:500},()=>({get x(){reads++;return 0},get y(){reads++;return 0}}));
+ const slots=plan(army,10,0,1);
+ for(let i=0;i<500;i++)slots(i);
+ assert.equal(reads,1000,'centroid work is linear, not 500 full-army scans');
+ const before=slots(0);
+ ctx.fm=4;
+ const north=plan(units,0,10,1);
+ close(slots(0),before);
+ close(north(0),[1.2,0]);
+ const shifted=plan(units.map(u=>({x:u.x+7,y:u.y+3})),17,3,1);
+ close(shifted(0),plan(units,10,0,1)(0));
+});

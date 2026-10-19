@@ -89,7 +89,23 @@ const harness = `
 let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
-  start(seed, age = 0) { seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
+  start(seed, age = 0) { restoreCampaignPrefs(); seedOv = seed; cmp = null; gameMode = 0; startAge = age; start(); aiPeak = {}; for (let team = 1; team < S.teamN; team++) aiPeak[team] = aiMilitaryCount(team); },
+  auditSaveTimersAndRng() {
+    const u=S.us[0]; u.rp=-3.25; u.cd=-.1;
+    const saved=saveG();
+    const expected=Array.from({length:8},()=>S.r());
+    const loaded=loadG();
+    const actual=Array.from({length:8},()=>S.r());
+    const snapshot=JSON.parse(localStorage.getItem(skey(slot)));
+    const invalidRejected=[-1,4294967296,1.5,null,'42'].every(value=>{
+      localStorage.setItem(skey(slot),JSON.stringify({...snapshot,rngState:value}));
+      const before=S;return loadG()===false&&S===before;
+    });
+    delete snapshot.rngState;
+    localStorage.setItem(skey(slot),JSON.stringify(snapshot));
+    const legacyLoaded=loadG();
+    return {saved,loaded,expected,actual,invalidRejected,legacyLoaded,rp:S.us[0].rp,cd:S.us[0].cd,scores:S.scoreCache.length};
+  },
   startMap(seed, mapIndex, teams = 4) { seedOv = seed; mt = mapIndex; mapLayout = 0; msz = 0; kingdoms = teams; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   startLayout(layoutIndex, teams = 4) { mapLayout = layoutIndex; applyMapLayout(); kingdoms = teams; msz = 0; cmp = null; gameMode = 0; startAge = 0; startArmy = 0; start(); seedOv = null; return this.state(); },
   auditMapStarts(starts) { return auditGeneratedMap(starts); },
@@ -847,13 +863,18 @@ globalThis.__CK_TEST__ = {
     if (!aiTc || !playerTc) throw new Error('Seeded match must have both Town Centres');
     S.age[team] = 2;
     S.res[team] = { f: 5000, w: 5000, g: 5000, s: 5000 };
-    const castle = addB(0, 'castle', playerTc.x + 10, playerTc.y + 10, true);
-    const tower = addB(0, 'tower', playerTc.x + 7, playerTc.y + 1, true);
-    const ram = addU(team, 'ram', aiTc.x + 2, aiTc.y + 2);
+    const castle = put(0, 'castle', playerTc.x + 10, playerTc.y);
+    if(!castle)throw Error('No legal castle test site');
+    const tower = put(0, 'tower', playerTc.x + 7, playerTc.y);
+    if(!tower)throw Error('No legal tower test site');
+    const ramSpawn=spawnPos(aiTc);
+    if(!ramSpawn)throw Error('No legal ram spawn');
+    const ram = addU(team, 'ram', ...ramSpawn);
     const infantry = [];
-    for (let i = 0; i < 20; i++) infantry.push(addU(team, 'mil', aiTc.x + 3 + (i % 5), aiTc.y + 3 + Math.floor(i / 5)));
+    for (let i = 0; i < 20; i++) infantry.push(addU(team, 'mil', ...ramSpawn));
     for (const u of [ram, ...infantry]) { u.o = 'i'; u.tg = null; u.p = []; u.retreating = 0; }
     const ai = S.ai[team];
+    S.t=900; // All difficulty levels have passed their initial attack delay.
     ai.cd = 0; ai.nx = 0; ai.wave = 0; ai.on = 0; ai.stg = null;
     aiTeam(team, 1 / 30);
     const waveStarted = ai.wave > 0 && !!ai.stg;
@@ -1270,6 +1291,17 @@ assert.match(kingHill.playerWin.reason, /held the central hill for 5 minutes/, '
 assert.equal(kingHill.enemyWin.over, 'lose', 'A hostile kingdom holding the hill for 300 seconds must defeat the player');
 assert.match(kingHill.enemyWin.reason, /held the central hill for 5 minutes/, 'Enemy victory must explain the hill-control loss');
 console.log('king-of-the-hill-smoke: contested control resets; non-military/economic units excluded; player/enemy five-minute wins verified');
+game.start(123456);
+const saveTimers=game.auditSaveTimersAndRng();
+assert.equal(saveTimers.saved,true);
+assert.equal(saveTimers.loaded,true,'real saves accept elapsed fractional retry/cooldown timers');
+assert.equal(saveTimers.invalidRejected,true,'bad RNG state is rejected before replacing the running match');
+assert.equal(saveTimers.legacyLoaded,true,'legacy saves without RNG state remain loadable');
+assert.ok(saveTimers.scores>=2,'loaded matches rebuild their score cache immediately');
+assert.equal(saveTimers.rp,-3.25);
+assert.equal(saveTimers.cd,-.1);
+assert.deepEqual(saveTimers.actual,saveTimers.expected,'save/load resumes the simulation RNG stream');
+console.log('save-rng-smoke: elapsed timers and eight subsequent random values survive save/load');
 game.start(123456);
 const conscriptionRates = game.auditConscriptionRates();
 for (const key of ['barracks','castle','monastery','galley']) {

@@ -1,3 +1,15 @@
+## Save reliability, reproducible simulation and army orders — 18 October 2026
+
+Previous published checkpoint: `e743b31d732338825c55a6e6496871a4323cf8de`.
+
+- **Save loading fixed:** unit path retry and attack cooldown fields are floating-point second countdowns, including negative elapsed values. The loader now accepts legitimate timers instead of treating retry time as a path index. Non-finite values remain rejected. Loaded games immediately rebuild their score cache and invalidate hostile-unit spatial buckets.
+- **Seeded simulation groundwork:** unit creation uses the match RNG for retry timing. The existing random algorithm now exposes its current state; new saves store that state and resume the same random stream on loading. Old saves without the optional field still load. Malformed RNG states are rejected before replacing the running game. This does not claim full deterministic replay, complete save-state fidelity or multiplayer synchronisation. Lobby configuration version is now 3 to reject older clients with different initial RNG consumption.
+- **AI siege behaviour:** reachable castles take priority over towers and Town Centres, with distance ordering within each class and a maximum of twelve route checks. Dead, unfinished and friendly structures are excluded; the primary attack target remains the fallback.
+- **Large-army formation work:** player land/naval orders and AI staging compute centroid/facing once per group, instead of once per soldier. A 500-unit fixture confirms 1,000 coordinate reads for the group calculation, rather than 500 full-group scans. All five formation shapes retain their geometry. AI formation planning no longer temporarily mutates the player's selected formation. This is not shared pathfinding and has not been benchmarked on Xbox.
+- **Smoke fixture corrections:** standalone matches restore pre-campaign preferences. The siege fixture now uses legal building/unit locations and advances past the AI's initial attack delay. The previous twelve-minute AI failure was caused by retained campaign settings; the isolated scenario now launches coordinated waves. The siege test also exposed and now verifies the fortification-priority improvement.
+- **Integrated verification:** the simulation smoke run completed through its final 2,000-unit fixture with `CK_SKIP_CAMPAIGN=1`, including AI waves, naval combat, rolling autosave and campaign save/load. Full nineteen-mission playthroughs and Xbox/browser acceptance were not run.
+- **Focused checks:** RNG sequence compatibility/resumption, seeded unit timers, save timer validation, siege priority/reachability/search limits and formation geometry/linear work pass locally. Full-suite legacy source-pattern failures remain separate unresolved work; these targeted results do not establish a green repository-wide CI run.
+
 ## Takeover checkpoint — 18 October 2026
 
 Baseline inspected: `be0f45eb671d6cdeac0e02783d021a686b95545e`.
