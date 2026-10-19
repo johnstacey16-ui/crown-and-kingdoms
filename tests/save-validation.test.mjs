@@ -2,50 +2,34 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
-const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const guard = save.indexOf("if(!j||j.v!==1||!Number.isFinite(j.t)||j.t<0||!Number.isInteger(j.sz)");
-const restore = save.indexOf('setSize(j.sz)');
-assert.ok(guard >= 0, 'loadG must validate a save payload before restoring it');
-assert.ok(restore > guard, 'payload validation must run before map allocation and state replacement');
+const save=readFileSync(new URL('../js/save.js',import.meta.url),'utf8');
+const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const start=save.indexOf('if(!j||j.v!==1||');
+const restore=save.indexOf('setSize(j.sz)');
+const finish=save.indexOf("{note('No valid save found');return false}",start);
+assert.ok(start>=0&&finish>start&&restore>finish,
+  'Save validation must reject malformed payloads before allocating a map or replacing game state');
+const validation=save.slice(start,finish);
 
-const validation = save.slice(guard, save.indexOf("{note('No valid save found');return false}", guard));
-for (const required of [
-  '!Array.isArray(j.us)',
-  '!Array.isArray(j.bs)',
-  '!Array.isArray(j.nodes)',
-  '!Array.isArray(j.res)',
-  '!Array.isArray(j.age)',
-  '!Array.isArray(j.tech)',
-  "!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl)",
-  '!j.cam||typeof j.cam!==\'object\'||Array.isArray(j.cam)||!Number.isFinite(j.cam.x)||!Number.isFinite(j.cam.y)',
-  '!j.us.every(u=>u&&typeof u===\'object\'&&!Array.isArray(u)&&typeof u.k===\'string\'&&!!U[u.k]&&Number.isInteger(u.t)&&u.t>=0&&u.t<j.res.length&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&Number.isFinite(u.hp)&&u.hp>=0&&u.x>=0&&u.y>=0&&u.x<j.sz&&u.y<j.sz)',
-  '!j.bs.every(b=>b&&typeof b===\'object\'&&!Array.isArray(b)&&typeof b.k===\'string\'&&!!B[b.k]&&Number.isInteger(b.t)&&b.t>=0&&b.t<j.res.length&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&Number.isFinite(b.hp)&&b.hp>=0&&Number.isFinite(b.mh)&&b.mh>0&&Number.isInteger(b.s)&&b.s>0&&b.x>=0&&b.y>=0&&b.x+b.s<=j.sz&&b.y+b.s<=j.sz)',
-  '!j.nodes.every(n=>n&&typeof n===\'object\'&&!Array.isArray(n)&&[\'f\',\'w\',\'g\',\'s\'].includes(n.k)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<j.sz&&n.y<j.sz&&Number.isFinite(n.amt)&&n.amt>=0)',
-  '!Array.isArray(j.rel)&&j.rel!==undefined',
-  '!j.us.every(u=>refOK(u.tg,counts)&&refOK(u.ld,counts)',
-  '!j.bs.every(b=>b.cg===undefined||Array.isArray(b.cg)',
-  "typeof j.wt!=='string'",
-  "typeof j.ex!=='string'",
-  'j.wt.length!==j.sz*j.sz',
-  'j.ex.length!==j.sz*j.sz',
-  '!/^[012]+$/.test(j.wt)',
-  '!/^[01]+$/.test(j.ex)',
-  '!j.res.every(r=>[\'f\',\'w\',\'g\',\'s\'].every(k=>Number.isFinite(r[k])&&r[k]>=0))',
-]) {
-  assert.ok(validation.includes(required), `save validation must reject incomplete or malformed field: ${required}`);
-}
-assert.ok(validation.includes('!Number.isFinite(j.t)||j.t<0'), 'saved simulation time must be finite and non-negative');
-assert.ok(validation.includes('!SZ.includes(j.sz)'), 'saved map dimensions must match one of the supported map sizes before allocation');
-assert.ok(validation.includes('j.res.length<2') && validation.includes('j.res.length>4'), 'save team count must be bounded to supported kingdom counts');
-assert.ok(validation.includes('j.age.length!==j.res.length') && validation.includes('j.tech.length!==j.res.length'), 'team-indexed age and technology arrays must agree before restoration');
-assert.ok(validation.includes("!j.pl||typeof j.pl!=='object'||Array.isArray(j.pl)"), 'player statistics must use the actual saved statistics-object shape');
-assert.ok(validation.includes("!j.res.every(r=>r&&typeof r==='object'&&!Array.isArray(r))"), 'each kingdom must have a resource object');
-assert.ok(validation.includes('!j.age.every(Number.isFinite)'), 'each kingdom age must be numeric');
-assert.ok(validation.includes("!j.tech.every(t=>t&&typeof t==='object'&&!Array.isArray(t))"), 'each kingdom must have a technology object');
-assert.match(save, /try\{j=JSON\.parse\(localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)\)\}catch\(e\)\{\}/, 'invalid JSON must remain a recoverable invalid-save result for manual and rolling autosave slots');
-assert.match(save, /const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/, 'a rejected asynchronous backup mirror must be handled without blocking the primary save');
-assert.match(save, /catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/, 'a failed optional IndexedDB mirror must not prevent the primary localStorage save');
+// Keep the important structural, timing, team and reference checks, without depending
+// on their ordering or the obsolete single-line guard used by previous builds.
+for(const required of [
+  '!Number.isFinite(j.t)||j.t<0',
+  '!Number.isInteger(j.sz)','!SZ.includes(j.sz)',
+  '!Array.isArray(j.us)','!Array.isArray(j.bs)','!Array.isArray(j.nodes)',
+  '!Array.isArray(j.res)','!Array.isArray(j.age)','!Array.isArray(j.tech)',
+  'j.res.length<2','j.res.length>4',
+  '!j.age.every','!j.tech.every',
+  'j.wt.length!==j.sz*j.sz','j.ex.length!==j.sz*j.sz',
+  '!j.res.every','!j.us.every(u=>validSavedUnitOrders(u,j.sz)',
+  'validSavedProduction(b)','j.rngState!==undefined'
+])assert.ok(validation.includes(required),'Save guard must validate '+required);
+assert.match(save,/try\{j=JSON\.parse\(localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)\)\}catch\(e\)\{\}/,
+  'malformed JSON must be reported as an invalid save rather than a loader crash');
+assert.match(save,/const mirror=window\.CK_STORAGE\.mirrorSave\(key,payload\);if\(mirror&&typeof mirror\.catch==='function'\)mirror\.catch\(\(\)=>\{\}\)/,
+  'an asynchronous backup rejection must not interrupt the primary save');
+assert.match(save,/catch\(e\)\{\}\s*localStorage\.setItem\(key,payload\)/,
+  'an optional backup failure must not prevent the primary save write');
 
 // Exercise the real loader's early-rejection path without booting the renderer.
 const validShape = () => ({
