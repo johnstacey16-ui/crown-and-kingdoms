@@ -120,5 +120,98 @@
     if (local.frame !== remote.frame) return 'different-frame';
     return local.hash === remote.hash ? 'match' : 'desync';
   }
-  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint });
+  // A two-human match locks each player to a different existing kingdom.
+  // This is a host-published roster, not authentication: before actual remote
+  // commands are accepted, the transport must provide a non-forgeable sender ID.
+  function validSid(s) {
+    return typeof s === 'string' && s.length >= 3 && s.length <= 80 &&
+      !/[\u0000-\u001f\u007f]/.test(s);
+  }
+  function lockRoster(hostSid, guestSid, kingdomCount) {
+    if (!validSid(hostSid) || !validSid(guestSid) || hostSid === guestSid ||
+        !Number.isInteger(kingdomCount) || kingdomCount < 2 || kingdomCount > 4) {
+      throw Error('A two-human match needs two distinct sessions and at least two kingdoms');
+    }
+    return Object.freeze({
+      v: VERSION, kingdomCount,
+      slots: Object.freeze([
+        Object.freeze({ sid: hostSid, team: 0, role: 'host' }),
+        Object.freeze({ sid: guestSid, team: 1, role: 'guest' })
+      ])
+    });
+  }
+  function validRoster(raw, hostSid, localSid, kingdomCount) {
+    if (!isRecord(raw) || raw.v !== VERSION || raw.kingdomCount !== kingdomCount ||
+        !Array.isArray(raw.slots) || raw.slots.length !== 2 ||
+        !validSid(hostSid) || !validSid(localSid) ||
+        !raw.slots.every(isRecord) ||
+        raw.slots.some(s => Object.keys(s).length !== 3)) return false;
+    const [host, guest] = raw.slots;
+    return host.sid === hostSid && host.team === 0 && host.role === 'host' &&
+      validSid(guest.sid) && guest.sid !== hostSid && guest.team === 1 && guest.role === 'guest' &&
+      (localSid === hostSid || localSid === guest.sid);
+  }
+  function rosterTeam(roster, sid) {
+    if (!roster || !Array.isArray(roster.slots)) return null;
+    const slot = roster.slots.find(p => p.sid === sid);
+    return slot && Number.isInteger(slot.team) ? slot.team : null;
+  }
+
+  // Host-side authoritative command queue. Transport senderSid must already
+  // be VERIFIED by the server/transport (not copied from the packet payload).
+  // Entity ownership is rechecked both when queued and at the execution frame;
+  // a unit converted, destroyed or transferred in the meantime cannot execute.
+  function createCommandHost({ roster, mapSize, lookupEntity, execute,
+                               delayFrames = 3, maxAhead = 120 }) {
+    if (!roster || !Array.isArray(roster.slots) || roster.slots.length !== 2 ||
+        !validRoster(roster, roster.slots[0].sid, roster.slots[0].sid, roster.kingdomCount) ||
+        typeof lookupEntity !== 'function' || typeof execute !== 'function') {
+      throw Error('Invalid authoritative host setup');
+    }
+    function allowed(order, team) {
+      if (!validOrder(order, mapSize)) return false;
+      const buildingAction = ['train', 'research', 'rally'].includes(order.type);
+      const unitAction = ['move', 'attack-move', 'attack', 'gather', 'build', 'stance'].includes(order.type);
+      if (buildingAction && order.entities.length !== 1) return false;
+      if (!buildingAction && !unitAction) return false;
+      return order.entities.every(id => {
+        const entity = lookupEntity(id);
+        return entity && entity.netId === id && entity.t === team &&
+          Number.isFinite(entity.hp) && entity.hp > 0 &&
+          (buildingAction ? id[0] === 'b' && !!entity.done : id[0] === 'u' && !entity.ld);
+      });
+    }
+    const inbox = createInbox({
+      mapSize, delayFrames, maxAhead,
+      teamForSid: sid => rosterTeam(roster, sid),
+      ownsEntity: (id, team) => {
+        const entity = lookupEntity(id);
+        return !!entity && entity.netId === id && entity.t === team &&
+          Number.isFinite(entity.hp) && entity.hp > 0;
+      }
+    });
+    function receive(packet, trustedSenderSid, currentFrame) {
+      if (!validPacket(packet, mapSize) || !allowed(packet.order, packet.team))
+        return { ok: false, reason: 'unauthorized-order' };
+      // Inbox also verifies identity, sequence, team, ownership and deadlines.
+      const result = inbox.receive(packet, trustedSenderSid, currentFrame);
+      return result;
+    }
+    function applyFrame(frame) {
+      // Return separate execution results; a rejected order is never silently
+      // treated as applied. Never execute a packet until its agreed frame.
+      return inbox.drain(frame).map(p => {
+        if (!allowed(p.order, p.team)) return { sid: p.sid, seq: p.seq, frame, ok: false, reason: 'stale-ownership' };
+        try {
+          const ok = execute(p.order, p.team, frame) === true;
+          return { sid: p.sid, seq: p.seq, frame, ok, reason: ok ? null : 'rejected-by-simulation' };
+        } catch (_) {
+          return { sid: p.sid, seq: p.seq, frame, ok: false, reason: 'simulation-error' };
+        }
+      });
+    }
+    return Object.freeze({ receive, applyFrame, pending: inbox.pending });
+  }
+
+  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost });
 })(typeof window !== 'undefined' ? window : globalThis);
