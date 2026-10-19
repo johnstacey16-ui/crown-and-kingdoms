@@ -9,12 +9,28 @@ This is the reconciled, evidence-based work register created from three independ
 
 ## Current verified CI baseline — 19 October 2026
 
-**Both GitHub Actions workflows are green at commit [8440b461712ae491499d8d08945d2b3b1c086885](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/8440b461712ae491499d8d08945d2b3b1c086885).**
+**Both GitHub Actions workflows are green at commit [c9f73ea2bdccf707341dedf83581414e49b1c8f5](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/c9f73ea2bdccf707341dedf83581414e49b1c8f5).**
 
-- [Complete regression workflow, run 39205968121](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39205968121): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
-- [Source/atlas validation workflow, run 39205968115](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39205968115): **success**.
+- [Complete regression workflow, run 39207971513](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971513): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
+- [Source/atlas validation workflow, run 39207971486](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971486): **success**.
 - There are **zero known failing automated regression files on that commit**. Future commits require their own matching CI verification. Earlier counts (38, 34, 29, 19, 1 failing) appearing below are dated historical checkpoints, not the current result.
 - **This verifies only the existing automated coverage:** physical Xbox Series S/X Edge gameplay, complete human-controller match and mission sessions, reliable long-game saves, actual shared multiplayer and Xbox DE reference-feature fidelity still require dedicated acceptance evidence.
+
+## Work mode restart handoff — 19 October 2026
+
+**For the existing ChatGPT Work conversation:** Always fetch the newest `main` branch of `https://github.com/johnstacey16-ui/crown-and-kingdoms` and read this register **before editing anything**. Prior Work mode chat context or an extracted ZIP from audit commit `4130ad0` may be stale. Do **not** write an older snapshot over newer GitHub work or redo the cleanup.
+
+**Current exact verified code:** `c9f73ea2bdccf707341dedf83581414e49b1c8f5` — GitHub Actions: [regression 39207971513](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971513) and [validation 39207971486](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971486), both passing. **133/133 regression files and 19/19 isolated mission simulations passing.** This document itself may be committed later; refresh before changing source.
+
+**Latest added hardening:**
+- `js/save.js` verifies `localStorage.setItem()` via immediate readback **before** invoking the IndexedDB mirror. Quota errors/readback mismatch cannot send a newer backup for a save reported failed.
+- `persistence.js` forgets a failed IndexedDB open, allowing retry during the same page session.
+- `tests/save-management.test.mjs` checks primary write/readback/backup ordering, failure rollback semantics and successful backup reconnect after a transient opening error. `tests/save-validation.test.mjs` and `tests/browser-foundation.test.mjs` enforce the primary-first invariant.
+- These are **component-level save guarantees**, not a completed browser/Xbox full-match save round-trip acceptance.
+
+**Next Work mode actions, in order:** (1) Run/fetch matching full CI on current `main`. (2) Make a reproducible end-to-end **single-player land skirmish** run through a real victory or defeat, including controlled enemy AI; log seed, difficulty, time and state diagnostics (CK-003/004). (3) Test save/reload in active late-game simulation, queues, moving troops, technologies, garrisons, naval routes and campaign objectives, including invariant comparisons (CK-005/006). (4) Verify controller-only Xbox Edge workflow and UI (CK-009–012). (5) Design/implement genuine **two-player synchronized simulation** and checksums/reconnect protection (CK-007/008), *not merely lobby presence*. (6) Then fill reference-content parity and polish tasks.
+
+**Non-negotiables:** No deleting valid gameplay or simply disabling tests to get green; maintain original assets; no claims about measured Xbox performance, full playthroughs or live multiplayer without actual test results; make small reversible commits with regression coverage and update CK task evidence. Avoid two simultaneous agents writing to `main`.
 
 ## Ground rules
 
@@ -67,7 +83,7 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 | CK-002 | P0 | Repair current regression failures | VERIFIED (current baseline) | All prior failures cleared at 8440b461, 133/133 standalone checks and 19/19 isolated missions pass; continuously revalidate after changes. Does not imply complete game readiness. |
 | CK-003 | P0 | Basic complete land skirmish | UNVERIFIED | engine.js, simulation.js, ai.js, mapgen.js: match start → economy → ages → combat → win/lose → results. Record actual in-browser gameplay and controlled AI full-match simulation. |
 | CK-004 | P0 | AI ability to finish matches | UNVERIFIED | ai.js has substantial economy/combat/recovery logic and focused tests. Run reproducible moderate/hard/late-game matches with clear winner and resource/accounting diagnostics. |
-| CK-005 | P0 | Current-version save round-trip | PARTIAL | save.js and persistence.js support references, RNG state, localStorage/IndexedDB. Verify saves during economy, troop movement, research, transport/garrison, relics, campaigns; compare state before/after. |
+| CK-005 | P0 | Current-version save round-trip | PARTIAL | save.js and persistence.js support references, RNG state and localStorage/IndexedDB. At c9f73ea2, save-order tests verify primary checkpoint before backup and recovery from transient IndexedDB open failures. Still verify true long-match save/reload during economy, movement, research, garrison/transport, relics and campaigns; compare live states. |
 | CK-006 | P0 | Population and production deadlocks | IMPLEMENTED/UNVERIFIED | Recent repairs in engine.js/simulation.js. Exercise queue reservations, house loss, caps, restored games and multiple concurrent buildings in full match. |
 | CK-007 | P0 | Real two-human shared multiplayer | MISSING | multiplayer.js is lobby/presence only. Implement ownership, command replication, shared map/seed/RNG, deterministic or host-authoritative policy, synced win/lose; two browsers complete a real match. |
 | CK-008 | P0 | Multiplayer desync detection and failure handling | MISSING | Sequence/order/dedup, frame acks, periodic state checksums, timeout/rejoin/disconnect strategy; expose desync rather than silently diverging. Dependent on CK-007. |
