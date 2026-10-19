@@ -24,5 +24,6 @@ test('save-slot orchestration and existing callbacks remain intact', () => {
   assert.match(engine, /deleteSavedGame\(deleteSlotTarget\);deleteSlotTarget=null;refreshSlots\(\)/,
     'Deleting a slot must explicitly confirm and refresh the listing');
   assert.match(ui, /x==='bad'\?'This slot cannot be read\.'/);
-  assert.match(ui, /A: '\+\(sm==='save'\?'save here':'load'\)\+'    B: back'/);
+  assert.match(ui, /A: '\+\(sm==='save'\?'save here':'load'\)\+'    X: delete selected save    B: back'/,
+    'Controller hint must document X to delete saves as well as A to save/load and B to return');
 });
