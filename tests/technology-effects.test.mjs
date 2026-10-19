@@ -109,8 +109,17 @@ assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['s
   'Husbandry must be researchable at the Stable');
 assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
   'Husbandry must have explicit cost, duration and Castle Age availability');
-assert.match(html, /function unitSpeed\(u\)\{return U\[u\.k\]\.sp\*\(\(S\.tech\[u\.t\]&&S\.tech\[u\.t\]\.husb&&CAVARM\.has\(u\.k\)\)\?1\.1:1\)\}/,
-  'Husbandry must apply a 10% movement-speed bonus only to mounted unit classes');
+const speedStart=sim.indexOf('function unitSpeed(u){');
+const speedEnd=sim.indexOf('\nfunction walk(',speedStart);
+assert.ok(speedStart>=0&&speedEnd>speedStart,'shared unit speed calculation must be present');
+const speedContext={S:{tech:[{husb:1}]},U:{knight:{sp:1},mil:{sp:1},vil:{sp:1}},
+  CAVARM:new Set(['knight']),INFARM:new Set(['mil'])};
+const speed=vm.runInNewContext(sim.slice(speedStart,speedEnd)+'\n;unitSpeed;',speedContext);
+assert.equal(speed({t:0,k:'knight'}),1.1,'Husbandry grants ten percent speed to mounted units');
+assert.equal(speed({t:0,k:'mil'}),1,'Husbandry alone cannot accelerate infantry');
+assert.equal(speed({t:0,k:'vil'}),1,'Husbandry alone cannot accelerate villagers');
+speedContext.S.tech[0].squires=1;
+assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
   'Mounted classification must cover unique cavalry and mounted raiders consistently');
 assert.match(html, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
