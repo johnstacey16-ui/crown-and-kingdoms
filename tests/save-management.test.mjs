@@ -45,3 +45,46 @@ test('autosave always uses its own rolling key, not the selected manual slot', (
  assert.match(engine,/lastAutoSaveAt=-60000;newGame\(\)/);
  assert.match(engine,/overwriteSlotTarget!==null/);
 });
+
+function saveFixture({failPrimary=false, readBackMismatch=false}={}){
+ const data=new Map([['ck_autosave','previous verified checkpoint']]);
+ const events=[];
+ const context={
+  S:{nodes:[],bs:[],us:[],rel:[],wt:[],ex:[],res:[],age:[],tech:[],ai:[],
+     t:123,pal:0,kh:[],vc:[],px:[],civ:[0,1],dip:[],vp:[]},
+  W:72,vm:0,scoreLimit:1200,aip:0,cmp:null,diff:0,cam:{x:0,y:0},
+  slot:0,skey:()=> 'ck_save',hs:0,note:()=>{},
+  localStorage:{
+   setItem:(key,value)=>{events.push('primary-write');if(failPrimary)throw Error('quota exceeded');if(!readBackMismatch)data.set(key,value);},
+   getItem:key=>{events.push('primary-readback');return data.get(key)??null;}
+  },
+  window:{CK_STORAGE:{
+   mirrorSave:(key,value)=>{events.push('backup-write');assert.equal(data.get(key),value,
+    'backup must never be newer than the verified primary checkpoint');return Promise.resolve(true);},
+   clearDeletionMarker:()=>events.push('clear-deletion-marker')
+  }}
+ };
+ vm.runInNewContext(save,context,{filename:'js/save.js'});
+ return {data,events,context};
+}
+
+test('a failed primary save cannot write a misleading newer IndexedDB backup',()=>{
+ for(const settings of [{failPrimary:true},{readBackMismatch:true}]){
+  const f=saveFixture(settings);
+  assert.equal(f.context.saveG(true),false,'primary failure must report unsuccessful save');
+  assert.equal(f.data.get('ck_autosave'),'previous verified checkpoint',
+   'failed saves do not overwrite the last known-good local checkpoint');
+  assert.equal(f.events.includes('backup-write'),false,
+   'a failed primary write or readback verification must not be mirrored');
+  assert.equal(f.events.includes('clear-deletion-marker'),false,
+   'a failed save must not resurrect a previously deleted slot');
+ }
+});
+
+test('successful autosaves verify local storage before mirroring and clearing delete markers',()=>{
+ const f=saveFixture();
+ assert.equal(f.context.saveG(true),true);
+ assert.deepEqual(f.events,['primary-write','primary-readback','backup-write','clear-deletion-marker']);
+ assert.equal(f.context.hs,1);
+ assert.equal(JSON.parse(f.data.get('ck_autosave')).t,123);
+});
