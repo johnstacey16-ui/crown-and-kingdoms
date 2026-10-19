@@ -44,7 +44,7 @@ function applyMapLayout(){const p=[null,{mt:0,seed:202611},{mt:7,seed:202612},{m
 
 /* Map construction, game-state initialisation and starting-world seeding. */
 function newGame(tries){'use strict';if(tries===undefined)tries=0;setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:(Date.now()+tries*104729)&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
-S={t:0,teamN,r,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
+S={t:0,teamN,r,netNext:1,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
 res:Array.from({length:teamN},()=>{const v=[200,100,500,1000,2000,10000][startRes]||200;return startRes===0?{f:200,w:200,g:100,s:0}:{f:v,w:v,g:v,s:v}}),pl:{tr:0,bl:0,kills:0,gath:0},sel:[],vt:0,al:-99,age:Array(teamN).fill(startAge),tech:Array.from({length:teamN},()=>({})),dip:createDiplomacy(teamN),vp:createVillagerPriority(),scoreCache:Array(teamN).fill(0),kh:Array(teamN).fill(0),rel:[],px:Array.from({length:teamN},()=>({f:100,w:100,g:100,s:100})),civ:Array.from({length:teamN},(_,t)=>t),pal:MT[mt].pal||0,ai:Array.from({length:teamN},(_,t)=>({cd:4+t*.7,wave:0,nx:(vm===5?180:([480,360,240][diff]*PERS[aip].g))|0})),over:null};
 for(let i=0;i<Math.round(W*H/740*MT[mt].l);i++){const cx=r()*W,cy=r()*H,rad=2+r()*4;for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(Math.hypot(x-cx,y-cy)<rad)S.g[y*W+x]=S.wt[y*W+x]=1}
 const bs=teamN===2?[[9,H-10],[W-10,9]]:teamN===3?[[9,H-10],[W-10,9],[W-10,H-10]]:[[9,H-10],[W-10,9],[9,9],[W-10,H-10]];
