@@ -16,6 +16,10 @@ function aiBaseDefenceThreat(nearbyRaiders,base){
  }
  return intruder;
 }
+/* Protect the complete next-age budget when deciding on optional research. */
+function aiCanResearchWhileSaving(resources,researchCost,ageCost){
+ return Object.keys(ageCost).every(res=>(resources[res]||0)-(researchCost[res]||0)>=ageCost[res]);
+}
 function aiSiegeTarget(leader,buildings,fallback){
  if(!leader)return fallback;
  const priority={castle:0,tower:1,tc:2};
@@ -280,7 +284,7 @@ const nextAge=AG[S.age[t]+1],agePrereqs=nextAge&&new Set(bl.filter(x=>x.done&&x.
 const savingForAge=!!(nextAge&&agePrereqs>=2&&vil.length>=10&&!tc.rs&&S.age[t]<3);
 for(const b of bl)if(b.done&&b.hp>0&&rsOf(b).length&&!b.rs&&(!Array.isArray(b.q)||!b.q.length)){
  const choices=rsOf(b).filter(k=>{const e=TE[k];if(!e||S.tech[t][k]||bl.some(other=>other.rs&&other.rs.k===k)||e.age>S.age[t]||(e.pre&&!S.tech[t][e.pre])||!can(t,e.cost))return false;
- if(savingForAge&&k!=='loom'&&k!=='gath'&&k!=='wheel'&&k!=='axe'&&k!=='saw'){const cost=nextAge.cost;return Object.keys(cost).every(res=>(R[res]||0)-(e.cost[res]||0)>=cost[res])}
+ if(savingForAge&&k!=='loom'&&k!=='gath'&&k!=='wheel'&&k!=='axe'&&k!=='saw'){return aiCanResearchWhileSaving(R,e.cost,nextAge.cost)}
  return true});
  choices.sort((a,b)=>techPriority(b)-techPriority(a));
  if(choices.length)research(b,choices[0])
