@@ -20,7 +20,7 @@ function game(options='') {
     const host=sync.createCommandHost({roster,mapSize:W,
       lookupEntity:orders.lookup,execute:orders.execute});
     const ingress=uplink.createCommandIngress({roster,matchId:'${MATCH}',
-      mapSize:W,${options}});
+      mapSize:W,host,${options}});
     const guests=uplink.createCommandSender({roster,matchId:'${MATCH}',
       mapSize:W,sid:'guest-session'});
     const home=uplink.createCommandSender({roster,matchId:'${MATCH}',
