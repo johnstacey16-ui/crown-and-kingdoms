@@ -19,7 +19,9 @@
     return unescape(encodeURIComponent(json)).length;
   }
   function validPoint(p, mapSize) {
-    return isRecord(p) && Number.isFinite(p.x) && Number.isFinite(p.y) &&
+    return isRecord(p) && Object.keys(p).length === 2 &&
+      Object.keys(p).every(k => k === 'x' || k === 'y') &&
+      Number.isFinite(p.x) && Number.isFinite(p.y) &&
       p.x >= 0 && p.y >= 0 && p.x < mapSize && p.y < mapSize;
   }
   function validOrder(order, mapSize) {
@@ -71,7 +73,9 @@
       // against the live world when applying the order.
       last.set(senderSid, p.seq);
       if (!queue.has(p.frame)) queue.set(p.frame, []);
-      queue.get(p.frame).push(p);
+      // Clone immediately: caller-side mutation after validation must never
+      // change which command the authoritative host eventually executes.
+      queue.get(p.frame).push(JSON.parse(JSON.stringify(p)));
       return { ok: true };
     }
     function drain(frame) {
