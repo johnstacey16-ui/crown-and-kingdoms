@@ -40,8 +40,8 @@ assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute time limit/,
   'The score winner message must state the selected duration');
 assert.match(html, /Math\.round\(scoreLimit\/60\)\+'-minute score limit/,
   'The score draw message must state the selected duration');
-assert.match(html, /JSON\.stringify\(\{ui,br,msz,diff,vm,scoreLimit,mt,mapLayout,civ/,
-  'Settings persistence must include the selected score duration and current map layout');
+assert.match(html, /JSON\.stringify\(\{ui,br,msz,diff,aiDifficultyVersion:2,vm,scoreLimit,mt,mapLayout,civ/,
+  'Settings persistence must include versioned AI difficulty, selected score duration and current map layout');
 assert.match(html, /vm=cl\(st\.vm\|0,0,6\);scoreLimit=SCORE_LIMITS\.includes\(st\.scoreLimit\)\?st\.scoreLimit:1200/,
   'Settings restoration must retain Score victory and safely default missing duration values');
 assert.match(html, /sz:W,vm,scoreLimit,aip,pal:S\.pal/,
