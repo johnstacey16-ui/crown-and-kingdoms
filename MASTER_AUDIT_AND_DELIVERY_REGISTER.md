@@ -9,18 +9,21 @@ This is the reconciled, evidence-based work register created from three independ
 
 ## Current verified CI baseline — 19 October 2026
 
-**Both GitHub Actions workflows are green at commit [e160ab81018b706a3fe737b4076e4a7e3e1963b8](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/e160ab81018b706a3fe737b4076e4a7e3e1963b8).**
+**The streamlined GitHub Actions workflows both passed at code commit [`4a85bf73a1653d8502651d12f3d4eba19eb0ac2b`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/4a85bf73a1653d8502651d12f3d4eba19eb0ac2b).**
 
-- [Complete regression workflow, run 39214542376](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542376): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
-- [Source/atlas validation workflow, run 39214542399](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542399): **success**.
-- There are **zero known failing automated regression files on that commit**. Future commits require their own matching CI verification. Earlier counts (38, 34, 29, 19, 1 failing) appearing below are dated historical checkpoints, not the current result.
-- **This verifies only the existing automated coverage:** physical Xbox Series S/X Edge gameplay, complete human-controller match and mission sessions, reliable long-game saves, actual shared multiplayer and Xbox DE reference-feature fidelity still require dedicated acceptance evidence.
+- [Regression workflow, run 39215994051](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994051): **131/131 standalone test files passed** plus **all 19 isolated campaign mission simulations passed**. The new single campaign-objective file preserves every assertion from three former small files.
+- [Fast source/atlas validation, run 39215994025](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994025): **success**.
+- `game-regression.yml` no longer repeats source-check and atlas-validation work already handled by `game-validation.yml`. Both workflows skip documentation-only pushes, superseded push runs are cancelled, and PR regression checks remain enabled even for documentation-only PRs. Both workflows remain manually runnable.
+- Earlier run numbers and counts below are historical snapshots, **not** the current failure count. Documentation-only commits after the verified code commit may not launch CI by design.
+- All these checks test the current automated coverage, **not** complete Xbox Edge/controller-only matches, live multiplayer, long-game storage durability, full human campaign playthroughs or reference-game parity.
 
 ## Work mode restart handoff — 19 October 2026
 
 **For the existing ChatGPT Work conversation:** Always fetch the newest `main` branch of `https://github.com/johnstacey16-ui/crown-and-kingdoms` and read this register **before editing anything**. Prior Work mode chat context or an extracted ZIP from audit commit `4130ad0` may be stale. Do **not** write an older snapshot over newer GitHub work or redo the cleanup.
 
-**Current exact verified code:** `e160ab81018b706a3fe737b4076e4a7e3e1963b8` — GitHub Actions: [regression 39214542376](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542376) and [validation 39214542399](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542399), both passing. **133/133 regression files and 19/19 isolated mission simulations passing.** This document itself may be committed later; refresh before changing source.
+**Current exact verified code:** `4a85bf73a1653d8502651d12f3d4eba19eb0ac2b` — [regression 39215994051](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994051) and [validation 39215994025](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994025), both passing. **131/131 standalone test files and 19/19 isolated campaign simulations pass.** The newer README/register-only commits do not alter executable game code; fetch latest `main` before editing.
+
+**Recent workflow simplification:** Removed duplicate script/asset checks from the regression workflow; maintained a separate fast validator and full gameplay/campaign suite. Skipped docs-only pushes, cancelled superseded runs, and consolidated three tiny campaign objective tests into one file without losing their assertions. No game runtime scripts were removed; all existing Node test files remain development-only and do not ship into the browser. Read the README testing policy before deleting any further tests.
 
 **Latest added hardening:**
 - `js/save.js` verifies `localStorage.setItem()` via immediate readback **before** invoking the IndexedDB mirror. Quota errors/readback mismatch cannot send a newer backup for a save reported failed.
@@ -80,7 +83,7 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 
 | ID | Prio | Track / task | Status | Implementation/evidence and acceptance requirement |
 |---|---|---|---|---|
-| CK-001 | P0 | Comprehensive CI failure inventory | VERIFIED (automated) | All 133 standalone files are run and reported; current 8440b461 regression CI is green. Preserve full failure summaries and classify any new issues by type. |
+| CK-001 | P0 | Comprehensive CI failure inventory | VERIFIED (automated) | All current standalone files (131 at verified 4a85bf73) are run and reported; current 8440b461 regression CI is green. Preserve full failure summaries and classify any new issues by type. |
 | CK-002 | P0 | Repair current regression failures | VERIFIED (current baseline) | All prior failures cleared at 8440b461, 133/133 standalone checks and 19/19 isolated missions pass; continuously revalidate after changes. Does not imply complete game readiness. |
 | CK-003 | P0 | Basic complete land skirmish | UNVERIFIED | engine.js, simulation.js, ai.js, mapgen.js: match start → economy → ages → combat → win/lose → results. Record actual in-browser gameplay and controlled AI full-match simulation. |
 | CK-004 | P0 | AI ability to finish matches | UNVERIFIED | ai.js has substantial economy/combat/recovery logic and focused tests. Run reproducible moderate/hard/late-game matches with clear winner and resource/accounting diagnostics. |
@@ -222,3 +225,18 @@ Commit `8440b461712ae491499d8d08945d2b3b1c086885` has verified **133/133 standal
 **Changes:** `persistence.js` closes IndexedDB handles and allows reopening when their database version changes (for example, another browser tab's schema upgrade). Backup restoration checks the save slot's deletion marker inside a guarded localStorage read; if marker access is denied, it fails closed and does not restore potentially deleted saves. Added real mocked IndexedDB scenarios to `tests/save-management.test.mjs` for those cases, including successful restoration only of missing non-deleted saves while preserving a newer existing local copy.
 
 **Unchanged acceptance boundary:** Storage failure tests and green automated CI do **not** prove Xbox Edge behaviour, physical storage durability, complete late-game save/reload, multiplayer correctness or full reference-game parity. Continue CK-003 through CK-040 without redoing the completed regression cleanup.
+
+## Testing simplification checkpoint — 19 October 2026
+
+The user asked whether a large quantity of automated tests and repeated regression checks are all necessary. Audit the **value** of each check, not just the file count.
+
+**Changes saved:**
+
+- One source-and-asset validation workflow performs the simple source/atlas checks. The regression workflow no longer duplicates those steps.
+- Both workflows skip pure Markdown edits on `main`, cancel obsolete runs when newer pushes arrive, and retain manual execution. Regression checks still run for pull requests, including docs-only PRs, to avoid missing required status checks.
+- Combined `tests/campaign-land-army-objective.test.mjs`, `tests/campaign-ranged-objective.test.mjs` and `tests/campaign-relic-objectives.test.mjs` into `tests/campaign-objective-guards.test.mjs`. Every former objective assertion is retained and three named Node subtests replace three independently launched scripts.
+- The standalone test file count decreased **133 → 131**, avoiding two extra Node startups. This is a *small organizational saving*, not a significant source-size reduction and not an indicator of game completeness.
+
+**Verification:** commit `4a85bf73a1653d8502651d12f3d4eba19eb0ac2b`, [regression 39215994051](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994051) successful with **131/131 standalone files and 19/19 mission simulations**, [validation 39215994025](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994025) successful.
+
+**Next development priority:** CK-003/004 playable, reproducible *entire skirmish* from start to victory/defeat with real AI decisions and recorded seed/difficulty/time; then CK-005 late-game save/load round-trip, Xbox Edge controller acceptance, and real synchronous multiplayer. Continue merging redundant source-literal tests only when their protective assertions remain covered. Do not add large batches of new tests unless they exercise newly developed gameplay or catch reproduced defects.
