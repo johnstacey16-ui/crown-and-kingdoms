@@ -20,6 +20,7 @@ const CORE_ASSETS = [
   './js/simulation.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js','./js/entities.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js', './js/assets.js',
   './engine.js',
   './persistence.js',
+  './js/network-sync.js',
   './multiplayer.js',
 ];
 
