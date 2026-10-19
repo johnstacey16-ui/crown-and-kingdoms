@@ -21,5 +21,8 @@ test('fish traps visually distinguish themselves and replenish instead of disapp
 });
 
 test('AI fishing ships deploy traps when nearby fish resources run out', () => {
-  assert.match(html, /if\(!n&&R\.w>=100\)\{deployFishTrap\(\[s\]\);n=findNode\(s,'f',32\)\}/);
+  assert.match(html, /if\(!target&&R\.w>=100&&S\.t>=\(s\.nextFishTrapAt\|\|0\)\)\{s\.nextFishTrapAt=S\.t\+45;deployFishTrap\(\[s\]\)/,
+    'AI trap construction must require wood, zero reachable fishing targets and a 45-second cooldown');
+  assert.match(html, /for\(const n of S\.nodes\.filter\(n=>n\.k==='f'&&n\.fi&&n\.amt>0&&\(!n\.trap\|\|n\.t===s\.t\)/,
+    'AI must re-examine accessible fish, respecting fish-trap ownership before choosing a new route');
 });
