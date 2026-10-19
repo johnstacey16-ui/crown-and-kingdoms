@@ -215,10 +215,14 @@
           } catch (_) { reason = 'simulation-error'; }
         }
         results.push(Object.freeze({ sid:p.sid, seq:p.seq, frame, ok, reason }));
-        if (ok) commands.push(Object.freeze({
-          v:VERSION, sid:p.sid, seq:p.seq, frame, team:p.team,
-          order:Object.freeze(JSON.parse(JSON.stringify(p.order)))
-        }));
+        if (ok) {
+          const order = JSON.parse(JSON.stringify(p.order));
+          Object.freeze(order.entities);
+          if (order.point) Object.freeze(order.point);
+          Object.freeze(order);
+          commands.push(Object.freeze({ v:VERSION, sid:p.sid, seq:p.seq, frame,
+            team:p.team, order }));
+        }
       }
       return Object.freeze({
         frame,
