@@ -6,7 +6,9 @@ is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 
 This is a server prototype, not a deployed service. The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
-existing Supabase marker room is unchanged; shared online gameplay is not enabled.
+existing Supabase marker room is unchanged. A limited live economy preview now
+connects training/cancellation orders to the shared simulation clock; the full
+RTS controller interface is not enabled.
 
 ## Identity and membership
 
@@ -25,11 +27,11 @@ DELETE `/session`, session expiry, or queue overflow ends the whole room.
 
 ## Relay contract
 
-POST `/messages` with `{matchId, kind, payload}`. Host kinds are `frame`, `receipt`, `setup` and `commit`; guest kinds are
-`command`, `ack`, `ready` and `committed`. The final four kinds implement the
-opening-state handshake and remain restricted to the appropriate team. The server appends `senderSid`,
+POST `/messages` with `{matchId, kind, payload}`. Host kinds are `frame`, `receipt`, `setup`, `commit`, `run` and `result`; guest
+kinds are `command`, `ack`, `ready`, `committed` and `run-ready`. Startup and preview handshakes remain restricted to the appropriate team;
+`result` reports actual host-side command execution. The server appends `senderSid`,
 `team`, per-recipient `sequence`, and `matchId` from its authenticated membership.
-Never use `payload.sid` as transport identity. Future adapters must pass the
+Never use `payload.sid` as transport identity. Adapters must pass the
 envelope's verified `senderSid` to the existing strict command/frame validators.
 This relay does not validate game commands or make the host cheat-proof.
 
@@ -52,8 +54,8 @@ Full queues terminate the match rather than silently dropping game frames.
   limits. The in-memory capacity cap is not protection against distributed abuse.
 - Use one process: storage is in memory, restart ends every match, and multiple
   workers do not share state. There is no reconnect/resume or persistence yet.
-- Finish gameplay controls for both teams, host clocks, AI suppression and
-  the handoff from verified opening state to the shared game loop before play.
+- Extend the live preview to battlefield/controller input, team-relative camera
+  and HUD, visibility checks and the remaining gameplay command types.
 - Measure polling latency/throughput at the target simulation cadence and test
   actual disconnects, two-browser gameplay and Xbox controllers. Local HTTP tests
   establish none of those acceptance criteria.
@@ -86,13 +88,15 @@ a malformed batch, an HTTP failure or an eight-second request timeout fails the
 session closed and attempts to revoke its credential. Overlapping polls share
 one operation. `close()` aborts pending work and revokes the session. A fresh
 client and match are required after any failure; there is no automatic reconnect.
-The future game driver must stop advancing whenever an operation fails.
+The live preview driver stops advancing whenever an operation fails.
 
 The adapter validates the whole batch before processing, then acknowledges only
 after successful callbacks. `snapshot()` exposes the state/roster and invitation,
 not bearer credentials. The service worker excludes the API, authenticated
-requests and no-store requests from its shell cache. The adapter itself has no timer. The authenticated lobby polls it every half
-second; it does not replace `CK_NET` or start a playable match.
+requests and no-store requests from its shell cache. The adapter itself has no
+timer. The authenticated lobby polls at half-second intervals during setup and
+schedules the preview loop at 34 ms after verification. Requests remain serialized;
+this interval is not a guarantee of simulation speed or network throughput.
 
 `tests/network-http-transport.test.mjs` runs the classic browser adapter in VM
 contexts against real loopback HTTP sockets. It sends a paid guest training order
@@ -100,7 +104,8 @@ through the existing authoritative inbox and replays 20 frames into two actual
 production simulations, comparing every world hash. It also checks forged
 senders, gaps, rejected callbacks, cancellation, timeouts, concurrent polls and
 service-worker cache exclusion. Browser rendering, 30 Hz network performance,
-human controls, AI suppression and deployed TLS remain separately unverified.
+full controller gameplay and deployed TLS remain separately unverified. Human-team
+AI suppression is covered separately by the live-session tests.
 
 ## Authenticated room setup screen and startup barrier
 
@@ -127,8 +132,48 @@ into the prepared world. Preparation returns to multiplayer mode synchronously
 before any frame can advance, and leaving restores the previous settings without
 writing a save or changing persisted preferences.
 
-Verification deliberately leaves the world frozen at time zero. Neither human
-team input nor the network simulation clock is enabled yet. `verified` means
+Verification leaves the world frozen at time zero until the host selects
+**Run live preview** and the guest confirms the preview start. `verified` means
 agreement on the initial state, not completion of multiplayer or proof against a
-cheating host. The next integration must hand off the transport consumer, disable
-AI for human teams, route player commands and drive both worlds from host frames.
+cheating host. The verified lobby then hands the transport consumer over to
+`CK_LIVE_SESSION`; it never runs both startup and gameplay consumers concurrently.
+
+## Live economy preview
+
+After both opening worlds are verified, **Run live preview** performs a separate
+host/guest run handshake. Each player can **Train villager** or **Cancel training**
+for their own Town Centre. The panel shows their food, population/cap, villagers,
+queue, frame and last execution outcome. Startup options can already fill the
+population cap; such training is rejected without charging resources. Cancelling
+an existing queued unit refunds its normal cost. A queue receipt is not an
+execution result; the host sends `result` only after applying the requested frame.
+
+`CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
+authoritative inbox, host clock, frame replica and delivery acknowledgments.
+The driver allows only train/cancel orders. Attack, construction and other
+battlefield commands remain unavailable, including those lacking visibility checks.
+Host and guest orders both pass through identity/team/ownership validation.
+
+The host keeps at most **one unacknowledged simulation frame**. The guest replays
+that journal, advances one production step and compares its world hash before
+acknowledging. The host checks the returned hash before stepping again. Duplicate
+frames/ACKs are idempotent; a mismatch, timeout, rejected transport message or
+closed peer stops the preview. A failed post-step checksum is not rolled back;
+the stopped match must be discarded. Frames reserve space in the relay budget
+for the hash wrapper, and execution outcomes travel separately.
+
+The normal render loop stays in multiplayer mode, so it cannot double-step,
+autosave or accept legacy team-zero gameplay input. The production command/step
+callbacks enter play mode only synchronously and immediately restore multiplayer
+mode. `S.humanTeams = [0,1]` disables AI decisions for both human kingdoms and is
+removed on leaving; normal single-player worlds keep their existing AI behavior.
+
+This deliberately conservative stop-and-wait clock slows down with network latency
+rather than advancing an unsynchronized world. Polling, request limits, repeated
+commands and longer real-network sessions still need performance testing. There
+is no reconnect, full battlefield UI, victory acceptance or deployed service yet.
+`tests/network-live-session.test.mjs` covers actual HTTP startup-to-preview flow,
+paid orders for both teams, refunds, population rejection reporting, world parity,
+AI suppression, duplicate delivery, backpressure, timeout, desync, unauthorized
+ownership and DOM/controller event-driven preview buttons and teardown. The DOM
+fixture does not establish visual browser or Xbox hardware acceptance.

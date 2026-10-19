@@ -105,7 +105,7 @@ export function createTransport({ now = Date.now, ttl = 30 * 60_000,
         // Awaiting the request body may have allowed another request to close this room.
         if (session.room !== room || session.expires <= now()) throw fail(409, 'Room ended');
         if (data.matchId !== room.matchId) throw fail(409, 'Wrong match');
-        const allowed = team === 0 ? ['frame', 'receipt', 'setup', 'commit'] : ['command', 'ack', 'ready', 'committed'];
+        const allowed = team === 0 ? ['frame', 'receipt', 'setup', 'commit', 'run', 'result'] : ['command', 'ack', 'ready', 'committed', 'run-ready'];
         if (!allowed.includes(data.kind)) throw fail(403, 'Sender role cannot send this message');
         if (!data.payload || typeof data.payload !== 'object' || Array.isArray(data.payload)) throw fail(400, 'Payload object required');
         if (Buffer.byteLength(JSON.stringify(data.payload)) > 1024) throw fail(413, 'Payload exceeds 1 KiB');
