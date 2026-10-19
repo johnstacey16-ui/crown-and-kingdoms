@@ -152,3 +152,25 @@ This section records incremental cleanup rather than implying that every file ha
 - **Regression checkpoint:** a completed GitHub Actions run on commit `f8c6b6e4d4db62920a835a9e0dc345b172883fb8` reported **103 passing and 30 failing of 133 standalone test files**, plus a successful isolated 19-mission campaign job. Source/atlas validation passed. This is a checkpoint, **not** evidence that the full suite is green or that physical Xbox acceptance is complete.
 
 **Still required:** classify and fix the 30 unresolved failing tests; review each suspect unused function or module with reference/behaviour evidence; address remaining redundant data, stale comments, old compatibility-only branches and duplicated rendering logic case by case; verify after every set of changes. Do not perform wholesale deletion of campaign, art, AI, trading, save, input or engine paths without a reproducible reason and coverage.
+
+## Continued cleanup checkpoint — 19 October 2026
+
+This is another evidence-based repository hygiene and regression tranche, following the earlier 30-failure checkpoint.
+
+**Baseline evidence:** At commit `aa323163ba16e4692d599337f0bf2ee707e6c9df`, GitHub Actions [regression run 39203118127](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39203118127) reported **114 of 133 standalone test files passing; 19 failing**. Its 19 isolated campaign-mission simulations passed; the independent source/atlas validation workflow also passed. Changes committed *after* this SHA need a fresh matching-run result before the count is promoted.
+
+**Concrete work completed in this tranche:**
+
+- **A* safety:** `tests/pathfinding-heap-reuse.test.mjs` now exercises actual invalid starts, checks invalid-request counters and retains heap-reuse invariants; the obsolete exact syntax assertion has been retired.
+- **Save/order integrity:** `tests/save-path-validation.test.mjs` validates waypoints via the combined `validSavedUnitOrders` gate, checking invalid coordinates and timers. `tests/save-production-validation.test.mjs` rejects simultaneous training and research, while accepting legitimate zero-time queued work and single-operation research.
+- **Destroyed structures:** `tests/destroyed-building-work.test.mjs` now calls the genuine building-update function and verifies that dead, missing and unfinished buildings cannot progress work. `tests/invalid-building-commands.test.mjs` verifies the newer “already researching” training guard.
+- **Living campaign forces:** `tests/campaign-live-unit-guards.test.mjs` checks that garrisoned living units count as survivors, while dead/unknown/foreign units do not.
+- **AI naval scaling:** `tests/ai-research-priority.test.mjs` now recognises the shared validated queue counter rather than the deleted inline galley reducer.
+- **Tech roster and upgrades:** A complete current catalogue of **44** defined technologies was verified in `js/config.js`; obsolete assertions expecting 39 were corrected. Existing-unit health upgrades were checked against the living-unit-only rule. `tests/technology-effects.test.mjs` now exercises real gathering-capacity upgrades and accepts additional legitimate Barracks technologies.
+- **Trade carts and cogs:** Replaced outdated source-fragment checks in `tests/trade-routes.test.mjs` with five runtime test scenarios, covering production definitions, outbound/return behaviour, distance-based payout, integer overflow/invalid cargo protection, naval trade and destroyed-destination pause semantics.
+- **Worker routing:** `tests/villager-pathing.test.mjs` now exercises actual expiry of skipped unreachable resource nodes, the bounded retry budget, and retention of a confirmed route. `tests/villager-dropoff.test.mjs` exercises its separate six-attempt bound, precomputed drop-off distances and serializable retry fields.
+- **Settings and UI source assertions:** Adjusted stale versioned AI-difficulty persistence and mixed-unit player-command source checks; preserved validations of actual behavior.
+
+**Still open:** 19 failed regression files at the cited checkpoint, not all proven runtime bugs. Several still assert obsolete implementation layouts. Critical acceptance gaps remain: full skirmish end-to-end, robust current saves, controller-only hardware validation, competent match-winning AI, synced human multiplayer, and complete base Xbox content fidelity. Physical hardware acceptance and full human mission playthroughs remain unverified.
+
+**Cleanup policy reaffirmed:** Track and test before deleting. Existing tiny modules may still own runtime functions; broad comment or file deletion is not equivalent to removing demonstrably unused code. Keep all current-version game behaviour and valid protections intact.
