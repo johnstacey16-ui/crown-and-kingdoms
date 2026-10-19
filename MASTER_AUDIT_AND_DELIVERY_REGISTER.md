@@ -136,3 +136,19 @@ These establish major console interaction principles but **not** complete versio
 **Optional later:** DLC, original new gameplay systems, native Xbox Live services and 8×500 scalability. None may be quietly portrayed as already working.
 
 **Current release decision:** NOT READY for reference-equivalent sign-off; significant tested foundations are present, and exact remaining work is tracked above.
+
+
+## Repository hygiene checkpoint — 19 October 2026
+
+This section records incremental cleanup rather than implying that every file has been exhaustively refactored.
+
+- **Tracked tree reviewed:** the repository contains the browser runtime, local atlas assets, documentation, scripts and 133 standalone `.test.mjs` files. Twenty-two production scripts load from `index.html`; all twenty-two are listed in the `sw.js` offline shell cache, as is `styles.css`. Do not delete tiny `js/` modules merely because they have few lines: several own real functions and are deliberately loaded.
+- **Source comments screened:** checked major source files for obvious TODO/FIXME/legacy/stub markers. Replaced a misleading “PATHFINDING (BFS)” heading inside `js/minimap.js` with the correct minimap-description heading. A keyword scan is **not** a complete dead-code or correctness proof.
+- **Unreachable compatibility path removed:** neither current AI nor player orders set the old trader fleeing flag to true. Removed the stale `tradeFleeing` / `tradeThreatCheckAt` resets and obsolete old-save repair branch from `js/simulation.js` and `js/input.js`. Current-version trading orders remain covered by the existing trade and movement tests. Compatibility with saves from superseded development builds is outside the agreed shipping requirement.
+- **Central AI queue policy:** moved queued-unit counting into `aiQueuedUnits(buildings, kind)` and made the AI unit caps call that helper. Deleted the duplicate *test-only* galley counting implementation; queue tests now invoke the real helper with living, destroyed and malformed building fixtures.
+- **Stale source tests modernised:** updated town-centre fallback selection, live-production-site guards, planning queue shape, destroyed-site accounting and queue tests to inspect the current validated implementation rather than asserting obsolete literal code patterns. These changes preserve the intended safety rules rather than deleting tests.
+- **Duplicate CI work retired:** `game-validation.yml` now runs quick JavaScript source and atlas checks; `game-regression.yml` exclusively owns the exhaustive 133-file test suite and the 19 separately launched mission simulations. GitHub Actions now reports the complete failure list.
+- **Outdated contributor guidance corrected:** `README.md` now points to this master register, labels `AOE2_PARITY_ROADMAP.md` as the historical engineering log, and documents the current-version save policy and distinct local test commands.
+- **Regression checkpoint:** a completed GitHub Actions run on commit `f8c6b6e4d4db62920a835a9e0dc345b172883fb8` reported **103 passing and 30 failing of 133 standalone test files**, plus a successful isolated 19-mission campaign job. Source/atlas validation passed. This is a checkpoint, **not** evidence that the full suite is green or that physical Xbox acceptance is complete.
+
+**Still required:** classify and fix the 30 unresolved failing tests; review each suspect unused function or module with reference/behaviour evidence; address remaining redundant data, stale comments, old compatibility-only branches and duplicated rendering logic case by case; verify after every set of changes. Do not perform wholesale deletion of campaign, art, AI, trading, save, input or engine paths without a reproducible reason and coverage.
