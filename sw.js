@@ -23,6 +23,7 @@ const CORE_ASSETS = [
   './js/network-sync.js',
   './js/network-commands.js',
   './js/network-delivery.js',
+  './js/network-uplink.js',
   './multiplayer.js',
 ];
 
