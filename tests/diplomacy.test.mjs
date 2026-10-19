@@ -66,8 +66,19 @@ assert.ok(html.includes("const hostileFleet=[],hostileShips=[],humanArmy=[],huma
   'Naval AI must build enemy-only ship and land-counter rosters in the shared guarded scan');
 assert.ok(html.includes("if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e)"),
   'Naval counter roster must exclude allied, neutral, economic and garrisoned ships');
-assert.match(html, /for\(const e of S\.us\)\{if\(!e\|\|e\.hp<=0\|\|e\.ld\|\|!isHostile\(t,e\.t\)\|\|!\(U\[e\.k\]\?\.dmg>3\)\)continue;/,
-  'AI defensive threat detection must ignore non-hostile units');
+assert.match(html, /const nearbyRaiders=S\.us\.filter\(e=>e&&e\.hp>0&&!e\.ld&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&U\[e\.k\]\?\.dmg>3/,
+  'Shared base-defence and villager-evacuation roster must ignore non-hostile and defeated units');
+const sourceAI=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const rosterStart=sourceAI.indexOf('const nearbyRaiders=S.us.filter(');
+const rosterEnd=sourceAI.indexOf(';',rosterStart);
+assert.ok(rosterStart>=0&&rosterEnd>rosterStart,'single shared enemy-raid roster must exist');
+const raiders=[{t:1,k:'mil',hp:25,x:3,y:3},{t:2,k:'mil',hp:30,x:4,y:3},
+ {t:1,k:'mil',hp:0,x:3,y:3},{t:1,k:'vil',hp:40,x:2,y:3},
+ {t:1,k:'mil',hp:40,x:NaN,y:3}];
+const raiderContext={S:{us:raiders},U:{mil:{dmg:5},vil:{dmg:0}},t:0,W:64,H:64,
+ isHostile:(_a,b)=>b===1};
+const filtered=vm.runInNewContext(sourceAI.slice(rosterStart,rosterEnd)+';nearbyRaiders',raiderContext);
+assert.deepEqual(Array.from(filtered),[raiders[0]],'only live, visible, finite hostile military raiders qualify');
 assert.match(html, /vc:S\.vc,px:S\.px,civ:S\.civ,dip:S\.dip,vp:S\.vp,diff/,
   'Save data must preserve diplomacy relationships');
 assert.match(html, /dip:createDiplomacy\(\(j\.res\|\|\[\]\)\.length\|\|2,j\.dip\)/,
