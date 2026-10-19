@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const save=readFileSync(new URL('../js/save.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const {AG}=vm.runInNewContext(readFileSync(new URL('../js/config.js',import.meta.url),'utf8')+'\n;({AG})');
 const start=save.indexOf('if(!j||j.v!==1||');
 const restore=save.indexOf('setSize(j.sz)');
 const finish=save.indexOf("{note('No valid save found');return false}",start);
@@ -47,6 +48,7 @@ function attemptLoad(raw) {
     slot: 0,
     note: message => messages.push(message),
     SZ: [72, 96, 128, 176],
+    AG,
     B: { tc: {}, house: {} },
     U: { vil: {} },
     S: sentinel,
