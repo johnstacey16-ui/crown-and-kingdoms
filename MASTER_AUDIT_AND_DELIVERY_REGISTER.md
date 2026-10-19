@@ -9,10 +9,10 @@ This is the reconciled, evidence-based work register created from three independ
 
 ## Current verified CI baseline — 19 October 2026
 
-**Both GitHub Actions workflows are green at commit [c9f73ea2bdccf707341dedf83581414e49b1c8f5](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/c9f73ea2bdccf707341dedf83581414e49b1c8f5).**
+**Both GitHub Actions workflows are green at commit [e160ab81018b706a3fe737b4076e4a7e3e1963b8](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/e160ab81018b706a3fe737b4076e4a7e3e1963b8).**
 
-- [Complete regression workflow, run 39207971513](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971513): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
-- [Source/atlas validation workflow, run 39207971486](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971486): **success**.
+- [Complete regression workflow, run 39214542376](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542376): **133/133 standalone test files passed** and **19/19 isolated automated campaign mission simulations passed**.
+- [Source/atlas validation workflow, run 39214542399](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542399): **success**.
 - There are **zero known failing automated regression files on that commit**. Future commits require their own matching CI verification. Earlier counts (38, 34, 29, 19, 1 failing) appearing below are dated historical checkpoints, not the current result.
 - **This verifies only the existing automated coverage:** physical Xbox Series S/X Edge gameplay, complete human-controller match and mission sessions, reliable long-game saves, actual shared multiplayer and Xbox DE reference-feature fidelity still require dedicated acceptance evidence.
 
@@ -20,12 +20,13 @@ This is the reconciled, evidence-based work register created from three independ
 
 **For the existing ChatGPT Work conversation:** Always fetch the newest `main` branch of `https://github.com/johnstacey16-ui/crown-and-kingdoms` and read this register **before editing anything**. Prior Work mode chat context or an extracted ZIP from audit commit `4130ad0` may be stale. Do **not** write an older snapshot over newer GitHub work or redo the cleanup.
 
-**Current exact verified code:** `c9f73ea2bdccf707341dedf83581414e49b1c8f5` — GitHub Actions: [regression 39207971513](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971513) and [validation 39207971486](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39207971486), both passing. **133/133 regression files and 19/19 isolated mission simulations passing.** This document itself may be committed later; refresh before changing source.
+**Current exact verified code:** `e160ab81018b706a3fe737b4076e4a7e3e1963b8` — GitHub Actions: [regression 39214542376](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542376) and [validation 39214542399](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542399), both passing. **133/133 regression files and 19/19 isolated mission simulations passing.** This document itself may be committed later; refresh before changing source.
 
 **Latest added hardening:**
 - `js/save.js` verifies `localStorage.setItem()` via immediate readback **before** invoking the IndexedDB mirror. Quota errors/readback mismatch cannot send a newer backup for a save reported failed.
-- `persistence.js` forgets a failed IndexedDB open, allowing retry during the same page session.
-- `tests/save-management.test.mjs` checks primary write/readback/backup ordering, failure rollback semantics and successful backup reconnect after a transient opening error. `tests/save-validation.test.mjs` and `tests/browser-foundation.test.mjs` enforce the primary-first invariant.
+- `persistence.js` forgets a failed IndexedDB open, allowing retry during the same page session; it also closes and replaces connections invalidated by `onversionchange` (e.g. another tab upgrading IndexedDB).
+- IndexedDB backup restoration now fails closed if local deletion-marker checks throw, avoiding accidental resurrection of previously deleted slots. A verified, present primary save remains authoritative.
+- `tests/save-management.test.mjs` checks primary write/readback/backup ordering, primary failure rollback, transient IndexedDB opening recovery, version-change connection renewal, normal backup restoration, deleted-slot tombstones, and denied-storage-marker recovery. `tests/save-validation.test.mjs` and `tests/browser-foundation.test.mjs` enforce the primary-first invariant.
 - These are **component-level save guarantees**, not a completed browser/Xbox full-match save round-trip acceptance.
 
 **Next Work mode actions, in order:** (1) Run/fetch matching full CI on current `main`. (2) Make a reproducible end-to-end **single-player land skirmish** run through a real victory or defeat, including controlled enemy AI; log seed, difficulty, time and state diagnostics (CK-003/004). (3) Test save/reload in active late-game simulation, queues, moving troops, technologies, garrisons, naval routes and campaign objectives, including invariant comparisons (CK-005/006). (4) Verify controller-only Xbox Edge workflow and UI (CK-009–012). (5) Design/implement genuine **two-player synchronized simulation** and checksums/reconnect protection (CK-007/008), *not merely lobby presence*. (6) Then fill reference-content parity and polish tasks.
@@ -213,3 +214,11 @@ Commit `8440b461712ae491499d8d08945d2b3b1c086885` has verified **133/133 standal
 - **Corrected a real simulation bug:** `townBell` now counts each genuine living, same-owner garrisoned passenger once instead of treating duplicate or stale references as occupied capacity. New executable tests verify available capacity, duplicate references, pre-existing reservations, no overfill, nearest valid shelter and actual controller-menu integration.
 - Modernised save-slot confirmations, deletion hints, autosave validation fixtures, technology effects, King of the Hill AI pacing, spatial foe-grid tests and zero-distance-safe separation buffer checks. Existing invalid-save and failed-backup scenarios were retained; no smoke or regression tests were disabled to attain green.
 - This is a **test-baseline and targeted housekeeping milestone**, not proof that every file is free of unused functions or that the game is Xbox or multiplayer complete. Continue with CK-003–040 acceptance gates. Do not restart an unnecessary wholesale cleanup of currently functioning systems.
+
+## Additional persistence reliability handoff — 19 October 2026
+
+**Verified code commit:** [`e160ab81018b706a3fe737b4076e4a7e3e1963b8`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/e160ab81018b706a3fe737b4076e4a7e3e1963b8). GitHub Actions [regression run 39214542376](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542376) passed **133/133 standalone test files** and **all 19 separate automated campaign simulations**; [validation run 39214542399](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39214542399) passed source/atlas checks.
+
+**Changes:** `persistence.js` closes IndexedDB handles and allows reopening when their database version changes (for example, another browser tab's schema upgrade). Backup restoration checks the save slot's deletion marker inside a guarded localStorage read; if marker access is denied, it fails closed and does not restore potentially deleted saves. Added real mocked IndexedDB scenarios to `tests/save-management.test.mjs` for those cases, including successful restoration only of missing non-deleted saves while preserving a newer existing local copy.
+
+**Unchanged acceptance boundary:** Storage failure tests and green automated CI do **not** prove Xbox Edge behaviour, physical storage durability, complete late-game save/reload, multiplayer correctness or full reference-game parity. Continue CK-003 through CK-040 without redoing the completed regression cleanup.
