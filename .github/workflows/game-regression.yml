@@ -44,10 +44,35 @@ jobs:
             echo "::error::No regression tests found in tests/"
             exit 1
           fi
+          # Report every failure, not only the first test in alphabetical order.
+          passed=0
+          failed=0
+          failures=()
           for test_file in "${tests[@]}"; do
             echo "::group::${test_file}"
-            CK_SKIP_CAMPAIGN=1 node "${test_file}"
+            if CK_SKIP_CAMPAIGN=1 node "${test_file}"; then
+              ((passed+=1))
+            else
+              ((failed+=1))
+              failures+=("${test_file}")
+            fi
             echo "::endgroup::"
           done
+          {
+            echo "## Standalone regression tests"
+            echo "Passed: ${passed} / ${#tests[@]}"
+            echo "Failed: ${failed}"
+            if (( failed > 0 )); then
+              echo ""
+              echo "### Failed test files"
+              for test_file in "${failures[@]}"; do
+                echo "- \`${test_file}\`"
+              done
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if (( failed > 0 )); then
+            echo "::error::${failed} of ${#tests[@]} standalone regression files failed; see job summary and grouped output."
+            exit 1
+          fi
       - name: Validate local sprite atlas metadata and frame bounds
         run: node tests/validate-atlas.mjs
