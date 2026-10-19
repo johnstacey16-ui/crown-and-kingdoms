@@ -3,11 +3,13 @@
 **Established:** 19 October 2026  
 **Initial audited code:** main at 4130ad0d4974d2ce8f903ca1d59835ce121dff3a  
 **Target:** browser game running in Microsoft Edge on Xbox Series S first, and Xbox Series X  
-**Gameplay benchmark:** Age of Empires II: Definitive Edition, Xbox controller experience; base/included features tracked separately from paid DLC and native platform services.
+**Gameplay benchmark:** Age of Empires II: Definitive Edition on Xbox Series X, including all Xbox-available gameplay DLC as of 19 October 2026 (new owner scope). Base, purchased DLC, Chronicles/antiquity modes and native platform services must still be separately identified; Xbox Series S Edge remains a required performance and controller acceptance environment.
 
 This is the reconciled, evidence-based work register created from three independent audits and actual source/CI inspection. It supersedes unsupported conclusions in those audits; it does not replace the historical AOE2_PARITY_ROADMAP.md, which remains a technical change log. Updates must cite a specific commit, test run and environment.
 
 ## Current verified CI baseline — 19 October 2026
+
+**Most recent pre-multiplayer-code verified main:** `6efe1ca426b7a747cc0c93a86994fd2fdd392e71`. [Regression run 39218404521](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39218404521) and [validation run 39218404534](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39218404534) both succeeded on GitHub Ubuntu / Node 22. The newer active-skirmish/save checkpoint below was already present in this main revision; do not replace it with an older snapshot. Multiplayer and new parity planning commits after this baseline must obtain their own matching CI results before any green claim.
 
 **Newest verified development commit:** [`5f7b4622768a6a787e73e90ce9c031487d29b300`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/5f7b4622768a6a787e73e90ce9c031487d29b300). [Regression run 39217254199](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254199) and [validation run 39217254226](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254226) both succeeded on GitHub Ubuntu / Node 22. All 131 standalone files, 19 isolated campaign missions, and the two newly added full seeded skirmishes passed. Hard skirmish reload at 600 seconds passed persisted-state comparisons and continued to natural defeat. See the seeded-skirmish checkpoint below for scope and limitations. Earlier verified commits below are historical evidence.
 
@@ -115,16 +117,22 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 | CK-028 | P2 | Reference map and mode catalogue | PARTIAL | menus.js has 14 map-layout choices, custom presets, 7 victory conditions, 2–4 kingdoms. Enumerate base Xbox map types, mode rules, standard settings and clearly label custom additions. |
 | CK-029 | P2 | Console tutorials and tooltips | PARTIAL | ui.js in-game control help and First Hearth training exist; assess guided teachability and missing accessibility assistance. |
 | CK-030 | P2 | Post-match statistics and spectator/replay scope | INVESTIGATE | Verify actual end-screen stats against Xbox reference; decide whether replay/spectator are mandatory in agreed base, optional online capability or separate milestone. |
-| CK-031 | P2 | Native 2–4 player multiplayer integration | MISSING | Following CK-007/008: two-player full sessions, host/guest ownership, garrison/transport/trade/research/siege, disconnect and reconnect; scale four only after correctness proven. |
-| CK-032 | P3 | Original sprite/animation asset quality | PARTIAL | assets/ manifest and render.js fallback/procedural art. Improve original visual readability, motion and faction differentiation; no copyrighted assets. |
-| CK-033 | P3 | Music, ambience and feedback | PARTIAL | audio.js procedural sound; audit actual audible events, prompt initiation/resume and production-ready original sound suite. |
+| CK-031 | P0 | Native 2–4 player multiplayer integration | MISSING | Following CK-007/008: two-player full sessions, host/guest ownership, garrison/transport/trade/research/siege, disconnect and reconnect; scale four only after correctness proven. |
+| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL | assets/ manifest and render.js fallback/procedural art. Improve original visual readability, motion and faction differentiation; no copyrighted assets. |
+| CK-033 | P1 | Music, ambience and feedback | PARTIAL | audio.js procedural sound; audit actual audible events, prompt initiation/resume and production-ready original sound suite. |
 | CK-034 | P3 | AI and civilisation balance | UNVERIFIED | Repeatable test batteries and human matches; record win rates and concrete deviations, avoid arbitrary 1:1 numerical approximations unsupported by reference evidence. |
 | CK-035 | P3 | Canvas/game-loop rendering and input profiling | UNVERIFIED | Measure simulation/draw frame time, memory/GC, p95 input delay, sprite and A* counts on real Xbox Series S first. |
 | CK-036 | P4 | Xbox Series S and X release acceptance | MISSING EVIDENCE | Test declared population/map/player limits with controller and Edge; record hardware/browser build, peak memory, frame time and full-match stability. |
 | CK-037 | P4 | Eight humans × 500 pop stretch target | NOT IMPLEMENTED | Separate feasibility gates: 2×200 → 4×200 → 8×200 → 8×500 with shared pathfinding, network budgets, simulation checksums and measured physical Xbox performance. |
-| CK-038 | P4 | DLC/native platform boundary | OUT OF CORE SCOPE | Document optional paid DLC civilizations/campaigns separately; Xbox-native achievements, cloud saves and platform matchmaking are not assumed available to an Edge browser game. |
+| CK-038 | P1 | Full Xbox DLC entitlement/content scope | OPEN / REQUIRED | New owner request expands the target to all gameplay DLC available on Xbox as of 19 October 2026, including distinct Chronicles/Return of Rome variants. Catalogue editions, bonuses, units, research, scenarios and modes; verify original implementation per category. Native Xbox achievements/cloud saves/matchmaking still require separate platform architecture. |
 | CK-039 | P4 | Final functional readiness sign-off | OPEN | All accepted required scenarios pass: deterministic tests + real browser 1v1/naval matches + saves + campaigns + real shared multiplayer + console controller hardware. |
-| CK-040 | P4 | Final reference-fidelity sign-off | OPEN | Every required base Xbox feature in matrices CK-024–030 has explicit matched/intentional-difference/waived status supported by playable evidence. |
+| CK-040 | P4 | Final reference-fidelity sign-off | OPEN | Every required Xbox base + gameplay-DLC feature in CK-024–030, CK-038 and CK-044–046 has an explicit matched/intentional-difference/waived status supported by playable evidence. |
+| CK-041 | P1 | Full original graphics overhaul | OPEN | Inventory original art and procedural placeholders; overhaul terrain, high-resolution units/factions, buildings, animations, effects, fog/zoom, UI and TV readability; verify atlas loads, visual regression captures and Xbox frame budgets. |
+| CK-042 | P1 | Full original sound-effect overhaul | OPEN | Event coverage for construction, economy, combat, siege, naval, alerts and UI; audio ducking, voice caps, controller-friendly accessibility, user-gesture audio resume, performance and mix acceptance. |
+| CK-043 | P1 | Original adaptive soundtrack | OPEN | Produce original menu/economy/tension/combat/victory/defeat music; loops, seamless transition, independent volume/mute/persistence, licensing and Xbox Edge tests. |
+| CK-044 | P2 | All current Xbox gameplay DLC catalogue | OPEN | Enumerate and validate Lords of the West, Dawn of the Dukes, Dynasties of India, Return of Rome, The Mountain Royals, Victors and Vanquished, Chronicles: Battle for Greece, The Three Kingdoms, Chronicles: Alexander the Great, The Last Chieftains and The Viking Sagas against actual Xbox entitlements and feature matrices. No official copyrighted campaigns/assets may be copied. |
+| CK-045 | P1 | Xbox Series X controller default mapping fidelity | OPEN | Per-command comparison of Xbox documented A/hold/double-A, RT, D-pad quick select, R3 villager priority, control groups, site commands, pause, camera/minimap, UI prompts and remapping; physical Edge/controller verification. |
+| CK-046 | P2 | Xbox DE feature-family gap closure | OPEN | Full missing-feature register for research, economy, civilisation effects, buildings, unit abilities, naval, alliances, maps, victory conditions, co-op/spectator/replay/editor where applicable; treat separately from media assets, not inferred complete from file names. |
 
 ## Immediate implementation batches
 
@@ -136,9 +144,9 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 
 **Batch D — synchronised multiplayer:** Define an explicit command protocol and stable object ownership, deterministic acceptance gate, checksums and resynchronisation policy before increasing participant limits. Lobby presence alone never clears CK-007.
 
-**Batch E — reference content matrix and campaign acceptance:** Compare effective runtime definitions against verified base Xbox reference content and test each implemented effect. Execute 19 actual controller playthroughs and save/reload scenarios, distinct from scripted Node mission runs.
+**Batch E — full Xbox reference content matrix and campaign acceptance:** Compare effective runtime definitions against Xbox base plus every Xbox-available gameplay DLC pack as of the version lock; separately scope the Chronicles/Return of Rome modes and verify original mechanics (never copy proprietary reference stories/assets). Execute 19 existing original campaign controller playthroughs plus new validated original content acceptance, distinct from scripted Node mission runs.
 
-**Batch F — production and release:** Original assets/audio, TV accessibility, repeated games, Xbox performance and optional scaling. Keep 8×500 separate from main release sign-off.
+**Batch F — full production overhaul and release:** Full original high-resolution graphics/animations/FX, complete original sound effects and adaptive music, TV accessibility, repeat matches, Xbox Series S/X performance and optional scaling. These are explicit CK-041–043 deliverables, not vaguely optional final polish. Keep 8×500 separate from main release sign-off.
 
 ## Required acceptance evidence format
 
@@ -162,9 +170,9 @@ These establish major console interaction principles but **not** complete versio
 
 **Functional base:** full land and naval skirmishes with fair competent AI and correct victory/defeat; dependable economy/combat/orders/maps; reliable current saves; real controller-only play; 19 complete campaign human playthroughs; 2-human shared gameplay and state consistency; all relevant regression/CI tests pass; measured performance at declared shipping limits.
 
-**Xbox reference base:** the separately agreed base Xbox mechanics, controller functionality, included content and game modes are inventoried individually and implemented, verified, intentionally different with approval, or explicitly out of scope. A 26-civilisation list or 19 original missions does not itself establish full reference-content parity.
+**Xbox full-content reference:** Xbox Series X base mechanics plus gameplay DLC through 19 October 2026, controller functionality, all referenced feature families and game modes are inventoried individually and implemented, verified, intentionally different with approval, or explicitly documented as gaps. A 26-civilisation list or 19 original missions does not itself establish full reference-content parity.
 
-**Optional later:** DLC, original new gameplay systems, native Xbox Live services and 8×500 scalability. None may be quietly portrayed as already working.
+**Optional / separate platform work:** Native Xbox Live achievements, cloud saves, platform matchmaking, any DLC released after the fixed 19 October 2026 reference date, and 8×500 scalability require distinct technical and release decisions. All then-current Xbox gameplay DLC is now in scope, not optional. None may be quietly portrayed as already working.
 
 **Current release decision:** NOT READY for reference-equivalent sign-off; significant tested foundations are present, and exact remaining work is tracked above.
 
@@ -284,3 +292,13 @@ The user asked whether a large quantity of automated tests and repeated regressi
 - **Local evidence:** Linux/Node v24.19.0, active Hard run completed at 979.70s; 10 save-management subtests and focused save validation/path/production checks pass, along with source validation. A fresh complete CI result is required before promoting this batch's automated baseline.
 
 **Next:** diagnose the non-finishing active Moderate run and invalid paths; expand current-save invariants to late-game housing/cap changes, garrisons/transports, naval routes and campaign objectives. Human/browser/controller and Xbox hardware acceptance are still open. The passing scripted victory remains PARTIAL CK-003/004, not full game completion.
+
+## Synchronized multiplayer, graphics/audio overhaul and all-DLC scope checkpoint — 19 October 2026
+
+**Owner-requested target:** `XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md` is the companion implementation specification for CK-007/008/031/038/041–046. It distinguishes base entitlements, paid game content, separate Chronicles/antiquity systems and platform-native services. The graphics/audio work is now an explicit high-priority deliverable while first focusing implementation on genuine synchronized multiplayer.
+
+**Implemented protocol groundwork, NOT an online shared match:** `js/network-sync.js` defines versioned bounded typed orders, ownership/identity hooks (not yet linked to persistent entity IDs), sequence/replay/gap/late/future rejection, deterministic frame consumption and canonical checksum/checkpoint comparison. `tests/network-sync-protocol.test.mjs` tests these contracts. Browser script order/service-worker caching and source-check parsing include the module. `multiplayer.js` extends its *opening map/economy/RNG-state* signature and reports `synchronizedWorld: false` explicitly. Current live transport still supports markers only; no valid gameplay command is yet sent, authorised or executed over the network. CK-007/008/031 remain OPEN/MISSING until integrated two-client live matches with matching frame/checkpoint evidence. Future implementation must add persistent entity IDs, immutable participant/team assignment, authoritative simulation clocks, command execution and reconnection/resync transport.
+
+**Verification pending:** These source changes were committed after the last above verified main CI and require matched new regression/validation results. No claim of real Xbox Edge, sound quality, new sprites, full DLC mechanics or live synchronized multiplayer is made by the roadmap update.
+
+**Next technical work:** stable entity IDs and owner mapping → ordered host command application at agreed frames → authoritative snapshots/checksums and reconnect policy → real browser vs browser match to victory → controller, media overhaul and detailed version-locked DLC gap implementation. Preserve the newer active Hard skirmish and projectile-save fixes already present on main.
