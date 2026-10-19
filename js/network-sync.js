@@ -84,7 +84,10 @@
       if ([...queue.keys()].some(f => f < frame)) throw Error('Missed multiplayer command frame');
       const result = queue.get(frame) || [];
       queue.delete(frame);
-      return result.sort((a, b) => a.team - b.team || a.sid.localeCompare(b.sid) || a.seq - b.seq);
+      // Compare session IDs by UTF-16 code units, not locale-sensitive collation.
+      // Host journals and guest validation must agree across browser locales.
+      return result.sort((a, b) => a.team - b.team ||
+        (a.sid < b.sid ? -1 : a.sid > b.sid ? 1 : 0) || a.seq - b.seq);
     }
     function pending() { return [...queue.values()].reduce((n, items) => n + items.length, 0); }
     return Object.freeze({ receive, drain, pending });
