@@ -144,6 +144,58 @@ test('research and training still use production prerequisites, not client claim
   assert.equal(out.queue,0);
 });
 
+test('host-framed guest movement uses actual A* paths without changing local controller selection', () => {
+  const out=world(`
+    const unit=S.us.find(u=>u.t===1&&u.k==='vil'&&!u.ld);
+    const own=S.us.find(u=>u.t===0&&u.k==='vil');
+    const selected=S.sel.slice();
+    let destination=null;
+    for (const [dx,dy] of [[3,0],[-3,0],[0,3],[0,-3],[3,3],[-3,-3]]) {
+      const x=Math.floor(unit.x)+dx+.5,y=Math.floor(unit.y)+dy+.5;
+      if(x<1||y<1||x>=W-1||y>=H-1)continue;
+      const p=path(unit,gp(x,y,1));
+      if(p&&p.length){destination={x,y};break}
+    }
+    if(!destination)throw Error('No reachable guest movement test destination');
+    const before=window.CK_SIM_SYNC.worldCheckpoint(S,2).hash;
+    const order={type:'move',entities:[unit.netId],point:destination};
+    const foreign={type:'move',entities:[own.netId],point:destination};
+    const rejected=host.receive(packet('guest-session',1,1,8,foreign),'guest-session',2);
+    const accepted=host.receive(packet('guest-session',1,1,8,order),'guest-session',2);
+    const premature=host.applyFrame(7).length;
+    const applied=host.applyFrame(8)[0];
+    return {rejected:rejected.reason,accepted:accepted.ok,premature,
+      applied:applied.ok,order:unit.o,pathLength:unit.p.length,
+      worldChanged:window.CK_SIM_SYNC.worldCheckpoint(S,2).hash!==before,
+      selectionUnchanged:S.sel.length===selected.length&&S.sel.every((e,i)=>e===selected[i])};
+  `);
+  assert.equal(out.rejected,'unauthorized-order');
+  assert.equal(out.accepted,true);
+  assert.equal(out.premature,0);
+  assert.equal(out.applied,true);
+  assert.equal(out.order,'m');
+  assert.ok(out.pathLength>0);
+  assert.equal(out.worldChanged,true);
+  assert.equal(out.selectionUnchanged,true);
+});
+
+test('identical seeded production worlds produce matching hashes after the same host command frames', () => {
+  const script=`
+    const tc=[0,1].map(t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.done));
+    host.receive(packet('host-session',0,1,6,
+      {type:'train',entities:[tc[0].netId],value:'vil'}),'host-session',2);
+    host.receive(packet('guest-session',1,1,6,
+      {type:'train',entities:[tc[1].netId],value:'vil'}),'guest-session',2);
+    const results=host.applyFrame(6);
+    if(results.length!==2||results.some(r=>!r.ok))throw Error('Real host commands failed');
+    for(let i=0;i<8;i++)step(DT);
+    return sync.worldCheckpoint(S,8);
+  `;
+  const first=world(script),second=world(script);
+  assert.equal(first.frame,8);
+  assert.equal(first.hash,second.hash);
+});
+
 test('the production command executor is loaded but never consumes untrusted Supabase packets', () => {
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const transport=readFileSync(new URL('../multiplayer.js',import.meta.url),'utf8');
