@@ -83,3 +83,4 @@ jobs:
           set -euo pipefail
           node scripts/run-skirmish.mjs
           CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
+          CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 node scripts/run-skirmish.mjs

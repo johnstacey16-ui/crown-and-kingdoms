@@ -244,3 +244,35 @@ test('save recovery refuses inaccessible deletion markers without aborting curso
  assert.equal(data.size,0);
  assert.equal(f.transactions,1,'the cursor should finish even after denied marker access');
 });
+
+test('save during ranged combat preserves arrows, siege splash and building-fired shots', async()=>{
+ const {headlessGame}=await import('./helpers/headless-game.mjs');
+ const {source,sandbox}=headlessGame();const context=vm.createContext(sandbox);
+ vm.runInContext(source,context);
+ const result=vm.runInContext(`(()=>{
+  seedOv=123456;kingdoms=2;msz=0;mt=3;cmp=null;start();
+  const archer=addU(0,'arc',30.5,30.5),siege=addU(0,'mang',31.5,30.5);
+  const target=addU(1,'knight',35.5,30.5),nearby=addU(1,'spear',36,30.5);
+  hit(archer,target);hit(siege,target);S.pj.push({x:31,y:30.5,t:target,a:{k:'tw',t:0}});
+  siege.hp=0;S.us.splice(S.us.indexOf(siege),1); // Shot remains live after its shooter is removed.
+  const fort=S.bs.find(b=>b.t===1&&b.k==='tc');
+  S.pj.push({x:fort.x-1,y:fort.y+1,t:fort,a:{k:'arc',t:0}});
+  const count=S.pj.length;saveG();const raw=localStorage.getItem(skey(slot));
+  for(let i=0;i<90;i++)pjs(1/30);
+  const expected=[target.hp,nearby.hp,fort.hp];
+  const loaded=loadG(),restored=S.pj.length;
+  const sourceLinked=S.pj.some(p=>p.a===S.us.find(u=>u.k==='arc'&&u.x===30.5));
+  const targetsLinked=S.pj.every(p=>S.us.includes(p.t)||S.bs.includes(p.t));
+  for(let i=0;i<90;i++)pjs(1/30);
+  const actual=[S.us.find(u=>u.k==='knight'&&u.t===1).hp,S.us.find(u=>u.k==='spear'&&u.t===1).hp,S.bs.find(b=>b.t===1&&b.k==='tc').hp];
+  return {count,loaded,restored,sourceLinked,targetsLinked,expected,actual,raw};
+ })()`,context);
+ assert.equal(result.count,4);assert.equal(result.loaded,true);assert.equal(result.restored,4);
+ assert.equal(result.sourceLinked,true);assert.equal(result.targetsLinked,true);
+ assert.deepEqual(Array.from(result.actual),Array.from(result.expected));
+ const valid=JSON.parse(result.raw);
+ for(const bad of [null,{},[{x:NaN}], [{...valid.pj[0],t:'n0'}], [{...valid.pj[0],x:-1}], [{...valid.pj[0],a:{k:'unknown',t:0}}], [{...valid.pj[0],a:{k:'arc',t:9}}], [{...valid.pj[0],aRef:'u999999'}]]){
+  sandbox.badSave=JSON.stringify({...valid,pj:bad});
+  assert.equal(vm.runInContext("(()=>{const before=S;localStorage.setItem(skey(slot),badSave);return loadG()===false&&S===before})()",context),true,'Malformed projectiles must be rejected before replacing the world');
+ }
+});
