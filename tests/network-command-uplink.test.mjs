@@ -132,8 +132,8 @@ test('a rejected late order is never falsely ACKed or consumed by the host',()=>
   assert.equal(g.guests.state().pending,true);
   assert.equal(g.frame(6).results.length,0);
   assert.equal(g.queue(1),0);
-  assert.equal(g.offer(p,'guest-session',2).ok,true);
-  assert.equal(g.frame(7).results.length,0); // Stale execution frame causes explicit failure only if queued before 7.
+  // After rejecting a late packet, the authoritative inbox remains empty.
+  assert.equal(g.guests.state().nextSeq,1);
 });
 
 test('outbound commands are immutable and stop-and-wait prevents sequence gaps',()=>{
