@@ -13,8 +13,10 @@ assert.match(ai, /navalTargetScore=e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)-\
   'naval target scoring must combine distance, combat capability, galley priority and coordinated focus');
 assert.match(ai, /galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
   'war galleys must reacquire targets after their current target dies, is garrisoned, or is no longer hostile');
-assert.match(ai, /for\(const candidate of hostileShips\)\{const score=navalTargetScore\(candidate\);if\(score<enemyScore\)\{enemyScore=score;enemy=candidate\}\}/,
-  'galleys must select a target using the shared naval scoring function');
+assert.match(ai, /const navalCandidates=S\.t>=\(ship\.nextNavalTargetAt\|\|0\)\?hostileShips\.filter\(e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)<28\)\.sort\(\(a,b\)=>navalTargetScore\(a\)-navalTargetScore\(b\)\):\[\]/,
+  'AI naval targeting must score only nearby candidates after the re-target cooldown');
+assert.match(ai, /for\(const candidate of navalCandidates\.slice\(0,6\)\)if\(path\(ship,goalNear\(candidate,Math\.max\(1,U\[ship\.k\]\.rng\|\|1\)\)\)\)\{enemy=candidate;break\}/,
+  'AI must test at most six score-ranked reachable enemy ships before engaging');
 assert.match(ai, /u\.o==='m'&&!u\.tg/, 'AI war galleys moving without a target must be eligible to reacquire nearby hostile ships');
 assert.match(ai, /if\(enemy&&Math\.hypot\(enemy\.x-ship\.x,enemy\.y-ship\.y\)<28\)/,
   'galleys should engage nearby hostile ships before switching to a land objective');
