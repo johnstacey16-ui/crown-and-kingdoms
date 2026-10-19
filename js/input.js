@@ -36,7 +36,7 @@ if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  const route=home?path(u,goalNear(tg,1)):null;
  if(!route){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;continue}
  const key=b=>[b.t,b.k,b.x,b.y].join(':');
- u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.tradeFleeing=false;u.manualTradeMove=false;u.tradeThreatCheckAt=0;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
+ u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
 }
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  if(u.k==='vil'&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
@@ -62,7 +62,7 @@ if(!p){
  if(p===undefined){p=path(u,cachedGoal(fallbackGoals,wx,wy,.8))||path(u,cachedGoal(fallbackGoals,wx,wy,2));fallbackRoutes.set(fallbackKey,p||null)}
  if(p)fallbackCount++;
 }
-if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;u.tradeFleeing=false}}else noRouteCount++}}
+if(p)p=p.slice();if(p){u.o='m';u.p=p;if(u.k==='cart'||u.k==='cog'){u.manualTradeMove=true;u.tradePaused=false;}}else noRouteCount++}}
 if(window.CK_PATH_DIAGNOSTICS&&typeof window.CK_PATH_DIAGNOSTICS.recordFormation==='function')window.CK_PATH_DIAGNOSTICS.recordFormation(us.length,sharedFormationPaths,sharedFallbackPaths);
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(fallbackCount)note(fallbackCount+' unit'+(fallbackCount===1?'':'s')+' moved toward the group destination instead of blocked formation slots');
@@ -79,7 +79,7 @@ else if(S.sel.length&&S.sel.every(u=>u.k==='fish'))menu={title:'Fishing Ship',i:
 else if(S.sel.some(u=>u.k==='vil'))menu={title:'Build',i:0,items:['house','farm','lumber','mine','mill','market','dock','wall','gate','outpost','bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'].map(k=>{const d=B[k],lk=k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:d.req&&!S.bs.some(b=>b.t===0&&b.k===d.req&&b.done)?'Needs '+B[d.req].n:'';
 return{l:d.n,c:d.cost,lk,fn:()=>{if(lk)return note(lk);if(!can(0,d.cost))return note('Not enough resources');menu=null;place={k}}}})}
 else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Follow friendly target',c:{},lk:'',fn:()=>{menu=null;pat=3;note('Move the cursor to a friendly unit, then A (B cancels)')}},{l:'Guard friendly target',c:{},lk:'',fn:()=>{menu=null;pat=4;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
-if(menu&&menu.title==='Soldiers'&&S.sel.some(u=>u.k==='cart'||u.k==='cog'))menu.items.splice(1,0,{l:'Resume automatic trading',c:{},lk:'',fn:()=>{let n=0;for(const u of S.sel)if(u.k==='cart'||u.k==='cog'){u.tradePaused=false;u.manualTradeMove=false;u.tradeFleeing=false;u.o='i';u.p=[];u.rp=0;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;n++}menu=null;note('Automatic trading resumed for '+n+' merchant'+(n===1?'':'s'))}});
+if(menu&&menu.title==='Soldiers'&&S.sel.some(u=>u.k==='cart'||u.k==='cog'))menu.items.splice(1,0,{l:'Resume automatic trading',c:{},lk:'',fn:()=>{let n=0;for(const u of S.sel)if(u.k==='cart'||u.k==='cog'){u.tradePaused=false;u.manualTradeMove=false;u.o='i';u.p=[];u.rp=0;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;n++}menu=null;note('Automatic trading resumed for '+n+' merchant'+(n===1?'':'s'))}});
 if(menu&&menu.title==='Build'){menu.items.splice(10,0,{l:'Stop (go idle)',c:{},lk:'',fn:()=>{stopSel();menu=null}});menu.pr=[[0,11],[11,21]]}}
 function ctl(dt){if(E.some(Boolean)&&aInit()&&AC.state==='suspended')AC.resume().catch(()=>{});if(mode!=='play'){if(E[12]||E[13]||E[14]||E[15])uis('move');else if(E[0])uis('ok');else if(E[1]||E[9])uis('back')}
 if(mode==='remap'){if(rw){const b=ER.findIndex((v,i)=>v&&i!==9);if(b>=0){BM[RA[ri][0]]=b;rw=0;sv()}return}
