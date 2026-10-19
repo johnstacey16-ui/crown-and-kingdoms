@@ -14,8 +14,8 @@ assert.doesNotMatch(planning, /const cnt=k=>bl\.filter\(b=>b\.k===k\)\.length/,
 
 assert.match(ai, /S\.bs\.find\(b=>b\.t===t&&b\.k==='tc'&&b\.hp>0\)/,
   'AI construction helpers must select a living Town Centre rather than a destroyed shell');
-assert.match(ai, /if\(!tc&&b\.k==='tc'&&b\.hp>0\)tc=b/,
-  'AI team planning must not use a destroyed Town Centre as its command anchor');
+assert.match(ai, /if\(b\.k==='tc'&&b\.hp>0&&\(!tc\|\|\(!tc\.done&&b\.done\)\)\)tc=b/,
+  'AI Town Centre selection must skip destroyed centres and prefer a completed centre over an unfinished fallback');
 assert.match(ai, /S\.bs\.some\(q=>q\.t===t&&q\.k===k&&q\.hp>0&&Math\.hypot\(q\.x-n\.x,q\.y-n\.y\)<7\)/,
   'Destroyed structures must not block AI rebuilding near a resource site');
 assert.match(ai, /bl\.filter\(b=>b\.k==='wall'&&b\.hp>0\)\.length/,
