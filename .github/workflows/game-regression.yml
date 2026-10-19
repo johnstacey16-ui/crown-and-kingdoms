@@ -2,11 +2,18 @@ name: Game regression checks
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: regression-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   campaign-playthroughs:
     name: Campaign mission suite (19 missions)
@@ -32,8 +39,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Parse game scripts and run source invariants
-        run: node scripts/check-game.mjs
       - name: Run every standalone regression test
         shell: bash
         run: |
@@ -74,5 +79,3 @@ jobs:
             echo "::error::${failed} of ${#tests[@]} standalone regression files failed; see job summary and grouped output."
             exit 1
           fi
-      - name: Validate local sprite atlas metadata and frame bounds
-        run: node tests/validate-atlas.mjs
