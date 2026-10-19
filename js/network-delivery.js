@@ -119,18 +119,21 @@
       return {ok:true,frame:ack.frame};
     }
     function state(){return Object.freeze({
-      lastEnqueued,lastAcked,pending:pending.size,halted:failure,clock:lastTick
+      lastEnqueued,lastAcked,pending:pending.size,capacity,halted:failure,clock:lastTick
     });}
     return Object.freeze({enqueue,poll,acknowledge,state});
   }
-  function createReceiver({roster,mapSize,replica,capacity=32,
+  function createReceiver({roster,mapSize,replica,advance=null,capacity=32,
                            maxBytes=1024,maxCommands=96}){
     config(roster,mapSize,capacity,maxBytes,maxCommands);
-    if(!replica||typeof replica.receive!=='function'||typeof replica.state!=='function')
-      throw Error('A strict frame replica is required');
+    if(!replica||typeof replica.receive!=='function'||typeof replica.state!=='function'||
+       advance!==null&&typeof advance!=='function')
+      throw Error('A strict frame replica and valid step callback are required');
     const hostSid=roster.slots[0].sid;
     const accepted=new Map();
+    let halted=false;
     function receive(message,trustedSenderSid){
+      if(halted)return {ok:false,reason:'halted'};
       if(trustedSenderSid!==hostSid)return {ok:false,reason:'untrusted-host'};
       if(!exact(message,['v','frame','digest','journal'])||
          message.v!==VERSION||!Number.isSafeInteger(message.frame)||
@@ -145,14 +148,55 @@
       }
       const applied=replica.receive(message.journal,trustedSenderSid);
       if(!applied.ok)return applied;
+      // Do not acknowledge a frame before its simulation step finishes.
+      // Failure after replay cannot be rolled back; halt until the match is
+      // explicitly restarted from a known-good, externally authenticated state.
+      if(advance){
+        try {if(advance(message.frame)!==true){halted=true;
+          return {ok:false,reason:'simulation-step-failed'};}}
+        catch(_){halted=true;return {ok:false,reason:'simulation-step-failed'};}
+      }
       const ack=Object.freeze({v:VERSION,frame:message.frame,digest:message.digest});
       accepted.set(message.frame,{digest:message.digest,ack});
       while(accepted.size>capacity)accepted.delete(accepted.keys().next().value);
       return {ok:true,duplicate:false,ack,applied:applied.applied};
     }
     return Object.freeze({receive,state:()=>Object.freeze({
-      ...replica.state(),acceptedHistory:accepted.size
+      ...replica.state(),halted:halted||replica.state().halted,
+      acceptedHistory:accepted.size
     })});
   }
-  root.CK_FRAME_DELIVERY=Object.freeze({createOutbox,createReceiver});
+  // Execute commands at the exact next simulation frame and immediately
+  // advance that one tick. Pending-frame backpressure stops BEFORE command
+  // mutation. This is a local driver, not an online transport or authority.
+  function createHostClock({host,outbox,advance,startFrame=0}){
+    if(!host||typeof host.applyFrameWithJournal!=='function'||
+       !outbox||typeof outbox.enqueue!=='function'||typeof outbox.state!=='function'||
+       typeof advance!=='function'||!Number.isSafeInteger(startFrame)||startFrame<0||
+       outbox.state().lastEnqueued!==startFrame)
+      throw Error('Invalid authoritative host clock');
+    let frame=startFrame,halted=null;
+    function tick(){
+      if(halted)return {ok:false,reason:'halted'};
+      const buffer=outbox.state();
+      if(buffer.halted){halted='outbox-halted';return {ok:false,reason:halted};}
+      // Backpressure is recoverable: do NOT advance the game or drain commands.
+      if(buffer.pending>=buffer.capacity)return {ok:false,reason:'backpressure',frame};
+      if(frame>=Number.MAX_SAFE_INTEGER){halted='frame-overflow';return {ok:false,reason:halted};}
+      const nextFrame=frame+1;
+      let applied;
+      try{applied=host.applyFrameWithJournal(nextFrame);}
+      catch(_){halted='command-frame-failed';return {ok:false,reason:halted};}
+      const queued=outbox.enqueue(applied.journal);
+      if(!queued.ok){halted='journal-'+queued.reason;
+        return {ok:false,reason:halted};}
+      try{if(advance(nextFrame)!==true){halted='simulation-step-failed';
+        return {ok:false,reason:halted};}}
+      catch(_){halted='simulation-step-failed';return {ok:false,reason:halted};}
+      frame=nextFrame;
+      return {ok:true,frame,results:applied.results};
+    }
+    return Object.freeze({tick,state:()=>Object.freeze({frame,halted})});
+  }
+  root.CK_FRAME_DELIVERY=Object.freeze({createOutbox,createReceiver,createHostClock});
 })(typeof window!=='undefined'?window:globalThis);
