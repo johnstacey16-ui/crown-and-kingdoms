@@ -50,7 +50,7 @@ assert.deepEqual(invalidPrereqs, [], 'Every technology prerequisite must point t
 const unreachablePrereqs = records.filter((record) => record.prerequisite && !exposed.has(record.prerequisite));
 assert.deepEqual(unreachablePrereqs, [], 'Every technology prerequisite must itself be researchable');
 
-assert.match(html, /if\(e\.hpb\)\{T0\.hpb=T0\.hpb\|\|\{\};for\(const q in e\.hpb\)\{T0\.hpb\[q\]=\(T0\.hpb\[q\]\|\|0\)\+e\.hpb\[q\];for\(const x of S\.us\)if\(x\.t===b\.t&&x\.k===q\)x\.hp\+=e\.hpb\[q\]\}\}/,
+assert.match(html, /if\(e\.hpb\)\{T0\.hpb=T0\.hpb\|\|\{\};for\(const q in e\.hpb\)\{T0\.hpb\[q\]=\(T0\.hpb\[q\]\|\|0\)\+e\.hpb\[q\];for\(const x of S\.us\)if\(x\.t===b\.t&&x\.k===q&&x\.hp>0\)x\.hp\+=e\.hpb\[q\]\}\}/,
   'Hit-point technologies must update existing units and the persistent technology ledger');
 assert.match(html, /hp:U\[k\]\.hp\+\(S\.tech\[t\]\.hpb&&S\.tech\[t\]\.hpb\[k\]\|\|0\)/,
   'Newly trained units must inherit researched hit-point upgrades');
