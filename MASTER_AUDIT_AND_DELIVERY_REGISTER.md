@@ -9,6 +9,8 @@ This is the reconciled, evidence-based work register created from three independ
 
 ## Current verified CI baseline — 19 October 2026
 
+**Newest verified development commit:** [`5f7b4622768a6a787e73e90ce9c031487d29b300`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/5f7b4622768a6a787e73e90ce9c031487d29b300). [Regression run 39217254199](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254199) and [validation run 39217254226](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254226) both succeeded on GitHub Ubuntu / Node 22. All 131 standalone files, 19 isolated campaign missions, and the two newly added full seeded skirmishes passed. Hard skirmish reload at 600 seconds passed persisted-state comparisons and continued to natural defeat. See the seeded-skirmish checkpoint below for scope and limitations. Earlier verified commits below are historical evidence.
+
 **The streamlined GitHub Actions workflows both passed at code commit [`4a85bf73a1653d8502651d12f3d4eba19eb0ac2b`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/4a85bf73a1653d8502651d12f3d4eba19eb0ac2b).**
 
 - [Regression workflow, run 39215994051](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994051): **131/131 standalone test files passed** plus **all 19 isolated campaign mission simulations passed**. The new single campaign-objective file preserves every assertion from three former small files.
@@ -21,7 +23,7 @@ This is the reconciled, evidence-based work register created from three independ
 
 **For the existing ChatGPT Work conversation:** Always fetch the newest `main` branch of `https://github.com/johnstacey16-ui/crown-and-kingdoms` and read this register **before editing anything**. Prior Work mode chat context or an extracted ZIP from audit commit `4130ad0` may be stale. Do **not** write an older snapshot over newer GitHub work or redo the cleanup.
 
-**Current exact verified code:** `4a85bf73a1653d8502651d12f3d4eba19eb0ac2b` — [regression 39215994051](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994051) and [validation 39215994025](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39215994025), both passing. **131/131 standalone test files and 19/19 isolated campaign simulations pass.** The newer README/register-only commits do not alter executable game code; fetch latest `main` before editing.
+**Current exact verified code:** `5f7b4622768a6a787e73e90ce9c031487d29b300` — [regression 39217254199](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254199) and [validation 39217254226](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39217254226), both passing. **131/131 standalone files, 19/19 isolated campaign simulations and two full passive-opponent skirmishes pass**, including the Hard 600-second save/reload. Next expand to active-player matches and the outstanding late-game save matrix; do not redo the completed passive cases without a relevant source change. The newer README/register-only commits do not alter executable game code; fetch latest `main` before editing.
 
 **Recent workflow simplification:** Removed duplicate script/asset checks from the regression workflow; maintained a separate fast validator and full gameplay/campaign suite. Skipped docs-only pushes, cancelled superseded runs, and consolidated three tiny campaign objective tests into one file without losing their assertions. No game runtime scripts were removed; all existing Node test files remain development-only and do not ship into the browser. Read the README testing policy before deleting any further tests.
 
@@ -85,8 +87,8 @@ Status denotes evidence as of the initial audit and this reconciliation, **not**
 |---|---|---|---|---|
 | CK-001 | P0 | Comprehensive CI failure inventory | VERIFIED (automated) | All current standalone files (131 at verified 4a85bf73) are run and reported; current 8440b461 regression CI is green. Preserve full failure summaries and classify any new issues by type. |
 | CK-002 | P0 | Repair current regression failures | VERIFIED (current baseline) | All prior failures cleared at 8440b461, 133/133 standalone checks and 19/19 isolated missions pass; continuously revalidate after changes. Does not imply complete game readiness. |
-| CK-003 | P0 | Basic complete land skirmish | UNVERIFIED | engine.js, simulation.js, ai.js, mapgen.js: match start → economy → ages → combat → win/lose → results. Record actual in-browser gameplay and controlled AI full-match simulation. |
-| CK-004 | P0 | AI ability to finish matches | UNVERIFIED | ai.js has substantial economy/combat/recovery logic and focused tests. Run reproducible moderate/hard/late-game matches with clear winner and resource/accounting diagnostics. |
+| CK-003 | P0 | Basic complete land skirmish | PARTIAL | At 5f7b4622, seeded Moderate/Hard production AI finishes passive-opponent land simulations through natural defeat/results. Active player victory and in-browser/controller full-match acceptance remain open. |
+| CK-004 | P0 | AI ability to finish matches | PARTIAL | At 5f7b4622, seed 123456 Moderate/Hard AI grows, reaches Feudal, attacks and wins; scripts/run-skirmish.mjs logs resource/population/path diagnostics. Repeat against active opposition, other seeds and late-game states. |
 | CK-005 | P0 | Current-version save round-trip | PARTIAL | save.js and persistence.js support references, RNG state and localStorage/IndexedDB. At c9f73ea2, save-order tests verify primary checkpoint before backup and recovery from transient IndexedDB open failures. Still verify true long-match save/reload during economy, movement, research, garrison/transport, relics and campaigns; compare live states. |
 | CK-006 | P0 | Population and production deadlocks | IMPLEMENTED/UNVERIFIED | Recent repairs in engine.js/simulation.js. Exercise queue reservations, house loss, caps, restored games and multiple concurrent buildings in full match. |
 | CK-007 | P0 | Real two-human shared multiplayer | MISSING | multiplayer.js is lobby/presence only. Implement ownership, command replication, shared map/seed/RNG, deterministic or host-authoritative policy, synced win/lose; two browsers complete a real match. |
@@ -259,3 +261,12 @@ The user asked whether a large quantity of automated tests and repeated regressi
 | CK-013 | Runtime defect reproduction | Fractional market balances and cart/cog payouts now pass, retaining overflow rejection | Broader economic balance and reference fidelity |
 
 **Next:** active-player land skirmish and late-game checkpoint coverage, then naval/garrison/campaign save invariants. High invalid-path request counts in the Hard diagnostic (4,411 of 18,667) warrant profiling/reproduction; they did not prevent this match finishing. Xbox hardware, live browser UI, multiplayer and full human campaigns remain unverified. CK-003–006 remain PARTIAL rather than complete.
+
+### Matched CI evidence for the seeded-skirmish batch
+
+| CK-ID | Commit SHA | Evidence type | Test or playthrough | Platform/build | Result | Open issue |
+|---|---|---|---|---|---|---|
+| CK-001/002 | `5f7b4622768a6a787e73e90ce9c031487d29b300` | automated | Regression 39217254199; validation 39217254226 | GitHub Ubuntu / Node 22 | Both success; 131 files + 19 isolated missions | Hardware/gameplay acceptance distinct |
+| CK-003/004 | `5f7b4622768a6a787e73e90ce9c031487d29b300` | production simulation | run-skirmish.mjs seed 123456, Moderate and Hard | GitHub Ubuntu / Node 22 | Natural defeat at 637.40s / 918.13s; matches local Node 24 run | Passive opposition only; active/human gameplay open |
+| CK-005/006 | `5f7b4622768a6a787e73e90ce9c031487d29b300` | integrated save/load | Hard, CK_RELOAD_AT=600 | GitHub Ubuntu / Node 22 | Compared persisted fields identical, four queued units/active research/moving troops, match finishes | Full late-game, garrison, naval and campaign checkpoint matrix open |
+| CK-013 | `5f7b4622768a6a787e73e90ce9c031487d29b300` | runtime | market-trade-validation and trade-routes | GitHub Ubuntu / Node 22 | Fractional balance cases and existing protections pass | AI tribute uses a similar integer-balance guard; inspect separately |
