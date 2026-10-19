@@ -25,6 +25,6 @@ S.bs[0].q.pop();
 assert.equal(queuedPopulation(0), 2, 'cancelling units releases reserved slots');
 S.bs[1].hp = 0;
 assert.equal(queuedPopulation(0), 1, 'destroyed buildings no longer reserve population');
-assert.ok(simulation.includes('popOf(t)+queuedPopulation(t)>=capOf(t)'), 'training checks reserved population');
-assert.ok(ai.includes('popOf(t)+queuedPopulation(t)+5>capOf(t)'), 'AI housing plans for queued units');
+assert.ok(simulation.includes('popOf(t)>=capOf(t)'), 'training checks reserved population');
+assert.ok(ai.includes('popOf(t)+5>capOf(t)'), 'AI housing plans for queued units');
 console.log('queued-population-strategy: passed');

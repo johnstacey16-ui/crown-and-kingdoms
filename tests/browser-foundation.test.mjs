@@ -75,7 +75,7 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
   assert.ok(render.startsWith('function drawWorld()'));
-  assert.ok(render.includes('function drawUnit(u)'));
+  assert.ok(render.includes('function drawUnit(u,selectedUnits)'));
   assert.ok(render.includes('function drawRelic(q)'));
   assert.ok(render.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(render.includes('function paintTileDetail(g,x,y,cx,cy)'));
@@ -85,7 +85,7 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(render.includes('function chunkOf(cx,cy)'));
   assert.ok(render.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(!engineSource.includes('function drawWorld()'));
-  assert.ok(!engineSource.includes('function drawUnit(u)'));
+  assert.ok(!engineSource.includes('function drawUnit(u,selectedUnits)'));
   assert.ok(!engineSource.includes('function drawRelic(q)'));
   assert.ok(!engineSource.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(!engineSource.includes('function paintTileDetail(g,x,y,cx,cy)'));
@@ -182,7 +182,7 @@ test('in-game About copy describes the real asset, audio and verification bounda
 });
 
 test('unit equipment rendering reads technology state and exposes researched armour visually', () => {
-  assert.match(render, /function drawUnit\(u\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
+  assert.match(render, /function drawUnit\(u,selectedUnits\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
   assert.match(render, /T\.armI&&INFARM\.has\(k\)/);
   assert.match(render, /T\.armR&&ARCHARM\.has\(k\)/);
   assert.match(render, /Blacksmith armour upgrades receive a small battlefield-visible cue/);

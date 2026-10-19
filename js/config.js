@@ -1,3 +1,5 @@
+const DIFFICULTY_NAMES=['Easiest','Easy','Moderate','Hard','Hardest','Extreme'];
+const difficultyName=i=>DIFFICULTY_NAMES[i]||'Unknown';
 /* Crown & Kingdoms — game constants and balance data. Loaded before engine.js. */
 /* ===== CONFIG / BALANCE ===== */
 let TW=89.6,TH=44.8,zm=1.4;const T=32,DT=1/30,GR=.8,CAP=10,SZ=[72,96,128,176];let W=72,H=72;

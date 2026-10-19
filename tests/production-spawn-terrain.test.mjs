@@ -7,7 +7,7 @@ const start = source.indexOf('function spawnPos(b){');
 const end = source.indexOf('\nfunction research(b,k){', start);
 assert.ok(start >= 0 && end > start);
 const W = 12, H = 12;
-const S = { g: new Uint8Array(W * H), wt: new Uint8Array(W * H), nd: new Array(W * H).fill(null) };
+const S = { us: [], g: new Uint8Array(W * H), wt: new Uint8Array(W * H), nd: new Array(W * H).fill(null) };
 const context = { W, H, S };
 vm.createContext(context);
 vm.runInContext(source.slice(start, end), context);

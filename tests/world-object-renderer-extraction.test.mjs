@@ -23,7 +23,7 @@ test('building, node and unit artwork is owned by js/render.js', () => {
 test('world rendering still invokes extracted object painters while simulation remains in engine.js', () => {
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawBld\(/);
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawNode\(/);
-  assert.match(render, /function drawUnit\(u\)[\s\S]*?paintUnit\(/);
+  assert.match(render, /function drawUnit\(u,selectedUnits\)[\s\S]*?paintUnit\(/);
   assert.match(engine, /function emit\(k,x,y,n,o\)\{/);
   assert.match(engine, /function updP\(dt\)\{/);
   assert.match(engine, /function setZoom\(z\)\{/);

@@ -10,7 +10,7 @@ const S = { bs: [tc], tech: [{}, {}], res: [{}, {}], pl: { tr: 0 }, us: [], pj: 
 let population = 2, cap = 2, spawns = 0;
 const context = {
   U, B, TE, S, note: () => {}, sfx: () => {}, foe: () => null, unitName: k => k,
-  popOf: () => population, capOf: () => cap, trainRate: () => 1,
+  livePopulation: () => population, capOf: () => cap, trainRate: () => 1,
   spawnPos: () => [5.5, 5.5],
   addU: (team, kind, x, y) => { spawns++; population++; return { t: team, k: kind, x, y }; },
 };

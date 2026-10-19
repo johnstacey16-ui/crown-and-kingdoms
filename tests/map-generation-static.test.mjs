@@ -7,7 +7,7 @@ assert.match(html, /startReach\[i\]===1/, 'starting positions must be tested aga
 assert.match(html, /tries<12\)return newGame\(tries\+1\)/, 'disconnected terrain must trigger bounded regeneration');
 assert.match(html, /n:'Scattered Lakes'.*arch:1/, 'scattered-lakes generator preset must exist');
 assert.match(html, /n:'Twin Lakes'.*lake:1/, 'twin-lakes generator preset must exist');
-assert.match(html, /function drawUnit\(u\)/, 'unit renderer must remain present');
+assert.match(html, /function drawUnit\(u,selectedUnits\)/, 'unit renderer must remain present');
 assert.match(html, /ASSET\.n\?assetFrame/, 'validated upright atlas must be enabled with fallback');
 const atlasManifest = JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json', import.meta.url), 'utf8'));
 assert.ok(html.includes("fetch('./assets/atlas-manifest.json'"), 'the game must load the sprite manifest as a local external asset');
@@ -16,5 +16,5 @@ assert.ok(atlasManifest.atlases.some((a) => a.id === 'ck-detailed-buildings'), '
 assert.match(html, /assetFrame\('bld_'\+b\.k,b\.t,3,0,gt\)/, 'completed buildings must use the detailed atlas with procedural fallback');
 assert.match(html, /const baf=b\.done&&!ghost&&ASSET\.n\?assetFrame/, 'building sprite rendering must retain a safe fallback');
 assert.match(html, /dockableStarts/, 'map audit must report starts with a legal Dock site nearby');
-assert.match(html, /navalAccess:dockableStarts>0/, 'map audit must expose whether any valid dock site exists');
+assert.match(html, /partialNavalAccess:dockableStarts>0/, 'map audit must expose whether any valid dock site exists');
 console.log('map-generation-static: graphics and map assertions passed');

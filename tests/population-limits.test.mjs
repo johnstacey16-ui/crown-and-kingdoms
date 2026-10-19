@@ -11,22 +11,8 @@ assert.equal(
   'population-limit selector must offer 50, 100, 150, 200, 250, 300, 400 and 500 in both directions'
 );
 
-// The chosen option is an upper cap; houses determine the capacity available during the match.
-assert.match(
-  html,
-  /const capOf=t=>Math\.min\(popLimit,10\+5\*S\.bs\.filter\(b=>b\.t===t&&b\.k==='house'&&b\.done\)\.length\)/,
-  'population capacity must be limited by the chosen maximum and completed Houses'
-);
-assert.match(
-  html,
-  /const popOf=t=>S\.us\.filter\(u=>u\.t===t\)\.length\+S\.bs\.reduce\(\(a,b\)=>a\+\(b\.t===t\?b\.q\.length:0\),0\)/,
-  'population count must include live units and units reserved in production queues'
-);
-assert.match(
-  html,
-  /if\(popOf\(t\)>=capOf\(t\)\)/,
-  'training must not exceed available population capacity'
-);
-assert.match(html, /if\(b\.q\.length>=5\)return false/, 'production queue limit must remain intact');
-
-console.log('population-limits: all 5 regression assertions passed');
+// Runtime population, destroyed housing and queue completion are exercised by
+// population-completion.test.mjs and training-population-reservation.test.mjs.
+assert.ok(html.includes('Math.min(popLimit,10+5*'), 'configured population limit remains an upper cap');
+assert.match(html, /if\(b\.q\.length>=5\)return false/, 'production queue limit remains intact');
+console.log('population-limits: setup limits and queue size passed');

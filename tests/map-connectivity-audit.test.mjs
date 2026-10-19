@@ -33,7 +33,8 @@ assert.equal(bridged.waterComponents, 2, 'bridge separates water channels');
 assert.equal(bridged.navigableWaterConnected, false);
 
 S.wt.fill(0);
-for (let y = 2; y < 9; y++) for (let x = 2; x < 9; x++)\n  if (x === 2 || x === 8 || y === 2 || y === 8) S.wt[y * W + x] = 1;
+for (let y = 2; y < 9; y++) for (let x = 2; x < 9; x++)
+  if (x === 2 || x === 8 || y === 2 || y === 8) S.wt[y * W + x] = 1;
 const island = audit([[5, 5], [27, 27]]);
 assert.equal(island.landReachable, false, 'island start cannot walk to mainland');
 assert.equal(island.landComponents, 2);

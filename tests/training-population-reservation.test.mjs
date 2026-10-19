@@ -15,7 +15,7 @@ const context = {
   U, B, AG, S, note: () => {},
   can: (team, cost) => Object.entries(cost).every(([k, n]) => S.res[team][k] >= n),
   pay: (team, cost, refund = 0) => { for (const [k, n] of Object.entries(cost)) S.res[team][k] += refund ? n : -n; },
-  popOf: team => population[team], capOf: team => caps[team],
+  popOf: team => population[team] + S.bs.reduce((n,b)=>n+(b.t===team&&b.hp>0?b.q.length:0),0), capOf: team => caps[team],
 };
 vm.createContext(context);
 const begin = simulation.indexOf('function queuedPopulation(t){');

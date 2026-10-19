@@ -1,3 +1,15 @@
+## Population completion and save-menu recovery — 19 October 2026
+
+Previous published checkpoint: `6bcf0971d34b177bc60e1e80d5b080eceb29f774`.
+
+- **Production deadlock fixed:** `popOf` includes queued reservations. Completed training now compares living population with capacity, so the unit's own reserved slot cannot prevent spawning when total reserved population equals the cap. Independent production buildings can consume their reservations without exceeding the actual living-unit cap. Housing losses still pause finished queues until capacity is restored.
+- **Population accounting:** dead units and queues in destroyed buildings immediately stop occupying slots; destroyed houses immediately stop providing capacity. Garrisoned living units continue to count. Training and AI housing forecasts still count reservations exactly once.
+- **Recovered saves:** refresh save discovery after startup IndexedDB restoration, including manual slots. Continue becomes available for restored saves and unreadable files that need deletion, even without an autosave.
+- **Difficulty presentation:** setup, HUD, objectives, campaign briefings and save details use the same six difficulty labels. Save summaries use the same difficulty-version mapping as loading. Deathmatch copy now correctly says Imperial Age, matching actual starting behaviour.
+- **Verification:** population completion/reservation/cap-loss tests and the simulation smoke run (`CK_SKIP_CAMPAIGN=1`) pass. Save discovery and all six save-menu difficulty labels pass focused runtime checks. Repaired stale renderer signatures, missing standalone fixture globals and a literal newline typo in the map audit test; no assertions were removed to hide runtime failures. Full nineteen-mission playthroughs, live browser/controller gameplay and Xbox performance remain unverified.
+- **Current regression result:** 95 of 133 non-smoke check commands passed; 38 failed. The production simulation smoke passed separately with full campaign playthroughs skipped. Failures remain visible and are not all confirmed gameplay bugs.
+- **Remaining work:** repository-wide regression failures still need classification and repair. Real multiplayer command/state replication remains unimplemented; keep the room/player limits unchanged until that work and hardware acceptance are complete.
+
 ## Save reliability, reproducible simulation and army orders — 18 October 2026
 
 Previous published checkpoint: `e743b31d732338825c55a6e6496871a4323cf8de`.

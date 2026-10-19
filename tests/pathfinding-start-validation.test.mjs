@@ -7,7 +7,7 @@ const W = 12, H = 12, count = W * H;
 const S = { g: new Uint8Array(count), gt: new Uint8Array(count), wt: new Uint8Array(count), nd: new Array(count).fill(null) };
 const PA = { v: 0, st: new Uint32Array(count), cl: new Uint32Array(count), g: new Float32Array(count), pr: new Int32Array(count) };
 const D8 = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
-const context = { W, H, S, PA, D8 };
+const context = { W, H, S, PA, D8, window: {} };
 vm.createContext(context);
 vm.runInContext(src, context);
 const path = vm.runInContext('path', context);

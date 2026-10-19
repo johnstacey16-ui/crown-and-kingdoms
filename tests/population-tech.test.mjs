@@ -29,7 +29,7 @@ test('full population prevents new training',()=>{
 test('AI housing forecast uses actual plus queued population only once',()=>{
  assert.match(ai,/if\(popOf\(t\)\+5>capOf\(t\)/);
  assert.doesNotMatch(ai,/popOf\(t\)\+queuedPopulation\(t\)/);
- assert.match(engine,/const popOf=t=>S\.us\.filter\(u=>u\.t===t\)\.length\+S\.bs\.reduce/);
+ assert.ok(engine.includes('const popOf=t=>livePopulation(t)+queuedPopulation(t)'));
 });
 test('Treadmill Crane increases repair rate as well as build rate',()=>{
  assert.match(sim,/tg\.mh\*dt\/\(S\.tech\[u\.t\]\.crane\?32:40\)/);
