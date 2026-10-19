@@ -41,8 +41,24 @@ assert.match(html, /if\(!canRepairBuilding&&!canRepairShip\)\{note\('That kingdo
   'The game must reject attacks on friendly targets except explicitly permitted repairs and trade');
 assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}b=nearestFoeUnit\(u,r\);if\(b\)return b/,
   'Siege building priority must remain intact before indexed unit targeting');
-assert.match(html, /function nearestFoeUnit\(u,r\)\{[\s\S]{0,700}!isHostile\(u\.t,e\.t\)[\s\S]{0,180}e\.hp<=0\|\|e\.ld/,
-  'Indexed automatic target acquisition must ignore neutral/allied, dead and garrisoned units');
+assert.match(html, /if\(!e\|\|!isHostile\(u\.t,e\.t\)\|\|e\.hp<=0\|\|e\.ld\)continue/,
+  'Indexed combat target acquisition must exclude non-hostile, dead, and garrisoned targets');
+const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const start=simulation.indexOf('function nearestFoeUnit(u,r){');
+const finish=simulation.indexOf('\nfunction foe(',start);
+assert.ok(start>=0&&finish>start,'spatial target selection must exist');
+const candidates=[
+  {t:1,x:2,y:2,hp:100},
+  {t:1,x:1,y:1,hp:0},
+  {t:1,x:1,y:2,hp:40,ld:{k:'tc'}},
+  {t:2,x:3,y:3,hp:90}
+];
+const BUCKETS=new Map([['0,0',[0,1,2,3]]]);
+const context={S:{us:candidates},W:64,H:64,FOE_CELL:16,FOE_BUCKETS:BUCKETS,
+  foeGridDirty:false,isHostile:(a,b)=>a!==b&&b===2};
+const select=vm.runInNewContext(simulation.slice(start,finish)+'\n;nearestFoeUnit;',context);
+assert.equal(select({t:0,x:0,y:0},12),candidates[3],
+  'only an actual living ungarrisoned hostile unit may be returned');
 assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
   'AI attack waves must choose targets only from hostile kingdoms');
 assert.ok(html.includes("const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;"),
