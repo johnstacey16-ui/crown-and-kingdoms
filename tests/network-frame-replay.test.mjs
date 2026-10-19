@@ -110,6 +110,22 @@ test('malformed second packet rejects the whole journal before the first command
   assert.equal(guest.queue(1),1);
 });
 
+test('replica accepts gaps from rejected host orders but rejects replayed sequences', () => {
+  const guest=newPeer(0);
+  const team=1, id=guest.tc(team);
+  const make=(seq,frame)=>({
+    v:2,frame,commands:[guest.packet('guest-session',team,seq,frame,
+      {type:'train',entities:[id],value:'vil'})]
+  });
+  assert.equal(guest.guestFrame(make(3,1),'host-session').ok,true);
+  const before=guest.food(team);
+  assert.equal(guest.guestFrame(make(2,2),'host-session').reason,'replayed-command');
+  assert.equal(guest.food(team),before);
+  assert.equal(guest.guestState().lastFrame,1);
+  assert.equal(guest.guestFrame(make(5,2),'host-session').ok,true);
+  assert.equal(guest.queue(team),2);
+});
+
 test('journal object is frozen deeply enough to protect order identifiers and points', () => {
   const host=newPeer();
   const unit=host.soldier(1);
