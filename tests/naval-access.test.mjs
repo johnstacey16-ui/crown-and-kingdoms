@@ -21,8 +21,10 @@ test('map audit distinguishes partial from full naval access',()=>{
 });
 test('transport unload reports successful disembarkation and retained passengers',()=>{
  const sim=fs.readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
- assert.match(sim,/u\.cg=cg\.filter\(c=>c\.ld\)/);
- assert.match(sim,/note\('Passengers unloaded: '\+unloaded\)/);
+  assert.match(sim,/u\.cg=cg\.filter\(c=>c\.ld===u&&c\.hp>0\)/,
+    'Only living passengers still aboard this transport remain in its manifest');
+  assert.match(sim,/note\(unloaded\?\(u\.cg\.length\?/,
+    'Transport feedback must distinguish full and partial disembarkation');
  assert.match(sim,/u\.cg\.length\?'Passengers unloaded: '\+unloaded\+'; '\+u\.cg\.length\+' still aboard'/,
    'Partial unloading must disclose how many passengers remain aboard');
  assert.match(sim,/No safe shore to unload; move closer to land/,
