@@ -90,11 +90,11 @@
       for(const record of pending.values()){
         const due=!record.attempts||tick-record.lastSent>=retryTicks;
         if(!due)continue;
+        if(messages.length>=maxPackets)break;
         if(record.attempts>=maxAttempts){
           failure='retry-exhausted';
           return {ok:false,reason:failure,messages:[]};
         }
-        if(messages.length>=maxPackets)break;
         record.attempts++;
         record.lastSent=tick;
         messages.push(record.message);
