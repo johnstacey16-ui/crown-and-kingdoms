@@ -1,3 +1,12 @@
+## Campaign objective reliability — 19 October 2026
+
+Previous published checkpoint: `d6cd33d246cf01cd9addd64fa9f626f9603d5a4f`.
+
+- Living-force objectives now count soldiers inside garrisons and transports. Taking shelter no longer falsely invalidates the coastal army or Iron Pass survival requirements; dead, foreign and unknown units remain excluded.
+- All three relic campaign objectives require a surviving, completed friendly monastery. A retained destroyed monastery record cannot satisfy victory before simulation cleanup.
+- Replaced brittle live-count source assertions with runtime coverage of actual campaign predicates, sustained objective loss/restoration, victory persistence, defeat precedence, raid shutdown, and briefing unlocks across all six arcs. Updated stale raid/briefing assertions to account for existing input guards.
+- Verification: all 23 tests across campaign-objective-live-counts, campaign-progression and campaign-safety-runtime pass; the source checker passes. This focused batch does not establish full nineteen-mission playthroughs, browser/controller acceptance, multiplayer or Xbox performance. The full regression suite was not rerun; the previous 38-failure baseline remains historical, with these three previously failing commands now passing.
+
 ## Population completion and save-menu recovery — 19 October 2026
 
 Previous published checkpoint: `6bcf0971d34b177bc60e1e80d5b080eceb29f774`.

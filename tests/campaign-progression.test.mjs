@@ -9,7 +9,7 @@ test('timed raids safely stop after the enemy Town Centre is destroyed', () => {
   const raidEnd = html.indexOf('\nconst CAMP=', raidStart);
   const raid = html.slice(raidStart, raidEnd);
   assert.ok(raidStart >= 0 && raidEnd > raidStart, 'The campaign raid helper must remain identifiable');
-  assert.match(raid, /const e=tcOf\(1\);if\(!e\)return;const tg=/,
+  assert.match(raid, /const e=tcOf\(1\);if\(!e\|\|!Number\.isInteger\(n\)\|\|n<=0\|\|!Array\.isArray\(ks\)\|\|!ks\.length\)return;const tg=/,
     'The raid helper must return before using the enemy Town Centre position');
 });
 
@@ -69,7 +69,7 @@ test('multi-objective naval campaigns cannot bypass remaining objectives on Town
 test('destroyed Town Centres no longer block campaign objectives or timed-raid shutdown', () => {
   assert.match(html, /const tcOf=t=>S\.bs\.find\(b=>b\.t===t&&b\.k==='tc'&&b\.hp>0\)/,
     'Campaign Town Centre lookup must ignore retained zero-health building records');
-  assert.match(html, /function raid\(n,ks,msg\)\{const e=tcOf\(1\);if\(!e\)return;/,
+  assert.match(html, /function raid\(n,ks,msg\)\{const e=tcOf\(1\);if\(!e\|\|!Number\.isInteger\(n\)\|\|n<=0\|\|!Array\.isArray\(ks\)\|\|!ks\.length\)return;/,
     'Timed raids must stop once the enemy Town Centre has no remaining health');
 });
 

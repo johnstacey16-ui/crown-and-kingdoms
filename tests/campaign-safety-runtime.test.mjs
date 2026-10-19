@@ -32,6 +32,6 @@ test('naval spawn selection rejects invalid requests without reading map',()=>{
  assert.deepEqual(Array.from(ctx.raidShipPositions({x:1,y:1},-1)),[]);
 });
 test('campaign briefing guards locked missions at confirmation',()=>{
- assert.match(source,/function briefCtl\(\)\{if\(E\[0\]\)\{const arc=CAMP_ARCS\.find/);
+ assert.match(source,/function briefCtl\(\)\{if\(E\[0\]\)\{const arc=Number\.isInteger\(bi\)\?CAMP_ARCS\.find/);
  assert.match(source,/done\[arc\.ids\[pos-1\]\]/);
 });
