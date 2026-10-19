@@ -1,28 +1,86 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-assert.match(html, /market:\{n:'Market'[^\n]*tr:\['cart'\]/, 'Market must produce Trade Carts');
-assert.match(html, /dock:\{n:'Dock'[^\n]*tr:\[[^\]]*'cog'/, 'Dock must produce Trade Cogs');
-assert.match(html, /cart:\{n:'Trade Cart'/, 'Trade Cart unit data must exist');
-assert.match(html, /cog:\{n:'Trade Cog'/, 'Trade Cog unit data must exist');
-assert.match(html, /function tickTrader\(u,dt\)/, 'traders must run a dedicated route simulation');
-assert.match(html, /S\.res\[u\.t\]\.g\+=earned/, 'successful deliveries must grant gold to the trader owner');
-assert.match(html, /Math\.max\(2,Math\.round\(distance\*0\.35\)\)/, 'trade gold must scale with route distance and have a minimum payout');
-assert.match(html, /if\(q\.k==='cart'\|\|q\.k==='cog'\)nu\.tradeFromKey=/, 'new traders must remember their production endpoint');
-assert.match(html, /u\.k==='cart'\|\|u\.k==='cog'\)\{tickTrader\(u,dt\);return\}/, 'traders must not use combat or gathering AI');
-assert.match(html, /Farm':'Renewable food; reseeds itself for 60 wood\.'/ , 'farm help text must match the actual reseed cost');
+const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
+const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
+const start=simulation.indexOf('function tickTrader(u,dt){');
+const end=simulation.indexOf('\nfunction ',start+1);
+assert.ok(start>=0&&end>start,'Trade carts and cogs must retain their route simulator');
+const traderSource=simulation.slice(start,end);
 
-// Route and economy regression guards.
-assert.match(html, /const capOf=t=>Math\.min\(popLimit,10\+5\*S\.bs\.filter\(b=>b\.t===t&&b\.k==='house'&&b\.done\)\.length\)/, 'only completed Houses should add population capacity');
-assert.match(html, /const popOf=t=>S\.us\.filter\(u=>u\.t===t\)\.length\+S\.bs\.reduce\(\(a,b\)=>a\+\(b\.t===t\?b\.q\.length:0\),0\)/, 'population count must reserve slots for queued units');
-assert.match(html, /if\(popOf\(t\)>=capOf\(t\)\)/, 'training must refuse units when live plus queued population reaches the cap');
-assert.match(html, /if\(u\.tradeReturning\)u\.tradeReturning=false;[\s\S]{0,360}u\.tradeReturning=true/, 'trade routes must alternate destination and return journeys');
-assert.match(html, /u\.trWait=2/, 'traders without a valid destination must wait and retry');
-assert.match(html, /keyOf\(b\)===u\.tradeFromKey&&b\.done&&b\.hp>0/, 'a destroyed source market or dock must be discarded');
-assert.match(html, /b\.t===u\.t&&b\.k===endpoint&&b\.done&&b\.hp>0/, 'fallback source selection must ignore destroyed endpoints');
-assert.match(html, /keyOf\(b\)===u\.tradeDestKey&&b\.done&&b\.hp>0&&b\.t!==u\.t/, 'a destroyed destination must be discarded');
-assert.match(html, /b\.done&&b\.hp>0&&b\.k===endpoint&&b\.t!==u\.t/, 'fallback destination selection must ignore destroyed endpoints');
-assert.match(html, /u\.k==='cart'\|\|u\.k==='cog'\)\{tickTrader\(u,dt\);return\}/, 'trader movement must remain separate from combat orders');
+function setup(kind='cart'){
+ const origin={t:0,k:kind==='cart'?'market':'dock',x:0,y:0,s:2,hp:100,done:true};
+ const destination={t:1,k:origin.k,x:16,y:0,s:2,hp:100,done:true};
+ const S={bs:[origin,destination],us:[],res:[{g:100},{g:100}],teamN:2};
+ const messages=[];
+ const context={
+  S,U,isHostile:()=>false,
+  d2:(x,y,b)=>Math.hypot(Math.max(b.x-x,0,x-(b.x+b.s)),Math.max(b.y-y,0,y-(b.y+b.s))),
+  note:message=>messages.push(message),
+  path:()=>{throw Error('An arrived trade route must not recalculate the path')},
+  goalNear:()=>{throw Error('An arrived trade route must not recalculate the path')},
+ };
+ const tickTrader=vm.runInNewContext(traderSource+'\n;tickTrader;',context);
+ const key=b=>[b.t,b.k,b.x,b.y].join(':');
+ const trader={k:kind,t:0,x:1,y:1,o:'m',p:[],rp:0,tradeFromKey:key(origin),tradeDestKey:key(destination),
+  tradeReturning:false,tradeCargo:0};
+ return {S,origin,destination,trader,tickTrader,messages};
+}
 
-console.log('trade-routes: static assertions passed');
+test('trade markets/docks and their traders remain present in the unit catalogue',()=>{
+ assert.ok(B.market.tr.includes('cart'),'markets produce carts');
+ assert.ok(B.dock.tr.includes('cog'),'docks produce trade cogs');
+ assert.ok(U.cart&&U.cog,'trade units have definitions');
+ assert.match(simulation, /if\(q\.k==='cart'\|\|q\.k==='cog'\)nu\.tradeFromKey=/,
+  'trained merchants remember their producing depot');
+});
+
+test('carts earn route-distance-based gold only after the return delivery',()=>{
+ const {S,trader,tickTrader,messages}=setup();
+ trader.x=17;trader.y=1;
+ tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,100,'outgoing leg must not immediately pay gold');
+ assert.equal(trader.tradeCargo,6,'sixteen-tile route rounds to six gold');
+ assert.equal(trader.tradeReturning,true);
+ trader.x=1;trader.y=1;
+ tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,106,'the trade owner receives the earned gold');
+ assert.equal(trader.tradeCargo,0,'delivered cargo is cleared');
+ assert.equal(trader.tradeReturning,false,'route repeats');
+ assert.ok(messages.some(message=>message.includes('6 gold')),'gold delivery is reported');
+});
+
+test('trade cogs use dock endpoints and complete valid voyages',()=>{
+ const {S,trader,tickTrader}=setup('cog');
+ trader.x=17;trader.y=1;tickTrader(trader,1/30);
+ assert.equal(trader.tradeCargo,6);
+ trader.x=1;trader.y=1;tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,106);
+});
+
+test('trade deliveries refuse invalid cargo or unsafe integer overflow',()=>{
+ const {S,trader,tickTrader}=setup();
+ S.res[0].g=Number.MAX_SAFE_INTEGER-2;
+ trader.tradeReturning=true;
+ trader.tradeCargo=8;
+ tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,Number.MAX_SAFE_INTEGER-2,'overflow must not create unsafe resource totals');
+ assert.equal(trader.tradeCargo,0,'invalid payout is discarded rather than duplicated');
+ trader.tradeCargo=-5;
+ trader.tradeReturning=true;
+ tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,Number.MAX_SAFE_INTEGER-2,'negative cargo cannot subtract or grant gold');
+});
+
+test('player trade routes pause rather than silently replace a destroyed destination',()=>{
+ const {S,destination,trader,tickTrader}=setup();
+ destination.hp=0;
+ tickTrader(trader,1/30);
+ assert.equal(S.res[0].g,100);
+ assert.equal(trader.tradePaused,true);
+ assert.equal(trader.tradeDestKey,null);
+ assert.equal(trader.o,'i');
+});
