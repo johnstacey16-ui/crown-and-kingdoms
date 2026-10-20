@@ -20,6 +20,7 @@ for (const atlas of pack.atlases) {
   const assetPath = resolve(root, atlas.src);
   assert.ok(existsSync(assetPath), `missing atlas asset: ${atlas.src}`);
   const svg = readFileSync(assetPath, 'utf8');
+  assert.doesNotMatch(svg, /<[^>]*</, `atlas ${atlas.src} contains an unclosed SVG tag`);
   const dimensions = svg.match(/<svg\b[^>]*\bwidth=["']([\d.]+)["'][^>]*\bheight=["']([\d.]+)["']/i);
   assert.ok(dimensions, `atlas ${atlas.src} must expose explicit SVG width and height`);
   const width = Number(dimensions[1]);
