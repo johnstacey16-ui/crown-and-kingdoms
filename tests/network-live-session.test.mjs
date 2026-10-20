@@ -103,6 +103,34 @@ test('host and guest move their own villagers over HTTP with identical positions
   }
 });
 
+test('guest map group movement and Stop execute over HTTP with matching world hashes',async t=>{
+  const p=await livePair(t);await p.hostLive.begin();await p.cycle();await p.cycle();
+  const units=Array.from(p.guestGame.testUnits(1)).slice(0,2);assert.equal(units.length,2);
+  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
+  const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},leave(){},submit:order=>p.guestLive.submit(order)});
+  p.guestGame.testRefreshMap(map,1);
+  const before=p.guestGame.testHash();
+  map.choose({x:units[0].x,y:units[0].y});map.choose({x:units[1].x,y:units[1].y},true);
+  assert.deepEqual(Array.from(map.selection()),units.map(u=>u.id));
+  assert.equal(p.guestGame.testHash(),before,'selection is local display state');
+  map.choose(p.guestGame.testRallyPoint(1));
+  assert.equal(p.guestLive.snapshot().commandPending,true);
+  assert.equal(p.guestGame.testHash(),before,'movement waits for host execution');
+  for(let i=0;i<20;i++)await p.cycle();
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  for(const unit of units){
+    const moved=p.guestGame.testUnits(1).find(u=>u.id===unit.id);
+    assert.ok(Math.hypot(moved.x-unit.x,moved.y-unit.y)>.1);
+  }
+  p.guestGame.testRefreshMap(map,1);
+  map.control({7:true});map.control({0:true},{7:true});
+  for(let i=0;i<8;i++)await p.cycle();
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  for(const game of [p.hostGame,p.guestGame]){
+    for(const unit of units)assert.equal(game.testUnits(1).find(u=>u.id===unit.id).order,'i');
+  }
+});
+
 test('guest cannot move an opposing unit and malformed destinations never enter the uplink', async t=>{
   const p=await livePair(t);
   await p.hostLive.begin();await p.cycle();await p.cycle();

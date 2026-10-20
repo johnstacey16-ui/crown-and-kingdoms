@@ -191,10 +191,12 @@ coordinates scale to the map dimensions. Loaded/dead selections are discarded;
 the projection copies display data and never mutates the simulation.
 
 The controller follows the required Xbox button roles: the **left stick** moves
-the cursor and **A** selects/orders. **D-pad Up** selects an idle villager,
+the cursor and **A** selects/orders. Hold **LT** and press **A** on another owned
+unit to add it to the selection; ordinary A on a unit replaces the selection.
+**D-pad Up** selects an idle villager,
 **Right** a support unit, **Down** a completed town centre, and **Left** a military
-unit. This preview currently cycles individual entities rather than selecting
-whole groups. **B** closes the command menu or deselects; with no selection it
+unit. D-pad quick selection currently cycles individual entities rather than
+selecting whole groups. **B** closes the command menu or deselects; with no selection it
 returns focus to the surrounding controls.
 
 **Hold RT** to open the selected entity's limited command wheel; **A** confirms
@@ -205,7 +207,8 @@ removed. Unsupported Xbox functions are not assigned replacement bindings.
 The surrounding Previous/Next unit, Select town centre and Stop buttons remain
 available to pointer/accessibility navigation without claiming to be Xbox binds.
 
-Move, Stop, training and rally commands retain authenticated ownership checks,
+Grouped Move and Stop, single-building training and rally commands retain
+authenticated ownership checks,
 scheduled host execution, replay and checksum acknowledgements. Pending orders
 block another submission. No UI action optimistically changes units, food or
 queues. Stop preserves cargo and resources; stance remains unchanged.
@@ -218,7 +221,14 @@ not the command protocol.
 
 The required target for the whole game is documented in
 [../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
-single selection and existing setup buttons are still an incomplete preview.
+additive unit selection and existing setup buttons are still an incomplete preview.
+Hold-A boxes, double-A same-type selection, multiple-building selection and LT
+five-unit training batches remain unavailable. LT+A on empty space sends no order.
+Dead, loaded, removed or converted-away units are removed from the local selection;
+remaining members stay selected. Selection edits cannot bypass a pending command.
+Group command membership is copied at submission and executes only through the
+existing authenticated protocol. Oversized groups can be rejected by its limits;
+orders are never silently split or partially submitted by the map UI.
 LB groups, RB minimap, Y shortcuts, R3 priorities, full multiplayer menu pages, construction,
 combat and full visual/hardware parity remain outstanding. The relay still needs
 separate deployment.

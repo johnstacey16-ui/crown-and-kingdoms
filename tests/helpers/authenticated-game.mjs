@@ -24,6 +24,8 @@ function game(origin, preferences) {
     globalThis.testAi=()=>JSON.stringify(S.ai);
     globalThis.testHash=()=>window.CK_SIM_SYNC.worldCheckpoint(S,Math.round(S.t/DT)).hash;
     globalThis.testUnit=t=>{const u=S.us.find(u=>u.t===t&&u.k==='vil');return {id:u.netId,x:u.x,y:u.y,order:u.o};};
+    globalThis.testUnits=t=>S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld).map(u=>({id:u.netId,x:u.x,y:u.y,order:u.o}));
+    globalThis.testRefreshMap=(map,team,ready=true)=>map.refresh(S,team,W,H,ready);
     globalThis.testChangeFood=()=>{S.res[1].f++;};
     globalThis.testPreviewDefaults=()=>{startArmy=0;startVillagers=1;startAge=0;startRes=0;gameMode=0;vm=0;};
     globalThis.testControl=(button,held=[])=>{E=[];E[button]=true;P=held.slice();if(button===7)P[7]=true;window.CK_AUTH_LOBBY.control(1/30);E=[];P=[];};

@@ -15,9 +15,10 @@
   function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit'}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
-    let view=null,selected=null,cursor=null,enabled=false,wheel=false;
+    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false;
+    function setSelection(ids){selection=[...new Set(ids)];selected=selection[0]||null;}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. A selects; hold LT and press A on another unit to add it. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -25,13 +26,14 @@
       if(townButton)townButton.disabled=!view?.buildings.some(b=>b.rallyable);
       context.fillStyle='#090d16';context.fillRect(0,0,680,680);
       if(!view)return;
+      const chosen=new Set(selection);
       const sx=680/view.width,sy=680/view.height;
       context.strokeStyle='#1b2a3f';context.lineWidth=1;
       for(let cell=0;cell<=view.width;cell+=8){context.beginPath();context.moveTo(cell*sx,0);context.lineTo(cell*sx,680);context.stroke();}
       for(let cell=0;cell<=view.height;cell+=8){context.beginPath();context.moveTo(0,cell*sy);context.lineTo(680,cell*sy);context.stroke();}
       context.fillStyle='#c9a24a';
       for(const b of view.buildings){
-        context.fillStyle=b.id===selected?'#ffe78a':'#c9a24a';
+        context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';
         context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
         if(b.id===selected&&b.rally){
           context.strokeStyle='#ffe78a';context.beginPath();
@@ -41,8 +43,8 @@
         }
       }
       for(const u of view.units){
-        context.fillStyle=u.id===selected?'#ffe78a':'#73c9ff';context.beginPath();
-        context.arc(u.x*sx,u.y*sy,u.id===selected?6:4,0,Math.PI*2);context.fill();
+        context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();
+        context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();
       }
       if(cursor){
         const x=cursor.x*sx,y=cursor.y*sy;
@@ -54,44 +56,56 @@
         context.strokeStyle='#c9a24a';context.lineWidth=3;context.stroke();
         context.fillStyle='#fff';context.textAlign='center';context.font='22px system-ui';
         context.fillText('Command menu',340,302);
-        context.fillText(view.buildings.some(b=>b.id===selected&&b.rallyable)?'Train villager':'Stop',340,344);
+        context.fillText(view.buildings.some(b=>b.id===selected&&b.rallyable)?'Train villager':selection.length>1?'Stop '+selection.length+' units':'Stop',340,344);
         context.font='16px system-ui';context.fillText('Hold RT + A: confirm',340,384);
       }
     }
     function refresh(world,team,width,height,canCommand) {
       view=project(world,team,width,height);enabled=canCommand;
-      if(selected&&!view.units.some(u=>u.id===selected)&&!view.buildings.some(b=>b.id===selected&&b.rallyable))selected=null;
+      const previousCount=selection.length;
+      setSelection(selection.filter(id=>view.units.some(u=>u.id===id)||view.buildings.some(b=>b.id===id&&b.rallyable)));
+      if(selected&&selection.length!==previousCount)description.textContent=selection.length+' unit'+(selection.length===1?' remains':'s remain')+' selected. A orders at the cursor; hold RT for commands; B deselects.';
       if(!selected)wheel=false;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
       if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; A selects or orders; hold RT for commands. Enemy positions and terrain are not shown.';
       draw();
     }
-    function choose(point) {
-      if(wheel||!enabled||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
+    function choose(point,add=false) {
+      if(wheel||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
         point.x<0||point.y<0||point.x>=view.width||point.y>=view.height)return;
       cursor={x:point.x,y:point.y};
       const radius=Math.max(0.8,view.width*8/680);
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
-      if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. A orders at the cursor. Hold RT for commands; B deselects.';}
-      else if(town){selected=town.id;description.textContent='Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.';}
-      else if(selected){
+      if(nearest){
+        if(add&&view.buildings.some(b=>selection.includes(b.id))){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
+        setSelection(add?selection.concat(nearest.id):[nearest.id]);
+        description.textContent=selection.length>1?selection.length+' units selected. A orders the group at the cursor; hold RT for commands; B deselects.':
+          'Selected '+nameOf(nearest)+'. LT+A adds another unit. A orders at the cursor; hold RT for commands; B deselects.';
+      }
+      else if(town){
+        if(add&&selection.some(id=>id!==town.id)){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
+        setSelection([town.id]);description.textContent='Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.';
+      }
+      else if(add){description.textContent='LT+A adds an owned unit at the cursor; it does not issue a move order.';}
+      else if(selected&&enabled){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
-        const result=submit({type:rally?'rally':'move',entities:[selected],point:{...point}});
-        description.textContent=result.ok?(rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Wait for the previous order or select another entity.';
+        const result=submit({type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
+        description.textContent=result.ok?(rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
         if(result.ok)enabled=false;
-      }else description.textContent='Select one of your blue units or completed town centres first.';
+      }else if(selected)description.textContent='Wait for the previous order to execute.';
+      else description.textContent='Select one of your blue units or completed town centres first.';
       draw();
     }
-    function canStop() { return !!(enabled&&view&&view.units.some(u=>u.id===selected)); }
+    function canStop() { return !!(enabled&&view&&selection.length&&selection.every(id=>view.units.some(u=>u.id===id))); }
     function selectNext(direction,town=false,filter=()=>true) {
       const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units.filter(filter);
       if(!choices?.length)return;
       const at=choices.findIndex(e=>e.id===selected);
       const next=choices[at<0?(direction<0?choices.length-1:0):(at+direction+choices.length)%choices.length];
-      selected=next.id;wheel=false;
+      setSelection([next.id]);wheel=false;
       cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
       description.textContent=town?'Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.':
@@ -103,8 +117,8 @@
     }
     function stop() {
       if(!canStop())return;
-      const result=submit({type:'stop',entities:[selected]});
-      description.textContent=result.ok?'Stop submitted. The unit stops after host execution.':'Stop not submitted. Wait for the previous order.';
+      const result=submit({type:'stop',entities:selection.slice()});
+      description.textContent=result.ok?'Stop submitted. Selected units stop after host execution.':'Stop not submitted. Wait for the previous order.';
       if(result.ok)enabled=false;
       draw();
     }
@@ -124,7 +138,7 @@
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
       if(buttons[1]){
         if(wheel){wheel=false;description.textContent='Command menu closed.';draw();}
-        else if(selected){selected=null;description.textContent='Selection cleared.';draw();}
+        else if(selected){setSelection([]);description.textContent='Selection cleared.';draw();}
         else leave();
         return;
       }
@@ -139,18 +153,20 @@
       }
       // These buttons retain their Xbox roles. Unsupported preview functions
       // are left unavailable rather than assigned unrelated shortcuts.
-      if(held[4]||held[5]||held[6]||held[7]||held[3])return;
+      if(held[4]||held[5]||held[7]||held[3])return;
+      if(!held[6]){
       if(buttons[12]){selectNext(1,false,u=>(u.kind==='vil'||u.kind==='fish')&&u.idle);return;}
       if(buttons[15]){selectNext(1,false,u=>u.kind==='mon');return;}
       if(buttons[13]){selectNext(1,true);return;}
       if(buttons[14]){selectNext(1,false,u=>!['vil','fish','trn','king','mon','cart','cog'].includes(u.kind));return;}
+      }
       const delta=Number.isFinite(dt)?Math.min(.1,Math.max(0,dt)):0;
       const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
       cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
       cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
-      if(buttons[0])choose(cursor);else draw();
+      if(buttons[0])choose(cursor,!!held[6]);else draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;draw();},selected:()=>selected});
+    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;draw();},selected:()=>selected,selection:()=>selection.slice()});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

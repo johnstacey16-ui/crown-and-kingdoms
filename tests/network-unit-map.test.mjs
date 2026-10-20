@@ -197,3 +197,38 @@ test('D-pad categories use owned eligible entities and legacy shortcuts send no 
   f.map.choose({x:30,y:30});
   assert.equal(f.orders.length,0,'unsupported batch training and map clicks behind a wheel send no substitute orders');
 });
+
+test('LT+A adds distinct owned units and move/Stop use the complete selection without optimistic mutation',()=>{
+  const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:22,y:22});
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
+  f.map.control({0:true}); // Cursor starts at u2.
+  f.map.control({}, {6:true}, [1,0], .1);
+  f.map.control({0:true},{6:true});
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);
+  f.map.control({0:true},{6:true});assert.equal(f.map.selection().length,2,'no duplicates');
+  const copy=f.map.selection();copy.pop();assert.equal(f.map.selection().length,2,'selection API is copied');
+  f.map.choose({x:29,y:29});
+  assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u2','u5'],point:{x:29,y:29}}));
+  f.map.choose({x:20,y:22});f.map.choose({x:22,y:22},true);
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5'],'selection edits remain local while an order is pending');
+  assert.deepEqual(Array.from(f.orders[0].entities),['u2','u5'],'submitted membership is a snapshot');
+  f.map.control({7:true});f.map.control({0:true},{7:true});assert.equal(f.orders.length,1,'pending move blocks Stop');
+  f.map.refresh(source,1,32,32,true);f.map.control({});f.stopClick();
+  assert.equal(JSON.stringify(f.orders[1]),JSON.stringify({type:'stop',entities:['u2','u5']}));
+  assert.equal(JSON.stringify(source),before);
+});
+
+test('LT selection sends no empty-space order, keeps selection homogeneous and drops removed/loaded members',()=>{
+  const f=fixture(),source=world();source.bs[1].done=true;
+  source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28});
+  f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});f.map.choose({x:27,y:28},true);
+  f.map.choose({x:30,y:30},true);f.map.choose({x:18,y:18},true);
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);assert.equal(f.orders.length,0);
+  source.us[1].ld={};f.map.refresh(source,1,32,32,true);
+  assert.deepEqual(Array.from(f.map.selection()),['u5']);assert.equal(f.map.selected(),'u5');
+  source.us.at(-1).t=0;f.map.refresh(source,1,32,32,true);
+  assert.deepEqual(Array.from(f.map.selection()),[]);assert.equal(f.stopButton.disabled,true);
+  source.us[1].ld=null;f.map.refresh(source,1,32,32,true);
+  f.map.choose({x:18,y:18});f.map.choose({x:20,y:22},true);
+  assert.deepEqual(Array.from(f.map.selection()),['b2']);assert.equal(f.orders.length,0);
+});
