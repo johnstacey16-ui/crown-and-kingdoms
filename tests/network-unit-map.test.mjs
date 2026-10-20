@@ -90,25 +90,23 @@ test('completed own town centre submits rally without optimistic mutation and dr
   assert.equal(f.map.selected(),null);
 });
 
-test('keyboard/controller cursor can select town centre and submit a rally point',()=>{
+test('controller cursor can select town centre and submit a rally point',()=>{
   const f=fixture(),source=world();source.us=[];source.bs[1].done=true;
   f.map.refresh(source,1,32,32,true);
-  f.handlers.get('keydown')({key:'Enter',preventDefault(){}});
+  f.map.control({6:true});
   assert.equal(f.map.selected(),'b2');
   for(let i=0;i<5;i++)f.map.control({15:true});
   f.map.control({0:true});
-  assert.equal(f.orders[0].type,'rally');assert.equal(f.orders[0].point.x,23);
+  assert.equal(f.orders[0].type,'rally');assert.equal(f.orders[0].point.x,24.5);
 });
 
-test('button, S key and Y submit stop only for a ready selected unit without changing the world',()=>{
-  for(const input of ['button','keyboard','controller']){
+test('button and Y submit stop only for a ready selected unit without changing the world',()=>{
+  for(const input of ['button','controller']){
     const f=fixture(),source=world(),before=JSON.stringify(source);
     f.map.refresh(source,1,32,32,true);
     assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,0);
     f.map.choose({x:20,y:22});assert.equal(f.stopButton.disabled,false);
-    if(input==='button')f.stopClick();
-    else if(input==='keyboard')f.handlers.get('keydown')({key:'S',preventDefault(){}});
-    else f.map.control({3:true});
+    if(input==='button')f.stopClick();else f.map.control({3:true});
     assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'stop',entities:['u2']}]));
     assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,1);
     assert.equal(JSON.stringify(source),before);
@@ -132,19 +130,18 @@ test('quick selection wraps through only owned living units and centers the comm
   f.map.control({3:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
 });
 
-test('keyboard shortcuts and town button select without sending orders and recover from removed units',()=>{
+test('controller D-pad and town button select without orders and recover from removed units',()=>{
   const f=fixture(),source=world();source.bs[1].done=true;
-  const key=key=>f.handlers.get('keydown')({key,preventDefault(){}});
   f.map.refresh(source,1,32,32,true);
-  key('e');assert.equal(f.map.selected(),'u2');
-  key('T');assert.equal(f.map.selected(),'b2');
-  key('Q');assert.equal(f.map.selected(),'u2');
+  f.map.control({5:true});assert.equal(f.map.selected(),'u2');
+  f.townButton.click();assert.equal(f.map.selected(),'b2');
+  f.map.control({4:true});assert.equal(f.map.selected(),'u2');
   f.townButton.click();assert.equal(f.map.selected(),'b2');
   f.map.control({6:true});assert.equal(f.map.selected(),'b2');
   source.us[1].hp=0;f.map.refresh(source,1,32,32,true);
   assert.equal(f.nextButton.disabled,true);assert.equal(f.previousButton.disabled,true);
-  key('e');assert.equal(f.map.selected(),'b2');
+  f.townButton.click();assert.equal(f.map.selected(),'b2');
   source.bs[1].done=false;f.map.refresh(source,1,32,32,true);
   assert.equal(f.map.selected(),null);assert.equal(f.townButton.disabled,true);
-  key('t');assert.equal(f.orders.length,0);
+  f.map.control({6:true});assert.equal(f.orders.length,0);
 });

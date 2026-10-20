@@ -17,7 +17,7 @@
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,cursor=null,enabled=false;
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. LB/RB or Q/E selects previous/next unit; LT or T selects a town centre. D-pad moves the cursor, A selects or orders, Y or S stops a unit, X clears, B leaves the map.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Use LB/RB to select your previous or next unit; LT selects your town centre. Use the D-pad to move the cursor, A to select or order, Y to stop, X to clear selection, and B to return to the lobby controls.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -66,7 +66,7 @@
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
-      if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. Choose a destination, Y or S stops, X clears selection.';}
+      if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. Choose a destination, Y stops, X clears selection.';}
       else if(town){selected=town.id;description.textContent='Town centre selected. Choose a rally point for newly trained units; X clears selection.';}
       else if(selected){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
@@ -86,7 +86,7 @@
       cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
       description.textContent=town?'Town centre selected. Choose a rally point for newly trained units.':
-        'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). Choose a destination, Y or S stops, X clears selection.';
+        'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). Choose a destination, Y stops, X clears selection.';
       canvas.focus();draw();
     }
     for(const [button,direction,town] of [[previousButton,-1,false],[nextButton,1,false],[townButton,1,true]]){
@@ -117,10 +117,6 @@
       if(buttons[15])cursor.x=Math.min(view.width-0.01,cursor.x+1);
       if(buttons[0])choose(cursor);else draw();
     }
-    canvas.addEventListener('keydown',event=>{
-      const key={ArrowUp:12,ArrowDown:13,ArrowLeft:14,ArrowRight:15,Enter:0,' ':0,x:2,X:2,s:3,S:3,q:4,Q:4,e:5,E:5,t:6,T:6};
-      if(Object.hasOwn(key,event.key)){event.preventDefault();const buttons=[];buttons[key[event.key]]=true;control(buttons);}
-    });
     return Object.freeze({refresh,control,choose,selected:()=>selected});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});

@@ -187,7 +187,7 @@ resources, terrain and the shared team-zero fog array are not exposed by this UI
 Blue dots are owned units; gold rectangles are owned buildings.
 
 Click a unit and then a destination to submit one typed move order. With the map
-focused, D-pad or arrow keys move its cursor; A or Enter selects/orders, X clears
+focused, the D-pad moves its cursor; A selects/orders, X clears
 selection, and B returns to the surrounding controls. Menu still leaves the
 preview. Pointer coordinates are scaled to the actual map dimensions, including
 small/mobile canvases. Loaded/dead selections are discarded. The projection
@@ -209,8 +209,7 @@ rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
 remain outstanding. The Node relay still requires separate deployment.
 
 
-Select a unit and choose **Stop selected unit**, press **S** on the keyboard, or
-**Y** on a controller while the map has focus. Stop is available only for a
+Select a unit and press **Y** on the controller, or choose **Stop selected unit**. Stop is available only for a
 selected living, ungarrisoned unit when no order is pending. It uses scheduled
 host execution, not immediate local mutation. It clears movement/work, patrol,
 retreat, guard and unload orders, disables automatic work/scouting, and pauses
@@ -219,9 +218,9 @@ so units can still react to enemies according to that stance. X only clears the
 selection; it does not stop the unit.
 
 
-Use **Previous unit** / **Next unit**, **Q/E**, or controller **LB/RB** to cycle
-through your living, ungarrisoned units. **Select town centre**, **T**, or **LT**
-cycles your completed town centres. These controls place the cursor on the
+Use **Previous unit** / **Next unit** or controller **LB/RB** to cycle
+through your living, ungarrisoned units. **Select town centre** or controller
+**LT** selects your completed town centre. These controls place the cursor on the
 selected entity and return focus to the map. Cycling wraps at either end and
 never selects an opponent. Selection itself sends no order, including while a
 previous order is pending; command submission still waits for readiness.
