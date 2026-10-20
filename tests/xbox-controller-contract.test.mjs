@@ -213,3 +213,82 @@ test('minimap overlay and controller help advertise Y for camera focus',()=>{
   assert.ok(c.helpText.some(s=>s.includes('Y jumps there')));
   assert.equal(c.helpText.some(s=>s.includes('A: jump camera')||s.includes('A or Y jumps there')),false);
 });
+
+function buildFixture(){
+  const c=fixture();
+  vm.runInContext(`
+    setSize(32);S.age=[3,3];S.tech=[{},{}];S.res=[{f:1000,w:1000,g:1000,s:1000},{f:1000,w:1000,g:1000,s:1000}];
+    S.g=new Uint8Array(W*H);S.wt=new Uint8Array(W*H);S.ex=new Uint8Array(W*H).fill(1);S.nd=[];S.nodes=[];
+    globalThis.worker={netId:'worker',k:'vil',t:0,hp:25,x:10,y:10,o:'i'};S.us=[worker];S.sel=[worker];
+    ysc.vb='farm';const p=w2s(12,12);cur={x:p[0],y:p[1]};pick=()=>null;
+    globalThis.addMill=(extra={})=>{const b={netId:'mill',k:'mill',t:0,hp:100,done:true,q:[],x:4,y:4,s:2,...extra};S.bs.push(b);return b;};
+    globalThis.chooseFarm=()=>{menu.i=menu.items.findIndex(it=>it.l===B.farm.n);return menu.items[menu.i].lk;};
+    globalThis.buildState=()=>JSON.stringify({place:place&&{...place},wood:S.res[0].w,
+      farms:S.nodes.filter(n=>n.fm).map(n=>({owner:n.t,food:n.amt})),buildings:S.bs.length,
+      workers:S.us.map(u=>({id:u.netId,order:u.o,target:u.tg?.k||null})),notes:notes.map(n=>n.s)});
+  `,c);
+  return {c,run:code=>vm.runInContext(code,c),state:()=>JSON.parse(c.buildState())};
+}
+function farmShortcut(c){c.run(button(3),button(3));c.run([],[],button(3));}
+
+test('farm shortcut and RT menu require a currently living completed owned Mill without spending resources',()=>{
+  for(const route of ['shortcut','wheel'])for(const condition of ['missing','foreign','unfinished','dead']){
+    const f=buildFixture();
+    if(condition!=='missing')f.run(`addMill(${JSON.stringify({foreign:{t:1},unfinished:{done:false},dead:{hp:0}}[condition])});`);
+    if(route==='shortcut')farmShortcut(f.c);
+    else{
+      f.c.run(button(7),button(7));assert.equal(f.c.chooseFarm(),'Needs Mill');
+      f.c.run(button(0),button(7));
+    }
+    assert.equal(f.state().place,null,route+' '+condition);
+    assert.equal(f.state().wood,1000);assert.equal(f.state().farms.length,0);
+    assert.ok(f.state().notes.includes('Needs Mill'));
+  }
+});
+
+test('build menu rechecks Mill completion and ownership when A confirms its farm entry',()=>{
+  for(const change of ['mill.hp=0','mill.t=1','S.bs=[]','worker.ld={}']){
+    const f=buildFixture();f.run('globalThis.mill=addMill();');
+    f.c.run(button(7),button(7));assert.equal(f.c.chooseFarm(),'');
+    f.run(change);
+    if(change!=='worker.ld={}')assert.equal(f.c.chooseFarm(),'Needs Mill','menu lock follows the current prerequisite');
+    f.c.run(button(0),button(7));
+    assert.equal(f.state().place,null,change);assert.equal(f.state().wood,1000,change);
+  }
+  const f=buildFixture();f.c.run(button(7),button(7));assert.equal(f.c.chooseFarm(),'Needs Mill');
+  f.run('addMill();');assert.equal(f.c.chooseFarm(),'');f.c.run(button(0),button(7));
+  assert.equal(f.state().place.k,'farm','a newly completed Mill unlocks the existing menu entry');
+});
+
+test('farm preview rechecks prerequisites at placement and valid placement charges once with researched farm capacity',()=>{
+  const f=buildFixture();f.run('globalThis.mill=addMill();S.tech[0].coll=1;');farmShortcut(f.c);
+  assert.equal(f.state().place.k,'farm');assert.equal(f.state().wood,1000);
+  f.run('mill.hp=0;');f.c.run(button(0),button(0));
+  assert.equal(f.state().place.ok,false);assert.equal(f.state().wood,1000);assert.equal(f.state().farms.length,0);
+  f.run('mill.hp=100;');f.c.run(button(0),button(0));
+  assert.equal(f.state().place,null);assert.equal(f.state().wood,940);
+  assert.deepEqual(f.state().farms,[{owner:0,food:250}]);
+  assert.deepEqual(f.state().workers,[{id:'worker',order:'g',target:'f'}]);
+});
+
+test('invalid selected villagers cannot start shortcuts or receive building orders, and no available builder means no charge',()=>{
+  for(const change of ['worker.hp=0','worker.ld={}','worker.t=1','S.us=[]']){
+    const f=buildFixture();f.run('addMill();');f.run(change);farmShortcut(f.c);
+    assert.equal(f.state().place,null,change);assert.equal(f.state().wood,1000);
+    // A previously opened placement must also reject loss of its builders.
+    f.run("place={k:'farm'};");f.c.run(button(0),button(0));
+    assert.equal(f.state().wood,1000,change);assert.equal(f.state().farms.length,0,change);
+  }
+});
+
+test('house shortcut remains available without a Mill and placement excludes invalid workers from the build order',()=>{
+  const f=buildFixture();
+  f.run(`
+    ysc.vb='house';
+    const dead={...worker,netId:'dead',hp:0},loaded={...worker,netId:'loaded',ld:{}},foreign={...worker,netId:'foreign',t:1};
+    S.us.push(dead,loaded,foreign);S.sel=[worker,worker,dead,loaded,foreign];
+  `);
+  farmShortcut(f.c);assert.equal(f.state().place.k,'house');f.c.run(button(0),button(0));
+  assert.equal(f.state().wood,975);assert.equal(f.state().buildings,1);
+  assert.deepEqual(f.state().workers.map(u=>u.order),['b','i','i','i']);
+});

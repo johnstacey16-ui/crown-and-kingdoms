@@ -95,7 +95,7 @@ const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mi
 const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
 const focus=a=>ctr(a.x+(a.s||0)/2,a.y+(a.s||0)/2);
-function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u.t===0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
+function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
 function quickSelectionChoices(k){
 if(k==='idle')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&(u.k==='vil'||u.k==='fish')&&u.o==='i');
 if(k==='support')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='mon');
@@ -111,8 +111,9 @@ if(t&&t.t===0&&now-lastTap<350&&lastTapK===t.k&&!add){const l=t.q?S.bs.filter(b=
 lastTap=now;lastTapK=t&&t.k;
 if(t&&t.t===0&&!(t.q&&(!t.done||t.hp<t.mh)&&S.sel.some(u=>u.k==='vil'))){S.sel=add?(S.sel.includes(t)?S.sel:S.sel.concat([t])):[t];ack(t)}
 else if(!orderSel(t,wx,wy))note('Select your units first (A on a unit)')}
-const bLock=k=>{const d=B[k];return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:d.req&&!S.bs.some(b=>b.t===0&&b.k===d.req&&b.done)?'Needs '+B[d.req].n:''};
-function yShort(cyc){const s=S.sel;if(!s.length)return note('Select villagers, a building or soldiers for the Y shortcut');
+const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';const req=k==='farm'?'mill':d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
+function selectedBuilders(){return controlGroupMembers(S.sel).filter(u=>u.k==='vil'&&S.us.includes(u))}
+function yShort(cyc){const s=controlGroupMembers(S.sel);if(!s.length)return note('Select villagers, a building or soldiers for the Y shortcut');
 if(s.some(u=>u.k==='vil')){const L=ECO.concat(['bar','rng','stable','siege','smith','univ','castle','tower','monastery']);if(cyc){const i=L.indexOf(ysc.vb);ysc.vb=L[(i+1)%L.length];return note('Y builds: '+B[ysc.vb].n)}const k=ysc.vb,lk=bLock(k);if(lk)return note(lk);if(!can(0,B[k].cost))return note('Not enough resources');place={k};return}
 const b=s[0];if(b.q){if(!b.done)return;const l=trOf(b);if(!l.length)return note('Nothing to train here');let i=ysc.tb[b.k]|0;if(cyc){ysc.tb[b.k]=(i+1)%l.length;return note('Y trains: '+unitName(l[ysc.tb[b.k]],b.t))}const k=l[i%l.length];if(U[k].age>S.age[0])return note('Requires '+AG[U[k].age].n);const ok=trainSelection(b,k,P[6]?5:1);if(ok)note(unitName(k,b.t)+(ok>1?' x'+ok:'')+' queued');return}
 fm=(fm+1)%FMN.length;note('Formation: '+FMN[fm])}
@@ -135,8 +136,8 @@ if(menu){const m=menu,N=m.items.length,pr=m.pr||Array.from({length:Math.ceil(N/1
 if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;m.i=a0+Math.floor(a/6.2832*n+.5)%n}else if(m.i<a0||m.i>=a0+n)m.i=a0;
 if(E[3])yc=1;if(RE[7]&&m.rad){menu=null;return}if(E[0]){m.items[m.i].fn();return}if(E[2]&&m.b)cancelQ(m.b);if(E[3]&&pr.length>1){m.pg=(pg+1)%pr.length;m.i=pr[m.pg][0]}if(E[1])menu=null;return}
 if(pat){if(E[1])pat=0;else if(E[0]){if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}return}
-if(place){if(E[1]){place=null;return}const s=B[place.k].s;place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=okPlace(0,place.k,place.x,place.y)&&can(0,B[place.k].cost);
-if(E[0]){const k=place.k,d=B[k];if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');pay(0,d.cost);let vs=S.sel.filter(u=>u.k==='vil');if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}
+if(place){if(E[1]){place=null;return}const s=B[place.k].s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=!lock&&okPlace(0,place.k,place.x,place.y)&&can(0,B[place.k].cost);
+if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');pay(0,d.cost);
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);if(n)n.t=0;for(const u of vs){u.o='g';u.tg=n;u.ct='f';u.p=[];u.ret=0;u.car=0}}else{const b=addB(0,k,place.x,place.y,false);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){ov=1;aDown=null;boxR=null;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cgo={sel:-1,done:0};yc=1;aDown=null;boxR=null;return}
