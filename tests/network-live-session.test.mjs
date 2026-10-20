@@ -103,14 +103,16 @@ test('host and guest move their own villagers over HTTP with identical positions
   }
 });
 
-test('guest map group movement and Stop execute over HTTP with matching world hashes',async t=>{
+test('guest double-A map selection moves and stops its same-type group over HTTP with matching world hashes',async t=>{
   const p=await livePair(t);await p.hostLive.begin();await p.cycle();await p.cycle();
-  const units=Array.from(p.guestGame.testUnits(1)).slice(0,2);assert.equal(units.length,2);
+  const units=Array.from(p.guestGame.testUnits(1));assert.ok(units.length>=2);
   const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
-  const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},leave(){},submit:order=>p.guestLive.submit(order)});
+  let time=1000;
+  const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},leave(){},now:()=>time,submit:order=>p.guestLive.submit(order)});
   p.guestGame.testRefreshMap(map,1);
   const before=p.guestGame.testHash();
-  map.choose({x:units[0].x,y:units[0].y});map.choose({x:units[1].x,y:units[1].y},true);
+  map.choose({x:units[0].x,y:units[0].y});
+  map.control({0:true});map.control({},{});time+=200;map.control({0:true});
   assert.deepEqual(Array.from(map.selection()),units.map(u=>u.id));
   assert.equal(p.guestGame.testHash(),before,'selection is local display state');
   map.choose(p.guestGame.testRallyPoint(1));

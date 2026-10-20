@@ -12,13 +12,13 @@
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:b.k==='tc'&&!!b.done,rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
   }
-  function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit'}) {
+  function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit',now=()=>Date.now()}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
-    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false;
+    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,lastTap=null;
     function setSelection(ids){selection=[...new Set(ids)];selected=selection[0]||null;}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. A selects; hold LT and press A on another unit to add it. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. A selects; double A on a unit selects all your visible units of that type. Hold LT to add to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -61,7 +61,9 @@
       }
     }
     function refresh(world,team,width,height,canCommand) {
+      if(view&&(view.team!==team||view.width!==width||view.height!==height))lastTap=null;
       view=project(world,team,width,height);enabled=canCommand;
+      if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind))lastTap=null;
       const previousCount=selection.length;
       setSelection(selection.filter(id=>view.units.some(u=>u.id===id)||view.buildings.some(b=>b.id===id&&b.rallyable)));
       if(selected&&selection.length!==previousCount)description.textContent=selection.length+' unit'+(selection.length===1?' remains':'s remain')+' selected. A orders at the cursor; hold RT for commands; B deselects.';
@@ -71,7 +73,8 @@
       if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; A selects or orders; hold RT for commands. Enemy positions and terrain are not shown.';
       draw();
     }
-    function choose(point,add=false) {
+    function choose(point,add=false,controller=false) {
+      const previousTap=lastTap;lastTap=null;
       if(wheel||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
         point.x<0||point.y<0||point.x>=view.width||point.y>=view.height)return;
       cursor={x:point.x,y:point.y};
@@ -81,9 +84,15 @@
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
       if(nearest){
         if(add&&view.buildings.some(b=>selection.includes(b.id))){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
-        setSelection(add?selection.concat(nearest.id):[nearest.id]);
+        const at=controller&&!add?now():0;
+        // The gesture is on the same unit, not two unrelated A selections.
+        // This provisional window still needs comparison with physical Xbox.
+        const double=controller&&!add&&previousTap&&previousTap.id===nearest.id&&previousTap.kind===nearest.kind&&at>=previousTap.at&&at-previousTap.at<=350;
+        const ids=double?view.units.filter(u=>u.kind===nearest.kind).map(u=>u.id):[nearest.id];
+        setSelection(add?selection.concat(ids):ids);
+        if(controller&&!add&&!double)lastTap={id:nearest.id,kind:nearest.kind,at};
         description.textContent=selection.length>1?selection.length+' units selected. A orders the group at the cursor; hold RT for commands; B deselects.':
-          'Selected '+nameOf(nearest)+'. LT+A adds another unit. A orders at the cursor; hold RT for commands; B deselects.';
+          'Selected '+nameOf(nearest)+'. Double A selects visible units of this type; LT+A adds another unit. A orders at the cursor; hold RT for commands; B deselects.';
       }
       else if(town){
         if(add&&selection.some(id=>id!==town.id)){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
@@ -101,6 +110,7 @@
     }
     function canStop() { return !!(enabled&&view&&selection.length&&selection.every(id=>view.units.some(u=>u.id===id))); }
     function selectNext(direction,town=false,filter=()=>true) {
+      lastTap=null;
       const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units.filter(filter);
       if(!choices?.length)return;
       const at=choices.findIndex(e=>e.id===selected);
@@ -116,6 +126,7 @@
       if(button){button.disabled=true;button.addEventListener('click',()=>selectNext(direction,town));}
     }
     function stop() {
+      lastTap=null;
       if(!canStop())return;
       const result=submit({type:'stop',entities:selection.slice()});
       description.textContent=result.ok?'Stop submitted. Selected units stop after host execution.':'Stop not submitted. Wait for the previous order.';
@@ -123,6 +134,7 @@
       draw();
     }
     function train() {
+      lastTap=null;
       if(!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
       const result=submit({type:'train',entities:[selected],value:'vil'});
       description.textContent=result.ok?'Villager training submitted. Resources and queue change only after host execution.':'Training not submitted. Wait for the previous order.';
@@ -130,12 +142,14 @@
       draw();
     }
     if(stopButton){stopButton.disabled=true;stopButton.addEventListener('click',stop);}
+    canvas.addEventListener('blur',()=>{lastTap=null;wheel=false;draw();});
     canvas.addEventListener('click',event=>{
       const bounds=canvas.getBoundingClientRect();
       if(!view||bounds.width<=0||bounds.height<=0)return;
       canvas.focus();choose({x:(event.clientX-bounds.left)*view.width/bounds.width,y:(event.clientY-bounds.top)*view.height/bounds.height});
     });
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
+      if(Object.keys(buttons).some(key=>buttons[key]&&key!=='0'&&key!=='6'))lastTap=null;
       if(buttons[1]){
         if(wheel){wheel=false;description.textContent='Command menu closed.';draw();}
         else if(selected){setSelection([]);description.textContent='Selection cleared.';draw();}
@@ -153,7 +167,7 @@
       }
       // These buttons retain their Xbox roles. Unsupported preview functions
       // are left unavailable rather than assigned unrelated shortcuts.
-      if(held[4]||held[5]||held[7]||held[3])return;
+      if(held[4]||held[5]||held[7]||held[3]){lastTap=null;return;}
       if(!held[6]){
       if(buttons[12]){selectNext(1,false,u=>(u.kind==='vil'||u.kind==='fish')&&u.idle);return;}
       if(buttons[15]){selectNext(1,false,u=>u.kind==='mon');return;}
@@ -164,9 +178,9 @@
       const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
       cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
       cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
-      if(buttons[0])choose(cursor,!!held[6]);else draw();
+      if(buttons[0])choose(cursor,!!held[6],true);else draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;draw();},selected:()=>selected,selection:()=>selection.slice()});
+    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;lastTap=null;draw();},selected:()=>selected,selection:()=>selection.slice()});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

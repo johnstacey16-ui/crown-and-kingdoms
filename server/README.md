@@ -222,8 +222,13 @@ not the command protocol.
 The required target for the whole game is documented in
 [../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
 additive unit selection and existing setup buttons are still an incomplete preview.
-Hold-A boxes, double-A same-type selection, multiple-building selection and LT
-five-unit training batches remain unavailable. LT+A on empty space sends no order.
+Unmodified double-A on the same unit selects every owned, living, ungarrisoned
+unit of its type visible on this map. LT+A retains individual additive selection;
+the unverified LT/double-A combination does not expand the type.
+The 350 ms double-tap window still needs physical Xbox comparison. Menus,
+quick selection and pointer actions reset the gesture. Hold-A boxes,
+multiple-building selection and LT five-unit training batches remain unavailable.
+LT+A on empty space sends no order.
 Dead, loaded, removed or converted-away units are removed from the local selection;
 remaining members stay selected. Selection edits cannot bypass a pending command.
 Group command membership is copied at submission and executes only through the

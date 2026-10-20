@@ -13,7 +13,7 @@ const world=()=>({teamN:2,us:[
   {netId:'u4',t:1,k:'vil',hp:25,x:21,y:22,ld:{}}
 ],bs:[{netId:'b1',t:0,k:'tc',hp:100,x:3,y:3,s:3},{netId:'b2',t:1,k:'tc',hp:100,x:18,y:18,s:3}],
   res:[{f:100},{f:200}],vs:new Uint8Array(32*32),nodes:[{x:19,y:19,k:'g'}]});
-function fixture() {
+function fixture(options={}) {
   const handlers=new Map(),orders=[];
   const navigation={};
   for(const key of ['previousButton','nextButton','townButton'])navigation[key]={disabled:false,addEventListener(name,fn){this[name]=fn;}};
@@ -23,7 +23,7 @@ function fixture() {
     addEventListener:(name,fn)=>handlers.set(name,fn),focus(){},
     getBoundingClientRect:()=>({left:100,top:50,width:340,height:340})};
   const description={textContent:''};
-  const map=api.create({canvas,description,stopButton,...navigation,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
+  const map=api.create({canvas,description,stopButton,...navigation,...options,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
   return {map,handlers,orders,description,canvas,stopButton,...navigation,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
 }
 
@@ -231,4 +231,69 @@ test('LT selection sends no empty-space order, keeps selection homogeneous and d
   source.us[1].ld=null;f.map.refresh(source,1,32,32,true);
   f.map.choose({x:18,y:18});f.map.choose({x:20,y:22},true);
   assert.deepEqual(Array.from(f.map.selection()),['b2']);assert.equal(f.orders.length,0);
+});
+
+test('double A selects all visible owned eligible units of the same type and submits their group',()=>{
+  let time=1000;const f=fixture({now:()=>time}),source=world();
+  source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28},
+    {netId:'monk',t:1,k:'mon',hp:25,x:28,y:28},
+    {netId:'outside',t:1,k:'vil',hp:25,x:33,y:22});
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
+  f.map.control({0:true});assert.deepEqual(Array.from(f.map.selection()),['u2']);
+  f.map.control({},{});time+=200;f.map.control({0:true});
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);assert.equal(f.orders.length,0);
+  f.map.choose({x:30,y:30});
+  assert.deepEqual(Array.from(f.orders[0].entities),['u2','u5']);
+  f.map.control({0:true});time+=100;f.map.control({0:true});
+  assert.equal(f.orders.length,1,'pending move remains guarded');
+  assert.equal(JSON.stringify(source),before);
+});
+
+test('double A expires and is cancelled by menus, quick selection, pointer selection and removed targets',()=>{
+  for(const interrupt of ['timeout','suspend','blur','B','RT','dpad','pointer','removed','team']){
+    let time=1000;const f=fixture({now:()=>time}),source=world();
+    source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28});
+    f.map.refresh(source,1,32,32,true);f.map.control({0:true});time+=100;
+    if(interrupt==='timeout')time+=400;
+    if(interrupt==='suspend')f.map.suspend();
+    if(interrupt==='blur')f.handlers.get('blur')();
+    if(interrupt==='B')f.map.control({1:true});
+    if(interrupt==='RT'){f.map.control({7:true});f.map.control({});}
+    if(interrupt==='dpad')f.map.control({12:true});
+    if(interrupt==='pointer')f.map.choose({x:20,y:22});
+    if(interrupt==='removed'){
+      source.us[1].ld={};f.map.refresh(source,1,32,32,true);
+      source.us[1].ld=null;f.map.refresh(source,1,32,32,true);
+    }
+    if(interrupt==='team'){f.map.refresh(source,0,32,32,true);f.map.refresh(source,1,32,32,true);}
+    f.map.control({0:true});
+    assert.deepEqual(Array.from(f.map.selection()),['u2'],interrupt);
+    assert.equal(f.orders.length,0,interrupt);
+  }
+});
+
+test('two quick A presses on different units remain individual selections',()=>{
+  let time=1000;const f=fixture({now:()=>time}),source=world();
+  source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:21.92,y:22});
+  f.map.refresh(source,1,32,32,true);f.map.control({0:true});
+  f.map.control({}, {}, [1,0],.1);time+=100;f.map.control({0:true});
+  assert.deepEqual(Array.from(f.map.selection()),['u5']);assert.equal(f.orders.length,0);
+});
+
+test('double A stays local while pending, excludes converted members, and LT retains individual selection',()=>{
+  let time=1000;const f=fixture({now:()=>time}),source=world();source.bs[1].done=true;
+  source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28},
+    {netId:'monk',t:1,k:'mon',hp:25,x:28,y:28});
+  f.map.refresh(source,1,32,32,false);f.map.control({0:true});time+=100;
+  source.us.find(u=>u.netId==='u5').t=0;
+  f.map.refresh(source,1,32,32,false);f.map.control({0:true});
+  assert.deepEqual(Array.from(f.map.selection()),['u2']);assert.equal(f.orders.length,0);
+  source.us.find(u=>u.netId==='u5').t=1;
+  f.map.refresh(source,1,32,32,false);f.map.control({0:true});time+=100;f.map.control({0:true});
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);assert.equal(f.orders.length,0);
+  f.map.choose({x:28,y:28});f.map.choose({x:20,y:22},true);
+  f.map.control({0:true},{6:true});time+=100;f.map.control({0:true},{6:true});
+  assert.deepEqual(Array.from(f.map.selection()),['monk','u2'],'LT keeps verified individual additive selection');
+  f.map.choose({x:18,y:18});f.map.control({0:true},{6:true});time+=100;f.map.control({0:true},{6:true});
+  assert.deepEqual(Array.from(f.map.selection()),['b2'],'no substitute multi-building orders');
 });
