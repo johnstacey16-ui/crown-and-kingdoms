@@ -1,12 +1,23 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
+import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { createApplication } from '../../server/app.mjs';
 
 const output='artifacts/battlefield-art';
 await mkdir(output,{recursive:true});
-const server=createApplication();server.listen(0,'127.0.0.1');await once(server,'listening');
+const application=createApplication();
+let staleManifest=false;
+const server=createServer((req,res)=>{
+ if(staleManifest&&req.url.startsWith('/assets/atlas-manifest.json')){
+  staleManifest=false;
+  res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'public, max-age=31536000'});
+  res.end('{"atlases":[]}');return;
+ }
+ application.emit('request',req,res);
+});
+server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({headless:true});
 const errors=[];
@@ -118,6 +129,24 @@ try{
   for(let i=0;i<60;i++)artMap.refresh(S,0,W,H,true);
   return {frames:60,averageMs:(performance.now()-begin)/60};
  });
+ // Reproduce an existing player with a stale HTTP manifest and an old SVG shell cache.
+ staleManifest=true;
+ const upgrade=await browser.newPage({viewport:{width:960,height:850}});
+ upgrade.on('pageerror',error=>errors.push(error.message));
+ await upgrade.goto(origin,{waitUntil:'networkidle'});
+ assert.equal(await upgrade.evaluate(()=>ASSET.n),0,'fixture primes an obsolete HTTP-cached manifest');
+ const migrated=await upgrade.evaluate(async()=>{
+  const cache=await caches.open('ck-shell-v9');
+  await cache.put(new URL('/assets/trade-atlas.svg',location.origin),new Response('obsolete artwork'));
+  await navigator.serviceWorker.register('/sw.js');
+  await navigator.serviceWorker.ready;
+  if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));
+  return !(await caches.keys()).includes('ck-shell-v9');
+ });
+ assert.equal(migrated,true,'activation removes old cached SVG artwork');
+ await upgrade.reload({waitUntil:'networkidle'});
+ await upgrade.waitForFunction(expected=>ASSET.n===expected,diagnostics.length);
+ const cacheUpgrade={oldShellRemoved:migrated,loaded:await upgrade.evaluate(()=>ASSET.n)};
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
  fallback.on('pageerror',error=>errors.push(error.message));
  await fallback.route('**/assets/*atlas.svg',route=>route.abort());
@@ -131,8 +160,8 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,timing,fallbackColours:colours},null,2));
- console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation and failed-image fallback passed');
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{
  await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
