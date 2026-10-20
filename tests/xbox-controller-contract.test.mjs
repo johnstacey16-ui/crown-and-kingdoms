@@ -17,7 +17,7 @@ function fixture() {
     globalThis.run=(edges=[],held=[],released=[])=>{E=edges;P=held;RE=released;playCtl(0);};
     globalThis.state=()=>({selection:S.sel.map(e=>e.netId),automation:S.vp.enabled,zoom:zm,
       groups:(S.cg||[]).map(g=>g.map(e=>e.netId)),radial:cgo?.sel??null,camera:{...cam},formation:fm,
-      overview:ov,filter:mmF,mapMode:mmM,flare:S.flare,gesture:!!aDown,box:!!boxR});
+      overview:ov,filter:mmF,mapMode:mmM,flare:S.flare,gesture:!!aDown,box:!!boxR,shortcutHeld:yDown,shortcut:ysc.vb});
   `,sandbox);
   return sandbox;
 }
@@ -224,7 +224,7 @@ function buildFixture(){
     ysc.vb='farm';const p=w2s(12,12);cur={x:p[0],y:p[1]};pick=()=>null;
     globalThis.addMill=(extra={})=>{const b={netId:'mill',k:'mill',t:0,hp:100,done:true,q:[],x:4,y:4,s:2,...extra};S.bs.push(b);return b;};
     globalThis.chooseFarm=()=>{menu.i=menu.items.findIndex(it=>it.l===B.farm.n);return menu.items[menu.i].lk;};
-    globalThis.buildState=()=>JSON.stringify({place:place&&{...place},wood:S.res[0].w,
+    globalThis.buildState=()=>JSON.stringify({place:place&&{...place},wood:S.res[0].w,food:S.res[0].f,queued:S.bs.reduce((n,b)=>n+(b.q?.length||0),0),
       farms:S.nodes.filter(n=>n.fm).map(n=>({owner:n.t,food:n.amt})),buildings:S.bs.length,
       workers:S.us.map(u=>({id:u.netId,order:u.o,target:u.tg?.k||null})),notes:notes.map(n=>n.s)});
   `,c);
@@ -406,4 +406,68 @@ test('Y opening a build preview on the same frame as A release cannot execute th
   f.c.run([],[],Object.assign(button(0),{3:true}));
   assert.equal(f.state().place.k,'house');assert.equal(f.c.state().gesture,false);
   assert.equal(f.c.orders,0);assert.equal(f.state().wood,1000);
+});
+
+test('Y shortcut requires a gameplay press; orphan releases and held-Y cycling cannot build',()=>{
+  const f=buildFixture();f.run("ysc.vb='house';");
+  f.c.run([],[],button(3));assert.equal(f.state().place,null);
+  f.c.run(button(14),button(3));
+  assert.equal(f.c.state().shortcut,'house','held Y without a gameplay press cannot change the shortcut');
+  farmShortcut(f.c);assert.equal(f.state().place.k,'house');assert.equal(f.state().wood,1000);
+});
+
+test('menus, quick selection, B, focus and controller loss consume a held Y shortcut until a fresh press',()=>{
+  for(const interruption of ['RT','LB','RB','Dpad','View','B','Menu','non-play','blur','disconnect','poll-loss']){
+    const f=buildFixture();f.run("ysc.vb='house';pad.index=0;saveG=()=>true;");
+    f.c.run(button(3),button(3));assert.equal(f.c.state().shortcutHeld,true);
+    const key={RT:7,LB:4,RB:5,Dpad:12,View:8,B:1}[interruption];
+    if(key!==undefined){
+      if(interruption==='Dpad')f.run("qsel('idle');"); // Also covers context changes initiated outside the held-Y handler.
+      else f.c.run(button(key),Object.assign(button(3),{[key]:true}));
+    }
+    if(interruption==='Menu')f.run('E=[];E[9]=true;P=[];P[3]=true;RE=[];ctl(0);');
+    if(interruption==='non-play')f.run("mode='obj';E=[];P=[];P[3]=true;RE=[];ctl(0);");
+    if(interruption==='blur')f.c.fireEvent('blur');
+    if(interruption==='disconnect')f.c.fireEvent('gamepaddisconnected',{gamepad:{index:0}});
+    if(interruption==='poll-loss')f.run('pad=null;E=[];P=[];RE=[];ctl(0);');
+    assert.equal(f.c.state().shortcutHeld,false,interruption);
+    f.run("menu=cgo=null;ov=0;mode='play';");
+    f.c.run(button(14),button(3));assert.equal(f.c.state().shortcut,'house',interruption);
+    f.c.run([],[],button(3));assert.equal(f.state().place,null,interruption);
+    assert.equal(f.state().wood,1000,interruption);assert.equal(f.state().queued,0,interruption);
+    f.run('S.sel=[worker];');farmShortcut(f.c);assert.equal(f.state().place?.k,'house',interruption+' allows a fresh shortcut press');
+  }
+});
+
+test('Y pressed inside an RT wheel cannot become a build shortcut after the wheel closes',()=>{
+  const f=buildFixture();f.run("ysc.vb='house';");
+  f.c.run(button(7),button(7));
+  f.c.run(button(3),Object.assign(button(7),{3:true}));
+  f.c.run([],button(3),button(7));
+  f.c.run([],[],button(3));
+  assert.equal(f.state().place,null);assert.equal(f.state().wood,1000);
+});
+
+test('controller replacement while Y is held cannot train on release; a fresh LT+Y still trains five',()=>{
+  const f=buildFixture();
+  f.run(`
+    const town={netId:'town',k:'tc',t:0,hp:100,done:true,q:[],x:4,y:4,s:3};S.bs=[town];S.sel=[town];
+    pad.id='old';pad.index=0;pad.connected=true;
+  `);
+  f.c.run(button(3),button(3));
+  f.run(`
+    globalThis.replacement={id:'new',index:1,connected:true,axes:[0,0,0,0],buttons:Array.from({length:16},(_,i)=>({pressed:i===3,value:i===3?1:0}))};
+    navigator.getGamepads=()=>[replacement];readPad();playCtl(0);
+    replacement.buttons[3]={pressed:false,value:0};readPad();playCtl(0);
+  `);
+  assert.equal(f.state().queued,0);assert.equal(f.state().food,1000);
+  f.c.run(button(3),Object.assign(button(3),{6:true}));f.c.run([],button(6),button(3));
+  assert.equal(f.state().queued,5);assert.equal(f.state().food,750);
+});
+
+test('hold Y plus D-pad Left changes a shortcut without executing it on release',()=>{
+  const f=buildFixture();f.run("ysc.vb='house';");
+  f.c.run(button(3),button(3));f.c.run(button(14),button(3));
+  assert.equal(f.c.state().shortcut,'farm');
+  f.c.run([],[],button(3));assert.equal(f.state().place,null);assert.equal(f.state().wood,1000);
 });

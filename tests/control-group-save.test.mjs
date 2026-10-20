@@ -20,9 +20,9 @@ function fixture(){
     return {before,saved,key,raw:localStorage.getItem(key)};
   };
   globalThis.restore=auto=>{
-    const old=S;S.cg=[];cgo={sel:2,done:0};aDown={x:1,y:2};boxR={};yc=1;lastTap=99;lastTapK='vil';
+    const old=S;S.cg=[];cgo={sel:2,done:0};aDown={x:1,y:2};boxR={};yc=1;yDown=true;lastTap=99;lastTapK='vil';
     const loaded=loadG(auto);
-    return {loaded,newWorld:S!==old,groups:groupState(),transient:cgo===null&&aDown===null&&boxR===null&&yc===0&&lastTap===0&&lastTapK===null};
+    return {loaded,newWorld:S!==old,groups:groupState(),transient:cgo===null&&aDown===null&&boxR===null&&yc===0&&!yDown&&lastTap===0&&lastTapK===null};
   };
  `,sandbox);
  return {context:sandbox,run:code=>vm.runInContext(code,sandbox)};
