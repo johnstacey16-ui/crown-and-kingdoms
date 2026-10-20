@@ -150,7 +150,7 @@
       cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
       if(buttons[0])choose(cursor);else draw();
     }
-    return Object.freeze({refresh,control,choose,selected:()=>selected});
+    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;draw();},selected:()=>selected});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

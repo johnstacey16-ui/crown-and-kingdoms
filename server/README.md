@@ -219,6 +219,22 @@ not the command protocol.
 The required target for the whole game is documented in
 [../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
 single selection and existing setup buttons are still an incomplete preview.
-LB groups, RB minimap, Y shortcuts, R3 priorities, multiplayer menus, construction,
+LB groups, RB minimap, Y shortcuts, R3 priorities, full multiplayer menu pages, construction,
 combat and full visual/hardware parity remain outstanding. The relay still needs
 separate deployment.
+
+## Multiplayer Menu button
+
+While the live preview is running, **Menu** opens the multiplayer menu rather
+than leaving the room. The shared simulation, message polling, frame replay and
+checksum acknowledgements continue even if both players have the menu open.
+The screen states that multiplayer continues. **Menu**, **B**, or **A** on
+**Resume match** returns to the previous control; **D-pad** navigates the menu.
+Leaving requires selecting **Leave match**, which closes the room normally.
+
+Gameplay controls behind the menu are inert, commands are blocked, and any open
+RT wheel is dismissed without losing selection. Tab focus stays inside the menu;
+Escape resumes. A peer disconnect or synchronization failure dismisses the menu
+and focuses the stopped-room controls. Full objectives, chat/diplomacy,
+technology-tree and options pages are still outstanding; this is not a complete
+Xbox pause-menu reproduction.

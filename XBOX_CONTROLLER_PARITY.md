@@ -30,7 +30,7 @@ hardware-verified parity from these pages or Node tests.
 | Expanded minimap: Y, D-pad | Y focuses view; Up flare, Right detail, Left mode; hold Down clears waypoints | Solo has Y and the first three D-pad functions, plus a legacy A alias. Waypoint reset and exact focus behaviour pending. |
 | Y shortcut | Context-specific build/train; hold Y + Left changes shortcut; military toggles Line/Split | Solo shortcut exists but military currently cycles five project formations rather than Line/Split. Preview no longer treats Y as Stop; contextual Y actions remain unavailable. |
 | R3 | Villager-priorities radial; Y manual ratios; stick resource, A adds, B removes | Wheel, seven presets, ratio semantics and automatic farm toggle pending. Removed incorrect subgroup-cycling R3 action. Existing pause-menu worker targets are not the Xbox priorities UI. |
-| Menu | Pause/options; multiplayer simulation keeps running | Solo pauses. Preview still closes setup on Menu; a proper multiplayer menu with continued shared stepping is pending. |
+| Menu | Pause/options; multiplayer simulation keeps running | Solo pauses. Running preview now opens a local menu without leaving or pausing either player. Menu/B/Resume returns focus; explicit Leave match exits. The full objectives, diplomacy, tech tree and options pages remain pending. |
 | X, B, View, L3 and stick gestures | Context-sensitive functions | Preview X no longer clears selection, B deselects/closes its wheel, and left stick moves cursor. Removed solo generic-X-order alias and unsupported LT economy/zoom chords. Remaining contexts and gesture timings require direct reference capture; do not invent replacements. |
 
 ## Work order and acceptance

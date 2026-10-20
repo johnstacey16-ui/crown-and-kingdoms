@@ -53,6 +53,7 @@ export function attachDOM(game) {
       getBoundingClientRect(){return {left:0,top:0,width:680,height:680};},
       append(...children){this.children.push(...children);},
       addEventListener(name,handler){handlers.set(name,handler);},
+      dispatch(name,event){return handlers.get(name)?.(event);},
       focus(){document.activeElement=this;}, select(){}, remove(){this.removed=true;},
       click(){if(!this.disabled)return handlers.get('click')?.();}
     };
@@ -63,7 +64,9 @@ export function attachDOM(game) {
   game.setTimeout = (handler,delay)=>setTimeout(handler,delay===500?10:delay);
   return {button:text=>elements.find(e=>e.tag==='button'&&e.textContent===text),
     input:()=>elements.find(e=>e.tag==='input'),status:()=>elements.find(e=>e.role==='status'),
-    dialog:()=>elements.find(e=>e.role==='dialog')};
+    dialog:()=>elements.find(e=>e.role==='dialog'&&e['aria-label']==='Authenticated multiplayer setup'),
+    menu:()=>elements.find(e=>e.role==='dialog'&&e['aria-label']==='Multiplayer menu'),
+    active:()=>document.activeElement};
 }
 export async function eventually(check) {
   for(let attempt=0;attempt<200;attempt++){

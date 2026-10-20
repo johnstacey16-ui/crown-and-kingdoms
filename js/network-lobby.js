@@ -62,6 +62,7 @@
     if (panel) return;
     const preparationSession = preparation();
     let connection = null, startup = null, live = null, timer = null, busy = false, updating = false, closed = false, stopped = false;
+    let previewRunning=false,menuOpen=false,menuFocus=null;
     const overlay = document.createElement('section');
     overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true');
     overlay.setAttribute('aria-label','Authenticated multiplayer setup');
@@ -83,12 +84,22 @@
     const economy = document.createElement('p'); economy.setAttribute('aria-live','polite');
     const mapButton = makeButton('Control units on map'), stopButton = makeButton('Stop selected unit');
     const previousButton=makeButton('Previous unit'),nextButton=makeButton('Next unit'),townButton=makeButton('Select town centre');
+    const matchMenu=document.createElement('section');
+    matchMenu.setAttribute('role','dialog');matchMenu.setAttribute('aria-modal','true');
+    matchMenu.setAttribute('aria-label','Multiplayer menu');
+    matchMenu.style.cssText=overlay.style.cssText;
+    const menuTitle=document.createElement('h1');menuTitle.textContent='Multiplayer menu';
+    const menuNotice=document.createElement('p');menuNotice.textContent='The multiplayer match continues while this menu is open.';
+    const resumeButton=makeButton('Resume match'),exitButton=makeButton('Leave match');
+    const menuControls=[resumeButton,exitButton];
+    matchMenu.append(menuTitle,menuNotice,resumeButton,exitButton);
+    matchMenu.hidden=true;matchMenu.style.display='none';
     const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
     mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = stopButton.hidden = true;
     const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,stopButton,previousButton,nextButton,townButton,
-      submit:order=>live&&!stopped?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
+      submit:order=>live&&!stopped&&!menuOpen?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
       nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
-    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave]) {
+    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave,...menuControls]) {
       element.style.cssText = 'display:block;width:min(100%,680px);box-sizing:border-box;margin:14px 0;padding:14px;border:2px solid #c9a24a;border-radius:6px;background:#15243c;color:#fff;font:inherit';
     }
     function showMap(visible) {
@@ -101,18 +112,35 @@
     verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
     overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,previousButton,nextButton,townButton,unitCanvas,mapDescription,stopButton,status,leave);
     document.body.appendChild(overlay);
+    document.body.appendChild(matchMenu);
     const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,unitCanvas,stopButton,leave];
+    function openMenu() {
+      if(closed||stopped||!previewRunning||menuOpen)return;
+      unitMap.suspend();
+      menuFocus=document.activeElement;menuOpen=true;overlay.inert=true;
+      matchMenu.hidden=false;matchMenu.style.display='block';resumeButton.focus();
+    }
+    function closeMenu(restore=true) {
+      if(!menuOpen)return;
+      menuOpen=false;overlay.inert=false;matchMenu.hidden=true;matchMenu.style.display='none';
+      if(restore){
+        const target=menuFocus&&!menuFocus.disabled&&!menuFocus.hidden?menuFocus:mapButton;
+        target.focus();
+      }
+      menuFocus=null;
+    }
     function close() {
       if (closed) return;
       closed = true; root.clearTimeout(timer);
       if (live) live.close(); else if (startup) startup.close(); else if (connection) connection.close();
-      preparationSession.restore(); overlay.remove(); panel = null;
+      closeMenu(false);preparationSession.restore(); overlay.remove();matchMenu.remove();panel = null;
       root.removeEventListener('pagehide', close);
       onLeave();
     }
     function error() {
       if (closed) return;
       stopped = true; root.clearTimeout(timer);
+      previewRunning=false;closeMenu(false);
       if (live) live.close(); else if (connection) connection.close();
       status.textContent = 'Room setup stopped. The other player may have left, the connection failed, or the worlds did not match. Leave setup to try again.';
       verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
@@ -140,6 +168,7 @@
           } else status.textContent = 'Room created. Share the private invitation above with your guest.';
           if (live) {
             const state = await live.pump(); if (closed) return;
+            previewRunning=state.phase==='running';
             run.disabled = room.team !== 0 || state.phase !== 'waiting';
             trainButton.disabled = cancelButton.disabled = state.phase !== 'running' || state.commandPending;
             if (state.phase === 'waiting') status.textContent = 'Both players confirmed the same starting world. The host can run the live preview.';
@@ -192,7 +221,7 @@
       try { await live.begin(); } catch (_) { error(); } finally { busy = false; }
     });
     function order(type) {
-      if (!live || stopped) return;
+      if (!live || stopped || menuOpen) return;
       const team = connection.snapshot().team;
       const town = S.bs.find(b=>b.t===team&&b.k==='tc'&&b.hp>0&&b.done);
       if (!town) { status.textContent = 'Your kingdom has no completed Town Centre.'; return; }
@@ -204,8 +233,19 @@
     cancelButton.addEventListener('click',()=>order('cancel'));
     mapButton.addEventListener('click',()=>unitCanvas.focus());
     leave.addEventListener('click', close);
+    resumeButton.addEventListener('click',()=>closeMenu());
+    exitButton.addEventListener('click',close);
+    matchMenu.addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();closeMenu();}
+      if(event.key==='Tab'){
+        const at=menuControls.indexOf(document.activeElement);
+        if((event.shiftKey&&at<=0)||(!event.shiftKey&&at===menuControls.length-1)){
+          event.preventDefault();menuControls[event.shiftKey?menuControls.length-1:0].focus();
+        }
+      }
+    });
     overlay.addEventListener('keydown', event => {
-      if (event.key === 'Escape') { event.preventDefault(); close(); }
+      if (event.key === 'Escape') { event.preventDefault(); if(previewRunning)openMenu();else close(); }
       if (event.key === 'Tab') {
         const available = controls.filter(element => !element.disabled && !element.hidden);
         const at = available.indexOf(document.activeElement);
@@ -215,6 +255,16 @@
     });
     root.addEventListener('pagehide', close);
     panel = { close, control(dt) {
+      if(menuOpen){
+        if(E[1]||E[9]){closeMenu();return;}
+        if(E[12]||E[13]){
+          const at=Math.max(0,menuControls.indexOf(document.activeElement));
+          menuControls[(at+(E[12]?-1:1)+menuControls.length)%menuControls.length].focus();
+        }
+        if(E[0]&&menuControls.includes(document.activeElement))document.activeElement.click();
+        return;
+      }
+      if(E[9]&&previewRunning){openMenu();return;}
       if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E,P,[ax(0),ax(1)],dt); return; }
       if (E[1] || E[9]) { close(); return; }
       const available = controls.filter(element => !element.disabled && !element.hidden);

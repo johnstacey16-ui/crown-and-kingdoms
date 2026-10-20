@@ -293,15 +293,46 @@ test('DOM preview runs after verification and routes the guest training button t
   await eventually(()=>hostGame.testTeam(1).queue===2&&guestGame.testTeam(1).queue===2);
   assert.equal(hostGame.testTeam(0).queue,0);assert.equal(guestGame.testTeam(0).queue,0);
   await eventually(()=>!gd.button('Train villager').disabled);
+  const mapFocus=gd.active(),beforeMenu=guestGame.testWorld().time;
+  guestGame.testControl(9);
+  assert.equal(gd.menu().hidden,false);assert.equal(gd.dialog().inert,true);
+  assert.equal(gd.active(),gd.button('Resume match'));
+  assert.equal(guestGame.CK_AUTH_LOBBY.active(),true,'Menu must not leave the room');
+  hostGame.testControl(9);assert.equal(hd.menu().hidden,false);
+  gd.button('Train villager').click(); // A background event cannot issue an order.
+  await eventually(()=>guestGame.testWorld().time>beforeMenu&&hostGame.testWorld().time>beforeMenu);
+  await eventually(()=>hostGame.testHash()===guestGame.testHash());
+  assert.equal(guestGame.testTeam(1).queue,2,'menu must not issue a training command');
+  hd.menu().dispatch('keydown',{key:'Escape',preventDefault(){}});
+  assert.equal(hd.menu().hidden,true);assert.equal(hd.dialog().inert,false);
+  guestGame.testControl(1); // B resumes and restores map focus/selection.
+  assert.equal(gd.menu().hidden,true);assert.equal(gd.dialog().inert,false);
+  assert.equal(gd.active(),mapFocus);
+  guestGame.testControl(0,[false,false,false,false,false,false,false,true]);
+  assert.equal(guestGame.testTeam(1).queue,2,'resuming must not restore the old RT command wheel');
+  guestGame.testControl(9);guestGame.testControl(9); // Menu also resumes.
+  assert.equal(gd.menu().hidden,true);assert.equal(gd.active(),mapFocus);
+  guestGame.testControl(9);
+  let prevented=false;
+  gd.button('Leave match').focus();
+  gd.menu().dispatch('keydown',{key:'Tab',shiftKey:false,preventDefault(){prevented=true;}});
+  assert.equal(prevented,true);assert.equal(gd.active(),gd.button('Resume match'));
+  gd.menu().dispatch('keydown',{key:'Tab',shiftKey:true,preventDefault(){}});
+  assert.equal(gd.active(),gd.button('Leave match'));
+  gd.button('Resume match').focus();
+  guestGame.testControl(0); // A resumes; it must not fall through into a map command.
+  assert.equal(gd.active(),mapFocus);assert.equal(gd.menu().hidden,true);
   gd.button('Next unit').click();
   assert.equal(gd.button('Stop selected unit').disabled,false);
   gd.button('Stop selected unit').click();
   assert.equal(gd.button('Stop selected unit').disabled,true);
   await eventually(()=>guestGame.testUnit(1).order==='i'&&hostGame.testUnit(1).order==='i');
-  guestGame.testControl(1); // Deselect, leave map focus, then leave the room.
-  guestGame.testControl(1);
-  guestGame.testControl(1);
+  hostGame.testControl(9);
+  guestGame.testControl(9);guestGame.testControl(13);guestGame.testControl(0); // Explicit Leave match.
+  assert.equal(gd.menu().removed,true);assert.equal(gd.dialog().removed,true);
   await eventually(()=>/Room setup stopped/.test(hd.status().textContent));
+  assert.equal(hd.menu().hidden,true,'disconnect dismisses a stale menu');
+  assert.equal(hd.active(),hd.button('Leave setup'));assert.equal(hd.dialog().inert,false);
   const frozen=hostGame.testWorld().time;
   await new Promise(resolve=>setTimeout(resolve,60));
   assert.equal(hostGame.testWorld().time,frozen);
