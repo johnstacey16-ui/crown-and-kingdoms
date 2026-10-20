@@ -1,0 +1,15 @@
+*
+!Dockerfile
+!index.html
+!styles.css
+!engine.js
+!multiplayer.js
+!persistence.js
+!sw.js
+!js/
+!js/**
+!assets/
+!assets/**
+!server/
+!server/transport.mjs
+!server/app.mjs

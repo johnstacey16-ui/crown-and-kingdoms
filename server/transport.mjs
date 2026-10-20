@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 // Anonymous bearer credentials establish a server-owned identity, not a user account.
 // Run behind HTTPS on the game's origin. Never expose credentials in URLs or logs.
 export function createTransport({ now = Date.now, ttl = 30 * 60_000,
-  maxSessions = 1000, maxRooms = 500, maxQueue = 256 } = {}) {
+  maxSessions = 1000, maxRooms = 500, maxQueue = 256, fallback = null } = {}) {
   const sessions = new Map();
   const rooms = new Map();
   const secret = () => randomBytes(32).toString('base64url');
@@ -46,6 +46,8 @@ export function createTransport({ now = Date.now, ttl = 30 * 60_000,
     res.setHeader('X-Content-Type-Options', 'nosniff');
     const reply = (status, value) => { res.writeHead(status); res.end(JSON.stringify(value)); };
     try {
+      // A combined host serves only the prefixed API through this relay.
+      if (fallback && !req.url.startsWith('/api/multiplayer/')) return await fallback(req, res);
       // No CORS: the production reverse proxy must serve this on the game origin.
       if (req.headers['sec-fetch-site'] === 'cross-site') throw fail(403, 'Cross-site request rejected');
       expire();

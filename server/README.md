@@ -178,3 +178,31 @@ Escape resumes. A peer disconnect or synchronization failure dismisses the menu
 and focuses the stopped-room controls. Full objectives, chat/diplomacy,
 technology-tree and options pages are still outstanding; this is not a complete
 Xbox pause-menu reproduction.
+
+## Combined Railway host
+
+The repository now includes `Dockerfile`, `railway.json` and
+`server/app.mjs` for a single game-and-relay origin. Start locally with
+`node server/app.mjs` and open `http://localhost:8787`. Railway supplies
+`PORT`; the combined host binds `0.0.0.0` by default. Optional `HOST`
+overrides the interface for local use.
+
+The healthcheck is `GET /healthz`. Public files are restricted to the
+game shell, browser JavaScript, styles and local art. Server source,
+tests, repository metadata and deployment configuration return 404.
+The authenticated API remains at `/api/multiplayer/*` and is never
+cached. The container runs as the unprivileged Node user and has no
+third-party runtime dependencies.
+
+Deploy the **main** branch with the Dockerfile and use one replica.
+`railway.json` supplies the healthcheck and bounded restart policy.
+Do not enable sleeping or scale to multiple replicas while rooms and
+sessions live in process memory. Deployments, restarts and process
+failures end active matches; reconnect and durable room storage remain
+separate delivery tasks. Use the same public Railway game URL on both
+devices; invitations are scoped to that service instance.
+
+`tests/server-app.test.mjs` checks actual HTTP game/assets delivery,
+private-path rejection, readiness, uncached responses, anonymous session
+creation, two-player room join and authenticated message identity through
+the combined host.
