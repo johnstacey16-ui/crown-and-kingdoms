@@ -90,7 +90,7 @@ function detail(k,state,frame,dir,colour){
  else if(k==='genoa')weapon=path(`M${32+side*6} ${y+2}L${32+side*22} ${y-4}M${32+side*17} ${y-11}L${32+side*20} ${y+4}`,'none','#8b643a',2.5)+path(`M${32+side*17} ${y-11}Q${32+side*25} ${y-4} ${32+side*20} ${y+4}`,'none','#bbbda9');
  else if(k==='plumed')weapon=path(`M${32+side*14} ${y-14}Q${32+side*28} ${y-1} ${32+side*14} ${y+12}M${32+side*14} ${y-14}V${y+12}`,'none','#b99b61',1.7);
  else if(k==='kamayuk')weapon=path(`M${32+side*15} 50L${32+side*19} 7`,'none','#8e7143',2)+path(`M${32+side*19} 7L${32+side*16} 13L${32+side*21} 13Z`,'#c4cdcb');
- else if(k==='tarkan')weapon=path(`M${32+side*12} ${y+3}L${32+side*18} ${y-15}`,'none','#8d6338',2.5)+path(`M${32+side*18} ${y-15}Q${32+side*(12+frame*2)} ${y-23} ${32+side*20} ${y-27}Q${32+side*27} ${y-17} ${32+side*18} ${y-15}Z`,'#e9b35d','#ac6537');
+ else if(k==='tarkan')weapon=path(`M${32+side*12} ${y+3}L${32+side*18} ${y-8}`,'none','#8d6338',2.5)+path(`M${32+side*18} ${y-8}Q${32+side*(12+frame*2)} ${y-16} ${32+side*20} ${y-19}Q${32+side*27} ${y-10} ${32+side*18} ${y-8}Z`,'#e9b35d','#ac6537');
  else if(k==='shotel')weapon=path(`M${32+side*11} ${y+4}Q${32+side*27} ${y+1} ${32+side*23} ${y-17}Q${32+side*20} ${y-4} ${32+side*12} ${y-1}Z`,'#b9c7c3');
  else if(k==='gbeto')weapon=path(`M${32+side*12} ${y}L${32+side*27} ${y-7}L${32+side*19} ${y+2}Z`,'#c8c8b2');
  else if(k==='jaguar')weapon=path(`M${32+side*13} ${y+8}L${32+side*20} ${y-16}`,'none','#453f33',5)+path(`M${32+side*17} ${y-13}L${32+side*23} ${y-11}M${32+side*15} ${y-6}L${32+side*21} ${y-4}`,'none','#c0bca7',2);
@@ -110,13 +110,13 @@ function atlas(id,kinds,width,columns){
    for(let frame=0;frame<2;frame++){
     const x=index%columns*width,y=Math.floor(index/columns)*64;index++;
     const bob=state==='walk'?(frame?-.6:.6):0;
-    tiles.push(`<g transform="translate(${x} ${y})"><g transform="translate(0 ${bob})"><use href="#${kind}-${team}-${dir}"/>${detail(kind,state,frame,dir,colours[team])}</g></g>`);
+    tiles.push(`<g transform="translate(${x} ${y})"><g clip-path="url(#${id}-cell)"><g transform="translate(0 ${bob})"><use href="#${kind}-${team}-${dir}"/>${detail(kind,state,frame,dir,colours[team])}</g></g></g>`);
     frames.push({x,y,w:width,h:64,ax:width===96?48:32,ay:56});
    }dirs.push(frames);
   }
   anims[`${kind}/${state}/${team}`]={dur:state==='walk'?.12:state==='attack'?.18:.3,scale:1,dirs};
  }
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${columns*width}" height="${Math.ceil(index/columns)*64}" viewBox="0 0 ${columns*width} ${Math.ceil(index/columns)*64}"><title>Original Crown and Kingdoms ${id} vector atlas</title><defs>${defs.join('')}</defs>${tiles.join('')}</svg>\n`;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${columns*width}" height="${Math.ceil(index/columns)*64}" viewBox="0 0 ${columns*width} ${Math.ceil(index/columns)*64}"><title>Original Crown and Kingdoms ${id} vector atlas</title><defs><clipPath id="${id}-cell"><rect width="${width}" height="64"/></clipPath>${defs.join('')}</defs>${tiles.join('')}</svg>\n`;
  return {entry:{id,src:`./assets/${id}.svg`,meta:{anims}},svg};
 }
 function palisade(){
