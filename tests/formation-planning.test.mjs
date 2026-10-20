@@ -51,3 +51,12 @@ test('Split creates balanced separate wings with finite unique slots and rotates
   }
  }
 });
+
+test('ordering exactly at the group centre keeps finite separated formation slots',()=>{
+ for(const kind of [1,2,3,4,5]){
+  const army=Array.from({length:12},()=>({x:10,y:8}));
+  const centred=plan(army,10,8,kind),east=plan(army,20,8,kind);
+  for(let i=0;i<army.length;i++)close(centred(i),east(i));
+  assert.equal(new Set(army.map((_,i)=>centred(i).join(','))).size,army.length);
+ }
+});

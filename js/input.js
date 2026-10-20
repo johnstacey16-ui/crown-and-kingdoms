@@ -86,6 +86,27 @@ function trainSelection(anchor,kind,count=1){
  }
  return queued;
 }
+/* Reform now around each movement class's own centre. Use the normal movement
+ * planner so collision, blocked-slot fallbacks and path diagnostics stay shared.
+ * Temporary order selections must never leak into the player's selection. */
+function reformMilitarySelection(units){
+ if(mode!=='play'||!S||!Array.isArray(units))return false;
+ const eligible=controlGroupMembers(units).filter(u=>S.us.includes(u)&&isMil(u));
+ if(eligible.length<2||eligible.length!==units.length||
+    eligible.some(u=>!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H))return false;
+ const selected=S.sel;
+ fm=fm===1?5:1;
+ try{
+  // A fleet and a land army may be on opposite sides of a shoreline. Never
+  // send both towards a combined centre that is invalid for one movement class.
+  for(const group of [eligible.filter(u=>!u.sh),eligible.filter(u=>u.sh)]){
+   if(!group.length)continue;
+   const x=group.reduce((sum,u)=>sum+u.x,0)/group.length,y=group.reduce((sum,u)=>sum+u.y,0)/group.length;
+   S.sel=group;orderSel(null,x,y);
+  }
+ }finally{S.sel=selected}
+ note('Formation: '+FMN[fm]);return true;
+}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
 const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});

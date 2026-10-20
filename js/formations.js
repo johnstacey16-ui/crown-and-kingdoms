@@ -7,7 +7,7 @@ function formationSlots(us,wx,wy,kind=fm){
  if(!n)return ()=>[0,0];
  if(kind===0){const w=Math.ceil(Math.sqrt(n)),rows=Math.ceil(n/w);return i=>[(i%w-(w-1)/2)*1.1,((i/w|0)-(rows-1)/2)*1.1]}
  let cx=0,cy=0;for(const u of us){cx+=u.x;cy+=u.y}cx/=n;cy/=n;
- let dx=wx-cx,dy=wy-cy;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;
+ let dx=wx-cx,dy=wy-cy;const l=Math.hypot(dx,dy);if(l>1e-9){dx/=l;dy/=l}else{dx=1;dy=0}
  const px=-dy,py=dx;
  return i=>{
   // Split keeps two balanced wings with a clear central lane. Spacing is
