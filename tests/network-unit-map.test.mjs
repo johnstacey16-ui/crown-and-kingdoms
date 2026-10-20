@@ -15,13 +15,14 @@ const world=()=>({teamN:2,us:[
   res:[{f:100},{f:200}],vs:new Uint8Array(32*32),nodes:[{x:19,y:19,k:'g'}]});
 function fixture() {
   const handlers=new Map(),orders=[];
+  const stopHandlers=new Map(),stopButton={disabled:false,addEventListener:(name,fn)=>stopHandlers.set(name,fn)};
   let left=false;
   const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},
     addEventListener:(name,fn)=>handlers.set(name,fn),focus(){},
     getBoundingClientRect:()=>({left:100,top:50,width:340,height:340})};
   const description={textContent:''};
-  const map=api.create({canvas,description,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
-  return {map,handlers,orders,description,canvas,left:()=>left};
+  const map=api.create({canvas,description,stopButton,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
+  return {map,handlers,orders,description,canvas,stopButton,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
 }
 
 test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
@@ -95,4 +96,22 @@ test('keyboard/controller cursor can select town centre and submit a rally point
   for(let i=0;i<5;i++)f.map.control({15:true});
   f.map.control({0:true});
   assert.equal(f.orders[0].type,'rally');assert.equal(f.orders[0].point.x,23);
+});
+
+test('button, S key and Y submit stop only for a ready selected unit without changing the world',()=>{
+  for(const input of ['button','keyboard','controller']){
+    const f=fixture(),source=world(),before=JSON.stringify(source);
+    f.map.refresh(source,1,32,32,true);
+    assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,0);
+    f.map.choose({x:20,y:22});assert.equal(f.stopButton.disabled,false);
+    if(input==='button')f.stopClick();
+    else if(input==='keyboard')f.handlers.get('keydown')({key:'S',preventDefault(){}});
+    else f.map.control({3:true});
+    assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'stop',entities:['u2']}]));
+    assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,1);
+    assert.equal(JSON.stringify(source),before);
+    source.bs[1].done=true;f.map.refresh(source,1,32,32,true);
+    f.map.choose({x:18,y:18});assert.equal(f.stopButton.disabled,true);
+    f.map.control({3:true});assert.equal(f.orders.length,1,'stop is not a town-centre order');
+  }
 });

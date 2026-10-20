@@ -7,7 +7,7 @@ is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 This is a server prototype, not a deployed service. The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
 existing Supabase marker room is unchanged. A limited live economy preview now
-connects training, cancellation, movement and rally orders to the shared simulation clock; the full
+connects training, cancellation, movement, stop and rally orders to the shared simulation clock; the full
 RTS controller interface is not enabled.
 
 ## Identity and membership
@@ -150,7 +150,7 @@ execution result; the host sends `result` only after applying the requested fram
 
 `CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
 authoritative inbox, host clock, frame replica and delivery acknowledgments.
-The driver allows train, cancel, move and rally orders. Attack, construction and other
+The driver allows train, cancel, move, stop and rally orders. Attack, construction and other
 battlefield commands remain unavailable, including those lacking visibility checks.
 Host and guest orders both pass through identity/team/ownership validation.
 
@@ -203,7 +203,17 @@ Rally points apply to future trained units; existing units keep their orders.
 If no route exists, the new unit stays idle rather than keeping an automatic
 gathering assignment.
 Unfinished buildings cannot be selected for rally orders.
-The preview run handshake is version 3 so older preview clients fail before
-accepting a rally-enabled session. Combat, building/resource orders, terrain
+The preview run handshake is version 4 so older preview clients fail before
+accepting a stop-enabled session. Combat, building/resource orders, terrain
 rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
 remain outstanding. The Node relay still requires separate deployment.
+
+
+Select a unit and choose **Stop selected unit**, press **S** on the keyboard, or
+**Y** on a controller while the map has focus. Stop is available only for a
+selected living, ungarrisoned unit when no order is pending. It uses scheduled
+host execution, not immediate local mutation. It clears movement/work, patrol,
+retreat, guard and unload orders, disables automatic work/scouting, and pauses
+traders while preserving carried resources and cargo. Combat stance is unchanged,
+so units can still react to enemies according to that stance. X only clears the
+selection; it does not stop the unit.

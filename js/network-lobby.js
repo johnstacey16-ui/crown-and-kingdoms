@@ -68,7 +68,7 @@
     overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:#090d16;color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
-    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers, move your own units and set town-centre rally points. Combat and construction controls are not enabled yet.';
+    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers, move or stop your own units and set town-centre rally points. Combat and construction controls are not enabled yet.';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 43;
@@ -81,19 +81,26 @@
     const verify = makeButton('Verify shared map'), leave = makeButton('Leave setup');
     const run = makeButton('Run live preview'), trainButton = makeButton('Train villager'), cancelButton = makeButton('Cancel training');
     const economy = document.createElement('p'); economy.setAttribute('aria-live','polite');
-    const mapButton = makeButton('Control units on map');
+    const mapButton = makeButton('Control units on map'), stopButton = makeButton('Stop selected unit');
     const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
-    mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = true;
-    const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,
+    mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = stopButton.hidden = true;
+    const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,stopButton,
       submit:order=>live&&!stopped?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
       nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
-    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,leave]) {
+    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,stopButton,leave]) {
       element.style.cssText = 'display:block;width:min(100%,680px);box-sizing:border-box;margin:14px 0;padding:14px;border:2px solid #c9a24a;border-radius:6px;background:#15243c;color:#fff;font:inherit';
     }
+    function showMap(visible) {
+      for(const element of [unitCanvas,mapDescription,stopButton]) {
+        element.hidden=!visible;
+        element.style.display=visible?'block':'none';
+      }
+    }
+    showMap(false);
     verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
-    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,unitCanvas,mapDescription,status,leave);
+    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,unitCanvas,mapDescription,stopButton,status,leave);
     document.body.appendChild(overlay);
-    const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,unitCanvas,leave];
+    const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,unitCanvas,stopButton,leave];
     function close() {
       if (closed) return;
       closed = true; root.clearTimeout(timer);
@@ -108,7 +115,7 @@
       if (live) live.close(); else if (connection) connection.close();
       status.textContent = 'Room setup stopped. The other player may have left, the connection failed, or the worlds did not match. Leave setup to try again.';
       verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
-      unitCanvas.hidden = mapDescription.hidden = true;
+      showMap(false);
       leave.focus();
     }
     async function update() {
@@ -142,7 +149,7 @@
                 'Train or cancel villagers in your own kingdom');
             const team = room.team, town = S.bs.find(b=>b.t===team&&b.k==='tc'&&b.hp>0);
             mapButton.disabled = state.phase !== 'running';
-            unitCanvas.hidden = mapDescription.hidden = false;
+            showMap(true);
             unitMap.refresh(S,team,W,H,state.phase === 'running'&&!state.commandPending);
             economy.textContent = 'Your kingdom: ' + (team+1) + ' · Food: ' + Math.floor(S.res[team].f) +
               ' · Population: ' + popOf(team) + '/' + capOf(team) +

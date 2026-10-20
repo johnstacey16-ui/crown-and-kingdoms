@@ -116,6 +116,40 @@ test('guest cannot move an opposing unit and malformed destinations never enter 
   assert.equal(JSON.stringify(p.hostGame.testUnit(0)),JSON.stringify(enemy));
 });
 
+test('both players can stop moving villagers over HTTP and remain synchronized',async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  for(const [team,session] of [[0,p.hostLive],[1,p.guestLive]]){
+    const u=p.hostGame.testUnit(team);
+    assert.equal(session.submit({type:'move',entities:[u.id],point:{x:u.x+3,y:u.y+3}}).ok,true);
+  }
+  for(let i=0;i<20;i++)await p.cycle();
+  for(const [team,session] of [[0,p.hostLive],[1,p.guestLive]]){
+    const u=p.hostGame.testUnit(team);assert.equal(u.order,'m');
+    assert.equal(session.submit({type:'stop',entities:[u.id]}).ok,true);
+    assert.equal(p.hostGame.testUnit(team).order,'m','no optimistic stop');
+  }
+  for(let i=0;i<10;i++)await p.cycle();
+  const stopped=[p.hostGame.testUnit(0),p.hostGame.testUnit(1)];
+  assert.equal(p.hostLive.snapshot().lastResult.ok,true);
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  for(let i=0;i<10;i++)await p.cycle();
+  for(const team of [0,1]){
+    assert.equal(stopped[team].order,'i');
+    assert.equal(JSON.stringify(p.hostGame.testUnit(team)),JSON.stringify(stopped[team]));
+    assert.equal(JSON.stringify(p.guestGame.testUnit(team)),JSON.stringify(stopped[team]));
+  }
+});
+
+test('guest cannot stop an opposing unit',async t=>{
+  const p=await livePair(t);
+  await p.hostLive.begin();await p.cycle();await p.cycle();
+  const enemy=p.hostGame.testUnit(0);
+  assert.equal(p.guestLive.submit({type:'stop',entities:[enemy.id]}).ok,true);
+  await p.guestLive.pump();await assert.rejects(p.hostLive.pump(),/Command rejected/);
+  assert.equal(JSON.stringify(p.hostGame.testUnit(0)),JSON.stringify(enemy));
+});
+
 test('both town centres accept synchronized rally orders without changing existing unit orders',async t=>{
   const p=await livePair(t);
   await p.hostLive.begin();await p.cycle();await p.cycle();
@@ -230,6 +264,7 @@ test('DOM preview runs after verification and routes the guest training button t
   hostGame.testPreviewDefaults();
   const hd=attachDOM(hostGame),gd=attachDOM(guestGame);
   hostGame.CK_AUTH_LOBBY.open(()=>{});guestGame.CK_AUTH_LOBBY.open(()=>{});
+  assert.equal(gd.button('Stop selected unit').style.display,'none');
   t.after(()=>{hostGame.CK_AUTH_LOBBY.close();guestGame.CK_AUTH_LOBBY.close();});
   hd.button('Create private room').click();await eventually(()=>hd.input().value.length===43);
   gd.input().value=hd.input().value;gd.button('Join room').click();
@@ -248,6 +283,13 @@ test('DOM preview runs after verification and routes the guest training button t
   assert.equal(hostGame.testTeam(0).queue,0);assert.equal(guestGame.testTeam(0).queue,0);
   assert.ok(hostGame.testWorld().time>0);
   assert.equal(hostGame.testWorld().mode,'multiplayer');
+  await eventually(()=>!gd.button('Train villager').disabled);
+  gd.button('Control units on map').click();guestGame.testControl(0);
+  assert.equal(gd.button('Stop selected unit').disabled,false);
+  gd.button('Stop selected unit').click();
+  assert.equal(gd.button('Stop selected unit').disabled,true);
+  await eventually(()=>guestGame.testUnit(1).order==='i'&&hostGame.testUnit(1).order==='i');
+  guestGame.testControl(1); // Leave the map, then leave the room.
   guestGame.testControl(1);
   await eventually(()=>/Room setup stopped/.test(hd.status().textContent));
   const frozen=hostGame.testWorld().time;

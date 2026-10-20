@@ -85,6 +85,19 @@
 
     if (!activeUnits(entities)) return false;
 
+    if (order.type === 'stop') {
+      for (const u of entities) {
+        u.o = 'i'; u.p = []; u.tg = null; u.pt = null; u.rp = 0;
+        u.as = 0; u.autoWorker = 0; u.guardTarget = null; u.ret = 0;
+        u.retreating = false; u.retreatTarget = null;
+        u.retreatRestUntil = 0; u.retreatRouteRetryAt = 0;
+        u.ut = null; u.unloadBeach = null; u.unloadRouteRetryAt = 0;
+        if (u.k === 'cart' || u.k === 'cog') {
+          u.tradePaused = true; u.manualTradeMove = false;
+        }
+      }
+      return true;
+    }
     if (order.type === 'move') return moveUnits(entities, order.point);
     if (order.type === 'attack-move') {
       if (entities.some(u => ['vil', 'fish', 'cart', 'cog', 'trn', 'mon'].includes(u.k)))
@@ -130,7 +143,8 @@
     lookup,
     execute,
     implementedTypes: Object.freeze([
-      'move', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
+      'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
+

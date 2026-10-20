@@ -8,7 +8,7 @@
   const VERSION = 2;
   const MAX_UNITS_PER_ORDER = 96;
   const MAX_ORDER_BYTES = 1024;
-  const VALID_TYPES = new Set(['move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel']);
+  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel']);
   const HEX = n => (n >>> 0).toString(16).padStart(8, '0');
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
@@ -178,7 +178,7 @@
     function allowed(order, team) {
       if (!validOrder(order, mapSize)) return false;
       const buildingAction = ['train', 'research', 'rally', 'cancel'].includes(order.type);
-      const unitAction = ['move', 'attack-move', 'attack', 'gather', 'build', 'stance'].includes(order.type);
+      const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance'].includes(order.type);
       if (buildingAction && order.entities.length !== 1) return false;
       if (!buildingAction && !unitAction) return false;
       return order.entities.every(id => {
@@ -432,3 +432,4 @@
 
   root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, createFrameReplica, worldCheckpoint, createCheckpointTracker });
 })(typeof window !== 'undefined' ? window : globalThis);
+
