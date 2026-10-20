@@ -67,9 +67,23 @@ if(window.CK_PATH_DIAGNOSTICS&&typeof window.CK_PATH_DIAGNOSTICS.recordFormation
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(fallbackCount)note(fallbackCount+' unit'+(fallbackCount===1?'':'s')+' moved toward the group destination instead of blocked formation slots');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
+function trainSelection(anchor,kind,count=1){
+ if(mode!=='play'||!S||!U[kind]||![1,5].includes(count)||!S.sel.includes(anchor)||!S.bs.includes(anchor)||anchor.t!==0)return 0;
+ const buildings=[...new Set(S.sel)].filter(b=>b&&S.bs.includes(b)&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&!b.rs&&B[b.k]?.tr?.includes(kind));
+ let queued=0;
+ for(let i=0;i<count;i++){
+  // Keep production balanced across the selected compatible buildings. Stable
+  // ties preserve selection order; train() owns costs, capacity and legality.
+  const ordered=buildings.slice().sort((a,b)=>a.q.length-b.q.length);
+  let accepted=false;
+  for(const b of ordered)if(train(b,kind)){queued++;accepted=true;break;}
+  if(!accepted)break;
+ }
+ return queued;
+}
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
-const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const n=P[6]?5:1;let ok=0;for(let q=0;q<n;q++)if(train(s,k))ok++;else break;if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
+const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
 if(s.k==='tc'){it.push({l:'Town Bell: Garrison villagers',c:{},lk:'',fn:()=>{townBell(s.t);menu=null}});const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?'':'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
 for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:e.cost,lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
 if(d.tx)for(const r of mkTrades())it.push(r);

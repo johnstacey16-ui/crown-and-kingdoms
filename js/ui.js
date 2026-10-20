@@ -61,6 +61,8 @@ panel(0,CH-120,mm.x-8,120);quickBar();
 const s=S.sel;let l='Nothing selected - left stick moves the cursor, A selects';
 if(s.length){const a=s[0];l=a.q?`${B[a.k].n}  HP ${a.hp|0}/${a.mh}`+(a.done?(a.q.length?`  Training ${a.q.map(q=>unitName(q.k,a.t)[0]).join('')} (${a.q[0].t.toFixed(0)}s)`:''):`  Building ${(a.pr/B[a.k].bt*100)|0}%`):
 `${unitName(a.k,a.t)}${s.length>1?' +'+(s.length-1)+' more':''}  HP ${a.hp|0}/${mhp(a)}  ${stt(a)}  ${TASK[a.o]}${a.cg&&a.cg.length?' - cargo '+a.cg.length+'/5':''}${a.car>0?' - carrying '+(a.car|0)+' '+a.ct.toUpperCase():''}`}
+const production=s.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length);
+if(s[0]?.q&&production.length>1)l=production.length+' production buildings selected · '+production.reduce((n,b)=>n+b.q.length,0)+' units queued';
 tx(l+(s[0]&&s[0].rs?'  Researching '+(s[0].rs.k==='age'?'next age':TE[s[0].rs.k].n)+' '+(s[0].rs.t|0)+'s':''),20,CH-80,24);
 const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT radial: left stick choose   A Confirm   Y Switch page   X Cancel last queued   B Close':'A Select / command (hold: box)  RT Command menu  Y Shortcut  LB Groups  RB Minimap  D-pad Quick select  LT Modifier  B Deselect  Menu Pause';
 {const hh=h.split('  LB ');tx(hh[0],20,CH-50,17,'#94a3b8');tx(hh[1]?'LB '+hh[1]:'',20,CH-26,17,'#94a3b8')}
