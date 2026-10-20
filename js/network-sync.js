@@ -33,11 +33,15 @@
     if (['build', 'train', 'research', 'stance'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-z0-9_-]{0,39}$/.test(order.value))) return false;
     if (order.type === 'rally' && order.target != null && !validId(order.target)) return false;
+    // Training admits only the ordinary request and the Xbox five-unit batch.
+    if (Object.hasOwn(order, 'count') &&
+        (order.type !== 'train' || ![1, 5].includes(order.count))) return false;
     // No extra or executable data is admitted on a network order.
     const fields = ['type', 'entities'];
     if (['move', 'attack-move', 'build', 'rally'].includes(order.type)) fields.push('point');
     if (['attack', 'gather'].includes(order.type) || order.type === 'rally' && order.target != null) fields.push('target');
     if (['build', 'train', 'research', 'stance'].includes(order.type)) fields.push('value');
+    if (order.type === 'train') fields.push('count');
     return Object.keys(order).every(k => fields.includes(k));
   }
   function validPacket(p, mapSize) {

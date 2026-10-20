@@ -1,7 +1,7 @@
 /* Stop-and-wait live simulation preview. No legacy Broadcast messages enter here. */
 (function(root){
   'use strict';
-  const VERSION = 'ck-live-preview-4';
+  const VERSION = 'ck-live-preview-5';
   const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value,key));
   function create({transport, startup, mapSize, lookupEntity, execute, advance, hash,

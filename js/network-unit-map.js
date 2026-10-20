@@ -19,7 +19,7 @@
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
     function setSelection(ids){selection=[...new Set(ids)];selected=selection[0]||null;}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit selects all your visible units of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit selects all your visible units of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -65,7 +65,11 @@
         context.fillStyle='#fff';context.textAlign='center';context.font='22px system-ui';
         context.fillText('Command menu',340,302);
         context.fillText(view.buildings.some(b=>b.id===selected&&b.rallyable)?'Train villager':selection.length>1?'Stop '+selection.length+' units':'Stop',340,344);
-        context.font='16px system-ui';context.fillText('Hold RT + A: confirm',340,384);
+        context.font='16px system-ui';
+        if(view.buildings.some(b=>b.id===selected&&b.rallyable)){
+          context.fillText('Hold RT + A: train 1',340,374);
+          context.fillText('Hold RT + LT + A: train 5',340,402);
+        }else context.fillText('Hold RT + A: confirm',340,384);
       }
     }
     function refresh(world,team,width,height,canCommand) {
@@ -105,7 +109,7 @@
       }
       else if(town){
         if(add&&selection.some(id=>id!==town.id)){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
-        setSelection([town.id]);description.textContent='Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.';
+        setSelection([town.id]);description.textContent='Town centre selected. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
       }
       else if(add){description.textContent='LT+A adds an owned unit at the cursor; it does not issue a move order.';}
       else if(selected&&enabled){
@@ -138,7 +142,7 @@
       setSelection([next.id]);wheel=false;
       cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
-      description.textContent=town?'Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.':
+      description.textContent=town?'Town centre selected. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.':
         'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). A orders at the cursor. Hold RT for commands; B deselects.';
       canvas.focus();draw();
     }
@@ -153,11 +157,11 @@
       if(result.ok)enabled=false;
       draw();
     }
-    function train() {
+    function train(count=1) {
       cancelGesture();
       if(!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
-      const result=submit({type:'train',entities:[selected],value:'vil'});
-      description.textContent=result.ok?'Villager training submitted. Resources and queue change only after host execution.':'Training not submitted. Wait for the previous order.';
+      const result=submit({type:'train',entities:[selected],value:'vil',...(count===5?{count:5}:{})});
+      description.textContent=result.ok?(count===5?'Five-villager training batch submitted. Available resources, population and queue space limit how many are queued after host execution.':'Villager training submitted. Resources and queue change only after host execution.'):'Training not submitted. Wait for the previous order.';
       if(result.ok)enabled=false;
       draw();
     }
@@ -184,8 +188,8 @@
       if(buttons[7]&&selected)wheel=true;
       if(wheel){
         cancelGesture();
-        if(buttons[0]&&held[7]&&!held[6]){
-          if(view.buildings.some(b=>b.id===selected&&b.rallyable))train();else stop();
+        if(buttons[0]&&held[7]){
+          if(view.buildings.some(b=>b.id===selected&&b.rallyable))train(held[6]?5:1);else if(!held[6])stop();
         }
         draw();return;
       }

@@ -205,7 +205,22 @@ test('D-pad categories use owned eligible entities and legacy shortcuts send no 
   f.map.control({13:true});f.map.control({7:true});
   f.map.control({0:true},{6:true,7:true});
   f.map.choose({x:30,y:30});
-  assert.equal(f.orders.length,0,'unsupported batch training and map clicks behind a wheel send no substitute orders');
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b2'],value:'vil',count:5}]),'LT changes training quantity; a map click behind the wheel sends nothing');
+});
+
+test('LT+A confirms one five-unit training request only while RT is held and pending commands block repeats',()=>{
+  const f=fixture(),source=world();source.bs[1].done=true;
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);f.map.control({13:true});
+  tap(f.map,{6:true});assert.equal(f.orders.length,0,'LT+A on the map does not train');
+  f.map.control({7:true},{7:true,6:true});assert.equal(f.orders.length,0,'opening the menu does not train');
+  f.map.control({0:true},{0:true,6:true,7:true});
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b2'],value:'vil',count:5}]));
+  assert.match(f.description.textContent,/Five-villager/);assert.match(f.description.textContent,/host execution/);
+  f.map.control({},{0:true,6:true,7:true});f.map.control({0:true},{0:true,6:true,7:true});
+  assert.equal(f.orders.length,1);assert.equal(JSON.stringify(source),before);
+  f.map.control({},{});f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});
+  f.map.control({7:true});f.map.control({0:true},{6:true,7:true});
+  assert.equal(f.orders.length,1,'LT+A must not turn into a unit Stop command');
 });
 
 test('LT+A adds distinct owned units and move/Stop use the complete selection without optimistic mutation',()=>{

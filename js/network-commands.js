@@ -74,7 +74,17 @@
         order.type === 'rally' || order.type === 'cancel') {
       if (!activeBuilding(entities)) return false;
       const b = entities[0];
-      if (order.type === 'train') return train(b, order.value) === true;
+      if (order.type === 'train') {
+        const count = Object.hasOwn(order, 'count') ? order.count : 1;
+        let queued = 0;
+        // Match solo batching: each accepted unit pays its own cost and
+        // reserves population/queue space. Stop at the first rejected unit.
+        for (let i = 0; i < count; i++) {
+          if (train(b, order.value) !== true) break;
+          queued++;
+        }
+        return queued > 0;
+      }
       if (order.type === 'research') return research(b, order.value) === true;
       if (order.type === 'cancel') return cancelQ(b) === true;
       if (!Array.isArray(B[b.k].tr) || !B[b.k].tr.length || order.target != null)

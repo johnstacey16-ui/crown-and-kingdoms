@@ -72,6 +72,53 @@ test('queue cancel refunds the owning team, rally uses stable building identity'
   assert.equal(out.rally,true);
 });
 
+test('five-unit training is one authenticated scheduled request and charges only accepted units',()=>{
+  for(const limit of ['none','resources','queue','population','full','research']){
+    const out=world(`
+      const b=S.bs.find(b=>b.t===1&&b.k==='tc'&&b.done),cost=U.vil.cost.f;
+      S.res[1].f=1000;popLimit=300;addB(1,'house',2,2,true);
+      if('${limit}'==='resources')S.res[1].f=cost*2;
+      if('${limit}'==='queue')for(let i=0;i<3;i++)train(b,'vil');
+      if('${limit}'==='population')popLimit=popOf(1)+2;
+      if('${limit}'==='full')popLimit=popOf(1);
+      if('${limit}'==='research')b.rs={k:'age',t:10};
+      const before={food:S.res[1].f,queue:b.q.length,hostFood:S.res[0].f};
+      const request={type:'train',entities:[b.netId],value:'vil',count:5};
+      const accepted=host.receive(packet('guest-session',1,1,6,request),'guest-session',2);
+      const untouched=b.q.length===before.queue&&S.res[1].f===before.food;
+      const result=host.applyFrame(6);
+      return {accepted:accepted.ok,untouched,ok:result[0].ok,
+        queued:b.q.length-before.queue,cost:S.res[1].f-before.food,
+        unitCost:cost,hostUnchanged:S.res[0].f===before.hostFood};
+    `);
+    const expected={none:5,resources:2,queue:2,population:2,full:0,research:0}[limit];
+    assert.equal(out.accepted,true,limit);assert.equal(out.untouched,true,limit);
+    assert.equal(out.ok,expected>0,limit);assert.equal(out.queued,expected,limit);
+    assert.equal(out.cost,expected?-expected*out.unitCost:0,limit);assert.equal(out.hostUnchanged,true,limit);
+  }
+});
+
+test('five-unit training cannot bypass ownership, stale ownership or building eligibility',()=>{
+  const out=world(`
+    const b=S.bs.find(b=>b.t===1&&b.k==='tc'&&b.done);
+    const command={type:'train',entities:[b.netId],value:'vil',count:5};
+    const before=S.res.map(r=>r.f);
+    const forged=host.receive(packet('host-session',0,1,6,command),'host-session',2);
+    const accepted=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+    b.t=0;
+    const stale=host.applyFrame(6);
+    b.t=1;b.done=false;
+    const unfinished=adapter.execute(command,1,7);
+    b.done=true;b.hp=0;
+    const dead=adapter.execute(command,1,8);
+    return {forged:forged.ok,accepted:accepted.ok,stale:stale[0].ok,unfinished,dead,
+      queue:b.q.length,resourcesUnchanged:S.res.every((r,t)=>r.f===before[t])};
+  `);
+  assert.equal(out.forged,false);assert.equal(out.accepted,true);assert.equal(out.stale,false);
+  assert.equal(out.unfinished,false);assert.equal(out.dead,false);
+  assert.equal(out.queue,0);assert.equal(out.resourcesUnchanged,true);
+});
+
 test('attacks honour hostility and No Attack stance; forged enemy commands cannot change orders', () => {
   const out=world(`
     const hostile=S.us.find(u=>u.t===0&&u.hp>0&&!u.ld);

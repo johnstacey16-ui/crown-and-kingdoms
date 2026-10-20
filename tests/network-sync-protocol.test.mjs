@@ -85,6 +85,23 @@ test('canonical checksums ignore object key order but flag state changes', () =>
   assert.equal(sync.compareCheckpoint({frame:-1,hash:same},{frame:240,hash:same}), 'invalid');
 });
 
+test('training count is optional and restricted to one or five, with no count on other commands',()=>{
+  const train={type:'train',entities:['b10'],value:'vil'};
+  for(const command of [train,{...train,count:1},{...train,count:5}]){
+    assert.equal(sync.validOrder(command,128),true);
+    assert.equal(sync.validPacket(packet(1,8,{order:command}),128),true);
+  }
+  for(const count of [0,2,4,6,-1,1.5,Infinity,NaN,'5',true,null,undefined,[],{}]){
+    assert.equal(sync.validOrder({...train,count},128),false,String(count));
+  }
+  for(const command of [order,{type:'cancel',entities:['b10']},
+    {type:'research',entities:['b10'],value:'age'},
+    {type:'rally',entities:['b10'],point:{x:2,y:3}}]){
+    assert.equal(sync.validOrder({...command,count:5},128),false,command.type);
+  }
+  assert.equal(sync.validOrder({...train,count:5,free:true},128),false);
+});
+
 test('network protocol is isolated from gameplay and cannot accidentally run unapproved remote orders', () => {
   assert.doesNotMatch(source, /(?:step|orderSel|newGame|train|pay)\s*\(/);
   assert.doesNotMatch(source, /\beval\s*\(/);

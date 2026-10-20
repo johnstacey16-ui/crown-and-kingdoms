@@ -201,7 +201,9 @@ returns focus to the surrounding controls.
 
 **Hold RT** to open the selected entity's limited command wheel; **A** confirms
 its action while RT remains held. Town centres offer villager training; units
-offer Stop. Opening or releasing RT alone submits nothing. The old RT-to-train,
+offer Stop. At a town centre, hold **LT** while confirming with **A** to request
+five villagers instead of one. This is one command, not five separate UI
+submissions. Opening or releasing RT alone submits nothing. The old RT-to-train,
 LT-to-select-town, LB/RB-to-cycle, Y-to-stop and X-to-deselect shortcuts have been
 removed. Unsupported Xbox functions are not assigned replacement bindings.
 The surrounding Previous/Next unit, Select town centre and Stop buttons remain
@@ -216,8 +218,17 @@ queues. Stop preserves cargo and resources; stance remains unchanged.
 A completed selected town centre accepts **A** on the map to set its rally point.
 The confirmed rally marker applies only to future trained units; an unreachable
 rally leaves the new unit idle. Unfinished buildings cannot set rally points.
-The version-4 run handshake remains unchanged: these changes affect local input,
-not the command protocol.
+Training orders now accept an optional `count` of exactly `1` or `5`; absence
+still means one. Other commands reject this field. A batch remains a single
+scheduled, authenticated building order. The simulation charges and reserves
+space for each accepted unit and stops at the first rejection; an entirely
+blocked batch is rejected without spending resources. Accepted batches retain
+their requested count in the replay journal, including partial batches, and
+duplicate frames cannot charge them twice. This uses the existing solo batching
+semantics; exact Xbox behaviour at these limits still needs comparison.
+The live run handshake is now `ck-live-preview-5`, requiring both clients to
+update before a match. The bounded version-2 packet and journal envelopes remain
+in use; older clients reject the new run version before commands start.
 
 The required target for the whole game is documented in
 [../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
@@ -232,7 +243,8 @@ adds multiple boxes without duplicates. Ordinary A taps select or order on
 release, so starting a box cannot submit a move or rally command. B, menu/focus
 changes and other controller contexts cancel unfinished gestures. The solo
 14-pixel drag threshold is provisional pending physical Xbox comparison.
-Multiple-building selection and LT five-unit training batches remain unavailable.
+Multiple-building selection remains unavailable. LT five-unit training is
+available only through the selected town centre's RT command wheel.
 LT+A on empty space sends no order.
 Dead, loaded, removed or converted-away units are removed from the local selection;
 remaining members stay selected. Selection edits cannot bypass a pending command.

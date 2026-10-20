@@ -26,7 +26,7 @@ async function livePair(t, defaults = true) {
     assert.equal(hostLive.snapshot().frame,guestLive.snapshot().frame);
     assert.equal(hostGame.testHash(),guestGame.testHash());
   }
-  return {...fixture,hostLive,guestLive,cycle,lastFrame:()=>lastFrame,elapse:ms=>{clock+=ms;}};
+  return {...fixture,hostLive,guestLive,cycle,openingHash:hs.snapshot().hash,lastFrame:()=>lastFrame,elapse:ms=>{clock+=ms;}};
 }
 
 test('verified startup hands off to live HTTP clocks with both teams paid orders and no human-team AI', async t=>{
@@ -70,6 +70,50 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.guestLive.snapshot().lastResult.reason,'rejected-by-simulation');
   assert.equal(p.hostGame.testTeam(1).queue,0);
   assert.equal(p.hostGame.testTeam(1).food,before.food);
+});
+
+test('an older live run version is rejected even with the correct verified opening hash',async t=>{
+  const p=await livePair(t);
+  await p.host.send('run',{v:'ck-live-preview-4',hash:p.openingHash});
+  await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
+  assert.equal(p.guestLive.snapshot().phase,'failed');
+  assert.equal(p.guestGame.testTeam(1).queue,0);
+});
+
+test('guest LT+A training batch uses one HTTP request, replays its count and charges only affordable units once',async t=>{
+  const p=await livePair(t);await p.hostLive.begin();await p.cycle();await p.cycle();
+  const before=p.guestGame.testTeam(1),hostBefore=p.hostGame.testTeam(0);
+  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
+  const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},leave(){},submit:order=>p.guestLive.submit(order)});
+  p.guestGame.testRefreshMap(map,1);map.control({13:true});
+  const initialHash=p.guestGame.testHash();map.control({7:true},{7:true,6:true});
+  assert.equal(p.guestLive.snapshot().commandPending,false);
+  map.control({0:true},{0:true,6:true,7:true});
+  assert.equal(p.guestLive.snapshot().commandPending,true);
+  assert.equal(p.guestGame.testHash(),initialHash,'no optimistic queue or charge');
+  let batchFrame;
+  for(let i=0;i<8;i++){
+    await p.cycle();
+    if(p.lastFrame().message.journal.commands.length)batchFrame=p.lastFrame();
+  }
+  assert.equal(batchFrame.message.journal.commands.length,1);
+  assert.equal(batchFrame.message.journal.commands[0].order.count,5);
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  const queued=Math.min(5,Math.floor(before.food/50)),food=before.food-queued*50;
+  for(const game of [p.hostGame,p.guestGame]){
+    assert.equal(game.testTeam(1).queue,queued,'batch respects the opening budget including civilization bonuses');
+    assert.equal(game.testTeam(1).food,food);
+    assert.equal(game.testTeam(0).food,hostBefore.food);
+  }
+  const appliedHash=p.guestGame.testHash();
+  await p.host.send('frame',batchFrame);await p.guestLive.pump();await p.hostLive.pump();
+  assert.equal(p.guestGame.testHash(),appliedHash,'duplicate batch frame does not charge or enqueue again');
+  assert.equal(p.hostGame.testHash(),p.guestGame.testHash());
+  p.guestGame.testRefreshMap(map,1);map.control({0:true},{0:true,6:true,7:true});
+  for(let i=0;i<8;i++)await p.cycle();
+  assert.equal(p.guestLive.snapshot().lastResult.ok,false);
+  assert.equal(p.guestLive.snapshot().lastResult.reason,'rejected-by-simulation');
+  assert.equal(p.guestGame.testTeam(1).queue,queued);assert.equal(p.guestGame.testTeam(1).food,food);
 });
 
 test('retransmitted frame and duplicate acknowledgments never step either world twice', async t=>{
