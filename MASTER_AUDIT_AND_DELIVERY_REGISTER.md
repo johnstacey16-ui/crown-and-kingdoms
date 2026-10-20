@@ -1,226 +1,89 @@
-# Authenticated anonymous transport prototype
+# Crown & Kingdoms — authoritative audit and delivery register
 
-Run `node server/transport.mjs` (Node 22+; no dependencies). The default listener
-is `127.0.0.1:8787`; `PORT` overrides the port. Test with
-`node --test tests/server-transport.test.mjs`.
+Updated 20 October 2026. Work continues directly on `main`.
 
-This is a server prototype, not a deployed service. The game now includes an
-opt-in authenticated room setup screen that verifies the opening world. The
-existing Supabase marker room is unchanged. A limited live economy preview now
-connects training, cancellation, movement, stop and rally orders to the shared simulation clock; the full
-RTS controller interface is not enabled.
+This register tracks the 46 agreed delivery tasks. PARTIAL means implementation exists but the stated acceptance is still open. Automated checks do not establish real-browser, physical Xbox or deployed-service acceptance. Original code, artwork, music and campaigns remain required.
 
-## Identity and membership
+## Current verified code
 
-POST JSON `{}` to `/sessions` to obtain a server-generated anonymous `sid`, secret
-bearer `token`, and absolute expiry. All subsequent requests require
-`Authorization: Bearer <token>`. These credentials prove possession of a session,
-not a real person's identity. Sessions expire after 30 minutes without renewal.
-Keep tokens in memory and never share them, include them in URLs, or log them.
+- Code commit: [`13ec08c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/13ec08c8606691b7dee2bf88ba2a718d1e4af30a).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141637): passed on GitHub Ubuntu / Node 22.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141681): all 154 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- New multiplayer scenarios use two independent production-game VM contexts and the real loopback HTTP relay. They issue gather/deposit, construction, military training and research through the actual battlefield UI, and exercise a combat kill through the final replay/hash acknowledgment. Fixture durations/positions are bounded for regression tests; these are not human browser matches.
 
-The host POSTs `{}` to `/rooms` and shares only the returned `roomId` privately
-with the guest. This 256-bit invitation is a capability: anyone holding it can
-claim the one guest slot. It is intentionally not the legacy six-character code.
-The guest POSTs `{roomId}` to `/join`. GET `/room` returns the server-owned roster,
-team and match nonce. Membership is immutable; either player's DELETE `/room`,
-DELETE `/session`, session expiry, or queue overflow ends the whole room.
+## Current multiplayer and visual milestone
 
-## Relay contract
+The authenticated battlefield now admits owned move/stop, gather, build, train, cancel, research, rally, attack/attack-move and stance commands. Resource targets have persistent IDs; the host rechecks current sight, resource identity, ownership, routes, costs, prerequisites and building sites before mutation. Rejected orders do not enter the replay journal.
 
-POST `/messages` with `{matchId, kind, payload}`. Host kinds are `frame`, `receipt`, `setup`, `commit`, `run` and `result`; guest
-kinds are `command`, `ack`, `ready`, `committed` and `run-ready`. Startup and preview handshakes remain restricted to the appropriate team;
-`result` reports actual host-side command execution. The server appends `senderSid`,
-`team`, per-recipient `sequence`, and `matchId` from its authenticated membership.
-Never use `payload.sid` as transport identity. Adapters must pass the
-envelope's verified `senderSid` to the existing strict command/frame validators.
-This relay does not validate game commands or make the host cheat-proof.
+The UI projects team-relative current sight rather than the solo team-zero fog array. It draws terrain, resources, explored fog, health, unit/ship/building silhouettes, selected paths and visible projectiles. A on visible resources/opponents submits gathering/attack; RT opens contextual production or construction; RT+Y changes economic/military build pages; LT repeats placement or requests five trained units. Exact wheel sectors, all special actions and physical Xbox parity remain unverified.
 
-GET `/messages` returns up to 32 queued envelopes without removing them. After
-processing, POST `/messages/ack` with `{matchId, sequence}` to discard envelopes
-through that sequence. Repeated polls and receipts are safe. A relay receipt only
-confirms transport handling, not game execution. Lost POST responses may produce
-duplicate envelopes on retry: existing command IDs/frame checks must deduplicate
-payloads. Do not acknowledge beyond the last successfully handled envelope.
+A natural result stops simulation only after the final frame is replayed and acknowledged. Victory/defeat is relative to each human team; it is not reported as a generic network failure.
 
-Requests are capped at 4 KiB, payloads at 1 KiB, queues at 256 messages, rooms at
-500, sessions at 1000, and authenticated traffic at 120 requests/second/session.
-Full queues terminate the match rather than silently dropping game frames.
+The Node relay still requires a long-running same-origin HTTPS deployment. Static Vercel hosting does not supply this process. There is no reconnect/resume or server persistence yet. See [server/README.md](server/README.md) for the actual transport contract and deployment gates.
 
-## Deployment gates
+## Delivery order
 
-- Deploy a long-running Node process behind HTTPS on the game's origin; never
-  expose bearer credentials over plain HTTP. No cross-origin access is provided.
-- Add proxy-level connection, request-body and anonymous session-creation rate
-  limits. The in-memory capacity cap is not protection against distributed abuse.
-- Use one process: storage is in memory, restart ends every match, and multiple
-  workers do not share state. There is no reconnect/resume or persistence yet.
-- Extend the live preview to battlefield/controller input, team-relative camera
-  and HUD, visibility checks and the remaining gameplay command types.
-- Measure polling latency/throughput at the target simulation cadence and test
-  actual disconnects, two-browser gameplay and Xbox controllers. Local HTTP tests
-  establish none of those acceptance criteria.
+1. Finish and deploy the synchronized 1v1 service: reconnect/snapshots, remaining command families, independent-browser full matches, disconnect recovery and measured network cadence.
+2. Complete the original graphics overhaul: asset inventory, faction/directional animations, main-world presentation, visual captures and Xbox frame budgets. The new battlefield is a substantial rendering stage, not the finished art overhaul.
+3. Close core missing gameplay/controller features: R3 priorities and ratios, multiplayer groups/minimap/formations, garrison/naval/trade/diplomacy commands, special abilities and content restrictions.
+4. Finish original audio/music and reference-content matrices; complete Xbox Series S/X release acceptance.
 
-Do not advertise this prototype as production-ready multiplayer.
+## Task register
 
-## Browser adapter
+| ID | Prio | Track / task | Status | Implementation/evidence and acceptance requirement |
+|---|---|---|---|---|
+| CK-001 | P0 | Comprehensive CI failure inventory | VERIFIED (automated) | Current standalone files, isolated campaign suite and seeded AI skirmishes run in CI. Current evidence is recorded above; retain failure summaries. |
+| CK-002 | P0 | Repair current regression failures | VERIFIED (automated) | Current matched source/atlas and regression runs pass. This is automated evidence, not release or hardware acceptance. |
+| CK-003 | P0 | Basic complete land skirmish | PARTIAL | Three seeded passive/active production-AI land skirmishes finish naturally, including reloads. Real controller/browser matches and more seeds remain open. |
+| CK-004 | P0 | AI ability to finish matches | PARTIAL | Production AI is covered by seeded active and passive skirmish results. Broader map/seed/late-game and human opposition acceptance remains open. |
+| CK-005 | P0 | Current-version save round-trip | PARTIAL | Manual/autosave reference and counter validation now covers persistent resource IDs as well as units/buildings. Long browser/naval/garrison checkpoint coverage remains required. |
+| CK-006 | P0 | Population and production deadlocks | IMPLEMENTED/UNVERIFIED | Recent repairs in engine.js/simulation.js. Exercise queue reservations, house loss, caps, restored games and multiple concurrent buildings in full match. |
+| CK-007 | P0 | Real two-human shared multiplayer | PARTIAL — integrated battlefield | Authenticated two-client HTTP tests exercise gather/deposit, paid construction, military training, research, combat and final acknowledged victory. Public relay deployment, independent browser/controller matches and remaining commands are open. |
+| CK-008 | P0 | Multiplayer desync detection and failure handling | PARTIAL | Live stop-and-wait frame replay, ownership/sequence guards, duplicate handling, hash checks, timeout/failure and final-frame ACK are tested. Reconnect/resume and recovery snapshots remain missing. |
+| CK-009 | P0 | Controller-only core game flow | PARTIAL | Solo and authenticated battlefield provide many core controller functions; full controller-only flow and Xbox hardware acceptance remain open. |
+| CK-010 | P1 | Correct RT contextual wheel and site commands | PARTIAL | Authenticated RT building pages, RT+Y switching, paid training/research and build previews now exist. Exact reference sectors/positions and full site-command coverage require comparison. |
+| CK-011 | P1 | LB/RB, D-pad and control group parity | PARTIAL | Solo groups/quick-selection/minimap have corrected bindings and saved groups. Multiplayer LB groups and RB minimap remain missing; see XBOX_CONTROLLER_PARITY.md. |
+| CK-012 | P1 | Villager priority presets and auto economy | PARTIAL | Legacy worker targets exist. The documented R3 priorities wheel, seven presets, manual ratios and automatic-farm toggle remain missing. |
+| CK-013 | P1 | Economy completeness and balance | PARTIAL | Gather/dropoff, farms, market/trade, fishing, relics implemented; verify gathering/carry/technology maths, depletion, farm wood costs, housing and economy pacing against reference. |
+| CK-014 | P1 | Technology catalogue and effect integration | PARTIAL | config.js TE, engine.js civilisation unique techs, unit stat/render/AI use; enumerate every base reference tech and test prerequisites, cost, correct runtime effect and UI availability. |
+| CK-015 | P1 | Damage/armour/counters | PARTIAL | Config and engine contain class data and bonuses; verify attacks against infantry/cavalry/siege/ships/structures, minimum range, ballistics, projectiles and friendly fire case by case. |
+| CK-016 | P1 | Movement, collisions and pathfinding | PARTIAL | pathfinding.js, input.js, simulation.js; run land/water/ford/gate/obstacle and large group tests, verify fallback and no stranded/oscillating units. Do not infer bugs from unaudited audit claims. |
+| CK-017 | P1 | Formations, stances and combat orders | PARTIAL | Solo Y immediately switches Line/Split through normal movement planning. Six menu shapes, stances and combat orders exist; multiplayer formation commands and exact reference behavior remain open. |
+| CK-018 | P1 | Fair AI economy and tactical scaling | PARTIAL | ai.js advanced routines exist; compare Easiest–Extreme against observed reference, exclude unsupported claims of cheat multipliers, test raids/defence/attack waves and late-game rebuilds. |
+| CK-019 | P1 | Land and naval map correctness | PARTIAL | mapgen.js map audit, transport landing, docks, ships; confirm starts, food/gold/stone/wood, viable shores, accessible enemies, correct terrain and match completion. |
+| CK-020 | P1 | Diplomacy, alliances and victory rules | PARTIAL | kingdom.js and simulation.js support several modes and alliances; test win/lose precedence, simultaneous defeat, team relations, tribute, sudden death and scoring rules. |
+| CK-021 | P1 | Save game deletion and recovery UX | PARTIAL | Manual slots, rolling autosave, IndexedDB mirrors and explicit delete UI exist; test corrupt-save delete, cancel, overwrite, restored-backup tombstones, offline quota exhaustion. |
+| CK-022 | P1 | Full 19-mission campaign human acceptance | PARTIAL | 19 isolated Node campaign suites passed on baseline CI; complete all 19 with controller-only actual gameplay, triggers, defeat, save/reload, unlocks, no softlocks. |
+| CK-023 | P1 | Xbox screen readability and accessibility | UNVERIFIED | ui.js and render.js: TV distance legibility, contrast, scaling, button prompts, focus, controller disconnect and button remapping; physical Xbox Edge required. |
+| CK-024 | P2 | Reference civilisation table | PARTIAL | engine.js CIV has 26 entries, bonuses and unique units/techs; compare verified **included base** Xbox reference roster, bonuses, team bonuses, restrictions and architecture one by one. |
+| CK-025 | P2 | Reference unit catalogue | PARTIAL | config.js U plus engine.js Object.assign(U). List effective runtime roster after extensions, distinguish unit upgrade labels from new unit keys, identify real missing lines/abilities. |
+| CK-026 | P2 | Reference building catalogue | PARTIAL | Palisades now have construction, repair, collision, destruction, procedural art and saves. Authenticated building orders cover implemented economic/military build pages; remaining catalogue functions require inventory. |
+| CK-027 | P2 | Reference tech-tree UI and restrictions | PARTIAL | ui.js tech tree + config.js TE + unique technologies; cross-check civilisation availability and age/building requirements and live research effects. |
+| CK-028 | P2 | Reference map and mode catalogue | PARTIAL | menus.js has 14 map-layout choices, custom presets, 7 victory conditions, 2–4 kingdoms. Enumerate base Xbox map types, mode rules, standard settings and clearly label custom additions. |
+| CK-029 | P2 | Console tutorials and tooltips | PARTIAL | ui.js in-game control help and First Hearth training exist; assess guided teachability and missing accessibility assistance. |
+| CK-030 | P2 | Post-match statistics and spectator/replay scope | INVESTIGATE | Verify actual end-screen stats against Xbox reference; decide whether replay/spectator are mandatory in agreed base, optional online capability or separate milestone. |
+| CK-031 | P0 | Shared 2–4 human multiplayer integration | PARTIAL — two humans | Two authenticated human slots share a simulation and terminal result. Garrison/unload, trade, tribute/diplomacy, priorities/formations, reconnect and 3–4 humans remain open. Browser play has no native Xbox matchmaking integration. |
+| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL | Existing original atlases plus the new team-relative procedural battlefield art. High-resolution faction silhouettes, directional animation coverage and visual captures remain required. |
+| CK-033 | P1 | Music, ambience and feedback | PARTIAL | audio.js procedural sound; audit actual audible events, prompt initiation/resume and production-ready original sound suite. |
+| CK-034 | P3 | AI and civilisation balance | UNVERIFIED | Repeatable test batteries and human matches; record win rates and concrete deviations, avoid arbitrary 1:1 numerical approximations unsupported by reference evidence. |
+| CK-035 | P3 | Canvas/game-loop rendering and input profiling | UNVERIFIED | Measure simulation/draw frame time, memory/GC, p95 input delay, sprite and A* counts on real Xbox Series S first. |
+| CK-036 | P4 | Xbox Series S and X release acceptance | MISSING EVIDENCE | Test declared population/map/player limits with controller and Edge; record hardware/browser build, peak memory, frame time and full-match stability. |
+| CK-037 | P4 | Eight humans × 500 pop stretch target | NOT IMPLEMENTED | Separate feasibility gates: 2×200 → 4×200 → 8×200 → 8×500 with shared pathfinding, network budgets, simulation checksums and measured physical Xbox performance. |
+| CK-038 | P1 | Full Xbox DLC entitlement/content scope | OPEN / REQUIRED | New owner request expands the target to all gameplay DLC available on Xbox as of 19 October 2026, including distinct Chronicles/Return of Rome variants. Catalogue editions, bonuses, units, research, scenarios and modes; verify original implementation per category. Native Xbox achievements/cloud saves/matchmaking still require separate platform architecture. |
+| CK-039 | P4 | Final functional readiness sign-off | OPEN | All accepted required scenarios pass: deterministic tests + real browser 1v1/naval matches + saves + campaigns + real shared multiplayer + console controller hardware. |
+| CK-040 | P4 | Final reference-fidelity sign-off | OPEN | Every required Xbox base + gameplay-DLC feature in CK-024–030, CK-038 and CK-044–046 has an explicit matched/intentional-difference/waived status supported by playable evidence. |
+| CK-041 | P1 | Full original graphics overhaul | PARTIAL — battlefield rendering | The authenticated battlefield now draws observed terrain/resources, water/shore tiles, explored fog, ships/units/buildings, health, selected paths and visible projectiles. Full original sprite/animation production, isometric integration, visual captures and measured Xbox budgets remain open. |
+| CK-042 | P1 | Full original sound-effect overhaul | OPEN | Event coverage for construction, economy, combat, siege, naval, alerts and UI; audio ducking, voice caps, controller-friendly accessibility, user-gesture audio resume, performance and mix acceptance. |
+| CK-043 | P1 | Original adaptive soundtrack | OPEN | Produce original menu/economy/tension/combat/victory/defeat music; loops, seamless transition, independent volume/mute/persistence, licensing and Xbox Edge tests. |
+| CK-044 | P2 | All current Xbox gameplay DLC catalogue | OPEN | Enumerate and validate Lords of the West, Dawn of the Dukes, Dynasties of India, Return of Rome, The Mountain Royals, Victors and Vanquished, Chronicles: Battle for Greece, The Three Kingdoms, Chronicles: Alexander the Great, The Last Chieftains and The Viking Sagas against actual Xbox entitlements and feature matrices. No official copyrighted campaigns/assets may be copied. |
+| CK-045 | P1 | Xbox Series X controller default mapping fidelity | PARTIAL | Several documented default inputs are implemented/corrected; no full Xbox parity claim. R3 priorities, multiplayer groups/minimap/Y shortcuts, exact wheels and physical Edge/controller acceptance remain open. |
+| CK-046 | P2 | Xbox DE feature-family gap closure | PARTIAL | Recent core work closes palisade, Line/Split and authenticated economic/combat gaps. Complete feature-family inventory still needs special abilities, remaining multiplayer types, replay/spectator/editor/co-op dispositions and DLC mechanics. |
 
-`js/network-transport.js` is loaded by the game and exposes
-`CK_AUTH_TRANSPORT.createClient()`. Loading it performs no network requests. The
-adapter uses `/api/multiplayer` on the page's origin; the Node server accepts this
-prefix directly, so a same-origin reverse proxy can preserve the request path.
-HTTPS is required except on loopback development origins. Redirects and cookies
-are disabled; credentials stay in memory and every request bypasses caches.
+## References and historical evidence
 
-```js
-const host = CK_AUTH_TRANSPORT.createClient();
-const room = await host.connect(); // phase: waiting
-// Privately pass room.roomId to the guest on another browser.
-const guest = CK_AUTH_TRANSPORT.createClient();
-await guest.connect(room.roomId);
-await host.refreshRoster(); // phase: ready; server-owned roster is now locked
-```
+- [Full Xbox content, multiplayer and media scope](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md)
+- [Current controller contract](XBOX_CONTROLLER_PARITY.md)
+- [Historical engineering log](AOE2_PARITY_ROADMAP.md)
+- [Historical register and prior evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/blob/e9c1b6c737821176469773773b1b649c7467b22b/MASTER_AUDIT_AND_DELIVERY_REGISTER.md)
 
-Call `send(kind, payload)` with the existing command/frame protocol envelopes.
-Call `poll(async (kind, payload, trustedSenderSid) => { ...; return true; })`
-to process a batch. Pass `trustedSenderSid` to the command/frame validator;
-never take it from the payload. Returning anything other than `true`, throwing,
-a malformed batch, an HTTP failure or an eight-second request timeout fails the
-session closed and attempts to revoke its credential. Overlapping polls share
-one operation. `close()` aborts pending work and revokes the session. A fresh
-client and match are required after any failure; there is no automatic reconnect.
-The live preview driver stops advancing whenever an operation fails.
-
-The adapter validates the whole batch before processing, then acknowledges only
-after successful callbacks. `snapshot()` exposes the state/roster and invitation,
-not bearer credentials. The service worker excludes the API, authenticated
-requests and no-store requests from its shell cache. The adapter itself has no
-timer. The authenticated lobby polls at half-second intervals during setup and
-schedules the preview loop at 34 ms after verification. Requests remain serialized;
-this interval is not a guarantee of simulation speed or network throughput.
-
-`tests/network-http-transport.test.mjs` runs the classic browser adapter in VM
-contexts against real loopback HTTP sockets. It sends a paid guest training order
-through the existing authoritative inbox and replays 20 frames into two actual
-production simulations, comparing every world hash. It also checks forged
-senders, gaps, rejected callbacks, cancellation, timeouts, concurrent polls and
-service-worker cache exclusion. Browser rendering, 30 Hz network performance,
-full controller gameplay and deployed TLS remain separately unverified. Human-team
-AI suppression is covered separately by the live-session tests.
-
-## Authenticated room setup screen and startup barrier
-
-Open Multiplayer, select **Authenticated room setup**, then create a room or
-paste a case-sensitive 43-character invitation. The host chooses **Verify shared
-map** after the guest connects. D-pad/A/B and native keyboard/touch controls are
-supported; the modal traps Tab focus and Escape leaves. The relay must be running
-at the same-origin API path above. Static hosting alone does not provide it.
-
-`CK_MATCH_STARTUP.create({transport, validateConfig, prepare})` exchanges a
-versioned host setup (complete immutable numeric settings plus opening hash),
-guest ready, host commit, and guest committed confirmation. It rejects invalid
-settings, wrong peers/versions, unexpected message order, differing opening hashes
-and a 30-second startup timeout. Call `begin(settings)` on the host and `pump()`
-on each client. The host becomes verified only after the final guest confirmation.
-The browser transport separately binds these messages to the server match nonce.
-
-`CK_AUTH_LOBBY` stages the real production world with all starting settings,
-including the previously omitted layout, resources, army, villagers, age,
-population, game mode and score time limit. The initial checksum includes these
-settings, production-world hash and terrain grid. Two kingdoms are required for
-this first two-player milestone. Conflicting local guest preferences cannot leak
-into the prepared world. Preparation returns to multiplayer mode synchronously
-before any frame can advance, and leaving restores the previous settings without
-writing a save or changing persisted preferences.
-
-Verification leaves the world frozen at time zero until the host selects
-**Run live preview** and the guest confirms the preview start. `verified` means
-agreement on the initial state, not completion of multiplayer or proof against a
-cheating host. The verified lobby then hands the transport consumer over to
-`CK_LIVE_SESSION`; it never runs both startup and gameplay consumers concurrently.
-
-## Live economy preview
-
-After both opening worlds are verified, **Run live preview** performs a separate
-host/guest run handshake. Each player can **Train villager** or **Cancel training**
-for their own Town Centre. The panel shows their food, population/cap, villagers,
-queue, frame and last execution outcome. Startup options can already fill the
-population cap; such training is rejected without charging resources. Cancelling
-an existing queued unit refunds its normal cost. A queue receipt is not an
-execution result; the host sends `result` only after applying the requested frame.
-
-`CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
-authoritative inbox, host clock, frame replica and delivery acknowledgments.
-The driver allows train, cancel, move, stop and rally orders. Attack, construction and other
-battlefield commands remain unavailable, including those lacking visibility checks.
-Host and guest orders both pass through identity/team/ownership validation.
-
-The host keeps at most **one unacknowledged simulation frame**. The guest replays
-that journal, advances one production step and compares its world hash before
-acknowledging. The host checks the returned hash before stepping again. Duplicate
-frames/ACKs are idempotent; a mismatch, timeout, rejected transport message or
-closed peer stops the preview. A failed post-step checksum is not rolled back;
-the stopped match must be discarded. Frames reserve space in the relay budget
-for the hash wrapper, and execution outcomes travel separately.
-
-The normal render loop stays in multiplayer mode, so it cannot double-step,
-autosave or accept legacy team-zero gameplay input. The production command/step
-callbacks enter play mode only synchronously and immediately restore multiplayer
-mode. `S.humanTeams = [0,1]` disables AI decisions for both human kingdoms and is
-removed on leaving; normal single-player worlds keep their existing AI behavior.
-
-This deliberately conservative stop-and-wait clock slows down with network latency
-rather than advancing an unsynchronized world. Polling, request limits, repeated
-commands and longer real-network sessions still need performance testing. There
-is no reconnect, full battlefield UI, victory acceptance or deployed service yet.
-`tests/network-live-session.test.mjs` covers actual HTTP startup-to-preview flow,
-paid orders for both teams, refunds, population rejection reporting, world parity,
-AI suppression, duplicate delivery, backpressure, timeout, desync, unauthorized
-ownership and DOM/controller event-driven preview buttons and teardown. The DOM
-fixture does not establish visual browser or Xbox hardware acceptance.
-
-## Own-kingdom unit map
-
-The live preview now includes **Control units on map**. This is a simple
-team-relative tactical grid, not the full game renderer: only the current
-player's living, ungarrisoned units and buildings are projected. Enemy entities,
-resources, terrain and the shared team-zero fog array are not exposed by this UI.
-Blue dots are owned units; gold rectangles are owned buildings.
-
-Click a unit and then a destination to submit one typed move order. With the map
-focused, the D-pad moves its cursor; A selects/orders, X clears
-selection, and B returns to the surrounding controls. Menu still leaves the
-preview. Pointer coordinates are scaled to the actual map dimensions, including
-small/mobile canvases. Loaded/dead selections are discarded. The projection
-copies display data and never mutates the simulation.
-
-Move orders use the same authenticated sender/team and entity ownership checks,
-ordered execution, production pathfinding, frame replay and checksum ACKs as
-paid production orders. A failed path reports unsuccessful execution. Commands
-wait for their authoritative frame instead of moving units optimistically.
-Select a completed town centre, then a destination to set its rally point.
-The selected town centre shows its confirmed rally marker and connecting line.
-Rally points apply to future trained units; existing units keep their orders.
-If no route exists, the new unit stays idle rather than keeping an automatic
-gathering assignment.
-Unfinished buildings cannot be selected for rally orders.
-The preview run handshake is version 4 so older preview clients fail before
-accepting a stop-enabled session. Combat, building/resource orders, terrain
-rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
-remain outstanding. The Node relay still requires separate deployment.
-
-
-Select a unit and press **Y** on the controller, or choose **Stop selected unit**. Stop is available only for a
-selected living, ungarrisoned unit when no order is pending. It uses scheduled
-host execution, not immediate local mutation. It clears movement/work, patrol,
-retreat, guard and unload orders, disables automatic work/scouting, and pauses
-traders while preserving carried resources and cargo. Combat stance is unchanged,
-so units can still react to enemies according to that stance. X only clears the
-selection; it does not stop the unit.
-
-
-Use **Previous unit** / **Next unit**, **Q/E**, or controller **LB/RB** to cycle
-through your living, ungarrisoned units. **Select town centre**, **T**, or **LT**
-cycles your completed town centres. These controls place the cursor on the
-selected entity and return focus to the map. Cycling wraps at either end and
-never selects an opponent. Selection itself sends no order, including while a
-previous order is pending; command submission still waits for readiness.
+The expanded register was recovered from repository history after its contents had been replaced by relay documentation. Historical CI figures remain historical evidence; the current code baseline is the one explicitly linked above. No completion percentage is inferred from file or test counts.

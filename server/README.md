@@ -1,4 +1,4 @@
-# Authenticated anonymous transport prototype
+# Authenticated battlefield relay prototype
 
 Run `node server/transport.mjs` (Node 22+; no dependencies). The default listener
 is `127.0.0.1:8787`; `PORT` overrides the port. Test with
@@ -6,9 +6,7 @@ is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 
 This is a server prototype, not a deployed service. The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
-existing Supabase marker room is unchanged. A limited live economy preview now
-connects training, cancellation, movement, stop and rally orders to the shared simulation clock; the full
-RTS controller interface is not enabled.
+existing Supabase marker room is unchanged. The opt-in battlefield connects gathering, construction, training/research, movement, combat and rally orders to a shared, acknowledged simulation clock. It is still a prototype requiring deployment and browser/hardware acceptance.
 
 ## Identity and membership
 
@@ -54,8 +52,7 @@ Full queues terminate the match rather than silently dropping game frames.
   limits. The in-memory capacity cap is not protection against distributed abuse.
 - Use one process: storage is in memory, restart ends every match, and multiple
   workers do not share state. There is no reconnect/resume or persistence yet.
-- Extend the live preview to battlefield/controller input, team-relative camera
-  and HUD, visibility checks and the remaining gameplay command types.
+- Finish remaining gameplay commands, team-relative main-world presentation, reconnect/resume and persistent recovery snapshots.
 - Measure polling latency/throughput at the target simulation cadence and test
   actual disconnects, two-browser gameplay and Xbox controllers. Local HTTP tests
   establish none of those acceptance criteria.
@@ -138,133 +135,33 @@ agreement on the initial state, not completion of multiplayer or proof against a
 cheating host. The verified lobby then hands the transport consumer over to
 `CK_LIVE_SESSION`; it never runs both startup and gameplay consumers concurrently.
 
-## Live economy preview
+## Authenticated battlefield
 
-After both opening worlds are verified, **Run live preview** performs a separate
-host/guest run handshake. Each player can **Train villager** or **Cancel training**
-for their own Town Centre. The panel shows their food, population/cap, villagers,
-queue, frame and last execution outcome. Startup options can already fill the
-population cap; such training is rejected without charging resources. Cancelling
-an existing queued unit refunds its normal cost. A queue receipt is not an
-execution result; the host sends `result` only after applying the requested frame.
+The run handshake is `ck-live-preview-7`; older clients fail before accepting live commands. The bounded version-2 packet and journal envelopes remain in use. The legacy Supabase marker room is separate and unchanged.
 
-`CK_LIVE_SESSION.create` combines the authenticated relay, command uplink,
-authoritative inbox, host clock, frame replica and delivery acknowledgments.
-The driver allows train, cancel, move, stop and rally orders. Attack, construction and other
-battlefield commands remain unavailable, including those lacking visibility checks.
-Host and guest orders both pass through identity/team/ownership validation.
+The driver admits move, stop, gather, build, train, cancel, research, rally, attack, attack-move and stance. Every order is scheduled and checked against server-bound session/team membership and authoritative entity ownership. Attack/gather targets and full building footprints are checked against the acting team's current circular sight (units 8 tiles; Town Centres 11; outposts 14; other buildings 8), including allied vision. Shared `S.vs/S.ex` arrays never grant another team permission. Terrain occlusion and exact reference sight fidelity remain separate acceptance work.
 
-The host keeps at most **one unacknowledged simulation frame**. The guest replays
-that journal, advances one production step and compares its world hash before
-acknowledging. The host checks the returned hash before stepping again. Duplicate
-frames/ACKs are idempotent; a mismatch, timeout, rejected transport message or
-closed peer stops the preview. A failed post-step checksum is not rolled back;
-the stopped match must be discarded. Frames reserve space in the relay budget
-for the hash wrapper, and execution outcomes travel separately.
+Resources have persistent `n<number>` IDs from the shared monotonic entity counter; unit/building IDs remain `u<number>`/`b<number>`. Resource IDs cannot be used as controllable entity IDs. Gathering requires a current, visible, non-depleted resource at its authoritative grid position and compatible workers/fishing ships. Replaced nodes and foreign farms are rejected. Every route is planned before an all-member order mutates units. Normal production harvesting/depot deposits then run on the shared clock. Save validation rejects duplicate resource IDs and counters that could reuse them.
 
-The normal render loop stays in multiplayer mode, so it cannot double-step,
-autosave or accept legacy team-zero gameplay input. The production command/step
-callbacks enter play mode only synchronously and immediately restore multiplayer
-mode. `S.humanTeams = [0,1]` disables AI decisions for both human kingdoms and is
-removed on leaving; normal single-player worlds keep their existing AI behavior.
+Construction accepts only implemented economic/military building choices, integral visible sites, current prerequisites/age, sufficient resources and eligible reachable villagers. The host validates the complete footprint and routes before creating an entity or charging. New foundations have stable IDs; farms use the existing owned-food-node model. Town Centres are not exposed as a free build option. Construction order queuing and full special-building parity still require work.
 
-This deliberately conservative stop-and-wait clock slows down with network latency
-rather than advancing an unsynchronized world. Polling, request limits, repeated
-commands and longer real-network sessions still need performance testing. There
-is no reconnect, full battlefield UI, victory acceptance or deployed service yet.
-`tests/network-live-session.test.mjs` covers actual HTTP startup-to-preview flow,
-paid orders for both teams, refunds, population rejection reporting, world parity,
-AI suppression, duplicate delivery, backpressure, timeout, desync, unauthorized
-ownership and DOM/controller event-driven preview buttons and teardown. The DOM
-fixture does not establish visual browser or Xbox hardware acceptance.
+The battlefield UI copies only owned selection data and currently visible opponent/allied details. It renders observed terrain/resources, water, explored fog, units, ships, buildings, health bars, selected movement destinations and visible projectiles. Terrain memory contains last-seen tile/resource art, never remembered enemy locations; hidden territory is not projected from the solo explored array. This is a team-relative top-down battlefield stage, not the final isometric/high-resolution graphics overhaul or protection against a cheating host/client inspecting a complete replica.
 
-## Own-kingdom unit map
+- A selects/commands; A on a visible compatible resource gathers; A on a visible hostile attacks.
+- Hold A and drag with the left stick for a selection box; LT adds owned units/boxes.
+- RT opens contextual commands. For villagers, RT+Y changes economic/military build pages; A chooses a blueprint, A places it and LT retains the preview for another scheduled request.
+- Completed owned production/research buildings are selectable. RT and the left stick choose a standard training/research action; A confirms; LT+A requests a five-unit training batch. Costs, population, prerequisites and queue checks execute on the host.
+- A with one selected production building sets a rally point. Group rally and LT addition of individual buildings remain unavailable.
+- B cancels a blueprint/gesture/menu or deselects. D-pad retains idle/support/town-centre/military roles. Multiplayer LB groups, RB minimap, ordinary Y shortcuts and R3 priorities remain open.
+- The typed adapter also supports attack-move and stance, but their complete controller-wheel entries and special abilities remain unfinished. No undocumented replacement binding is assigned.
 
-The live preview now includes **Control units on map**. This is a simple
-team-relative tactical grid, not the full game renderer: only the current
-player's living, ungarrisoned units and buildings are projected. Enemy entities,
-resources, terrain and the shared team-zero fog array are not exposed by this UI.
-Blue dots are owned units; gold rectangles are owned buildings.
+A normal victory/defeat/draw is part of the world checksum. The guest replays and hashes the terminal frame, then acknowledges it; the host only declares the match finished after that acknowledgment. Both simulations freeze at the same final frame, reject new gameplay orders and retain the team-relative result until leaving. Future-frame pending input is discarded by match termination. A missing final acknowledgment still fails by timeout; there is no reconnect/recovery.
 
-Click a unit and then a destination to submit one typed move order. Pointer
-coordinates scale to the map dimensions. Loaded/dead selections are discarded;
-the projection copies display data and never mutates the simulation.
+## Verification and remaining acceptance
 
-The controller follows the required Xbox button roles: the **left stick** moves
-the cursor and **A** selects/orders. Hold **LT** and press **A** on another owned
-unit to add it to the selection; ordinary A on a unit replaces the selection.
-**D-pad Up** selects an idle villager,
-**Right** a support unit, **Down** a completed town centre, and **Left** a military
-unit. D-pad quick selection currently cycles individual entities rather than
-selecting whole groups. **B** closes the command menu or deselects; with no selection it
-returns focus to the surrounding controls.
+At `13ec08c8606691b7dee2bf88ba2a718d1e4af30a`, [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141637) and [regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141681) passed. `tests/network-battlefield.test.mjs` covers sight, mutation isolation, command rejection, resource identity/save round trips, actual deposits, paid construction/production/research and contextual drawing/input. `tests/network-battlefield-live.test.mjs` uses two production contexts and real loopback HTTP for the UI-driven economic/military loop and combat-to-terminal-ACK flow. Fixture timing is accelerated and worlds are staged for bounded regression scenarios.
 
-**Hold RT** to open the selected entity's limited command wheel; **A** confirms
-its action while RT remains held. Town centres offer villager training; units
-offer Stop. At a town centre, hold **LT** while confirming with **A** to request
-five villagers instead of one. This is one command, not five separate UI
-submissions. Opening or releasing RT alone submits nothing. The old RT-to-train,
-LT-to-select-town, LB/RB-to-cycle, Y-to-stop and X-to-deselect shortcuts have been
-removed. Unsupported Xbox functions are not assigned replacement bindings.
-The surrounding Previous/Next unit, Select town centre and Stop buttons remain
-available to pointer/accessibility navigation without claiming to be Xbox binds.
-
-Grouped Move and Stop, grouped training and single-building rally commands retain
-authenticated ownership checks,
-scheduled host execution, replay and checksum acknowledgements. Pending orders
-block another submission. No UI action optimistically changes units, food or
-queues. Stop preserves cargo and resources; stance remains unchanged.
-
-A completed selected town centre accepts **A** on the map to set its rally point.
-The confirmed rally marker applies only to future trained units; an unreachable
-rally leaves the new unit idle. Unfinished buildings cannot set rally points.
-Training orders now accept an optional `count` of exactly `1` or `5`; absence
-still means one. Other commands reject this field. A batch remains a single
-scheduled, authenticated building order. The simulation charges and reserves
-space for each accepted unit and stops at the first rejection; an entirely
-blocked batch is rejected without spending resources. Accepted batches retain
-their requested count in the replay journal, including partial batches, and
-duplicate frames cannot charge them twice. This uses the existing solo batching
-semantics; exact Xbox behaviour at these limits still needs comparison.
-Training can now name multiple completed owned buildings. Ownership and building
-eligibility are checked for every member before execution. Each requested unit
-uses a compatible available building with the shortest queue; stable ties follow
-selection order. The requested count is the total across the selected buildings,
-not a separate count per building. Research, cancel and rally orders still require
-exactly one building.
-The live run handshake is now `ck-live-preview-6`, requiring both clients to
-update before a match. The bounded version-2 packet and journal envelopes remain
-in use; older clients reject the new run version before commands start.
-
-The required target for the whole game is documented in
-[../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
-additive unit selection and existing setup buttons are still an incomplete preview.
-Unmodified double-A on the same unit selects every owned, living, ungarrisoned
-unit of its type visible on this map. Double-A on a completed town centre also
-selects all visible completed owned town centres. Their RT training wheel
-distributes ordinary and five-unit requests across the selected towns. Group
-rally commands remain unavailable; select one town centre to set its rally point.
-LT+A retains individual additive unit selection;
-the unverified LT/double-A combination does not expand the type.
-The 350 ms double-tap window still needs physical Xbox comparison. Menus,
-quick selection and pointer actions reset the gesture. Hold A and drag with
-the left stick to select enclosed eligible units on release; holding LT
-adds multiple boxes without duplicates. Ordinary A taps select or order on
-release, so starting a box cannot submit a move or rally command. B, menu/focus
-changes and other controller contexts cancel unfinished gestures. The solo
-14-pixel drag threshold is provisional pending physical Xbox comparison.
-Selection of other building types and LT addition of individual town centres
-remain unavailable. LT five-unit training is available through the selected town
-centre or town-centre group's RT command wheel.
-LT+A on empty space sends no order.
-Dead, loaded, removed or converted-away units are removed from the local selection;
-remaining members stay selected. Selection edits cannot bypass a pending command.
-Group command membership is copied at submission and executes only through the
-existing authenticated protocol. Oversized groups can be rejected by its limits;
-orders are never silently split or partially submitted by the map UI.
-LB groups, RB minimap, Y shortcuts, R3 priorities, full multiplayer menu pages, construction,
-combat and full visual/hardware parity remain outstanding. The relay still needs
-separate deployment.
+These tests do not establish deployed HTTPS, independent rendered browsers, a human full match, Xbox controller/visual acceptance, reconnect, host failover or production-scale throughput. The stop-and-wait clock trades simulation speed for synchronization and still needs real-network performance measurement.
 
 ## Multiplayer Menu button
 
