@@ -392,3 +392,45 @@ test('A taps act only on release and small stick movement does not turn a tap in
   f.map.control({0:true},{0:true});assert.equal(f.orders.length,0);
   f.map.control({},{});assert.equal(f.orders.length,1);
 });
+
+test('double A selects visible completed owned town centres and submits the full training group as a snapshot',()=>{
+  let time=1000;const f=fixture({now:()=>time}),source=world();source.bs[1].done=true;
+  source.bs.push({netId:'b3',t:1,k:'tc',hp:100,x:26,y:26,s:3,done:true},
+    {netId:'b4',t:1,k:'tc',hp:100,x:8,y:8,s:3,done:false},
+    {netId:'b5',t:1,k:'tc',hp:0,x:10,y:10,s:3,done:true},
+    {netId:'b6',t:0,k:'tc',hp:100,x:12,y:12,s:3,done:true},
+    {netId:'b7',t:1,k:'mill',hp:100,x:14,y:14,s:2,done:true},
+    {netId:'b8',t:1,k:'tc',hp:100,x:33,y:14,s:3,done:true});
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);f.map.control({13:true});
+  tap(f.map);assert.deepEqual(Array.from(f.map.selection()),['b2']);
+  // Normal live refreshes must not erase a building's first tap.
+  f.map.refresh(source,1,32,32,true);time+=100;tap(f.map);
+  assert.deepEqual(Array.from(f.map.selection()),['b2','b3']);
+  assert.match(f.description.textContent,/2 town centres/);assert.equal(f.stopButton.disabled,true);
+  f.map.choose({x:30,y:30});assert.equal(f.orders.length,0,'unverified group rally stays unavailable');
+  assert.match(f.description.textContent,/Group rally orders/);
+  f.map.control({7:true});f.map.control({0:true},{6:true,7:true});
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b2','b3'],value:'vil',count:5}]));
+  f.map.control({0:true},{6:true,7:true});assert.equal(f.orders.length,1,'pending request blocks repeats');
+  assert.equal(JSON.stringify(source),before,'UI selection and training never mutate the world');
+  source.bs[1].hp=0;f.map.refresh(source,1,32,32,false);
+  assert.deepEqual(Array.from(f.map.selection()),['b3']);assert.match(f.description.textContent,/town centre/);
+  assert.deepEqual(Array.from(f.orders[0].entities),['b2','b3']);
+});
+
+test('building double-tap cancellation and expiry preserve ordinary single-building selection',()=>{
+  for(const interruption of ['timeout','suspend','removed','pointer']){
+    let time=1000;const f=fixture({now:()=>time}),source=world();source.bs[1].done=true;
+    source.bs.push({netId:'b3',t:1,k:'tc',hp:100,x:26,y:26,s:3,done:true});
+    f.map.refresh(source,1,32,32,true);f.map.control({13:true});tap(f.map);time+=100;
+    if(interruption==='timeout')time+=400;
+    if(interruption==='suspend')f.map.suspend();
+    if(interruption==='pointer')f.map.choose({x:18,y:18});
+    if(interruption==='removed'){
+      source.bs[1].done=false;f.map.refresh(source,1,32,32,true);
+      source.bs[1].done=true;f.map.refresh(source,1,32,32,true);
+    }
+    tap(f.map);assert.deepEqual(Array.from(f.map.selection()),['b2'],interruption);
+    assert.equal(f.orders.length,0,interruption);
+  }
+});

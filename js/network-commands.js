@@ -27,9 +27,8 @@
   function activeUnits(objects) {
     return objects.every(u => u.netId[0] === 'u' && !u.ld && U[u.k]);
   }
-  function activeBuilding(objects) {
-    return objects.length === 1 && objects[0].netId[0] === 'b' &&
-      objects[0].done && B[objects[0].k];
+  function activeBuildings(objects) {
+    return objects.length > 0 && objects.every(b => b.netId[0] === 'b' && b.done && B[b.k]);
   }
 
   function moveUnits(units, point) {
@@ -72,15 +71,19 @@
 
     if (order.type === 'train' || order.type === 'research' ||
         order.type === 'rally' || order.type === 'cancel') {
-      if (!activeBuilding(entities)) return false;
+      if (!activeBuildings(entities) || order.type !== 'train' && entities.length !== 1) return false;
       const b = entities[0];
       if (order.type === 'train') {
         const count = Object.hasOwn(order, 'count') ? order.count : 1;
+        const buildings = entities.filter(b => Array.isArray(b.q) && !b.rs &&
+          Array.isArray(B[b.k].tr) && B[b.k].tr.includes(order.value));
         let queued = 0;
         // Match solo batching: each accepted unit pays its own cost and
         // reserves population/queue space. Stop at the first rejected unit.
         for (let i = 0; i < count; i++) {
-          if (train(b, order.value) !== true) break;
+          // Stable ties follow selection order, just as trainSelection() does.
+          const ordered = buildings.slice().sort((a, b) => a.q.length - b.q.length);
+          if (!ordered.some(building => train(building, order.value) === true)) break;
           queued++;
         }
         return queued > 0;

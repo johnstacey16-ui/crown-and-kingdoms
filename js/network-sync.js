@@ -183,7 +183,7 @@
       if (!validOrder(order, mapSize)) return false;
       const buildingAction = ['train', 'research', 'rally', 'cancel'].includes(order.type);
       const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance'].includes(order.type);
-      if (buildingAction && order.entities.length !== 1) return false;
+      if (buildingAction && order.type !== 'train' && order.entities.length !== 1) return false;
       if (!buildingAction && !unitAction) return false;
       return order.entities.every(id => {
         const entity = lookupEntity(id);

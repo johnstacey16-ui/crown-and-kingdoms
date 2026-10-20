@@ -209,7 +209,7 @@ removed. Unsupported Xbox functions are not assigned replacement bindings.
 The surrounding Previous/Next unit, Select town centre and Stop buttons remain
 available to pointer/accessibility navigation without claiming to be Xbox binds.
 
-Grouped Move and Stop, single-building training and rally commands retain
+Grouped Move and Stop, grouped training and single-building rally commands retain
 authenticated ownership checks,
 scheduled host execution, replay and checksum acknowledgements. Pending orders
 block another submission. No UI action optimistically changes units, food or
@@ -226,7 +226,13 @@ blocked batch is rejected without spending resources. Accepted batches retain
 their requested count in the replay journal, including partial batches, and
 duplicate frames cannot charge them twice. This uses the existing solo batching
 semantics; exact Xbox behaviour at these limits still needs comparison.
-The live run handshake is now `ck-live-preview-5`, requiring both clients to
+Training can now name multiple completed owned buildings. Ownership and building
+eligibility are checked for every member before execution. Each requested unit
+uses a compatible available building with the shortest queue; stable ties follow
+selection order. The requested count is the total across the selected buildings,
+not a separate count per building. Research, cancel and rally orders still require
+exactly one building.
+The live run handshake is now `ck-live-preview-6`, requiring both clients to
 update before a match. The bounded version-2 packet and journal envelopes remain
 in use; older clients reject the new run version before commands start.
 
@@ -234,7 +240,11 @@ The required target for the whole game is documented in
 [../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
 additive unit selection and existing setup buttons are still an incomplete preview.
 Unmodified double-A on the same unit selects every owned, living, ungarrisoned
-unit of its type visible on this map. LT+A retains individual additive selection;
+unit of its type visible on this map. Double-A on a completed town centre also
+selects all visible completed owned town centres. Their RT training wheel
+distributes ordinary and five-unit requests across the selected towns. Group
+rally commands remain unavailable; select one town centre to set its rally point.
+LT+A retains individual additive unit selection;
 the unverified LT/double-A combination does not expand the type.
 The 350 ms double-tap window still needs physical Xbox comparison. Menus,
 quick selection and pointer actions reset the gesture. Hold A and drag with
@@ -243,8 +253,9 @@ adds multiple boxes without duplicates. Ordinary A taps select or order on
 release, so starting a box cannot submit a move or rally command. B, menu/focus
 changes and other controller contexts cancel unfinished gestures. The solo
 14-pixel drag threshold is provisional pending physical Xbox comparison.
-Multiple-building selection remains unavailable. LT five-unit training is
-available only through the selected town centre's RT command wheel.
+Selection of other building types and LT addition of individual town centres
+remain unavailable. LT five-unit training is available through the selected town
+centre or town-centre group's RT command wheel.
 LT+A on empty space sends no order.
 Dead, loaded, removed or converted-away units are removed from the local selection;
 remaining members stay selected. Selection edits cannot bypass a pending command.

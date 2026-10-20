@@ -19,7 +19,7 @@
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
     function setSelection(ids){selection=[...new Set(ids)];selected=selection[0]||null;}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit selects all your visible units of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -75,10 +75,14 @@
     function refresh(world,team,width,height,canCommand) {
       if(view&&(view.team!==team||view.width!==width||view.height!==height))cancelGesture();
       view=project(world,team,width,height);enabled=canCommand;
-      if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind))lastTap=null;
+      if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind)&&
+        !view.buildings.some(b=>b.id===lastTap.id&&b.kind===lastTap.kind&&b.rallyable))lastTap=null;
       const previousCount=selection.length;
       setSelection(selection.filter(id=>view.units.some(u=>u.id===id)||view.buildings.some(b=>b.id===id&&b.rallyable)));
-      if(selected&&selection.length!==previousCount)description.textContent=selection.length+' unit'+(selection.length===1?' remains':'s remain')+' selected. A orders at the cursor; hold RT for commands; B deselects.';
+      if(selected&&selection.length!==previousCount){
+        const towns=view.buildings.some(b=>b.id===selected);
+        description.textContent=selection.length+' '+(towns?'town centre':'unit')+(selection.length===1?' remains':'s remain')+' selected. Hold RT for commands; B deselects.';
+      }
       if(!selected)wheel=false;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
@@ -96,7 +100,7 @@
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
       if(nearest){
-        if(add&&view.buildings.some(b=>selection.includes(b.id))){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
+        if(add&&view.buildings.some(b=>selection.includes(b.id))){description.textContent='Mixed building/unit selection is not available in this preview.';draw();return;}
         const at=controller&&!add?now():0;
         // The gesture is on the same unit, not two unrelated A selections.
         // This provisional window still needs comparison with physical Xbox.
@@ -108,12 +112,18 @@
           'Selected '+nameOf(nearest)+'. Double A selects visible units of this type; LT+A adds another unit. A orders at the cursor; hold RT for commands; B deselects.';
       }
       else if(town){
-        if(add&&selection.some(id=>id!==town.id)){description.textContent='Multiple-building or mixed building/unit selection is not available in this preview.';draw();return;}
-        setSelection([town.id]);description.textContent='Town centre selected. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
+        if(add&&selection.some(id=>id!==town.id)){description.textContent='LT addition of town centres and mixed building/unit selection are not available in this preview. Use double A to select completed town centres.';draw();return;}
+        const at=controller&&!add?now():0;
+        const double=controller&&!add&&previousTap&&previousTap.id===town.id&&previousTap.kind===town.kind&&at>=previousTap.at&&at-previousTap.at<=350;
+        setSelection(double?view.buildings.filter(b=>b.rallyable&&b.kind===town.kind).map(b=>b.id):[town.id]);
+        if(controller&&!add&&!double)lastTap={id:town.id,kind:town.kind,at};
+        description.textContent=selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). Select one town centre to set a rally point. B deselects.':
+          'Town centre selected. Double A selects visible completed town centres. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
       }
       else if(add){description.textContent='LT+A adds an owned unit at the cursor; it does not issue a move order.';}
       else if(selected&&enabled){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
+        if(rally&&selection.length>1){description.textContent='Group rally orders are not available in this preview. Select one town centre to set its rally point.';draw();return;}
         const result=submit({type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
         description.textContent=result.ok?(rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
         if(result.ok)enabled=false;
@@ -160,7 +170,7 @@
     function train(count=1) {
       cancelGesture();
       if(!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
-      const result=submit({type:'train',entities:[selected],value:'vil',...(count===5?{count:5}:{})});
+      const result=submit({type:'train',entities:selection.slice(),value:'vil',...(count===5?{count:5}:{})});
       description.textContent=result.ok?(count===5?'Five-villager training batch submitted. Available resources, population and queue space limit how many are queued after host execution.':'Villager training submitted. Resources and queue change only after host execution.'):'Training not submitted. Wait for the previous order.';
       if(result.ok)enabled=false;
       draw();

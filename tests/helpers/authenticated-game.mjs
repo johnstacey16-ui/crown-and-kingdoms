@@ -26,6 +26,8 @@ function game(origin, preferences) {
     globalThis.testUnit=t=>{const u=S.us.find(u=>u.t===t&&u.k==='vil');return {id:u.netId,x:u.x,y:u.y,order:u.o};};
     globalThis.testUnits=t=>S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld).map(u=>({id:u.netId,x:u.x,y:u.y,order:u.o}));
     globalThis.testRefreshMap=(map,team,ready=true)=>map.refresh(S,team,W,H,ready);
+    globalThis.testAddTown=team=>{for(let y=2;y<H-4;y++)for(let x=2;x<W-4;x++)if(okPlace(team,'tc',x,y))return addB(team,'tc',x,y,true).netId;throw Error('No fixture town site');};
+    globalThis.testTowns=team=>S.bs.filter(b=>b.t===team&&b.k==='tc').map(b=>({id:b.netId,x:b.x,y:b.y,queue:b.q.length}));
     globalThis.testChangeFood=()=>{S.res[1].f++;};
     globalThis.testPreviewDefaults=()=>{startArmy=0;startVillagers=1;startAge=0;startRes=0;gameMode=0;vm=0;};
     globalThis.testControl=(button,held=[])=>{E=[];E[button]=true;P=held.slice();if(button===7)P[7]=true;window.CK_AUTH_LOBBY.control(1/30);E=[];P=[];};

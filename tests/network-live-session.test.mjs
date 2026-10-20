@@ -2,13 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pair, attachDOM, eventually } from './helpers/authenticated-game.mjs';
 
-async function livePair(t, defaults = true) {
+async function livePair(t, defaults = true, extraTown = false) {
   const fixture=await pair(t);
   const {host,guest,hostGame,guestGame}=fixture;
   if(defaults)hostGame.testPreviewDefaults();
   const hp=hostGame.CK_AUTH_LOBBY.preparation(),gp=guestGame.CK_AUTH_LOBBY.preparation();
-  const hs=hostGame.CK_MATCH_STARTUP.create({transport:host,validateConfig:hostGame.CK_AUTH_LOBBY.validConfig,prepare:hp.prepare});
-  const gs=guestGame.CK_MATCH_STARTUP.create({transport:guest,validateConfig:guestGame.CK_AUTH_LOBBY.validConfig,prepare:gp.prepare});
+  const prepare=(game,preparation)=>config=>{
+    const initial=preparation.prepare(config);
+    if(!extraTown)return initial;
+    game.testAddTown(1);
+    return game.CK_SIM_SYNC.checksum({initial,expanded:game.testHash()});
+  };
+  const hs=hostGame.CK_MATCH_STARTUP.create({transport:host,validateConfig:hostGame.CK_AUTH_LOBBY.validConfig,prepare:prepare(hostGame,hp)});
+  const gs=guestGame.CK_MATCH_STARTUP.create({transport:guest,validateConfig:guestGame.CK_AUTH_LOBBY.validConfig,prepare:prepare(guestGame,gp)});
   await hs.begin(hostGame.CK_AUTH_LOBBY.settings(123456));
   await gs.pump();await hs.pump();await gs.pump();await hs.pump();
   let clock=0;
@@ -72,9 +78,9 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.hostGame.testTeam(1).food,before.food);
 });
 
-test('an older live run version is rejected even with the correct verified opening hash',async t=>{
+for(const version of ['ck-live-preview-4','ck-live-preview-5'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
   const p=await livePair(t);
-  await p.host.send('run',{v:'ck-live-preview-4',hash:p.openingHash});
+  await p.host.send('run',{v:version,hash:p.openingHash});
   await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
   assert.equal(p.guestLive.snapshot().phase,'failed');
   assert.equal(p.guestGame.testTeam(1).queue,0);
@@ -114,6 +120,31 @@ test('guest LT+A training batch uses one HTTP request, replays its count and cha
   assert.equal(p.guestLive.snapshot().lastResult.ok,false);
   assert.equal(p.guestLive.snapshot().lastResult.reason,'rejected-by-simulation');
   assert.equal(p.guestGame.testTeam(1).queue,queued);assert.equal(p.guestGame.testTeam(1).food,food);
+});
+
+test('guest double-A town selection balances a five-unit batch across two towns over HTTP',async t=>{
+  const p=await livePair(t,true,true);await p.hostLive.begin();await p.cycle();await p.cycle();
+  const towns=Array.from(p.guestGame.testTowns(1)),before=p.guestGame.testTeam(1);
+  assert.equal(towns.length,2);
+  let time=1000;
+  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
+  const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},now:()=>time,leave(){},submit:order=>p.guestLive.submit(order)});
+  p.guestGame.testRefreshMap(map,1);map.control({13:true});
+  const hash=p.guestGame.testHash();
+  map.control({0:true},{0:true});map.control({},{});time+=100;
+  map.control({0:true},{0:true});map.control({},{});
+  assert.deepEqual(Array.from(map.selection()),towns.map(b=>b.id));
+  map.control({7:true});map.control({0:true},{6:true,7:true});
+  assert.equal(p.guestLive.snapshot().commandPending,true);
+  assert.equal(p.guestGame.testHash(),hash,'selection and request never change the simulation optimistically');
+  for(let i=0;i<8;i++)await p.cycle();
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  const queued=Math.min(5,Math.floor(before.food/50));
+  for(const game of [p.hostGame,p.guestGame]){
+    assert.deepEqual(Array.from(game.testTowns(1),b=>b.queue),[Math.ceil(queued/2),Math.floor(queued/2)]);
+    assert.equal(game.testTeam(1).food,before.food-queued*50);
+    assert.equal(game.testTeam(0).queue,0);
+  }
 });
 
 test('retransmitted frame and duplicate acknowledgments never step either world twice', async t=>{

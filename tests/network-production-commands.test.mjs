@@ -119,6 +119,57 @@ test('five-unit training cannot bypass ownership, stale ownership or building el
   assert.equal(out.queue,0);assert.equal(out.resourcesUnchanged,true);
 });
 
+test('selected building training balances a total batch with stable ties and respects unavailable production',()=>{
+  for(const scenario of ['single','uneven','tie','reverse','research','full','resources','population','incompatible']){
+    const out=world(`
+      const first=S.bs.find(b=>b.t===1&&b.k==='tc'&&b.done);
+      const second=addB(1,'${scenario==='incompatible'?'bar':'tc'}',2,2,true);
+      addB(1,'house',6,2,true);popLimit=300;S.res[1].f=1000;
+      if(['single','uneven'].includes('${scenario}'))for(let i=0;i<2;i++)train(first,'vil');
+      if('${scenario}'==='research')first.rs={k:'age',t:10};
+      if('${scenario}'==='full')for(let i=0;i<5;i++)train(first,'vil');
+      if('${scenario}'==='resources')S.res[1].f=U.vil.cost.f*2;
+      if('${scenario}'==='population')popLimit=popOf(1)+2;
+      const before={queues:[first.q.length,second.q.length],food:S.res[1].f,hostFood:S.res[0].f};
+      const entities='${scenario}'==='reverse'?[second.netId,first.netId]:[first.netId,second.netId];
+      const command={type:'train',entities,value:'vil',count:${scenario==='single'?1:5}};
+      const accepted=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+      command.entities.pop(); // Ingress must own a copy of the full selection.
+      const untouched=first.q.length===before.queues[0]&&second.q.length===before.queues[1]&&S.res[1].f===before.food;
+      const result=host.applyFrame(6);
+      return {accepted:accepted.ok,ok:result[0].ok,untouched,queues:[first.q.length,second.q.length],
+        paid:(before.food-S.res[1].f)/U.vil.cost.f,hostUnchanged:S.res[0].f===before.hostFood};
+    `);
+    const queues={single:[2,1],uneven:[4,3],tie:[3,2],reverse:[2,3],research:[0,5],full:[5,5],resources:[1,1],population:[1,1],incompatible:[5,0]}[scenario];
+    assert.equal(out.accepted,true,scenario);assert.equal(out.ok,true,scenario);assert.equal(out.untouched,true,scenario);
+    assert.deepEqual(Array.from(out.queues),queues,scenario);
+    assert.equal(out.paid,['resources','population'].includes(scenario)?2:scenario==='single'?1:5,scenario);
+    assert.equal(out.hostUnchanged,true,scenario);
+  }
+});
+
+test('multi-building ownership is checked for every member and other building orders remain single-building',()=>{
+  for(const stale of [false,true]){
+    const out=world(`
+      const a=S.bs.find(b=>b.t===1&&b.k==='tc'),b=addB(1,'tc',2,2,true);
+      const command={type:'train',entities:[a.netId,b.netId],value:'vil',count:5};
+      const before=S.res[1].f;
+      if(!${stale})b.t=0;
+      const received=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+      if(${stale})b.t=0;
+      const result=${stale} ? host.applyFrame(6)[0] : null;
+      b.t=1;
+      const otherTypes=[{type:'cancel'}, {type:'research',value:'age'}, {type:'rally',point:{x:4,y:4}}];
+      const others=otherTypes.map(order=>host.receive(packet('guest-session',1,2,8,{...order,entities:[a.netId,b.netId]}),'guest-session',2).ok);
+      return {received:received.ok,result:result&&result.ok,queues:[a.q.length,b.q.length],
+        sameFood:S.res[1].f===before,others};
+    `);
+    assert.equal(out.received,stale);if(stale)assert.equal(out.result,false);
+    assert.deepEqual(Array.from(out.queues),[0,0]);assert.equal(out.sameFood,true);
+    assert.deepEqual(Array.from(out.others),[false,false,false]);
+  }
+});
+
 test('attacks honour hostility and No Attack stance; forged enemy commands cannot change orders', () => {
   const out=world(`
     const hostile=S.us.find(u=>u.t===0&&u.hp>0&&!u.ld);
