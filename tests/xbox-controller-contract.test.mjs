@@ -5,7 +5,8 @@ import {readFileSync} from 'node:fs';
 import { headlessGame } from './helpers/headless-game.mjs';
 
 function fixture() {
-  const {source,sandbox}=headlessGame();
+  const {source,sandbox,listeners}=headlessGame();
+  sandbox.fireEvent=(name,event)=>listeners.get(name)?.(event);
   vm.createContext(sandbox);vm.runInContext(source+'\n'+readFileSync(new URL('../js/ui.js',import.meta.url),'utf8'),sandbox);
   vm.runInContext(`
     mode='play';S={us:[],bs:[],sel:[],vp:createVillagerPriority()};
@@ -16,7 +17,7 @@ function fixture() {
     globalThis.run=(edges=[],held=[],released=[])=>{E=edges;P=held;RE=released;playCtl(0);};
     globalThis.state=()=>({selection:S.sel.map(e=>e.netId),automation:S.vp.enabled,zoom:zm,
       groups:(S.cg||[]).map(g=>g.map(e=>e.netId)),radial:cgo?.sel??null,camera:{...cam},formation:fm,
-      overview:ov,filter:mmF,mapMode:mmM,flare:S.flare});
+      overview:ov,filter:mmF,mapMode:mmM,flare:S.flare,gesture:!!aDown,box:!!boxR});
   `,sandbox);
   return sandbox;
 }
@@ -291,4 +292,118 @@ test('house shortcut remains available without a Mill and placement excludes inv
   farmShortcut(f.c);assert.equal(f.state().place.k,'house');f.c.run(button(0),button(0));
   assert.equal(f.state().wood,975);assert.equal(f.state().buildings,1);
   assert.deepEqual(f.state().workers.map(u=>u.order),['b','i','i','i']);
+});
+
+function selectTap(c){c.run(button(0),button(0));c.run([],[],button(0));}
+
+test('solo double A selects only living owned ungarrisoned units of the same type on screen',()=>{
+  const c=fixture();let time=1000;c.performance.now=()=>time;
+  vm.runInContext(`
+    const a={netId:'a',t:0,k:'vil',hp:25,x:3,y:3};
+    const b={...a,netId:'b',x:4,y:4};
+    S.us=[a,b,{...a,netId:'dead',hp:0},{...a,netId:'foreign',t:1},
+      {...a,netId:'loaded',ld:{}},{...a,netId:'offscreen',x:1000,y:1000},{...a,netId:'monk',k:'mon'}];
+    pick=()=>a;
+  `,c);
+  selectTap(c);time+=100;selectTap(c);
+  assert.deepEqual(Array.from(c.state().selection),['a','b']);assert.equal(c.orders,0);
+});
+
+test('solo building double A excludes dead, foreign and offscreen buildings',()=>{
+  const c=fixture();let time=1000;c.performance.now=()=>time;
+  vm.runInContext(`
+    const town={netId:'town',t:0,k:'tc',hp:100,mh:100,done:true,q:[],x:3,y:3,s:3};
+    S.bs=[town,{...town,netId:'building',hp:1,done:false,x:5,y:5},
+      {...town,netId:'dead',hp:0},{...town,netId:'foreign',t:1},
+      {...town,netId:'offscreen',x:1000,y:1000}];pick=()=>town;
+  `,c);
+  selectTap(c);time+=100;selectTap(c);
+  assert.deepEqual(Array.from(c.state().selection),['town','building']);assert.equal(c.orders,0);
+});
+
+test('solo LT boxes filter stale members, deduplicate and retain eligible selections outside a reverse box',()=>{
+  const c=fixture();
+  vm.runInContext(`
+    const a={netId:'a',t:0,k:'vil',hp:25,x:3,y:3},b={...a,netId:'b',x:4,y:4};
+    const monk={...a,netId:'monk',k:'mon',x:20,y:10};
+    const dead={...a,netId:'dead',hp:0},foreign={...a,netId:'foreign',t:1},loaded={...a,netId:'loaded',ld:{}};
+    S.us=[a,b,monk,dead,foreign,loaded];
+    S.sel=[monk,monk,dead,foreign,loaded,{...a,netId:'stale'}];
+    boxSel({x0:100,y0:200,x1:-100,y1:0},true);
+  `,c);
+  assert.deepEqual(Array.from(c.state().selection),['monk','a','b']);assert.equal(c.orders,0);
+});
+
+test('picking skips dead units and buildings before world compaction',()=>{
+  const c=fixture();
+  vm.runInContext(`
+    setSize(32);S.ex=new Uint8Array(W*H).fill(1);S.vs=S.ex;S.nd=[];S.rel=[];
+    const a={netId:'live',t:0,k:'vil',hp:25,x:10,y:10};
+    S.us=[{...a,netId:'dead',hp:0},{...a,netId:'loaded',ld:{}},a];
+    S.bs=[{netId:'dead-town',t:0,k:'tc',hp:0,x:2,y:2,s:3,q:[]},
+      {netId:'live-town',t:0,k:'tc',hp:100,x:5,y:5,s:3,q:[]}];
+    globalThis.picked=[pick(10,10)?.netId,pick(3,3)?.netId||null,pick(6,6)?.netId];
+  `,c);
+  assert.deepEqual(Array.from(c.picked),['live',null,'live-town']);
+});
+
+test('unfinished A boxes are cancelled by menu changes, quick selection, B, blur and disconnection',()=>{
+  for(const interruption of ['B','RB','LB','RT','Dpad','View','Menu','blur','disconnect','poll-loss']){
+    const c=fixture();
+    vm.runInContext(`
+      S.us=[{netId:'worker',t:0,k:'vil',hp:25,o:'i',x:3,y:3}];S.sel=S.us.slice();pad.index=0;
+      saveG=()=>true;pick=()=>null;
+    `,c);
+    c.run(button(0),button(0));vm.runInContext('cur.x+=50;',c);c.run([],button(0));
+    assert.equal(c.state().box,true,interruption);
+    const key={B:1,RB:5,LB:4,RT:7,Dpad:12,View:8}[interruption];
+    if(key!==undefined)c.run(button(key),button(0));
+    if(interruption==='Menu')vm.runInContext('E=[];E[9]=true;P=[];P[0]=true;RE=[];ctl(0);',c);
+    if(interruption==='blur')c.fireEvent('blur');
+    if(interruption==='disconnect')c.fireEvent('gamepaddisconnected',{gamepad:{index:0}});
+    if(interruption==='poll-loss')vm.runInContext('pad=null;E=[];P=[];RE=[];ctl(0);',c);
+    assert.equal(c.state().gesture,false,interruption);assert.equal(c.state().box,false,interruption);
+    vm.runInContext("menu=cgo=null;ov=0;mode='play';",c);
+    c.run([],[],button(0));assert.equal(c.orders,0,interruption);
+  }
+});
+
+test('controller replacement cancels a pending A tap and its first release cannot issue an order',()=>{
+  const c=fixture();
+  vm.runInContext(`
+    S.us=[{netId:'worker',t:0,k:'vil',hp:25,o:'i',x:3,y:3}];S.sel=S.us.slice();
+    pad.id='old';pad.index=0;pad.connected=true;
+  `,c);
+  c.run(button(0),button(0));assert.equal(c.state().gesture,true);
+  vm.runInContext(`
+    globalThis.replacement={id:'new',index:1,connected:true,axes:[0,0,0,0],buttons:Array.from({length:16},(_,i)=>({pressed:i===0,value:i===0?1:0}))};
+    navigator.getGamepads=()=>[replacement];readPad();playCtl(0);
+    replacement.buttons[0]={pressed:false,value:0};readPad();playCtl(0);
+  `,c);
+  assert.equal(c.state().gesture,false);assert.equal(c.orders,0);
+});
+
+test('B on the same frame as A release cancels selection before any order or tap can execute',()=>{
+  const c=fixture();
+  vm.runInContext(`const a={netId:'a',t:0,k:'vil',hp:25,x:3,y:3};S.us=[a];S.sel=[a];pick=()=>a;`,c);
+  c.run(button(0),button(0));c.run(button(1),[],button(0));
+  assert.deepEqual(Array.from(c.state().selection),[]);assert.equal(c.orders,0);assert.equal(c.state().gesture,false);
+  selectTap(c);assert.deepEqual(Array.from(c.state().selection),['a'],'fresh taps still work after cancellation');
+});
+
+test('opening and closing the minimap cancels a partly completed double-A sequence',()=>{
+  const c=fixture();let time=1000;c.performance.now=()=>time;
+  vm.runInContext(`const a={netId:'a',t:0,k:'vil',hp:25,x:3,y:3};S.us=[a,{...a,netId:'b',x:4,y:4}];pick=()=>a;`,c);
+  selectTap(c);c.run(button(5),button(5));c.run(button(1),button(1));
+  time+=100;selectTap(c);
+  assert.deepEqual(Array.from(c.state().selection),['a']);assert.equal(c.orders,0);
+});
+
+test('Y opening a build preview on the same frame as A release cannot execute the unfinished A order',()=>{
+  const f=buildFixture();f.run("ysc.vb='house';");
+  f.c.run(button(0),button(0));
+  f.c.run(button(3),Object.assign(button(0),{3:true}));
+  f.c.run([],[],Object.assign(button(0),{3:true}));
+  assert.equal(f.state().place.k,'house');assert.equal(f.c.state().gesture,false);
+  assert.equal(f.c.orders,0);assert.equal(f.state().wood,1000);
 });

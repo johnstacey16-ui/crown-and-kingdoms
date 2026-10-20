@@ -63,7 +63,7 @@ const trOf=b=>{let l=B[b.k].tr||[];if(b.k==='castle'&&S.civ)l=l.concat([CIV[S.ci
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function setQ(v){gq=v;rs();sset()}
-function autoPause(){if(mode==='play'){if(!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
+function autoPause(){if(mode==='play'){cancelSelectionGesture();if(!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
 function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
 function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
 
@@ -91,6 +91,7 @@ function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==nu
 
 
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
+function cancelSelectionGesture(){aDown=boxR=null;lastTap=0;lastTapK=null}
 const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','wall','gate','outpost'];
 const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
@@ -101,19 +102,19 @@ if(k==='idle')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&(u.k==='vil'||u.k
 if(k==='support')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='mon');
 if(k==='tc')return S.bs.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&b.k==='tc');
 return S.us.filter(isMil)}
-function qsel(k){const l=quickSelectionChoices(k);if(k==='idle'){if(!l.length)return note('No idle villagers');const u=l[idleI++%l.length];S.sel=[u];focus(u);return}
+function qsel(k){cancelSelectionGesture();const l=quickSelectionChoices(k);if(k==='idle'){if(!l.length)return note('No idle villagers');const u=l[idleI++%l.length];S.sel=[u];focus(u);return}
 if(k==='support'){if(!l.length)return note('No support units');S.sel=l;focus(l[0]);return}
 if(k==='tc'){if(!l.length)return note('No completed town centres');const b=l[tcI++%l.length];S.sel=[b];focus(b);return}
 if(!l.length)return note('No military units');S.sel=l;focus(l[0])}
-function boxSel(r,add){const x0=Math.min(r.x0,r.x1),x1=Math.max(r.x0,r.x1),y0=Math.min(r.y0,r.y1),y1=Math.max(r.y0,r.y1),inb=(x,y,dy)=>{const p=w2s(x,y);return p[0]>=x0&&p[0]<=x1&&p[1]-dy>=y0&&p[1]-dy<=y1};let l=S.us.filter(u=>u.t===0&&!u.ld&&inb(u.x,u.y,14*zm));if(!l.length)l=S.bs.filter(b=>b.t===0&&inb(b.x+b.s/2,b.y+b.s/2,0));if(add)l=S.sel.concat(l.filter(u=>!S.sel.includes(u)));if(l.length){S.sel=l;ack(l[0])}}
-function tapA(wx,wy,add){const now=performance.now(),t=pick(wx,wy);
-if(t&&t.t===0&&now-lastTap<350&&lastTapK===t.k&&!add){const l=t.q?S.bs.filter(b=>b.t===0&&b.k===t.k&&onScr(b.x+b.s/2,b.y+b.s/2)):S.us.filter(u=>u.t===0&&u.k===t.k&&!u.ld&&onScr(u.x,u.y));S.sel=l;note(l.length+' selected');lastTap=0;return}
-lastTap=now;lastTapK=t&&t.k;
-if(t&&t.t===0&&!(t.q&&(!t.done||t.hp<t.mh)&&S.sel.some(u=>u.k==='vil'))){S.sel=add?(S.sel.includes(t)?S.sel:S.sel.concat([t])):[t];ack(t)}
+function boxSel(r,add){cancelSelectionGesture();S.sel=controlGroupMembers(S.sel);const x0=Math.min(r.x0,r.x1),x1=Math.max(r.x0,r.x1),y0=Math.min(r.y0,r.y1),y1=Math.max(r.y0,r.y1),inb=(x,y,dy)=>{const p=w2s(x,y);return p[0]>=x0&&p[0]<=x1&&p[1]-dy>=y0&&p[1]-dy<=y1};let l=controlGroupMembers(S.us).filter(u=>inb(u.x,u.y,14*zm));if(!l.length)l=controlGroupMembers(S.bs).filter(b=>inb(b.x+b.s/2,b.y+b.s/2,0));if(add)l=controlGroupMembers(S.sel.concat(l));if(l.length){S.sel=l;ack(l[0])}}
+function tapA(wx,wy,add){S.sel=controlGroupMembers(S.sel);const now=performance.now(),t=pick(wx,wy),own=t&&controlGroupMembers([t]).length>0;
+if(own&&now>=lastTap&&now-lastTap<350&&lastTapK===t.k&&!add){const l=t.q?controlGroupMembers(S.bs).filter(b=>b.k===t.k&&onScr(b.x+b.s/2,b.y+b.s/2)):controlGroupMembers(S.us).filter(u=>u.k===t.k&&onScr(u.x,u.y));S.sel=l;note(l.length+' selected');lastTap=0;return}
+lastTap=own?now:0;lastTapK=own?t.k:null;
+if(own&&!(t.q&&(!t.done||t.hp<t.mh)&&selectedBuilders().length)){S.sel=add?controlGroupMembers(S.sel.concat([t])):[t];ack(t)}
 else if(!orderSel(t,wx,wy))note('Select your units first (A on a unit)')}
 const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';const req=k==='farm'?'mill':d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
 function selectedBuilders(){return controlGroupMembers(S.sel).filter(u=>u.k==='vil'&&S.us.includes(u))}
-function yShort(cyc){const s=controlGroupMembers(S.sel);if(!s.length)return note('Select villagers, a building or soldiers for the Y shortcut');
+function yShort(cyc){cancelSelectionGesture();const s=controlGroupMembers(S.sel);if(!s.length)return note('Select villagers, a building or soldiers for the Y shortcut');
 if(s.some(u=>u.k==='vil')){const L=ECO.concat(['bar','rng','stable','siege','smith','univ','castle','tower','monastery']);if(cyc){const i=L.indexOf(ysc.vb);ysc.vb=L[(i+1)%L.length];return note('Y builds: '+B[ysc.vb].n)}const k=ysc.vb,lk=bLock(k);if(lk)return note(lk);if(!can(0,B[k].cost))return note('Not enough resources');place={k};return}
 const b=s[0];if(b.q){if(!b.done)return;const l=trOf(b);if(!l.length)return note('Nothing to train here');let i=ysc.tb[b.k]|0;if(cyc){ysc.tb[b.k]=(i+1)%l.length;return note('Y trains: '+unitName(l[ysc.tb[b.k]],b.t))}const k=l[i%l.length];if(U[k].age>S.age[0])return note('Requires '+AG[U[k].age].n);const ok=trainSelection(b,k,P[6]?5:1);if(ok)note(unitName(k,b.t)+(ok>1?' x'+ok:'')+' queued');return}
 fm=(fm+1)%FMN.length;note('Formation: '+FMN[fm])}
@@ -123,8 +124,8 @@ if(t&&t.t>0){mk('Attack with military',()=>give(mil(),()=>orderSel(t,wx,wy)));mk
 else if(t&&t.amt>0){const selected=S.sel.filter(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);mk(selected.length?'Send selected villagers to gather ('+selected.length+')':'Send Villager to gather',()=>{if(selected.length)give(selected,()=>orderSel(t,wx,wy));else{const v=nearV(wx,wy);if(v)give([v],()=>orderSel(t,wx,wy));else note('No villagers')}});const dk=t.k==='w'?'lumber':(t.k==='g'||t.k==='s')?'mine':'mill';mk('Build '+B[dk].n+' here',()=>{const v=nearV(wx,wy);if(!v)return note('No villagers');S.sel=[v];place={k:dk}});mk('Send flare',()=>{S.flare={x:wx,y:wy,t:S.t};note('Flare sent')})}
 else{if(t&&t.t===0&&t.sh&&t.hp<U[t.k].hp)mk('Repair damaged ship',()=>{const vs=S.sel.filter(u=>u.k==='vil');if(vs.length)give(vs,()=>orderSel(t,wx,wy));else note('Select villagers to repair the ship')});mk('Build...',()=>{const v=nearV(wx,wy);if(!v)return note('No villagers');S.sel=[v];openMenu();if(menu){menu.rad=1;menu.pg=0}});mk('Send military here',()=>give(mil(),()=>orderSel(null,wx,wy)));mk('Attack-move military here',()=>give(mil(),()=>patrol(wx,wy,true)));mk('Attack-move siege here',()=>give(sg(),()=>patrol(wx,wy,true)));mk('Attack-move navy here',()=>give(nv(),()=>patrol(wx,wy,true)));mk('Send navy here',()=>give(nv(),()=>orderSel(null,wx,wy)));mk('Send siege here',()=>give(sg(),()=>orderSel(null,wx,wy)));mk('Send Villager here',()=>{const v=nearV(wx,wy);if(v)give([v],()=>orderSel(null,wx,wy))})}
 return{title:t&&t.t>0?'Target':t&&t.amt>0?'Resource':'Command',i:0,items:it}}
-function openRadial(wx,wy){aDown=null;boxR=null;const target=pick(wx,wy),hasVillagers=S.sel.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);if(target&&target.amt>0&&!target.fi&&hasVillagers){menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}else if(S.sel.length){openMenu();if(menu){menu.rad=1;menu.pg=0}}else{menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}}
-function playCtl(dt){const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=650*cspd*(lt?.55:1);
+function openRadial(wx,wy){cancelSelectionGesture();const target=pick(wx,wy),hasVillagers=S.sel.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);if(target&&target.amt>0&&!target.fi&&hasVillagers){menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}else if(S.sel.length){openMenu();if(menu){menu.rad=1;menu.pg=0}}else{menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}}
+function playCtl(dt){if(ov||cgo||menu||pat||place)cancelSelectionGesture();const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=650*cspd*(lt?.55:1);
 if(!rad){cur.x=cl(cur.x+ax(0)*sp*dt,0,CW);cur.y=cl(cur.y+ax(1)*sp*dt,0,CH)}
 const ex=cur.x<20?-.8:cur.x>CW-20?.8:0,ey=cur.y<20?-.8:cur.y>CH-20?.8:0;cam.x+=(ax(2)+ex)*700*camspd*dt;cam.y+=(ax(3)+ey)*700*camspd*dt;clampCam();
 const wxy=s2w(cur.x,cur.y),wx=wxy[0],wy=wxy[1];
@@ -140,7 +141,9 @@ if(place){if(E[1]){place=null;return}const s=B[place.k].s,lock=bLock(place.k);pl
 if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');pay(0,d.cost);
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);if(n)n.t=0;for(const u of vs){u.o='g';u.tg=n;u.ct='f';u.p=[];u.ret=0;u.car=0}}else{const b=addB(0,k,place.x,place.y,false);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
-if(E[5]){ov=1;aDown=null;boxR=null;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cgo={sel:-1,done:0};yc=1;aDown=null;boxR=null;return}
+if(E[5]){cancelSelectionGesture();ov=1;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cancelSelectionGesture();cgo={sel:-1,done:0};yc=1;return}
+if(E[1]&&!lt){cancelSelectionGesture();S.sel=[];return}
+if(E[8]){cancelSelectionGesture();omr='play';mode='obj';return}
 if(E[3])yc=0;if(P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){if(!yc)yShort(false);yc=0}
 // LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
 // Villager priorities must use the documented R3 wheel once that UI is ready.
@@ -150,8 +153,6 @@ if(aDown&&P[pa]&&Math.hypot(cur.x-aDown.x,cur.y-aDown.y)>14)boxR={x0:aDown.x,y0:
 if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,aDown.y);tapA(aw[0],aw[1],lt)}aDown=null}
 // X's contextual actions and R3's priorities wheel require their own Xbox
 // behaviour; do not substitute an extra generic order or subgroup cycling.
-if(E[1]&&!lt)S.sel=[];
-if(E[8]){omr='play';mode='obj';return}
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;
