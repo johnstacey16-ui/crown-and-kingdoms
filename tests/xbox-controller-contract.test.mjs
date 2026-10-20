@@ -468,6 +468,26 @@ test('controller replacement while Y is held cannot train on release; a fresh LT
 test('hold Y plus D-pad Left changes a shortcut without executing it on release',()=>{
   const f=buildFixture();f.run("ysc.vb='house';");
   f.c.run(button(3),button(3));f.c.run(button(14),button(3));
-  assert.equal(f.c.state().shortcut,'farm');
+  assert.equal(f.c.state().shortcut,'wall');
   f.c.run([],[],button(3));assert.equal(f.state().place,null);assert.equal(f.state().wood,1000);
+});
+
+test('villager Y cycles only implemented Xbox shortcut buildings and wraps without placing or spending',()=>{
+  const f=buildFixture();f.run("ysc.vb='house';");
+  for(const expected of ['wall','farm','house','wall','farm','house']){
+    f.c.run(button(3),button(3));f.c.run(button(14),button(3));
+    assert.equal(f.c.state().shortcut,expected);
+    f.c.run([],[],button(3));
+    assert.equal(f.state().place,null);assert.equal(f.state().wood,1000);
+  }
+});
+
+test('an obsolete villager shortcut cannot expose another building through Y',()=>{
+  for(const obsolete of ['lumber','mine','mill','market','dock','gate','outpost','bar','rng','stable','siege','smith','univ','castle','tower','monastery','unknown']){
+    const f=buildFixture();f.run('ysc.vb='+JSON.stringify(obsolete)+';');
+    farmShortcut(f.c);
+    assert.equal(f.c.state().shortcut,'house',obsolete);
+    assert.equal(f.state().place?.k,'house',obsolete);
+    assert.equal(f.state().wood,1000,obsolete);
+  }
 });

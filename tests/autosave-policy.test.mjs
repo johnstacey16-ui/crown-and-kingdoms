@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
@@ -19,7 +20,20 @@ assert.match(save, /localStorage\.setItem\(key,payload\)/,
 assert.match(save, /loadG\(auto=false\)[\s\S]*?localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)/,
   'The loader must restore the rolling autosave when requested');
 
-assert.match(engine, /function autoPause\(\)\{if\(mode==='play'\)\{if\(!\(window\.CK_NET&&window\.CK_NET\.isRunning\(\)\)\)saveG\(true\);mode='pause';pm=0\}\}/,
-  'Pause/blur must not write a local autosave from a live multiplayer session');
+const pauseSource=engine.match(/function autoPause\(\)\{[^\n]+/)?.[0];
+assert.ok(pauseSource,'Pause handler must exist');
+for(const online of [false,true]){
+  let saved=0,cancelled=0;
+  const context={mode:'play',pm:7,window:{CK_NET:{isRunning:()=>online}},
+    saveG:auto=>{assert.equal(auto,true);saved++;},
+    cancelGameplayGestures:()=>cancelled++};
+  const pause=vm.runInNewContext('('+pauseSource+')',context);
+  pause();
+  assert.equal(saved,online?0:1,'Only local games can autosave on blur/pause');
+  assert.equal(cancelled,1,'Pausing must cancel pending controller gestures');
+  assert.equal(context.mode,'pause');assert.equal(context.pm,0);
+  pause();assert.equal(saved,online?0:1,'An already paused game must not save again');
+}
+
 
 console.log('Autosave policy checks passed.');
