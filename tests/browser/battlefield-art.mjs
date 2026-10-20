@@ -53,6 +53,18 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
+ const diagnostics=await page.evaluate(async()=>{
+  const pack=await (await fetch('./assets/atlas-manifest.json')).json();
+  return Promise.all(pack.atlases.map(async a=>{
+   const response=await fetch(a.src),text=await response.text();
+   const parsed=new DOMParser().parseFromString(text,'image/svg+xml');
+   return {id:a.id,status:response.status,loaded:!!ASSET.atl[a.id]?.ok,
+    width:ASSET.atl[a.id]?.img?.naturalWidth,height:ASSET.atl[a.id]?.img?.naturalHeight,
+    xmlError:parsed.querySelector('parsererror')?.textContent||null};
+  }));
+ });
+ console.log('Atlas browser diagnostics: '+JSON.stringify(diagnostics));
+ assert.ok(diagnostics.every(d=>!d.xmlError&&d.status===200),'all local atlases must parse as SVG in Chromium');
  await page.waitForFunction(()=>ASSET.n===4);
  const animation=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
