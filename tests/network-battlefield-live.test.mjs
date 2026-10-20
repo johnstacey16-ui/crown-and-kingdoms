@@ -121,27 +121,32 @@ test('real HTTP guest UI garrisons, unloads, repairs and lands transport passeng
   map.control({7:true},{7:true});map.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
   map.control({0:true},{7:true,0:true});map.control({},{});
  };
- const settle=async(count=12)=>{
-  for(let i=0;i<count;i++)await p.cycle();
-  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
-  refresh();
+ const settle=async(condition,limit=90)=>{
+  for(let i=0;i<limit;i++){
+   await p.cycle();
+   if(!p.guestLive.snapshot().commandPending&&get(condition)){
+    assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+    refresh();return;
+   }
+  }
+  assert.fail('Action did not complete within '+limit+' synchronized frames: '+condition);
  };
  refresh();map.choose({x:29.5,y:24.5});const before=get('CK_SIM_SYNC.worldCheckpoint(S,1).hash');
  wheel('garrison');assert.equal(p.guestLive.snapshot().commandPending,false);
  refresh();map.choose({x:31,y:26});
  assert.equal(get('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),before,'selection and submission do not board optimistically');
- await settle();
+ await settle('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId===fixtureShelter');
  assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId'),game.fixtureShelter);
  assert.equal(map.selection().includes(game.fixturePassenger),false);
- map.choose({x:31,y:26});wheel('unload');await settle();
+ map.choose({x:31,y:26});wheel('unload');await settle('CK_GAME_COMMANDS.lookup(fixturePassenger).ld===null');
  assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld'),null);
  const worker=game.testUnit(1);map.choose({x:worker.x,y:worker.y});wheel('repair');map.choose({x:36,y:23});
- await settle();assert.equal(get('CK_GAME_COMMANDS.lookup(fixtureHouse).hp===CK_GAME_COMMANDS.lookup(fixtureHouse).mh'),true);
+ await settle('CK_GAME_COMMANDS.lookup(fixtureHouse).hp===CK_GAME_COMMANDS.lookup(fixtureHouse).mh');assert.equal(get('CK_GAME_COMMANDS.lookup(fixtureHouse).hp===CK_GAME_COMMANDS.lookup(fixtureHouse).mh'),true);
  const pos=get('({x:CK_GAME_COMMANDS.lookup(fixturePassenger).x,y:CK_GAME_COMMANDS.lookup(fixturePassenger).y})');
  map.choose(pos);wheel('garrison');map.choose({x:31.5,y:30.5});
- await settle(20);assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId'),game.fixtureShip);
+ await settle('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId===fixtureShip');assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId'),game.fixtureShip);
  map.choose({x:31.5,y:30.5});wheel('disembark');map.choose({x:36.5,y:29.5});
- await settle(20);
+ await settle('CK_GAME_COMMANDS.lookup(fixturePassenger).ld===null&&CK_GAME_COMMANDS.lookup(fixtureShip).cg.length===0');
  assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld'),null);
  assert.equal(get('CK_GAME_COMMANDS.lookup(fixtureShip).cg.length'),0);
  assert.equal(get('S.wt[(CK_GAME_COMMANDS.lookup(fixturePassenger).y|0)*W+(CK_GAME_COMMANDS.lookup(fixturePassenger).x|0)]'),0);
