@@ -23,13 +23,13 @@ async function scene(page){
   addB(0,'outpost',29,26,true);
   const worker=addU(0,'vil',23.5,24.5);worker.o='g';
   const soldier=addU(0,'mil',25.5,25.5);soldier.p=[[26.5,25.5]];
-  addU(0,'knight',27.5,24.5);
+  addU(0,'knight',27.5,24.5);addU(0,'cart',24.5,26.5);addU(0,'conq',28.5,23.5);addB(0,'palisade',25,31,true);
   const foe=addU(1,'arc',31.5,26.5);foe.o='a';foe.cd=.2;
   const hidden=addU(1,'scout',62.5,62.5);
   for(let x=17;x<23;x++)for(let y=29;y<32;y++)addN('w',x,y,100,0);
   addN('g',26,29,100,0);addN('s',27,30,100,0);
   for(let y=34;y<41;y++)for(let x=24;x<43;x++)S.wt[y*W+x]=1;
-  addU(0,'trn',29.5,35.5);addU(1,'gal',34.5,36.5);
+  addU(0,'trn',29.5,35.5);addU(0,'cog',31.5,35.5);addU(1,'gal',34.5,36.5);
   const host=document.createElement('main');
   host.style.cssText='position:fixed;inset:0;z-index:10000;background:#09141d;color:#eadfc2;font:16px system-ui;display:flex;align-items:center;flex-direction:column;overflow:auto';
   const title=document.createElement('h1');title.textContent='Crown & Kingdoms — original battlefield art';title.style.fontSize='22px';
@@ -65,7 +65,7 @@ try{
  });
  console.log('Atlas browser diagnostics: '+JSON.stringify(diagnostics));
  assert.ok(diagnostics.every(d=>!d.xmlError&&d.status===200),'all local atlases must parse as SVG in Chromium');
- await page.waitForFunction(()=>ASSET.n===4);
+ await page.waitForFunction(expected=>ASSET.n===expected,diagnostics.length);
  const animation=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
   const first=JSON.stringify(artDraws),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
@@ -82,7 +82,30 @@ try{
  assert.ok(animation.originalSources.some(s=>s.endsWith('upright-units-atlas.svg')));
  assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-forces-atlas.svg')));
  assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-buildings-atlas.svg')));
+ for(const file of ['trade-atlas.svg','unique-forces-atlas.svg','palisade-atlas.svg'])assert.ok(animation.originalSources.some(s=>s.endsWith(file)),file+' is used in the battlefield');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
+ const contact=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  const canvas=document.createElement('canvas');canvas.id='extended-art';canvas.width=800;canvas.height=640;
+  canvas.style.cssText='display:block;width:800px;height:640px';
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,800,640);
+  const kinds=['cart','cog','conq','genoa','boyar','tarkan','huskarl','jaguar','plumed','kamayuk','shotel','gbeto','wagon','huszar','bld_palisade','cs'];
+  let count=0;
+  for(let i=0;i<kinds.length;i++){
+   const kind=kinds[i],x=i%4*200,y=Math.floor(i/4)*160;
+   ctx.fillStyle='#f4e6ba';ctx.font='16px system-ui';ctx.fillText(kind,x+12,y+23);
+   for(let team=0;team<2;team++){
+    const art=assetFrame(kind,team,team?2:1,0,team?.35:.05,team?Math.PI:0);
+    if(!art)throw Error('No contact sheet frame for '+kind);
+    const f=art.f,scale=f.w>=128?.65:.95;
+    ctx.drawImage(art.img,f.x,f.y,f.w,f.h,x+7+team*94,y+54,f.w*scale,f.h*scale);count++;
+   }
+  }
+  document.querySelector('main').append(canvas);
+  return {sprites:count,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.equal(contact.sprites,32);assert.equal(contact.unchanged,true);
+ await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});
  const teamOne=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;artMap.refresh(S,1,W,H,true);
   const view=CK_UNIT_MAP.project(S,1,W,H);
@@ -108,9 +131,10 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{
  await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
 }
+
