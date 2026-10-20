@@ -92,14 +92,19 @@ function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==nu
 
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
 const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','wall','gate','outpost'];
-const isMil=u=>u.t===0&&!u.ld&&u.k!=='vil'&&u.k!=='fish'&&u.k!=='trn'&&u.k!=='king'&&u.k!=='mon';
+const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
 const focus=a=>ctr(a.x+(a.s||0)/2,a.y+(a.s||0)/2);
 function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u.t===0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
-function qsel(k){let l=[];if(k==='idle'){l=S.us.filter(u=>u.t===0&&!u.ld&&(u.k==='vil'||u.k==='fish')&&u.o==='i');if(!l.length)return note('No idle villagers');const u=l[idleI++%l.length];S.sel=[u];focus(u);return}
-if(k==='support'){l=S.us.filter(u=>u.t===0&&!u.ld&&u.k==='mon');if(!l.length)return note('No support units');S.sel=l;focus(l[0]);return}
-if(k==='tc'){l=S.bs.filter(b=>b.t===0&&b.k==='tc');if(!l.length)return;const b=l[tcI++%l.length];S.sel=[b];focus(b);return}
-l=S.us.filter(isMil);if(!l.length)return note('No military units');S.sel=l;focus(l[0])}
+function quickSelectionChoices(k){
+if(k==='idle')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&(u.k==='vil'||u.k==='fish')&&u.o==='i');
+if(k==='support')return S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='mon');
+if(k==='tc')return S.bs.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&b.k==='tc');
+return S.us.filter(isMil)}
+function qsel(k){const l=quickSelectionChoices(k);if(k==='idle'){if(!l.length)return note('No idle villagers');const u=l[idleI++%l.length];S.sel=[u];focus(u);return}
+if(k==='support'){if(!l.length)return note('No support units');S.sel=l;focus(l[0]);return}
+if(k==='tc'){if(!l.length)return note('No completed town centres');const b=l[tcI++%l.length];S.sel=[b];focus(b);return}
+if(!l.length)return note('No military units');S.sel=l;focus(l[0])}
 function boxSel(r,add){const x0=Math.min(r.x0,r.x1),x1=Math.max(r.x0,r.x1),y0=Math.min(r.y0,r.y1),y1=Math.max(r.y0,r.y1),inb=(x,y,dy)=>{const p=w2s(x,y);return p[0]>=x0&&p[0]<=x1&&p[1]-dy>=y0&&p[1]-dy<=y1};let l=S.us.filter(u=>u.t===0&&!u.ld&&inb(u.x,u.y,14*zm));if(!l.length)l=S.bs.filter(b=>b.t===0&&inb(b.x+b.s/2,b.y+b.s/2,0));if(add)l=S.sel.concat(l.filter(u=>!S.sel.includes(u)));if(l.length){S.sel=l;ack(l[0])}}
 function tapA(wx,wy,add){const now=performance.now(),t=pick(wx,wy);
 if(t&&t.t===0&&now-lastTap<350&&lastTapK===t.k&&!add){const l=t.q?S.bs.filter(b=>b.t===0&&b.k===t.k&&onScr(b.x+b.s/2,b.y+b.s/2)):S.us.filter(u=>u.t===0&&u.k===t.k&&!u.ld&&onScr(u.x,u.y));S.sel=l;note(l.length+' selected');lastTap=0;return}
@@ -122,7 +127,7 @@ function playCtl(dt){const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=65
 if(!rad){cur.x=cl(cur.x+ax(0)*sp*dt,0,CW);cur.y=cl(cur.y+ax(1)*sp*dt,0,CH)}
 const ex=cur.x<20?-.8:cur.x>CW-20?.8:0,ey=cur.y<20?-.8:cur.y>CH-20?.8:0;cam.x+=(ax(2)+ex)*700*camspd*dt;cam.y+=(ax(3)+ey)*700*camspd*dt;clampCam();
 const wxy=s2w(cur.x,cur.y),wx=wxy[0],wy=wxy[1];
-if(ov){const o=ovr();if(E[0]||E[3]){const mw=m2w(o,cur.x,cur.y);ctr(mw[0],mw[1]);ov=0;return}if(E[1]||E[5]||E[8]){ov=0;return}if(E[12]){const mw=m2w(o,cur.x,cur.y);S.flare={x:mw[0],y:mw[1],t:S.t};note('Signal sent')}if(E[15]){mmF=(mmF+1)%3;note(['Minimap: full','Minimap: simple','Minimap: no terrain'][mmF])}if(E[14]){mmM=(mmM+1)%3;note(['Minimap: everything','Minimap: economy only','Minimap: military only'][mmM])}return}
+if(ov){const o=ovr();if(E[3]){const mw=m2w(o,cur.x,cur.y);ctr(mw[0],mw[1]);yc=1;ov=0;return}if(E[1]||E[5]||E[8]){ov=0;return}if(E[12]){const mw=m2w(o,cur.x,cur.y);S.flare={x:mw[0],y:mw[1],t:S.t};note('Signal sent')}if(E[15]){mmF=(mmF+1)%3;note(['Minimap: full','Minimap: simple','Minimap: no terrain'][mmF])}if(E[14]){mmM=(mmM+1)%3;note(['Minimap: everything','Minimap: economy only','Minimap: military only'][mmM])}return}
 if(cgo){const sx=ax(0),sy=ax(1);if(Math.hypot(sx,sy)>.45){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;cgo.sel=Math.floor(a/6.2832*8+.5)%8}S.cg=S.cg||[];const sl=cgo.sel,live=()=>controlGroupMembers(S.cg[sl]);
 if(E[2]&&sl>=0){S.cg[sl]=controlGroupMembers(S.sel);cgo.done=1;note('Group '+(sl+1)+' set ('+S.cg[sl].length+')')}if(E[3]&&sl>=0&&live().length){S.sel=live();focus(S.sel[0]);cgo.done=1;note('Group '+(sl+1)+' selected')}
 if(RE[4]){if(!cgo.done&&sl>=0&&live().length){S.sel=live();note('Group '+(sl+1)+' selected')}cgo=null}if(E[1])cgo=null;return}
