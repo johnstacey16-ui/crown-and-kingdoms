@@ -103,7 +103,7 @@ test('host and guest move their own villagers over HTTP with identical positions
   }
 });
 
-test('guest double-A map selection moves and stops its same-type group over HTTP with matching world hashes',async t=>{
+for(const gesture of ['double-A','hold-A box'])test('guest '+gesture+' map selection moves and stops its group over HTTP with matching world hashes',async t=>{
   const p=await livePair(t);await p.hostLive.begin();await p.cycle();await p.cycle();
   const units=Array.from(p.guestGame.testUnits(1));assert.ok(units.length>=2);
   const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
@@ -111,8 +111,20 @@ test('guest double-A map selection moves and stops its same-type group over HTTP
   const map=p.guestGame.CK_UNIT_MAP.create({canvas,description:{textContent:''},leave(){},now:()=>time,submit:order=>p.guestLive.submit(order)});
   p.guestGame.testRefreshMap(map,1);
   const before=p.guestGame.testHash();
-  map.choose({x:units[0].x,y:units[0].y});
-  map.control({0:true});map.control({},{});time+=200;map.control({0:true});
+  if(gesture==='double-A'){
+    map.choose({x:units[0].x,y:units[0].y});
+    map.control({0:true},{0:true});map.control({},{});time+=200;map.control({0:true},{0:true});map.control({},{});
+  }else{
+    const start={x:Math.min(...units.map(u=>u.x))-1,y:Math.min(...units.map(u=>u.y))-1};
+    const end={x:Math.max(...units.map(u=>u.x))+1,y:Math.max(...units.map(u=>u.y))+1};
+    const scale=p.guestGame.testWorld().width*.6*.1*10;
+    const axes=[(end.x-start.x)/scale,(end.y-start.y)/scale];
+    assert.ok(axes.every(axis=>axis>0&&axis<=1));
+    map.choose(start);map.control({0:true},{0:true});
+    for(let i=0;i<10;i++)map.control({},{0:true},axes,.1);
+    assert.equal(p.guestLive.snapshot().commandPending,false,'starting a box sends no order');
+    map.control({},{});
+  }
   assert.deepEqual(Array.from(map.selection()),units.map(u=>u.id));
   assert.equal(p.guestGame.testHash(),before,'selection is local display state');
   map.choose(p.guestGame.testRallyPoint(1));

@@ -14,17 +14,27 @@ const world=()=>({teamN:2,us:[
 ],bs:[{netId:'b1',t:0,k:'tc',hp:100,x:3,y:3,s:3},{netId:'b2',t:1,k:'tc',hp:100,x:18,y:18,s:3}],
   res:[{f:100},{f:200}],vs:new Uint8Array(32*32),nodes:[{x:19,y:19,k:'g'}]});
 function fixture(options={}) {
-  const handlers=new Map(),orders=[];
+  const handlers=new Map(),orders=[],boxes=[];
   const navigation={};
   for(const key of ['previousButton','nextButton','townButton'])navigation[key]={disabled:false,addEventListener(name,fn){this[name]=fn;}};
   const stopHandlers=new Map(),stopButton={disabled:false,addEventListener:(name,fn)=>stopHandlers.set(name,fn)};
   let left=false;
-  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},
+  const canvas={style:{},getContext:()=>new Proxy({},{get:(_,key)=>key==='strokeRect'? (...args)=>boxes.push(args):()=>{}}),setAttribute(){},
     addEventListener:(name,fn)=>handlers.set(name,fn),focus(){},
     getBoundingClientRect:()=>({left:100,top:50,width:340,height:340})};
   const description={textContent:''};
   const map=api.create({canvas,description,stopButton,...navigation,...options,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
-  return {map,handlers,orders,description,canvas,stopButton,...navigation,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
+  return {map,handlers,orders,boxes,description,canvas,stopButton,...navigation,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
+}
+
+function tap(map,held={}) {
+  map.control({0:true},{...held,0:true});
+  map.control({},held);
+}
+
+function drag(map,axes,held={},frames=2) {
+  map.control({0:true},{...held,0:true});
+  for(let i=0;i<frames;i++)map.control({},{...held,0:true},axes,.1);
 }
 
 test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
@@ -54,7 +64,7 @@ test('selection and scaled pointer coordinates emit a typed move for the selecte
 test('left stick moves the map cursor; B deselects before returning focus',()=>{
   const f=fixture();f.map.refresh(world(),1,32,32,true);
   f.map.control({12:true});assert.equal(f.map.selected(),'u2');
-  f.map.control({}, {}, [1,0], .1);f.map.control({0:true});
+  f.map.control({}, {}, [1,0], .1);tap(f.map);
   assert.ok(Math.abs(f.orders[0].point.x-21.92)<.001);assert.equal(f.orders[0].point.y,22);
   f.map.control({2:true});assert.equal(f.map.selected(),'u2','X must not become deselect');
   f.map.control({1:true});assert.equal(f.map.selected(),null);assert.equal(f.left(),false);
@@ -96,7 +106,7 @@ test('controller cursor can select town centre and submit a rally point',()=>{
   f.map.control({13:true});
   assert.equal(f.map.selected(),'b2');
   f.map.control({}, {}, [1,0], .1);
-  f.map.control({0:true});
+  tap(f.map);
   assert.equal(f.orders[0].type,'rally');assert.ok(Math.abs(f.orders[0].point.x-21.42)<.001);
 });
 
@@ -125,7 +135,7 @@ test('quick selection wraps through only owned living units and centers the comm
   f.nextButton.click();assert.equal(f.map.selected(),'u2');
   f.previousButton.click();assert.equal(f.map.selected(),'u5');
   assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
-  f.map.control({}, {}, [1,0], .1);f.map.control({0:true});
+  f.map.control({}, {}, [1,0], .1);tap(f.map);
   assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u5'],point:{x:28.92,y:28}}));
   f.nextButton.click();assert.equal(f.map.selected(),'u2');
   f.map.control({7:true});f.map.control({0:true},{7:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
@@ -190,7 +200,7 @@ test('D-pad categories use owned eligible entities and legacy shortcuts send no 
   }
   for(const button of [4,5,6,3,2]){f.map.control({[button]:true});assert.equal(f.map.selected(),'soldier');}
   assert.equal(f.orders.length,0);
-  f.map.control({7:true});f.map.control({});f.map.control({0:true});
+  f.map.control({7:true});f.map.control({});tap(f.map);
   assert.equal(f.orders.length,0,'releasing RT closes the wheel before A can execute it');
   f.map.control({13:true});f.map.control({7:true});
   f.map.control({0:true},{6:true,7:true});
@@ -201,11 +211,11 @@ test('D-pad categories use owned eligible entities and legacy shortcuts send no 
 test('LT+A adds distinct owned units and move/Stop use the complete selection without optimistic mutation',()=>{
   const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:22,y:22});
   const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
-  f.map.control({0:true}); // Cursor starts at u2.
+  tap(f.map); // Cursor starts at u2.
   f.map.control({}, {6:true}, [1,0], .1);
-  f.map.control({0:true},{6:true});
+  tap(f.map,{6:true});
   assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);
-  f.map.control({0:true},{6:true});assert.equal(f.map.selection().length,2,'no duplicates');
+  tap(f.map,{6:true});assert.equal(f.map.selection().length,2,'no duplicates');
   const copy=f.map.selection();copy.pop();assert.equal(f.map.selection().length,2,'selection API is copied');
   f.map.choose({x:29,y:29});
   assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u2','u5'],point:{x:29,y:29}}));
@@ -239,12 +249,12 @@ test('double A selects all visible owned eligible units of the same type and sub
     {netId:'monk',t:1,k:'mon',hp:25,x:28,y:28},
     {netId:'outside',t:1,k:'vil',hp:25,x:33,y:22});
   const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
-  f.map.control({0:true});assert.deepEqual(Array.from(f.map.selection()),['u2']);
-  f.map.control({},{});time+=200;f.map.control({0:true});
+  tap(f.map);assert.deepEqual(Array.from(f.map.selection()),['u2']);
+  f.map.control({},{});time+=200;tap(f.map);
   assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);assert.equal(f.orders.length,0);
   f.map.choose({x:30,y:30});
   assert.deepEqual(Array.from(f.orders[0].entities),['u2','u5']);
-  f.map.control({0:true});time+=100;f.map.control({0:true});
+  tap(f.map);time+=100;tap(f.map);
   assert.equal(f.orders.length,1,'pending move remains guarded');
   assert.equal(JSON.stringify(source),before);
 });
@@ -253,7 +263,7 @@ test('double A expires and is cancelled by menus, quick selection, pointer selec
   for(const interrupt of ['timeout','suspend','blur','B','RT','dpad','pointer','removed','team']){
     let time=1000;const f=fixture({now:()=>time}),source=world();
     source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28});
-    f.map.refresh(source,1,32,32,true);f.map.control({0:true});time+=100;
+    f.map.refresh(source,1,32,32,true);tap(f.map);time+=100;
     if(interrupt==='timeout')time+=400;
     if(interrupt==='suspend')f.map.suspend();
     if(interrupt==='blur')f.handlers.get('blur')();
@@ -266,7 +276,7 @@ test('double A expires and is cancelled by menus, quick selection, pointer selec
       source.us[1].ld=null;f.map.refresh(source,1,32,32,true);
     }
     if(interrupt==='team'){f.map.refresh(source,0,32,32,true);f.map.refresh(source,1,32,32,true);}
-    f.map.control({0:true});
+    tap(f.map);
     assert.deepEqual(Array.from(f.map.selection()),['u2'],interrupt);
     assert.equal(f.orders.length,0,interrupt);
   }
@@ -275,8 +285,8 @@ test('double A expires and is cancelled by menus, quick selection, pointer selec
 test('two quick A presses on different units remain individual selections',()=>{
   let time=1000;const f=fixture({now:()=>time}),source=world();
   source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:21.92,y:22});
-  f.map.refresh(source,1,32,32,true);f.map.control({0:true});
-  f.map.control({}, {}, [1,0],.1);time+=100;f.map.control({0:true});
+  f.map.refresh(source,1,32,32,true);tap(f.map);
+  f.map.control({}, {}, [1,0],.1);time+=100;tap(f.map);
   assert.deepEqual(Array.from(f.map.selection()),['u5']);assert.equal(f.orders.length,0);
 });
 
@@ -284,16 +294,86 @@ test('double A stays local while pending, excludes converted members, and LT ret
   let time=1000;const f=fixture({now:()=>time}),source=world();source.bs[1].done=true;
   source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28},
     {netId:'monk',t:1,k:'mon',hp:25,x:28,y:28});
-  f.map.refresh(source,1,32,32,false);f.map.control({0:true});time+=100;
+  f.map.refresh(source,1,32,32,false);tap(f.map);time+=100;
   source.us.find(u=>u.netId==='u5').t=0;
-  f.map.refresh(source,1,32,32,false);f.map.control({0:true});
+  f.map.refresh(source,1,32,32,false);tap(f.map);
   assert.deepEqual(Array.from(f.map.selection()),['u2']);assert.equal(f.orders.length,0);
   source.us.find(u=>u.netId==='u5').t=1;
-  f.map.refresh(source,1,32,32,false);f.map.control({0:true});time+=100;f.map.control({0:true});
+  f.map.refresh(source,1,32,32,false);tap(f.map);time+=100;tap(f.map);
   assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);assert.equal(f.orders.length,0);
   f.map.choose({x:28,y:28});f.map.choose({x:20,y:22},true);
-  f.map.control({0:true},{6:true});time+=100;f.map.control({0:true},{6:true});
+  tap(f.map,{6:true});time+=100;tap(f.map,{6:true});
   assert.deepEqual(Array.from(f.map.selection()),['monk','u2'],'LT keeps verified individual additive selection');
-  f.map.choose({x:18,y:18});f.map.control({0:true},{6:true});time+=100;f.map.control({0:true},{6:true});
+  f.map.choose({x:18,y:18});tap(f.map,{6:true});time+=100;tap(f.map,{6:true});
   assert.deepEqual(Array.from(f.map.selection()),['b2'],'no substitute multi-building orders');
+});
+
+test('hold A draws a box and selects only eligible enclosed units on release without submitting an order',()=>{
+  const f=fixture(),source=world();
+  source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:22,y:24},
+    {netId:'monk',t:1,k:'mon',hp:25,x:21,y:23},
+    {netId:'enemy',t:0,k:'vil',hp:25,x:21,y:23});
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
+  f.map.choose({x:19,y:21});
+  drag(f.map,[1,1]);
+  assert.deepEqual(Array.from(f.map.selection()),[],'selection waits for release');
+  assert.ok(f.boxes.some(box=>box[2]>14&&box[3]>14),'visible drag outline');
+  assert.equal(f.orders.length,0,'A press and drag never move');
+  f.map.control({},{});
+  assert.deepEqual(Array.from(f.map.selection()),['u2','u5','monk']);
+  assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
+  f.map.choose({x:30,y:30});
+  assert.deepEqual(Array.from(f.orders[0].entities),['u2','u5','monk']);
+});
+
+test('LT adds multiple boxes without duplicates while pending and cannot mix a town with units',()=>{
+  const f=fixture(),source=world();source.bs[1].done=true;
+  source.us.push({netId:'monk',t:1,k:'mon',hp:25,x:28,y:28});
+  f.map.refresh(source,1,32,32,false);f.map.choose({x:28,y:28});
+  for(let i=0;i<2;i++){
+    f.map.choose({x:19,y:21},true);drag(f.map,[1,1],{6:true});f.map.control({},{6:true});
+    assert.deepEqual(Array.from(f.map.selection()),['monk','u2']);
+  }
+  assert.equal(f.orders.length,0,'selection cannot bypass pending guard');
+  f.map.choose({x:18,y:18});f.map.choose({x:19,y:21},true);
+  drag(f.map,[1,1],{6:true});f.map.control({},{6:true});
+  assert.deepEqual(Array.from(f.map.selection()),['b2']);assert.equal(f.orders.length,0);
+});
+
+test('reverse and empty boxes replace selection and release uses current ownership and garrison eligibility',()=>{
+  const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:22,y:24});
+  f.map.refresh(source,1,32,32,true);f.map.choose({x:25,y:25});
+  drag(f.map,[-1,-1],{},3);
+  source.us[1].ld={};f.map.refresh(source,1,32,32,true);
+  f.map.control({},{});assert.deepEqual(Array.from(f.map.selection()),['u5']);
+  // Repositioning with LT on empty space is selection-only, so no move leaks.
+  f.map.choose({x:29,y:29},true);drag(f.map,[1,1]);f.map.control({},{});
+  assert.deepEqual(Array.from(f.map.selection()),[]);assert.equal(f.orders.length,0);
+});
+
+test('B, menus, modifiers, focus changes and pointer selection cancel unfinished boxes without release orders',()=>{
+  for(const interrupt of ['B','suspend','blur','RT','LB','RB','Y','dpad','team','pointer']){
+    const f=fixture(),source=world();f.map.refresh(source,1,32,32,true);
+    f.map.choose({x:20,y:22});drag(f.map,[1,1]);
+    if(interrupt==='B')f.map.control({1:true},{0:true});
+    if(interrupt==='suspend')f.map.suspend();
+    if(interrupt==='blur')f.handlers.get('blur')();
+    const modifier={RT:7,LB:4,RB:5,Y:3}[interrupt];
+    if(modifier!==undefined)f.map.control({[modifier]:true},{0:true,[modifier]:true});
+    if(interrupt==='dpad')f.map.control({12:true},{0:true});
+    if(interrupt==='team'){f.map.refresh(source,0,32,32,true);f.map.refresh(source,1,32,32,true);}
+    if(interrupt==='pointer')f.map.choose({x:20,y:22});
+    f.map.control({},{0:true});f.map.control({},{});
+    assert.equal(f.orders.length,0,interrupt);assert.equal(f.left(),false,interrupt);
+  }
+});
+
+test('A taps act only on release and small stick movement does not turn a tap into a box',()=>{
+  const f=fixture();f.map.refresh(world(),1,32,32,true);
+  f.map.control({0:true},{0:true});assert.equal(f.map.selected(),null);
+  f.map.control({},{0:true},[.1,0],.1);f.map.control({},{});
+  assert.equal(f.map.selected(),'u2');assert.equal(f.boxes.length,0);
+  f.map.control({}, {},[1,0],.1);
+  f.map.control({0:true},{0:true});assert.equal(f.orders.length,0);
+  f.map.control({},{});assert.equal(f.orders.length,1);
 });

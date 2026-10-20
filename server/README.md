@@ -226,8 +226,13 @@ Unmodified double-A on the same unit selects every owned, living, ungarrisoned
 unit of its type visible on this map. LT+A retains individual additive selection;
 the unverified LT/double-A combination does not expand the type.
 The 350 ms double-tap window still needs physical Xbox comparison. Menus,
-quick selection and pointer actions reset the gesture. Hold-A boxes,
-multiple-building selection and LT five-unit training batches remain unavailable.
+quick selection and pointer actions reset the gesture. Hold A and drag with
+the left stick to select enclosed eligible units on release; holding LT
+adds multiple boxes without duplicates. Ordinary A taps select or order on
+release, so starting a box cannot submit a move or rally command. B, menu/focus
+changes and other controller contexts cancel unfinished gestures. The solo
+14-pixel drag threshold is provisional pending physical Xbox comparison.
+Multiple-building selection and LT five-unit training batches remain unavailable.
 LT+A on empty space sends no order.
 Dead, loaded, removed or converted-away units are removed from the local selection;
 remaining members stay selected. Selection edits cannot bypass a pending command.
