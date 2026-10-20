@@ -130,7 +130,8 @@ const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=42;vis.forEach((
 const sit=m.items[m.i];if(sit)tx(DS[sit.l]||'',cx,cy+R*.26,15,'#cbd5e1','center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,'#cbd5e1','center')}
 
 function drawCg(){const cx=CW/2,cy=CH/2,R=Math.min(CW,CH)*.26;X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+55,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();
-for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=(S.cg&&S.cg[i]||[]).filter(u=>u.hp>0&&!u.ld),sel=cgo.sel===i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
+const current=new Set([...S.us,...S.bs]);
+for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
 tx('CONTROL GROUPS',cx,cy-6,26,'#f2c14e','center');tx('Left stick: pick   X: assign selection   Y: focus   release LB: select',cx,cy+22,15,'#cbd5e1','center')}
 
 function quickBar(){const iv=S.us.filter(u=>u.t===0&&!u.ld&&(u.k==='vil'||u.k==='fish')&&u.o==='i').length,mil=S.us.filter(isMil).length,sup=S.us.filter(u=>u.t===0&&!u.ld&&u.k==='mon').length,x0=mm.x-262,y0=CH-112;

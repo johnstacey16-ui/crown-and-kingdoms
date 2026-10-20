@@ -67,6 +67,11 @@ if(window.CK_PATH_DIAGNOSTICS&&typeof window.CK_PATH_DIAGNOSTICS.recordFormation
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(fallbackCount)note(fallbackCount+' unit'+(fallbackCount===1?'':'s')+' moved toward the group destination instead of blocked formation slots');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
+function controlGroupMembers(group,current=null){
+ if(!S||!Array.isArray(group))return [];
+ const world=current||new Set([...S.us,...S.bs]);
+ return [...new Set(group)].filter(e=>e&&world.has(e)&&e.t===0&&e.hp>0&&!e.ld);
+}
 function trainSelection(anchor,kind,count=1){
  if(mode!=='play'||!S||!U[kind]||![1,5].includes(count)||!S.sel.includes(anchor)||!S.bs.includes(anchor)||anchor.t!==0)return 0;
  const buildings=[...new Set(S.sel)].filter(b=>b&&S.bs.includes(b)&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&!b.rs&&B[b.k]?.tr?.includes(kind));
