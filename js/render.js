@@ -140,7 +140,7 @@ const PMAX=[100,260,520],PT=[];
 function drawP(){for(const p of PT){const P=w2s(p.x,p.y),a=1-p.t/p.l;X.globalAlpha=a*(p.k==='smk'||p.k==='puff'||p.k==='dust'?.55:.95);X.fillStyle=p.c;X.beginPath();X.arc(P[0],P[1]-Math.max(0,p.z)*zm*14,(p.r+(p.k==='smk'||p.k==='puff'||p.k==='dust'?p.t*6:0))*zm,0,7);X.fill()}X.globalAlpha=1}
 
 /* Building, resource-node and unit sprite definitions/drawing helpers. */
-const BG={tc:{h:44,w:'#a39a85',p:30,fl:1},house:{h:20,w:'#cdb88c',p:16},lumber:{h:14,w:'#8b6b3d',f:1},mine:{h:14,w:'#7d7d85',f:1},mill:{h:26,w:'#d2c49f',p:20},bar:{h:30,w:'#8e8a82',p:18,fl:1},rng:{h:26,w:'#a07848',p:20,fl:1},stable:{h:26,w:'#8c6a45',p:22},smith:{h:26,w:'#6f6a66',p:16},market:{h:24,w:'#c7a15a',p:16,fl:1},tower:{h:58,w:'#a8a39a',f:1,cr:1,fl:1},castle:{h:62,w:'#9a968f',f:1,cr:1,fl:1},wall:{h:24,w:'#a29d94',f:1,cr:1},monastery:{h:34,w:'#dcd3bd',p:26},dock:{h:6,w:'#8b6a3a',f:1},gate:{h:20,w:'#8b6a3a',f:1,cr:1},outpost:{h:34,w:'#8b6a3a',f:1,fl:1},siege:{h:28,w:'#8a6a40',p:20,fl:1},univ:{h:34,w:'#c9c0d8',p:26},wonder:{h:72,w:'#e8dcb8',p:44,fl:1}};
+const BG={tc:{h:44,w:'#a39a85',p:30,fl:1},house:{h:20,w:'#cdb88c',p:16},lumber:{h:14,w:'#8b6b3d',f:1},mine:{h:14,w:'#7d7d85',f:1},mill:{h:26,w:'#d2c49f',p:20},bar:{h:30,w:'#8e8a82',p:18,fl:1},rng:{h:26,w:'#a07848',p:20,fl:1},stable:{h:26,w:'#8c6a45',p:22},smith:{h:26,w:'#6f6a66',p:16},market:{h:24,w:'#c7a15a',p:16,fl:1},tower:{h:58,w:'#a8a39a',f:1,cr:1,fl:1},castle:{h:62,w:'#9a968f',f:1,cr:1,fl:1},palisade:{h:22,w:'#956539',f:1},wall:{h:24,w:'#a29d94',f:1,cr:1},monastery:{h:34,w:'#dcd3bd',p:26},dock:{h:6,w:'#8b6a3a',f:1},gate:{h:20,w:'#8b6a3a',f:1,cr:1},outpost:{h:34,w:'#8b6a3a',f:1,fl:1},siege:{h:28,w:'#8a6a40',p:20,fl:1},univ:{h:34,w:'#c9c0d8',p:26},wonder:{h:72,w:'#e8dcb8',p:44,fl:1}};
 const CK_TEX={stone:null,wood:null};
 function loadCKTexture(kind,src){try{const im=new Image();im.onload=()=>{CK_TEX[kind]=im;try{SPC.clear()}catch(e){}};im.onerror=()=>{CK_TEX[kind]=null};im.src=src}catch(e){CK_TEX[kind]=null}}
 loadCKTexture('stone','./assets/stone-texture.svg');loadCKTexture('wood','./assets/wood-texture.svg');
@@ -152,9 +152,30 @@ function wdw(g,A,B,t,y,w,hh,lit){const p=[A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t-
 function rl(g,P,Q,C,n){g.strokeStyle='rgba(0,0,0,.24)';g.lineWidth=.7;for(let i=1;i<n;i++){const t=i/n;g.beginPath();g.moveTo(P[0]+(C[0]-P[0])*t,P[1]+(C[1]-P[1])*t);g.lineTo(Q[0]+(C[0]-Q[0])*t,Q[1]+(C[1]-Q[1])*t);g.stroke()}}
 function trt(g,px,py,hh,w,wc,rc,cone){g.fillStyle=lin(g,px-w,0,px+w,0,shd(wc,1.1),shd(wc,.6));g.beginPath();g.moveTo(px-w,py);g.lineTo(px-w,py-hh);g.lineTo(px+w,py-hh);g.lineTo(px+w,py);g.ellipse(px,py,w,w/2,0,0,Math.PI);g.fill();g.strokeStyle='#1a1410';g.lineWidth=.8;g.stroke();g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=.6;for(let y=py-6;y>py-hh;y-=6){g.beginPath();g.moveTo(px-w,y);g.lineTo(px+w,y);g.stroke()}
 if(cone){pg(g,[[px-w-2,py-hh],[px+w+2,py-hh],[px,py-hh-w*1.8]],lin(g,px-w,0,px+w,0,shd(rc,1.15),shd(rc,.65)),'#1a1410',.8)}else{g.fillStyle=shd(wc,1.15);g.beginPath();g.ellipse(px,py-hh,w+1,(w+1)/2,0,0,7);g.fill();g.stroke();g.fillStyle=shd(wc,.9);for(let i=0;i<5;i++){const a=i/5*6.28;g.fillRect(px+Math.cos(a)*w-1.5,py-hh+Math.sin(a)*w/2-4,3,4)}}}
-const BP={tc:{h:42,w:'#b0a58c',tex:'stone',roof:'hip',p:28,tur:1,win:1,door:2,fl:1},house:{h:18,w:'#e0d2ae',tex:'plaster',roof:'hip',p:16,win:1,door:1,chim:1},lumber:{h:12,w:'#8b6b3d',tex:'wood',roof:'shed',p:10,logs:1},mine:{h:12,w:'#7d7d85',tex:'stone',roof:'shed',p:8,rocks:1},mill:{h:34,w:'#d8cba8',tex:'plaster',roof:'cone',p:14,blades:1,win:1,door:1},bar:{h:28,w:'#948f86',tex:'stone',roof:'gable',p:16,win:1,door:2,fl:1},rng:{h:24,w:'#a88050',tex:'wood',roof:'gable',p:16,door:1,fl:1,targets:1},stable:{h:24,w:'#94704a',tex:'wood',roof:'gable',p:18,door:2,hay:1},smith:{h:24,w:'#78726c',tex:'stone',roof:'gable',p:14,door:1,chim:2,glow:1},market:{h:14,w:'#d2ae66',tex:'wood',roof:'awn',p:10,crates:1},tower:{h:50,w:'#aaa59c',tex:'stone',roof:'flat',cren:1,win:1,fl:1},castle:{h:52,w:'#9c9890',tex:'stone',roof:'flat',cren:1,tur:2,win:1,door:2,fl:1,keep:1},wall:{h:22,w:'#a8a39a',tex:'stone',roof:'flat',cren:1},gate:{h:24,w:'#a8a39a',tex:'stone',roof:'flat',cren:1,gate:1},monastery:{h:30,w:'#e2dac2',tex:'plaster',roof:'gable',p:24,win:1,door:1,cross:1},dock:{h:5,w:'#8b6a3a',tex:'wood',roof:'none',dock:1,crates:1},siege:{h:26,w:'#8e6e46',tex:'wood',roof:'gable',p:18,door:2,gear:1},univ:{h:32,w:'#cfc8d8',tex:'stone',roof:'dome',p:20,win:1,door:1},outpost:{h:30,w:'#8b6b3d',tex:'wood',roof:'hip',p:12,fl:1},wonder:{h:60,w:'#efe4c4',tex:'plaster',roof:'tier',p:46,win:1,door:2,fl:1}};
+const BP={tc:{h:42,w:'#b0a58c',tex:'stone',roof:'hip',p:28,tur:1,win:1,door:2,fl:1},house:{h:18,w:'#e0d2ae',tex:'plaster',roof:'hip',p:16,win:1,door:1,chim:1},lumber:{h:12,w:'#8b6b3d',tex:'wood',roof:'shed',p:10,logs:1},mine:{h:12,w:'#7d7d85',tex:'stone',roof:'shed',p:8,rocks:1},mill:{h:34,w:'#d8cba8',tex:'plaster',roof:'cone',p:14,blades:1,win:1,door:1},bar:{h:28,w:'#948f86',tex:'stone',roof:'gable',p:16,win:1,door:2,fl:1},rng:{h:24,w:'#a88050',tex:'wood',roof:'gable',p:16,door:1,fl:1,targets:1},stable:{h:24,w:'#94704a',tex:'wood',roof:'gable',p:18,door:2,hay:1},smith:{h:24,w:'#78726c',tex:'stone',roof:'gable',p:14,door:1,chim:2,glow:1},market:{h:14,w:'#d2ae66',tex:'wood',roof:'awn',p:10,crates:1},tower:{h:50,w:'#aaa59c',tex:'stone',roof:'flat',cren:1,win:1,fl:1},castle:{h:52,w:'#9c9890',tex:'stone',roof:'flat',cren:1,tur:2,win:1,door:2,fl:1,keep:1},palisade:{h:22,w:'#956539',tex:'wood',roof:'none',palisade:1},wall:{h:22,w:'#a8a39a',tex:'stone',roof:'flat',cren:1},gate:{h:24,w:'#a8a39a',tex:'stone',roof:'flat',cren:1,gate:1},monastery:{h:30,w:'#e2dac2',tex:'plaster',roof:'gable',p:24,win:1,door:1,cross:1},dock:{h:5,w:'#8b6a3a',tex:'wood',roof:'none',dock:1,crates:1},siege:{h:26,w:'#8e6e46',tex:'wood',roof:'gable',p:18,door:2,gear:1},univ:{h:32,w:'#cfc8d8',tex:'stone',roof:'dome',p:20,win:1,door:1},outpost:{h:30,w:'#8b6b3d',tex:'wood',roof:'hip',p:12,fl:1},wonder:{h:60,w:'#efe4c4',tex:'plaster',roof:'tier',p:46,win:1,door:2,fl:1}};
 function paintBld(g,k,s,tc,f,dm){const o=BP[k]||BP.house,u=32*s,v=16*s,Z=[0,0],E=[u,-v],N=[0,-2*v],W2=[-u,-v],h=o.h*f,L='#1a1410',up=(p,d)=>[p[0],p[1]-d],mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2],wc=o.w,rc=tc,ap=o.p||0;
 pg(g,[[0,4],[u+6,-v+1],[0,-2*v-4],[-u-6,-v+1]],lin(g,0,-2*v,0,4,'#8a8274','#5e5648'),'#2a241c',1);
+if(o.palisade){
+ // Draw pointed timber stakes from the far faces to the near faces; no stone
+ // battlements or house fallback. The same drawing supports building stages.
+ for(const [a,b,shade] of [[N,E,.72],[W2,N,.86],[E,Z,.76],[Z,W2,1]]){
+  for(let j=0;j<=6;j++){
+   const t=j/6,x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t,tip=4*f;
+   pg(g,[[x-2.8,y],[x-2.8,y-h],[x,y-h-tip],[x+2.8,y-h],[x+2.8,y]],
+      shd(wc,shade*(j%2?1.08:.94)),L,.65);
+   g.strokeStyle='rgba(239,204,139,.3)';g.lineWidth=.6;
+   g.beginPath();g.moveTo(x-.8,y-2);g.lineTo(x-.8,y-h+2);g.stroke();
+  }
+  for(const height of [h*.25,h*.65]){
+   g.strokeStyle='#49311c';g.lineWidth=2;
+   g.beginPath();g.moveTo(a[0],a[1]-height);g.lineTo(b[0],b[1]-height);g.stroke();
+  }
+ }
+ // A small painted band identifies ownership without changing the timber art.
+ g.strokeStyle=tc;g.lineWidth=2;
+ g.beginPath();g.moveTo(-3,-h*.55);g.lineTo(3,-h*.55);g.stroke();
+ if(dm)dmgFx(g,u,v,h,0,dm);return;
+}
 if(o.dock){pg(g,[Z,E,N,W2],lin(g,0,-2*v,0,0,'#a07a44','#6e4e26'),L,1);g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=.8;for(let i=1;i<8;i++){const t=i/8;g.beginPath();g.moveTo(W2[0]+(Z[0]-W2[0])*t,W2[1]+(Z[1]-W2[1])*t);g.lineTo(N[0]+(E[0]-N[0])*t,N[1]+(E[1]-N[1])*t);g.stroke()}for(const p of[Z,E,W2,N]){g.fillStyle='#4a3018';g.fillRect(p[0]-2,p[1]-9,4,10)}g.fillStyle='#8a6a3a';g.fillRect(-9,-v-6,10,8);g.strokeStyle=L;g.strokeRect(-9,-v-6,10,8);return}
 if(o.tur===2)trt(g,N[0],N[1]+4,h*1.15,7,wc,tc,1);
 pg(g,[W2,Z,up(Z,h),up(W2,h)],lin(g,-u,0,0,0,shd(wc,1.05),shd(wc,.85)),L,.9);pg(g,[Z,E,up(E,h),up(Z,h)],lin(g,0,0,u,0,shd(wc,.72),shd(wc,.58)),L,.9);tex(g,W2,Z,h,o.tex);tex(g,Z,E,h,o.tex);
