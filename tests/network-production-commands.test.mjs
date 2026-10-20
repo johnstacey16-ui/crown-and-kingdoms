@@ -175,6 +175,7 @@ test('attacks honour hostility and No Attack stance; forged enemy commands canno
     const hostile=S.us.find(u=>u.t===0&&u.hp>0&&!u.ld);
     const guest=S.us.find(u=>u.t===1&&u.hp>0&&!u.ld);
     const soldier=addU(1,'mil',guest.x+.25,guest.y+.25);
+    hostile.x=soldier.x+1;hostile.y=soldier.y;
     const stop={type:'stance',entities:[soldier.netId],value:'no-attack'};
     const strike={type:'attack',entities:[soldier.netId],target:hostile.netId};
     const allow={type:'stance',entities:[soldier.netId],value:'aggressive'};

@@ -1,23 +1,23 @@
 /* Stop-and-wait live simulation preview. No legacy Broadcast messages enter here. */
 (function(root){
   'use strict';
-  const VERSION = 'ck-live-preview-6';
+  const VERSION = 'ck-live-preview-7';
   const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value,key));
-  function create({transport, startup, mapSize, lookupEntity, execute, advance, hash,
+  function create({transport, startup, mapSize, lookupEntity, execute, advance, hash, outcome = () => null,
     now = () => performance.now(), timeoutMs = 8000}) {
     const sync = root.CK_SIM_SYNC, delivery = root.CK_FRAME_DELIVERY, uplink = root.CK_COMMAND_UPLINK;
     const room = transport.snapshot();
     if (startup.phase !== 'verified' || room.phase !== 'ready' || room.members.length !== 2 ||
         startup.matchId !== room.matchId || startup.team !== room.team ||
-        typeof hash !== 'function' || typeof advance !== 'function' || typeof execute !== 'function' ||
+        typeof hash !== 'function' || typeof advance !== 'function' || typeof execute !== 'function' || typeof outcome !== 'function' ||
         !Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 60000) throw Error('Invalid live session');
     const roster = sync.lockRoster(room.members[0].sid,room.members[1].sid,2);
     let phase = 'waiting', frame = 0, pumping = null, deadline = null, lastTick = -Infinity, tick = 0;
-    let failure = '', lastResult = null;
+    let failure = '', lastResult = null, terminal = null;
     const hashes = new Map(), receipts = new Map(), submitted = new Map();
     const appliedAcks = new Map();
-    const supported = order => order && ['train','cancel','move','rally','stop'].includes(order.type);
+    const supported = order => order && ['train','cancel','move','rally','stop','attack','attack-move','research','stance','build','gather'].includes(order.type);
     const apply = (order,team,at) => supported(order) && execute(order,team,at) === true;
     const host = sync.createCommandHost({roster,mapSize,lookupEntity,execute:apply,delayFrames:2});
     // The uplink match binding is mandatory, including for host-local commands.
@@ -29,6 +29,10 @@
       if (phase !== 'running' || advance(at) !== true) return false;
       const checksum = hash(at);
       if (typeof checksum !== 'string' || !/^[a-zA-Z0-9_-]{8,128}$/.test(checksum)) return false;
+      const result = outcome();
+      if(result !== null && (!exact(result,['winner','reason']) || ![null,0,1].includes(result.winner) ||
+          typeof result.reason !== 'string' || result.reason.length > 500))return false;
+      terminal = result === null ? null : Object.freeze({...result});
       hashes.set(at,checksum); frame = at;
       while(hashes.size>64)hashes.delete(hashes.keys().next().value);
       return true;
@@ -78,8 +82,9 @@
         if(!exact(payload,['v','hash'])||payload.v!==VERSION||payload.hash!==startup.hash)throw Error('Wrong preview confirmation');
         phase='running';deadline=null;return true;
       }
-      if(phase!=='running')throw Error('Preview is not running');
+      if(!['running','finishing'].includes(phase))throw Error('Preview is not running');
       if(room.team===0&&kind==='command') {
+        if(terminal)return true; // The final frame closes admission of future gameplay orders.
         if(!supported(payload?.packet?.order))throw Error('Unsupported preview command');
         const result=commandIngress.receive(payload,sid,frame);
         if(!result.ok)throw Error('Command rejected: '+result.reason);
@@ -92,7 +97,7 @@
         const result=receiver.receive(payload.message,sid);
         if(!result.ok||hashes.get(payload.message.frame)!==payload.hash)throw Error('Frame replay or world hash mismatch');
         await transport.send('ack',{ack:result.ack,hash:payload.hash});
-        current();deadline=now()+timeoutMs;return true;
+        current();deadline=now()+timeoutMs;if(terminal)phase='finishing';return true;
       }
       if(room.team===0&&kind==='ack') {
         if(!exact(payload,['ack','hash'])||!exact(payload.ack,['v','frame','digest']))throw Error('Invalid frame receipt');
@@ -101,7 +106,8 @@
         if(hashes.get(at)!==payload.hash)throw Error('World hash mismatch');
         const result=outbox.acknowledge(payload.ack,sid);
         if(!result.ok)throw Error('Frame receipt rejected: '+result.reason);
-        boundedRemember(appliedAcks,at,JSON.stringify(payload));deadline=null;return true;
+        boundedRemember(appliedAcks,at,JSON.stringify(payload));deadline=null;
+        if(terminal&&at===frame&&outbox.state().pending===0)phase='finished';return true;
       }
       throw Error('Unexpected live message');
     }
@@ -122,8 +128,10 @@
       if(pumping)return pumping;
       pumping=(async()=>{
         try{
+          if(phase==='finished')return snapshot();
           current();await transport.poll(receive);current();tick++;
-          if(phase==='running') {
+          if(terminal&&room.team===1){phase='finished';deadline=null;}
+          if(phase==='running'||phase==='finishing'&&room.team===0) {
             const outgoing=sender.poll(tick);
             if(!outgoing.ok)throw Error(outgoing.reason);
             for(const packet of outgoing.messages){
@@ -136,7 +144,7 @@
             if(room.team===0){
               let outcomes=[];
               // Never step again until the guest has replayed and hashed the last frame.
-              if(outbox.state().pending===0&&now()-lastTick>=1000/30){
+              if(!terminal&&outbox.state().pending===0&&now()-lastTick>=1000/30){
                 const result=clock.tick();
                 if(!result.ok)throw Error(result.reason);
                 outcomes=result.results;
@@ -147,6 +155,7 @@
               for(const message of outgoingFrames.messages){
                 await transport.send('frame',{message,hash:hashes.get(message.frame)});current();
               }
+              if(terminal)phase='finishing';
               for(const result of outcomes){
                 if(result.sid===room.sid){if(!acceptResult(result))throw Error('Invalid local outcome');}
                 else {await transport.send('result',result);current();}
@@ -159,7 +168,7 @@
       return pumping;
     }
     function snapshot(){return Object.freeze({phase,frame,team:room.team,failure,
-      commandPending:sender.state().pending, lastResult,
+      commandPending:phase==='finished'?0:sender.state().pending, lastResult, outcome:terminal,
       acknowledgedFrame:room.team===0?outbox.state().lastAcked:frame});}
     return Object.freeze({begin,submit,pump,snapshot,close:()=>stop()});
   }

@@ -1,41 +1,159 @@
-/* A read-only, team-relative projection and controls for the live preview. */
+/* Team-relative battlefield projection, procedural art and authenticated controls. */
 (function(root){
   'use strict';
   function project(world,team,width,height) {
     if(!world||!Number.isInteger(team)||team<0||team>=world.teamN||
       !Number.isInteger(width)||width<1||!Number.isInteger(height)||height<1)throw Error('Invalid unit map');
     const position=e=>Number.isFinite(e.x)&&Number.isFinite(e.y)&&e.x>=0&&e.y>=0&&e.x<width&&e.y<height;
-    // Copy only owned, living entities. Never expose the opponent, resource nodes,
-    // shared fog arrays or mutable simulation objects to this UI projection.
-    return {width,height,team,
+    // Owned selection data and a separate current-sight battlefield projection.
+    // No shared solo fog or mutable simulation objects enter the UI.
+    const sight=root.CK_GAME_COMMANDS?.visibility?.(world,team,width,height);
+    const view={width,height,team,
       units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i'})),
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
-        rallyable:b.k==='tc'&&!!b.done,rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
+        rallyable:!!b.done&&(sight?root.CK_GAME_COMMANDS.buildingOptions(world,team,b).some(o=>o.type==='train'):b.k==='tc'),
+        ...(sight?{selectable:!!b.done,label:B[b.k]?.n||b.k,commands:root.CK_GAME_COMMANDS.buildingOptions(world,team,b)}:{}),
+        rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
+    if(sight){
+      const visible=e=>root.CK_GAME_COMMANDS.inSight(e,sight,width,height);
+      const details=e=>({id:e.netId,kind:e.k,team:e.t,x:e.x,y:e.y,size:e.s||0,
+        hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0)),
+        label:e.s?(B[e.k]?.n||e.k):(U[e.k]?.n||e.k),hostile:world.dip?.[team]?.[e.t]!=='neutral'&&world.dip?.[team]?.[e.t]!=='ally'});
+      view.battlefield={time:Number.isFinite(world.t)?world.t:0,visible:[],tiles:[],enemies:[],allies:[],health:{},attackers:[],builders:[],gatherers:{},construction:root.CK_GAME_COMMANDS.buildOptions(world,team),paths:{},projectiles:[]};
+      const field=view.battlefield;
+      for(let i=0;i<sight.length;i++)if(sight[i]){
+        field.visible.push(i);
+        const node=world.nd?.[i];
+        field.tiles.push({index:i,water:world.wt?.[i]===1?1:world.wt?.[i]===2?2:0,
+          node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm}:null});
+      }
+      for(const e of [...world.us,...world.bs])if(e&&e.hp>0&&position(e)&&!e.ld){
+        if(e.t===team){field.health[e.netId]={hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0))};
+          const destination=e.p?.at(-1);if(destination&&Number.isFinite(destination[0])&&Number.isFinite(destination[1]))field.paths[e.netId]={x:destination[0],y:destination[1]};
+          if(!e.s&&e.k==='vil')field.builders.push(e.netId);
+          if(!e.s&&(e.k==='vil'||e.k==='fish'))field.gatherers[e.netId]=e.k;
+          if(!e.s&&U[e.k]?.dmg>0&&e.st!==4)field.attackers.push(e.netId);
+        }else if(visible(e)){
+          (world.dip?.[team]?.[e.t]==='ally'?field.allies:field.enemies).push(details(e));
+        }
+      }
+    }
+    if(sight)for(const p of world.pj||[])if(p&&position(p)&&sight[Math.floor(p.y)*width+Math.floor(p.x)])view.battlefield.projectiles.push({x:p.x,y:p.y});
+    return view;
   }
   function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit',now=()=>Date.now()}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
-    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,lastTap=null,aGesture=null,blockedA=false;
+    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,wheelIndex=0,buildPage=0,placement=null,lastTap=null,aGesture=null,blockedA=false;
+    const terrainMemory=new Map();
+    const selectable=b=>b.rallyable||b.selectable;
+    const isBuilding=id=>view?.buildings.some(b=>b.id===id&&selectable(b));
+    function options(){
+      const b=view?.buildings.find(b=>b.id===selected);
+      if(b)return b.commands||[{type:'train',value:'vil',label:'Train villager',cost:{},locked:''}];
+      if(view?.battlefield&&selection.length&&selection.every(id=>view.battlefield.builders.includes(id)))return buildPage===0?view.battlefield.construction[0].concat([{type:'stop',label:'Stop',cost:{},locked:''}]):view.battlefield.construction[1];
+      return selection.length?[{type:'stop',label:'Stop',cost:{},locked:''}]:[];
+    }
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
-    function setSelection(ids){selection=[...new Set(ids)];selected=selection[0]||null;}
+    function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){wheelIndex=0;buildPage=0;placement=null;}}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
     canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
+    function drawTerrain(sx,sy){
+      const field=view.battlefield,visible=new Set(field.visible);
+      // Only tiles previously seen by this player enter this local art cache.
+      // It contains terrain/resources, never remembered enemy positions.
+      for(const tile of terrainMemory.values()){
+        const x=tile.index%view.width,y=Math.floor(tile.index/view.width),px=x*sx,py=y*sy;
+        const grain=((tile.index*2654435761)>>>28)%3;
+        context.fillStyle=tile.water===1?['#234f65','#28596b','#2b5c70'][grain]:
+          tile.water===2?'#719b91':['#526b3d','#586f42','#5d7446'][grain];
+        context.fillRect(px,py,sx+.3,sy+.3);
+        if(tile.water&&sx>=5){
+          context.strokeStyle=tile.water===2?'rgba(230,226,177,.3)':'rgba(163,221,227,.22)';
+          const ripple=tile.water===1?Math.sin(field.time*.8+x*.7+y)*sy*.08:0;
+          context.lineWidth=.7;context.beginPath();context.moveTo(px+sx*.2,py+sy*.55+ripple);
+          context.lineTo(px+sx*.7,py+sy*.55+ripple);context.stroke();
+        }
+        const n=tile.node;
+        if(n&&sx>=3){
+          if(n.kind==='w'){
+            context.fillStyle='#392f22';context.fillRect(px+sx*.45,py+sy*.4,Math.max(1,sx*.13),sy*.6);
+            context.fillStyle=grain?'#254b32':'#31583a';context.beginPath();
+            context.arc(px+sx*.5,py+sy*.3,Math.max(2,sx*.48),0,Math.PI*2);context.fill();
+            context.fillStyle='#49764a';context.beginPath();context.arc(px+sx*.32,py+sy*.16,Math.max(1,sx*.22),0,Math.PI*2);context.fill();
+          }else if(n.farm){
+            context.fillStyle='#9a7844';context.fillRect(px,py,sx,sy);
+            context.strokeStyle='#c6ac67';context.lineWidth=.8;
+            for(let row=1;row<4;row++){context.beginPath();context.moveTo(px+sx*.1,py+sy*row/4);context.lineTo(px+sx*.9,py+sy*row/4);context.stroke();}
+          }else if(n.fish){
+            context.strokeStyle='#a8d8d3';context.lineWidth=1;context.beginPath();
+            context.moveTo(px+sx*.2,py+sy*.6);context.lineTo(px+sx*.65,py+sy*.35);context.stroke();
+          }else{
+            context.fillStyle=n.kind==='g'?'#d4b762':n.kind==='s'?'#a2aaa0':'#b36554';
+            context.beginPath();context.moveTo(px+sx*.1,py+sy*.8);context.lineTo(px+sx*.35,py+sy*.15);
+            context.lineTo(px+sx*.7,py+sy*.3);context.lineTo(px+sx*.95,py+sy*.75);context.closePath();context.fill();
+          }
+        }
+        if(!visible.has(tile.index)){context.fillStyle='rgba(5,12,15,.65)';context.fillRect(px,py,sx+.4,sy+.4);}
+      }
+      for(const p of field.projectiles||[]){context.fillStyle='#ffe6a4';context.beginPath();context.arc(p.x*sx,p.y*sy,2,0,Math.PI*2);context.fill();}
+      for(const id of selection){
+        const point=field.paths?.[id],u=view.units.find(u=>u.id===id);
+        if(point&&u){context.strokeStyle='rgba(255,233,169,.55)';context.lineWidth=1;
+          context.setLineDash([3,5]);context.beginPath();context.moveTo(u.x*sx,u.y*sy);context.lineTo(point.x*sx,point.y*sy);context.stroke();context.setLineDash([]);}
+      }
+    }
+    function drawEntity(e,sx,sy,color,chosen){
+      const x=e.x*sx,y=e.y*sy,size=e.size||0,unitRadius=Math.max(2.5,Math.min(5,sx*.45));
+      context.fillStyle='rgba(0,0,0,.35)';
+      if(size){
+        const w=size*sx,h=size*sy;context.fillRect(x+2,y+3,w,h);
+        context.fillStyle='#b39a70';context.fillRect(x,y,w,h);
+        context.fillStyle=color;context.fillRect(x+1,y+1,Math.max(1,w-2),Math.max(1,h*.5));
+        context.strokeStyle='#352d27';context.lineWidth=1;context.strokeRect(x,y,w,h);
+        if(w>15){context.fillStyle='#fff1c7';context.font='bold '+Math.max(8,Math.min(12,w*.28))+'px system-ui';context.textAlign='center';context.fillText(e.kind==='tc'?'TC':e.kind.slice(0,3).toUpperCase(),x+w/2,y+h*.7);}
+      }else{
+        context.beginPath();context.ellipse(x+1,y+2,unitRadius+1,unitRadius*.65,0,0,Math.PI*2);context.fill();
+        context.fillStyle=color;context.strokeStyle='#172429';context.lineWidth=1;
+        if(['gal','fish','trn','cog'].includes(e.kind)){
+          context.beginPath();context.moveTo(x-unitRadius,y-unitRadius*.6);context.lineTo(x+unitRadius,y-unitRadius*.6);
+          context.lineTo(x+unitRadius*.65,y+unitRadius);context.lineTo(x-unitRadius*.6,y+unitRadius);context.closePath();context.fill();context.stroke();
+          context.strokeStyle='#eee0ba';context.beginPath();context.moveTo(x,y+unitRadius*.5);context.lineTo(x,y-unitRadius*1.5);context.stroke();
+        }else{
+          context.beginPath();context.arc(x,y,unitRadius,0,Math.PI*2);context.fill();context.stroke();
+          context.fillStyle=e.kind==='vil'?'#c9ae77':e.kind==='mon'?'#f3d5fa':'#edf1e5';
+          context.beginPath();context.arc(x,y-unitRadius*.7,unitRadius*.43,0,Math.PI*2);context.fill();
+        }
+      }
+      if(chosen){context.strokeStyle='#ffe9a8';context.lineWidth=1.5;context.beginPath();context.ellipse(x+(size?size*sx/2:0),y+(size?size*sy/2:1),size?size*sx*.65:unitRadius+3,size?size*sy*.65:unitRadius+2,0,0,Math.PI*2);context.stroke();}
+      if(Number.isFinite(e.hp)&&Number.isFinite(e.maxHp)&&e.maxHp>0&&(chosen||e.hp<e.maxHp)){
+        const w=Math.max(10,size?size*sx:unitRadius*3),left=x+(size?size*sx/2:0)-w/2,top=y-(size?5:unitRadius+6);
+        context.fillStyle='#172126';context.fillRect(left,top,w,3);
+        context.fillStyle=e.hp/e.maxHp<.3?'#ed8b6b':'#a8d17c';context.fillRect(left,top,w*Math.max(0,Math.min(1,e.hp/e.maxHp)),3);
+      }
+    }
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
       for(const button of [previousButton,nextButton])if(button)button.disabled=!view?.units.length;
-      if(townButton)townButton.disabled=!view?.buildings.some(b=>b.rallyable);
+      if(townButton)townButton.disabled=!view?.buildings.some(b=>b.kind==='tc'&&b.rallyable);
       context.fillStyle='#090d16';context.fillRect(0,0,680,680);
       if(!view)return;
       const chosen=new Set(selection);
       const sx=680/view.width,sy=680/view.height;
-      context.strokeStyle='#1b2a3f';context.lineWidth=1;
+      if(view.battlefield)drawTerrain(sx,sy);
+      context.strokeStyle=view.battlefield?'rgba(190,210,170,.08)':'#1b2a3f';context.lineWidth=1;
       for(let cell=0;cell<=view.width;cell+=8){context.beginPath();context.moveTo(cell*sx,0);context.lineTo(cell*sx,680);context.stroke();}
       for(let cell=0;cell<=view.height;cell+=8){context.beginPath();context.moveTo(0,cell*sy);context.lineTo(680,cell*sy);context.stroke();}
+      if(view.battlefield){
+        for(const e of view.battlefield.allies)drawEntity(e,sx,sy,'#84d9bd',false);
+        for(const e of view.battlefield.enemies)drawEntity(e,sx,sy,'#f17b6e',false);
+      }
       context.fillStyle='#c9a24a';
       for(const b of view.buildings){
         context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';
-        context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
+        if(view.battlefield)drawEntity({...b,...view.battlefield.health[b.id]},sx,sy,chosen.has(b.id)?'#ffe78a':'#73b4e8',chosen.has(b.id));
+        else context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
         if(b.id===selected&&b.rally){
           context.strokeStyle='#ffe78a';context.beginPath();
           context.moveTo((b.x+b.size/2)*sx,(b.y+b.size/2)*sy);
@@ -45,7 +163,8 @@
       }
       for(const u of view.units){
         context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();
-        context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();
+        if(view.battlefield){drawEntity({...u,...view.battlefield.health[u.id]},sx,sy,chosen.has(u.id)?'#ffe78a':'#73b4e8',chosen.has(u.id));}
+        else{context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();}
       }
       if(aGesture?.box&&cursor){
         const x=Math.min(aGesture.start.x,cursor.x)*sx,y=Math.min(aGesture.start.y,cursor.y)*sy;
@@ -53,6 +172,12 @@
         context.fillStyle='rgba(140,255,60,.12)';context.fillRect(x,y,width,height);
         context.strokeStyle='#8cff3c';context.lineWidth=2;context.setLineDash([7,5]);
         context.strokeRect(x,y,width,height);context.setLineDash([]);
+      }
+      if(placement&&cursor){
+        const p=buildPoint(cursor),s=placement.size;context.fillStyle='rgba(236,218,150,.25)';context.fillRect(p.x*sx,p.y*sy,s*sx,s*sy);
+        context.strokeStyle='#f5d58a';context.lineWidth=2;context.strokeRect(p.x*sx,p.y*sy,s*sx,s*sy);
+        context.fillStyle='rgba(8,16,20,.9)';context.fillRect(12,12,656,34);context.fillStyle='#ffe9b7';context.font='15px system-ui';context.textAlign='left';
+        context.fillText(placement.label+' · A: place · LT: repeat · B: cancel',24,34);
       }
       if(cursor){
         const x=cursor.x*sx,y=cursor.y*sy;
@@ -64,21 +189,33 @@
         context.strokeStyle='#c9a24a';context.lineWidth=3;context.stroke();
         context.fillStyle='#fff';context.textAlign='center';context.font='22px system-ui';
         context.fillText('Command menu',340,302);
-        context.fillText(view.buildings.some(b=>b.id===selected&&b.rallyable)?'Train villager':selection.length>1?'Stop '+selection.length+' units':'Stop',340,344);
+        const items=options(),entry=items[wheelIndex%Math.max(1,items.length)];
+        context.fillText(entry?.label||'No commands available',340,344);
+        if(view.battlefield){
+          context.font='14px system-ui';context.fillStyle=entry?.locked?'#f6aa92':'#d7c49b';
+          context.fillText(entry?.locked||Object.entries(entry?.cost||{}).map(([k,v])=>v+' '+({f:'food',w:'wood',g:'gold',s:'stone'}[k]||k)).join(' · '),340,367);
+          context.fillStyle='#fff';context.fillText('Left stick: choose · RT + A: confirm',340,394);
+          if(entry?.type==='train')context.fillText('LT + A: train five',340,418);
+          if(entry?.type==='build')context.fillText('RT + Y: economic / military buildings',340,418);
+          context.fillText((wheelIndex+1)+' / '+items.length,340,440);
+        }
         context.font='16px system-ui';
-        if(view.buildings.some(b=>b.id===selected&&b.rallyable)){
+        if(!view.battlefield&&view.buildings.some(b=>b.id===selected&&b.rallyable)){
           context.fillText('Hold RT + A: train 1',340,374);
           context.fillText('Hold RT + LT + A: train 5',340,402);
-        }else context.fillText('Hold RT + A: confirm',340,384);
+        }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
     }
     function refresh(world,team,width,height,canCommand) {
-      if(view&&(view.team!==team||view.width!==width||view.height!==height))cancelGesture();
+      if(view&&(view.team!==team||view.width!==width||view.height!==height)){cancelGesture();terrainMemory.clear();}
       view=project(world,team,width,height);enabled=canCommand;
+      if(view.battlefield)for(const tile of view.battlefield.tiles)terrainMemory.set(tile.index,tile);
       if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind)&&
         !view.buildings.some(b=>b.id===lastTap.id&&b.kind===lastTap.kind&&b.rallyable))lastTap=null;
       const previousCount=selection.length;
-      setSelection(selection.filter(id=>view.units.some(u=>u.id===id)||view.buildings.some(b=>b.id===id&&b.rallyable)));
+      const blueprint=placement;
+      setSelection(selection.filter(id=>view.units.some(u=>u.id===id)||view.buildings.some(b=>b.id===id&&selectable(b))));
+      if(blueprint&&selection.length===previousCount&&selection.every(id=>view.battlefield?.builders.includes(id)))placement=blueprint;
       if(selected&&selection.length!==previousCount){
         const towns=view.buildings.some(b=>b.id===selected);
         description.textContent=selection.length+' '+(towns?'town centre':'unit')+(selection.length===1?' remains':'s remain')+' selected. Hold RT for commands; B deselects.';
@@ -86,19 +223,26 @@
       if(!selected)wheel=false;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
-      if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; tap A to select or order; hold A and drag to box-select units. LT adds units or boxes; hold RT for commands. Enemy positions and terrain are not shown.';
+      if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; tap A to select or order; hold A and drag to box-select units. LT adds units or boxes; hold RT for commands. '+(view.battlefield?'Explore to reveal terrain, resources and opponents. A on a visible enemy attacks with selected units.':'Enemy positions and terrain are not shown.')+'';
       draw();
     }
+    function buildPoint(point){return {x:Math.max(1,Math.min(view.width-placement.size-1,Math.round(point.x-placement.size/2))),y:Math.max(1,Math.min(view.height-placement.size-1,Math.round(point.y-placement.size/2)))}}
     function choose(point,add=false,controller=false) {
       if(aGesture){aGesture=null;blockedA=true;}
       const previousTap=lastTap;lastTap=null;
       if(wheel||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
         point.x<0||point.y<0||point.x>=view.width||point.y>=view.height)return;
       cursor={x:point.x,y:point.y};
+      if(placement){
+        if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}
+        const result=submit({type:'build',entities:selection.slice(),value:placement.value,point:buildPoint(point)});
+        description.textContent=result.ok?placement.label+' submitted. Construction and payment wait for host execution.':'Construction not submitted. Wait for the previous order.';
+        if(result.ok){enabled=false;if(!add)placement=null;}draw();return;
+      }
       const radius=Math.max(0.8,view.width*8/680);
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
-      const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
+      const town=view.buildings.find(b=>selectable(b)&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
       if(nearest){
         if(add&&view.buildings.some(b=>selection.includes(b.id))){description.textContent='Mixed building/unit selection is not available in this preview.';draw();return;}
         const at=controller&&!add?now():0;
@@ -115,17 +259,23 @@
         if(add&&selection.some(id=>id!==town.id)){description.textContent='LT addition of town centres and mixed building/unit selection are not available in this preview. Use double A to select completed town centres.';draw();return;}
         const at=controller&&!add?now():0;
         const double=controller&&!add&&previousTap&&previousTap.id===town.id&&previousTap.kind===town.kind&&at>=previousTap.at&&at-previousTap.at<=350;
-        setSelection(double?view.buildings.filter(b=>b.rallyable&&b.kind===town.kind).map(b=>b.id):[town.id]);
+        setSelection(double?view.buildings.filter(b=>selectable(b)&&b.kind===town.kind).map(b=>b.id):[town.id]);
         if(controller&&!add&&!double)lastTap={id:town.id,kind:town.kind,at};
-        description.textContent=selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). Select one town centre to set a rally point. B deselects.':
+        description.textContent=view.battlefield?(town.label+' selected. Hold RT and choose training or research with the left stick. A sets a rally point for production buildings. B deselects.'):selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). Select one town centre to set a rally point. B deselects.':
           'Town centre selected. Double A selects visible completed town centres. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
       }
       else if(add){description.textContent='LT+A adds an owned unit at the cursor; it does not issue a move order.';}
       else if(selected&&enabled){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
         if(rally&&selection.length>1){description.textContent='Group rally orders are not available in this preview. Select one town centre to set its rally point.';draw();return;}
-        const result=submit({type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
-        description.textContent=result.ok?(rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
+        const enemy=view.battlefield?.enemies.find(e=>e.hostile!==false&&(e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius));
+        const deposit=view.battlefield?.tiles.find(t=>t.index===Math.floor(point.y)*view.width+Math.floor(point.x))?.node;
+        const gathering=!rally&&deposit?.id&&(!deposit.farm||deposit.owner===view.team)&&selection.every(id=>view.battlefield.gatherers[id]===(deposit.fish?'fish':'vil'));
+        const attack=enemy&&!rally&&selection.every(id=>view.battlefield.attackers.includes(id));
+        if(enemy&&!rally&&!attack){description.textContent='Selected units cannot attack this target.';draw();return;}
+        if(isBuilding(selected)&&!rally){description.textContent='This building has no rally point. Hold RT for its available commands.';draw();return;}
+        const result=submit(gathering?{type:'gather',entities:selection.slice(),target:deposit.id}:attack?{type:'attack',entities:selection.slice(),target:enemy.id}:{type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
+        description.textContent=result.ok?(gathering?'Gathering submitted.':attack?'Attack submitted.':rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
         if(result.ok)enabled=false;
       }else if(selected)description.textContent='Wait for the previous order to execute.';
       else description.textContent='Select one of your blue units or completed town centres first.';
@@ -145,7 +295,7 @@
     function canStop() { return !!(enabled&&view&&selection.length&&selection.every(id=>view.units.some(u=>u.id===id))); }
     function selectNext(direction,town=false,filter=()=>true) {
       cancelGesture();
-      const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units.filter(filter);
+      const choices=town?view?.buildings.filter(b=>b.kind==='tc'&&b.rallyable):view?.units.filter(filter);
       if(!choices?.length)return;
       const at=choices.findIndex(e=>e.id===selected);
       const next=choices[at<0?(direction<0?choices.length-1:0):(at+direction+choices.length)%choices.length];
@@ -185,6 +335,7 @@
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
       if(!held[0])blockedA=false;
       if(buttons[1]){
+        if(placement){placement=null;cancelGesture();description.textContent='Construction preview cancelled.';draw();return;}
         if(aGesture){cancelGesture();description.textContent='Selection gesture cancelled.';draw();return;}
         cancelGesture();
         if(wheel){wheel=false;description.textContent='Command menu closed.';draw();}
@@ -195,11 +346,27 @@
       if(Object.keys(buttons).some(key=>buttons[key]&&key!=='0'&&key!=='6'))cancelGesture();
       if(!view||!cursor)return;
       if(!held[7])wheel=false;
-      if(buttons[7]&&selected)wheel=true;
+      if(buttons[7]&&selected){wheel=true;wheelIndex=0;}
       if(wheel){
         cancelGesture();
+        if(buttons[3]&&view.battlefield&&selection.every(id=>view.battlefield.builders.includes(id))){buildPage=1-buildPage;wheelIndex=0;}
+        const items=options();
+        if(view.battlefield&&items.length&&Math.hypot(axes[0]||0,axes[1]||0)>.45){
+          const angle=(Math.atan2(axes[1],axes[0])+Math.PI/2+Math.PI*2)%(Math.PI*2);
+          wheelIndex=Math.floor(angle/(Math.PI*2)*items.length+.5)%items.length;
+        }
         if(buttons[0]&&held[7]){
-          if(view.buildings.some(b=>b.id===selected&&b.rallyable))train(held[6]?5:1);else if(!held[6])stop();
+          const entry=items[wheelIndex];
+          if(view.battlefield&&entry){
+            if(entry.locked){description.textContent=entry.locked;draw();return;}
+            if(entry.type==='build'){placement={...entry};wheel=false;blockedA=true;description.textContent=entry.label+' preview. A places; LT repeats; B cancels.';draw();return;}
+            if(entry.type==='stop'){if(!held[6])stop();}
+            else if(enabled){
+              const result=submit({type:entry.type,entities:entry.type==='research'?[selected]:selection.slice(),value:entry.value,...(entry.type==='train'&&held[6]?{count:5}:{})});
+              description.textContent=result.ok?entry.label+' submitted. Changes apply after host execution.':'Order not submitted. Wait for the previous order.';
+              if(result.ok)enabled=false;
+            }
+          }else if(view.buildings.some(b=>b.id===selected&&b.rallyable))train(held[6]?5:1);else if(!held[6])stop();
         }
         draw();return;
       }
@@ -216,6 +383,7 @@
       const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
       cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
       cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
+      if(placement&&buttons[0]&&!blockedA){choose(cursor,!!held[6],true);blockedA=true;return;}
       if(buttons[0]&&held[0]&&!blockedA&&!aGesture)aGesture={start:{...cursor},box:false};
       if(aGesture){
         // Reuse the solo gesture's provisional 14-pixel drag threshold.
@@ -228,7 +396,7 @@
       }
       draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice()});
+    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;placement=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice()});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

@@ -1,4 +1,4 @@
-/* Authenticated room setup and isolated live economy preview. */
+/* Authenticated room setup and isolated synchronized battlefield preview. */
 (function(root){
   'use strict';
   const keys = ['seed','msz','mt','kingdoms','civ','aiCiv','diff','aip','vm','mapLayout',
@@ -30,7 +30,7 @@
         if (!validConfig(c)) throw Error('Invalid starting settings');
         apply(c); cmp = null; gs = 1;
         try {
-          start();
+          start();ensureResourceIds();
           return root.CK_SIM_SYNC.checksum({ config:c, width:W, height:H,
             world:root.CK_SIM_SYNC.worldCheckpoint(S,0).hash,
             terrain:Array.from(S.gt) });
@@ -51,6 +51,7 @@
           lookupEntity:root.CK_GAME_COMMANDS.lookup,
           execute:(order,team,frame)=>inWorld(()=>root.CK_GAME_COMMANDS.execute(order,team,frame)),
           advance:()=>inWorld(()=>{if(S.over)return false;step(DT);return true;}),
+          outcome:()=>!S.over?null:{winner:S.over==='draw'?null:S.over==='win'?0:1,reason:S.why||''},
           hash:frame=>root.CK_SIM_SYNC.worldCheckpoint(S,frame).hash
         });
       },
@@ -69,7 +70,7 @@
     overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:#090d16;color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
-    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then run the live preview: train villagers, move or stop your own units and set town-centre rally points. Combat and construction controls are not enabled yet.';
+    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then enter the battlefield preview: explore, construct buildings, train and research, and fight with your own kingdom. Terrain and opponents are shown only within your team’s sight. Select villagers and use A on a visible resource to gather. Deployment and real-browser acceptance remain unfinished.';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 43;
@@ -168,27 +169,30 @@
           } else status.textContent = 'Room created. Share the private invitation above with your guest.';
           if (live) {
             const state = await live.pump(); if (closed) return;
-            previewRunning=state.phase==='running';
+            previewRunning=['running','finishing','finished'].includes(state.phase);
             run.disabled = room.team !== 0 || state.phase !== 'waiting';
             trainButton.disabled = cancelButton.disabled = state.phase !== 'running' || state.commandPending;
             if (state.phase === 'waiting') status.textContent = 'Both players confirmed the same starting world. The host can run the live preview.';
             else if (state.phase === 'starting') status.textContent = 'Waiting for the guest to enter the live preview…';
+            else if(state.phase==='finishing')status.textContent='Confirming the final battlefield frame with the other player…';
+            else if(state.phase==='finished')status.textContent=(state.outcome.winner===null?'Draw':state.outcome.winner===room.team?'Victory':'Defeat')+' · '+state.outcome.reason+' · final frame '+state.frame;
             else status.textContent = 'Live preview · frame ' + state.frame + ' · ' +
               (state.commandPending ? 'Order awaiting acceptance' : state.lastResult ?
-                (state.lastResult.ok ? 'Last order executed' : 'Last order could not execute. Check resources, population space and the training queue.') :
-                'Train or cancel villagers in your own kingdom');
+                (state.lastResult.ok ? 'Last order executed' : 'Last order could not execute. Check sight, ownership, prerequisites, resources and queue space.') :
+                'Explore, build, train and command your kingdom');
             const team = room.team, town = S.bs.find(b=>b.t===team&&b.k==='tc'&&b.hp>0);
             mapButton.disabled = state.phase !== 'running';
             showMap(true);
             unitMap.refresh(S,team,W,H,state.phase === 'running'&&!state.commandPending);
             economy.textContent = 'Your kingdom: ' + (team+1) + ' · Food: ' + Math.floor(S.res[team].f) +
+              ' · Wood: '+Math.floor(S.res[team].w)+' · Gold: '+Math.floor(S.res[team].g)+' · Stone: '+Math.floor(S.res[team].s)+
               ' · Population: ' + popOf(team) + '/' + capOf(team) +
               ' · Villagers: ' + S.us.filter(u=>u.t===team&&u.k==='vil'&&u.hp>0).length +
               ' · Training queue: ' + (town?.q?.length || 0);
           }
         }
       } catch (_) { error(); return; } finally { updating = false; }
-      if (!closed && !stopped) timer = root.setTimeout(update,live?34:500);
+      if (!closed && !stopped) timer = root.setTimeout(update,live&&live.snapshot().phase!=='finished'?34:500);
     }
     async function connect(invitation) {
       if (busy || connection) return;

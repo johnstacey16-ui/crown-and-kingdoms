@@ -2,7 +2,7 @@
  * This is intentionally NOT connected to Supabase Broadcast. A remote packet
  * must first pass independently authenticated sender binding and the host's
  * CK_SIM_SYNC.createCommandHost() queue before execute() is called.
- * The current online room remains markers only.
+ * The authenticated battlefield uses this adapter; legacy rooms remain markers only.
  */
 (function (root) {
   'use strict';
@@ -10,8 +10,103 @@
     aggressive: 0, defensive: 1, 'stand-ground': 2, passive: 3, 'no-attack': 4
   });
 
+  // Team-relative sight is calculated from the authoritative world. Never use
+  // S.vs/S.ex here: those legacy arrays belong to the solo team-zero camera.
+  function visibility(world, team, width, height) {
+    if (!world || !Number.isInteger(team) || team < 0 || team >= world.teamN ||
+        !Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 ||
+        width > 1024 || height > 1024 || !Array.isArray(world.us) || !Array.isArray(world.bs))
+      throw Error('Invalid team visibility');
+    const cells = new Uint8Array(width * height);
+    const shares = t => t === team || world.dip?.[team]?.[t] === 'ally';
+    function reveal(e, radius) {
+      if (!e || !(e.hp > 0) || e.ld || !shares(e.t) ||
+          !Number.isFinite(e.x) || !Number.isFinite(e.y)) return;
+      const size = Number.isFinite(e.s) ? e.s : 0;
+      const cx = Math.floor(e.x + size/2), cy = Math.floor(e.y + size/2);
+      if (cx < 0 || cy < 0 || cx >= width || cy >= height) return;
+      for (let y = Math.max(0,cy-radius); y <= Math.min(height-1,cy+radius); y++)
+        for (let x = Math.max(0,cx-radius); x <= Math.min(width-1,cx+radius); x++)
+          if ((x-cx)**2+(y-cy)**2 <= radius*radius) cells[y*width+x] = 1;
+    }
+    for (const u of world.us) reveal(u,8);
+    for (const b of world.bs) reveal(b,b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8);
+    return cells;
+  }
+  function inSight(entity, cells, width, height) {
+    if (!entity || !(entity.hp > 0) || entity.ld || !Number.isFinite(entity.x) || !Number.isFinite(entity.y)) return false;
+    const size = Number.isFinite(entity.s) && entity.s > 0 ? entity.s : 0;
+    const right = size ? Math.ceil(entity.x+size)-1 : Math.floor(entity.x);
+    const bottom = size ? Math.ceil(entity.y+size)-1 : Math.floor(entity.y);
+    for (let y = Math.max(0,Math.floor(entity.y)); y <= Math.min(height-1,bottom); y++)
+      for (let x = Math.max(0,Math.floor(entity.x)); x <= Math.min(width-1,right); x++)
+        if (cells[y*width+x]) return true;
+    return false;
+  }
+  function buildingOptions(world, team, building) {
+    if (!building || building.t !== team || building.hp <= 0 || !building.done ||
+        !world.bs.includes(building) || !B[building.k]) return [];
+    const options = [], definition = B[building.k], tech = world.tech?.[team] || {};
+    const training = definition.tr || [];
+    for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
+      label:unitName(kind,team),cost:{...U[kind].cost},locked:U[kind].age > world.age[team] ? 'Requires '+AG[U[kind].age].n : ''});
+    const research = definition.rs || [];
+    if (building.k === 'tc' && AG[world.age[team]+1]) {
+      const age = AG[world.age[team]+1];
+      options.push({type:'research',value:'age',label:'Advance: '+age.n,cost:{...age.cost},locked:''});
+    }
+    for (const key of research) if (TE[key]) {
+      const entry = TE[key];
+      options.push({type:'research',value:key,label:entry.n,cost:{...entry.cost},
+        locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
+          entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
+    }
+    return options;
+  }
+
+  const BUILD_PAGES = Object.freeze([
+    Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost']),
+    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'])
+  ]);
+  function buildOptions(world,team) {
+    return BUILD_PAGES.map(page=>page.map(kind=>{
+      const d=B[kind],req=kind==='farm'?'mill':d.req;
+      const locked=kind==='wonder'&&vm!==1?'Wonder victory is off':
+        d.age>world.age[team]?'Requires '+AG[d.age].n:
+        req&&!world.bs.some(b=>b.t===team&&b.k===req&&b.hp>0&&b.done)?'Requires '+B[req].n:'';
+      return {type:'build',value:kind,label:d.n,cost:{...d.cost},size:d.s,locked};
+    }));
+  }
+  function construct(units,order,team) {
+    if(units.some(u=>u.k!=='vil'))return false;
+    const option=buildOptions(S,team).flat().find(o=>o.value===order.value);
+    const point=order.point;
+    if(!option||option.locked||!Number.isInteger(point.x)||!Number.isInteger(point.y)||
+        !can(team,option.cost)||!okPlace(team,option.value,point.x,point.y))return false;
+    const sight=visibility(S,team,W,H),size=option.size;
+    for(let y=point.y;y<point.y+size;y++)for(let x=point.x;x<point.x+size;x++)if(!sight[y*W+x])return false;
+    const target={x:point.x,y:point.y,s:size},near=goalNear(target,1);
+    const inside=(x,y)=>x>=point.x&&x<point.x+size&&y>=point.y&&y<point.y+size;
+    const goal=(x,y)=>!inside(x+.5,y+.5)&&near(x,y);
+    goal.hx=near.hx;goal.hy=near.hy;goal.hr=near.hr;
+    const routes=units.map(u=>path(u,goal));
+    if(routes.some(p=>!p||p.some(([x,y])=>inside(x,y))))return false;
+    const entity=option.value==='farm'?addN('f',point.x,point.y,farmFood(team),1):addB(team,option.value,point.x,point.y,false);
+    if(!entity)return false;
+    if(option.value==='farm')entity.t=team;
+    pay(team,option.cost);
+    units.forEach((u,i)=>{
+      u.o=option.value==='farm'?'g':'b';u.tg=entity;u.p=routes[i];u.pt=null;u.rp=1;
+      u.as=0;u.autoWorker=0;u.guardTarget=null;u.ret=0;
+      if(option.value==='farm'){u.ct='f';u.car=0;}
+    });
+    return true;
+  }
+
   function lookup(id) {
-    if (!root.CK_SIM_SYNC || !root.CK_SIM_SYNC.validId(id) || !S) return null;
+    if (!root.CK_SIM_SYNC || !S) return null;
+    if(root.CK_SIM_SYNC.validResourceId(id))return S.nodes.find(n=>n.netId===id)||null;
+    if(!root.CK_SIM_SYNC.validId(id))return null;
     const list = id[0] === 'u' ? S.us : S.bs;
     if (!Array.isArray(list)) return null;
     return list.find(e => e && e.netId === id) || null;
@@ -98,6 +193,22 @@
 
     if (!activeUnits(entities)) return false;
 
+    if (order.type === 'gather') {
+      const node=lookup(order.target),sight=visibility(S,team,W,H);
+      if(!node||!(node.amt>0)||!Number.isInteger(node.x)||!Number.isInteger(node.y)||
+          node.x<0||node.y<0||node.x>=W||node.y>=H||S.nd[node.y*W+node.x]!==node||
+          !sight[node.y*W+node.x]||node.fm&&Number.isInteger(node.t)&&node.t!==team||
+          entities.some(u=>!(u.k==='vil'&&!node.fi||u.k==='fish'&&node.fi)))return false;
+      const routes=entities.map(u=>path(u,goalNear(node,1)));
+      if(routes.some(route=>!route))return false;
+      entities.forEach((u,i)=>{
+        if(u.ct!==node.k)u.car=0;
+        u.o='g';u.tg=node;u.ct=node.k;u.ret=0;u.p=routes[i];u.rp=1;
+        u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
+      });
+      return true;
+    }
+    if (order.type === 'build') return construct(entities,order,team);
     if (order.type === 'stop') {
       for (const u of entities) {
         u.o = 'i'; u.p = []; u.tg = null; u.pt = null; u.rp = 0;
@@ -125,10 +236,9 @@
     if (order.type === 'attack') {
       const target = lookup(order.target);
       if (!target || target.hp <= 0 || target.ld || !isHostile(team, target.t) ||
+          !inSight(target,visibility(S,team,W,H),W,H) ||
           entities.some(u => u.st === 4 || !U[u.k] || !(U[u.k].dmg > 0)))
         return false;
-      // Visibility/line-of-sight authentication is not implemented for both
-      // human teams. DO NOT expose this adapter to untrusted network traffic.
       for (const u of entities) {
         u.o = 'a'; u.tg = target; u.p = []; u.pt = null; u.rp = 0;
         u.as = 0; u.autoWorker = 0; u.guardTarget = null;
@@ -147,16 +257,14 @@
       }
       return true;
     }
-    // "gather" needs persistent resource-node IDs, and "build" needs
-    // visibility, site, builder and network-identity acceptance first.
     return false;
   }
 
   root.CK_GAME_COMMANDS = Object.freeze({
-    lookup,
+    lookup, visibility, inSight, buildingOptions, buildOptions,
     execute,
     implementedTypes: Object.freeze([
-      'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
+      'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);

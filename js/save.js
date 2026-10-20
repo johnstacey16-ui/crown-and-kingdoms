@@ -21,12 +21,12 @@ function validSavedPath(u,sz){return u.p===undefined||Array.isArray(u.p)&&u.p.le
 function validSavedUnitOrders(u,sz){return (u.p===undefined||validSavedPath(u,sz))&&(u.rp===undefined||Number.isFinite(u.rp))&&(u.cd===undefined||Number.isFinite(u.cd))&&(u.car===undefined||Number.isFinite(u.car)&&u.car>=0)&&(u.tradeCargo===undefined||Number.isFinite(u.tradeCargo)&&u.tradeCargo>=0&&u.tradeCargo<=10000)&&(u.ut===undefined||u.ut===null||Array.isArray(u.ut)&&u.ut.length===2&&u.ut.every(n=>Number.isFinite(n)&&n>=0&&n<sz))&&(u.unloadBeach===undefined||u.unloadBeach===null||Array.isArray(u.unloadBeach)&&u.unloadBeach.length===2&&u.unloadBeach.every(n=>Number.isInteger(n)&&n>=0&&n<sz))&&(u.unloadRouteRetryAt===undefined||Number.isFinite(u.unloadRouteRetryAt)&&u.unloadRouteRetryAt>=0)&&(u.autoSkipNodes===undefined||Array.isArray(u.autoSkipNodes)&&u.autoSkipNodes.length<=128&&u.autoSkipNodes.every(e=>typeof e==='string'&&e.length<=128||e&&typeof e==='object'&&!Array.isArray(e)&&typeof e.key==='string'&&e.key.length<=128&&Number.isFinite(e.until)&&e.until>=0))}
 function validSavedProjectiles(pj,counts,sz,teams,refOK){return pj===undefined||Array.isArray(pj)&&pj.every(p=>p&&typeof p==='object'&&!Array.isArray(p)&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.y>=0&&p.x<sz&&p.y<sz&&typeof p.t==='string'&&/^[ub]\d+$/.test(p.t)&&refOK(p.t,counts)&&p.a&&typeof p.a==='object'&&!Array.isArray(p.a)&&U[p.a.k]&&Number.isInteger(p.a.t)&&p.a.t>=0&&p.a.t<teams&&(p.aRef===null||p.aRef===undefined||typeof p.aRef==='string'&&/^u\d+$/.test(p.aRef)&&refOK(p.aRef,counts)))}
 function validSavedNetworkIds(j){
- if(!j||!Array.isArray(j.us)||!Array.isArray(j.bs))return false;
+ if(!j||!Array.isArray(j.us)||!Array.isArray(j.bs)||j.nodes!==undefined&&!Array.isArray(j.nodes))return false;
  if(j.netNext!==undefined&&(!Number.isSafeInteger(j.netNext)||j.netNext<1||j.netNext>=1000000000000))return false;
  const ids=new Set();let max=0;
- for(const [objects,prefix] of [[j.us,'u'],[j.bs,'b']])for(const obj of objects){
+ for(const [objects,prefix] of [[j.us,'u'],[j.bs,'b'],[j.nodes||[],'n']])for(const obj of objects){
    if(!obj||obj.netId===undefined)continue; // older current-version saves
-   if(typeof obj.netId!=='string'||!/^[ub][1-9][0-9]{0,11}$/.test(obj.netId)||obj.netId[0]!==prefix||ids.has(obj.netId))return false;
+   if(typeof obj.netId!=='string'||!/^[ubn][1-9][0-9]{0,11}$/.test(obj.netId)||obj.netId[0]!==prefix||ids.has(obj.netId))return false;
    const n=Number(obj.netId.slice(1));if(!Number.isSafeInteger(n)||n>=1000000000000)return false;
    ids.add(obj.netId);max=Math.max(max,n);
  }
@@ -50,7 +50,7 @@ if(!j||j.v!==1||(j.rngState!==undefined&&(!Number.isInteger(j.rngState)||j.rngSt
 setSize(j.sz);S={t:j.t,netNext:Number.isSafeInteger(j.netNext)?j.netNext:1,teamN:(j.res||[]).length||2,r:mk(j.rngState===undefined?Date.now()&0xffffff:j.rngState),g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:Uint8Array.from(j.wt,c=>+c),nd:new Array(W*H).fill(null),nodes:j.nodes,us:j.us,bs:j.bs,pj:[],ex:Uint8Array.from(j.ex,c=>+c),vs:new Uint8Array(W*H),res:j.res,pl:j.pl,sel:[],vt:j.vt,al:-99,age:j.age,tech:j.tech,ai:Array.from({length:(j.res||[]).length||2},(_,i)=>{const a=Array.isArray(j.ai)?j.ai[i]:(i===1?j.ai:null);return{cd:+(a&&a.cd)||3,wave:(a&&a.wave)|0,nx:(a&&a.nx)||840,rn:a&&a.rn,lastMarketTrade:a&&Number.isFinite(a.lastMarketTrade)?a.lastMarketTrade:-99,lastTributeAt:a&&Number.isFinite(a.lastTributeAt)?a.lastTributeAt:-90,lastRaidDefense:a&&Number.isFinite(a.lastRaidDefense)?a.lastRaidDefense:-99,targetRetryAt:a&&Number.isFinite(a.targetRetryAt)?a.targetRetryAt:0,kn:new Set()}}),rel:[],px:Array.from({length:j.res.length},(_,i)=>{const raw=Array.isArray(j.px)?j.px[i]:null;return Object.fromEntries(['f','w','g','s'].map(k=>[k,raw&&Number.isFinite(raw[k])?Math.max(25,Math.min(400,raw[k])):100]))}),civ:j.civ||[0,1],dip:createDiplomacy((j.res||[]).length||2,j.dip),vp:createVillagerPriority(j.vp),pal:j.pal|0,over:null};
 // Preserve immutable unit/building IDs across save/load and never reuse a
 // previously assigned ID, even if its former entity has been destroyed.
-for(const e of [...S.us,...S.bs])if(e.netId)S.netNext=Math.max(S.netNext,Number(e.netId.slice(1))+1);
+for(const e of [...S.us,...S.bs,...S.nodes])if(e.netId)S.netNext=Math.max(S.netNext,Number(e.netId.slice(1))+1);
 for(const [objects,prefix] of [[S.us,'u'],[S.bs,'b']])for(const e of objects)if(!e.netId)e.netId=prefix+(S.netNext++);
 for(let i=0;i<W*H;i++)S.g[i]=S.wt[i]===1?1:0;for(const n of S.nodes){S.nd[n.y*W+n.x]=n;S.g[n.y*W+n.x]=1}
 for(const b of S.bs)for(let y=0;y<b.s;y++)for(let x=0;x<b.s;x++)S.g[(b.y+y)*W+b.x+x]=1;for(const b of S.bs)if(b.k==='gate')S.gt[b.y*W+b.x]=b.t+1;

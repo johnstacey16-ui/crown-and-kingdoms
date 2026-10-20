@@ -1,8 +1,7 @@
 /* Crown & Kingdoms — deterministic multiplayer protocol primitives (CK-007/008).
- * This is NOT the live multiplayer simulation. The current transport still carries
- * lobby/presence markers only; simulation commands must not be enabled until team
- * ownership, stable entity IDs and an authoritative tick clock are integrated.
- * Never treat a map signature or these unit-tested primitives as live match proof. */
+ * The opt-in authenticated battlefield uses these guarded command/frame primitives.
+ * Legacy Supabase rooms remain marker-only. Identity must come from the authenticated
+ * relay; map signatures alone never prove synchronized gameplay. */
 (function (root) {
   'use strict';
   const VERSION = 2;
@@ -13,6 +12,7 @@
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
   function validId(s) { return typeof s === 'string' && /^[ub][1-9][0-9]{0,11}$/.test(s); }
+  function validResourceId(s) { return typeof s === 'string' && /^n[1-9][0-9]{0,11}$/.test(s); }
   function byteSize(p) {
     const json = JSON.stringify(p);
     if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(json).length;
@@ -29,7 +29,8 @@
     if (!Array.isArray(order.entities) || !order.entities.length || order.entities.length > MAX_UNITS_PER_ORDER ||
         !order.entities.every(validId) || new Set(order.entities).size !== order.entities.length) return false;
     if (['move', 'attack-move', 'build', 'rally'].includes(order.type) && !validPoint(order.point, mapSize)) return false;
-    if (['attack', 'gather'].includes(order.type) && !validId(order.target)) return false;
+    if (order.type === 'attack' && !validId(order.target)) return false;
+    if (order.type === 'gather' && !validResourceId(order.target)) return false;
     if (['build', 'train', 'research', 'stance'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-z0-9_-]{0,39}$/.test(order.value))) return false;
     if (order.type === 'rally' && order.target != null && !validId(order.target)) return false;
@@ -244,7 +245,7 @@
   // A future authenticated guest transport can feed this one-frame-at-a-time
   // replay gate. It never trusts a Broadcast packet's claimed host identity;
   // the caller MUST supply a server-verified sender identity independently.
-  // No live transport invokes this code yet.
+  // CK_LIVE_SESSION feeds this gate only after the relay binds the host identity.
   function createFrameReplica({ roster, mapSize, execute, startFrame = 0, maxCommands = 96 }) {
     if (!roster || !Array.isArray(roster.slots) || roster.slots.length !== 2 ||
         !validRoster(roster, roster.slots[0].sid, roster.slots[0].sid, roster.kingdomCount) ||
@@ -320,7 +321,7 @@
     const relics = new Map((world.rel || []).map((n, i) => [n, 'r' + i]));
     const ref = o => {
       if (!o) return null;
-      if (validId(o.netId)) return o.netId;
+      if (validId(o.netId) || validResourceId(o.netId)) return o.netId;
       return nodes.get(o) || relics.get(o) || null;
     };
     const sorted = list => list.sort((a, b) => a.id.localeCompare(b.id));
@@ -344,11 +345,12 @@
       v:VERSION, t:world.t, rng:world.r.state(), netNext:world.netNext,
       resources:world.res, age:world.age, tech:world.tech,
       civ:world.civ, diplomacy:world.dip, priorities:world.vp,
-      victory:world.vc, hill:world.kh, victoryTimer:world.vt,
+      victory:world.vc || [0,0], hill:world.kh, victoryTimer:world.vt,
+      result:world.over || null, resultReason:world.why || null,
       landGrid:world.g ? Array.from(world.g) : null,
       waterGrid:world.wt ? Array.from(world.wt) : null,
       nodes:world.nodes.map(n => ({
-        kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
+        id:n.netId || null, kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
         farm:n.fm, animal:n.an, fish:n.fi, trap:n.trap
       })),
       units, buildings,
@@ -358,9 +360,9 @@
       relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
       ai:(world.ai || []).map(a => ({
         cooldown:a.cd, wave:a.wave, nextAttack:a.nx, strategy:a.rn,
-        lastMarketTrade:a.lastMarketTrade, lastTributeAt:a.lastTributeAt,
-        defenseAt:a.lastRaidDefense, retryAt:a.targetRetryAt,
-        on:a.on, workers:a.ws,
+        lastMarketTrade:a.lastMarketTrade ?? -99, lastTributeAt:a.lastTributeAt ?? -90,
+        defenseAt:a.lastRaidDefense ?? -99, retryAt:a.targetRetryAt ?? 0,
+        on:a.on || 0, workers:a.ws || 0,
         workerIds:(a.wu || []).map(ref), knownTargets:[...(a.kn || [])].map(ref).sort()
       }))
     };
@@ -434,6 +436,6 @@
     return Object.freeze({ recordLocal, recordRemote, stats });
   }
 
-  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, createFrameReplica, worldCheckpoint, createCheckpointTracker });
+  root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validResourceId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, createFrameReplica, worldCheckpoint, createCheckpointTracker });
 })(typeof window !== 'undefined' ? window : globalThis);
 
