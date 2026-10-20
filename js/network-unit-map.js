@@ -12,15 +12,17 @@
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:b.k==='tc'&&!!b.done,rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
   }
-  function create({canvas,description,submit,leave,stopButton,nameOf=()=> 'unit'}) {
+  function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit'}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,cursor=null,enabled=false;
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Select a unit to move or a completed town centre to set its rally point. D-pad moves the cursor, A selects or orders, Y or S stops a unit, X clears, B leaves the map.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. LB/RB or Q/E selects previous/next unit; LT or T selects a town centre. D-pad moves the cursor, A selects or orders, Y or S stops a unit, X clears, B leaves the map.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
+      for(const button of [previousButton,nextButton])if(button)button.disabled=!view?.units.length;
+      if(townButton)townButton.disabled=!view?.buildings.some(b=>b.rallyable);
       context.fillStyle='#090d16';context.fillRect(0,0,680,680);
       if(!view)return;
       const sx=680/view.width,sy=680/view.height;
@@ -75,6 +77,21 @@
       draw();
     }
     function canStop() { return !!(enabled&&view&&view.units.some(u=>u.id===selected)); }
+    function selectNext(direction,town=false) {
+      const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units;
+      if(!choices?.length)return;
+      const at=choices.findIndex(e=>e.id===selected);
+      const next=choices[at<0?(direction<0?choices.length-1:0):(at+direction+choices.length)%choices.length];
+      selected=next.id;
+      cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
+      cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
+      description.textContent=town?'Town centre selected. Choose a rally point for newly trained units.':
+        'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). Choose a destination, Y or S stops, X clears selection.';
+      canvas.focus();draw();
+    }
+    for(const [button,direction,town] of [[previousButton,-1,false],[nextButton,1,false],[townButton,1,true]]){
+      if(button){button.disabled=true;button.addEventListener('click',()=>selectNext(direction,town));}
+    }
     function stop() {
       if(!canStop())return;
       const result=submit({type:'stop',entities:[selected]});
@@ -91,6 +108,7 @@
     function control(buttons) {
       if(buttons[1]){leave();return;}
       if(!view||!cursor)return;
+      if(buttons[4]||buttons[5]||buttons[6]){selectNext(buttons[4]?-1:1,!!buttons[6]);return;}
       if(buttons[2]){selected=null;description.textContent='Selection cleared.';}
       if(buttons[3]){stop();return;}
       if(buttons[12])cursor.y=Math.max(0,cursor.y-1);
@@ -100,7 +118,7 @@
       if(buttons[0])choose(cursor);else draw();
     }
     canvas.addEventListener('keydown',event=>{
-      const key={ArrowUp:12,ArrowDown:13,ArrowLeft:14,ArrowRight:15,Enter:0,' ':0,x:2,X:2,s:3,S:3};
+      const key={ArrowUp:12,ArrowDown:13,ArrowLeft:14,ArrowRight:15,Enter:0,' ':0,x:2,X:2,s:3,S:3,q:4,Q:4,e:5,E:5,t:6,T:6};
       if(Object.hasOwn(key,event.key)){event.preventDefault();const buttons=[];buttons[key[event.key]]=true;control(buttons);}
     });
     return Object.freeze({refresh,control,choose,selected:()=>selected});

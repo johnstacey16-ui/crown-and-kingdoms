@@ -217,3 +217,11 @@ retreat, guard and unload orders, disables automatic work/scouting, and pauses
 traders while preserving carried resources and cargo. Combat stance is unchanged,
 so units can still react to enemies according to that stance. X only clears the
 selection; it does not stop the unit.
+
+
+Use **Previous unit** / **Next unit**, **Q/E**, or controller **LB/RB** to cycle
+through your living, ungarrisoned units. **Select town centre**, **T**, or **LT**
+cycles your completed town centres. These controls place the cursor on the
+selected entity and return focus to the map. Cycling wraps at either end and
+never selects an opponent. Selection itself sends no order, including while a
+previous order is pending; command submission still waits for readiness.

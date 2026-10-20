@@ -82,25 +82,26 @@
     const run = makeButton('Run live preview'), trainButton = makeButton('Train villager'), cancelButton = makeButton('Cancel training');
     const economy = document.createElement('p'); economy.setAttribute('aria-live','polite');
     const mapButton = makeButton('Control units on map'), stopButton = makeButton('Stop selected unit');
+    const previousButton=makeButton('Previous unit'),nextButton=makeButton('Next unit'),townButton=makeButton('Select town centre');
     const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
     mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = stopButton.hidden = true;
-    const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,stopButton,
+    const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,stopButton,previousButton,nextButton,townButton,
       submit:order=>live&&!stopped?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
       nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
-    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,stopButton,leave]) {
+    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave]) {
       element.style.cssText = 'display:block;width:min(100%,680px);box-sizing:border-box;margin:14px 0;padding:14px;border:2px solid #c9a24a;border-radius:6px;background:#15243c;color:#fff;font:inherit';
     }
     function showMap(visible) {
-      for(const element of [unitCanvas,mapDescription,stopButton]) {
+      for(const element of [unitCanvas,mapDescription,previousButton,nextButton,townButton,stopButton]) {
         element.hidden=!visible;
         element.style.display=visible?'block':'none';
       }
     }
     showMap(false);
     verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
-    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,unitCanvas,mapDescription,stopButton,status,leave);
+    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,previousButton,nextButton,townButton,unitCanvas,mapDescription,stopButton,status,leave);
     document.body.appendChild(overlay);
-    const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,unitCanvas,stopButton,leave];
+    const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,unitCanvas,stopButton,leave];
     function close() {
       if (closed) return;
       closed = true; root.clearTimeout(timer);

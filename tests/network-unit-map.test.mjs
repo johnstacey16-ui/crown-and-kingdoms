@@ -15,14 +15,16 @@ const world=()=>({teamN:2,us:[
   res:[{f:100},{f:200}],vs:new Uint8Array(32*32),nodes:[{x:19,y:19,k:'g'}]});
 function fixture() {
   const handlers=new Map(),orders=[];
+  const navigation={};
+  for(const key of ['previousButton','nextButton','townButton'])navigation[key]={disabled:false,addEventListener(name,fn){this[name]=fn;}};
   const stopHandlers=new Map(),stopButton={disabled:false,addEventListener:(name,fn)=>stopHandlers.set(name,fn)};
   let left=false;
   const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},
     addEventListener:(name,fn)=>handlers.set(name,fn),focus(){},
     getBoundingClientRect:()=>({left:100,top:50,width:340,height:340})};
   const description={textContent:''};
-  const map=api.create({canvas,description,stopButton,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
-  return {map,handlers,orders,description,canvas,stopButton,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
+  const map=api.create({canvas,description,stopButton,...navigation,submit:order=>{orders.push(order);return {ok:true};},leave:()=>{left=true;}});
+  return {map,handlers,orders,description,canvas,stopButton,...navigation,stopClick:()=>stopHandlers.get('click')(),left:()=>left};
 }
 
 test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
@@ -114,4 +116,35 @@ test('button, S key and Y submit stop only for a ready selected unit without cha
     f.map.choose({x:18,y:18});assert.equal(f.stopButton.disabled,true);
     f.map.control({3:true});assert.equal(f.orders.length,1,'stop is not a town-centre order');
   }
+});
+
+test('quick selection wraps through only owned living units and centers the command cursor',()=>{
+  const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28});
+  const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
+  f.nextButton.click();assert.equal(f.map.selected(),'u2');
+  f.map.control({5:true});assert.equal(f.map.selected(),'u5');
+  f.map.control({5:true});assert.equal(f.map.selected(),'u2');
+  f.previousButton.click();assert.equal(f.map.selected(),'u5');
+  assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
+  f.map.control({15:true});f.map.control({15:true});f.map.control({0:true});
+  assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u5'],point:{x:29,y:28}}));
+  f.nextButton.click();assert.equal(f.map.selected(),'u2');
+  f.map.control({3:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
+});
+
+test('keyboard shortcuts and town button select without sending orders and recover from removed units',()=>{
+  const f=fixture(),source=world();source.bs[1].done=true;
+  const key=key=>f.handlers.get('keydown')({key,preventDefault(){}});
+  f.map.refresh(source,1,32,32,true);
+  key('e');assert.equal(f.map.selected(),'u2');
+  key('T');assert.equal(f.map.selected(),'b2');
+  key('Q');assert.equal(f.map.selected(),'u2');
+  f.townButton.click();assert.equal(f.map.selected(),'b2');
+  f.map.control({6:true});assert.equal(f.map.selected(),'b2');
+  source.us[1].hp=0;f.map.refresh(source,1,32,32,true);
+  assert.equal(f.nextButton.disabled,true);assert.equal(f.previousButton.disabled,true);
+  key('e');assert.equal(f.map.selected(),'b2');
+  source.bs[1].done=false;f.map.refresh(source,1,32,32,true);
+  assert.equal(f.map.selected(),null);assert.equal(f.townButton.disabled,true);
+  key('t');assert.equal(f.orders.length,0);
 });
