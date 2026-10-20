@@ -6,16 +6,18 @@ This register tracks the 46 agreed delivery tasks. PARTIAL means implementation 
 
 ## Current verified code
 
-- Code commit: [`e56b79a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/e56b79a1b69c578ffed74fee3f01ee102f50bde9).
-- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39478108696): passed on GitHub Ubuntu / Node 22.
-- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39478108777): all 155 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- Code commit: [`64927a8`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/64927a840f64f2a6b90adc96b298c78daae5990d).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39481929550): passed on GitHub Ubuntu / Node 22.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39481928985): all 155 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
 - New multiplayer scenarios use two independent production-game VM contexts and the real loopback HTTP relay. They issue gather/deposit, construction, military training and research through the actual battlefield UI, and exercise a combat kill through the final replay/hash acknowledgment. Fixture durations/positions are bounded for regression tests; these are not human browser matches.
 
 ## Current multiplayer and visual milestone
 
-The authenticated battlefield now admits owned move/stop, gather, build, train, cancel, research, rally, attack/attack-move and stance commands. Resource targets have persistent IDs; the host rechecks current sight, resource identity, ownership, routes, costs, prerequisites and building sites before mutation. Rejected orders do not enter the replay journal.
+The authenticated battlefield now admits owned move/stop, gather, build, train, cancel, research, rally, attack/attack-move, stance, garrison, repair, building unload and transport disembark commands. Resource targets have persistent IDs; the host rechecks current sight, resource identity, ownership, routes, costs, prerequisites and building sites before mutation. Rejected orders do not enter the replay journal.
 
 The UI projects team-relative current sight rather than the solo team-zero fog array. It draws terrain, resources, explored fog, health, unit/ship/building silhouettes, selected paths and visible projectiles. A on visible resources/opponents submits gathering/attack; RT opens contextual production or construction; RT+Y changes economic/military build pages; LT repeats placement or requests five trained units. Exact wheel sectors, all special actions and physical Xbox parity remain unverified.
+
+The shelter/naval milestone adds explicit RT target modes, cargo badges and authenticated garrison/boarding, unload, repair/finish-foundation and visible-shore landing. The host rejects invalid ownership, hidden targets, incompatible selections, bad manifests, insufficient capacity and unreachable routes before mutation. Normal simulation boards, restores health and places distinct passengers on free land tiles. Long-distance garrison approach now uses a route within actual entrance range; trade ships honor repair before trading. Allied garrison sharing, formation/control-group menus, trade assignment, diplomacy and reconnect remain unfinished. Exact wheel layouts and physical Xbox parity remain unverified.
 
 A natural result stops simulation only after the final frame is replayed and acknowledged. Victory/defeat is relative to each human team; it is not reported as a generic network failure.
 
@@ -29,7 +31,7 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 
 1. Finish and deploy the synchronized 1v1 service: reconnect/snapshots, remaining command families, independent-browser full matches, disconnect recovery and measured network cadence.
 2. Complete the original graphics overhaul: asset inventory, faction/directional animations, main-world presentation, visual captures and Xbox frame budgets. The new battlefield is a substantial rendering stage, not the finished art overhaul.
-3. Close core missing gameplay/controller features: R3 priorities and ratios, multiplayer groups/minimap/formations, garrison/naval/trade/diplomacy commands, special abilities and content restrictions.
+3. Close core missing gameplay/controller features: R3 priorities and ratios, multiplayer groups/minimap/formations, remaining naval/trade/diplomacy commands, special abilities and content restrictions.
 4. Finish original audio/music and reference-content matrices; complete Xbox Series S/X release acceptance.
 
 ## Task register
@@ -42,10 +44,10 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 | CK-004 | P0 | AI ability to finish matches | PARTIAL | Production AI is covered by seeded active and passive skirmish results. Broader map/seed/late-game and human opposition acceptance remains open. |
 | CK-005 | P0 | Current-version save round-trip | PARTIAL | Manual/autosave reference and counter validation now covers persistent resource IDs as well as units/buildings. Long browser/naval/garrison checkpoint coverage remains required. |
 | CK-006 | P0 | Population and production deadlocks | IMPLEMENTED/UNVERIFIED | Recent repairs in engine.js/simulation.js. Exercise queue reservations, house loss, caps, restored games and multiple concurrent buildings in full match. |
-| CK-007 | P0 | Real two-human shared multiplayer | PARTIAL — integrated battlefield | Authenticated two-client HTTP tests exercise gather/deposit, paid construction, military training, research, combat and final acknowledged victory. Public relay deployment, independent browser/controller matches and remaining commands are open. |
+| CK-007 | P0 | Real two-human shared multiplayer | PARTIAL — integrated battlefield | Authenticated two-client HTTP tests exercise gather/deposit, paid construction, military training, research, combat, garrison/unload, repair, transport landings and final acknowledged victory. Public relay deployment, independent browser/controller matches and remaining commands are open. |
 | CK-008 | P0 | Multiplayer desync detection and failure handling | PARTIAL | Live stop-and-wait frame replay, ownership/sequence guards, duplicate handling, hash checks, timeout/failure and final-frame ACK are tested. Reconnect/resume and recovery snapshots remain missing. |
 | CK-009 | P0 | Controller-only core game flow | PARTIAL | Solo and authenticated battlefield provide many core controller functions; full controller-only flow and Xbox hardware acceptance remain open. |
-| CK-010 | P1 | Correct RT contextual wheel and site commands | PARTIAL | Authenticated RT building pages, RT+Y switching, paid training/research and build previews now exist. Exact reference sectors/positions and full site-command coverage require comparison. |
+| CK-010 | P1 | Correct RT contextual wheel and site commands | PARTIAL | Authenticated RT building pages, RT+Y switching, paid training/research, build previews and shelter/naval target actions now exist. Exact reference sectors/positions and full site-command coverage require comparison. |
 | CK-011 | P1 | LB/RB, D-pad and control group parity | PARTIAL | Solo groups/quick-selection/minimap have corrected bindings and saved groups. Multiplayer LB groups and RB minimap remain missing; see XBOX_CONTROLLER_PARITY.md. |
 | CK-012 | P1 | Villager priority presets and auto economy | PARTIAL | Legacy worker targets exist. The documented R3 priorities wheel, seven presets, manual ratios and automatic-farm toggle remain missing. |
 | CK-013 | P1 | Economy completeness and balance | PARTIAL | Gather/dropoff, farms, market/trade, fishing, relics implemented; verify gathering/carry/technology maths, depletion, farm wood costs, housing and economy pacing against reference. |
