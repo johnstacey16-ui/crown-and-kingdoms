@@ -8,7 +8,7 @@ vm.runInNewContext(readFileSync(new URL('../js/network-unit-map.js',import.meta.
 const api=context.CK_UNIT_MAP;
 const world=()=>({teamN:2,us:[
   {netId:'u1',t:0,k:'vil',hp:25,x:5,y:6},
-  {netId:'u2',t:1,k:'vil',hp:25,x:20,y:22},
+  {netId:'u2',t:1,k:'vil',hp:25,x:20,y:22,o:'i'},
   {netId:'u3',t:1,k:'vil',hp:0,x:21,y:22},
   {netId:'u4',t:1,k:'vil',hp:25,x:21,y:22,ld:{}}
 ],bs:[{netId:'b1',t:0,k:'tc',hp:100,x:3,y:3,s:3},{netId:'b2',t:1,k:'tc',hp:100,x:18,y:18,s:3}],
@@ -30,7 +30,7 @@ function fixture() {
 test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
   const source=world(),before=JSON.stringify(source);
   const view=api.project(source,1,32,32);
-  assert.equal(JSON.stringify(view.units),JSON.stringify([{id:'u2',kind:'vil',x:20,y:22}]));
+  assert.equal(JSON.stringify(view.units),JSON.stringify([{id:'u2',kind:'vil',x:20,y:22,idle:true}]));
   assert.equal(view.buildings.length,1);assert.equal(view.buildings[0].id,'b2');
   assert.equal(Object.hasOwn(view,'nodes'),false);assert.equal(Object.hasOwn(view,'res'),false);
   view.units[0].x=0;view.buildings[0].size=100;
@@ -51,14 +51,14 @@ test('selection and scaled pointer coordinates emit a typed move for the selecte
   assert.equal(JSON.stringify(source),before,'UI must not move simulation objects');
 });
 
-test('D-pad/A moves the map cursor; X clears selection and B returns focus',()=>{
+test('left stick moves the map cursor; B deselects before returning focus',()=>{
   const f=fixture();f.map.refresh(world(),1,32,32,true);
-  const press=index=>{const buttons=[];buttons[index]=true;f.map.control(buttons);};
-  press(0);assert.equal(f.map.selected(),'u2');
-  press(15);press(15);press(15);press(0);
-  assert.equal(f.orders[0].point.x,23);assert.equal(f.orders[0].point.y,22);
-  press(2);assert.equal(f.map.selected(),null);
-  press(1);assert.equal(f.left(),true);
+  f.map.control({12:true});assert.equal(f.map.selected(),'u2');
+  f.map.control({}, {}, [1,0], .1);f.map.control({0:true});
+  assert.ok(Math.abs(f.orders[0].point.x-21.92)<.001);assert.equal(f.orders[0].point.y,22);
+  f.map.control({2:true});assert.equal(f.map.selected(),'u2','X must not become deselect');
+  f.map.control({1:true});assert.equal(f.map.selected(),null);assert.equal(f.left(),false);
+  f.map.control({1:true});assert.equal(f.left(),true);
 });
 
 test('refresh drops dead/loaded selections, validates bounds and preserves simulation and fog state',()=>{
@@ -93,24 +93,25 @@ test('completed own town centre submits rally without optimistic mutation and dr
 test('controller cursor can select town centre and submit a rally point',()=>{
   const f=fixture(),source=world();source.us=[];source.bs[1].done=true;
   f.map.refresh(source,1,32,32,true);
-  f.map.control({6:true});
+  f.map.control({13:true});
   assert.equal(f.map.selected(),'b2');
-  for(let i=0;i<5;i++)f.map.control({15:true});
+  f.map.control({}, {}, [1,0], .1);
   f.map.control({0:true});
-  assert.equal(f.orders[0].type,'rally');assert.equal(f.orders[0].point.x,24.5);
+  assert.equal(f.orders[0].type,'rally');assert.ok(Math.abs(f.orders[0].point.x-21.42)<.001);
 });
 
-test('button and Y submit stop only for a ready selected unit without changing the world',()=>{
+test('button and RT menu submit stop only for a ready selected unit without changing the world',()=>{
   for(const input of ['button','controller']){
     const f=fixture(),source=world(),before=JSON.stringify(source);
     f.map.refresh(source,1,32,32,true);
     assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,0);
     f.map.choose({x:20,y:22});assert.equal(f.stopButton.disabled,false);
-    if(input==='button')f.stopClick();else f.map.control({3:true});
+    if(input==='button')f.stopClick();else {f.map.control({7:true});f.map.control({0:true},{7:true});}
     assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'stop',entities:['u2']}]));
     assert.equal(f.stopButton.disabled,true);f.stopClick();assert.equal(f.orders.length,1);
     assert.equal(JSON.stringify(source),before);
     source.bs[1].done=true;f.map.refresh(source,1,32,32,true);
+    f.map.control({}); // Release RT before selecting on the map again.
     f.map.choose({x:18,y:18});assert.equal(f.stopButton.disabled,true);
     f.map.control({3:true});assert.equal(f.orders.length,1,'stop is not a town-centre order');
   }
@@ -120,34 +121,35 @@ test('quick selection wraps through only owned living units and centers the comm
   const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'vil',hp:25,x:27,y:28});
   const before=JSON.stringify(source);f.map.refresh(source,1,32,32,true);
   f.nextButton.click();assert.equal(f.map.selected(),'u2');
-  f.map.control({5:true});assert.equal(f.map.selected(),'u5');
-  f.map.control({5:true});assert.equal(f.map.selected(),'u2');
+  f.nextButton.click();assert.equal(f.map.selected(),'u5');
+  f.nextButton.click();assert.equal(f.map.selected(),'u2');
   f.previousButton.click();assert.equal(f.map.selected(),'u5');
   assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
-  f.map.control({15:true});f.map.control({15:true});f.map.control({0:true});
-  assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u5'],point:{x:29,y:28}}));
+  f.map.control({}, {}, [1,0], .1);f.map.control({0:true});
+  assert.equal(JSON.stringify(f.orders[0]),JSON.stringify({type:'move',entities:['u5'],point:{x:28.92,y:28}}));
   f.nextButton.click();assert.equal(f.map.selected(),'u2');
-  f.map.control({3:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
+  f.map.control({7:true});f.map.control({0:true},{7:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
 });
 
-test('RT trains at the selected completed town only, awaiting execution without changing the world',()=>{
+test('RT opens a menu and A trains at the selected completed town only, awaiting execution without changing the world',()=>{
   const f=fixture(),source=world();
   source.bs[1].done=true;
   source.bs.push({netId:'b3',t:1,k:'tc',hp:100,x:26,y:26,s:3,done:true});
   const before=JSON.stringify(source);
   f.map.refresh(source,1,32,32,true);
   f.map.control({7:true});assert.equal(f.orders.length,0,'no selection');
-  f.map.control({5:true});f.map.control({7:true});assert.equal(f.orders.length,0,'units cannot train');
-  f.map.control({6:true});f.map.control({6:true});
+  f.nextButton.click();f.map.control({7:true});assert.equal(f.orders.length,0,'opening the unit menu sends no order');f.map.control({1:true});
+  f.map.control({13:true});f.map.control({13:true});
   assert.equal(f.map.selected(),'b3');
-  f.map.control({7:true});
+  f.map.control({7:true});assert.equal(f.orders.length,0,'RT alone must not train');
+  f.map.control({0:true},{7:true});
   assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b3'],value:'vil'}]));
   assert.match(f.description.textContent,/host execution/);
-  f.map.control({6:true});f.map.control({7:true});assert.equal(f.orders.length,1,'selection cannot bypass a pending order');
+  f.map.control({});f.map.control({13:true});f.map.control({7:true});f.map.control({0:true},{7:true});assert.equal(f.orders.length,1,'selection cannot bypass a pending order');
   assert.equal(JSON.stringify(source),before);
-  f.map.refresh(source,1,32,32,false);f.map.control({7:true});assert.equal(f.orders.length,1);
+  f.map.refresh(source,1,32,32,false);f.map.control({7:true});f.map.control({0:true},{7:true});assert.equal(f.orders.length,1);
   source.bs[1].done=false;source.bs[2].hp=0;
-  f.map.refresh(source,1,32,32,true);f.map.control({6:true});f.map.control({7:true});
+  f.map.refresh(source,1,32,32,true);f.map.control({13:true});f.map.control({7:true});f.map.control({0:true},{7:true});
   assert.equal(f.orders.length,1,'unfinished or destroyed towns cannot train');
 });
 
@@ -157,23 +159,41 @@ test('RT keeps training available for retry when submission is rejected',()=>{
   const description={textContent:''};
   const map=api.create({canvas,description,leave(){},submit:()=>{attempts++;return {ok:false};}});
   const source=world();source.bs[1].done=true;
-  map.refresh(source,1,32,32,true);map.control({6:true});
-  map.control({7:true});map.control({7:true});
+  map.refresh(source,1,32,32,true);map.control({13:true});
+  map.control({7:true});map.control({0:true},{7:true});map.control({0:true},{7:true});
   assert.equal(attempts,2);assert.match(description.textContent,/not submitted/);
 });
 
 test('controller D-pad and town button select without orders and recover from removed units',()=>{
   const f=fixture(),source=world();source.bs[1].done=true;
   f.map.refresh(source,1,32,32,true);
-  f.map.control({5:true});assert.equal(f.map.selected(),'u2');
+  f.nextButton.click();assert.equal(f.map.selected(),'u2');
   f.townButton.click();assert.equal(f.map.selected(),'b2');
-  f.map.control({4:true});assert.equal(f.map.selected(),'u2');
+  f.previousButton.click();assert.equal(f.map.selected(),'u2');
   f.townButton.click();assert.equal(f.map.selected(),'b2');
-  f.map.control({6:true});assert.equal(f.map.selected(),'b2');
+  f.map.control({13:true});assert.equal(f.map.selected(),'b2');
   source.us[1].hp=0;f.map.refresh(source,1,32,32,true);
   assert.equal(f.nextButton.disabled,true);assert.equal(f.previousButton.disabled,true);
   f.townButton.click();assert.equal(f.map.selected(),'b2');
   source.bs[1].done=false;f.map.refresh(source,1,32,32,true);
   assert.equal(f.map.selected(),null);assert.equal(f.townButton.disabled,true);
-  f.map.control({6:true});assert.equal(f.orders.length,0);
+  f.map.control({13:true});assert.equal(f.orders.length,0);
+});
+
+test('D-pad categories use owned eligible entities and legacy shortcuts send no commands',()=>{
+  const f=fixture(),source=world();source.bs[1].done=true;
+  source.us.push({netId:'monk',t:1,k:'mon',hp:25,x:25,y:25},
+    {netId:'soldier',t:1,k:'mil',hp:30,x:28,y:28});
+  f.map.refresh(source,1,32,32,true);
+  for(const [button,id] of [[12,'u2'],[15,'monk'],[13,'b2'],[14,'soldier']]){
+    f.map.control({[button]:true});assert.equal(f.map.selected(),id);
+  }
+  for(const button of [4,5,6,3,2]){f.map.control({[button]:true});assert.equal(f.map.selected(),'soldier');}
+  assert.equal(f.orders.length,0);
+  f.map.control({7:true});f.map.control({});f.map.control({0:true});
+  assert.equal(f.orders.length,0,'releasing RT closes the wheel before A can execute it');
+  f.map.control({13:true});f.map.control({7:true});
+  f.map.control({0:true},{6:true,7:true});
+  f.map.choose({x:30,y:30});
+  assert.equal(f.orders.length,0,'unsupported batch training and map clicks behind a wheel send no substitute orders');
 });

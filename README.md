@@ -31,6 +31,11 @@ The success of automated tests does not prove full controller-driven matches, li
 
 ## Architecture constraints
 
+The required controller target is the whole default button system and functions
+of **Age of Empires II: Definitive Edition on Xbox Series X**. Follow
+[XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md), which records official
+references and remaining gaps. Do not invent alternative gameplay shortcuts.
+
 - Preserve classic browser-script load order, controller behaviour, simulation correctness and current-version save/load integrity.
 - When adding or renaming runtime files, update `index.html`, the service-worker cache in `sw.js`, source checks and regression tests together.
 - Keep system ownership clear: simulation updates in `js/simulation.js`, AI decisions in `js/ai.js`, campaign objectives/events in `js/campaign.js`, rendering/UI in `js/render.js` and `js/ui.js`, and controller input in `js/input.js`.

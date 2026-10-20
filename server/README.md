@@ -186,48 +186,39 @@ player's living, ungarrisoned units and buildings are projected. Enemy entities,
 resources, terrain and the shared team-zero fog array are not exposed by this UI.
 Blue dots are owned units; gold rectangles are owned buildings.
 
-Click a unit and then a destination to submit one typed move order. With the map
-focused, the D-pad moves its cursor; A selects/orders, X clears
-selection, and B returns to the surrounding controls. Menu still leaves the
-preview. Pointer coordinates are scaled to the actual map dimensions, including
-small/mobile canvases. Loaded/dead selections are discarded. The projection
-copies display data and never mutates the simulation.
+Click a unit and then a destination to submit one typed move order. Pointer
+coordinates scale to the map dimensions. Loaded/dead selections are discarded;
+the projection copies display data and never mutates the simulation.
 
-Move orders use the same authenticated sender/team and entity ownership checks,
-ordered execution, production pathfinding, frame replay and checksum ACKs as
-paid production orders. A failed path reports unsuccessful execution. Commands
-wait for their authoritative frame instead of moving units optimistically.
-Select a completed town centre, then a destination to set its rally point.
-The selected town centre shows its confirmed rally marker and connecting line.
-Rally points apply to future trained units; existing units keep their orders.
-If no route exists, the new unit stays idle rather than keeping an automatic
-gathering assignment.
-Unfinished buildings cannot be selected for rally orders.
-The preview run handshake is version 4 so older preview clients fail before
-accepting a stop-enabled session. Combat, building/resource orders, terrain
-rendering, a full team-relative HUD and actual Xbox/browser visual acceptance
-remain outstanding. The Node relay still requires separate deployment.
+The controller follows the required Xbox button roles: the **left stick** moves
+the cursor and **A** selects/orders. **D-pad Up** selects an idle villager,
+**Right** a support unit, **Down** a completed town centre, and **Left** a military
+unit. This preview currently cycles individual entities rather than selecting
+whole groups. **B** closes the command menu or deselects; with no selection it
+returns focus to the surrounding controls.
 
+**Hold RT** to open the selected entity's limited command wheel; **A** confirms
+its action while RT remains held. Town centres offer villager training; units
+offer Stop. Opening or releasing RT alone submits nothing. The old RT-to-train,
+LT-to-select-town, LB/RB-to-cycle, Y-to-stop and X-to-deselect shortcuts have been
+removed. Unsupported Xbox functions are not assigned replacement bindings.
+The surrounding Previous/Next unit, Select town centre and Stop buttons remain
+available to pointer/accessibility navigation without claiming to be Xbox binds.
 
-Select a unit and press **Y** on the controller, or choose **Stop selected unit**. Stop is available only for a
-selected living, ungarrisoned unit when no order is pending. It uses scheduled
-host execution, not immediate local mutation. It clears movement/work, patrol,
-retreat, guard and unload orders, disables automatic work/scouting, and pauses
-traders while preserving carried resources and cargo. Combat stance is unchanged,
-so units can still react to enemies according to that stance. X only clears the
-selection; it does not stop the unit.
+Move, Stop, training and rally commands retain authenticated ownership checks,
+scheduled host execution, replay and checksum acknowledgements. Pending orders
+block another submission. No UI action optimistically changes units, food or
+queues. Stop preserves cargo and resources; stance remains unchanged.
 
+A completed selected town centre accepts **A** on the map to set its rally point.
+The confirmed rally marker applies only to future trained units; an unreachable
+rally leaves the new unit idle. Unfinished buildings cannot set rally points.
+The version-4 run handshake remains unchanged: these changes affect local input,
+not the command protocol.
 
-Use **Previous unit** / **Next unit** or controller **LB/RB** to cycle
-through your living, ungarrisoned units. **Select town centre** or controller
-**LT** selects your completed town centre. These controls place the cursor on the
-selected entity and return focus to the map. Cycling wraps at either end and
-never selects an opponent. Selection itself sends no order, including while a
-previous order is pending; command submission still waits for readiness.
-
-With the map focused, **LT** selects a completed town centre and **RT** trains
-a villager at that selected town centre. Repeated LT presses cycle completed
-town centres. RT sends no order when a unit is selected, no completed town centre
-is selected, or an order is pending. Training uses authenticated host execution;
-the normal food, population and queue checks still apply, and the map never
-changes resources or queues optimistically.
+The required target for the whole game is documented in
+[../XBOX_CONTROLLER_PARITY.md](../XBOX_CONTROLLER_PARITY.md). The one-action wheel,
+single selection and existing setup buttons are still an incomplete preview.
+LB groups, RB minimap, Y shortcuts, R3 priorities, multiplayer menus, construction,
+combat and full visual/hardware parity remain outstanding. The relay still needs
+separate deployment.

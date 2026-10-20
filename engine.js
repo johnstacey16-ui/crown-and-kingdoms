@@ -136,20 +136,16 @@ if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);if(n)n.t=0;for(co
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){ov=1;aDown=null;boxR=null;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cgo={sel:-1,done:0};yc=1;aDown=null;boxR=null;return}
 if(E[3])yc=0;if(P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){if(!yc)yShort(false);yc=0}
-if(lt&&!P[7]&&!P[4]&&!P[py]){
- if(E[12]){setZoom(Math.min(2,+(zm+.2).toFixed(1)));sset();note('Zoom '+zm.toFixed(1)+'x')}
- if(E[13]){setZoom(Math.max(.8,+(zm-.2).toFixed(1)));sset();note('Zoom '+zm.toFixed(1)+'x')}
- if(E[14]||E[15]){workerQuick=(workerQuick+(E[15]?1:3))%4;note('Villagers: '+WORKER_TARGETS[workerQuick].n+' target '+(S.vp||createVillagerPriority())[WORKER_TARGETS[workerQuick].k])}
- if(E[2])changeVillagerTarget(WORKER_TARGETS[workerQuick].k,1);
- if(E[1])changeVillagerTarget(WORKER_TARGETS[workerQuick].k,-1);
- if(E[0])toggleVillagerAutomation();
-}
+// LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
+// Villager priorities must use the documented R3 wheel once that UI is ready.
 if(!lt&&!P[7]&&!P[4]&&!P[py]){if(E[12])qsel('idle');if(E[15])qsel('support');if(E[13])qsel('tc');if(E[14])qsel('mil')}
-if(E[0]&&!lt){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y}}
+if(E[0]){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y}}
 if(aDown&&P[pa]&&Math.hypot(cur.x-aDown.x,cur.y-aDown.y)>14)boxR={x0:aDown.x,y0:aDown.y,x1:cur.x,y1:cur.y};
 if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,aDown.y);tapA(aw[0],aw[1],lt)}aDown=null}
-if(E[2]&&!lt&&!orderSel(pick(wx,wy),wx,wy))note('Select units first, then X orders them');if(E[1]&&!lt)S.sel=[];
-if(E[8]){omr='play';mode='obj';return}if(E[11])subg(1);
+// X's contextual actions and R3's priorities wheel require their own Xbox
+// behaviour; do not substitute an extra generic order or subgroup cycling.
+if(E[1]&&!lt)S.sel=[];
+if(E[8]){omr='play';mode='obj';return}
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;

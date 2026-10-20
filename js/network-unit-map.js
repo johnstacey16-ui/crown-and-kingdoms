@@ -8,16 +8,16 @@
     // Copy only owned, living entities. Never expose the opponent, resource nodes,
     // shared fog arrays or mutable simulation objects to this UI projection.
     return {width,height,team,
-      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y})),
+      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i'})),
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:b.k==='tc'&&!!b.done,rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
   }
   function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit'}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
-    let view=null,selected=null,cursor=null,enabled=false;
+    let view=null,selected=null,cursor=null,enabled=false,wheel=false;
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Use LB/RB to select your previous or next unit; LT selects your town centre and RT trains a villager at the selected town centre. Use the D-pad to move the cursor, A to select or order, Y to stop, X to clear selection, and B to return to the lobby controls.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm. B clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -49,25 +49,34 @@
         context.strokeStyle='#fff';context.lineWidth=2;context.beginPath();
         context.moveTo(x-7,y);context.lineTo(x+7,y);context.moveTo(x,y-7);context.lineTo(x,y+7);context.stroke();
       }
+      if(wheel){
+        context.fillStyle='rgba(9,13,22,.95)';context.beginPath();context.arc(340,340,150,0,Math.PI*2);context.fill();
+        context.strokeStyle='#c9a24a';context.lineWidth=3;context.stroke();
+        context.fillStyle='#fff';context.textAlign='center';context.font='22px system-ui';
+        context.fillText('Command menu',340,302);
+        context.fillText(view.buildings.some(b=>b.id===selected&&b.rallyable)?'Train villager':'Stop',340,344);
+        context.font='16px system-ui';context.fillText('Hold RT + A: confirm',340,384);
+      }
     }
     function refresh(world,team,width,height,canCommand) {
       view=project(world,team,width,height);enabled=canCommand;
       if(selected&&!view.units.some(u=>u.id===selected)&&!view.buildings.some(b=>b.id===selected&&b.rallyable))selected=null;
+      if(!selected)wheel=false;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
-      if(!selected)description.textContent='Your units are blue and your buildings gold. Select a unit to move, or a completed town centre to set its rally point. Enemy positions and terrain are not shown.';
+      if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; A selects or orders; hold RT for commands. Enemy positions and terrain are not shown.';
       draw();
     }
     function choose(point) {
-      if(!enabled||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
+      if(wheel||!enabled||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
         point.x<0||point.y<0||point.x>=view.width||point.y>=view.height)return;
       cursor={x:point.x,y:point.y};
       const radius=Math.max(0.8,view.width*8/680);
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
-      if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. Choose a destination, Y stops, X clears selection.';}
-      else if(town){selected=town.id;description.textContent='Town centre selected. RT trains a villager; choose a rally point for newly trained units; X clears selection.';}
+      if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. A orders at the cursor. Hold RT for commands; B deselects.';}
+      else if(town){selected=town.id;description.textContent='Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.';}
       else if(selected){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
         const result=submit({type:rally?'rally':'move',entities:[selected],point:{...point}});
@@ -77,16 +86,16 @@
       draw();
     }
     function canStop() { return !!(enabled&&view&&view.units.some(u=>u.id===selected)); }
-    function selectNext(direction,town=false) {
-      const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units;
+    function selectNext(direction,town=false,filter=()=>true) {
+      const choices=town?view?.buildings.filter(b=>b.rallyable):view?.units.filter(filter);
       if(!choices?.length)return;
       const at=choices.findIndex(e=>e.id===selected);
       const next=choices[at<0?(direction<0?choices.length-1:0):(at+direction+choices.length)%choices.length];
-      selected=next.id;
+      selected=next.id;wheel=false;
       cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
-      description.textContent=town?'Town centre selected. RT trains a villager; choose a rally point for newly trained units.':
-        'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). Choose a destination, Y stops, X clears selection.';
+      description.textContent=town?'Town centre selected. A sets a rally point. Hold RT for the training menu; B deselects.':
+        'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). A orders at the cursor. Hold RT for commands; B deselects.';
       canvas.focus();draw();
     }
     for(const [button,direction,town] of [[previousButton,-1,false],[nextButton,1,false],[townButton,1,true]]){
@@ -112,17 +121,33 @@
       if(!view||bounds.width<=0||bounds.height<=0)return;
       canvas.focus();choose({x:(event.clientX-bounds.left)*view.width/bounds.width,y:(event.clientY-bounds.top)*view.height/bounds.height});
     });
-    function control(buttons) {
-      if(buttons[1]){leave();return;}
+    function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
+      if(buttons[1]){
+        if(wheel){wheel=false;description.textContent='Command menu closed.';draw();}
+        else if(selected){selected=null;description.textContent='Selection cleared.';draw();}
+        else leave();
+        return;
+      }
       if(!view||!cursor)return;
-      if(buttons[4]||buttons[5]||buttons[6]){selectNext(buttons[4]?-1:1,!!buttons[6]);return;}
-      if(buttons[2]){selected=null;description.textContent='Selection cleared.';}
-      if(buttons[3]){stop();return;}
-      if(buttons[7]){train();return;}
-      if(buttons[12])cursor.y=Math.max(0,cursor.y-1);
-      if(buttons[13])cursor.y=Math.min(view.height-0.01,cursor.y+1);
-      if(buttons[14])cursor.x=Math.max(0,cursor.x-1);
-      if(buttons[15])cursor.x=Math.min(view.width-0.01,cursor.x+1);
+      if(!held[7])wheel=false;
+      if(buttons[7]&&selected)wheel=true;
+      if(wheel){
+        if(buttons[0]&&held[7]&&!held[6]){
+          if(view.buildings.some(b=>b.id===selected&&b.rallyable))train();else stop();
+        }
+        draw();return;
+      }
+      // These buttons retain their Xbox roles. Unsupported preview functions
+      // are left unavailable rather than assigned unrelated shortcuts.
+      if(held[4]||held[5]||held[6]||held[7]||held[3])return;
+      if(buttons[12]){selectNext(1,false,u=>(u.kind==='vil'||u.kind==='fish')&&u.idle);return;}
+      if(buttons[15]){selectNext(1,false,u=>u.kind==='mon');return;}
+      if(buttons[13]){selectNext(1,true);return;}
+      if(buttons[14]){selectNext(1,false,u=>!['vil','fish','trn','king','mon','cart','cog'].includes(u.kind));return;}
+      const delta=Number.isFinite(dt)?Math.min(.1,Math.max(0,dt)):0;
+      const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
+      cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
+      cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
       if(buttons[0])choose(cursor);else draw();
     }
     return Object.freeze({refresh,control,choose,selected:()=>selected});

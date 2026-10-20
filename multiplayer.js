@@ -1053,8 +1053,8 @@
 
   const rowCount = 10;
 
-  function control() {
-    if (window.CK_AUTH_LOBBY && window.CK_AUTH_LOBBY.active()) { window.CK_AUTH_LOBBY.control(); return; }
+  function control(dt) {
+    if (window.CK_AUTH_LOBBY && window.CK_AUTH_LOBBY.active()) { window.CK_AUTH_LOBBY.control(dt); return; }
     ensureLobbyFields();
     showLobbyFields(true);
     if (E[12]) selectedRow = (selectedRow + rowCount - 1) % rowCount;

@@ -26,7 +26,7 @@ function game(origin, preferences) {
     globalThis.testUnit=t=>{const u=S.us.find(u=>u.t===t&&u.k==='vil');return {id:u.netId,x:u.x,y:u.y,order:u.o};};
     globalThis.testChangeFood=()=>{S.res[1].f++;};
     globalThis.testPreviewDefaults=()=>{startArmy=0;startVillagers=1;startAge=0;startRes=0;gameMode=0;vm=0;};
-    globalThis.testControl=button=>{E=[];E[button]=true;window.CK_AUTH_LOBBY.control();E=[];};
+    globalThis.testControl=(button,held=[])=>{E=[];E[button]=true;P=held.slice();if(button===7)P[7]=true;window.CK_AUTH_LOBBY.control(1/30);E=[];P=[];};
   `, sandbox);
   return sandbox;
 }

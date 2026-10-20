@@ -287,7 +287,9 @@ test('DOM preview runs after verification and routes the guest training button t
   assert.equal(gd.button('Next unit').style.display,'block');
   gd.button('Select town centre').click();
   assert.equal(gd.button('Stop selected unit').disabled,true);
-  guestGame.testControl(7); // RT trains at the selected guest town without leaving the map.
+  guestGame.testControl(7); // Hold RT to open the selected town's command menu.
+  assert.equal(guestGame.testTeam(1).queue,1,'opening RT must not train');
+  guestGame.testControl(0,[false,false,false,false,false,false,false,true]); // A confirms while RT is held.
   await eventually(()=>hostGame.testTeam(1).queue===2&&guestGame.testTeam(1).queue===2);
   assert.equal(hostGame.testTeam(0).queue,0);assert.equal(guestGame.testTeam(0).queue,0);
   await eventually(()=>!gd.button('Train villager').disabled);
@@ -296,7 +298,8 @@ test('DOM preview runs after verification and routes the guest training button t
   gd.button('Stop selected unit').click();
   assert.equal(gd.button('Stop selected unit').disabled,true);
   await eventually(()=>guestGame.testUnit(1).order==='i'&&hostGame.testUnit(1).order==='i');
-  guestGame.testControl(1); // Leave the map, then leave the room.
+  guestGame.testControl(1); // Deselect, leave map focus, then leave the room.
+  guestGame.testControl(1);
   guestGame.testControl(1);
   await eventually(()=>/Room setup stopped/.test(hd.status().textContent));
   const frozen=hostGame.testWorld().time;

@@ -214,8 +214,8 @@
       }
     });
     root.addEventListener('pagehide', close);
-    panel = { close, control() {
-      if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E); return; }
+    panel = { close, control(dt) {
+      if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E,P,[ax(0),ax(1)],dt); return; }
       if (E[1] || E[9]) { close(); return; }
       const available = controls.filter(element => !element.disabled && !element.hidden);
       if (E[12] || E[13]) {
@@ -228,6 +228,6 @@
     }};
     host.focus();
   }
-  root.CK_AUTH_LOBBY = Object.freeze({ open, active:()=>!!panel, control:()=>panel?.control(),
+  root.CK_AUTH_LOBBY = Object.freeze({ open, active:()=>!!panel, control:dt=>panel?.control(dt),
     close:()=>panel?.close(), validConfig, settings, preparation });
 })(window);
