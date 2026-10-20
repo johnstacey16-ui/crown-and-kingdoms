@@ -1,17 +1,17 @@
 # Crown & Kingdoms — authoritative audit and delivery register
 
-Updated 20 October 2026. Work continues directly on `main`.
+Updated 21 October 2026. Work continues directly on `main`.
 
 This register tracks the 46 agreed delivery tasks. PARTIAL means implementation exists but the stated acceptance is still open. Automated checks establish only the covered scenarios. Staged Chromium rendering does not establish independent human matches, physical Xbox or deployed-service acceptance. Original code, artwork, music and campaigns remain required.
 
 ## Current verified code
 
-- Code commit: [`a09c3f9`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/a09c3f9b0d2ce1585cb65dbdccc84a3ecd8414a8).
-- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39485675211): passed on GitHub Ubuntu / Node 22.
-- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39485675028): all 155 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- Code commit: [`f8eee4d`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/f8eee4dae8d725dafaf9965289b4919e8333912e).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514666040): passed on GitHub Ubuntu / Node 22.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665643): all 156 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
 - New multiplayer scenarios use two independent production-game VM contexts and the real loopback HTTP relay. They issue gather/deposit, construction, military training and research through the actual battlefield UI, and exercise a combat kill through the final replay/hash acknowledgment. Fixture durations/positions are bounded for regression tests; these are not human browser matches.
 
-- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39485675115): original SVG atlases load and render for both teams; animation, fog, checksum isolation and failed-image fallback pass. Screenshots were generated and inspected. See [GRAPHICS_ACCEPTANCE.md](GRAPHICS_ACCEPTANCE.md).
+- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665634): original SVG atlases load and render for both teams; animation, fog, checksum isolation and failed-image fallback pass. Screenshots were generated and inspected. See [GRAPHICS_ACCEPTANCE.md](GRAPHICS_ACCEPTANCE.md).
 
 ## Current multiplayer and visual milestone
 
@@ -19,7 +19,7 @@ The authenticated battlefield now admits owned move/stop, gather, build, train, 
 
 The UI projects team-relative current sight rather than the solo team-zero fog array. It draws terrain, resources, explored fog, health, original animated unit/ship/building art, selected paths and visible projectiles. A on visible resources/opponents submits gathering/attack; RT opens contextual production or construction; RT+Y changes economic/military build pages; LT repeats placement or requests five trained units. Exact wheel sectors, all special actions and physical Xbox parity remain unverified.
 
-The graphics stage integrates original animated atlases, copied poses, kingdom palettes and stable screen-depth ordering. Foundations show scaffolding/progress; damaged buildings show smoke. Missing/failed frames retain procedural fallback. Browser validation exposed and prompted repair of 48 malformed building-atlas tags, restoring that atlas in solo as well. The effective catalogue has atlas entries for 35/50 unit kinds and 20/22 building definitions. Missing unit art, palisades, full isometric integration and measured Xbox budgets remain open.
+The graphics stage integrates original animated atlases, copied poses, kingdom palettes and stable screen-depth ordering. Foundations show scaffolding/progress; damaged buildings show smoke. Missing/failed frames retain procedural fallback. Browser validation exposed and prompted repair of 48 malformed building-atlas tags, restoring that atlas in solo as well. The effective catalogue now resolves all 50 unit keys (including the castle combat proxy) and 21/22 building definitions; farms use resource/crop tiles. New original art covers trade carts/cogs, twelve unique troops and palisades. The generator is reproducible and frame cells are clipped. Manifest revalidation and shell-cache migration prevent returning players retaining obsolete artwork. Full directional quality, isometric integration and Xbox budgets remain open.
 
 The shelter/naval milestone adds explicit RT target modes, cargo badges and authenticated garrison/boarding, unload, repair/finish-foundation and visible-shore landing. The host rejects invalid ownership, hidden targets, incompatible selections, bad manifests, insufficient capacity and unreachable routes before mutation. Normal simulation boards, restores health and places distinct passengers on free land tiles. Long-distance garrison approach now uses a route within actual entrance range; trade ships honor repair before trading. Allied garrison sharing, formation/control-group menus, trade assignment, diplomacy and reconnect remain unfinished. Exact wheel layouts and physical Xbox parity remain unverified.
 
@@ -73,7 +73,7 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 | CK-029 | P2 | Console tutorials and tooltips | PARTIAL | ui.js in-game control help and First Hearth training exist; assess guided teachability and missing accessibility assistance. |
 | CK-030 | P2 | Post-match statistics and spectator/replay scope | INVESTIGATE | Verify actual end-screen stats against Xbox reference; decide whether replay/spectator are mandatory in agreed base, optional online capability or separate milestone. |
 | CK-031 | P0 | Shared 2–4 human multiplayer integration | PARTIAL — two humans | Two authenticated human slots share a simulation and terminal result. Garrison/unload, trade, tribute/diplomacy, priorities/formations, reconnect and 3–4 humans remain open. Browser play has no native Xbox matchmaking integration. |
-| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL — atlas integration | Original unit/ship/building atlases now render in multiplayer with copied poses and depth ordering. 35/50 unit kinds and 20/22 building definitions have atlas entries. Missing assets, Chromium evidence and remaining quality gates are in GRAPHICS_ACCEPTANCE.md. |
+| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL — atlas integration | Original unit/ship/building atlases now render in multiplayer with copied poses and depth ordering. 50/50 unit keys and 21/22 building definitions have atlas entries; farms use crop tiles. New trade/unique-force/palisade assets, Chromium evidence and remaining quality gates are in GRAPHICS_ACCEPTANCE.md. |
 | CK-033 | P1 | Music, ambience and feedback | PARTIAL | audio.js procedural sound; audit actual audible events, prompt initiation/resume and production-ready original sound suite. |
 | CK-034 | P3 | AI and civilisation balance | UNVERIFIED | Repeatable test batteries and human matches; record win rates and concrete deviations, avoid arbitrary 1:1 numerical approximations unsupported by reference evidence. |
 | CK-035 | P3 | Canvas/game-loop rendering and input profiling | UNVERIFIED | Measure simulation/draw frame time, memory/GC, p95 input delay, sprite and A* counts on real Xbox Series S first. |

@@ -166,7 +166,7 @@ A normal victory/defeat/draw is part of the world checksum. The guest replays an
 
 ## Verification and remaining acceptance
 
-At `a09c3f9b0d2ce1585cb65dbdccc84a3ecd8414a8`, [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39485675211) and [regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39485675028) passed. `tests/network-battlefield.test.mjs` covers sight, mutation isolation, command rejection, resource identity/save round trips, actual deposits, paid construction/production/research, garrison approach/capacity, repair, safe passenger landings and contextual drawing/input. `tests/network-battlefield-live.test.mjs` uses two production contexts and real loopback HTTP for the UI-driven economic/military loop, combat-to-terminal-ACK flow and guest-menu garrison/unload/repair/transport landing. Every live frame compares independent production checkpoints. Fixture timing is accelerated and worlds are staged for bounded regression scenarios.
+At `f8eee4dae8d725dafaf9965289b4919e8333912e`, [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514666040) and [regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665643) passed. `tests/network-battlefield.test.mjs` covers sight, mutation isolation, command rejection, resource identity/save round trips, actual deposits, paid construction/production/research, garrison approach/capacity, repair, safe passenger landings and contextual drawing/input. `tests/network-battlefield-live.test.mjs` uses two production contexts and real loopback HTTP for the UI-driven economic/military loop, combat-to-terminal-ACK flow and guest-menu garrison/unload/repair/transport landing. Every live frame compares independent production checkpoints. Fixture timing is accelerated and worlds are staged for bounded regression scenarios.
 
 These tests do not establish deployed HTTPS, independent rendered browsers, a human full match, Xbox controller/visual acceptance, reconnect, host failover or production-scale throughput. The stop-and-wait clock trades simulation speed for synchronization and still needs real-network performance measurement.
 
@@ -213,3 +213,7 @@ devices; invitations are scoped to that service instance.
 private-path rejection, readiness, uncached responses, anonymous session
 creation, two-player room join and authenticated message identity through
 the combined host.
+
+## Original atlas catalogue extension
+
+Trade carts/cogs, twelve unique troops and palisades now have original local vector atlases. All runtime unit keys resolve to frames; the castle attack proxy reuses castle art, and farms remain resource tiles. The generator and catalogue tests are documented in [GRAPHICS_ACCEPTANCE.md](../GRAPHICS_ACCEPTANCE.md). HTTP metadata revalidation and `ck-shell-v10` migrate stale cached artwork; the Chromium suite exercises an old HTTP manifest and old shell cache before reload.
