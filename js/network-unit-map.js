@@ -1,4 +1,4 @@
-/* Team-relative battlefield projection, procedural art and authenticated controls. */
+/* Team-relative battlefield projection, animated original atlas art and authenticated controls. */
 (function(root){
   'use strict';
   function project(world,team,width,height) {
@@ -8,15 +8,27 @@
     // Owned selection data and a separate current-sight battlefield projection.
     // No shared solo fog or mutable simulation objects enter the UI.
     const sight=root.CK_GAME_COMMANDS?.visibility?.(world,team,width,height);
+    // Pose is a copied visual description. Rendering must never write facing or
+    // animation fields into deterministic simulation entities.
+    const pose=e=>{
+      const point=Array.isArray(e.p)&&e.p.length?e.p[0]:null;
+      const walking=point&&point.length===2&&point.every(Number.isFinite);
+      const heading=walking?Math.atan2(point[1]-e.y,point[0]-e.x):
+        Number.isFinite(e.dr)?e.dr*Math.PI/4:0;
+      const state=walking?1:e.o==='a'&&e.cd>0&&e.cd<.45?2:['g','b','rep'].includes(e.o)?3:0;
+      return {state,heading};
+    };
+    const construction=b=>({complete:!!b.done,progress:b.done?1:
+      Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,
-      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
+      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,pose:pose(u),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:!!b.done&&(sight?root.CK_GAME_COMMANDS.buildingOptions(world,team,b).some(o=>o.type==='train'):b.k==='tc'),
-        ...(sight?{passengers:(b.cg||[]).filter(c=>c.hp>0&&c.ld===b&&c.t===team).length,selectable:!!b.done,label:B[b.k]?.n||b.k,commands:root.CK_GAME_COMMANDS.buildingOptions(world,team,b)}:{}),
+        ...(sight?{team:b.t,...construction(b),passengers:(b.cg||[]).filter(c=>c.hp>0&&c.ld===b&&c.t===team).length,selectable:!!b.done,label:B[b.k]?.n||b.k,commands:root.CK_GAME_COMMANDS.buildingOptions(world,team,b)}:{}),
         rally:b.rally&&position(b.rally)?{x:b.rally.x,y:b.rally.y}:null}))};
     if(sight){
       const visible=e=>root.CK_GAME_COMMANDS.inSight(e,sight,width,height);
-      const details=e=>({id:e.netId,kind:e.k,team:e.t,x:e.x,y:e.y,size:e.s||0,
+      const details=e=>({id:e.netId,kind:e.k,team:e.t,x:e.x,y:e.y,size:e.s||0,...(e.s?construction(e):{pose:pose(e)}),
         hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0)),
         label:e.s?(B[e.k]?.n||e.k):(U[e.k]?.n||e.k),hostile:world.dip?.[team]?.[e.t]!=='neutral'&&world.dip?.[team]?.[e.t]!=='ally'});
       view.battlefield={time:Number.isFinite(world.t)?world.t:0,visible:[],tiles:[],enemies:[],allies:[],health:{},attackers:[],builders:[],gatherers:{},construction:root.CK_GAME_COMMANDS.buildOptions(world,team),paths:{},projectiles:[]};
@@ -109,16 +121,32 @@
           context.setLineDash([3,5]);context.beginPath();context.moveTo(u.x*sx,u.y*sy);context.lineTo(point.x*sx,point.y*sy);context.stroke();context.setLineDash([]);}
       }
     }
+    function drawAtlas(e,x,y,sx,sy){
+      if(typeof assetFrame!=='function')return false;
+      const size=e.size||0,time=view.battlefield?.time||0;
+      // Preserve the actual kingdom palette for each player; relation rings
+      // identify ownership without repainting the other kingdom's artwork.
+      const sprite=assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,time,e.pose?.heading||0);
+      if(!sprite)return false;
+      const f=sprite.f,height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
+      const scale=height/f.h*(sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
+      context.save();
+      if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
+      try{context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      catch(_){context.restore();return false;}
+      context.restore();return true;
+    }
     function drawEntity(e,sx,sy,color,chosen){
       const x=e.x*sx,y=e.y*sy,size=e.size||0,unitRadius=Math.max(2.5,Math.min(5,sx*.45));
       context.fillStyle='rgba(0,0,0,.35)';
-      if(size){
+      const atlas=drawAtlas(e,x,y,sx,sy);
+      if(size&&!atlas){
         const w=size*sx,h=size*sy;context.fillRect(x+2,y+3,w,h);
         context.fillStyle='#b39a70';context.fillRect(x,y,w,h);
         context.fillStyle=color;context.fillRect(x+1,y+1,Math.max(1,w-2),Math.max(1,h*.5));
         context.strokeStyle='#352d27';context.lineWidth=1;context.strokeRect(x,y,w,h);
         if(w>15){context.fillStyle='#fff1c7';context.font='bold '+Math.max(8,Math.min(12,w*.28))+'px system-ui';context.textAlign='center';context.fillText(e.kind==='tc'?'TC':e.kind.slice(0,3).toUpperCase(),x+w/2,y+h*.7);}
-      }else{
+      }else if(!atlas){
         context.beginPath();context.ellipse(x+1,y+2,unitRadius+1,unitRadius*.65,0,0,Math.PI*2);context.fill();
         context.fillStyle=color;context.strokeStyle='#172429';context.lineWidth=1;
         if(['gal','fish','trn','cog'].includes(e.kind)){
@@ -130,6 +158,21 @@
           context.fillStyle=e.kind==='vil'?'#c9ae77':e.kind==='mon'?'#f3d5fa':'#edf1e5';
           context.beginPath();context.arc(x,y-unitRadius*.7,unitRadius*.43,0,Math.PI*2);context.fill();
         }
+      }
+      // Relation markers remain legible at strategic scale and for absent art.
+      context.fillStyle=color;context.strokeStyle='#15212b';context.lineWidth=1;
+      context.beginPath();context.ellipse(x+size*sx/2,y+(size?size*sy:3),Math.max(2,size?size*sx*.24:unitRadius*.7),2,0,0,Math.PI*2);context.fill();context.stroke();
+      if(size&&e.complete===false){
+        const w=Math.max(12,size*sx),progress=Math.max(0,Math.min(1,e.progress||0));
+        context.strokeStyle='#d0ad71';context.lineWidth=1.5;context.beginPath();
+        context.moveTo(x,y+size*sy);context.lineTo(x,y);context.lineTo(x+size*sx,y);context.lineTo(x+size*sx,y+size*sy);context.stroke();
+        context.fillStyle='#302d27';context.fillRect(x,y+size*sy+5,w,3);
+        context.fillStyle='#e5be77';context.fillRect(x,y+size*sy+5,w*progress,3);
+      }
+      if(size&&e.complete!==false&&e.maxHp>0&&e.hp/e.maxHp<.5){
+        const phase=view.battlefield?.time||0;
+        context.fillStyle='rgba(31,32,29,.5)';
+        for(let i=0;i<2;i++){context.beginPath();context.arc(x+size*sx*.6+Math.sin(phase+i)*2,y-3-i*5-(phase%1)*3,2+i,0,Math.PI*2);context.fill();}
       }
       if(e.passengers>0){
         context.fillStyle='#14202d';context.fillRect(x-9,y+7,26,17);
@@ -156,25 +199,24 @@
       for(let cell=0;cell<=view.width;cell+=8){context.beginPath();context.moveTo(cell*sx,0);context.lineTo(cell*sx,680);context.stroke();}
       for(let cell=0;cell<=view.height;cell+=8){context.beginPath();context.moveTo(0,cell*sy);context.lineTo(680,cell*sy);context.stroke();}
       if(view.battlefield){
-        for(const e of view.battlefield.allies)drawEntity(e,sx,sy,'#84d9bd',false);
-        for(const e of view.battlefield.enemies)drawEntity(e,sx,sy,'#f17b6e',false);
+        const entities=[
+          ...view.battlefield.allies.map(e=>({...e,color:'#84d9bd'})),
+          ...view.battlefield.enemies.map(e=>({...e,color:'#f17b6e'})),
+          ...view.buildings.map(e=>({...e,...view.battlefield.health[e.id],color:'#73b4e8'})),
+          ...view.units.map(e=>({...e,...view.battlefield.health[e.id],color:'#73b4e8'}))
+        ];
+        // Stable screen-depth ordering interleaves buildings and units from
+        // both kingdoms. Team membership never determines foreground order.
+        entities.sort((a,b)=>(a.y+(a.size||0))-(b.y+(b.size||0))||a.x-b.x||
+          (a.id<b.id?-1:a.id>b.id?1:0));
+        for(const e of entities)drawEntity(e,sx,sy,e.color,chosen.has(e.id));
+      }else{
+        for(const b of view.buildings){context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);}
+        for(const u of view.units){context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();}
       }
-      context.fillStyle='#c9a24a';
-      for(const b of view.buildings){
-        context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';
-        if(view.battlefield)drawEntity({...b,...view.battlefield.health[b.id]},sx,sy,chosen.has(b.id)?'#ffe78a':'#73b4e8',chosen.has(b.id));
-        else context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);
-        if(b.id===selected&&b.rally){
-          context.strokeStyle='#ffe78a';context.beginPath();
-          context.moveTo((b.x+b.size/2)*sx,(b.y+b.size/2)*sy);
-          context.lineTo(b.rally.x*sx,b.rally.y*sy);context.stroke();
-          context.fillRect(b.rally.x*sx-3,b.rally.y*sy-3,6,6);
-        }
-      }
-      for(const u of view.units){
-        context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();
-        if(view.battlefield){drawEntity({...u,...view.battlefield.health[u.id]},sx,sy,chosen.has(u.id)?'#ffe78a':'#73b4e8',chosen.has(u.id));}
-        else{context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();}
+      for(const b of view.buildings)if(b.id===selected&&b.rally){
+        context.strokeStyle='#ffe78a';context.beginPath();context.moveTo((b.x+b.size/2)*sx,(b.y+b.size/2)*sy);
+        context.lineTo(b.rally.x*sx,b.rally.y*sy);context.stroke();context.fillStyle='#ffe78a';context.fillRect(b.rally.x*sx-3,b.rally.y*sy-3,6,6);
       }
       if(aGesture?.box&&cursor){
         const x=Math.min(aGesture.start.x,cursor.x)*sx,y=Math.min(aGesture.start.y,cursor.y)*sy;

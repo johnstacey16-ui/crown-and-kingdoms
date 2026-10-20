@@ -1,0 +1,36 @@
+name: Battlefield browser graphics
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: battlefield-browser-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned browser test tooling
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Render original multiplayer art in Chromium
+        run: node tests/browser/battlefield-art.mjs
+      - name: Save rendered evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: battlefield-art
+          path: artifacts/battlefield-art/
+          if-no-files-found: ignore

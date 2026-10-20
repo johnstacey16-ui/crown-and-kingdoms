@@ -24,7 +24,7 @@ const setup=`
 `;
 function fixture(){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
- vm.runInContext(source+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-map')+'\n'+setup,sandbox);return sandbox;
+ vm.runInContext(source+'\n'+read('assets')+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-map')+'\n'+setup,sandbox);return sandbox;
 }
 function mapFixture(c){
  const orders=[],draws=[],canvas={style:{},setAttribute(){},addEventListener(){},focus(){},
@@ -275,4 +275,67 @@ test('strict shelter protocol rejects extra fields and battlefield target mode s
  f.map.control({0:true},{7:true,0:true});f.map.control({1:true},{1:true});f.map.control({},{});
  f.map.choose({x:25,y:28});assert.equal(f.orders.length,1,'B cancels target mode, allowing ordinary building selection');
  assert.equal(f.map.selected(),c.run('shelter.netId'));
+});
+
+test('battlefield copies animation poses and construction progress without changing simulation facing or hashes',()=>{
+ const c=fixture();c.run("worker.p=[[22.5,21.5]];worker.dr=5;soldier.o='a';soldier.cd=.2;guest.o='rep';guest.p=[];globalThis.foundation=addB(0,'house',24,27,false);foundation.pr=B.house.bt*.4");
+ const before=c.worldHash(),view=c.view(0);
+ const worker=view.units.find(u=>u.id===c.ids.worker),soldier=view.units.find(u=>u.id===c.ids.soldier);
+ assert.equal(worker.pose.state,1);assert.equal(worker.pose.heading,0);assert.equal(worker.team,0);
+ assert.equal(soldier.pose.state,2);
+ assert.equal(view.battlefield.enemies.find(u=>u.id===c.ids.guest).pose.state,3);
+ assert.equal(view.battlefield.enemies.some(u=>u.id===c.ids.hidden),false);
+ const b=view.buildings.find(b=>b.id===c.run('foundation.netId'));
+ assert.equal(b.complete,false);assert.ok(Math.abs(b.progress-.4)<1e-9);
+ worker.pose.heading=9;b.progress=1;
+ assert.equal(c.run('worker.dr'),5);assert.ok(Math.abs(c.run('foundation.pr/B.house.bt')-.4)<1e-9);
+ assert.equal(c.worldHash(),before);
+});
+
+test('original atlas rendering uses actual kingdom palettes, animation frames, anchors and screen depth without mutating game state',()=>{
+ const c=fixture();c.run(`
+  globalThis.artImage={tag:'original-atlas'};
+  const frame=(x,y,w=16,h=16)=>({x,y,w,h,ax:w/2,ay:h-2});
+  regAtlas('fixture',artImage,{anims:{
+   'vil/walk/0':{dur:.1,dirs:[[frame(0,0),frame(16,0)],[frame(32,0)],[frame(48,0)],[frame(64,0)]]},
+   'mil/idle/0':{frames:[frame(0,16)]},'mil/idle/1':{frames:[frame(16,16)]},
+   'bld_tc/work/0':{frames:[frame(0,32,32,32)]}
+  }});
+  worker.p=[[22.5,21.5]];S.t=.05;globalThis.castle=addB(0,'tc',24,27,true);
+ `);
+ const before=c.worldHash(),f=mapFixture(c);
+ const first=f.draws.filter(d=>d[0]==='drawImage');assert.ok(first.length>=4);
+ assert.ok(first.some(d=>d[2]===16&&d[3]===16),'visible opposing military uses team one artwork');
+ assert.ok(first.some(d=>d[2]===0&&d[3]===16),'owned military uses team zero artwork');
+ const soldierIndex=first.findIndex(d=>d[2]===0&&d[3]===16);
+ const lowerBuildingIndex=first.findIndex(d=>d[3]===32&&Math.abs(d[7]+30/32*d[9]-30*680/72)<.01);
+ assert.ok(lowerBuildingIndex>soldierIndex,'nearer building draws after the unit behind it');
+ assert.equal(c.worldHash(),before);
+ c.run('S.t=.15');const newHash=c.worldHash();f.draws.length=0;f.refresh();
+ assert.ok(f.draws.some(d=>d[0]==='drawImage'&&d[2]===16&&d[3]===0),'walking frame advances with shared world time');
+ assert.equal(c.worldHash(),newHash);
+});
+
+test('heading-aware atlas lookup handles four and eight directions while retaining existing callers',()=>{
+ const c=fixture();
+ c.run(`
+  const f=x=>({x,y:0,w:1,h:1,ax:0,ay:0});
+  regAtlas('four',{}, {anims:{'test/idle/0':{dirs:[[f(0)],[f(1)],[f(2)],[f(3)]]}}});
+  regAtlas('eight',{}, {anims:{'other/idle/0':{dirs:Array.from({length:8},(_,i)=>[f(i)])}}});
+ `);
+ assert.equal(c.run("assetFrame('test',0,0,0,0,Math.PI).f.x"),2);
+ assert.equal(c.run("assetFrame('other',0,0,0,0,Math.PI).f.x"),4);
+ assert.equal(c.run("assetFrame('test',0,0,0,0,-Math.PI/2).f.x"),3);
+ assert.equal(c.run("assetFrame('test',0,0,3,0).f.x"),3,'existing directional index semantics stay intact');
+});
+
+test('unavailable or undrawable atlas art falls back to procedural units and unfinished-building indicators',()=>{
+ const c=fixture();c.run("globalThis.foundation=addB(0,'house',24,27,false);foundation.pr=B.house.bt*.5");
+ const before=c.worldHash(),f=mapFixture(c);assert.ok(!f.draws.some(d=>d[0]==='drawImage'));
+ assert.ok(f.draws.some(d=>d[0]==='strokeRect'||d[0]==='ellipse'));
+ c.run("regAtlas('failed',{}, {anims:{'vil/idle/0':{frames:[{x:0,y:0,w:16,h:16,ax:8,ay:14}]}}})");
+ const canvas={style:{},setAttribute(){},addEventListener(){},getContext:()=>new Proxy({},{get:(_,key)=>key==='drawImage'?()=>{throw Error('Image unavailable')}:()=>{}})};
+ const map=c.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:()=>({ok:true}),leave(){}});
+ c.testFallbackMap=map;c.run('testFallbackMap.refresh(S,0,W,H,true)');
+ assert.equal(c.worldHash(),before);
 });
