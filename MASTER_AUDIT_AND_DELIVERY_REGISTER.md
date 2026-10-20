@@ -6,9 +6,9 @@ This register tracks the 46 agreed delivery tasks. PARTIAL means implementation 
 
 ## Current verified code
 
-- Code commit: [`13ec08c`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/13ec08c8606691b7dee2bf88ba2a718d1e4af30a).
-- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141637): passed on GitHub Ubuntu / Node 22.
-- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39476141681): all 154 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- Code commit: [`e56b79a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/e56b79a1b69c578ffed74fee3f01ee102f50bde9).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39478108696): passed on GitHub Ubuntu / Node 22.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39478108777): all 155 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
 - New multiplayer scenarios use two independent production-game VM contexts and the real loopback HTTP relay. They issue gather/deposit, construction, military training and research through the actual battlefield UI, and exercise a combat kill through the final replay/hash acknowledgment. Fixture durations/positions are bounded for regression tests; these are not human browser matches.
 
 ## Current multiplayer and visual milestone
@@ -19,7 +19,11 @@ The UI projects team-relative current sight rather than the solo team-zero fog a
 
 A natural result stops simulation only after the final frame is replayed and acknowledged. Victory/defeat is relative to each human team; it is not reported as a generic network failure.
 
-The Node relay still requires a long-running same-origin HTTPS deployment. Static Vercel hosting does not supply this process. There is no reconnect/resume or server persistence yet. See [server/README.md](server/README.md) for the actual transport contract and deployment gates.
+The repository now includes a combined game-and-relay host (`server/app.mjs`), an unprivileged Node 22 container and Railway deployment configuration with healthchecks and one replica. The new actual HTTP hosting regression passes alongside the existing suite. It verifies public game/assets, rejected private paths, readiness, uncached API responses, two-human room membership and authenticated message identity.
+
+Public hosting remains **BLOCKED**: on 20 October 2026 Railway project creation returned “Deploys have been paused temporarily”. A subsequent account read confirmed no project or service was created. Railway's [status page](https://status.railway.com/) reports an active build outage and paused new builds for all workspaces. Deployment must be retriggered after recovery; no public multiplayer endpoint or live-browser acceptance is claimed.
+
+Static Vercel hosting does not supply the Node relay process. There is no reconnect/resume or server persistence yet. See [server/README.md](server/README.md) for the actual transport contract and deployment gates.
 
 ## Delivery order
 
