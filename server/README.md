@@ -224,3 +224,10 @@ through your living, ungarrisoned units. **Select town centre** or controller
 selected entity and return focus to the map. Cycling wraps at either end and
 never selects an opponent. Selection itself sends no order, including while a
 previous order is pending; command submission still waits for readiness.
+
+With the map focused, **LT** selects a completed town centre and **RT** trains
+a villager at that selected town centre. Repeated LT presses cycle completed
+town centres. RT sends no order when a unit is selected, no completed town centre
+is selected, or an order is pending. Training uses authenticated host execution;
+the normal food, population and queue checks still apply, and the map never
+changes resources or queues optimistically.

@@ -287,6 +287,10 @@ test('DOM preview runs after verification and routes the guest training button t
   assert.equal(gd.button('Next unit').style.display,'block');
   gd.button('Select town centre').click();
   assert.equal(gd.button('Stop selected unit').disabled,true);
+  guestGame.testControl(7); // RT trains at the selected guest town without leaving the map.
+  await eventually(()=>hostGame.testTeam(1).queue===2&&guestGame.testTeam(1).queue===2);
+  assert.equal(hostGame.testTeam(0).queue,0);assert.equal(guestGame.testTeam(0).queue,0);
+  await eventually(()=>!gd.button('Train villager').disabled);
   gd.button('Next unit').click();
   assert.equal(gd.button('Stop selected unit').disabled,false);
   gd.button('Stop selected unit').click();

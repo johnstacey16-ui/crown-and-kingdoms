@@ -130,6 +130,38 @@ test('quick selection wraps through only owned living units and centers the comm
   f.map.control({3:true});assert.equal(f.orders.length,1,'selection cannot bypass pending order');
 });
 
+test('RT trains at the selected completed town only, awaiting execution without changing the world',()=>{
+  const f=fixture(),source=world();
+  source.bs[1].done=true;
+  source.bs.push({netId:'b3',t:1,k:'tc',hp:100,x:26,y:26,s:3,done:true});
+  const before=JSON.stringify(source);
+  f.map.refresh(source,1,32,32,true);
+  f.map.control({7:true});assert.equal(f.orders.length,0,'no selection');
+  f.map.control({5:true});f.map.control({7:true});assert.equal(f.orders.length,0,'units cannot train');
+  f.map.control({6:true});f.map.control({6:true});
+  assert.equal(f.map.selected(),'b3');
+  f.map.control({7:true});
+  assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b3'],value:'vil'}]));
+  assert.match(f.description.textContent,/host execution/);
+  f.map.control({6:true});f.map.control({7:true});assert.equal(f.orders.length,1,'selection cannot bypass a pending order');
+  assert.equal(JSON.stringify(source),before);
+  f.map.refresh(source,1,32,32,false);f.map.control({7:true});assert.equal(f.orders.length,1);
+  source.bs[1].done=false;source.bs[2].hp=0;
+  f.map.refresh(source,1,32,32,true);f.map.control({6:true});f.map.control({7:true});
+  assert.equal(f.orders.length,1,'unfinished or destroyed towns cannot train');
+});
+
+test('RT keeps training available for retry when submission is rejected',()=>{
+  let attempts=0;
+  const canvas={style:{},getContext:()=>new Proxy({},{get:()=>()=>{}}),setAttribute(){},addEventListener(){},focus(){}};
+  const description={textContent:''};
+  const map=api.create({canvas,description,leave(){},submit:()=>{attempts++;return {ok:false};}});
+  const source=world();source.bs[1].done=true;
+  map.refresh(source,1,32,32,true);map.control({6:true});
+  map.control({7:true});map.control({7:true});
+  assert.equal(attempts,2);assert.match(description.textContent,/not submitted/);
+});
+
 test('controller D-pad and town button select without orders and recover from removed units',()=>{
   const f=fixture(),source=world();source.bs[1].done=true;
   f.map.refresh(source,1,32,32,true);

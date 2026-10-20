@@ -17,7 +17,7 @@
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,cursor=null,enabled=false;
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Use LB/RB to select your previous or next unit; LT selects your town centre. Use the D-pad to move the cursor, A to select or order, Y to stop, X to clear selection, and B to return to the lobby controls.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Use LB/RB to select your previous or next unit; LT selects your town centre and RT trains a villager at the selected town centre. Use the D-pad to move the cursor, A to select or order, Y to stop, X to clear selection, and B to return to the lobby controls.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
@@ -67,7 +67,7 @@
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>b.rallyable&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
       if(nearest){selected=nearest.id;description.textContent='Selected '+nameOf(nearest)+'. Choose a destination, Y stops, X clears selection.';}
-      else if(town){selected=town.id;description.textContent='Town centre selected. Choose a rally point for newly trained units; X clears selection.';}
+      else if(town){selected=town.id;description.textContent='Town centre selected. RT trains a villager; choose a rally point for newly trained units; X clears selection.';}
       else if(selected){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
         const result=submit({type:rally?'rally':'move',entities:[selected],point:{...point}});
@@ -85,7 +85,7 @@
       selected=next.id;
       cursor={x:next.x+(town?next.size/2:0),y:next.y+(town?next.size/2:0)};
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
-      description.textContent=town?'Town centre selected. Choose a rally point for newly trained units.':
+      description.textContent=town?'Town centre selected. RT trains a villager; choose a rally point for newly trained units.':
         'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). Choose a destination, Y stops, X clears selection.';
       canvas.focus();draw();
     }
@@ -96,6 +96,13 @@
       if(!canStop())return;
       const result=submit({type:'stop',entities:[selected]});
       description.textContent=result.ok?'Stop submitted. The unit stops after host execution.':'Stop not submitted. Wait for the previous order.';
+      if(result.ok)enabled=false;
+      draw();
+    }
+    function train() {
+      if(!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
+      const result=submit({type:'train',entities:[selected],value:'vil'});
+      description.textContent=result.ok?'Villager training submitted. Resources and queue change only after host execution.':'Training not submitted. Wait for the previous order.';
       if(result.ok)enabled=false;
       draw();
     }
@@ -111,6 +118,7 @@
       if(buttons[4]||buttons[5]||buttons[6]){selectNext(buttons[4]?-1:1,!!buttons[6]);return;}
       if(buttons[2]){selected=null;description.textContent='Selection cleared.';}
       if(buttons[3]){stop();return;}
+      if(buttons[7]){train();return;}
       if(buttons[12])cursor.y=Math.max(0,cursor.y-1);
       if(buttons[13])cursor.y=Math.min(view.height-0.01,cursor.y+1);
       if(buttons[14])cursor.x=Math.max(0,cursor.x-1);
