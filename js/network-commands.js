@@ -61,6 +61,17 @@
         locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
+    if (GAR[building.k] && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
+      options.push({type:'unload',label:'Unload garrison',cost:{},locked:''});
+    return options;
+  }
+  function unitOptions(world,team,unit) {
+    if (!unit || unit.t!==team || unit.hp<=0 || unit.ld || !world.us.includes(unit) || !U[unit.k]) return [];
+    const options=[{type:'stop',label:'Stop',cost:{},locked:''}];
+    if (!U[unit.k].sh) options.push({type:'garrison',label:'Garrison / board transport',targeted:true,cost:{},locked:''});
+    if (unit.k==='vil' || U[unit.k].sh) options.push({type:'repair',label:unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
+    if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
+      options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
     return options;
   }
 
@@ -164,6 +175,17 @@
     const entities = owned(order, team);
     if (!entities) return false;
 
+
+    if (order.type === 'unload') {
+      // One garrison per order: no partial multi-building mutation on failure.
+      if (entities.length!==1 || !activeBuildings(entities) || !GAR[entities[0].k]) return false;
+      const b=entities[0];
+      // Reject corrupt/foreign manifests rather than silently discarding passengers.
+      if (!Array.isArray(b.cg) || !b.cg.length || new Set(b.cg).size!==b.cg.length ||
+          b.cg.some(u=>!S.us.includes(u)||u.hp<=0||u.ld!==b||u.t!==team||!U[u.k]||U[u.k].sh)) return false;
+      return unload(b) === true;
+    }
+
     if (order.type === 'train' || order.type === 'research' ||
         order.type === 'rally' || order.type === 'cancel') {
       if (!activeBuildings(entities) || order.type !== 'train' && entities.length !== 1) return false;
@@ -192,6 +214,51 @@
     }
 
     if (!activeUnits(entities)) return false;
+
+
+    if (order.type === 'garrison' || order.type === 'repair') {
+      const target=lookup(order.target),building=target&&S.bs.includes(target);
+      if (!target || target.hp<=0 || target.ld || entities.includes(target) ||
+          !inSight(target,visibility(S,team,W,H),W,H) ||
+          (target.t!==team && S.dip?.[team]?.[target.t]!=='ally')) return false;
+      if (order.type==='garrison') {
+        const capacity=building ? (target.done&&GAR[target.k]) : (target.t===team&&U[target.k]?.cap);
+        const cargo=target.cg||[];
+        if (!capacity || !Array.isArray(cargo) || new Set(cargo).size!==cargo.length ||
+            cargo.some(u=>!S.us.includes(u)||u.hp<=0||u.ld!==target||u.t!==target.t||!U[u.k]||U[u.k].sh) ||
+            cargo.length+entities.length>capacity || entities.some(u=>U[u.k].sh) ||
+            (building && target.t!==team)) return false;
+        // Allied garrison sharing is deliberately unavailable until unload ownership
+        // and passenger restoration are modeled across different owners.
+      } else {
+        if (building ? entities.some(u=>u.k!=='vil') || target.done&&target.hp>=target.mh :
+            !U[target.k]?.sh || target.hp>=mhp(target) || entities.some(u=>u.k!=='vil'&&!U[u.k].sh)) return false;
+      }
+      const reach=order.type==='garrison'?(building?1.3:1.7):building?1:1.2;
+      const routes=entities.map(u=>path(u,goalNear(target,reach)));
+      if (routes.some(route=>!route)) return false;
+      entities.forEach((u,i)=>{
+        u.o=order.type==='garrison'?'B':building?'b':'rep';u.tg=target;u.p=routes[i];u.rp=1;
+        u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;u.ret=0;
+        u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.retreatRouteRetryAt=0;
+        u.ut=null;u.unloadBeach=null;u.unloadRouteRetryAt=0;
+      });
+      return true;
+    }
+    if (order.type==='disembark') {
+      const sight=visibility(S,team,W,H),point=order.point;
+      if (!sight[Math.floor(point.y)*W+Math.floor(point.x)] || S.wt[Math.floor(point.y)*W+Math.floor(point.x)]===1 ||
+          entities.some(u=>u.k!=='trn'||!Array.isArray(u.cg)||!u.cg.length||new Set(u.cg).size!==u.cg.length||
+            u.cg.some(c=>!S.us.includes(c)||c.hp<=0||c.ld!==u||c.t!==team||!U[c.k]||U[c.k].sh))) return false;
+      const landings=entities.map(u=>transportLandingRoute(u,point.x,point.y));
+      if (landings.some(landing=>!landing?.route?.length)) return false;
+      entities.forEach((u,i)=>{
+        u.o='U';u.tg=null;u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
+        u.ut=[point.x,point.y];u.unloadBeach=landings[i].beach.slice();u.p=landings[i].route;u.rp=1;u.unloadRouteRetryAt=0;
+        u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.retreatRouteRetryAt=0;
+      });
+      return true;
+    }
 
     if (order.type === 'gather') {
       const node=lookup(order.target),sight=visibility(S,team,W,H);
@@ -261,10 +328,10 @@
   }
 
   root.CK_GAME_COMMANDS = Object.freeze({
-    lookup, visibility, inSight, buildingOptions, buildOptions,
+    lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions,
     execute,
     implementedTypes: Object.freeze([
-      'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);

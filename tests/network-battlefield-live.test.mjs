@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {pair} from './helpers/authenticated-game.mjs';
 
-async function battlefieldPair(t,terminal=false){
+async function battlefieldPair(t,terminal=false,shelter=false){
  const p=await pair(t);p.hostGame.testPreviewDefaults();
  const hp=p.hostGame.CK_AUTH_LOBBY.preparation(),gp=p.guestGame.CK_AUTH_LOBBY.preparation();
  const stage=`
@@ -14,6 +14,15 @@ async function battlefieldPair(t,terminal=false){
   const worker=addU(0,'vil',21.5,21.5),guestWorker=addU(1,'vil',30.5,21.5);
   globalThis.fixtureWorker=guestWorker.netId;
   if(!${terminal}){addB(1,'lumber',27,26,true);const resource=addN('w',32,22,100,0);globalThis.fixtureResource=resource.netId;guestWorker.car=9.99;guestWorker.ct='w';}
+  if(${shelter}){
+   for(let y=30;y<42;y++)for(let x=18;x<42;x++)S.wt[y*W+x]=1;
+   const home=addB(1,'tc',30,25,true),house=addB(1,'house',35,22,true);
+   house.hp=house.mh-1;
+   const passenger=addU(1,'mil',29.5,24.5);passenger.st=4;U.mil.sp=30;
+   const ship=addU(1,'trn',31.5,30.5);U.trn.sp=30;
+   globalThis.fixturePassenger=passenger.netId;globalThis.fixtureShelter=home.netId;
+   globalThis.fixtureHouse=house.netId;globalThis.fixtureShip=ship.netId;
+  }
   if(${terminal}){
    const tc=S.bs.find(b=>b.t===1&&b.k==='tc');
    for(let y=tc.y;y<tc.y+tc.s;y++)for(let x=tc.x;x<tc.x+tc.s;x++)S.g[y*W+x]=0;
@@ -94,4 +103,47 @@ test('a production combat kill ends both HTTP simulations at the same acknowledg
  assert.equal(p.hostLive.snapshot().acknowledgedFrame,frame);
  await p.cycle();await p.cycle();assert.equal(p.hostLive.snapshot().frame,frame);
  assert.equal(p.eval(p.hostGame,"S.bs.some(b=>b.netId===fixtureTarget&&b.hp>0)"),false);
+});
+
+test('real HTTP guest UI garrisons, unloads, repairs and lands transport passengers with matching production checkpoints',async t=>{
+ const p=await battlefieldPair(t,false,true),game=p.guestGame;
+ const canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
+ const description={textContent:''},map=game.CK_UNIT_MAP.create({canvas,description,submit:o=>p.guestLive.submit(o),leave(){}});
+ const get=code=>p.eval(game,code);
+ const refresh=()=>game.testRefreshMap(map,1);
+ const wheel=type=>{
+  const unit=get('CK_GAME_COMMANDS.lookup('+JSON.stringify(map.selected())+')');
+  const items=unit.q?game.CK_GAME_COMMANDS.buildingOptions(get('S'),1,unit):game.CK_GAME_COMMANDS.unitOptions(get('S'),1,unit);
+  const index=items.findIndex(o=>o.type===type);assert.ok(index>=0,type+' available');
+  // Villager economic construction entries precede the unit action entries.
+  const count=unit.k==='vil'?items.length+11:items.length,sector=unit.k==='vil'?index+11:index;
+  const angle=sector*Math.PI*2/count;
+  map.control({7:true},{7:true});map.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
+  map.control({0:true},{7:true,0:true});map.control({},{});
+ };
+ const settle=async(count=12)=>{
+  for(let i=0;i<count;i++)await p.cycle();
+  assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  refresh();
+ };
+ refresh();map.choose({x:29.5,y:24.5});const before=get('CK_SIM_SYNC.worldCheckpoint(S,1).hash');
+ wheel('garrison');assert.equal(p.guestLive.snapshot().commandPending,false);
+ refresh();map.choose({x:31,y:26});
+ assert.equal(get('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),before,'selection and submission do not board optimistically');
+ await settle();
+ assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId'),game.fixtureShelter);
+ assert.equal(map.selection().includes(game.fixturePassenger),false);
+ map.choose({x:31,y:26});wheel('unload');await settle();
+ assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld'),null);
+ const worker=game.testUnit(1);map.choose({x:worker.x,y:worker.y});wheel('repair');map.choose({x:36,y:23});
+ await settle();assert.equal(get('CK_GAME_COMMANDS.lookup(fixtureHouse).hp===CK_GAME_COMMANDS.lookup(fixtureHouse).mh'),true);
+ const pos=get('({x:CK_GAME_COMMANDS.lookup(fixturePassenger).x,y:CK_GAME_COMMANDS.lookup(fixturePassenger).y})');
+ map.choose(pos);wheel('garrison');map.choose({x:31.5,y:30.5});
+ await settle(20);assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld?.netId'),game.fixtureShip);
+ map.choose({x:31.5,y:30.5});wheel('disembark');map.choose({x:36.5,y:29.5});
+ await settle(20);
+ assert.equal(get('CK_GAME_COMMANDS.lookup(fixturePassenger).ld'),null);
+ assert.equal(get('CK_GAME_COMMANDS.lookup(fixtureShip).cg.length'),0);
+ assert.equal(get('S.wt[(CK_GAME_COMMANDS.lookup(fixturePassenger).y|0)*W+(CK_GAME_COMMANDS.lookup(fixturePassenger).x|0)]'),0);
+ assert.equal(p.eval(p.hostGame,'CK_GAME_COMMANDS.lookup(fixtureShip).cg.length'),0);
 });

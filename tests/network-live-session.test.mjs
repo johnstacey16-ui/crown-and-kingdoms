@@ -78,7 +78,7 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.hostGame.testTeam(1).food,before.food);
 });
 
-for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
+for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
   const p=await livePair(t);
   await p.host.send('run',{v:version,hash:p.openingHash});
   await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
@@ -213,7 +213,7 @@ for(const gesture of ['double-A','hold-A box'])test('guest '+gesture+' map selec
   }
   p.guestGame.testRefreshMap(map,1);
   map.control({7:true});
-  const stopAngle=11*Math.PI*2/12;map.control({}, {7:true}, [Math.sin(stopAngle),-Math.cos(stopAngle)]);
+  const stopAngle=11*Math.PI*2/14;map.control({}, {7:true}, [Math.sin(stopAngle),-Math.cos(stopAngle)]);
   map.control({0:true},{7:true});
   for(let i=0;i<8;i++)await p.cycle();
   assert.equal(p.guestLive.snapshot().lastResult.ok,true);
@@ -355,10 +355,10 @@ test('divergent guest state stops before acknowledging and no more host frames a
   assert.equal(p.hostLive.snapshot().frame,frame);
 });
 
-test('unimplemented garrisoning stays unavailable and a guest cannot train in the host kingdom', async t=>{
+test('unknown commands stay unavailable and a guest cannot train in the host kingdom', async t=>{
   const p=await livePair(t);
   await p.hostLive.begin();await p.cycle();await p.cycle();
-  assert.equal(p.guestLive.submit({type:'garrison',entities:['u1'],target:'b1'}).reason,'unsupported-preview-command');
+  assert.equal(p.guestLive.submit({type:'teleport',entities:['u1'],target:'b1'}).reason,'unsupported-preview-command');
   const before=p.hostGame.testTeam(0);
   assert.equal(p.guestLive.submit({type:'train',entities:[before.tc],value:'vil'}).ok,true);
   await p.guestLive.pump();

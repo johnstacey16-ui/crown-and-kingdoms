@@ -7,7 +7,7 @@
   const VERSION = 2;
   const MAX_UNITS_PER_ORDER = 96;
   const MAX_ORDER_BYTES = 1024;
-  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel']);
+  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark']);
   const HEX = n => (n >>> 0).toString(16).padStart(8, '0');
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
@@ -28,8 +28,8 @@
     if (!isRecord(order) || !VALID_TYPES.has(order.type) || !Number.isInteger(mapSize) || mapSize < 1 || mapSize > 1024) return false;
     if (!Array.isArray(order.entities) || !order.entities.length || order.entities.length > MAX_UNITS_PER_ORDER ||
         !order.entities.every(validId) || new Set(order.entities).size !== order.entities.length) return false;
-    if (['move', 'attack-move', 'build', 'rally'].includes(order.type) && !validPoint(order.point, mapSize)) return false;
-    if (order.type === 'attack' && !validId(order.target)) return false;
+    if (['move', 'attack-move', 'build', 'rally', 'disembark'].includes(order.type) && !validPoint(order.point, mapSize)) return false;
+    if (['attack', 'garrison', 'repair'].includes(order.type) && !validId(order.target)) return false;
     if (order.type === 'gather' && !validResourceId(order.target)) return false;
     if (['build', 'train', 'research', 'stance'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-z0-9_-]{0,39}$/.test(order.value))) return false;
@@ -39,8 +39,8 @@
         (order.type !== 'train' || ![1, 5].includes(order.count))) return false;
     // No extra or executable data is admitted on a network order.
     const fields = ['type', 'entities'];
-    if (['move', 'attack-move', 'build', 'rally'].includes(order.type)) fields.push('point');
-    if (['attack', 'gather'].includes(order.type) || order.type === 'rally' && order.target != null) fields.push('target');
+    if (['move', 'attack-move', 'build', 'rally', 'disembark'].includes(order.type)) fields.push('point');
+    if (['attack', 'gather', 'garrison', 'repair'].includes(order.type) || order.type === 'rally' && order.target != null) fields.push('target');
     if (['build', 'train', 'research', 'stance'].includes(order.type)) fields.push('value');
     if (order.type === 'train') fields.push('count');
     return Object.keys(order).every(k => fields.includes(k));
@@ -182,8 +182,8 @@
     }
     function allowed(order, team) {
       if (!validOrder(order, mapSize)) return false;
-      const buildingAction = ['train', 'research', 'rally', 'cancel'].includes(order.type);
-      const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance'].includes(order.type);
+      const buildingAction = ['train', 'research', 'rally', 'cancel', 'unload'].includes(order.type);
+      const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance', 'garrison', 'repair', 'disembark'].includes(order.type);
       if (buildingAction && order.type !== 'train' && order.entities.length !== 1) return false;
       if (!buildingAction && !unitAction) return false;
       return order.entities.every(id => {

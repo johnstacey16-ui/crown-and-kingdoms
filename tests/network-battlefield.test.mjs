@@ -170,3 +170,109 @@ test('contextual A submits resource gathering and keeps hidden deposits out of t
  assert.equal(f.orders.length,1);assert.equal(f.orders[0].type,'gather');
  assert.equal(f.orders[0].target,c.run('tree.netId'));assert.equal(c.worldHash(),before);
 });
+
+test('garrison orders board living owned units, hide passengers and unload through the normal safe placement routine',()=>{
+ for(const team of [0,1]){
+  const c=fixture();
+  c.run("globalThis.shelter=addB("+team+",'tc',24,27,true);globalThis.passenger="+(team?'guest':'worker')+";passenger.x=21.5;passenger.y=21.5");
+  const uid=c.run('passenger.netId'),bid=c.run('shelter.netId');
+  const order={type:'garrison',entities:[uid],target:bid};
+  assert.equal(c.act(order,team),true);c.run('for(let i=0;i<600&&!passenger.ld;i++)upU(passenger,1/30)');
+  assert.equal(c.run('passenger.ld===shelter'),true);
+  assert.equal(c.view(team).units.some(u=>u.id===uid),false);
+  assert.equal(c.view(team).buildings.find(b=>b.id===bid).passengers,1);
+  assert.ok(c.view(team).buildings.find(b=>b.id===bid).commands.some(o=>o.type==='unload'));
+  assert.equal(c.act({type:'stop',entities:[uid]},team),false,'loaded units cannot be commanded independently');
+  assert.equal(c.act({type:'unload',entities:[bid]},team),true);
+  assert.equal(c.run('passenger.ld'),null);assert.equal(c.run('shelter.cg.length'),0);
+  assert.equal(c.view(team).units.some(u=>u.id===uid),true);
+  assert.equal(c.run('S.wt[(passenger.y|0)*W+(passenger.x|0)]'),0);
+ }
+});
+
+test('invalid garrison and repair targets, routes, capacity, manifests and ownership reject without any mutation',()=>{
+ for(const scenario of ['foreign','ally-garrison','unfinished','full','hidden','loaded','ship','self','unreachable','manifest']){
+  const c=fixture();
+  c.run("globalThis.shelter=addB(0,'tc',24,27,true)");
+  let order={type:'garrison',entities:[c.ids.worker],target:c.run('shelter.netId')};
+  if(scenario==='foreign')c.run('shelter.t=1');
+  if(scenario==='ally-garrison')c.run("shelter.t=1;S.dip[0][1]=S.dip[1][0]='ally'");
+  if(scenario==='unfinished')c.run('shelter.done=false');
+  if(scenario==='full')c.run("for(let i=0;i<GAR.tc;i++){const u=addU(0,'vil',24,27);u.ld=shelter;(shelter.cg=shelter.cg||[]).push(u)}");
+  if(scenario==='hidden')c.run('shelter.x=60;shelter.y=60;S.bs=S.bs.filter(b=>b!==shelter)');
+  if(scenario==='loaded')c.run('worker.ld=shelter');
+  if(scenario==='ship')c.run("worker.k='gal';worker.sh=1");
+  if(scenario==='self')order.target=c.ids.worker;
+  if(scenario==='unreachable')c.run('for(let y=19;y<=23;y++)for(let x=19;x<=23;x++)if(x===19||x===23||y===19||y===23)S.g[y*W+x]=1');
+  if(scenario==='manifest')c.run('shelter.cg=[guest];guest.ld=shelter');
+  const before=c.worldHash();assert.equal(c.act(order),false,scenario);assert.equal(c.worldHash(),before,scenario);
+ }
+});
+
+test('authenticated repairs restore damaged buildings and ships and can finish an existing foundation',()=>{
+ for(const team of [0,1]){
+  for(const kind of ['house','foundation','ship']){
+   const c=fixture();c.run("globalThis.repairer="+(team?'guest':'worker')+";repairer.x=23.5;repairer.y=25.5;globalThis.damaged="+(kind==='ship'?"addU("+team+",'gal',24.5,25.5)":"addB("+team+",'house',24,25,"+(kind!=='foundation')+")")+";damaged.hp=10");
+   const uid=c.run('repairer.netId'),tid=c.run('damaged.netId'),before=c.run('damaged.hp');
+   if(kind==='foundation')c.run('damaged.pr=B.house.bt-.02');
+   assert.equal(c.act({type:'repair',entities:[uid],target:tid},team),true);
+   c.run('upU(repairer,1/30)');
+   assert.ok(c.run('damaged.hp')>before,kind);
+   if(kind==='foundation')assert.equal(c.run('damaged.done'),true);
+  }
+ }
+ const c=fixture();c.run("globalThis.damaged=addB(1,'house',24,25,true);damaged.hp=10;S.dip[0][1]=S.dip[1][0]='ally'");
+ assert.equal(c.act({type:'repair',entities:[c.ids.worker],target:c.run('damaged.netId')}),true,'villagers can assist allied buildings');
+ c.run('damaged.hp=damaged.mh');const before=c.worldHash();
+ assert.equal(c.act({type:'repair',entities:[c.ids.worker],target:c.run('damaged.netId')}),false);
+ assert.equal(c.worldHash(),before);
+ assert.equal(c.act({type:'repair',entities:[c.ids.soldier],target:c.run('damaged.netId')}),false);
+});
+
+test('transport boarding and visible-shore landings preserve manifests, ownership and distinct safe passenger positions',()=>{
+ const c=fixture();
+ c.run("for(let y=30;y<42;y++)for(let x=18;x<42;x++)S.wt[y*W+x]=1;worker.x=24.5;worker.y=29.5;soldier.x=25.5;soldier.y=29.5;soldier.st=4;globalThis.ship=addU(0,'trn',24.5,30.5)");
+ const ids=[c.ids.worker,c.ids.soldier],ship=c.run('ship.netId');
+ assert.equal(c.act({type:'garrison',entities:ids,target:ship}),true);
+ c.run('upU(worker,1/30);upU(soldier,1/30)');
+ assert.equal(c.run('ship.cg.length'),2);
+ const order={type:'disembark',entities:[ship],point:{x:30.5,y:29.5}};
+ const initial=c.worldHash();
+ assert.equal(c.act({...order,point:{x:60,y:60}}),false);
+ assert.equal(c.act({...order,point:{x:30.5,y:32.5}}),false);
+ assert.equal(c.worldHash(),initial);
+ assert.equal(c.act(order),true);
+ c.run('for(let i=0;i<500&&ship.cg.length;i++)upU(ship,1/30)');
+ assert.equal(c.run('ship.cg.length'),0);
+ assert.equal(c.run('worker.ld===null&&soldier.ld===null'),true);
+ assert.notEqual(c.run('(worker.y|0)*W+(worker.x|0)'),c.run('(soldier.y|0)*W+(soldier.x|0)'));
+ assert.equal(c.run('S.wt[(worker.y|0)*W+(worker.x|0)]'),0);
+ assert.equal(c.run('S.wt[(soldier.y|0)*W+(soldier.x|0)]'),0);
+});
+
+test('strict shelter protocol rejects extra fields and battlefield target mode submits only after choosing a target',()=>{
+ const c=fixture(),f=mapFixture(c);
+ c.run("globalThis.shelter=addB(0,'tc',24,27,true)");f.refresh();
+ for(const order of [
+  {type:'garrison',entities:[c.ids.worker],target:c.run('shelter.netId')},
+  {type:'repair',entities:[c.ids.worker],target:c.run('shelter.netId')},
+  {type:'unload',entities:[c.run('shelter.netId')]},
+  {type:'disembark',entities:['u999'],point:{x:25,y:29}}
+ ]){
+  assert.equal(c.CK_SIM_SYNC.validOrder(order,72),true);
+  assert.equal(c.CK_SIM_SYNC.validOrder({...order,value:'forged'},72),false);
+  assert.equal(c.CK_SIM_SYNC.validOrder({...order,point:{x:NaN,y:0}},72),false);
+ }
+ f.map.choose({x:23.5,y:22.5});
+ f.map.control({7:true},{7:true});
+ f.map.control({}, {7:true},[0,1]);f.map.control({0:true},{7:true,0:true});
+ assert.equal(f.orders.length,0,'RT chooses garrison target mode without issuing an order');
+ f.refresh();f.map.control({},{});f.map.choose({x:25,y:28});
+ assert.equal(f.orders.length,1);assert.equal(f.orders[0].type,'garrison');
+ assert.equal(f.orders[0].target,c.run('shelter.netId'));
+ assert.deepEqual(Array.from(f.orders[0].entities),[c.ids.soldier]);
+ f.refresh();f.map.control({7:true},{7:true});f.map.control({}, {7:true},[0,1]);
+ f.map.control({0:true},{7:true,0:true});f.map.control({1:true},{1:true});f.map.control({},{});
+ f.map.choose({x:25,y:28});assert.equal(f.orders.length,1,'B cancels target mode, allowing ordinary building selection');
+ assert.equal(f.map.selected(),c.run('shelter.netId'));
+});
