@@ -25,13 +25,28 @@ hardware-verified parity from these pages or Node tests.
 | Hold RT | Contextual radial commands; A confirms | Solo radial exists. Preview now opens a limited one-action wheel: town training or unit Stop. RT alone never trains. Full entries, positions, page layouts and release behaviour need comparison. |
 | RT + Y, villager | Switch economic/military building page | Solo implements pages; preview construction remains unavailable. Exact sector layout pending. |
 | D-pad Up / Right / Down / Left | Idle villager / support / town centre / military | Solo categories exist; preview now uses the same button roles instead of cursor movement. Preview currently cycles individual entities. Livestock are not implemented. Group/count/camera parity pending. |
-| Hold LB | Control-group radial; stick chooses; X assigns; Y focuses | Solo assignment, recall, camera focus and HUD counts now share eligibility rules: distinct living, ungarrisoned, currently owned world entities only. Recall filters availability without rewriting assigned groups, so unloading restores availability. Training from a selected building group distributes single orders and LT five-unit batches across compatible owned buildings; the HUD totals production queues. Preview has no group wheel. Group save/load restoration, full gesture/layout comparison and physical Xbox verification remain pending. |
+| Hold LB | Control-group radial; stick chooses; X assigns; Y focuses | Solo assignment, recall, camera focus and HUD counts now share eligibility rules: distinct living, ungarrisoned, currently owned world entities only. Recall filters availability without rewriting assigned groups, so unloading restores availability. Training from a selected building group distributes single orders and LT five-unit batches across compatible owned buildings; the HUD totals production queues. Manual saves and autosaves now restore all eight group slots, including garrisoned members. Preview has no group wheel. Full gesture/layout comparison and physical Xbox verification remain pending. |
 | RB | Expanded minimap | Solo supports it. Preview minimap unavailable; RB is no longer next unit. |
 | Expanded minimap: Y, D-pad | Y focuses view; Up flare, Right detail, Left mode; hold Down clears waypoints | Solo has Y and the first three D-pad functions, plus a legacy A alias. Waypoint reset and exact focus behaviour pending. |
 | Y shortcut | Context-specific build/train; hold Y + Left changes shortcut; military toggles Line/Split | Solo shortcut exists but military currently cycles five project formations rather than Line/Split. Preview no longer treats Y as Stop; contextual Y actions remain unavailable. |
 | R3 | Villager-priorities radial; Y manual ratios; stick resource, A adds, B removes | Wheel, seven presets, ratio semantics and automatic farm toggle pending. Removed incorrect subgroup-cycling R3 action. Existing pause-menu worker targets are not the Xbox priorities UI. |
 | Menu | Pause/options; multiplayer simulation keeps running | Solo pauses. Running preview now opens a local menu without leaving or pausing either player. Menu/B/Resume returns focus; explicit Leave match exits. The full objectives, diplomacy, tech tree and options pages remain pending. |
 | X, B, View, L3 and stick gestures | Context-sensitive functions | Preview X no longer clears selection, B deselects/closes its wheel, and left stick moves cursor. Removed solo generic-X-order alias and unsupported LT economy/zoom chords. Remaining contexts and gesture timings require direct reference capture; do not invent replacements. |
+
+## Control-group save/load checks
+
+Control groups use validated references to the saved unit/building arrays and
+restore references to the loaded world, preserving slot positions and garrisoned
+members. Saving removes duplicates, dead/foreign entities and stale references
+from the serialized groups without changing the in-memory assignments. Existing
+current-version saves without this optional field restore eight empty slots.
+Malformed group arrays or forged references are rejected before replacing the
+current world. Loading also clears the old radial menu and selection gesture so
+unfinished input cannot act on the restored world.
+
+The Node regressions cover manual/autosave round trips, entity compaction,
+loaded cargo, legacy field absence and invalid-reference rejection. These checks
+do not establish physical Xbox parity or multiplayer group support.
 
 ## Work order and acceptance
 
