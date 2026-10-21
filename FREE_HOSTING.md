@@ -241,7 +241,7 @@ monthly budgets and transaction lock. Only admitted Auth identities may publish
 their own offer/answer, once, bound to the match nonce; later changes are rejected.
 SDP is bounded to 8 KiB and its DTLS fingerprint is delivered only to room members.
 The public wrapper remains invoker-only, with no anonymous grant or table access.
-This migration must pass PostgreSQL tests before applying to the real project.
+This migration passed PostgreSQL tests and is now installed in the real Free-plan project.
 
 The channel hello must match the server-owned SID/team/match roster, and native
 DTLS must match the authenticated SDP fingerprint. Gameplay packets carry no
@@ -261,3 +261,37 @@ behavior, but do not prove connectivity through different routers, mobile NATs o
 production browser CORS. Real Supabase/two-browser acceptance remains a rollout
 gate. The UI still uses the original connection until these gates and the static
 host's Free plan are verified.
+
+## Peer transport verification and live-browser probe
+
+Migration `ck_authenticated_rtc_signaling_v1` passed PostgreSQL tests and was
+applied to the real Free project. Role-scoped rollback checks there confirmed
+match/role binding, immutable SDP and rejection of a stolen relay token from a
+different Auth identity. Anonymous RPC execution remains denied. A separate
+`ck_lock_unused_player_policies` migration removed the four permissive policies
+from the unused legacy player table while preserving rows and schema. Its browser
+grants remain revoked. Security Advisor's private-table deny-policy notices are
+intentional; its password-leak-check setting is unchanged for this passwordless
+path ([reference](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)).
+
+Native Chromium [transport run 39548560310](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39548560310)
+passed all 10 cases: ordinary delivery, sender injection, sequence gap, wrong role,
+oversize, receive overflow, unexpected second channel, replay, send backpressure
+and disconnect. 120 packets took 435 ms (276 packets/s) on one runner with local
+signaling fixtures and no gameplay database calls. This is not a game frame-rate
+or real-NAT measurement. The controlled runner disables local mDNS obfuscation;
+production behavior is unchanged. Browser-start timing exposed a one-shot hello
+race; a bounded two-way identity-confirmation exchange now handles already-open
+remote channels and a missed initial hello. Duplicate control packets are bounded
+and forbidden after gameplay is received. Three deterministic Node tests cover
+these timing/cancellation cases. Existing packet/ownership/hash guards remain.
+
+The explicit `Live WebRTC multiplayer acceptance` workflow uses two isolated
+Chromium contexts with real Supabase Auth, HTTPS/CORS and immutable SDP signaling,
+then exercises production startup, paid orders, 120 world checkpoints and a final
+ACK barrier. It creates two anonymous Auth records per execution, revokes relay
+and Auth leases afterwards, and logs no SDP, tokens or invitations. Only changes
+to its dedicated probe/workflow (or manual dispatch) trigger it. Ordinary game
+pushes do not create these live test users. The probe's localhost/local-ICE topology
+cannot prove different-router/mobile NAT reachability or the deployed static origin.
+Record its outcome before claiming live browser gameplay works.

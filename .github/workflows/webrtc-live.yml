@@ -1,0 +1,37 @@
+name: Live WebRTC multiplayer acceptance
+# Explicitly scoped probe: two anonymous Auth records per execution. No ordinary
+# game push triggers it; no secrets, SDP, invitations or Auth tokens are artifacts.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/browser/webrtc-live.mjs'
+      - '.github/workflows/webrtc-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: live-webrtc-acceptance
+  cancel-in-progress: false
+jobs:
+  chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --package-lock=false playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify two real guest browsers and game checkpoints
+        env:
+          CK_RUN_WEBRTC_SMOKE: '1'
+        run: node tests/browser/webrtc-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webrtc-live-acceptance
+          path: artifacts/webrtc-live/
+          if-no-files-found: ignore
+          retention-days: 7
