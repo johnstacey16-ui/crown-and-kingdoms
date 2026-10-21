@@ -44,7 +44,16 @@ export function createTransport({ now = Date.now, ttl = 30 * 60_000,
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    const reply = (status, value) => { res.writeHead(status); res.end(JSON.stringify(value)); };
+    let authenticated = null;
+    const reply = (status, value) => {
+      // Successful authenticated activity renews only this player's idle lease.
+      // Failed requests and revoked credentials cannot keep a room alive.
+      if (status >= 200 && status < 300 && authenticated &&
+          sessions.get(authenticated.token) === authenticated.session) {
+        authenticated.session.expires = now() + ttl;
+      }
+      res.writeHead(status); res.end(JSON.stringify(value));
+    };
     try {
       // A combined host serves only the prefixed API through this relay.
       if (fallback && !req.url.startsWith('/api/multiplayer/')) return await fallback(req, res);
@@ -67,6 +76,7 @@ export function createTransport({ now = Date.now, ttl = 30 * 60_000,
       if (++session.count > 120) throw fail(429, 'Session rate limit reached');
       const data = req.method === 'POST' ? await body(req) : null;
       if (sessions.get(authorization.slice(7)) !== session || session.expires <= now()) throw fail(401, 'Session expired');
+      authenticated = { token: authorization.slice(7), session };
       if (path === '/rooms' && req.method === 'POST') {
         keys(data, []);
         if (session.room) throw fail(409, 'Already in a room');
@@ -148,3 +158,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const port = Number(process.env.PORT || 8787);
   createTransport().listen(port, '127.0.0.1', () => console.log(`Transport listening on 127.0.0.1:${port}`));
 }
+

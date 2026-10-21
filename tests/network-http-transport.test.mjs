@@ -171,3 +171,80 @@ test('service worker bypasses authenticated relay traffic and retains normal she
   handlers.get('fetch')({ request: new Request('https://game.example/art.svg'), respondWith(promise) { intercepted = true; void promise; } });
   assert.equal(intercepted, true);
 });
+
+test('poll retries temporary gateway responses before delivering each envelope once', async t => {
+  for (const status of [502, 503, 504]) {
+    let failures = 0, reads = 0;
+    const { host, guest } = await fixture(t, (url, options) => {
+      if (url.endsWith('/messages') && options.method === 'GET') {
+        reads++;
+        if (failures-- > 0) return Promise.resolve(Response.json({}, { status }));
+      }
+      return fetch(url, options);
+    });
+    await guest.send('command', {});
+    failures = 2;
+    let handled = 0;
+    assert.equal(await host.poll(() => { handled++; return true; }), 1);
+    assert.equal(reads, 3);
+    assert.equal(handled, 1);
+    assert.equal(host.snapshot().phase, 'ready');
+    await host.poll(() => { handled++; return true; });
+    assert.equal(handled, 1);
+  }
+});
+
+test('lost receipt response retries the same acknowledgment without replaying gameplay', async t => {
+  let receipts = 0;
+  const { host, guest } = await fixture(t, async (url, options) => {
+    const response = await fetch(url, options);
+    if (url.endsWith('/messages/ack') && ++receipts === 1) {
+      // The relay committed the receipt, but its proxy returned a gateway error.
+      await response.arrayBuffer();
+      return Response.json({}, { status: 502 });
+    }
+    return response;
+  });
+  await guest.send('command', {});
+  let handled = 0;
+  await host.poll(() => { handled++; return true; });
+  assert.equal(receipts, 2);
+  assert.equal(handled, 1);
+  assert.equal(await host.poll(() => { handled++; return true; }), 0);
+  assert.equal(handled, 1);
+  assert.equal(host.snapshot().phase, 'ready');
+});
+
+test('safe retries are bounded, authorization errors fail immediately and sends never retry', async t => {
+  for (const [status, operation, expected] of [[503, 'poll', 3], [401, 'poll', 1], [429, 'poll', 1], [503, 'send', 1]]) {
+    let enabled = false, attempts = 0;
+    const { host } = await fixture(t, (url, options) => {
+      if (enabled && url.endsWith('/messages')) {
+        attempts++;
+        return Promise.resolve(Response.json({}, { status }));
+      }
+      return fetch(url, options);
+    });
+    enabled = true;
+    await assert.rejects(operation === 'poll' ? host.poll(() => assert.fail('No callback')) : host.send('frame', {}), /Relay request failed/);
+    assert.equal(attempts, expected);
+    assert.equal(host.snapshot().phase, 'failed');
+  }
+});
+
+test('closing after a gateway response cancels safe retries before callbacks', async t => {
+  let enabled = false, attempts = 0, host;
+  ({ host } = await fixture(t, (url, options) => {
+    if (enabled && url.endsWith('/messages') && options.method === 'GET') {
+      attempts++;
+      host.close();
+      return Promise.resolve(Response.json({}, { status: 503 }));
+    }
+    return fetch(url, options);
+  }));
+  enabled = true;
+  await assert.rejects(host.poll(() => assert.fail('No callback after close')), /Session ended/);
+  assert.equal(attempts, 1);
+  assert.equal(host.snapshot().phase, 'closed');
+});
+

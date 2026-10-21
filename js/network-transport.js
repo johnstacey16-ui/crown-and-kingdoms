@@ -1,6 +1,7 @@
 /* Same-origin authenticated relay client. Loading this file opens no connection.
  * Tokens stay in memory. Only server envelopes supply trusted sender identity.
- * A failed operation stops the session; recovery requires a fresh match. */
+ * Safe reads/receipts retry temporary gateway errors within one deadline.
+ * Other failed operations stop the session; recovery requires a fresh match. */
 (function(root){
   'use strict';
   const id = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
@@ -32,15 +33,23 @@
       if (!cleanup) controllers.add(controller);
       const timer = root.setTimeout(() => controller.abort(), timeoutMs);
       try {
-        const response = await root.fetch(base + path, {
-          method, redirect: 'error', credentials: 'omit', cache: 'no-store',
-          headers: { 'Content-Type': 'application/json', ...(credential ? { Authorization: 'Bearer ' + credential } : {}) },
-          ...(data === undefined ? {} : { body: JSON.stringify(data) }), signal: controller.signal
-        });
-        if (!response.ok) throw Error('Relay request failed (' + response.status + ')');
-        const result = await response.json();
-        if (!cleanup && !active()) throw Error('Session ended');
-        return result;
+        const retrySafe = !cleanup && (method === 'GET' || path === '/messages/ack' && method === 'POST');
+        for (let attempt = 0; ; attempt++) {
+          if (!cleanup && !active()) throw Error('Session ended');
+          const response = await root.fetch(base + path, {
+            method, redirect: 'error', credentials: 'omit', cache: 'no-store',
+            headers: { 'Content-Type': 'application/json', ...(credential ? { Authorization: 'Bearer ' + credential } : {}) },
+            ...(data === undefined ? {} : { body: JSON.stringify(data) }), signal: controller.signal
+          });
+          if (retrySafe && attempt < 2 && [502, 503, 504].includes(response.status)) {
+            if (response.body) await response.body.cancel();
+            continue;
+          }
+          if (!response.ok) throw Error('Relay request failed (' + response.status + ')');
+          const result = await response.json();
+          if (!cleanup && !active()) throw Error('Session ended');
+          return result;
+        }
       } finally {
         root.clearTimeout(timer);
         controllers.delete(controller);
@@ -135,3 +144,4 @@
   }
   root.CK_AUTH_TRANSPORT = Object.freeze({ createClient });
 })(typeof window !== 'undefined' ? window : globalThis);
+

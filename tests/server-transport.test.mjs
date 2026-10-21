@@ -84,3 +84,38 @@ test('session quota and authenticated rate limit bound resource use', async t =>
   for (let i = 0; i < 121; i++) result = await request('/room', host.token);
   assert.equal(result.status, 429);
 });
+
+test('successful activity keeps both players alive beyond the initial session lease', async t => {
+  let clock = 0;
+  const { request, host, guest } = await fixture(t, { now: () => clock, ttl: 100 });
+  for (clock = 90; clock <= 270; clock += 90) {
+    assert.equal((await request('/room', host.token)).status, 200);
+    assert.equal((await request('/messages', guest.token)).status, 200);
+  }
+  clock = 370; // Exact idle deadline after the last successful activity.
+  assert.equal((await request('/room', host.token)).status, 401);
+  assert.equal((await request('/room', guest.token)).status, 401);
+});
+
+test('one active player cannot renew the idle peer or retain its room', async t => {
+  let clock = 0;
+  const { request, host, guest } = await fixture(t, { now: () => clock, ttl: 100 });
+  clock = 90;
+  assert.equal((await request('/messages', host.token)).status, 200);
+  clock = 100;
+  assert.equal((await request('/room', host.token)).status, 409);
+  assert.equal((await request('/room', guest.token)).status, 401);
+  assert.equal((await request('/rooms', host.token, {})).status, 201);
+});
+
+test('rejected authenticated traffic cannot renew the idle lease', async t => {
+  let clock = 0;
+  const { request, host, room } = await fixture(t, { now: () => clock, ttl: 100 });
+  clock = 90;
+  assert.equal((await request('/messages', host.token, {
+    matchId: room.matchId, kind: 'command', payload: {}
+  })).status, 403);
+  clock = 100;
+  assert.equal((await request('/room', host.token)).status, 401);
+});
+

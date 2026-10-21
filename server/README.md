@@ -4,16 +4,16 @@ Run `node server/transport.mjs` (Node 22+; no dependencies). The default listene
 is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 `node --test tests/server-transport.test.mjs`.
 
-This is a server prototype, not a deployed service. The game now includes an
+The combined game/relay prototype is [deployed on Railway](https://crown-and-kingdoms-production.up.railway.app). The game now includes an
 opt-in authenticated room setup screen that verifies the opening world. The
-existing Supabase marker room is unchanged. The opt-in battlefield connects gathering, construction, training/research, movement, combat and rally orders to a shared, acknowledged simulation clock. It is still a prototype requiring deployment and browser/hardware acceptance.
+existing Supabase marker room is unchanged. The opt-in battlefield connects gathering, construction, training/research, movement, combat and rally orders to a shared, acknowledged simulation clock. It is still a prototype requiring full browser/hardware match acceptance.
 
 ## Identity and membership
 
 POST JSON `{}` to `/sessions` to obtain a server-generated anonymous `sid`, secret
 bearer `token`, and absolute expiry. All subsequent requests require
 `Authorization: Bearer <token>`. These credentials prove possession of a session,
-not a real person's identity. Sessions expire after 30 minutes without renewal.
+not a real person's identity. Each player's session has a 30-minute idle lease. A successful authenticated request renews that player's lease; rejected requests do not renew it. Active matches can run longer than 30 minutes, but one player's traffic cannot renew an idle peer. The initial `expires` value is the initial lease deadline, not a fixed maximum match duration.
 Keep tokens in memory and never share them, include them in URLs, or log them.
 
 The host POSTs `{}` to `/rooms` and shares only the returned `roomId` privately
@@ -81,11 +81,11 @@ Call `send(kind, payload)` with the existing command/frame protocol envelopes.
 Call `poll(async (kind, payload, trustedSenderSid) => { ...; return true; })`
 to process a batch. Pass `trustedSenderSid` to the command/frame validator;
 never take it from the payload. Returning anything other than `true`, throwing,
-a malformed batch, an HTTP failure or an eight-second request timeout fails the
+a malformed batch, an unrecovered HTTP failure or an eight-second request timeout fails the
 session closed and attempts to revoke its credential. Overlapping polls share
 one operation. `close()` aborts pending work and revokes the session. A fresh
 client and match are required after any failure; there is no automatic reconnect.
-The live preview driver stops advancing whenever an operation fails.
+GET requests and POST `/messages/ack` retry HTTP 502/503/504 at most twice, using the same abort controller and original request deadline. Transport acknowledgments are idempotent; callbacks do not run again while a receipt retries. Command/frame/startup submissions, session creation and room joins are never automatically retried. Authentication errors, rate limits, redirects, malformed JSON and network exceptions still fail closed. The live preview driver stops advancing whenever an operation ultimately fails.
 
 The adapter validates the whole batch before processing, then acknowledges only
 after successful callbacks. `snapshot()` exposes the state/roster and invitation,
@@ -168,7 +168,7 @@ A normal victory/defeat/draw is part of the world checksum. The guest replays an
 
 At `f8eee4dae8d725dafaf9965289b4919e8333912e`, [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514666040) and [regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665643) passed. `tests/network-battlefield.test.mjs` covers sight, mutation isolation, command rejection, resource identity/save round trips, actual deposits, paid construction/production/research, garrison approach/capacity, repair, safe passenger landings and contextual drawing/input. `tests/network-battlefield-live.test.mjs` uses two production contexts and real loopback HTTP for the UI-driven economic/military loop, combat-to-terminal-ACK flow and guest-menu garrison/unload/repair/transport landing. Every live frame compares independent production checkpoints. Fixture timing is accelerated and worlds are staged for bounded regression scenarios.
 
-These tests do not establish deployed HTTPS, independent rendered browsers, a human full match, Xbox controller/visual acceptance, reconnect, host failover or production-scale throughput. The stop-and-wait clock trades simulation speed for synchronization and still needs real-network performance measurement.
+Deployed HTTPS game/health and two-session room membership were smoke-tested on 21 October 2026. These automated tests do not establish independent rendered browsers, a human full match, Xbox controller/visual acceptance, reconnect, host failover or production-scale throughput. The stop-and-wait clock trades simulation speed for synchronization and still needs real-network performance measurement.
 
 ## Multiplayer Menu button
 
@@ -218,8 +218,8 @@ the combined host.
 
 Trade carts/cogs, twelve unique troops and palisades now have original local vector atlases. All runtime unit keys resolve to frames; the castle attack proxy reuses castle art, and farms remain resource tiles. The generator and catalogue tests are documented in [GRAPHICS_ACCEPTANCE.md](../GRAPHICS_ACCEPTANCE.md). HTTP metadata revalidation and `ck-shell-v10` migrate stale cached artwork; the Chromium suite exercises an old HTTP manifest and old shell cache before reload.
 
-## Production provisioning status — 21 October 2026
+## Production status — 21 October 2026
 
-[Existing production service](https://railway.com/project/c9182bd4-8f96-4f39-82f4-7e86756b5729/service/5d37d197-7064-4a88-9ce7-39f8851f07d1?environmentId=cefb9e69-2d18-4760-bb2d-c461d940903e) is created and configured, but has **no deployment**. Source connection to `johnstacey16-ui/crown-and-kingdoms@main` returned `User does not have access to the repo`. A Railway project member needs a connected GitHub account with contributor access, and the Railway GitHub App must be granted this repository in [GitHub installation settings](https://github.com/settings/installations). See [Railway autodeploy access requirements](https://docs.railway.com/deployments/github-autodeploys).
+[Play Crown & Kingdoms](https://crown-and-kingdoms-production.up.railway.app). The existing production service is connected to `johnstacey16-ui/crown-and-kingdoms@main`; future pushes deploy automatically. Deployment `18a93b9c-8b96-4714-aab3-e9f1443a33c8` at `d3952c28e994c2dc11e877d7d84b8eb4c61a62fa` reached SUCCESS. The earlier GitHub App permission blocker is resolved. HTTPS `/` and `/healthz` returned 200, and two anonymous sessions created/joined one private room with teams 0/1; smoke-test credentials were revoked afterward.
 
-After that account-level access is granted, reconnect the source on the existing service. Do not create duplicate projects/services. Verify a terminal successful deployment and HTTPS game/API checks before sharing a game URL. The earlier global build pause no longer blocked project creation on this retry.
+Public deployment is not full-match acceptance. Independent human browser/controller play, prolonged latency/disconnect testing and Xbox performance remain open. The current reliability increment adds renewable idle leases and bounded safe gateway retries; it does not implement reconnect, persistence or host failover. Targeted transport/live-session tests pass locally (42 checks), including idle peer expiry, rejected-request non-renewal, retry bounds, no repeated gameplay callback after a lost receipt response, and no automatic retry of gameplay submissions.
