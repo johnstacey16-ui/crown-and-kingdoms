@@ -59,8 +59,9 @@
     };
   }
   let panel = null;
-  function open(onLeave) {
+  function open(onLeave, { createTransport = () => root.CK_AUTH_TRANSPORT.createClient() } = {}) {
     if (panel) return;
+    if (typeof createTransport !== 'function') throw Error('Invalid multiplayer provider');
     const preparationSession = preparation();
     let connection = null, startup = null, live = null, timer = null, busy = false, updating = false, closed = false, stopped = false;
     let previewRunning=false,menuOpen=false,menuFocus=null;
@@ -199,7 +200,7 @@
       busy = true; host.disabled = join.disabled = true; input.readOnly = true;
       status.textContent = 'Connecting…';
       try {
-        connection = root.CK_AUTH_TRANSPORT.createClient();
+        connection = createTransport();
         const room = await connection.connect(invitation); if (closed) return;
         input.value = room.roomId; input.focus(); input.select();
         busy = false; void update();

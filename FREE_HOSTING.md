@@ -295,3 +295,26 @@ to its dedicated probe/workflow (or manual dispatch) trigger it. Ordinary game
 pushes do not create these live test users. The probe's localhost/local-ICE topology
 cannot prove different-router/mobile NAT reachability or the deployed static origin.
 Record its outcome before claiming live browser gameplay works.
+
+## Real peer-browser acceptance (API path)
+
+[Live WebRTC acceptance 39548726176](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39548726176)
+passed on commit `ec99bf2a30c5c1d585e9ba6ccef4da699257c617`: two real guest browsers,
+120 matching production world checkpoints, both teams' paid training and the final
+ACK barrier. Observed simulation throughput was **20 frames/s** over 5.999 seconds,
+with 6 signaling RPCs, 11 admission/roster/close RPCs and **zero database gameplay
+calls**. Both Auth leases signed out. The post-test database check found zero
+relay sessions, rooms and queued messages. Two managed anonymous Auth records
+remain (ten known smoke-created records after this probe). This controlled localhost
+single-runner test used numeric local ICE; it does not establish internet/NAT
+coverage or the production Vercel origin. No 30-Hz or universal-connectivity claim.
+All 65 local startup/HTTP/live-session/server/Auth/peer timing checks also passed.
+
+The setup dialog now accepts an explicit `createTransport` option, preserving the
+original default and button/controller bindings. The next browser probe uses the
+actual Create / Join / Verify / Run / Train / Leave dialog actions with the peer
+provider injected; no console-only replacement for UI lifecycle testing. It still
+creates only two Auth records per execution and tears down relay/Auth leases.
+The public menu/default remains unchanged. Vercel access was requested solely to
+verify the existing static host's Free plan and deployed revision before cutover;
+it is not connected yet and no plan/deployment changes were made there.

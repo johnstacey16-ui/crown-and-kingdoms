@@ -1,5 +1,6 @@
-// Explicit real-project, two-browser game acceptance. Creates two anonymous Auth
-// records, then revokes relay/Auth leases. Never logs credentials, SDP or invites.
+// Explicit two-browser UI acceptance against the real Free Supabase project.
+// Creates two anonymous Auth records; revokes relay/Auth leases after the probe.
+// Artifacts contain no credentials, SDP, invitations or player identifiers.
 import assert from 'node:assert/strict';
 import {once} from 'node:events';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -8,8 +9,8 @@ import {createApplication} from '../../server/app.mjs';
 if(process.env.CK_RUN_WEBRTC_SMOKE!=='1'){console.error('Set CK_RUN_WEBRTC_SMOKE=1 for real-project browser acceptance.');process.exit(2);}
 const server=createApplication();server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
-// Numeric host ICE candidates make the one-runner topology deterministic. This
-// does NOT establish real internet NAT traversal or production-host acceptance.
+// Numeric local ICE candidates make this controlled topology deterministic;
+// this does not establish different-router/mobile NAT or deployed-host acceptance.
 const browser=await chromium.launch({headless:true,args:['--disable-features=WebRtcHideLocalIpsWithMdns']});
 const contexts=[await browser.newContext(),await browser.newContext()];
 const pages=await Promise.all(contexts.map(c=>c.newPage()));
@@ -18,8 +19,7 @@ let result;
 try{
   for(const page of pages){
     page.on('request',req=>{
-      if(!req.url().startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/'))return;
-      if(req.method()!=='POST')return;
+      if(!req.url().startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/')||req.method()!=='POST')return;
       if(req.url().endsWith('/signup'))calls.signups++;
       if(req.url().includes('/logout?'))calls.logouts++;
       if(req.url().endsWith('/ck_relay_signal'))calls.signaling++;
@@ -31,74 +31,70 @@ try{
     for(const name of ['network-supabase','network-webrtc'])await page.addScriptTag({url:origin+'/js/'+name+'.js'});
     await page.evaluate(()=>{
       msz=0;mt=3;mapLayout=0;kingdoms=2;startAge=0;startRes=0;startArmy=0;
-      startVillagers=1;popLimit=300;gameMode=0;vm=0;
-      window.wrtcClient=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false});
-      window.smokePreparation=CK_AUTH_LOBBY.preparation();
+      startVillagers=1;popLimit=300;gameMode=0;vm=0;mode='multiplayer';
+      window.smokeCheckpoints=new Map();
       window.smokeTeam=t=>({food:S.res[t].f,tc:S.bs.find(b=>b.t===t&&b.k==='tc').netId,queue:S.bs.find(b=>b.t===t&&b.k==='tc').q.length});
-      window.smokeHash=()=>CK_SIM_SYNC.worldCheckpoint(S,Math.round(S.t/DT)).hash;
       const normalStep=step;
-      step=dt=>{normalStep(dt);if(Math.round(S.t/DT)===120){S.over='draw';S.why='Browser peer smoke terminal fixture';}};
+      step=dt=>{
+        normalStep(dt);const frame=Math.round(S.t/DT);
+        if(frame===120){S.over='draw';S.why='Browser peer smoke terminal fixture';}
+        smokeCheckpoints.set(frame,CK_SIM_SYNC.worldCheckpoint(S,frame).hash);
+      };
+      // Capture read-only test state while the real dialog owns startup/pumping.
+      const createStart=CK_MATCH_STARTUP.create,createLive=CK_LIVE_SESSION.create;
+      window.CK_MATCH_STARTUP=Object.freeze({...CK_MATCH_STARTUP,create:options=>{window.smokeStart=createStart(options);return smokeStart;}});
+      window.CK_LIVE_SESSION=Object.freeze({...CK_LIVE_SESSION,create:options=>{window.smokeLive=createLive(options);return smokeLive;}});
+      CK_AUTH_LOBBY.open(()=>{mode='title';},{createTransport:()=>{
+        window.wrtcClient=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false});return wrtcClient;
+      }});
     });
   }
   const [host,guest]=pages;
-  const invitation=await host.evaluate(async()=>{const room=await wrtcClient.connect();return room.roomId;});
-  await guest.evaluate(inv=>{window.smokeJoin=wrtcClient.connect(inv);void smokeJoin.catch(()=>{});},invitation);
-  for(let n=0;n<80;n++){
-    const phase=await host.evaluate(async()=>{await wrtcClient.refreshRoster();return wrtcClient.snapshot().phase;});
-    if(phase==='ready')break;await new Promise(r=>setTimeout(r,100));
+  await host.getByRole('button',{name:'Create private room',exact:true}).click();
+  await host.waitForFunction(()=>document.querySelector('input[aria-label="Private room invitation"]')?.value.length===43);
+  const invitation=await host.getByRole('textbox',{name:'Private room invitation'}).inputValue();
+  await guest.getByRole('textbox',{name:'Private room invitation'}).fill(invitation);
+  await guest.getByRole('button',{name:'Join room',exact:true}).click();
+  await host.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='Verify shared map'&&!b.disabled));
+  // The UI guards its poll against concurrent verification clicks.
+  for(let n=0;n<20;n++){
+    await host.getByRole('button',{name:'Verify shared map',exact:true}).click({timeout:1000}).catch(()=>{});
+    if(await host.evaluate(()=>window.smokeLive!==undefined))break;
+    await new Promise(r=>setTimeout(r,100));
   }
-  await guest.evaluate(()=>smokeJoin);
-  for(const page of pages)await page.evaluate(()=>{
-    window.smokeStart=CK_MATCH_STARTUP.create({transport:wrtcClient,validateConfig:CK_AUTH_LOBBY.validConfig,prepare:smokePreparation.prepare});
-  });
-  await host.evaluate(()=>smokeStart.begin(CK_AUTH_LOBBY.settings(123456)));
-  let verified=false;
-  for(let n=0;n<100;n++){
-    const g=await guest.evaluate(async()=>{await smokeStart.pump();return smokeStart.snapshot().phase;});
-    const h=await host.evaluate(async()=>{await smokeStart.pump();return smokeStart.snapshot().phase;});
-    if(g==='verified'&&h==='verified'){verified=true;break;}
-    await new Promise(r=>setTimeout(r,5));
-  }
-  assert.equal(verified,true,'map agreement');
+  await Promise.all(pages.map(p=>p.waitForFunction(()=>window.smokeStart?.snapshot().phase==='verified'&&window.smokeLive!==undefined)));
   assert.equal(await host.evaluate(()=>smokeStart.snapshot().hash),await guest.evaluate(()=>smokeStart.snapshot().hash));
-  for(const page of pages)await page.evaluate(()=>{window.smokeLive=smokePreparation.live(wrtcClient,smokeStart.snapshot());});
-  await host.evaluate(()=>smokeLive.begin());
-  const started=performance.now(),hostHashes=new Map(),guestHashes=new Map();
-  let ordered=false,hostBefore,guestBefore,final;
-  for(let n=0;n<1500;n++){
-    const h=await host.evaluate(async()=>{await smokeLive.pump();return {phase:smokeLive.snapshot().phase,frame:smokeLive.snapshot().frame,hash:smokeHash()};});
-    const g=await guest.evaluate(async()=>{await smokeLive.pump();return {phase:smokeLive.snapshot().phase,frame:smokeLive.snapshot().frame,hash:smokeHash()};});
-    if(h.frame)hostHashes.set(h.frame,h.hash);if(g.frame)guestHashes.set(g.frame,g.hash);
-    if(hostHashes.has(g.frame))assert.equal(g.hash,hostHashes.get(g.frame),'browser production checkpoint '+g.frame);
-    assert.ok(h.frame>=g.frame&&h.frame<=g.frame+1,'bounded stop-and-wait frames');
-    if(!ordered&&h.phase==='running'&&g.phase==='running'){
-      hostBefore=await host.evaluate(()=>smokeTeam(0));guestBefore=await guest.evaluate(()=>smokeTeam(1));
-      assert.equal(await host.evaluate(id=>smokeLive.submit({type:'train',entities:[id],value:'vil'}).ok,hostBefore.tc),true);
-      assert.equal(await guest.evaluate(id=>smokeLive.submit({type:'train',entities:[id],value:'vil'}).ok,guestBefore.tc),true);
-      ordered=true;
-    }
-    if(h.phase==='finished'&&g.phase==='finished'){final={h,g};break;}
-    await new Promise(r=>setTimeout(r,5));
-  }
+  assert.equal(await host.evaluate(()=>S.t),0);assert.equal(await guest.evaluate(()=>S.t),0);
+  await host.getByRole('button',{name:'Run live preview',exact:true}).click();
+  const started=performance.now();
+  await Promise.all(pages.map(p=>p.waitForFunction(()=>smokeLive.snapshot().phase==='running')));
+  const before=[await host.evaluate(()=>smokeTeam(0)),await guest.evaluate(()=>smokeTeam(1))];
+  await host.getByRole('button',{name:'Train villager',exact:true}).click();
+  await guest.getByRole('button',{name:'Train villager',exact:true}).click();
+  await Promise.all(pages.map(p=>p.waitForFunction(()=>smokeLive.snapshot().phase==='finished',null,{timeout:30000})));
   const elapsed=performance.now()-started;
-  assert.ok(final,'both peers finish');assert.equal(final.h.frame,120);assert.equal(final.g.frame,120);
+  const states=await Promise.all(pages.map(p=>p.evaluate(()=>({state:smokeLive.snapshot(),teams:[smokeTeam(0),smokeTeam(1)],checkpoints:Array.from(smokeCheckpoints)}))));
+  const hostHashes=new Map(states[0].checkpoints),guestHashes=new Map(states[1].checkpoints);
   assert.equal(hostHashes.size,120);assert.equal(guestHashes.size,120);
-  for(const [frame,hash] of hostHashes)assert.equal(guestHashes.get(frame),hash);
-  const states=await Promise.all(pages.map(p=>p.evaluate(()=>({state:smokeLive.snapshot(),teams:[smokeTeam(0),smokeTeam(1)]}))));
+  for(const [frame,hash] of hostHashes)assert.equal(guestHashes.get(frame),hash,'UI production checkpoint '+frame);
   assert.equal(states[0].state.acknowledgedFrame,120);
   for(const s of states){
-    assert.equal(s.state.lastResult.ok,true);assert.equal(s.state.phase,'finished');
-    assert.equal(s.teams[0].queue,1);assert.equal(s.teams[1].queue,1);
-    assert.ok(s.teams[0].food<hostBefore.food);assert.ok(s.teams[1].food<guestBefore.food);
+    assert.equal(s.state.lastResult.ok,true);assert.equal(s.state.phase,'finished');assert.equal(s.state.frame,120);
+    for(const team of [0,1]){assert.equal(s.teams[team].queue,1);assert.ok(s.teams[team].food<before[team].food);}
   }
   assert.equal(calls.gameplay,0,'no database gameplay RPCs');
-  result={status:'passed',testedAt:new Date().toISOString(),verifiedFrames:120,matchingWorlds:true,paidOrdersBothTeams:true,
-    finalAck:120,terminal:'deterministic draw fixture',elapsedGameplayMs:Math.round(elapsed),
-    observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
-    topology:'two Chromium contexts, one runner, numeric host ICE, localhost game origin; real Supabase Auth/HTTPS/CORS/signaling',
-    authUserRecordsRemain:true};
+  // Finished dialogs no longer advance simulation, and Leave tears down both peers.
+  await new Promise(r=>setTimeout(r,100));
+  for(const page of pages)assert.equal(await page.evaluate(()=>smokeLive.snapshot().frame),120);
+  await guest.getByRole('button',{name:'Leave setup',exact:true}).click();
+  assert.equal(await guest.evaluate(()=>CK_AUTH_LOBBY.active()),false);
+  await host.waitForFunction(()=>['closed','failed'].includes(wrtcClient.snapshot().phase));
+  result={status:'passed',testedAt:new Date().toISOString(),uiFlow:'Create / Join / Verify / Run / Train / Leave',
+    verifiedFrames:120,matchingWorlds:true,paidOrdersBothTeams:true,finalAck:120,terminal:'deterministic draw fixture',
+    elapsedGameplayMs:Math.round(elapsed),observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
+    topology:'two Chromium contexts, one runner, numeric host ICE, localhost game UI; real Supabase Auth/HTTPS/CORS/signaling',authUserRecordsRemain:true};
 }finally{
-  await Promise.allSettled(pages.map(p=>p.evaluate(async()=>{await window.wrtcClient?.close();window.smokePreparation?.restore();})));
+  await Promise.allSettled(pages.map(p=>p.evaluate(async()=>{CK_AUTH_LOBBY.close();await window.wrtcClient?.close();})));
   if(result){result.logouts=calls.logouts;await mkdir('artifacts/webrtc-live',{recursive:true});await writeFile('artifacts/webrtc-live/result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));}
   await browser.close();await new Promise(resolve=>server.close(resolve));
 }
