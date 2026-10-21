@@ -74,7 +74,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/input.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
-  assert.ok(render.startsWith('function drawWorld()'));
+  assert.ok(render.startsWith('/* ===== PIXEL-ART SVG ICONS'));
+  assert.ok(render.indexOf('const PIXEL_ICONS')<render.indexOf('function drawWorld()'));
+  assert.ok(render.indexOf('const BUILDING_ICONS')<render.indexOf('function drawWorld()'));
   assert.ok(render.includes('function drawUnit(u,selectedUnits)'));
   assert.ok(render.includes('function drawRelic(q)'));
   assert.ok(render.includes('function paintTile(g,x,y,cx,cy)'));

@@ -1,5 +1,41 @@
 # Battlefield graphics acceptance
 
+## Current pixel-icon presentation — 21 October 2026
+
+The user requested small, clean medieval pixel-art SVG icons in place of unit
+and building placeholders, with all definitions grouped at the top of the
+rendering file. `js/render.js` now starts with 69 named standalone SVGs, followed
+by the unit/building lookup tables. All 50 runtime unit keys (47 playable units
+plus three building attack proxies) and all 22 building definitions resolve.
+Solo, campaign, farm tiles and multiplayer share this collection. Gameplay,
+controllers, unit definitions and simulation rules are unchanged.
+
+Each SVG uses a 32×32 integer rectangle grid. Its `currentColor` regions use
+the actual owning kingdom's colour. Rasterising at native size before scaling
+avoids the softened edges produced by drawing fractional rectangles directly.
+The raster cache is shared across sizes and separated by icon and team colour;
+no SVG image request or asynchronous decode is required for game rendering.
+Selection, health, construction, damage and ownership indicators remain.
+
+The updated browser graphics suite checks SVG parsing, pixel equivalence for
+all four team palettes, sharp scaling, coverage, rendering precedence, fog and
+world-checksum isolation. Its contact sheet contains all 69 icons at 16, 32 and
+48 pixels for two teams. Legacy atlas animation is no longer the expected
+appearance for these icons; old atlases remain available for future unmapped
+types. The browser-foundation check also permits the required top-of-file
+SVG section.
+
+Local native Canvas2D checks matched all 276 icon/team combinations against
+independent SVG rasterisation and checked hard edges at four play sizes.
+Solo and multiplayer scene captures were visually inspected; multiplayer
+rendering preserved the world checkpoint. Chromium and physical Xbox Edge
+acceptance remain separate gates; native rendering does not establish either.
+The broad campaign smoke test has a pre-existing mission 3 timeout, reproduced
+on the unchanged baseline with identical state. Graphics work does not alter it.
+
+The sections below record earlier atlas-based stages and their historical
+acceptance evidence; they do not describe the current default icon presentation.
+
 Verified code: [`f8eee4d`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/f8eee4dae8d725dafaf9965289b4919e8333912e).
 Work continues directly on main.
 

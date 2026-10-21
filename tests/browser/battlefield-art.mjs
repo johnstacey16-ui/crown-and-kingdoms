@@ -43,13 +43,13 @@ async function scene(page){
   addU(0,'trn',29.5,35.5);addU(0,'cog',31.5,35.5);addU(1,'gal',34.5,36.5);
   const host=document.createElement('main');
   host.style.cssText='position:fixed;inset:0;z-index:10000;background:#09141d;color:#eadfc2;font:16px system-ui;display:flex;align-items:center;flex-direction:column;overflow:auto';
-  const title=document.createElement('h1');title.textContent='Crown & Kingdoms — original battlefield art';title.style.fontSize='22px';
+  const title=document.createElement('h1');title.textContent='Crown & Kingdoms — medieval pixel-art icons';title.style.fontSize='22px';
   const canvas=document.createElement('canvas');canvas.id='battlefield-art';
   const description=document.createElement('p');description.style.maxWidth='680px';
   host.append(title,canvas,description);document.body.append(host);
   const context=canvas.getContext('2d'),original=context.drawImage.bind(context);
   window.artDraws=[];
-  context.drawImage=(...args)=>{artDraws.push({src:args[0].src,x:args[1],y:args[2],w:args[3],h:args[4]});return original(...args)};
+  context.drawImage=(...args)=>{artDraws.push({icon:args[0].pixelIconName,teamColor:args[0].pixelIconColor,src:args[0].src,x:args[1],y:args[2],w:args[3],h:args[4]});return original(...args)};
   window.artOrders=[];
   window.artMap=CK_UNIT_MAP.create({canvas,description,submit:order=>{artOrders.push(order);return{ok:false}},leave(){}});
   window.artFixture={hidden:hidden.netId,soldier:soldier.netId};
@@ -66,35 +66,49 @@ try{
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
  const diagnostics=await page.evaluate(async()=>{
-  const pack=await (await fetch('./assets/atlas-manifest.json')).json();
-  return Promise.all(pack.atlases.map(async a=>{
-   const response=await fetch(a.src),text=await response.text();
-   const parsed=new DOMParser().parseFromString(text,'image/svg+xml');
-   return {id:a.id,status:response.status,loaded:!!ASSET.atl[a.id]?.ok,
-    width:ASSET.atl[a.id]?.img?.naturalWidth,height:ASSET.atl[a.id]?.img?.naturalHeight,
-    xmlError:parsed.querySelector('parsererror')?.textContent||null};
-  }));
+  const results=[];
+  for(const [name,svg] of Object.entries(PIXEL_ICONS)){
+   const parsed=new DOMParser().parseFromString(svg,'image/svg+xml');
+   let matching=true,crisp=true;
+   for(let team=0;team<4;team++){
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=32;
+    const context=canvas.getContext('2d');context.translate(16,32);
+    paintPixelIcon(context,name,teamColor(team),32,32);
+    const actual=context.getImageData(0,0,32,32).data;
+    const reference=document.createElement('canvas');reference.width=reference.height=32;
+    const image=new Image();image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg.replaceAll('currentColor',teamColor(team)));await image.decode();
+    const expectedContext=reference.getContext('2d');expectedContext.drawImage(image,0,0);
+    const expected=expectedContext.getImageData(0,0,32,32).data;
+    matching=matching&&actual.every((value,i)=>value===expected[i]);
+    canvas.width=canvas.height=80;const scaled=canvas.getContext('2d');scaled.translate(40,70);
+    paintPixelIcon(scaled,name,teamColor(team),44,56);
+    const pixels=scaled.getImageData(0,0,80,80).data;
+    crisp=crisp&&pixels.every((value,i)=>i%4!==3||value===0||value===255);
+   }
+   results.push({name,xmlError:parsed.querySelector('parsererror')?.textContent||null,matching,crisp});
+  }
+  return {icons:results,missingUnits:Object.keys(U).filter(k=>!UNIT_ICONS[k]),missingBuildings:Object.keys(B).filter(k=>!BUILDING_ICONS[k])};
  });
- console.log('Atlas browser diagnostics: '+JSON.stringify(diagnostics));
- assert.ok(diagnostics.every(d=>!d.xmlError&&d.status===200),'all local atlases must parse as SVG in Chromium');
- await page.waitForFunction(expected=>ASSET.n===expected,diagnostics.length);
- const animation=await page.evaluate(()=>{
+ console.log('Pixel SVG diagnostics: '+JSON.stringify(diagnostics));
+ assert.equal(diagnostics.icons.length,69);
+ assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
+ assert.ok(diagnostics.icons.every(d=>!d.xmlError&&d.matching&&d.crisp),'all named SVGs must match the canvas raster and retain sharp edges for all four teams');
+ const rendering=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
   const first=JSON.stringify(artDraws),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const stable=hash===CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   S.t=.21;artDraws.length=0;const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.refresh(S,0,W,H,true);
   return {changed:first!==JSON.stringify(artDraws),sprites:artDraws.length,
-    originalSources:[...new Set(artDraws.map(d=>new URL(d.src).pathname))],
+    icons:[...new Set(artDraws.map(d=>d.icon))],
+    teamColours:[...new Set(artDraws.map(d=>d.teamColor))],
     unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash,stable};
  });
  assert.equal(initial.hash,initial.after);assert.equal(initial.enemyHidden,true);
  assert.equal(initial.foundation,.5);
- assert.ok(animation.sprites>=8);assert.equal(animation.changed,true);assert.equal(animation.unchanged,true);
- assert.ok(animation.originalSources.some(s=>s.endsWith('upright-units-atlas.svg')));
- assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-forces-atlas.svg')));
- assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-buildings-atlas.svg')));
- for(const file of ['trade-atlas.svg','unique-forces-atlas.svg','palisade-atlas.svg'])assert.ok(animation.originalSources.some(s=>s.endsWith(file)),file+' is used in the battlefield');
+ assert.ok(rendering.sprites>=8);assert.equal(rendering.changed,false);assert.equal(rendering.unchanged,true);
+ for(const name of ['villager-icon','soldier-icon','knight-icon','trade-cart-icon','conquistador-icon','palisade-wall-icon','town-centre-icon','transport-ship-icon','trade-cog-icon'])assert.ok(rendering.icons.includes(name),name+' is drawn on the battlefield');
+ assert.ok(rendering.teamColours.length>=2,'both kingdom palettes are present');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
  const militaryMenu=await page.evaluate(()=>{
   const context=document.getElementById('battlefield-art').getContext('2d'),original=context.fillText.bind(context),labels=[];
@@ -184,26 +198,26 @@ try{
  await page.evaluate(()=>artMap.control({1:true}));
  const contact=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
-  const canvas=document.createElement('canvas');canvas.id='extended-art';canvas.width=800;canvas.height=640;
-  canvas.style.cssText='display:block;width:800px;height:640px';
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,800,640);
-  const kinds=['cart','cog','conq','genoa','boyar','tarkan','huskarl','jaguar','plumed','kamayuk','shotel','gbeto','wagon','huszar','bld_palisade','cs'];
+  const canvas=document.createElement('canvas');canvas.id='extended-art';
+  const names=Object.keys(PIXEL_ICONS),rows=Math.ceil(names.length/8);
+  canvas.width=1280;canvas.height=rows*144;canvas.style.cssText='display:block;width:1280px;max-width:none';
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,canvas.width,canvas.height);
   let count=0;
-  for(let i=0;i<kinds.length;i++){
-   const kind=kinds[i],x=i%4*200,y=Math.floor(i/4)*160;
-   ctx.fillStyle='#f4e6ba';ctx.font='16px system-ui';ctx.fillText(kind,x+12,y+23);
-   for(let team=0;team<2;team++){
-    const art=assetFrame(kind,team,team?2:1,0,team?.35:.05,team?Math.PI:0);
-    if(!art)throw Error('No contact sheet frame for '+kind);
-    const f=art.f,scale=f.w>=128?.65:.95;
-    ctx.drawImage(art.img,f.x,f.y,f.w,f.h,x+7+team*94,y+54,f.w*scale,f.h*scale);count++;
+  for(let i=0;i<names.length;i++){
+   const x=i%8*160,y=Math.floor(i/8)*144;
+   ctx.fillStyle='#f4e6ba';ctx.font='10px system-ui';ctx.fillText(names[i],x+4,y+14);
+   for(let team=0;team<2;team++)for(const [size,dx]of [[48,26],[32,74],[16,110]]){
+    ctx.save();ctx.translate(x+dx,y+64+team*60);
+    paintPixelIcon(ctx,names[i],teamColor(team),size,size);ctx.restore();count++;
    }
   }
   document.querySelector('main').append(canvas);
-  return {sprites:count,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  return {icons:names.length,sprites:count,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
- assert.equal(contact.sprites,32);assert.equal(contact.unchanged,true);
+ assert.equal(contact.icons,69);assert.equal(contact.sprites,414);assert.equal(contact.unchanged,true);
+ await page.setViewportSize({width:1320,height:1450});
  await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});
+ await page.setViewportSize({width:960,height:850});
  const teamOne=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;artMap.refresh(S,1,W,H,true);
   const view=CK_UNIT_MAP.project(S,1,W,H);
@@ -231,27 +245,25 @@ try{
   return !(await caches.keys()).includes('ck-shell-v9');
  });
  assert.equal(migrated,true,'activation removes old cached SVG artwork');
- await upgrade.reload({waitUntil:'networkidle'});
- await upgrade.waitForFunction(expected=>ASSET.n===expected,diagnostics.length);
- const cacheUpgrade={oldShellRemoved:migrated,loaded:await upgrade.evaluate(()=>ASSET.n)};
+ const upgradedScene=await scene(upgrade);
+ assert.ok(upgradedScene.sprites>=8);assert.equal(upgradedScene.hash,upgradedScene.after);
+ const cacheUpgrade={oldShellRemoved:migrated,sprites:upgradedScene.sprites};
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
  fallback.on('pageerror',error=>errors.push(error.message));
  await fallback.route('**/assets/*atlas.svg',route=>route.abort());
  const without=await scene(fallback);
- assert.equal(without.sprites,0);assert.equal(without.hash,without.after);assert.equal(without.enemyHidden,true);
+ assert.ok(without.sprites>=8);assert.equal(without.hash,without.after);assert.equal(without.enemyHidden,true);
  const colours=await fallback.evaluate(()=>{
   const c=document.getElementById('battlefield-art').getContext('2d'),data=c.getImageData(0,0,680,680).data,set=new Set();
   for(let i=0;i<data.length;i+=64)set.add(data[i]+','+data[i+1]+','+data[i+2]);
   return set.size;
  });
- assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
+ assert.ok(colours>20,'inline pixel icons remain visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
- console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ console.log('Real Chromium: pixel SVG equivalence, sharp scaling, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{
  await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
 }
-
-

@@ -151,15 +151,28 @@ const BUILDING_ICONS = Object.freeze({
   "monastery": "monastery-icon",
   "wonder": "wonder-icon"
 });
-// Replay this deliberately rect-only SVG subset into the existing sprite cache.
-// Synchronous rasterisation avoids blank first frames and async image loading races.
+// Rasterise the rect-only SVGs at their native integer grid before scaling.
+// Nearest-neighbour blitting preserves hard pixel edges, without image loads.
 const PIXEL_ICON_RECTS = new Map();
+const PIXEL_ICON_SPRITES = new Map();
 function paintPixelIcon(g,name,tc,width,height,bottom=0){
  const svg=PIXEL_ICONS[name];if(!svg)return false;
  let rects=PIXEL_ICON_RECTS.get(name);
  if(!rects){rects=Array.from(svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" fill="([^"]+)"\/>/g),m=>[+m[1],+m[2],+m[3],+m[4],m[5]]);PIXEL_ICON_RECTS.set(name,rects)}
- g.save();g.imageSmoothingEnabled=false;g.translate(-width/2,bottom-height);g.scale(width/32,height/32);
- for(const [x,y,w,h,fill] of rects){g.fillStyle=fill==='currentColor'?tc:fill;g.fillRect(x,y,w,h)}
+ const key=name+'|'+tc;let icon=PIXEL_ICON_SPRITES.get(key);
+ if(!icon){
+  icon=document.createElement('canvas');icon.width=icon.height=32;icon.pixelIconName=name;icon.pixelIconColor=tc;
+  const ctx=icon.getContext('2d');
+  for(const [x,y,w,h,fill] of rects){ctx.fillStyle=fill==='currentColor'?tc:fill;ctx.fillRect(x,y,w,h)}
+  PIXEL_ICON_SPRITES.set(key,icon);
+ }
+ g.save();g.imageSmoothingEnabled=false;
+ try{g.drawImage(icon,Math.round(-width/2),Math.round(bottom-height),Math.max(1,Math.round(width)),Math.max(1,Math.round(height)))}
+ catch(_){
+  // Retain the synchronous rectangle fallback if a canvas image cannot be drawn.
+  g.translate(-width/2,bottom-height);g.scale(width/32,height/32);
+  for(const [x,y,w,h,fill] of rects){g.fillStyle=fill==='currentColor'?tc:fill;g.fillRect(x,y,w,h)}
+ }
  g.restore();return true;
 }
 /* ===== END PIXEL-ART SVG ICONS ===== */

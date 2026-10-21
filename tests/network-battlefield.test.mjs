@@ -403,9 +403,28 @@ test('SVG rendering takes precedence over atlases, preserves team colours and de
  assert.ok(calls.some(d=>d.name==='villager-icon'));
  assert.ok(calls.some(d=>d.name==='town-centre-icon'));
  assert.ok(calls.findLastIndex(d=>d.name==='town-centre-icon')>calls.findIndex(d=>d.name==='soldier-icon'),'nearer building draws after the unit behind it');
- assert.ok(!f.draws.some(d=>d[0]==='drawImage'),'legacy atlas cannot replace named icons');
+ assert.ok(f.draws.filter(d=>d[0]==='drawImage').every(d=>d[1].pixelIconName),'legacy atlas cannot replace named icons');
  assert.equal(c.worldHash(),before);
  c.run('S.t=.15');const nextHash=c.worldHash();f.refresh();assert.equal(c.worldHash(),nextHash);
+});
+
+test('native icon rasters reuse the team cache and restore the caller canvas state',()=>{
+ const c=fixture();
+ c.run(`
+  globalThis.nativeDraws=[];
+  globalThis.saved=[];
+  globalThis.iconContext={imageSmoothingEnabled:true,fillStyle:'unchanged',
+   save(){saved.push(this.imageSmoothingEnabled)},restore(){this.imageSmoothingEnabled=saved.pop()},
+   drawImage(...args){nativeDraws.push(args)}};
+  paintPixelIcon(iconContext,'soldier-icon',teamColor(0),44,56);
+  paintPixelIcon(iconContext,'soldier-icon',teamColor(0),33,47);
+  paintPixelIcon(iconContext,'soldier-icon',teamColor(1),44,56);
+ `);
+ assert.equal(c.run('nativeDraws[0][0]===nativeDraws[1][0]'),true,'size changes reuse the 32-pixel raster');
+ assert.equal(c.run('nativeDraws[0][0]===nativeDraws[2][0]'),false,'team palettes have separate rasters');
+ assert.equal(c.run('nativeDraws[0][0].width'),32);assert.equal(c.run('nativeDraws[0][0].height'),32);
+ assert.equal(c.run('nativeDraws[0][0].pixelIconName'),'soldier-icon');
+ assert.equal(c.run('iconContext.imageSmoothingEnabled'),true);assert.equal(c.run('iconContext.fillStyle'),'unchanged');
 });
 
 test('heading-aware atlas lookup handles four and eight directions while retaining existing callers',()=>{
@@ -423,7 +442,7 @@ test('heading-aware atlas lookup handles four and eight directions while retaini
 
 test('SVG art and unfinished-building indicators remain available with missing or undrawable atlases',()=>{
  const c=fixture();c.run("globalThis.foundation=addB(0,'house',24,27,false);foundation.pr=B.house.bt*.5");
- const before=c.worldHash(),f=mapFixture(c);assert.ok(!f.draws.some(d=>d[0]==='drawImage'));
+ const before=c.worldHash(),f=mapFixture(c);assert.ok(f.draws.some(d=>d[0]==='drawImage'&&d[1].pixelIconName));
  assert.ok(f.draws.some(d=>d[0]==='strokeRect'||d[0]==='ellipse'));
  c.run("regAtlas('failed',{}, {anims:{'vil/idle/0':{frames:[{x:0,y:0,w:16,h:16,ax:8,ay:14}]}}})");
  const canvas={style:{},setAttribute(){},addEventListener(){},getContext:()=>new Proxy({},{get:(_,key)=>key==='drawImage'?()=>{throw Error('Image unavailable')}:()=>{}})};
