@@ -377,3 +377,34 @@ cleanup. Code commit `def75f5de2189e97c25bcc465eb1975d50555dca` passed
 [Battlefield browser graphics](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549941682)
 and [Game validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549941648).
 These checks do not establish public-origin/NAT acceptance.
+
+
+## Vercel project-access workaround verified — 21 October 2026
+
+The owner completed OAuth authorization repeatedly with the correct project selected.
+Do not ask the owner to repeat those steps. Their dashboard screenshots confirm
+team ACME (`acme-a675`) is Hobby, the project ID is
+`prj_N8KwgIrHAXefpAtb71LTs4hMcUok`, and production is READY on main.
+The connected identity was also verified as the owning account.
+
+Explicit `teamId` or `slug` arguments caused project lookup to return 404,
+project listing to return empty, and deployment listing to return 403, despite
+team metadata being readable. Omitting the optional team selector while retaining
+the exact authorized project ID succeeded. This is a verified request-context
+workaround, not a change to OAuth grants or an authorization bypass: the returned
+project `accountId` is the intended `team_Txg1o6fSmDy9XvhUlnETTxT4`.
+
+Working read calls:
+- `get_project({idOrName:"prj_N8KwgIrHAXefpAtb71LTs4hMcUok"})`
+- `list_deployments({projectId:"prj_N8KwgIrHAXefpAtb71LTs4hMcUok",limit:1,target:"production"})`
+
+The deployment read confirmed `dpl_7gikhXNE6emUw4Sb4BmHh55KCzoc`, READY production,
+GitHub source main at `b6e3a7bef6288936e1379eca1f9ae03138ef753d`,
+and the crown-and-kingdoms repository/organization. No plan, permission or hosting
+settings were changed. Earlier statements that this connection could not read
+the project are superseded by this result. Do not broaden project permissions,
+disable deployment protection, create API tokens or upgrade the plan to fix it.
+For any future operation, keep the exact intended project ID and verify the
+returned owner/environment; this read workaround alone does not verify mutation
+permissions. Public-origin peer acceptance, separate-network/NAT testing and
+Railway shutdown remain outstanding.
