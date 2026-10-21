@@ -1,0 +1,42 @@
+name: Supabase relay validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/supabase-relay.sql'
+      - 'js/network-transport.js'
+      - 'js/network-supabase.js'
+      - 'tests/supabase-*'
+      - '.github/workflows/supabase-relay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_PASSWORD: disposable-test-only
+          POSTGRES_DB: ck_relay_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U postgres'
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable-test-only
+      PGDATABASE: ck_relay_test
+      CK_TEST_POSTGRES: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: psql -X -v ON_ERROR_STOP=1 -f tests/supabase-bootstrap.sql
+      - run: psql -X --single-transaction -v ON_ERROR_STOP=1 -f server/supabase-relay.sql
+      - run: node --test tests/supabase-relay.integration.mjs tests/network-http-transport.test.mjs

@@ -8,7 +8,8 @@
   const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
   const bytes = value => new TextEncoder().encode(JSON.stringify(value)).length;
-  function createClient({ timeoutMs = 8000 } = {}) {
+  function createClient({ timeoutMs = 8000, request: relayRequest } = {}) {
+    if (relayRequest !== undefined && typeof relayRequest !== 'function') throw Error('Invalid relay provider');
     const origin = new URL(root.location.origin);
     if (origin.protocol !== 'https:' && !(origin.protocol === 'http:' &&
         ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname))) throw Error('HTTPS required');
@@ -36,7 +37,7 @@
         const retrySafe = !cleanup && (method === 'GET' || path === '/messages/ack' && method === 'POST');
         for (let attempt = 0; ; attempt++) {
           if (!cleanup && !active()) throw Error('Session ended');
-          const response = await root.fetch(base + path, {
+          const response = relayRequest ? await relayRequest({ path, method, data, credential, signal: controller.signal }) : await root.fetch(base + path, {
             method, redirect: 'error', credentials: 'omit', cache: 'no-store',
             headers: { 'Content-Type': 'application/json', ...(credential ? { Authorization: 'Bearer ' + credential } : {}) },
             ...(data === undefined ? {} : { body: JSON.stringify(data) }), signal: controller.signal

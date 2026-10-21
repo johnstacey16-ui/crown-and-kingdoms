@@ -40,8 +40,11 @@ no database, and no service variables. The application code remains on GitHub.
 
 The existing client configuration points to project `isfzrqtbsbqlaojtpkxr`.
 Its public Auth settings endpoint returned 200 and reported anonymous user sign-in
-disabled on 21 October 2026. The Supabase plugin was found but is not yet connected.
-No Supabase schema/auth changes, new users or paid resources have been created.
+disabled on 21 October 2026. The connected Supabase plugin confirmed this project is ACTIVE_HEALTHY and its
+organization `rchuzzfoqscnjvhbctjt` is on `free` / `tier_free` on 21 October 2026.
+No plan upgrades or paid resources were created. Two apply_migration attempts
+failed with `Invalid or expired requestState`; a subsequent catalog read confirmed
+`ck_relay` does not exist. No schema/auth changes or new users were created.
 
 The legacy `multiplayer.js` lobby/presence/marker path is not a replacement for the
 new synchronized relay. The latter currently calls the Node HTTP API. Preserve the
@@ -76,3 +79,37 @@ References: [cost control](https://supabase.com/docs/guides/platform/cost-contro
 [anonymous Auth](https://supabase.com/docs/guides/auth/auth-anonymous),
 [database functions](https://supabase.com/docs/guides/database/functions),
 [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+## Prepared relay v1 (not live)
+
+- `server/supabase-relay.sql` is an atomic deployment definition for migration
+  `ck_free_relay_v1`. It has not been applied to the real project. Do not run the
+  test bootstrap there. New privileged state is in an unexposed RLS-enabled schema;
+  the public invoker RPC calls a private definer implementation that checks
+  `auth.uid()` and a hashed, Auth-bound relay credential. No browser table grants.
+- The existing empty `public.player` marker table has no owner column and broad
+  grants/policies. The proposed SQL revokes browser access while retaining data
+  and structure. This revocation is pending along with the rest of the migration.
+- Limits: 16 sessions / 8 rooms, 256 queued messages per recipient, 32 per poll,
+  120 successful authenticated requests/second/session, 30-minute idle expiry,
+  2-hour absolute session lifetime. Expired sessions cascade-delete their rooms
+  and messages on the next successful relay request. No paid Cron is needed.
+- Monthly application caps: 1 million successful RPCs, 100,000 messages and
+  250 MB of estimated response bytes (JSON plus 1 KiB allowance/request). This is
+  application accounting, not provider metering or a guaranteed player capacity;
+  failed requests, Auth, headers and other project traffic are not fully metered.
+  Quota errors stop the match; authenticated close is still permitted.
+- `js/network-supabase.js` supplies the existing validated transport contract with
+  an Auth-token callback and fixed project/publishable key. It is opt-in and is
+  not loaded by the game UI yet. No secrets, cookies or persistent token storage.
+- `Supabase relay validation` runs the real SQL and JS adapter against disposable
+  PostgreSQL 17 with simulated verified JWT claims, including simulation parity,
+  sender spoofing, permissions, receipts, expiry and caps. This does not establish
+  real Auth/JWT verification, HTTPS/CORS, two-browser operation or free capacity.
+
+Next gates: get the supported migration write working, apply and verify the SQL,
+run security advisors, enable anonymous Auth only after access controls are checked,
+then implement/test guest Auth lifecycle and measure actual two-browser traffic.
+The connector currently exposes no Auth configuration update tool. Static hosting
+on a confirmed free plan and Railway shutdown still need to be completed before
+claiming the switch to free-only hosting is finished.
