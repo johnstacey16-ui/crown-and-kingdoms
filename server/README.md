@@ -1,5 +1,7 @@
 # Authenticated battlefield relay prototype
 
+**Deployment note — 21 October 2026:** camera/group-focus/expanded-minimap code `d7a169d999db4c18bc752aa43cec9ff81e080e24` passed all CI, but is **not live yet**. Railway source-connect retries returned `Deploys have been paused temporarily`. The latest successful live release remains control-group code `f1240f8641cd66f677e848313017a9cfbf0c2aab` (deployment `e45c0f31-b149-4165-86ef-bb93abb5828b`). Reconnect the existing service to main when the platform accepts deployments again; no new project or service is needed.
+
 Run `node server/transport.mjs` (Node 22+; no dependencies). The default listener
 is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 `node --test tests/server-transport.test.mjs`.
