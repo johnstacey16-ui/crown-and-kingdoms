@@ -38,3 +38,16 @@ two new kinds and a four-second actual in-engine preview. The atlas validator
 accepts ten atlases, 1,268 animation entries and 1,744 frame references.
 
 [In-engine preview](painted-raider-preview.webp)
+
+## Recorded verification
+
+Verified code: [2db6c30](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/2db6c30c13c31d349afa05b508d1df72f1c199b4).
+
+- [Source/atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39694009907): passed.
+- [Full regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39694009856): 163 standalone files, 19 campaign simulations and three seeded production-AI skirmishes passed.
+- [Chromium graphics and responsive layouts](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39694010087): passed. Checks cover 68 action/team lookup combinations; actual raster checks cover eight scout/skirmisher action/team sequences with eight visibly distinct poses apiece. The scene checkpoint remains unchanged.
+- Both authoring packers reproduce all committed image and manifest hashes unchanged.
+
+These checks establish covered rendering and simulation scenarios. Independent
+human multiplayer matches, physical Xbox performance, full directional animation
+and all remaining troop sheets still require separate work and acceptance.
