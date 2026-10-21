@@ -36,12 +36,17 @@ This register tracks the 46 agreed delivery tasks. PARTIAL means implementation 
 
 ## Current verified code
 
-- Code commit: [`f8eee4d`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/f8eee4dae8d725dafaf9965289b4919e8333912e).
-- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514666040): passed on GitHub Ubuntu / Node 22.
-- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665643): all 156 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
-- New multiplayer scenarios use two independent production-game VM contexts and the real loopback HTTP relay. They issue gather/deposit, construction, military training and research through the actual battlefield UI, and exercise a combat kill through the final replay/hash acknowledgment. Fixture durations/positions are bounded for regression tests; these are not human browser matches.
+- Code commit: [`a5b1a71`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/a5b1a715cc6eedb5760b7cb879511fbde68e0a1b).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953178): passed on GitHub Ubuntu / Node 22.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953233): all 162 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953171): painted base and motion sheets load for both kingdoms; four-team motion lookup, changing walk/work frames, stable scale, fog, checksum isolation, cache upgrades and partial/complete image-download fallback pass. Room layout checks pass at three viewports.
+- Targeted local checks: 175 tests passed. Native Canvas2D scenes retained world checkpoints; the motion contact check inspected 56 action/team frame samples and a four-second in-engine preview.
+- Current motion coverage is infantry, knights and villagers (3/47 playable kinds), with eight frames per walk/attack and a shared villager work cycle. Facing is mirrored; full roster/directional/death sheets and physical Xbox frame budgets remain open. See [motion coverage and provenance](docs/PAINTED_MOTION.md).
 
-- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665634): original SVG atlases load and render for both teams; animation, fog, checksum isolation and failed-image fallback pass. Screenshots were generated and inspected. See [GRAPHICS_ACCEPTANCE.md](GRAPHICS_ACCEPTANCE.md).
+These are automated and staged-rendering results. Independent-network human
+full matches and physical Xbox acceptance remain separate requirements. The
+milestone descriptions below include earlier stages; the painted graphics and
+motion sections above supersede their older SVG-art descriptions.
 
 ## Current multiplayer and visual milestone
 

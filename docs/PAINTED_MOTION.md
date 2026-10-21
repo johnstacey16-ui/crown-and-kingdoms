@@ -39,3 +39,10 @@ unchanged entity fields, fallback to base art, HTTP loading and current controll
 contracts. Native Canvas2D inspection covers actual raster pose differences;
 Chromium checks load the sheets and exercise multiplayer rendering and partial
 motion-download failure. Physical Xbox performance remains a separate gate.
+
+## Verification at code commit a5b1a71
+
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953178): passed.
+- [Full regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953233): 162 standalone files, 19 isolated campaign missions and three seeded production-AI skirmishes passed.
+- [Chromium graphics and layout](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39680953171): passed, including motion and partial-download fallback.
+- Local: 175 targeted tests, source checks, WebP bounds, reproducible packing and native raster inspection passed.
