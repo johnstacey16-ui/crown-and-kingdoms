@@ -139,3 +139,38 @@ Code `d7a169d999db4c18bc752aa43cec9ff81e080e24` passed [validation](https://gith
 **Deployment note — 21 October 2026:** camera/group-focus/expanded-minimap code `d7a169d999db4c18bc752aa43cec9ff81e080e24` passed all CI, but is **not live yet**. Railway source-connect retries returned `Deploys have been paused temporarily`. The latest successful live release remains control-group code `f1240f8641cd66f677e848313017a9cfbf0c2aab` (deployment `e45c0f31-b149-4165-86ef-bb93abb5828b`). Reconnect the existing service to main when the platform accepts deployments again; no new project or service is needed.
 
 The public status page reported Fully Operational during this check, so no cause or broad outage is inferred from the service API rejection. The exact Railway control-plane response above is the deployment blocker. No successful deployment of the camera code is claimed.
+
+
+## Objectives and reachable Free multiplayer preview — 21 October 2026
+
+Owner reaffirmed full Xbox Series X AoE II: DE functional/controller and
+Xbox-available DLC coverage, optimized for Xbox Edge with Supabase multiplayer.
+This target is now also explicit in AGENTS.md; the current subset is not complete.
+
+Game commit `97ef6efc1e6227b47193edd6ce0689f0ba17fb7d` adds Objectives to the running
+multiplayer menu. It reads verified shared settings for all seven currently
+implemented victory modes, shows game time or score-limit time remaining, returns
+to the parent menu on B/Escape, and resumes on Menu. It reveals no opponent state
+and submits no orders. The game continues while either player reads Objectives.
+Local startup/live/session/HTTP/Auth/peer checks passed 68 tests. Real production
+browser run [39556611925](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39556611925)
+also verified Objectives during peer gameplay. The official Xbox guide's Pause
+Menu section confirms Objectives belongs there and multiplayer does not pause:
+https://www.ageofempires.com/learn-to-play/controlling-your-empire-gathering-resources-xbox/ .
+Exact Xbox menu presentation and physical input are still unverified.
+
+Game commit `7ed3de058a1d950060bd86e819a2aecba3c53076` connects the existing
+controller-accessible battlefield-preview entry to the authenticated Supabase peer
+provider, loads it in the production shell and caches it in SW v11 without
+connecting on load. [Production controller-path browser acceptance 39578735274](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39578735274)
+passed 120 matching frames, both paid training orders, Objectives while running,
+final ACK and Leave. It checks all 15 deployed source assets first. The static
+validator was updated in `ed5ce19864f61dbe20345c361f88939c23053c1c` to require the
+new dependency order. [Responsive browser run 39578735675](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39578735675)
+verified the real menu entry at desktop/390/320 widths and selected the peer
+factory without signing up. See FREE_HOSTING.md for measured traffic and limits.
+
+Still open: independent-router/mobile connectivity, physical Xbox Edge complete
+match and controller acceptance, sustained performance, anonymous-user retention,
+reconnect, more humans, full menu/feature/content/DLC/graphics/audio coverage and
+Railway shutdown. There is no full-game, full-DLC or universal-connectivity claim.

@@ -2,13 +2,34 @@
 
 **Hosting policy: free-only.** See [FREE_HOSTING.md](FREE_HOSTING.md). Earlier Railway deployment instructions are superseded. The Railway shutdown and authenticated Supabase migration are **not complete**; do not restart Railway or enable paid plans/overages.
 
-**Deployment note — 21 October 2026:** camera/group-focus/expanded-minimap code `d7a169d999db4c18bc752aa43cec9ff81e080e24` passed all CI, but is **not live yet**. Railway source-connect retries returned `Deploys have been paused temporarily`. The latest successful live release remains control-group code `f1240f8641cd66f677e848313017a9cfbf0c2aab` (deployment `e45c0f31-b149-4165-86ef-bb93abb5828b`). Reconnect the existing service to main when the platform accepts deployments again; no new project or service is needed.
+**Deployment note — 21 October 2026:** the current game is deployed from main on the existing Vercel Hobby project at https://crown-and-kingdoms.vercel.app/. The controller-accessible two-player battlefield preview now uses authenticated Supabase admission and a direct peer channel. Earlier Railway deployment notes are historical; do not reconnect or redeploy Railway under the free-only policy.
 
-A controller-first medieval real-time strategy game for browsers, targeting Xbox Series S and Microsoft Edge.
+A controller-first medieval real-time strategy game targeting Xbox Series X through Microsoft Edge with an Xbox controller. The delivery target is full functional AoE II: DE Xbox parity, including all Xbox-available gameplay DLC; current feature and hardware acceptance remain incomplete. See [the delivery plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) and [controller contract](XBOX_CONTROLLER_PARITY.md).
 
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.
+
+## Two-player battlefield preview
+
+1. Open **Multiplayer** from the title screen, then select **Two-player battlefield preview**.
+2. The host chooses **Create private room** and shares the private invitation.
+3. The guest pastes the invitation and chooses **Join room**.
+4. The host chooses **Verify shared map**, then **Run live preview**.
+5. Use your own kingdom's units and buildings. The Menu button opens the local menu;
+   **Objectives** shows the shared victory rule and game clock while play continues.
+   B returns from Objectives to the menu, and Menu resumes the battlefield.
+6. **Leave setup** or **Leave match** closes the room. A new match requires a fresh invitation.
+
+Opening the screen makes no network connection or guest account. Create/Join
+starts a temporary guest Auth lease; its credentials remain in memory. Admission
+and signaling use the existing Free Supabase project; gameplay packets use the
+authenticated direct channel. No paid relay or automatic upgrade is configured.
+Some routers and restricted/mobile networks cannot establish a direct connection.
+If a fresh room fails, try another network. Reconnect, more than two human players,
+independent-network coverage and physical Xbox Edge acceptance are not complete.
+Legacy marker-room controls are an earlier prototype and do not synchronize a
+battlefield. Use the named battlefield preview for shared simulation.
 
 ## Checks
 

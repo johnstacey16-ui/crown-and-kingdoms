@@ -408,3 +408,49 @@ For any future operation, keep the exact intended project ID and verify the
 returned owner/environment; this read workaround alone does not verify mutation
 permissions. Public-origin peer acceptance, separate-network/NAT testing and
 Railway shutdown remain outstanding.
+
+
+## Production-origin acceptance and controller menu preview
+
+The production-origin probe now checks 15 deployed HTML/JS/service-worker assets
+against the checked-out source before creating Auth users. It runs from the
+public HTTPS Vercel game origin, not localhost. An initial attempt timed out during
+host room creation and created no Auth users (verified by the creation-time
+aggregate); its cause was not established. Safe stage/status/network diagnostics
+were added before subsequent successful runs. No authentication retries or guards
+were weakened.
+
+[Production UI + Objectives acceptance 39556611925](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39556611925)
+passed on `d533dbf22d117269c89a7124a980a3e88b09a3f3`. It verified 13 deployed assets,
+120 matching world frames, both paid training orders, final ACK and Objectives
+while simulation continued. It measured 23.19 simulation frames/s in this controlled
+topology with six signaling calls, 15 room/control calls and zero gameplay RPCs.
+
+The menu's existing explicit setup entry is now **Two-player battlefield preview**.
+It supplies the peer factory to the dialog; the transport core's default remains
+available for existing HTTP tests/local integration. The production shell loads
+both providers without connecting, and service-worker cache v11 includes them
+while continuing to bypass authenticated and cross-origin traffic. The preview
+explains restricted-network failures and offers no paid fallback. Legacy marker
+rooms are not synchronized gameplay and are not the tested route.
+
+[Controller menu production acceptance 39578735274](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39578735274)
+passed on game commit `7ed3de058a1d950060bd86e819a2aecba3c53076`. It reached the
+preview through the actual menu control path, with no injected script tags, then
+completed Create / Join / Verify / Run / Objectives / Train / Leave. All 15 deployed
+assets matched, all 120 world frames matched, both teams paid for training, and
+the final frame was acknowledged. Observed simulation throughput was 20.44 frames/s
+over 5.870 seconds: six signaling calls, 17 room/control calls, zero gameplay RPCs,
+two signups and two local logouts. Opening the menu caused no signups. This test
+uses simulated controller edges in two Chromium contexts on one runner with
+numeric local ICE; it does not verify physical Xbox input, different-router NAT,
+natural combat victory, 30-Hz performance or broad-launch capacity.
+
+After the test, sessions/rooms/messages were all zero. There are 18 managed
+anonymous Auth users from these probes; local logout revokes sessions, not rows.
+Retention/abuse handling is still required before broader release. Supabase's
+organization was rechecked as `free` / `tier_free`; the owner screenshots confirm
+Vercel Hobby. No paid service, permission widening, plan change or Railway redeploy
+was used. Different-network testing, Xbox hardware, retention and Railway shutdown
+remain open. This opt-in preview is not a claim that free-only migration or the
+complete game is finished.
