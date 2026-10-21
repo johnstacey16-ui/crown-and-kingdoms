@@ -1,3 +1,9 @@
+# Repository workflow
+
+The owner requires all work directly on `main` (21 October 2026).
+Do not create feature branches or pull requests unless the owner explicitly asks.
+Run relevant checks before committing, preserve unrelated work and never force-push `main`.
+
 # Controller requirements
 
 The user requires the entire default button system and its functions to mimic
@@ -41,3 +47,4 @@ Keep missing/partial/verified distinctions; do not infer completeness from tests
 or content names. Physical Xbox controls/performance and independent-network
 multiplayer require their own acceptance evidence. Preserve original assets and
 the existing free-only hosting rules.
+
