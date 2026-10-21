@@ -10,10 +10,11 @@ preserved for history but are no longer in the default asset manifest.
 
 Both battlefield renderers use transparent sprites, cached team-cloth recolouring
 and the same validated frame bounds. Missing assets retain procedural fallback.
-Infantry, knights and villagers now have eight-frame walking/attack sequences;
+Infantry, knights, villagers, archers, crossbowmen and spearmen now have
+eight-frame walking/attack sequences;
 villagers also have a shared pickaxe work cycle. Other units retain base poses
 with subtle motion. Full roster and eight-direction animation remain unfinished.
-See [core motion coverage](docs/PAINTED_MOTION.md). This is a graphics increment,
+See [current motion coverage](docs/PAINTED_RANGED.md). This is a graphics increment,
 not a claim of complete AoE II DE fidelity or physical Xbox performance acceptance.
 
 Native Canvas2D scenes verify solo/multiplayer rendering without world-checkpoint

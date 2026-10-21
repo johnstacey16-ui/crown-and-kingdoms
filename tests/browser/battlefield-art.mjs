@@ -24,7 +24,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===5&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===8&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -79,17 +79,29 @@ try{
  });
  console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.equal(diagnostics.atlases,5);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,8);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>100000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
-  for(const kind of ['mil','knight','vil'])for(let team=0;team<4;team++)for(const state of [1,2,...(kind==='vil'?[3]:[])]){
+  for(const kind of ['mil','knight','vil','arc','xbow','spear'])for(let team=0;team<4;team++)for(const state of [1,2,...(kind==='vil'?[3]:[])]){
    const a=assetFrame(kind,team,state,0,0,0,state===2?0:undefined),b=assetFrame(kind,team,state,0,.3,0,state===2?.5:undefined);
    results.push({kind,team,state,animated:a.animated,changed:a.f.x!==b.f.x||a.f.y!==b.f.y,scale:a.sc===b.sc,bodyHeight:a.referenceHeight===b.referenceHeight});
   }
   return {results,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
- assert.equal(motion.results.length,28);assert.ok(motion.results.every(r=>r.animated&&r.changed&&r.scale&&r.bodyHeight));assert.equal(motion.unchanged,true);
+ assert.equal(motion.results.length,52);assert.ok(motion.results.every(r=>r.animated&&r.changed&&r.scale&&r.bodyHeight));assert.equal(motion.unchanged,true);
+ const weaponEdge=await page.evaluate(()=>{
+  const saved={us:S.us,bs:S.bs,sel:S.sel,zm,TW,TH,x:cam.x,y:cam.y};
+  const actor={...S.us.find(u=>u.k==='mil'),k:'spear',netId:'render-probe',x:30,y:30,p:[],o:'a',cd:U.spear.cd,hp:U.spear.hp,car:0,tg:{x:29,y:30}};
+  try{
+   S.us=[];S.bs=[];S.sel=[];zm=3;TW=64*zm;TH=32*zm;cam.x=-(CW+60);cam.y=60*TH/2-CH/2;
+   X.fillStyle='#172321';X.fillRect(0,0,CW,CH);drawWorld();const before=X.getImageData(CW-80,0,80,CH).data;
+   S.us=[actor];X.fillStyle='#172321';X.fillRect(0,0,CW,CH);drawWorld();const after=X.getImageData(CW-80,0,80,CH).data;
+   let changed=0;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])changed++;
+   return {changed};
+  }finally{S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;zm=saved.zm;TW=saved.TW;TH=saved.TH;cam.x=saved.x;cam.y=saved.y;}
+ });
+ assert.ok(weaponEdge.changed>5,'a spear thrust remains visible when its feet are outside the viewport at close zoom');
  const rendering=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
   const first=JSON.stringify(artDraws),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
@@ -265,7 +277,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,motion,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,motion,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{

@@ -4,6 +4,7 @@ import {createRequire} from 'node:module';
 const sharp=createRequire(import.meta.url)('sharp');
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
 import vm from 'node:vm';
+import {extractSpriteGrid} from './sprite-grid.mjs';
 const root=new URL('../',import.meta.url),asset=n=>new URL('assets/'+n,root);
 mkdirSync(new URL('assets/',root),{recursive:true});
 const [buildingSource,unitSource,terrainSource]=process.argv.slice(2);
@@ -27,10 +28,17 @@ async function frames(name,columns,rows,count){
  return{frames:out,width:info.width,height:info.height};
 }
 const uf=await frames('painted-units.webp',8,6,48),bf=await frames('painted-buildings.webp',6,4,24);
+// Preserve the original sheet; isolate only the three idle cells with observed
+// neighbouring fragments. Multi-part ships and carts retain their original art.
+const raw=await sharp(asset('painted-units.webp').pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+const isolated=extractSpriteGrid(raw.data,raw.info.width,raw.info.height,8,6,48,[2,3,6]);
+for(const i of [2,3,6]){const f=isolated.frames[i];uf.frames[i]={...f,ax:f.w/2};}
+const cleanBytes=await sharp(isolated.data,{raw:{width:raw.info.width,height:raw.info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer();
+writeFileSync(asset('painted-units-v2.webp'),cleanBytes);
 const pack={version:'painted-raster-v1',terrain:{src:'./assets/painted-terrain.webp',columns:3,rows:2},atlases:[]};
 const states=['idle','walk','attack','work'];
 function atlas(id,src,info){const a={id,src:'./assets/'+src,meta:{painted:true,width:info.width,height:info.height,anims:{}}};pack.atlases.push(a);return a;}
-const troops=atlas('painted-forces','painted-units.webp',uf),architecture=atlas('painted-architecture','painted-buildings.webp',bf);
+const troops=atlas('painted-forces','painted-units-v2.webp',uf),architecture=atlas('painted-architecture','painted-buildings.webp',bf);
 function bind(a,key,f,scale){for(let team=0;team<4;team++)for(const state of states)a.meta.anims[key+'/'+state+'/'+team]={dur:.18,scale,frames:[f]};}
 for(let i=0;i<units.length;i++){
  const k=units[i],f=uf.frames[i];
@@ -42,6 +50,6 @@ for(let i=0;i<units.length;i++){
 for(let i=0;i<buildings.length;i++)bind(architecture,'bld_'+buildings[i],bf.frames[i],1);
 for(const [proxy,kind]of [['tca','tc'],['tw','tower'],['cs','castle']])bind(architecture,proxy,bf.frames[buildings.indexOf(kind)],.35);
 bind(architecture,'node_tree',bf.frames[23],.4);
-const motionPath=asset('motion-manifest.json');if(existsSync(motionPath)){const motion=JSON.parse(readFileSync(motionPath));pack.version='painted-raster-v2-motion';pack.atlases.unshift(...motion.atlases)}
+const motionPath=asset('motion-manifest.json');if(existsSync(motionPath)){const motion=JSON.parse(readFileSync(motionPath));pack.version=motion.atlases.length>=6?'painted-raster-v3-motion':'painted-raster-v2-motion';pack.atlases.unshift(...motion.atlases)}
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 console.log('Packed 47 troop types, 22 buildings, 3 combat proxies and painted terrain.');

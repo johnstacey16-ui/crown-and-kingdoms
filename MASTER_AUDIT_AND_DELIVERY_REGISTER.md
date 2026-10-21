@@ -1,3 +1,12 @@
+<!-- Ranged animation increment: 21 October 2026 -->
+CK-032: added walking, firing and thrust frames for archers, crossbowmen and
+spearmen. All six motion types now have matching ready poses. Coverage is 6/47
+playable kinds; full directions, other troops and specialised work/death art
+remain open. A shared extraction helper removes neighbouring fragments, with
+selective cleanup of three fallback cells and the original sheet preserved.
+Long weapons retain visibility at close-zoom viewport edges. Game rules and
+Xbox bindings are unchanged. See docs/PAINTED_RANGED.md.
+
 <!-- Core animation increment: 21 October 2026 -->
 CK-032: added 48 original painted movement/attack poses for infantry, knights
 and villagers, plus villager work playback. Shared game-time/cooldown pose

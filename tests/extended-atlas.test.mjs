@@ -32,7 +32,7 @@ test('painted raster pack uses bounded base poses and multi-frame motion, valid 
  for(const atlas of pack.atlases){
   assert.equal(atlas.meta.painted,true);assert.match(atlas.src,/\.webp$/);
   for(const [key,animation]of Object.entries(atlas.meta.anims)){
-   assert.equal(animation.frames.length,atlas.meta.motion?8:1,key);assert.ok(animation.scale>0,key);if(atlas.meta.motion)assert.ok(animation.referenceHeight>0,key);
+   assert.equal(animation.frames.length,atlas.meta.motion&&!key.includes('/idle/')?8:1,key);assert.ok(animation.scale>0,key);if(atlas.meta.motion)assert.ok(animation.referenceHeight>0,key);
   }
  }
  const castle=pack.atlases.find(a=>a.id==='painted-architecture');

@@ -20,8 +20,9 @@ terrain PNG paths as three positional arguments to repack source images.
 Runtime and CI validation require no native image libraries.
 
 The original sheet is a base-pose collection. A new [core motion layer](PAINTED_MOTION.md)
-adds articulated walking/attack frames for infantry, knights and villagers, plus
-villager work. Full roster and multi-direction animation remain unfinished. Team recolouring is limited
+adds articulated walking/attack frames for infantry, knights, villagers, archers,
+crossbowmen and spearmen, plus villager work. [Current coverage](PAINTED_RANGED.md)
+also records ready poses and the selective fallback-sheet cleanup. Full roster and multi-direction animation remain unfinished. Team recolouring is limited
 to blue cloth/heraldry pixels and cached once per team and sheet.
 
 The preview is a real Canvas2D game rendering of a staged village, not an

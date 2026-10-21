@@ -1,5 +1,9 @@
 # Core painted unit motion — 21 October 2026
 
+The [ranged and spear increment](PAINTED_RANGED.md) extends current coverage to
+6/47 playable kinds and adds ready poses. The first-stage description and
+verification below remain a record of the original three-type increment.
+
 Infantry (`mil`), knights (`knight`) and villagers (`vil`) now have eight-frame
 walking and attack sequences. Villagers also use the pickaxe sequence when
 working. These 48 original poses were generated with the built-in image tool
