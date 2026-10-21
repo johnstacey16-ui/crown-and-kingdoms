@@ -9,7 +9,7 @@ const roadmap = readFileSync(new URL('../AOE2_PARITY_ROADMAP.md', import.meta.ur
 
 test('critical balance regressions from the parity audit stay corrected', () => {
   assert.match(config, /farm:\{n:'Farm',s:1,hp:480,cost:\{w:60\},bt:15\}/);
-  assert.match(config, /needs:\['bar','rng','stable','smith','market','dock'\]/);
+  assert.match(config, /needs:\['rng','stable','smith','market'\]/);
   assert.match(config, /treb:\{[^}]*minR:3/);
   assert.match(simulation, /const dist=d2\(u\.x,u\.y,tg\),minR=d\.minR\|\|0/);
   assert.match(simulation, /if\(minR&&dist<minR\)/);
@@ -21,3 +21,4 @@ test('roadmap records source corrections without claiming live gameplay verifica
   assert.match(roadmap, /Xbox Series S \/ Edge performance/);
   assert.match(roadmap, /do not prove full mission playthroughs/);
 });
+

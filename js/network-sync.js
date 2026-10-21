@@ -357,7 +357,7 @@
       })),
       units, buildings,
       projectiles:(world.pj || []).map(p => ({
-        x:p.x,y:p.y,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t} : null
+        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t} : null
       })),
       relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
       ai:(world.ai || []).map(a => ({

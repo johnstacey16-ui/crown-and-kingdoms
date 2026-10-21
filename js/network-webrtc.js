@@ -51,7 +51,7 @@
     }
     function attach(candidate,resolveReady){
       if(channel&&channel!==candidate)throw Error('Unexpected second channel');
-      if(candidate.label!=='ck-game-v1'||candidate.protocol!=='ck-live-preview-10'||!candidate.ordered||
+      if(candidate.label!=='ck-game-v1'||candidate.protocol!=='ck-live-preview-11'||!candidate.ordered||
         candidate.maxRetransmits!==null||candidate.maxPacketLifeTime!==null)throw Error('Invalid peer channel');
       channel=candidate;
       channel.addEventListener('close',()=>{if(!closed)fail('channel-closed');});
@@ -133,7 +133,7 @@
             }
           };
           if(room.team===0){
-            attach(pc.createDataChannel('ck-game-v1',{ordered:true,protocol:'ck-live-preview-10'}),resolveReady);
+            attach(pc.createDataChannel('ck-game-v1',{ordered:true,protocol:'ck-live-preview-11'}),resolveReady);
             await publish('offer');await pc.setRemoteDescription({type:'answer',sdp:await readPeer('answer')});
           }else{
             await pc.setRemoteDescription({type:'offer',sdp:await readPeer('offer')});await publish('answer');

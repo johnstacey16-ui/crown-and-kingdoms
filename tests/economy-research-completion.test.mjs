@@ -14,6 +14,8 @@ const enemy = { k: 'vil', t: 1, hp: U.vil.hp };
 const tc = { k: 'tc', t: 0, hp: 900, done: true, rs: { k: 'loom', t: 1 }, q: [] };
 const S = { tech: [{}, {}], us: [villager, enemy], bs: [tc], res: [{}, {}] };
 const context = {
+  // Isolated economy harness: no combat targets are returned by foe.
+  attackRange: () => 0,
   S, U, B, TE, W: 64, Sfx: {},
   note: () => {}, sfx: () => {}, emit: () => {}, rumble: () => {},
   foe: () => null,
@@ -35,3 +37,4 @@ tc.rs = { k: 'handcart', t: 1 };
 upB(tc, 1);
 assert.equal(S.tech[0].handcart, 1, 'Hand Cart completion records technology');
 console.log('economy-research-completion: passed');
+

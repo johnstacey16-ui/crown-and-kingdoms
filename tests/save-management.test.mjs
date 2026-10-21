@@ -261,14 +261,14 @@ test('save during ranged combat preserves arrows, siege splash and building-fire
   for(let i=0;i<90;i++)pjs(1/30);
   const expected=[target.hp,nearby.hp,fort.hp];
   const loaded=loadG(),restored=S.pj.length;
-  const sourceLinked=S.pj.some(p=>p.a===S.us.find(u=>u.k==='arc'&&u.x===30.5));
+  const sourceLinked=S.pj.some(p=>p.a.k==='arc'&&p.a.t===0&&!S.us.includes(p.a));
   const targetsLinked=S.pj.every(p=>S.us.includes(p.t)||S.bs.includes(p.t));
   for(let i=0;i<90;i++)pjs(1/30);
   const actual=[S.us.find(u=>u.k==='knight'&&u.t===1).hp,S.us.find(u=>u.k==='spear'&&u.t===1).hp,S.bs.find(b=>b.t===1&&b.k==='tc').hp];
   return {count,loaded,restored,sourceLinked,targetsLinked,expected,actual,raw};
  })()`,context);
  assert.equal(result.count,4);assert.equal(result.loaded,true);assert.equal(result.restored,4);
- assert.equal(result.sourceLinked,true);assert.equal(result.targetsLinked,true);
+ assert.equal(result.sourceLinked,true,'launched shots preserve their owner/type snapshot');assert.equal(result.targetsLinked,true);
  assert.deepEqual(Array.from(result.actual),Array.from(result.expected));
  const valid=JSON.parse(result.raw);
  for(const bad of [null,{},[{x:NaN}], [{...valid.pj[0],t:'n0'}], [{...valid.pj[0],x:-1}], [{...valid.pj[0],a:{k:'unknown',t:0}}], [{...valid.pj[0],a:{k:'arc',t:9}}], [{...valid.pj[0],aRef:'u999999'}]]){
@@ -276,3 +276,4 @@ test('save during ranged combat preserves arrows, siege splash and building-fire
   assert.equal(vm.runInContext("(()=>{const before=S;localStorage.setItem(skey(slot),badSave);return loadG()===false&&S===before})()",context),true,'Malformed projectiles must be rejected before replacing the world');
  }
 });
+

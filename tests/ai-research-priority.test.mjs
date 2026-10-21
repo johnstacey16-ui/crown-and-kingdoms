@@ -9,7 +9,7 @@ assert.match(ai, /if\(k==='armI'&&ownInf>=3\)score\+=30/);
 assert.match(ai, /if\(k==='armC'&&ownCav>=3\)score\+=32/);
 assert.match(ai, /if\(k==='atkM'&&ownInf>=4\)score\+=24/);
 assert.match(ai, /if\(k==='atkR'&&ownRanged>=4\)score\+=24/);
-assert.match(ai, /atkM:62,atkR:62,atkM2:72,atkR2:72,armI:60/, 'Advanced attack upgrades should be highly valued once their army-class penalties no longer apply');
+assert.match(ai, /atkM:62,atkR:62,atkM2:72,atkR2:72,bodkin:69,ballistics:73,armI:60/, 'Advanced attack upgrades should be highly valued once their army-class penalties no longer apply');
 assert.match(ai, /if\(k==='atkM2'&&ownInf\+ownCav<2\)score-=28/, 'AI should not waste expensive advanced melee attack research before fielding melee troops');
 assert.match(ai, /if\(k==='atkR2'&&ownRanged<2\)score-=28/, 'AI should not waste expensive advanced ranged attack research before fielding ranged troops');
 assert.match(ai, /if\(k==='armI'&&humanRanged>=3\)score\+=12/,
@@ -29,3 +29,4 @@ assert.match(ai, /if\(u\.retreating\)\{const safe=u\.retreatTarget;if\(ratio>=\.
 assert.match(ai, /if\(u\.tg===safe\)\{u\.o='i';u\.tg=null;u\.p=\[\];u\.rp=0\}/,
   'Ending a retreat must clear the obsolete movement order so the unit can receive new commands');
 console.log('ai-research-priority: military upgrades respond to own army composition and naval threats');
+

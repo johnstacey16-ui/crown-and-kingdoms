@@ -8,7 +8,7 @@ const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 const tc = { k: 'tc', t: 0, hp: B.tc.hp, done: true, x: 4, y: 4, s: 3, q: [{ k: 'vil', t: 1 }] };
 const S = { bs: [tc], tech: [{}, {}], res: [{}, {}], pl: { tr: 0 }, us: [], pj: [] };
 let population = 2, cap = 2, spawns = 0;
-const context = {
+const context = { attackRange: () => 0,
   U, B, TE, S, note: () => {}, sfx: () => {}, foe: () => null, unitName: k => k,
   livePopulation: () => population, capOf: () => cap, trainRate: () => 1,
   spawnPos: () => [5.5, 5.5],
@@ -31,3 +31,4 @@ assert.equal(tc.q.length, 0, 'completed unit leaves the queue');
 assert.equal(population, 3);
 assert.equal(S.pl.tr, 1, 'successful spawn updates training statistics');
 console.log('training-cap-drop: passed');
+

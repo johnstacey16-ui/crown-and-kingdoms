@@ -120,6 +120,19 @@ try{
   return {types:artOrders.map(o=>o.type),points:artOrders.every(o=>o.point&&!o.target),unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
  assert.deepEqual(militaryOrders.types,['patrol','attack-move']);assert.equal(militaryOrders.points,true);assert.equal(militaryOrders.unchanged,true);
+ const ballisticsMenu=await page.evaluate(()=>{
+  artMap.control({1:true},{1:true});artMap.control({},{});
+  const university=addB(0,'univ',24,31,true);artMap.refresh(S,0,W,H,true);
+  artMap.choose({x:25.5,y:32.5});artMap.control({7:true},{7:true});
+  const options=CK_GAME_COMMANDS.buildingOptions(S,0,university),index=options.findIndex(o=>o.value==='ballistics'),entry=options[index];
+  const angle=index*Math.PI*2/options.length;
+  artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
+  return {present:index>=0,label:entry?.label,locked:entry?.locked,cost:entry?.cost};
+ });
+ assert.equal(ballisticsMenu.present,true);assert.equal(ballisticsMenu.label,'Ballistics');assert.equal(ballisticsMenu.locked,'');
+ assert.deepEqual(ballisticsMenu.cost,{w:300,g:175});
+ await page.locator('#battlefield-art').screenshot({path:output+'/ballistics-research-menu.png'});
+ await page.evaluate(()=>{artMap.control({1:true},{1:true});artMap.control({},{});const soldier=S.us.find(u=>u.netId===artFixture.soldier);artMap.choose({x:soldier.x,y:soldier.y});});
  const groups=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.control({4:true},{4:true},[0,-1]);artMap.control({2:true},{4:true,2:true},[0,-1]);artMap.control({},{});
@@ -210,7 +223,7 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{

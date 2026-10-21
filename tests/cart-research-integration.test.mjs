@@ -16,6 +16,8 @@ const S = {
   bs: [player, opponent],
 };
 const context = {
+  // Isolated economy harness: no combat targets are returned by foe.
+  attackRange: () => 0,
   B, TE, AG, S,
   note: () => {},
   can: (team, cost) => Object.entries(cost).every(([k, n]) => S.res[team][k] >= n),
@@ -53,3 +55,4 @@ upB(player, TE.handcart.t);
 assert.equal(S.tech[0].handcart, 1, 'Hand Cart completes through the building simulation');
 assert.equal(research(player, 'handcart'), false, 'completed research cannot be purchased again');
 console.log('cart-research-integration: passed');
+

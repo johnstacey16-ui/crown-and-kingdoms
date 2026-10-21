@@ -201,3 +201,42 @@ The official Xbox Controls guide documents Patrol and Attack Move under the RT
 military command menu. Exact sectors, target gestures, formation spacing, combat
 behavior fidelity and physical Xbox Edge acceptance remain unverified. Trade,
 tribute/diplomacy, priorities, reconnect and additional humans remain open.
+
+## User-reported feature gaps and first corrections — 21 October 2026
+
+The owner identified projectile homing, missing monk/religious research, missing
+ranged/naval/economic technologies, incorrect age prerequisites, incomplete
+civilisation/naval catalogues and unfinished original audio/graphics. These are
+accepted implementation work, not waived parity requirements.
+
+| Feature family | Current disposition |
+| --- | --- |
+| Ballistics and dodgeable missiles | Implemented foundation: fixed launch-time aim for ranged shots; University Ballistics predicts constant path-segment movement for explicit arrow families and Scorpions. Later course changes can miss. No random accuracy spread, pass-through/secondary collisions, elevation or reference projectile-speed parity is claimed. Existing siege splash centres on the fixed impact point. |
+| Fletching / Bodkin Arrow / Bracer | Implemented attack/range/sight chain for explicit arrow weapon families. Blacksmith costs, age/prerequisite checks, paid research, AI priorities, combat range/pathing and unit HUD are connected. Town Centres gain attack/sight without attack-range growth. Legacy atkR/atkR2 keys are retained for saved flags. Full per-civilisation availability/bonus auditing remains open. |
+| Age advancement | Corrected to distinct eligible buildings: Founding uses lumber/mill/mine/Barracks/Dock; Feudal uses Range/Stable/Blacksmith/Market; Castle uses Siege Workshop/University/Monastery, or one completed Castle. Dead, unfinished and foreign structures do not count. Barracks/Dock and Militia/Fishing Ship become available in the starting age. Human research, solo menu, multiplayer menu and AI use the shared eligibility helper. A dock is never mandatory. AI caps starting-age Militia at three rather than spending its advancement food indefinitely. |
+| Monk suite | OPEN: Faith, Heresy, Redemption, Atonement and remaining reference monastery technologies need individual mechanics, paid research, AI/UI/save/multiplayer and civilisation availability acceptance. Existing basic conversion/healing/relic behavior is not the full suite. |
+| Murder Holes | OPEN: requires explicit defensive minimum-range behavior and research removal, including valid-target selection around fortifications. |
+| Naval/economic technologies | OPEN: Careening, Dry Dock, Shipwright, Gillnets and the current naval technology families. The February 2026 official Xbox update moves the first three to the University, changes Dry Dock to pierce armour, and changes Gillnets to gathering/carrying with Fishing Lines as its precursor. Do not implement obsolete pre-update placements/effects as current Xbox parity. |
+| Naval roster | OPEN: Fire/Demolition/Cannon Galleon and other required naval lines, their upgrades, abilities, counters, art/audio and AI. The 2026 naval update also adds new ship families and shared Medium/Heavy Warships upgrades; the existing Galley-only combat roster is not complete. |
+| Civilisations | PARTIAL: existing 26 entries do not establish current Xbox base/DLC roster coverage. Complete functional per-civilisation restrictions, bonuses, units, technology trees and separate antiquity/Chronicles rules remain required. |
+| Audio and graphics | PARTIAL: synthesised Web Audio and Canvas2D with original SVG atlases remain the current pipeline. Full original sound/music production, coherent terrain/camera/animation coverage and measured Xbox readability/performance acceptance remain open. |
+
+Projectile impact coordinates are included in multiplayer checkpoints and current
+saves. Missing legacy aim fields migrate once to a fixed aim; corrupt aims reject
+before replacing a world. New launches snapshot the shooter's kind/team. Live and
+WebRTC handshake ck-live-preview-11 reject incompatible simulation clients; shell
+cache v13 refreshes changed scripts. No infrastructure/billing changes are made.
+
+Named local evidence: tests/reference-age-projectiles.test.mjs exercises every
+eligible two-building combination for both teams, the Castle exception and invalid
+prerequisites; paid attack/range upgrades and excluded weapon classes; leading,
+dodging, siege impact splash, save restoration/legacy migration and checkpoint aim
+sensitivity. tests/network-battlefield-live.test.mjs adds real authenticated HTTP
+research and moving-target fire with per-frame matching production hashes.
+Full main CI and physical Xbox acceptance remain separate release evidence.
+
+Official references checked 21 October 2026:
+- https://www.ageofempires.com/learn-to-play/advancing-to-the-next-age-xbox/
+- https://www.ageofempires.com/news/a-new-naval-warfare-in-age-of-empires-ii-definitive-edition/
+- https://www.ageofempires.com/news/aoeii_de_update_56005/
+- https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-preview-125283/

@@ -15,7 +15,7 @@ assert.match(ai, /galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|
   'war galleys must reacquire targets after their current target dies, is garrisoned, or is no longer hostile');
 assert.match(ai, /const navalCandidates=S\.t>=\(ship\.nextNavalTargetAt\|\|0\)\?hostileShips\.filter\(e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)<28\)\.sort\(\(a,b\)=>navalTargetScore\(a\)-navalTargetScore\(b\)\):\[\]/,
   'AI naval targeting must score only nearby candidates after the re-target cooldown');
-assert.match(ai, /for\(const candidate of navalCandidates\.slice\(0,6\)\)if\(path\(ship,goalNear\(candidate,Math\.max\(1,U\[ship\.k\]\.rng\|\|1\)\)\)\)\{enemy=candidate;break\}/,
+assert.match(ai, /for\(const candidate of navalCandidates\.slice\(0,6\)\)if\(path\(ship,goalNear\(candidate,Math\.max\(1,attackRange\(ship\)\)\)\)\)\{enemy=candidate;break\}/,
   'AI must test at most six score-ranked reachable enemy ships before engaging');
 assert.match(ai, /u\.o==='m'&&!u\.tg/, 'AI war galleys moving without a target must be eligible to reacquire nearby hostile ships');
 assert.match(ai, /hostileShips\.filter\(e=>Math\.hypot\(e\.x-ship\.x,e\.y-ship\.y\)<28\)/,
@@ -25,3 +25,4 @@ assert.match(ai, /if\(enemy\)\{ship\.o='a';ship\.tg=enemy;ship\.p=\[\];focusCoun
 assert.match(html, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');
 console.log('naval-ai-priority: consolidated threat scan preserves targeting and counter-priorities');
+

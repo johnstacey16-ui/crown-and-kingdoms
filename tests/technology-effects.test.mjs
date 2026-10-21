@@ -43,7 +43,7 @@ assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
   'Cavalry armour must be restricted to mounted units in the current roster');
-assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2'\]/,
+assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150,g:100\},t:30,age:1\}/,
   'Cavalry Armour must have explicit cost, research time and age');
@@ -57,7 +57,7 @@ assert.match(html, /if\(k==='armR'&&ownRanged<2\)score-=28/,
   'AI should delay ranged armour when it has no meaningful ranged force');
 assert.match(html, /if\(k==='armC'&&ownCav<2\)score-=28/,
   'AI should delay cavalry armour when it has no meaningful cavalry force');
-assert.match(html, /if\(k==='atkR'&&ownRanged<2\)score-=20/,
+assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
   'AI should avoid premature ranged attack research before fielding ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
@@ -156,7 +156,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2']);
+const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);
@@ -166,3 +166,4 @@ assert.deepEqual(techRows.filter(r=>!r.hasEffectPayload&&!r.hasRuntimeHandler).m
   'Every defined technology must have a generic effect payload or an explicitly handled gameplay flag');
 
 console.log('technology-effects: static assertions passed');
+

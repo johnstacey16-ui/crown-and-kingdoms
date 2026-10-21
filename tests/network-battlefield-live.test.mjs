@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {pair} from './helpers/authenticated-game.mjs';
 
-async function battlefieldPair(t,terminal=false,shelter=false,formation=false){
+async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ballistics=false){
  const p=await pair(t);p.hostGame.testPreviewDefaults();
  const hp=p.hostGame.CK_AUTH_LOBBY.preparation(),gp=p.guestGame.CK_AUTH_LOBBY.preparation();
  const stage=`
@@ -17,6 +17,11 @@ async function battlefieldPair(t,terminal=false,shelter=false,formation=false){
    globalThis.fixtureRanks=[[addU(0,'mil',22.5,27.5),addU(0,'mil',24.5,27.5)],
     [addU(1,'mil',32.5,27.5),addU(1,'mil',34.5,27.5)]];
    fixtureRanks.flat().forEach(u=>u.st=4);
+  }
+  if(${ballistics}){
+   globalThis.fixtureBow=addU(1,'arc',27.5,24.5);fixtureBow.st=2;
+   globalThis.fixtureMovingTarget=addU(0,'scout',23.5,24.5);fixtureMovingTarget.st=4;fixtureMovingTarget.hp=200;
+   globalThis.fixtureUniversity=addB(1,'univ',33,25,true);TE.ballistics.t=.1;S.age[1]=2;
   }
   if(!${terminal}){addB(1,'lumber',27,26,true);const resource=addN('w',32,22,100,0);globalThis.fixtureResource=resource.netId;guestWorker.car=9.99;guestWorker.ct='w';}
   if(${shelter}){
@@ -214,4 +219,23 @@ test('both humans execute RT Patrol and Attack Move over authenticated HTTP with
    assert.notEqual(p.eval(replica,`fixtureRanks[${team}][0].x`),before,'production movement executes');
   }
  }
+});
+
+
+test('authenticated Ballistics research and moving-target fire replay fixed aims identically over HTTP',async t=>{
+ const p=await battlefieldPair(t,false,false,false,true);
+ assert.equal(p.guestLive.submit({type:'research',entities:[p.guestGame.fixtureUniversity.netId],value:'ballistics'}).ok,true);
+ for(let i=0;i<8;i++)await p.cycle();
+ assert.equal(p.eval(p.hostGame,'S.tech[1].ballistics'),1);assert.equal(p.eval(p.guestGame,'S.tech[1].ballistics'),1);
+ const targetId=p.hostGame.fixtureMovingTarget.netId,bowId=p.guestGame.fixtureBow.netId;
+ assert.equal(p.hostLive.submit({type:'move',entities:[targetId],point:{x:23.5,y:20.5}}).ok,true);
+ for(let i=0;i<4;i++)await p.cycle();
+ assert.equal(p.guestLive.submit({type:'attack',entities:[bowId],target:targetId}).ok,true);
+ let shot=false,damage=false;
+ for(let i=0;i<40;i++){
+  await p.cycle();
+  if(p.eval(p.hostGame,'S.pj.some(p=>Number.isFinite(p.tx)&&Number.isFinite(p.ty)&&p.a.t===1)'))shot=true;
+  if(p.eval(p.hostGame,'fixtureMovingTarget.hp<200'))damage=true;
+ }
+ assert.equal(shot,true,'shared combat emits fixed-aim arrows');assert.equal(damage,true,'leading shots hit the moving target');
 });

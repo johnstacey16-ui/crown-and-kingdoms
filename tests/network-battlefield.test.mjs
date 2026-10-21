@@ -167,7 +167,7 @@ test('fog, prerequisites, collisions, budgets, forged types and unavailable buil
  for(const scenario of ['fog','age','prerequisite','occupied','resources','civilian','loaded','foreign','fractional','unknown']){
   const c=fixture();let order={type:'build',entities:[c.ids.worker],value:'bar',point:{x:23,y:26}};
   if(scenario==='fog')order.point={x:55,y:55};
-  if(scenario==='age')c.run('S.age[0]=0');
+  if(scenario==='age'){c.run('S.age[0]=0');order.value='tower';}
   if(scenario==='prerequisite')order.value='rng';
   if(scenario==='occupied')c.run('S.g[26*W+23]=1');
   if(scenario==='resources')c.run('S.res[0].w=0');

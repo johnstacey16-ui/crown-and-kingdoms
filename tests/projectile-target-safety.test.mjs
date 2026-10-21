@@ -10,7 +10,7 @@ const S = { pj: [], us: [], bs: [] };
 const U = { arc: { rng: 5, spl: 0 } };
 let hits = 0;
 const context = {
-  S, U, isHostile: (a, b) => a !== b, dmgT: () => { hits++; },
+  W:72,H:72,S, U, isHostile: (a, b) => a !== b, dmgT: () => { hits++; },
   compactNotFlag: (array, flag) => { for (let i = array.length - 1; i >= 0; i--) if (array[i][flag]) array.splice(i, 1); },
 };
 vm.createContext(context);
@@ -38,3 +38,4 @@ pjs(1 / 30);
 assert.equal(S.pj.length, 0, 'invalid projectile records are discarded');
 assert.equal(hits, 1);
 console.log('projectile-target-safety: passed');
+

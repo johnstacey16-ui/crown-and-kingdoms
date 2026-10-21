@@ -29,7 +29,8 @@ assert.match(ai, /const queuedUnits=k=>aiQueuedUnits\(bl,k\)/,
 assert.match(ai, /b&&b\.hp>0&&Array\.isArray\(b\.q\)/,
   'Destroyed structures and invalid queue objects must not contribute to any AI unit capacity');
 
-assert.match(ai, /S\.bs\.filter\(x=>x\.t===t&&x\.done&&x\.hp>0&&AG\[S\.age\[t\]\+1\]\.needs\.includes\(x\.k\)&&B\[x\.k\]&&\(B\[x\.k\]\.age\|\|0\)===S\.age\[t\]\)/,
-  'AI age-up planning must count only living, completed buildings from the current age, matching the actual research gate');
+assert.match(ai, /ageRequirements\(t\)\.ready/,
+  'AI age-up planning must use the same completed-building/Castle gate as research');
 
 console.log('ai-rebuild-destroyed-buildings: destroyed structures no longer block replacement planning');
+

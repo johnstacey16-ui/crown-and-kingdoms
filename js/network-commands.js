@@ -33,8 +33,8 @@
         for (let x = Math.max(0,cx-radius); x <= Math.min(width-1,cx+radius); x++)
           if ((x-cx)**2+(y-cy)**2 <= radius*radius) cells[y*width+x] = 1;
     }
-    for (const u of world.us) reveal(u,8);
-    for (const b of world.bs) reveal(b,b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8);
+    for (const u of world.us) reveal(u,8+arrowSightBonus(u));
+    for (const b of world.bs) reveal(b,(b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8)+arrowSightBonus(b));
     return cells;
   }
   function inSight(entity, cells, width, height) {
@@ -57,7 +57,7 @@
     const research = definition.rs || [];
     if (building.k === 'tc' && AG[world.age[team]+1]) {
       const age = AG[world.age[team]+1];
-      options.push({type:'research',value:'age',label:'Advance: '+age.n,cost:{...age.cost},locked:''});
+      options.push({type:'research',value:'age',label:'Advance: '+age.n,cost:{...age.cost},locked:ageRequirements(team,world).ready?'':'Requires two different current-age buildings'+(age.single?' or one Castle':'')});
     }
     for (const key of research) if (TE[key]) {
       const entry = TE[key];

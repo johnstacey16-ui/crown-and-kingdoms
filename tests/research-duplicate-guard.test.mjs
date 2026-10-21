@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-const start = source.indexOf('function research(b,k){');
+const start = source.indexOf('function ageRequirements(t,world=S){');
 const end = source.indexOf('const MILITARY_PRODUCTION_BUILDINGS=', start);
 assert.ok(start >= 0 && end > start, 'research implementation must be discoverable');
 const buildings = [
@@ -58,4 +58,5 @@ townA.hp = 0;
 assert.equal(research(townB, 'age'), true, 'replacement town centre can restart interrupted advancement');
 assert.equal(resourcesSpent.length, 5);
 console.log('research-duplicate-guard: passed');
+
 

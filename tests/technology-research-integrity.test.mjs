@@ -18,7 +18,7 @@ assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain i
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
 const techKeys = techMatches.map((match) => match[1]);
-assert.equal(techKeys.length, 44, 'Technology table must retain the full 44-entry currently implemented upgrade roster');
+assert.equal(techKeys.length, 46, 'Technology table must retain the full 46-entry currently implemented upgrade roster');
 assert.equal(new Set(techKeys).size, techKeys.length, 'Technology keys must be unique');
 
 const buildingStart = html.indexOf('const B={');
@@ -60,7 +60,7 @@ assert.match(html, /tk\.atkb&&tk\.atkb\[a\.k\]\|\|0/,
   'Existing and newly trained attackers must use the researched damage bonus');
 assert.match(html, /S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect construction rate for existing workers');
-assert.match(html, /bd=\(ak\.rng<2\?\(tk\.atkM2\?5:tk\.atkM\?2:0\):\(tk\.atkR2\?3:tk\.atkR\?1:0\)\)/,
+assert.match(html, /bd=\(ak\.rng<2\?\(tk\.atkM2\?5:tk\.atkM\?2:0\):arrowBonus\(a\)\)/,
   'Blacksmith attack upgrades must be included in combat damage');
 assert.match(html, /tk\.slit\?2:0/,
   'Arrowslits must affect defensive building attack damage');
@@ -69,4 +69,5 @@ assert.match(html, /tk\.gtow\?3:0/,
 assert.match(html, /tk\.keep\?3:0/,
   'Keep must affect defensive building attack damage');
 
-console.log('technology-research-integrity: research availability and 44 technology records validated');
+console.log('technology-research-integrity: research availability and 46 technology records validated');
+

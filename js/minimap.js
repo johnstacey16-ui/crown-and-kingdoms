@@ -1,9 +1,9 @@
 /* Shared fog-of-war visibility and minimap data. */
-const FOG_OFFSETS={};for(const r of[8,11,14]){const a=[];for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)a.push([x,y]);FOG_OFFSETS[r]=a}
+const FOG_OFFSETS={};for(let r=8;r<=17;r++){const a=[];for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)a.push([x,y]);FOG_OFFSETS[r]=a}
 function fog(){S.vs.fill(0);const m=(e,r)=>{const h=(e.s||0)/2,cx=(e.x+h)|0,cy=(e.y+h)|0,a=FOG_OFFSETS[r];for(let i=0;i<a.length;i++){const x=cx+a[i][0],y=cy+a[i][1];if(x>=0&&x<W&&y>=0&&y<H)S.vs[y*W+x]=S.ex[y*W+x]=1}};
 const sharesVision=t=>t===0||diplomacyRelation(0,t)==='ally';
-for(const u of S.us)if(sharesVision(u.t)&&u.hp>0)m(u,8);
-for(const b of S.bs)if(sharesVision(b.t)&&b.hp>0)m(b,b.k==='tc'?11:b.k==='outpost'?14:8)}
+for(const u of S.us)if(sharesVision(u.t)&&u.hp>0)m(u,8+arrowSightBonus(u));
+for(const b of S.bs)if(sharesVision(b.t)&&b.hp>0)m(b,(b.k==='tc'?11:b.k==='outpost'?14:8)+arrowSightBonus(b))}
 const MC={sh:[95,159,196],w:[47,106,153],t:[30,90,30],g:[232,192,48],s:[150,160,160],f:[210,60,60],l:[75,135,60],k:[0,0,0]};
 function mmUp(){const d=mmd.data;for(let i=0;i<W*H;i++){let c=MC.k,f=1;if(S.ex[i]){const n=S.nd[i];c=S.wt[i]===2?MC.sh:S.wt[i]?MC.w:n&&n.amt>0?n.k==='w'?MC.t:n.k==='g'?MC.g:n.k==='s'?MC.s:MC.f:MC.l;if(!S.vs[i])f=.6}
 d[i*4]=c[0]*f;d[i*4+1]=c[1]*f;d[i*4+2]=c[2]*f;d[i*4+3]=255}mmx.putImageData(mmd,0,0)}
@@ -20,3 +20,4 @@ if(S.ping&&S.t-S.ping.t<6){const P=w2m(r,S.ping.x,S.ping.y),rr=6+((S.t*6)%10);X.
 if(S.flare&&S.t-S.flare.t<3){const P=w2m(r,S.flare.x,S.flare.y);X.strokeStyle='#fff';X.lineWidth=2;X.beginPath();X.arc(P[0],P[1],5+((S.t*8)%12),0,7);X.stroke()}
 X.strokeStyle='#fff';X.lineWidth=1.5;X.beginPath();[[0,0],[CW,0],[CW,CH],[0,CH]].forEach((c,i)=>{const w=s2w(c[0],c[1]),P=w2m(r,cl(w[0],0,W),cl(w[1],0,H));i?X.lineTo(P[0],P[1]):X.moveTo(P[0],P[1])});X.closePath();X.stroke();
 X.strokeStyle='#c9a24a';X.lineWidth=3;dia(r.x+r.w/2,r.y+r.h/2,r.w/2+3,r.h/2+3);X.stroke();X.restore()}
+

@@ -11,7 +11,7 @@ test('AI production filters unaffordable units before selecting counters',()=>{
 test('AI protects its full next-age budget from optional research',()=>{
  const canAfford=vm.runInNewContext(ai+'\n;aiCanResearchWhileSaving;');
  assert.match(ai,/const savingForAge=/);
- assert.match(ai,/agePrereqs>=2/);
+ assert.match(ai,/agePrereqs=nextAge&&ageRequirements\(t\)\.ready/);
  assert.match(ai,/aiCanResearchWhileSaving\(R,e\.cost,nextAge\.cost\)/);
  assert.equal(canAfford({f:1000,g:400},{f:100,g:150},{f:800,g:200}),true,
    'research may proceed if enough food and gold remain for advancement');
@@ -27,3 +27,4 @@ test('six AI tiers have monotonic decision cadence and attack grace',()=>{
  for(let i=1;i<6;i++){assert.ok(cd[i]<cd[i-1]);assert.ok(grace[i]<grace[i-1]);assert.ok(waves[i]>waves[i-1]);}
  for(const table of [cd,grace,waves])assert.ok(ai.includes('['+table.join(',')+'][diff]'));
 });
+

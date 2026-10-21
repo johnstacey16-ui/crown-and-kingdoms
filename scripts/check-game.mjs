@@ -71,8 +71,8 @@ if (!html.includes('<script src="./js/config.js"></script><script src="./js/stat
 if (!html.includes('<script src="./js/network-sync.js"></script><script src="./js/network-commands.js"></script><script src="./js/network-delivery.js"></script><script src="./js/network-uplink.js"></script><script src="./js/network-transport.js"></script><script src="./js/network-supabase.js"></script><script src="./js/network-webrtc.js"></script><script src="./js/network-startup.js"></script><script src="./js/network-session.js"></script><script src="./js/network-unit-map.js"></script><script src="./js/network-lobby.js"></script><script src="./multiplayer.js"></script>')) throw new Error('index.html does not load multiplayer integration');
 
 const checks = [
-  ['age advancement uses reference resource costs and research times', source.includes("const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['bar','rng','stable','smith','market','dock']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','castle']}]")],
-  ['age advancement requires two distinct completed current-age buildings', /const built=\[\.\.\.new Set\(S\.bs\.filter\(x=>x\.t===t&&x\.done&&x\.hp>0&&g\.needs\.includes\(x\.k\)&&B\[x\.k\]&&\(B\[x\.k\]\.age\|\|0\)===S\.age\[t\]\)\.map\(x=>x\.k\)\)\];if\(built\.length<2\)/.test(source)],
+  ['age advancement uses reference resource costs and research times', /cost:\{f:500\},t:130/.test(source)&&/cost:\{f:800,g:200\},t:160/.test(source)&&/cost:\{f:1000,g:800\},t:190/.test(source)],
+  ['age advancement shares distinct-building and single-Castle eligibility', source.includes('function ageRequirements(t,world=S)')&&source.includes('const gate=ageRequirements(t);if(!gate.ready)')],
   ['farm capacity uses researched technologies', /function farmFood\(t\)[\s\S]{0,180}q\.coll\?75[\s\S]{0,80}q\.plow\?125[\s\S]{0,80}q\.crop\?175/.test(source)],
   ['player-built farms record ownership', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);if\(n\)n\.t=0/.test(source)],
   ['AI-built farms record ownership', /const farm=addN\('f',x,y,farmFood\(t\),1\);if\(!farm\)continue;pay\(t,B\.farm\.cost\);farm\.t=t/.test(source)],
@@ -80,8 +80,8 @@ const checks = [
   ['infantry armour upgrades use explicit unit classes', source.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto'])")],
   ['archer armour upgrades use explicit unit classes', source.includes("const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan','hcan','conq','wagon','eled','mgd'])")],
   ['combat damage applies both armour class upgrades', source.includes('ib=(INFARM.has(t.k)&&ta.armI?1:0)+(ARCHARM.has(t.k)&&ta.armR?1:0)+(CAVARM.has(t.k)&&ta.armC?1:0)')],
-  ['siege splash damages hostile units only', source.includes('e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2')],
-  ['siege splash can damage nearby hostile buildings', source.includes('for(const e of S.bs)if(e!==p.t&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e)')],
+  ['siege splash damages hostile units only', source.includes('(e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2')],
+  ['siege splash can damage nearby hostile buildings', source.includes('for(const e of S.bs)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e)')],
   ['siege auto-targeting prioritises hostile buildings in range', (()=>{const start=source.indexOf('function foe(u,r){'),siege=source.indexOf('if(U[u.k]?.sg){',start),indexed=source.indexOf('b=nearestFoeUnit(u,r);if(b)return b;',start),fallback=source.indexOf('for(const q of S.bs)',indexed);return start>=0&&siege>start&&source.indexOf('if(b)return b',siege)<indexed&&indexed>siege&&fallback>indexed})()],
   ['farm reseeding charges the owning kingdom and reports accurately', /for\(const n of S\.nodes\)if\(n&&n\.fm&&n\.amt<=0&&Number\.isInteger\(n\.t\)&&S\.res\[n\.t\]&&S\.res\[n\.t\]\.w>=60\)\{S\.res\[n\.t\]\.w-=60;n\.amt=farmFood\(n\.t\);if\(n\.t===0\)note\('Farm reseeded \(-60 wood\)'\)\}/.test(source) && !/tg\.fm&&S\.res\[u\.t\]\.w>=60/.test(source)],
 ];
@@ -91,4 +91,5 @@ for (const [name, ok] of checks) {
   console.log(`PASS: ${name}`);
 }
 console.log('PASS: parsed external config.js, state.js, mapgen.js, audio.js, save.js, input.js, render.js, ui.js, simulation.js, engine.js, persistence.js, sw.js, network-commands.js, network-delivery.js, network-uplink.js and multiplayer.js');
+
 

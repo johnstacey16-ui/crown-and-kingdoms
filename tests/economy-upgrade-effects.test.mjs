@@ -18,6 +18,8 @@ const soldier = { k: 'mil', t: 0, hp: U.mil.hp };
 const tc = { k: 'tc', t: 0, done: true, hp: B.tc.hp, rs: null, q: [] };
 const S = { tech: [{}, {}], us: [worker, enemy, soldier], bs: [tc], res: [{}, {}] };
 const context = {
+  // Isolated economy harness: no combat targets are returned by foe.
+  attackRange: () => 0,
   U, B, TE, S, CAP: 10,
   CAVARM: new Set(['knight']), INFARM: new Set(['mil']),
   foe: () => null, sfx: () => {}, note: () => {},
@@ -62,3 +64,4 @@ assert.equal(capacity(worker), 25);
 assert.equal(capacity(soldier), 15);
 assert.equal(capacity(enemy), 10);
 console.log('economy-upgrade-effects: passed');
+
