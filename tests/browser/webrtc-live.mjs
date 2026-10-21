@@ -12,7 +12,7 @@ const server=createApplication();server.listen(0,'127.0.0.1');await once(server,
 const deployedOrigin=process.env.CK_WEBRTC_ORIGIN;
 if(deployedOrigin!==undefined&&deployedOrigin!=='https://crown-and-kingdoms.vercel.app')throw Error('Unapproved smoke origin');
 const origin=deployedOrigin||'http://127.0.0.1:'+server.address().port;
-const verifiedAssets=['engine.js','multiplayer.js','js/network-sync.js','js/network-commands.js',
+const verifiedAssets=['index.html','sw.js','engine.js','multiplayer.js','js/network-sync.js','js/network-commands.js',
   'js/network-delivery.js','js/network-uplink.js','js/network-transport.js','js/network-startup.js',
   'js/network-session.js','js/network-unit-map.js','js/network-lobby.js','js/network-supabase.js','js/network-webrtc.js'];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -59,7 +59,7 @@ try{
       }
     });
     await page.goto(origin);
-    for(const name of ['network-supabase','network-webrtc'])await page.addScriptTag({url:origin+'/js/'+name+'.js'});
+    assert.equal(await page.evaluate(()=>typeof CK_WEBRTC_TRANSPORT?.createGuestClient),'function','peer provider loads from the production shell');
     await page.evaluate(()=>{
       msz=0;mt=3;mapLayout=0;kingdoms=2;startAge=0;startRes=0;startArmy=0;
       startVillagers=1;popLimit=300;gameMode=0;vm=0;mode='multiplayer';
@@ -75,11 +75,16 @@ try{
       const createStart=CK_MATCH_STARTUP.create,createLive=CK_LIVE_SESSION.create;
       window.CK_MATCH_STARTUP=Object.freeze({...CK_MATCH_STARTUP,create:options=>{window.smokeStart=createStart(options);return smokeStart;}});
       window.CK_LIVE_SESSION=Object.freeze({...CK_LIVE_SESSION,create:options=>{window.smokeLive=createLive(options);return smokeLive;}});
-      CK_AUTH_LOBBY.open(()=>{mode='title';},{createTransport:()=>{
-        window.wrtcClient=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false});return wrtcClient;
+      const createPeer=CK_WEBRTC_TRANSPORT.createGuestClient;
+      window.CK_WEBRTC_TRANSPORT=Object.freeze({...CK_WEBRTC_TRANSPORT,createGuestClient:options=>{
+        window.wrtcClient=createPeer({...options,useStun:false});return wrtcClient;
       }});
+      CK_NET.openLobby();
+      for(let i=0;i<8;i++){E=[];E[13]=true;CK_NET.control(1/30);}
+      E=[];E[0]=true;CK_NET.control(1/30);E=[];
     });
   }
+  assert.equal(calls.signups,0,'controller menu opens without creating guest users');
   const [host,guest]=pages;stage='create-room';
   await host.getByRole('button',{name:'Create private room',exact:true}).click();
   await host.waitForFunction(()=>document.querySelector('input[aria-label="Private room invitation"]')?.value.length===43);
@@ -137,7 +142,7 @@ try{
   await guest.getByRole('button',{name:'Leave setup',exact:true}).click();
   assert.equal(await guest.evaluate(()=>CK_AUTH_LOBBY.active()),false);
   await host.waitForFunction(()=>['closed','failed'].includes(wrtcClient.snapshot().phase));
-  result={status:'passed',testedAt:new Date().toISOString(),uiFlow:'Create / Join / Verify / Run / Train / Leave',
+  result={status:'passed',testedAt:new Date().toISOString(),uiFlow:'Controller menu / Create / Join / Verify / Run / Objectives / Train / Leave',
     verifiedFrames:120,objectivesWhileRunning:true,matchingWorlds:true,paidOrdersBothTeams:true,finalAck:120,terminal:'deterministic draw fixture',
     elapsedGameplayMs:Math.round(elapsed),observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
     topology:'two Chromium contexts, one runner, numeric host ICE; '+(deployedOrigin?'production HTTPS game UI':'localhost game UI')+'; real Supabase Auth/HTTPS/CORS/signaling',

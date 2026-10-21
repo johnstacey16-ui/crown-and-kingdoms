@@ -14,7 +14,14 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(r.url().includes('supabase.co')||r.url().includes('/api/multiplayer/'))requests.push(r.url());});
   await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'networkidle'});
-  await page.evaluate(()=>{mode='multiplayer';CK_AUTH_LOBBY.open(()=>{mode='title';});});
+  await page.evaluate(()=>{
+   window.openPeerPreviewFromMenu=()=>{
+    CK_NET.openLobby();
+    for(let i=0;i<8;i++){E=[];E[13]=true;CK_NET.control(1/30);}
+    E=[];E[0]=true;CK_NET.control(1/30);E=[];
+   };
+   openPeerPreviewFromMenu();
+  });
   const dialog=page.getByRole('dialog',{name:'Authenticated multiplayer setup'});
   await dialog.waitFor();
   const layout=await dialog.evaluate(el=>{
@@ -40,8 +47,17 @@ try{
   await page.keyboard.press('Enter');
   await dialog.waitFor({state:'detached'});
   assert.equal(await page.evaluate(()=>CK_AUTH_LOBBY.active()),false);
+  // Confirm the menu chooses the peer factory without creating a real Auth user.
+  await page.evaluate(()=>{
+   window.peerChosen=false;
+   window.CK_WEBRTC_TRANSPORT=Object.freeze({createGuestClient:()=>{peerChosen=true;throw Error('Fixture stops before Auth');}});
+   openPeerPreviewFromMenu();
+  });
+  await page.getByRole('button',{name:'Create private room',exact:true}).click();
+  assert.equal(await page.evaluate(()=>peerChosen),true);
+  await page.evaluate(()=>CK_AUTH_LOBBY.close());
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[],'opening the room screen must not sign up or connect');
-  results.push({viewport,...layout,networkRequests:requests.length});await page.close();
+  results.push({viewport,...layout,networkRequests:requests.length,controllerMenuPath:true,peerProviderSelected:true});await page.close();
  }
  await writeFile(output+'/room-layout.json',JSON.stringify(results,null,2));
  console.log('Room layout checks passed: '+results.length+' viewports; no multiplayer requests.');

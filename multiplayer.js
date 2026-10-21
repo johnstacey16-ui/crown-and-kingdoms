@@ -1045,7 +1045,9 @@
     if (selectedRow === 8) {
       if (state.active) return setStatus('Leave the marker room before opening authenticated setup.');
       showLobbyFields(false);
-      window.CK_AUTH_LOBBY.open(() => { mode = 'multiplayer'; showLobbyFields(true); });
+      window.CK_AUTH_LOBBY.open(() => { mode = 'multiplayer'; showLobbyFields(true); }, {
+        createTransport: () => window.CK_WEBRTC_TRANSPORT.createGuestClient(), peerPreview:true
+      });
       return;
     }
     if (selectedRow === 9) return failOpenRoom();
@@ -1084,7 +1086,7 @@
       { label: 'Map type', value: cfg ? (MT[cfg.mt] ? MT[cfg.mt].n : 'Invalid') : 'Waiting for host' },
       { label: 'Kingdom count', value: cfg ? (cfg.kingdoms === 2 ? 'Two kingdoms' : 'Four kingdoms') : 'Waiting for host' },
       { label: 'Start Marker Match', value: !hostMode ? 'Host only' : running ? 'Already running' : 'Requires another player' },
-      { label: 'Authenticated room setup', value: 'Check a shared starting map' },
+      { label: 'Two-player battlefield preview', value: 'Private room · direct connection' },
       { label: 'Leave Multiplayer', value: state.active ? 'Disconnect and return to title' : 'Return to title' }
     ];
   }

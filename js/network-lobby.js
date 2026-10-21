@@ -71,7 +71,7 @@
     };
   }
   let panel = null;
-  function open(onLeave, { createTransport = () => root.CK_AUTH_TRANSPORT.createClient() } = {}) {
+  function open(onLeave, { createTransport = () => root.CK_AUTH_TRANSPORT.createClient(), peerPreview = false } = {}) {
     if (panel) return;
     if (typeof createTransport !== 'function') throw Error('Invalid multiplayer provider');
     const preparationSession = preparation();
@@ -85,6 +85,7 @@
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
     description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then enter the battlefield preview: explore, construct buildings, train and research, and fight with your own kingdom. Terrain and opponents are shown only within your team’s sight. Select villagers and use A on a visible resource to gather. This is a two-player preview. Leave setup to close the room.';
+    if(peerPreview)description.textContent += ' Direct connections may fail on restricted networks; try another network if a fresh room cannot connect.';
     description.className = 'ck-room-intro';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
