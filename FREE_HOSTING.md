@@ -113,3 +113,10 @@ then implement/test guest Auth lifecycle and measure actual two-browser traffic.
 The connector currently exposes no Auth configuration update tool. Static hosting
 on a confirmed free plan and Railway shutdown still need to be completed before
 claiming the switch to free-only hosting is finished.
+
+Verification on main: [Supabase relay validation run 39543776188](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39543776188)
+passed all 14 tests (11 existing HTTP adapter checks and 3 PostgreSQL integration
+cases). Both simulated Auth identities produced matching game hashes through
+20 frames including a paid guest training order. The separate local HTTP/live
+session/server suite passed all 43 checks. These are transport/database tests;
+real-project Auth, browser, capacity and live migration gates above remain open.
