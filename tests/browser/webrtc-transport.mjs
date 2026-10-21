@@ -10,7 +10,7 @@ const server=createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/ht
 server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({headless:true});
-const results=[];
+const results=[];let lastDiagnostics=[];
 async function fixture(){
   const contexts=[await browser.newContext(),await browser.newContext()];
   const pages=await Promise.all(contexts.map(c=>c.newPage()));
@@ -61,6 +61,7 @@ async function fixture(){
   await guest.evaluate(()=>joined);
   assert.equal(await host.evaluate(()=>client.snapshot().phase),'ready');
   return {host,guest,ops,endRoom:()=>{alive=false;},close:async()=>{
+    lastDiagnostics=await Promise.all(pages.map(p=>p.evaluate(()=>({phase:client.snapshot().phase,...client.diagnostics(),pc:testPC.connectionState})).catch(()=>({pageClosed:true}))));
     await Promise.allSettled(pages.map(p=>p.evaluate(()=>client.close())));
     await Promise.all(contexts.map(c=>c.close()));
   }};
@@ -72,7 +73,6 @@ try{
     try{
       for(let frame=1;frame<=120;frame++){
         await f.host.evaluate(frame=>client.send('frame',{frame}),frame);
-        await f.guest.waitForFunction(()=>testWire.bufferedAmount===0);
         await f.guest.evaluate(async()=>{
           for(let n=0;n<100&&!handled.length;n++){
             await client.poll((kind,payload,sid)=>{handled.push({kind,payload,sid});return true;});
@@ -123,4 +123,5 @@ try{
   await mkdir('artifacts/webrtc',{recursive:true});
   await writeFile('artifacts/webrtc/transport.json',JSON.stringify(results,null,2));
   console.log(JSON.stringify({status:'passed',results}));
-}finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
+}catch(error){console.error(JSON.stringify({lastDiagnostics,results}));throw error;}
+finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

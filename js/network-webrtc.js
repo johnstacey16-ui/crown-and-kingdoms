@@ -16,7 +16,7 @@
     const relayRoutes={'POST /sessions':'sessions','POST /rooms':'create','POST /join':'join','GET /room':'roster','DELETE /session':'close'};
     let connection,pc=null,channel=null,room=null,credential=null,negotiation=null,negotiating=null;
     let closed=false,closing=null,heartbeat=null,polling=null,sent=0,received=0,queue=[];
-    let rejectReady=null,ready=false;
+    let rejectReady=null,ready=false,failure='';
     const check=()=>{if(closed)throw Error('Peer session ended');};
     function close(){
       if(closing)return closing;
@@ -27,6 +27,7 @@
       closing=Promise.resolve(connection?.close()).finally(()=>{credential=null;return auth.close();});
       return closing;
     }
+    function fail(code){failure=code;void close();}
     function waitFor(target,event,predicate,signal){
       return new Promise((resolve,reject)=>{
         const cleanup=()=>{target.removeEventListener(event,changed);signal.removeEventListener('abort',abort);};
@@ -53,8 +54,8 @@
       if(candidate.label!=='ck-game-v1'||candidate.protocol!=='ck-live-preview-9'||!candidate.ordered||
         candidate.maxRetransmits!==null||candidate.maxPacketLifeTime!==null)throw Error('Invalid peer channel');
       channel=candidate;
-      channel.addEventListener('close',()=>{if(!closed)void close();});
-      channel.addEventListener('error',()=>{if(!closed)void close();});
+      channel.addEventListener('close',()=>{if(!closed)fail('channel-closed');});
+      channel.addEventListener('error',()=>{if(!closed)fail('channel-error');});
       channel.addEventListener('open',()=>{
         try{check();channel.send(JSON.stringify({v:1,hello:true,matchId:room.matchId,sid:room.sid,team:room.team}));}
         catch(_){void close();}
@@ -74,7 +75,7 @@
             bytes(JSON.stringify(wire.payload))>1024||queue.length>=256)throw Error('Invalid peer message or backpressure');
           received=wire.sequence;
           queue.push({matchId:room.matchId,senderSid:peer.sid,team:peer.team,sequence:received,kind:wire.kind,payload:wire.payload});
-        }catch(_){void close();}
+        }catch(_){fail('invalid-peer-packet');}
       });
     }
     async function establish(){
@@ -93,7 +94,7 @@
         try{
           pc=new root.RTCPeerConnection({iceServers:useStun?[{urls:'stun:stun.l.google.com:19302'}]:[]});
           pc.addEventListener('connectionstatechange',()=>{
-            if(['failed','disconnected','closed'].includes(pc.connectionState)&&!closed)void close();
+            if(['failed','disconnected','closed'].includes(pc.connectionState)&&!closed)fail('connection-lost');
           });
           pc.addEventListener('datachannel',event=>{
             try{if(room.team!==1||channel)throw Error('Unexpected channel');attach(event.channel,resolveReady);}
@@ -165,7 +166,7 @@
       if(!polling)polling=guarded(async()=>{await establish();return connection.poll(handle);})().finally(()=>{polling=null;});
       return polling;
     }
-    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close});
+    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close,diagnostics:()=>Object.freeze({failure,channelState:channel?.readyState??'none',bufferedAmount:channel?.bufferedAmount??0})});
   }
   root.CK_WEBRTC_TRANSPORT=Object.freeze({createGuestClient});
 })(typeof window!=='undefined'?window:globalThis);
