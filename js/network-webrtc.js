@@ -16,18 +16,18 @@
     const relayRoutes={'POST /sessions':'sessions','POST /rooms':'create','POST /join':'join','GET /room':'roster','DELETE /session':'close'};
     let connection,pc=null,channel=null,room=null,credential=null,negotiation=null,negotiating=null;
     let closed=false,closing=null,heartbeat=null,polling=null,sent=0,received=0,queue=[];
-    let rejectReady=null,ready=false,failure='';
+    let rejectReady=null,ready=false,failure='',helloSent=false,helloReceived=false,helloAcknowledged=false,helloTimer=null,controlPackets=0;
     const check=()=>{if(closed)throw Error('Peer session ended');};
     function close(){
       if(closing)return closing;
-      closed=true;ready=false;root.clearTimeout(heartbeat);negotiation?.abort();
+      closed=true;ready=false;root.clearTimeout(heartbeat);root.clearTimeout(helloTimer);negotiation?.abort();
       rejectReady?.(Error('Peer connection unavailable'));queue=[];
       channel?.close();pc?.close();
       // core.close immediately prevents callbacks, then returns its revocation promise.
       closing=Promise.resolve(connection?.close()).finally(()=>{credential=null;return auth.close();});
       return closing;
     }
-    function fail(code){failure=code;void close();}
+    function fail(code){if(closed)return;failure=code;void close();}
     function waitFor(target,event,predicate,signal){
       return new Promise((resolve,reject)=>{
         const cleanup=()=>{target.removeEventListener(event,changed);signal.removeEventListener('abort',abort);};
@@ -56,27 +56,34 @@
       channel=candidate;
       channel.addEventListener('close',()=>{if(!closed)fail('channel-closed');});
       channel.addEventListener('error',()=>{if(!closed)fail('channel-error');});
-      let helloSent=false;
-      const sendHello=()=>{
+      const sendHello=(retry=false)=>{
         try{
-          check();if(helloSent||channel.readyState!=='open')return;
+          check();if(channel.readyState!=='open'||helloSent&&!retry)return;
           helloSent=true;channel.send(JSON.stringify({v:1,hello:true,matchId:room.matchId,sid:room.sid,team:room.team}));
+          if(!ready&&helloTimer===null)helloTimer=root.setTimeout(()=>{helloTimer=null;if(!ready)sendHello(true);},500);
         }catch(_){fail('hello-send-failed');}
       };
-      channel.addEventListener('open',sendHello);
-      // A remotely announced channel can already be open when attached.
-      sendHello();
+      const confirm=()=>{
+        if(!ready&&helloReceived&&helloAcknowledged){ready=true;root.clearTimeout(helloTimer);helloTimer=null;resolveReady();}
+      };
+      channel.addEventListener('open',()=>sendHello());
       channel.addEventListener('message',event=>{
         try{
           check();
           if(typeof event.data!=='string'||bytes(event.data)>1536)throw Error('Invalid peer packet');
           const wire=JSON.parse(event.data),peer=room.members[1-room.team];
-          if(!ready){
-            if(!exact(wire,['v','hello','matchId','sid','team'])||wire.v!==1||wire.hello!==true||
+          if(Object.hasOwn(wire,'hello')||Object.hasOwn(wire,'helloAck')){
+            const field=Object.hasOwn(wire,'hello')?'hello':'helloAck';
+            if(received>0||++controlPackets>256||!exact(wire,['v',field,'matchId','sid','team'])||wire.v!==1||wire[field]!==true||
               wire.matchId!==room.matchId||wire.sid!==peer.sid||wire.team!==peer.team)throw Error('Wrong authenticated peer');
             sendHello();if(!helloSent)throw Error('Peer channel not open');
-            ready=true;resolveReady();return;
+            if(field==='hello'){
+              helloReceived=true;
+              channel.send(JSON.stringify({v:1,helloAck:true,matchId:room.matchId,sid:room.sid,team:room.team}));
+            }else helloAcknowledged=true;
+            confirm();return;
           }
+          if(!ready)throw Error('Peer handshake incomplete');
           if(!exact(wire,['v','sequence','kind','payload'])||wire.v!==1||!Number.isSafeInteger(wire.sequence)||wire.sequence!==received+1||
             !roleKinds(peer.team).includes(wire.kind)||!wire.payload||typeof wire.payload!=='object'||Array.isArray(wire.payload)||
             bytes(JSON.stringify(wire.payload))>1024||queue.length>=256)throw Error('Invalid peer message or backpressure');
@@ -84,6 +91,8 @@
           queue.push({matchId:room.matchId,senderSid:peer.sid,team:peer.team,sequence:received,kind:wire.kind,payload:wire.payload});
         }catch(_){fail('invalid-peer-packet');}
       });
+      // Attach the receiver before sending, including already-open announcements.
+      sendHello();
     }
     async function establish(){
       if(negotiating)return negotiating;
@@ -173,7 +182,7 @@
       if(!polling)polling=guarded(async()=>{await establish();return connection.poll(handle);})().finally(()=>{polling=null;});
       return polling;
     }
-    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close,diagnostics:()=>Object.freeze({failure,channelState:channel?.readyState??'none',bufferedAmount:channel?.bufferedAmount??0})});
+    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close,diagnostics:()=>Object.freeze({failure,channelState:channel?.readyState??'none',bufferedAmount:channel?.bufferedAmount??0,helloSent,helloReceived,helloAcknowledged})});
   }
   root.CK_WEBRTC_TRANSPORT=Object.freeze({createGuestClient});
 })(typeof window!=='undefined'?window:globalThis);
