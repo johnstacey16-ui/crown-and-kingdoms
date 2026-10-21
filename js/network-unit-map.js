@@ -363,8 +363,9 @@
         const radius=Math.max(.8/viewport().zoom,viewport().width*8/680);
         const candidates=[...view.units,...view.buildings,...(view.battlefield?.allies||[])];
         const target=candidates.find(e=>e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius);
-        if(targetAction.type!=='disembark'&&!target){description.textContent='Choose a visible friendly target; B cancels.';draw();return;}
-        const result=submit({type:targetAction.type,entities:selection.slice(),...(targetAction.type==='disembark'?{point:{...point}}:{target:target.id})});
+        const ground=['disembark','patrol','attack-move'].includes(targetAction.type);
+        if(!ground&&!target){description.textContent='Choose a visible friendly target; B cancels.';draw();return;}
+        const result=submit({type:targetAction.type,entities:selection.slice(),...(ground?{point:{...point}}:{target:target.id})});
         description.textContent=result.ok?targetAction.label+' submitted. The host rechecks the target, capacity and route.':'Order not submitted. Wait for the previous order.';
         if(result.ok){enabled=false;targetAction=null;}draw();return;
       }
@@ -542,7 +543,7 @@
           if(view.battlefield&&entry){
             if(entry.locked){description.textContent=entry.locked;draw();return;}
             if(entry.type==='build'){placement={...entry};wheel=false;blockedA=true;description.textContent=entry.label+' preview. A places; LT repeats; B cancels.';draw();return;}
-            if(entry.targeted){if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}targetAction={type:entry.type,label:entry.label};placement=null;wheel=false;blockedA=true;description.textContent=entry.label+': release A, then choose '+(entry.type==='disembark'?'a visible shore':'a friendly target')+' with A. B cancels.';draw();return;}
+            if(entry.targeted){if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}targetAction={type:entry.type,label:entry.label};placement=null;wheel=false;blockedA=true;description.textContent=entry.label+': release A, then choose '+(entry.type==='disembark'?'a visible shore':['patrol','attack-move'].includes(entry.type)?'a ground destination':'a friendly target')+' with A. B cancels.';draw();return;}
             if(entry.type==='stop'){if(!held[6])stop();}
             else if(enabled){
               const result=submit({type:entry.type,entities:['research','unload'].includes(entry.type)?[selected]:selection.slice(),...(entry.value===undefined?{}:{value:entry.value}),...(entry.type==='train'&&held[6]?{count:5}:{})});
