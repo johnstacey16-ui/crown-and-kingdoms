@@ -250,3 +250,66 @@ Code `e133a3dbaba8464ab2517d7f7b7a4a6f6f6de203` passed all main checks on 21 Oct
 - [WebRTC browser transport 39583393367](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39583393367), including the new versioned channel.
 
 These are named Node/Chromium checks, not physical Xbox or independent-network full-match acceptance. The remaining feature-family gaps listed above remain open. All changes were committed directly to main as requested.
+
+
+## Monastery research, authenticated conversion and Murder Holes — 21 October 2026
+
+Implemented eleven Monastery technologies: Devotion, Faith, Heresy, Redemption,
+Atonement, Sanctity, Fervor, Block Printing, Illumination, Theocracy and Herbal
+Medicine. Research uses the existing paid building queue, duplicate/age/budget
+checks and selected-building RT controls in solo and authenticated multiplayer.
+Faith requires Devotion. Sanctity upgrades living and future Monks without
+removing prior damage; Fervor changes speed; Block Printing changes conversion
+range and sight. Faith percentage/conversion range are shown for solo Monks and
+faith is exposed in the owned multiplayer selection description.
+
+Conversion now has target-class/research restrictions, seeded interval attempts,
+per-target identity/owner binding, current hostility/ownership checks and a
+normalised faith resource. Base unit attempts use seconds 5–9 with 40% interval
+rolls and a forced maximum; Devotion/Faith add resistance time, with separate
+Scout/ship windows. Illumination doubles faith regeneration. Heresy kills a
+converted unit instead of transferring it. Theocracy preserves the other Monks'
+faith when the same-target group succeeds. Without it, those casters recharge.
+Redemption supports siege and adjacent eligible buildings; Atonement permits
+Monks. Successful building capture cancels its old training/research/rally
+without refunding its previous owner's budget. Stable entity IDs remain.
+
+Authenticated contextual A and RT Convert send strict typed commands, with
+current-team sight, owned eligible Monks and all-member route validation before
+orders change. No optimistic conversion occurs. The host rechecks ownership for
+subsequent commands. Existing fail-stop handling of unauthorised network packets
+is preserved; this increment does not redesign rejection/reconnect receipts.
+The bounded technology-ID validator now permits the catalogue's existing camel
+case keys (e.g. murderHoles/atkR), while retaining exact fields and semantic
+simulation validation. Conversion progress, interval, bound target/owner and
+faith participate in checkpoints and validated saves. Protocol/channel 12 and
+shell cache v14 exclude older simulation clients.
+
+Murder Holes is University research. Towers/Castles skip targets less than one
+tile from their footprint until researched, and continue looking for a farther
+eligible enemy rather than being blocked by the nearer target. Town Centres
+retain zero minimum range. Herbal Medicine adds the researched 6× garrison-heal
+rate for current, living, correctly owned building passengers; transports do not
+receive building healing. Monks no longer heal themselves.
+
+**Acceptance limits:** this is feature coverage, not full version-locked Xbox
+parity. Occupied buildings and loaded transports are deliberately unavailable
+conversion targets pending verified passenger capture/ejection semantics. Exact
+conversion-resistance chance modifiers, target-switch timing, group membership,
+converted-unit stat inheritance, civilisation-specific restrictions/free techs,
+full unit/DLC exception catalogues, visuals/audio feedback and physical Xbox
+controller/performance acceptance remain open. No new bindings or infrastructure
+were introduced. Remaining naval/civilisation/media work is still required.
+
+Reference evidence:
+- Official conversion/Devotion/Faith balance: https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-99311/
+- Official group faith/Theocracy correction: https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-107882/
+- Current extracted tech costs/times and descriptions: https://github.com/SiegeEngineers/aoe2techtree/blob/master/data/data.json and data/locales/en/strings.json, read 21 October 2026; data blob c4f7da961e82a8231b1ba49459949c4d6e479bc8, English descriptions blob c3db0331c195b389615f3353c76561f57556ec02. These are reference-data snapshots, not a recorded physical Xbox build. They include newer Devotion/Sanctity/Block Printing costs than older manuals.
+
+Local tests: monk-technologies.test.mjs covers all twelve paid techs, real stat,
+faith, resistance, Heresy/Theocracy, target-class/cargo/ownership/path validation,
+Murder Holes target selection, garrison healing, save/checksum fields, RT and
+contextual A. The authenticated HTTP pair researches Atonement and converts a
+human-owned Monk with matching production hashes on every frame, then checks
+that the former owner's production command is refused. All 19 isolated campaign
+missions passed locally. Main CI results are recorded separately below.

@@ -133,6 +133,30 @@ try{
  assert.deepEqual(ballisticsMenu.cost,{w:300,g:175});
  await page.locator('#battlefield-art').screenshot({path:output+'/ballistics-research-menu.png'});
  await page.evaluate(()=>{artMap.control({1:true},{1:true});artMap.control({},{});const soldier=S.us.find(u=>u.netId===artFixture.soldier);artMap.choose({x:soldier.x,y:soldier.y});});
+ const monkResearch=await page.evaluate(()=>{
+  const monastery=addB(0,'monastery',31,28,true);artMap.refresh(S,0,W,H,true);artMap.choose({x:32.5,y:29.5});artMap.control({7:true},{7:true});
+  const options=CK_GAME_COMMANDS.buildingOptions(S,0,monastery),index=options.findIndex(o=>o.value==='atonement'),entry=options[index];
+  const angle=index*Math.PI*2/options.length;artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
+  return {present:index>=0,label:entry?.label,locked:entry?.locked,cost:entry?.cost};
+ });
+ assert.equal(monkResearch.label,'Atonement');assert.equal(monkResearch.locked,'');assert.deepEqual(monkResearch.cost,{g:325});
+ await page.locator('#battlefield-art').screenshot({path:output+'/monastery-research-menu.png'});
+ const monkMenu=await page.evaluate(()=>{
+  artMap.control({1:true},{1:true});artMap.control({},{});
+  window.artMonk=addU(0,'mon',27.5,27.5);window.artConvertTarget=addU(1,'mil',30.5,28.5);artMap.refresh(S,0,W,H,true);artMap.choose({x:artMonk.x,y:artMonk.y});
+  artMap.control({7:true},{7:true});const options=CK_GAME_COMMANDS.unitOptions(S,0,artMonk),index=options.findIndex(o=>o.type==='convert'),angle=index*Math.PI*2/options.length;
+  artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);return {label:options[index]?.label,locked:options[index]?.locked};
+ });
+ assert.equal(monkMenu.label,'Convert');assert.equal(monkMenu.locked,'');
+ await page.locator('#battlefield-art').screenshot({path:output+'/monk-convert-menu.png'});
+ const conversionTargeting=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  artMap.control({0:true},{7:true,0:true});artMap.control({},{});artMap.choose({x:artConvertTarget.x,y:artConvertTarget.y});
+  const order=artOrders.at(-1);artMap.control({1:true},{1:true});artMap.control({},{});
+  const soldier=S.us.find(u=>u.netId===artFixture.soldier);artMap.choose({x:soldier.x,y:soldier.y});
+  return {type:order?.type,target:order?.target===artConvertTarget.netId,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.equal(conversionTargeting.type,'convert');assert.equal(conversionTargeting.target,true);assert.equal(conversionTargeting.unchanged,true);
  const groups=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.control({4:true},{4:true},[0,-1]);artMap.control({2:true},{4:true,2:true},[0,-1]);artMap.control({},{});
@@ -223,7 +247,7 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{

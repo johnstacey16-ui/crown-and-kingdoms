@@ -43,7 +43,7 @@ if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  if(tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg;continue}
  u.o='i';u.tg=null;u.p=[];continue
 }
-if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}if(u.st===2)u.st=0;u.o=u.k==='mon'&&!tg.q?'v':'a';u.tg=tg}
+if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}if(u.st===2)u.st=0;if(u.k==='mon'){if(!beginConversion([u],tg)){u.o='i';u.tg=null;resetConversion(u);note('Cannot convert that target; check research and faith');}continue}u.o='a';u.tg=tg}
 else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){if(u.ct!==tg.k)u.car=0;u.o='g';u.tg=tg;u.ct=tg.k;u.ret=0}
 else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg}

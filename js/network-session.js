@@ -1,7 +1,7 @@
 /* Stop-and-wait live simulation preview. No legacy Broadcast messages enter here. */
 (function(root){
   'use strict';
-  const VERSION = 'ck-live-preview-11';
+  const VERSION = 'ck-live-preview-12';
   const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value,key));
   function create({transport, startup, mapSize, lookupEntity, execute, advance, hash, outcome = () => null,
@@ -17,7 +17,7 @@
     let failure = '', lastResult = null, terminal = null;
     const hashes = new Map(), receipts = new Map(), submitted = new Map();
     const appliedAcks = new Map();
-    const supported = order => order && ['train','cancel','move','rally','stop','attack','attack-move','patrol','research','stance','build','gather','garrison','repair','unload','disembark','formation'].includes(order.type);
+    const supported = order => order && ['train','cancel','move','rally','stop','attack','convert','attack-move','patrol','research','stance','build','gather','garrison','repair','unload','disembark','formation'].includes(order.type);
     const apply = (order,team,at) => supported(order) && execute(order,team,at) === true;
     const host = sync.createCommandHost({roster,mapSize,lookupEntity,execute:apply,delayFrames:2});
     // The uplink match binding is mandatory, including for host-local commands.

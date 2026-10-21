@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {pair} from './helpers/authenticated-game.mjs';
 
-async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ballistics=false){
+async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ballistics=false,conversion=false){
  const p=await pair(t);p.hostGame.testPreviewDefaults();
  const hp=p.hostGame.CK_AUTH_LOBBY.preparation(),gp=p.guestGame.CK_AUTH_LOBBY.preparation();
  const stage=`
@@ -17,6 +17,11 @@ async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ba
    globalThis.fixtureRanks=[[addU(0,'mil',22.5,27.5),addU(0,'mil',24.5,27.5)],
     [addU(1,'mil',32.5,27.5),addU(1,'mil',34.5,27.5)]];
    fixtureRanks.flat().forEach(u=>u.st=4);
+  }
+  if(${conversion}){
+   globalThis.fixtureMonk=addU(1,'mon',27.5,24.5);fixtureMonk.st=2;
+   globalThis.fixtureConvertTarget=addU(0,'mon',24.5,24.5);fixtureConvertTarget.st=4;
+   globalThis.fixtureMonastery=addB(1,'monastery',33,25,true);TE.atonement.t=.1;S.age[1]=2;
   }
   if(${ballistics}){
    globalThis.fixtureBow=addU(1,'arc',27.5,24.5);fixtureBow.st=2;
@@ -238,4 +243,28 @@ test('authenticated Ballistics research and moving-target fire replay fixed aims
   if(p.eval(p.hostGame,'fixtureMovingTarget.hp<200'))damage=true;
  }
  assert.equal(shot,true,'shared combat emits fixed-aim arrows');assert.equal(damage,true,'leading shots hit the moving target');
+});
+
+
+test('authenticated Atonement and monk conversion revoke old ownership with matching HTTP replay',async t=>{
+ const p=await battlefieldPair(t,false,false,false,false,true);
+ const target=p.hostGame.fixtureConvertTarget.netId,monk=p.guestGame.fixtureMonk.netId;
+ assert.equal(p.guestLive.submit({type:'research',entities:[p.guestGame.fixtureMonastery.netId],value:'atonement'}).ok,true);
+ for(let i=0;i<8;i++)await p.cycle();
+ assert.equal(p.eval(p.hostGame,'S.tech[1].atonement'),1);
+ assert.equal(p.guestLive.submit({type:'convert',entities:[monk],target}).ok,true);
+ let progress=false;
+ for(let i=0;i<340&&p.eval(p.hostGame,'fixtureConvertTarget.t')===0;i++){
+  await p.cycle();if(p.eval(p.hostGame,'fixtureMonk.cv>0'))progress=true;
+ }
+ assert.equal(progress,true);assert.equal(p.eval(p.hostGame,'fixtureConvertTarget.t'),1);assert.equal(p.eval(p.guestGame,'fixtureConvertTarget.t'),1);
+ assert.ok(p.eval(p.hostGame,'fixtureMonk.faith')<1,'successful caster must recharge');
+ const oldOwnerOrder={type:'move',entities:[target],point:{x:25,y:25}};
+ for(const game of [p.hostGame,p.guestGame]){
+  const before=game.testHash();game.oldOwnerOrder=oldOwnerOrder;
+  assert.equal(p.eval(game,'CK_GAME_COMMANDS.execute(oldOwnerOrder,0,1)'),false,'former owner cannot command the converted monk');
+  assert.equal(game.testHash(),before);
+ }
+ await p.cycle();
+
 });

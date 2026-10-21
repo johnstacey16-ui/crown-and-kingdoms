@@ -21,7 +21,7 @@
     const construction=b=>({complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,
-      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,military:!!root.CK_GAME_COMMANDS.militaryUnit?.(u),formation:u.netFormation==='split'?'split':'line',pose:pose(u),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
+      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,military:!!root.CK_GAME_COMMANDS.militaryUnit?.(u),formation:u.netFormation==='split'?'split':'line',pose:pose(u),...(u.k==='mon'?{faith:Math.max(0,Math.min(100,u.faith??100))}:{}),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:!!b.done&&(sight?root.CK_GAME_COMMANDS.buildingOptions(world,team,b).some(o=>o.type==='train'):b.k==='tc'),
         ...(sight?{team:b.t,...construction(b),passengers:(b.cg||[]).filter(c=>c.hp>0&&c.ld===b&&c.t===team).length,selectable:!!b.done,label:B[b.k]?.n||b.k,commands:root.CK_GAME_COMMANDS.buildingOptions(world,team,b)}:{}),
@@ -361,10 +361,10 @@
       if(targetAction){
         if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}
         const radius=Math.max(.8/viewport().zoom,viewport().width*8/680);
-        const candidates=[...view.units,...view.buildings,...(view.battlefield?.allies||[])];
+        const candidates=targetAction.type==='convert'?(view.battlefield?.enemies||[]).filter(e=>e.hostile!==false):[...view.units,...view.buildings,...(view.battlefield?.allies||[])];
         const target=candidates.find(e=>e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius);
         const ground=['disembark','patrol','attack-move'].includes(targetAction.type);
-        if(!ground&&!target){description.textContent='Choose a visible friendly target; B cancels.';draw();return;}
+        if(!ground&&!target){description.textContent=targetAction.type==='convert'?'Choose a visible hostile target; B cancels.':'Choose a visible friendly target; B cancels.';draw();return;}
         const result=submit({type:targetAction.type,entities:selection.slice(),...(ground?{point:{...point}}:{target:target.id})});
         description.textContent=result.ok?targetAction.label+' submitted. The host rechecks the target, capacity and route.':'Order not submitted. Wait for the previous order.';
         if(result.ok){enabled=false;targetAction=null;}draw();return;
@@ -388,7 +388,7 @@
         const ids=double?view.units.filter(u=>u.kind===nearest.kind&&onScreen(u)).map(u=>u.id):[nearest.id];
         setSelection(add?selection.concat(ids):ids);
         if(controller&&!add&&!double)lastTap={id:nearest.id,kind:nearest.kind,at};
-        description.textContent=selection.length>1?selection.length+' units selected. A orders the group at the cursor; hold RT for commands; B deselects.':
+        description.textContent=nearest.kind==='mon'&&selection.length===1?'Selected Monk · Faith '+Math.floor(nearest.faith??100)+'%. A on a hostile target requests conversion; hold RT for commands; B deselects.':selection.length>1?selection.length+' units selected. A orders the group at the cursor; hold RT for commands; B deselects.':
           'Selected '+nameOf(nearest)+'. Double A selects visible units of this type; LT+A adds another unit. A orders at the cursor; hold RT for commands; B deselects.';
       }
       else if(town){
@@ -407,11 +407,12 @@
         const enemy=view.battlefield?.enemies.find(e=>e.hostile!==false&&(e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius));
         const deposit=view.battlefield?.tiles.find(t=>t.index===Math.floor(point.y)*view.width+Math.floor(point.x))?.node;
         const gathering=!rally&&deposit?.id&&(!deposit.farm||deposit.owner===view.team)&&selection.every(id=>view.battlefield.gatherers[id]===(deposit.fish?'fish':'vil'));
+        const conversion=enemy&&!rally&&selection.every(id=>view.units.find(u=>u.id===id)?.kind==='mon');
         const attack=enemy&&!rally&&selection.every(id=>view.battlefield.attackers.includes(id));
-        if(enemy&&!rally&&!attack){description.textContent='Selected units cannot attack this target.';draw();return;}
+        if(enemy&&!rally&&!attack&&!conversion){description.textContent='Selected units cannot attack this target.';draw();return;}
         if(isBuilding(selected)&&!rally){description.textContent='This building has no rally point. Hold RT for its available commands.';draw();return;}
-        const result=submit(gathering?{type:'gather',entities:selection.slice(),target:deposit.id}:attack?{type:'attack',entities:selection.slice(),target:enemy.id}:{type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
-        description.textContent=result.ok?(gathering?'Gathering submitted.':attack?'Attack submitted.':rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
+        const result=submit(conversion?{type:'convert',entities:selection.slice(),target:enemy.id}:gathering?{type:'gather',entities:selection.slice(),target:deposit.id}:attack?{type:'attack',entities:selection.slice(),target:enemy.id}:{type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
+        description.textContent=result.ok?(conversion?'Conversion submitted.':gathering?'Gathering submitted.':attack?'Attack submitted.':rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
         if(result.ok)enabled=false;
       }else if(selected)description.textContent='Wait for the previous order to execute.';
       else description.textContent='Select one of your blue units or completed town centres first.';
@@ -543,7 +544,7 @@
           if(view.battlefield&&entry){
             if(entry.locked){description.textContent=entry.locked;draw();return;}
             if(entry.type==='build'){placement={...entry};wheel=false;blockedA=true;description.textContent=entry.label+' preview. A places; LT repeats; B cancels.';draw();return;}
-            if(entry.targeted){if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}targetAction={type:entry.type,label:entry.label};placement=null;wheel=false;blockedA=true;description.textContent=entry.label+': release A, then choose '+(entry.type==='disembark'?'a visible shore':['patrol','attack-move'].includes(entry.type)?'a ground destination':'a friendly target')+' with A. B cancels.';draw();return;}
+            if(entry.targeted){if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}targetAction={type:entry.type,label:entry.label};placement=null;wheel=false;blockedA=true;description.textContent=entry.label+': release A, then choose '+(entry.type==='disembark'?'a visible shore':['patrol','attack-move'].includes(entry.type)?'a ground destination':entry.type==='convert'?'a visible hostile target':'a friendly target')+' with A. B cancels.';draw();return;}
             if(entry.type==='stop'){if(!held[6])stop();}
             else if(enabled){
               const result=submit({type:entry.type,entities:['research','unload'].includes(entry.type)?[selected]:selection.slice(),...(entry.value===undefined?{}:{value:entry.value}),...(entry.type==='train'&&held[6]?{count:5}:{})});

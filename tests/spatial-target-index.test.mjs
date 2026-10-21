@@ -9,7 +9,7 @@ test('hostile-unit target search uses a per-step spatial index rather than scann
   assert.match(simulation, /const FOE_CELL=8,FOE_BUCKETS=new Map\(\)/);
   assert.match(simulation, /function rebuildFoeGrid\(\)\{[\s\S]*?FOE_BUCKETS\.set\(key,bin\)/);
   assert.match(simulation, /function nearestFoeUnit\(u,r\)\{[\s\S]*?FOE_BUCKETS\.get\(cx\+','\+cy\)/);
-  const start = simulation.indexOf('function foe(u,r){');
+  const start = simulation.indexOf('function foe(u,r,building){');
   const end = simulation.indexOf('/* ===== ECONOMY / UNIT BEHAVIOUR ===== */', start);
   assert.ok(start >= 0 && end > start);
   const foe = simulation.slice(start, end);
@@ -38,3 +38,4 @@ test('indexed targeting preserves hostility, death/load filters, strict range an
   S.us[1].ld={};
   assert.equal(nearest(probe,1),null,'garrison after indexing is respected');
 });
+

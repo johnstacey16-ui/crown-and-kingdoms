@@ -5,7 +5,7 @@ const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') +
 
 assert.match(html, /const sr=\[Math\.max\(7,attackRange\(u\)\),4,attackRange\(u\),0,0\]\[u\.st\|0\]/,
   'No Attack must disable autonomous hostile target acquisition');
-assert.match(html, /const e=u\.st===4\?null:foe\(u,9\)/,
+assert.match(html, /const e=u\.st===4\?null:S\.us\.find\(e=>canConvert\(u,e\)/,
   'No Attack must also prevent automatic conversion attacks');
 assert.match(html, /function setStance\(v\)\{[\s\S]{0,300}if\(v===4&&\(u\.o==='a'\|\|u\.o==='v'\)\)\{u\.o='i';u\.tg=null;u\.p=\[\]\}/,
   'Switching into No Attack must cancel attacks and conversions already in progress');

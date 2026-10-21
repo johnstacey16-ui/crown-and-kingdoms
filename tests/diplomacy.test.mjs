@@ -40,7 +40,7 @@ assert.match(html, /if\(tg&&tg\.t>0&&\(tg\.q\|\|U\[tg\.k\]\)&&!isHostile\(0,tg\.
   'Manual hostile-target checks must distinguish valid foreign trade orders from attacks');
 assert.match(html, /if\(!canRepairBuilding&&!canRepairShip\)\{note\('That kingdom is not hostile;/,
   'The game must reject attacks on friendly targets except explicitly permitted repairs and trade');
-assert.match(html, /function foe\(u,r\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}b=nearestFoeUnit\(u,r\);if\(b\)return b/,
+assert.match(html, /function foe\(u,r,building\)\{[\s\S]{0,500}isHostile\(u\.t,q\.t\)[\s\S]{0,280}b=nearestFoeUnit\(u,r\);if\(b\)return b/,
   'Siege building priority must remain intact before indexed unit targeting');
 assert.match(html, /if\(!e\|\|!isHostile\(u\.t,e\.t\)\|\|e\.hp<=0\|\|e\.ld\)continue/,
   'Indexed combat target acquisition must exclude non-hostile, dead, and garrisoned targets');
@@ -90,3 +90,4 @@ assert.ok(html.includes("for(let ally=0;ally<S.teamN;ally++)if(ally!==t&&diploma
   'AI tribute must remain available to allied kingdoms with surviving units or buildings even after Town Centre loss');
 
 console.log('diplomacy: all source regression assertions passed');
+

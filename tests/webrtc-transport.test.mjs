@@ -8,7 +8,7 @@ const emit=(target,type,fields={})=>{const e=new Event(type);Object.assign(e,fie
 function fixture(t,{holdAnswer=false,dropFirstHello=false,connectTimeoutMs=2000}={}){
   const pcs=[];let offer=null,answer=null,joined=false,alive=true,helloCount=0;
   class Channel extends EventTarget{
-    constructor(){super();this.label='ck-game-v1';this.protocol='ck-live-preview-11';this.ordered=true;this.maxRetransmits=this.maxPacketLifeTime=null;this.readyState='connecting';this.bufferedAmount=0;}
+    constructor(){super();this.label='ck-game-v1';this.protocol='ck-live-preview-12';this.ordered=true;this.maxRetransmits=this.maxPacketLifeTime=null;this.readyState='connecting';this.bufferedAmount=0;}
     send(data){if(this.readyState!=='open')throw Error('Closed channel');if(JSON.parse(data).hello){helloCount++;if(dropFirstHello){dropFirstHello=false;return;}}queueMicrotask(()=>{if(this.peer.readyState==='open')emit(this.peer,'message',{data});});}
     close(){if(this.readyState==='closed')return;this.readyState='closed';emit(this,'close');if(this.peer&&this.peer.readyState!=='closed'){this.peer.readyState='closed';emit(this.peer,'close');}}
   }

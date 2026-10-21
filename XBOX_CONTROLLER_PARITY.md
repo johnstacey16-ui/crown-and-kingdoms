@@ -64,3 +64,15 @@ do not establish physical Xbox parity or multiplayer group support.
 
 This is an audit and acceptance checklist, **not a claim of full parity**.
 
+
+## Monk conversion coverage — 21 October 2026
+
+Solo contextual A now requests conversion for eligible hostile targets when a
+Monk is selected, including researched Atonement/Redemption target classes.
+Authenticated battlefield contextual A and RT → Convert use the same typed,
+host-validated conversion path. RT target mode waits for a hostile target; B,
+selection changes, menus and suspension cancel it. Faith recharge and carrying a
+relic lock the menu entry. Research uses the existing selected-building RT menu.
+No new button binding is introduced. Exact Xbox sector layout and hardware
+acceptance remain unverified. Occupied containers and full civilisation-specific
+availability/bonuses still require their own acceptance.

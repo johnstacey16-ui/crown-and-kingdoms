@@ -82,7 +82,7 @@ const checks = [
   ['combat damage applies both armour class upgrades', source.includes('ib=(INFARM.has(t.k)&&ta.armI?1:0)+(ARCHARM.has(t.k)&&ta.armR?1:0)+(CAVARM.has(t.k)&&ta.armC?1:0)')],
   ['siege splash damages hostile units only', source.includes('(e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2')],
   ['siege splash can damage nearby hostile buildings', source.includes('for(const e of S.bs)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e)')],
-  ['siege auto-targeting prioritises hostile buildings in range', (()=>{const start=source.indexOf('function foe(u,r){'),siege=source.indexOf('if(U[u.k]?.sg){',start),indexed=source.indexOf('b=nearestFoeUnit(u,r);if(b)return b;',start),fallback=source.indexOf('for(const q of S.bs)',indexed);return start>=0&&siege>start&&source.indexOf('if(b)return b',siege)<indexed&&indexed>siege&&fallback>indexed})()],
+  ['siege auto-targeting prioritises hostile buildings in range', (()=>{const start=source.indexOf('function foe(u,r,building){'),siege=source.indexOf('if(U[u.k]?.sg){',start),indexed=source.indexOf('b=nearestFoeUnit(u,r);if(b)return b;',start),fallback=source.indexOf('for(const q of S.bs)',indexed);return start>=0&&siege>start&&source.indexOf('if(b)return b',siege)<indexed&&indexed>siege&&fallback>indexed})()],
   ['farm reseeding charges the owning kingdom and reports accurately', /for\(const n of S\.nodes\)if\(n&&n\.fm&&n\.amt<=0&&Number\.isInteger\(n\.t\)&&S\.res\[n\.t\]&&S\.res\[n\.t\]\.w>=60\)\{S\.res\[n\.t\]\.w-=60;n\.amt=farmFood\(n\.t\);if\(n\.t===0\)note\('Farm reseeded \(-60 wood\)'\)\}/.test(source) && !/tg\.fm&&S\.res\[u\.t\]\.w>=60/.test(source)],
 ];
 

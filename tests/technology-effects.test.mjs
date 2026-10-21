@@ -156,7 +156,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics']);
+const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics','devotion','faith','heresy','redemption','atonement','fervor','blockPrinting','illumination','theocracy','herbalMedicine','murderHoles']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);

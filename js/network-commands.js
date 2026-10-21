@@ -33,7 +33,7 @@
         for (let x = Math.max(0,cx-radius); x <= Math.min(width-1,cx+radius); x++)
           if ((x-cx)**2+(y-cy)**2 <= radius*radius) cells[y*width+x] = 1;
     }
-    for (const u of world.us) reveal(u,8+arrowSightBonus(u));
+    for (const u of world.us) reveal(u,unitSight(u));
     for (const b of world.bs) reveal(b,(b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8)+arrowSightBonus(b));
     return cells;
   }
@@ -72,6 +72,7 @@
   function unitOptions(world,team,unit) {
     if (!unit || unit.t!==team || unit.hp<=0 || unit.ld || !world.us.includes(unit) || !U[unit.k]) return [];
     const options=[{type:'stop',label:'Stop',cost:{},locked:''}];
+    if(unit.k==='mon')options.push({type:'convert',label:'Convert',targeted:true,cost:{},locked:unit.rel?'Carrying a relic':(unit.faith??100)<100?'Faith recharging':''});
     if (!U[unit.k].sh) options.push({type:'garrison',label:'Garrison / board transport',targeted:true,cost:{},locked:''});
     if (unit.k==='vil' || U[unit.k].sh) options.push({type:'repair',label:unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
     if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
@@ -332,11 +333,12 @@
       });
       return true;
     }
+    if(order.type==='convert'){const target=lookup(order.target);return !!target&&inSight(target,visibility(S,team,W,H),W,H)&&beginConversion(entities,target);}
     if (order.type === 'attack') {
       const target = lookup(order.target);
       if (!target || target.hp <= 0 || target.ld || !isHostile(team, target.t) ||
           !inSight(target,visibility(S,team,W,H),W,H) ||
-          entities.some(u => u.st === 4 || !U[u.k] || !(U[u.k].dmg > 0)))
+          entities.some(u => u.k==='mon' || u.st === 4 || !U[u.k] || !(U[u.k].dmg > 0)))
         return false;
       for (const u of entities) {
         u.o = 'a'; u.tg = target; u.p = []; u.pt = null; u.rp = 0;
