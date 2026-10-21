@@ -188,7 +188,7 @@ Xbox pause-menu reproduction.
 
 ## Combined Railway host
 
-The repository now includes `Dockerfile`, `railway.json` and
+The repository includes `Dockerfile` and
 `server/app.mjs` for a single game-and-relay origin. Start locally with
 `node server/app.mjs` and open `http://localhost:8787`. Railway supplies
 `PORT`; the combined host binds `0.0.0.0` by default. Optional `HOST`
@@ -202,7 +202,7 @@ cached. The container runs as the unprivileged Node user and has no
 third-party runtime dependencies.
 
 Deploy the **main** branch with the Dockerfile and use one replica.
-`railway.json` supplies the healthcheck and bounded restart policy.
+Configure the service with Dockerfile `Dockerfile`, start command `node server/app.mjs`, healthcheck `/healthz`, healthcheck timeout 30 seconds, restart policy `ON_FAILURE` with three retries, one replica and sleeping disabled. These settings have been applied to the production service through the Railway API. The former `railway.json` was removed: [Config as Code is deprecated](https://docs.railway.com/config-as-code) and new services cannot opt into it. A future checked-in platform configuration should use Railway's supported Infrastructure as Code workflow.
 Do not enable sleeping or scale to multiple replicas while rooms and
 sessions live in process memory. Deployments, restarts and process
 failures end active matches; reconnect and durable room storage remain
@@ -217,3 +217,9 @@ the combined host.
 ## Original atlas catalogue extension
 
 Trade carts/cogs, twelve unique troops and palisades now have original local vector atlases. All runtime unit keys resolve to frames; the castle attack proxy reuses castle art, and farms remain resource tiles. The generator and catalogue tests are documented in [GRAPHICS_ACCEPTANCE.md](../GRAPHICS_ACCEPTANCE.md). HTTP metadata revalidation and `ck-shell-v10` migrate stale cached artwork; the Chromium suite exercises an old HTTP manifest and old shell cache before reload.
+
+## Production provisioning status — 21 October 2026
+
+[Existing production service](https://railway.com/project/c9182bd4-8f96-4f39-82f4-7e86756b5729/service/5d37d197-7064-4a88-9ce7-39f8851f07d1?environmentId=cefb9e69-2d18-4760-bb2d-c461d940903e) is created and configured, but has **no deployment**. Source connection to `johnstacey16-ui/crown-and-kingdoms@main` returned `User does not have access to the repo`. A Railway project member needs a connected GitHub account with contributor access, and the Railway GitHub App must be granted this repository in [GitHub installation settings](https://github.com/settings/installations). See [Railway autodeploy access requirements](https://docs.railway.com/deployments/github-autodeploys).
+
+After that account-level access is granted, reconnect the source on the existing service. Do not create duplicate projects/services. Verify a terminal successful deployment and HTTPS game/API checks before sharing a game URL. The earlier global build pause no longer blocked project creation on this retry.
