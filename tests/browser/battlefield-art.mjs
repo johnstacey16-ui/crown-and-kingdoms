@@ -95,6 +95,17 @@ try{
  assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-buildings-atlas.svg')));
  for(const file of ['trade-atlas.svg','unique-forces-atlas.svg','palisade-atlas.svg'])assert.ok(animation.originalSources.some(s=>s.endsWith(file)),file+' is used in the battlefield');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
+ const groups=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  artMap.control({4:true},{4:true},[0,-1]);artMap.control({2:true},{4:true,2:true},[0,-1]);artMap.control({},{});
+  artMap.control({1:true});artMap.control({4:true},{4:true},[0,-1]);artMap.control({},{});
+  const recalled=artMap.selection().includes(artFixture.soldier);
+  artMap.control({4:true},{4:true},[0,-1]);
+  return {recalled,count:artMap.controlGroups()[0].length,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.equal(groups.recalled,true);assert.equal(groups.count,1);assert.equal(groups.unchanged,true);
+ await page.locator('#battlefield-art').screenshot({path:output+'/control-groups.png'});
+ await page.evaluate(()=>artMap.control({1:true},{4:true,1:true}));
  const contact=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const canvas=document.createElement('canvas');canvas.id='extended-art';canvas.width=800;canvas.height=640;
@@ -160,10 +171,11 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,groups,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{
  await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
 }
+
 

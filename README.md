@@ -71,3 +71,9 @@ Active authenticated requests now renew each player's 30-minute idle lease, allo
 ## Multiplayer military formations
 
 Select at least two owned military units, then press and release **Y** to switch between Line and Split. The request executes on the shared host frame; it never moves units optimistically. Land and naval groups reform around separate centres with the existing formation/pathfinding planners. Civilian, loaded, dead, foreign, duplicate and unreachable selections are rejected without partial changes. The live handshake is now `ck-live-preview-9`; both players must refresh after updating. Remaining Y build/train shortcuts, full formation wheels, reconnect and physical Xbox acceptance are open.
+
+## Multiplayer control groups
+
+Hold **LB**, choose one of eight slots with the left stick, then press **X** to assign the current selection. Hold LB, choose a stored slot and release LB to recall it. **B** cancels. The wheel shows each group's currently available count. Assignment/recall are local; gameplay still uses authenticated host commands. Dead, foreign and garrisoned members are unavailable, and garrisoned members return to availability after unloading. Empty X assignment clears a slot. Groups last for this room UI session and are separate from solo save groups.
+
+LB+Y camera focus remains unavailable while the battlefield shows the whole map; Y keeps its ordinary military formation role outside the group wheel. Exact wheel geometry, Xbox hardware, multi-building addition and persistent multiplayer groups remain unfinished.

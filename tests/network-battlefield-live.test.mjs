@@ -55,14 +55,21 @@ async function battlefieldPair(t,terminal=false,shelter=false,formation=false){
  return{...p,hostLive,guestLive,cycle,eval:(game,code)=>vm.runInContext(code,game)};
 }
 
-test('both human Y shortcuts reform Line/Split through HTTP without optimistic movement or desync',async t=>{
+test('both humans recall local LB groups and reform Line/Split through HTTP without optimistic movement or desync',async t=>{
  const p=await battlefieldPair(t,false,false,true);
  const maps=[p.hostGame,p.guestGame].map((game,team)=>{
   const canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
   const map=game.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:o=>(team?p.guestLive:p.hostLive).submit(o),leave(){}});
   game.testRefreshMap(map,team);
   const units=p.eval(game,'fixtureRanks['+team+'].map(u=>({x:u.x,y:u.y,id:u.netId}))');
-  map.choose(units[0]);map.choose(units[1],true);return map;
+  map.choose(units[0]);map.choose(units[1],true);
+  const before=game.testHash();
+  map.control({4:true},{4:true},[0,-1]);map.control({2:true},{4:true,2:true},[0,-1]);map.control({},{});
+  map.control({1:true});assert.equal(map.selection().length,0);
+  map.control({4:true},{4:true},[0,-1]);map.control({},{});
+  assert.deepEqual(Array.from(map.selection()),Array.from(units,u=>u.id));
+  assert.equal(game.testHash(),before,'assignment and recall never mutate the simulation');
+  return map;
  });
  for(const value of ['split','line']){
   const before=p.hostGame.testHash();

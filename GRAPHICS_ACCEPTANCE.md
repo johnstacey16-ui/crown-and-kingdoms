@@ -102,3 +102,7 @@ node tests/browser/battlefield-art.mjs
    battles, memory and frame times on Xbox Series S/X Edge.
 4. Run physical-controller solo/campaign and independent-browser multiplayer
    matches through fog, garrisons, transports and asset failure.
+
+## Multiplayer control-group wheel
+
+The battlefield draws an original eight-slot wheel with group numbers, current available counts, highlighted slot and LB/X/B instructions. The Chromium suite performs local assignment/recall, verifies the gameplay checkpoint stays unchanged and writes `control-groups.png` alongside the existing art captures; `metrics.json` includes the group result. This covers browser drawing and basic local interaction, not Xbox readability, exact reference sectors or LB+Y camera focus.

@@ -58,6 +58,7 @@
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,wheelIndex=0,buildPage=0,placement=null,targetAction=null,lastTap=null,aGesture=null,blockedA=false,yGesture=null;
     const terrainMemory=new Map();
+    let groups=Array.from({length:8},()=>[]),groupWheel=null,availableIds=new Set();
     const selectable=b=>b.rallyable||b.selectable;
     const isBuilding=id=>view?.buildings.some(b=>b.id===id&&selectable(b));
     function options(){
@@ -72,11 +73,34 @@
       return selection.length?[{type:'stop',label:'Stop',cost:{},locked:''}]:[];
     }
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
+    function availableGroup(ids){return [...new Set(ids)].filter(id=>availableIds.has(id));}
+    function closeGroup(){groupWheel=null;}
+    function recallGroup(slot){
+      const ids=availableGroup(groups[slot]);
+      if(ids.length){setSelection(ids);description.textContent='Group '+(slot+1)+' selected ('+ids.length+').';}
+      else description.textContent='Group '+(slot+1)+' has no available members.';
+    }
+    function drawGroups(){
+      const active=groupWheel?.slot??-1;
+      context.fillStyle='rgba(6,12,20,.96)';context.beginPath();context.arc(340,340,236,0,Math.PI*2);context.fill();
+      context.strokeStyle='#c9a24a';context.lineWidth=2;context.stroke();
+      for(let slot=0;slot<8;slot++){
+        const angle=slot*Math.PI/4-Math.PI/2,x=340+Math.cos(angle)*160,y=340+Math.sin(angle)*160;
+        const count=availableGroup(groups[slot]).length;
+        context.fillStyle=slot===active?'#765a26':'#182c40';context.beginPath();context.arc(x,y,43,0,Math.PI*2);context.fill();
+        context.strokeStyle=slot===active?'#ffe4a2':'#77919f';context.stroke();
+        context.fillStyle='#fff1ce';context.textAlign='center';context.font='17px system-ui';context.fillText('Group '+(slot+1),x,y-5);
+        context.fillStyle=count?'#b9ddcd':'#a6b2bd';context.font='14px system-ui';context.fillText(String(count)+' available',x,y+17);
+      }
+      context.textAlign='center';context.fillStyle='#fff1ce';context.font='20px system-ui';context.fillText('Control groups',340,319);
+      context.font='14px system-ui';context.fillText('Left stick: choose slot',340,345);context.fillText('X: assign selection',340,366);
+      context.fillText('Release LB: recall · B: cancel',340,391);
+    }
     function militarySelection(){return selection.length>=2&&selection.every(id=>view?.units.some(u=>u.id===id&&u.military));}
     function cancelShortcut(){yGesture=null;}
-    function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){cancelShortcut();wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
+    function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){closeGroup();cancelShortcut();wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection and releasing LB recalls it. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function drawTerrain(sx,sy){
       const field=view.battlefield,visible=new Set(field.visible);
@@ -264,12 +288,15 @@
           context.fillText('Hold RT + LT + A: train 5',340,402);
         }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
-      if(militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
+      if(!groupWheel){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('LB: Control groups',662,664);}
+      if(groupWheel)drawGroups();
+      if(!groupWheel&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
     }
     function refresh(world,team,width,height,canCommand) {
       if(!canCommand)cancelShortcut();
-      if(view&&(view.team!==team||view.width!==width||view.height!==height)){cancelGesture();cancelShortcut();terrainMemory.clear();}
+      if(view&&(view.team!==team||view.width!==width||view.height!==height)){closeGroup();groups=Array.from({length:8},()=>[]);setSelection([]);cancelGesture();cancelShortcut();terrainMemory.clear();}
       view=project(world,team,width,height);enabled=canCommand;
+      availableIds=new Set(view.units.map(u=>u.id).concat(view.buildings.filter(selectable).map(b=>b.id)));
       if(view.battlefield)for(const tile of view.battlefield.tiles)terrainMemory.set(tile.index,tile);
       if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind)&&
         !view.buildings.some(b=>b.id===lastTap.id&&b.kind===lastTap.kind&&b.rallyable))lastTap=null;
@@ -289,6 +316,7 @@
     }
     function buildPoint(point){return {x:Math.max(1,Math.min(view.width-placement.size-1,Math.round(point.x-placement.size/2))),y:Math.max(1,Math.min(view.height-placement.size-1,Math.round(point.y-placement.size/2)))}}
     function choose(point,add=false,controller=false) {
+      if(groupWheel){closeGroup();cancelShortcut();cancelGesture();draw();return;}
       if(!controller)cancelShortcut();
       if(aGesture){aGesture=null;blockedA=true;}
       const previousTap=lastTap;lastTap=null;
@@ -398,7 +426,7 @@
       draw();
     }
     if(stopButton){stopButton.disabled=true;stopButton.addEventListener('click',stop);}
-    canvas.addEventListener('blur',()=>{cancelShortcut();cancelGesture();targetAction=null;wheel=false;draw();});
+    canvas.addEventListener('blur',()=>{closeGroup();cancelShortcut();cancelGesture();targetAction=null;wheel=false;draw();});
     canvas.addEventListener('click',event=>{
       const bounds=canvas.getBoundingClientRect();
       if(!view||bounds.width<=0||bounds.height<=0)return;
@@ -407,6 +435,7 @@
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
       if(!held[0])blockedA=false;
       if(buttons[1]){
+        if(groupWheel){closeGroup();cancelShortcut();cancelGesture();description.textContent='Control groups cancelled.';draw();return;}
         cancelShortcut();
         if(targetAction){targetAction=null;cancelGesture();description.textContent='Target command cancelled.';draw();return;}
         if(placement){placement=null;cancelGesture();description.textContent='Construction preview cancelled.';draw();return;}
@@ -419,6 +448,25 @@
       }
       if(Object.keys(buttons).some(key=>buttons[key]&&key!=='0'&&key!=='6'))cancelGesture();
       if(!view||!cursor)return;
+      if(buttons[4]&&held[4]&&!held[5]&&!held[7]&&!placement&&!targetAction){
+        cancelShortcut();cancelGesture();wheel=false;groupWheel={slot:-1,done:false};
+      }
+      if(groupWheel){
+        cancelShortcut();cancelGesture();
+        if(held[5]||held[7]){closeGroup();draw();return;}
+        if(held[4]){
+          const x=Number.isFinite(axes[0])?axes[0]:0,y=Number.isFinite(axes[1])?axes[1]:0;
+          if(Math.hypot(x,y)>.45){const angle=(Math.atan2(y,x)+Math.PI/2+Math.PI*2)%(Math.PI*2);groupWheel.slot=Math.floor(angle/(Math.PI*2)*8+.5)%8;}
+          if(buttons[2]&&groupWheel.slot>=0){
+            const slot=groupWheel.slot;groups[slot]=availableGroup(selection);groupWheel.done=true;
+            description.textContent='Group '+(slot+1)+' assigned ('+groups[slot].length+').';
+          }
+        }else{
+          const group=groupWheel;closeGroup();
+          if(!group.done&&group.slot>=0)recallGroup(group.slot);
+        }
+        draw();return;
+      }
       if(!held[7])wheel=false;
       if(buttons[7]&&selected){wheel=true;wheelIndex=0;}
       if(wheel){
@@ -485,7 +533,7 @@
       }
       draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{cancelShortcut();wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice()});
+    return Object.freeze({refresh,control,choose,suspend:()=>{closeGroup();cancelShortcut();wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice(),controlGroups:()=>groups.map(ids=>ids.slice())});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

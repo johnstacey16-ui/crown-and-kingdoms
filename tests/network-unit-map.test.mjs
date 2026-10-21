@@ -37,6 +37,81 @@ function drag(map,axes,held={},frames=2) {
   for(let i=0;i<frames;i++)map.control({},{...held,0:true},axes,.1);
 }
 
+function group(map,slot,{assign=false}={}){
+ const angle=slot*Math.PI/4-Math.PI/2,axes=[Math.cos(angle),Math.sin(angle)];
+ map.control({4:true},{4:true},axes);
+ if(assign)map.control({2:true},{4:true,2:true},axes);
+ map.control({},{});
+}
+
+test('LB groups assign and recall owned selections locally in all eight independent slots',()=>{
+ const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'mil',hp:50,x:24,y:22});
+ f.map.refresh(source,1,32,32,true);const before=JSON.stringify(source);
+ for(let slot=0;slot<8;slot++){
+  f.map.choose(slot%2?{x:24,y:22}:{x:20,y:22});group(f.map,slot,{assign:true});
+  f.map.control({1:true});assert.deepEqual(Array.from(f.map.selection()),[]);
+  group(f.map,slot);assert.deepEqual(Array.from(f.map.selection()),[slot%2?'u5':'u2']);
+  assert.equal(f.orders.length,0);
+ }
+ assert.equal(JSON.stringify(source),before);
+ const snapshot=f.map.controlGroups();snapshot[0].push('u1');snapshot[1]=[];
+ assert.deepEqual(Array.from(f.map.controlGroups()[0]),['u2']);assert.deepEqual(Array.from(f.map.controlGroups()[1]),['u5']);
+ f.map.control({1:true});group(f.map,0,{assign:true});
+ assert.deepEqual(Array.from(f.map.controlGroups()[0]),[],'assigning an empty selection clears that slot');
+ assert.deepEqual(Array.from(f.map.controlGroups()[1]),['u5']);
+});
+
+test('group availability filters current ownership, deaths and cargo without rewriting assignment',()=>{
+ const f=fixture(),source=world();source.us.push({netId:'u5',t:1,k:'mil',hp:50,x:24,y:22});
+ f.map.refresh(source,1,32,32,false);f.map.choose({x:20,y:22});f.map.choose({x:24,y:22},true);
+ group(f.map,0,{assign:true});assert.deepEqual(Array.from(f.map.controlGroups()[0]),['u2','u5']);
+ source.us.find(u=>u.netId==='u5').ld={};f.map.refresh(source,1,32,32,false);
+ group(f.map,0);assert.deepEqual(Array.from(f.map.selection()),['u2']);
+ source.us.find(u=>u.netId==='u5').ld=null;f.map.refresh(source,1,32,32,false);
+ group(f.map,0);assert.deepEqual(Array.from(f.map.selection()),['u2','u5']);
+ source.us.find(u=>u.netId==='u5').t=0;source.us.find(u=>u.netId==='u2').hp=0;f.map.refresh(source,1,32,32,false);
+ f.map.control({13:true});const selection=Array.from(f.map.selection());
+ group(f.map,0);assert.deepEqual(Array.from(f.map.selection()),selection);
+ assert.deepEqual(Array.from(f.map.controlGroups()[0]),['u2','u5']);assert.equal(f.orders.length,0);
+});
+
+test('group cancellation consumes held input without orders, recall or loss of selection',()=>{
+ for(const context of ['B','blur','suspend','pointer','RT','RB']){
+  const f=fixture(),source=world();source.bs[1].done=true;f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});group(f.map,0,{assign:true});
+  f.map.control({13:true});const selected=Array.from(f.map.selection());
+  f.map.control({4:true},{4:true},[0,-1]);
+  if(context==='B')f.map.control({1:true},{4:true,1:true});
+  if(context==='blur')f.handlers.get('blur')();
+  if(context==='suspend')f.map.suspend();
+  if(context==='pointer')f.map.choose({x:26,y:26});
+  if(context==='RT')f.map.control({7:true},{4:true,7:true});
+  if(context==='RB')f.map.control({5:true},{4:true,5:true});
+  f.map.control({},{});assert.deepEqual(Array.from(f.map.selection()),selected,context);assert.equal(f.orders.length,0,context);
+ }
+});
+
+test('group wheel consumes A/Y/D-pad and orphan LB holds without gameplay or shortcut leakage',()=>{
+ const f=fixture(),source=world();f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});
+ f.map.control({},{4:true},[0,-1]);f.map.control({2:true},{4:true,2:true});f.map.control({},{});
+ assert.equal(f.map.controlGroups()[0].length,0,'held LB without a press cannot assign');
+ f.map.control({4:true},{4:true},[0,-1]);
+ for(const button of [0,3,12,13,14,15])f.map.control({[button]:true},{4:true,[button]:true},[0,-1]);
+ f.map.control({},{});assert.equal(f.orders.length,0);assert.deepEqual(Array.from(f.map.selection()),['u2']);
+});
+
+test('building groups recall completed towns for balanced production and reset across teams',()=>{
+ const source=world();source.bs[1].done=true;source.bs.push({netId:'b3',t:1,k:'tc',hp:100,done:true,x:24,y:18,s:3});
+ let time=1000;const canvasFixture=fixture({now:()=>time});const map=canvasFixture.map;
+ map.refresh(source,1,32,32,true);map.choose({x:19,y:19});tap(map);time+=100;tap(map);
+ assert.deepEqual(Array.from(map.selection()),['b2','b3']);group(map,7,{assign:true});map.control({1:true});group(map,7);
+ assert.deepEqual(Array.from(map.selection()),['b2','b3']);assert.equal(canvasFixture.orders.length,0);
+ map.control({7:true},{7:true});map.control({0:true},{7:true,6:true,0:true});
+ assert.equal(canvasFixture.orders[0].type,'train');assert.equal(canvasFixture.orders[0].count,5);
+ assert.deepEqual(Array.from(canvasFixture.orders[0].entities),['b2','b3']);
+ map.refresh(source,0,32,32,true);assert.equal(map.controlGroups().every(ids=>ids.length===0),true);
+ assert.deepEqual(Array.from(map.selection()),[]);
+});
+
 test('team-one projection contains only its living ungarrisoned units and buildings, without world references',()=>{
   const source=world(),before=JSON.stringify(source);
   const view=api.project(source,1,32,32);
@@ -434,3 +509,4 @@ test('building double-tap cancellation and expiry preserve ordinary single-build
     assert.equal(f.orders.length,0,interruption);
   }
 });
+
