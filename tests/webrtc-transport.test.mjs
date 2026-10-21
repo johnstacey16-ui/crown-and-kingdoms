@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../js/network-transport.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/network-webrtc.js',import.meta.url),'utf8');
 const json=value=>({ok:true,status:200,json:async()=>value});
 const emit=(target,type,fields={})=>{const e=new Event(type);Object.assign(e,fields);target.dispatchEvent(e);};
-function fixture(t,{holdAnswer=false,dropFirstHello=false}={}){
+function fixture(t,{holdAnswer=false,dropFirstHello=false,connectTimeoutMs=2000}={}){
   const pcs=[];let offer=null,answer=null,joined=false,alive=true,helloCount=0;
   class Channel extends EventTarget{
     constructor(){super();this.label='ck-game-v1';this.protocol='ck-live-preview-9';this.ordered=true;this.maxRetransmits=this.maxPacketLifeTime=null;this.readyState='connecting';this.bufferedAmount=0;}
@@ -51,7 +51,7 @@ function fixture(t,{holdAnswer=false,dropFirstHello=false}={}){
           throw Error('No gameplay RPC expected');
         }
       }};
-    vm.runInNewContext(source,root);return root.CK_WEBRTC_TRANSPORT.createGuestClient({connectTimeoutMs:2000,useStun:false});
+    vm.runInNewContext(source,root);return root.CK_WEBRTC_TRANSPORT.createGuestClient({connectTimeoutMs,useStun:false});
   });
   t.after(()=>Promise.allSettled(clients.map(c=>c.close())));
   return{host:clients[0],guest:clients[1],pcs,helloCount:()=>helloCount};
@@ -66,6 +66,8 @@ test('an already-open remote channel exchanges exactly one authenticated hello p
   let count=0;
   await p.guest.poll((kind,payload,sid)=>{assert.equal(kind,'frame');assert.equal(payload.frame,1);assert.equal(sid,'h'.repeat(43));count++;return true;});
   assert.equal(count,1);assert.equal(p.helloCount(),2);
+  assert.equal(p.host.diagnostics().stage,'connected');
+  assert.equal(p.guest.diagnostics().failure,'');
 });
 
 test('closing during negotiation cancels pending setup without publishing gameplay',async t=>{
@@ -76,6 +78,24 @@ test('closing during negotiation cancels pending setup without publishing gamepl
   await new Promise(r=>setImmediate(r));await p.host.close();
   await assert.rejects(refreshed);await p.guest.close();await assert.rejects(joined);
   assert.equal(p.host.snapshot().phase,'closed');assert.equal(p.guest.snapshot().phase,'closed');
+  assert.equal(p.host.diagnostics().stage,'closed');
+  assert.equal(p.host.diagnostics().failure,'');
+});
+
+test('a stalled direct connection reports a bounded retry reason and closes both peers',async t=>{
+  const p=fixture(t,{holdAnswer:true,connectTimeoutMs:100}),room=await p.host.connect();
+  assert.equal(p.host.diagnostics().stage,'waiting');
+  const joined=p.guest.connect(room.roomId);void joined.catch(()=>{});
+  await new Promise(r=>setImmediate(r));
+  const refreshed=p.host.refreshRoster();void refreshed.catch(()=>{});
+  assert.equal(p.guest.diagnostics().stage,'connecting');
+  const results=await Promise.allSettled([joined,refreshed]);
+  assert.ok(results.every(r=>r.status==='rejected'));
+  for(const client of [p.host,p.guest]){
+    assert.equal(client.diagnostics().stage,'closed');
+    assert.equal(client.diagnostics().failure,'connection-timeout');
+    assert.equal(client.snapshot().phase,'closed');
+  }
 });
 
 

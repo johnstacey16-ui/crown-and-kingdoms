@@ -100,7 +100,7 @@
       if(room.phase!=='ready')throw Error('Waiting for peer');
       negotiating=(async()=>{
         negotiation=new AbortController();const signal=negotiation.signal;
-        const timer=root.setTimeout(()=>negotiation.abort(),connectTimeoutMs);
+        const timer=root.setTimeout(()=>{if(!closed)failure='connection-timeout';negotiation.abort();},connectTimeoutMs);
         let resolveReady;
         const opened=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});
         // A failed native connection may reject before signaling finishes.
@@ -114,7 +114,7 @@
           });
           pc.addEventListener('datachannel',event=>{
             try{if(room.team!==1||channel)throw Error('Unexpected channel');attach(event.channel,resolveReady);}
-            catch(_){event.channel.close();void close();}
+            catch(_){event.channel.close();fail('unexpected-channel');}
           });
           const publish=async type=>{
             await pc.setLocalDescription(type==='offer'?await pc.createOffer():await pc.createAnswer());
@@ -142,7 +142,7 @@
           function renew(){
             heartbeat=root.setTimeout(async()=>{
               if(closed)return;
-              try{await connection.refreshRoster();check();renew();}catch(_){void close();}
+              try{await connection.refreshRoster();check();renew();}catch(_){fail('room-unavailable');}
             },10000);
           }
           renew();
@@ -173,7 +173,7 @@
     try{connection=root.CK_AUTH_TRANSPORT.createClient({timeoutMs,request});}
     catch(error){void auth.close();throw error;}
     const guarded=operation=>async(...args)=>{
-      try{return await operation(...args);}catch(error){await close();throw error;}
+      try{return await operation(...args);}catch(error){if(!closed&&!failure)failure='operation-failed';await close();throw error;}
     };
     const connect=guarded(async invitation=>{const value=await connection.connect(invitation);if(value.phase==='ready')await establish();check();return connection.snapshot();});
     const refreshRoster=guarded(async()=>{const value=await connection.refreshRoster();if(value.phase==='ready')await establish();check();return connection.snapshot();});
@@ -182,7 +182,7 @@
       if(!polling)polling=guarded(async()=>{await establish();return connection.poll(handle);})().finally(()=>{polling=null;});
       return polling;
     }
-    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close,diagnostics:()=>Object.freeze({failure,channelState:channel?.readyState??'none',bufferedAmount:channel?.bufferedAmount??0,helloSent,helloReceived,helloAcknowledged})});
+    return Object.freeze({connect,refreshRoster,send,poll,snapshot:connection.snapshot,close,diagnostics:()=>Object.freeze({stage:closed?'closed':ready?'connected':negotiating?'connecting':connection.snapshot().phase==='waiting'?'waiting':'idle',failure,channelState:channel?.readyState??'none',bufferedAmount:channel?.bufferedAmount??0,helloSent,helloReceived,helloAcknowledged})});
   }
   root.CK_WEBRTC_TRANSPORT=Object.freeze({createGuestClient});
 })(typeof window!=='undefined'?window:globalThis);

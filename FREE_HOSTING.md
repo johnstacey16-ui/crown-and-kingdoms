@@ -317,7 +317,7 @@ provider injected; no console-only replacement for UI lifecycle testing. It stil
 creates only two Auth records per execution and tears down relay/Auth leases.
 The public menu/default remains unchanged. Vercel access was requested solely to
 verify the existing static host's Free plan and deployed revision before cutover;
-it is not connected yet and no plan/deployment changes were made there.
+it was not connected at that point and no plan/deployment changes were made there.
 
 ## Real peer-browser UI acceptance
 
@@ -345,6 +345,27 @@ password. See the linked security references above rather than adding permissive
 policies or paid features to silence these notices.
 
 The tested provider is opt-in through the dialog's transport factory. The public
-menu/default has not switched. Add the suggested Vercel connection to verify the
-existing host's Free plan and deployed revision; that connection is still unconfirmed.
+menu/default has not switched. The Vercel connection is now present, but plan/revision verification is blocked by
+missing access to the owning team, as recorded below.
 Separate-router/mobile NAT acceptance and Railway shutdown remain outstanding.
+
+
+## Connection feedback and Vercel access check
+
+On 21 October 2026 the Vercel connection returned project
+`prj_N8KwgIrHAXefpAtb71LTs4hMcUok`, owned by team
+`team_Txg1o6fSmDy9XvhUlnETTxT4` (`acme-a675`), with production deployment
+`dpl_136Y78BxPsYv2R5Su19gs2iETe9D` marked READY. Team and deployment-list reads
+returned 403 because the connection lacks access to that team; the team list was
+empty. No authenticated Vercel CLI is available locally. This does not verify the
+plan, source revision or public-origin acceptance. The owner must grant this
+connection access to the owning team before those checks can proceed. No hosting
+settings, plan or deployments were changed.
+
+The opt-in peer dialog now shows direct-connection progress and distinguishes a
+connection timeout from a lost peer. Retry guidance asks players to leave and make
+a new room; it notes that some networks block direct connections. Diagnostic
+stages/reasons are fixed strings with no tokens, room IDs or SDP. Explicit Leave
+remains an ordinary close, without a timeout/failure reason. A stalled-connection
+regression checks bounded failure and closure on both peers. Controller mappings
+and the public transport default remain unchanged.

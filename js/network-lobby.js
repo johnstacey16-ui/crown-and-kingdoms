@@ -63,7 +63,7 @@
     if (panel) return;
     if (typeof createTransport !== 'function') throw Error('Invalid multiplayer provider');
     const preparationSession = preparation();
-    let connection = null, startup = null, live = null, timer = null, busy = false, updating = false, closed = false, stopped = false;
+    let connection = null, startup = null, live = null, timer = null, progressTimer = null, busy = false, updating = false, closed = false, stopped = false;
     let previewRunning=false,menuOpen=false,menuFocus=null;
     const overlay = document.createElement('section');
     overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true');
@@ -133,7 +133,7 @@
     }
     function close() {
       if (closed) return;
-      closed = true; root.clearTimeout(timer);
+      closed = true; root.clearTimeout(timer); root.clearTimeout(progressTimer);
       if (live) live.close(); else if (startup) startup.close(); else if (connection) connection.close();
       closeMenu(false);preparationSession.restore(); overlay.remove();matchMenu.remove();panel = null;
       root.removeEventListener('pagehide', close);
@@ -141,10 +141,15 @@
     }
     function error() {
       if (closed) return;
-      stopped = true; root.clearTimeout(timer);
+      stopped = true; root.clearTimeout(timer); root.clearTimeout(progressTimer);
       previewRunning=false;closeMenu(false);
       if (live) live.close(); else if (connection) connection.close();
-      status.textContent = 'Room setup stopped. The other player may have left, the connection failed, or the worlds did not match. Leave setup to try again.';
+      const failure = connection?.diagnostics?.().failure;
+      status.textContent = failure === 'connection-timeout' ?
+        'The players could not connect directly. Leave setup and create a new room to retry. Some mobile, work or school networks may block this connection; try another network.' :
+        ['connection-lost','channel-closed','channel-error','room-unavailable'].includes(failure) ?
+        'The connection to the other player ended. Leave setup and create a new room to play again.' :
+        'Room setup stopped. The other player may have left, the connection failed, or the worlds did not match. Leave setup to try again.';
       verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
       showMap(false);
       leave.focus();
@@ -201,6 +206,14 @@
       status.textContent = 'Connecting…';
       try {
         connection = createTransport();
+        function progress() {
+          if (closed || stopped || startup || live) return;
+          const stage = connection.diagnostics?.().stage;
+          if (stage === 'connecting') status.textContent = 'Connecting directly to the other player… This can take up to a minute.';
+          else if (stage === 'waiting') status.textContent = 'Room created. Share the private invitation above with your guest.';
+          progressTimer = root.setTimeout(progress,500);
+        }
+        if (connection.diagnostics) progress();
         const room = await connection.connect(invitation); if (closed) return;
         input.value = room.roomId; input.focus(); input.select();
         busy = false; void update();
@@ -286,4 +299,3 @@
   root.CK_AUTH_LOBBY = Object.freeze({ open, active:()=>!!panel, control:dt=>panel?.control(dt),
     close:()=>panel?.close(), suspend:()=>panel?.suspend(), validConfig, settings, preparation });
 })(window);
-
