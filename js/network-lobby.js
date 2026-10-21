@@ -14,6 +14,18 @@
       [50,100,150,200,250,300,400,500].includes(c.popLimit) && between(c.gameMode,0,2) &&
       SCORE_LIMITS.includes(c.scoreLimit);
   }
+  function objectives(config) {
+    if(!validConfig(config))throw Error('Verified match settings required');
+    return Object.freeze([
+      'Destroy the opposing Town Centre and protect your own.',
+      'Build a Wonder and protect it for five game minutes.',
+      'Hold every relic in your Monasteries for four game minutes.',
+      'Keep your King alive and defeat the opposing King.',
+      'Have the highest kingdom score when the '+Math.round(config.scoreLimit/60)+'-minute game limit expires.',
+      'Control the central hill continuously for five game minutes. Hostile military presence contests it.',
+      'Protect your starting Town Centre. Losing it eliminates your kingdom; additional Town Centres cannot be built.'
+    ])[config.vm];
+  }
   function settings(seed) {
     return { seed, msz, mt, kingdoms:2, civ, aiCiv, diff, aip, vm, mapLayout,
       startAge, startRes, startArmy, startVillagers, popLimit, gameMode, scoreLimit };
@@ -64,7 +76,7 @@
     if (typeof createTransport !== 'function') throw Error('Invalid multiplayer provider');
     const preparationSession = preparation();
     let connection = null, startup = null, live = null, timer = null, progressTimer = null, busy = false, updating = false, closed = false, stopped = false;
-    let previewRunning=false,menuOpen=false,menuFocus=null;
+    let previewRunning=false,menuOpen=false,objectivesOpen=false,menuFocus=null;
     const overlay = document.createElement('section');
     overlay.className = 'ck-room-overlay';
     overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true');
@@ -95,16 +107,24 @@
     matchMenu.style.cssText=overlay.style.cssText;
     const menuTitle=document.createElement('h1');menuTitle.textContent='Multiplayer menu';
     const menuNotice=document.createElement('p');menuNotice.textContent='The multiplayer match continues while this menu is open.';
-    const resumeButton=makeButton('Resume match'),exitButton=makeButton('Leave match');
-    const menuControls=[resumeButton,exitButton];
-    matchMenu.append(menuTitle,menuNotice,resumeButton,exitButton);
+    const resumeButton=makeButton('Resume match'),objectivesButton=makeButton('Objectives'),exitButton=makeButton('Leave match');
+    const menuControls=[resumeButton,objectivesButton,exitButton];
+    const objectiveBody=document.createElement('section');objectiveBody.setAttribute('aria-label','Match objectives');
+    const objectiveText=document.createElement('p'),objectiveClock=document.createElement('p');
+    objectiveText.setAttribute('id','ck-match-objective');
+    objectiveClock.setAttribute('id','ck-match-objective-clock');
+    const backButton=makeButton('Back to multiplayer menu');
+    objectiveBody.append(objectiveText,objectiveClock,backButton);
+    objectiveBody.hidden=true;objectiveBody.style.display='none';
+    const activeMenuControls=()=>objectivesOpen?[backButton]:menuControls;
+    matchMenu.append(menuTitle,menuNotice,resumeButton,objectivesButton,exitButton,objectiveBody);
     matchMenu.hidden=true;matchMenu.style.display='none';
     const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
     mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = stopButton.hidden = true;
     const unitMap = root.CK_UNIT_MAP.create({canvas:unitCanvas,description:mapDescription,stopButton,previousButton,nextButton,townButton,
       submit:order=>live&&!stopped&&!menuOpen?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
       nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
-    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave,...menuControls]) {
+    for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave,...menuControls,backButton]) {
       element.className = 'ck-room-control';
     }
     function showMap(visible) {
@@ -133,15 +153,30 @@
     document.body.appendChild(overlay);
     document.body.appendChild(matchMenu);
     const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,unitCanvas,stopButton,leave];
+    function refreshObjectives() {
+      if(!objectivesOpen||!S)return;
+      const config=startup.snapshot().config;
+      const seconds=Math.max(0,Math.floor(config.vm===4?config.scoreLimit-S.t:S.t));
+      const clock=(config.vm===4?'Time remaining: ':'Game time: ')+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+      if(objectiveClock.textContent!==clock)objectiveClock.textContent=clock;
+    }
+    function showObjectives(visible,focus=true) {
+      objectivesOpen=visible;
+      for(const button of menuControls){button.hidden=visible;button.style.display=visible?'none':'block';}
+      objectiveBody.hidden=!visible;objectiveBody.style.display=visible?'block':'none';
+      menuTitle.textContent=visible?'Objectives':'Multiplayer menu';
+      if(visible){objectiveText.textContent=objectives(startup.snapshot().config);refreshObjectives();}
+      if(focus)(visible?backButton:objectivesButton).focus();
+    }
     function openMenu() {
       if(closed||stopped||!previewRunning||menuOpen)return;
       unitMap.suspend();
-      menuFocus=document.activeElement;menuOpen=true;overlay.inert=true;
+      menuFocus=document.activeElement;menuOpen=true;overlay.inert=true;showObjectives(false,false);
       matchMenu.hidden=false;matchMenu.style.display='block';resumeButton.focus();
     }
     function closeMenu(restore=true) {
       if(!menuOpen)return;
-      menuOpen=false;overlay.inert=false;matchMenu.hidden=true;matchMenu.style.display='none';
+      menuOpen=false;showObjectives(false,false);overlay.inert=false;matchMenu.hidden=true;matchMenu.style.display='none';
       if(restore){
         const target=menuFocus&&!menuFocus.disabled&&!menuFocus.hidden?menuFocus:mapButton;
         target.focus();
@@ -203,6 +238,7 @@
               (state.commandPending ? 'Order awaiting acceptance' : state.lastResult ?
                 (state.lastResult.ok ? 'Last order executed' : 'Last order could not execute. Check sight, ownership, prerequisites, resources and queue space.') :
                 'Explore, build, train and command your kingdom');
+            refreshObjectives();
             const team = room.team, town = S.bs.find(b=>b.t===team&&b.k==='tc'&&b.hp>0);
             mapButton.disabled = state.phase !== 'running';
             showMap(true);
@@ -269,10 +305,13 @@
     mapButton.addEventListener('click',()=>unitCanvas.focus());
     leave.addEventListener('click', close);
     resumeButton.addEventListener('click',()=>closeMenu());
+    objectivesButton.addEventListener('click',()=>{if(menuOpen&&!objectivesOpen)showObjectives(true);});
+    backButton.addEventListener('click',()=>showObjectives(false));
     exitButton.addEventListener('click',close);
     matchMenu.addEventListener('keydown',event=>{
-      if(event.key==='Escape'){event.preventDefault();closeMenu();}
+      if(event.key==='Escape'){event.preventDefault();if(objectivesOpen)showObjectives(false);else closeMenu();}
       if(event.key==='Tab'){
+        const menuControls=activeMenuControls();
         const at=menuControls.indexOf(document.activeElement);
         if((event.shiftKey&&at<=0)||(!event.shiftKey&&at===menuControls.length-1)){
           event.preventDefault();menuControls[event.shiftKey?menuControls.length-1:0].focus();
@@ -291,7 +330,9 @@
     root.addEventListener('pagehide', close);
     panel = { close, suspend:()=>unitMap.suspend(), control(dt) {
       if(menuOpen){
-        if(E[1]||E[9]){closeMenu();return;}
+        if(E[9]){closeMenu();return;}
+        if(E[1]){if(objectivesOpen)showObjectives(false);else closeMenu();return;}
+        const menuControls=activeMenuControls();
         if(E[12]||E[13]){
           const at=Math.max(0,menuControls.indexOf(document.activeElement));
           menuControls[(at+(E[12]?-1:1)+menuControls.length)%menuControls.length].focus();
@@ -314,5 +355,5 @@
     host.focus();
   }
   root.CK_AUTH_LOBBY = Object.freeze({ open, active:()=>!!panel, control:dt=>panel?.control(dt),
-    close:()=>panel?.close(), suspend:()=>panel?.suspend(), validConfig, settings, preparation });
+    close:()=>panel?.close(), suspend:()=>panel?.suspend(), validConfig, settings, objectives, preparation });
 })(window);

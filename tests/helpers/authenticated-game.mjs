@@ -70,6 +70,9 @@ export function attachDOM(game) {
     input:()=>elements.find(e=>e.tag==='input'),status:()=>elements.find(e=>e.role==='status'),
     dialog:()=>elements.find(e=>e.role==='dialog'&&e['aria-label']==='Authenticated multiplayer setup'),
     menu:()=>elements.find(e=>e.role==='dialog'&&e['aria-label']==='Multiplayer menu'),
+    objectives:()=>elements.find(e=>e['aria-label']==='Match objectives'),
+    objectiveText:()=>elements.find(e=>e.id==='ck-match-objective'),
+    objectiveClock:()=>elements.find(e=>e.id==='ck-match-objective-clock'),
     active:()=>document.activeElement};
 }
 export async function eventually(check) {

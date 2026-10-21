@@ -171,3 +171,13 @@ test('a stalled new stage still expires, and duplicate confirmations cannot rene
     assert.equal(host.snapshot().phase,'failed');
   }
 });
+
+test('match objectives use verified victory settings and reject invalid configurations',async t=>{
+  const {hostGame}=await pair(t),api=hostGame.CK_AUTH_LOBBY,config=api.settings(123);
+  const before=JSON.stringify(config);
+  const expected=[/Town Centre/,/Wonder.*five/,/relic.*four/,/King/,/15-minute/,/hill.*five/,/starting Town Centre/];
+  for(let vm=0;vm<7;vm++)assert.match(api.objectives({...config,vm,scoreLimit:900}),expected[vm]);
+  assert.equal(JSON.stringify(config),before);
+  assert.throws(()=>api.objectives({...config,vm:7}),/Verified match settings/);
+  assert.throws(()=>api.objectives({...config,kingdoms:4}),/Verified match settings/);
+});
