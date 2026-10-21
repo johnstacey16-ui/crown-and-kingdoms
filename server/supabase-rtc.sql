@@ -28,7 +28,7 @@ begin
   end if;
   if not (data ?& array['matchId','type','sdp']) or data-array['matchId','type','sdp']<>'{}'::jsonb
     or jsonb_typeof(data->'type')<>'string' or jsonb_typeof(data->'sdp')<>'string'
-    or data->>'type'<>case when r.host=caller then 'offer' else 'answer' end then
+    or data->>'type'<>(case when r.host=caller then 'offer' else 'answer' end) then
     raise exception 'Signaling role or fields invalid' using errcode='42501';
   end if;
   description:=data->>'sdp';
