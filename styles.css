@@ -42,6 +42,7 @@ canvas:focus-visible {
 /* Multiplayer room: local presentation only; command and controller order stay in JS. */
 .ck-room-overlay {
   touch-action: pan-y;
+  -webkit-touch-callout: default;
   overscroll-behavior: contain;
   user-select: text;
   -webkit-user-select: text;

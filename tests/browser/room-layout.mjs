@@ -27,6 +27,12 @@ try{
   assert.equal(layout.focus,'Create private room');
   if(viewport.width<600)assert.ok(Math.abs(layout.cards[0].x-layout.cards[1].x)<1,'mobile cards stack');
   else assert.ok(layout.cards[1].x>layout.cards[0].x,'desktop cards use two columns');
+  await page.keyboard.press('Tab');
+  assert.equal(await page.locator('input[aria-label="Private room invitation"]').evaluate(el=>el===document.activeElement),true,'Tab reaches the invitation field');
+  await page.mouse.move(viewport.width/2,viewport.height/2);
+  await page.mouse.wheel(0,400);
+  await page.waitForFunction(()=>document.querySelector('.ck-room-overlay').scrollTop>0);
+  await dialog.evaluate(el=>{el.scrollTop=0;});
   await page.screenshot({path:output+'/room-'+viewport.width+'.png'});
   const leave=dialog.getByRole('button',{name:'Leave setup',exact:true});
   await leave.focus();

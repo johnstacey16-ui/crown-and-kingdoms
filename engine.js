@@ -180,8 +180,8 @@ if(window.CK_STORAGE)window.CK_STORAGE.restoreMissing().then(()=>refreshSlots())
 try{if('serviceWorker' in navigator&&window.location&&window.location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(()=>{})}catch(e){}
 try{const ael=document.getElementById('ck-assets');if(ael&&ael.textContent&&ael.textContent.trim()!=='{}')loadAssetPack(JSON.parse(ael.textContent));if(window.CK_ASSETS)loadAssetPack(window.CK_ASSETS)}catch(e){};fetch('./assets/atlas-manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Asset manifest unavailable');return r.json()}).then(pack=>{if(pack&&typeof pack==='object')loadAssetPack(pack)}).catch(()=>{});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause()});addEventListener('blur',autoPause);
-addEventListener('keydown',e=>{if(e.key&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter','Escape','Tab','PageUp','PageDown'].includes(e.key))e.preventDefault()},{passive:false});
-addEventListener('contextmenu',e=>e.preventDefault());addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+addEventListener('keydown',e=>{if(e.target?.closest?.('.ck-room-overlay'))return;if(e.key&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter','Escape','Tab','PageUp','PageDown'].includes(e.key))e.preventDefault()},{passive:false});
+addEventListener('contextmenu',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e.preventDefault()});addEventListener('wheel',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e.preventDefault()},{passive:false});
 setInterval(aTick,120);
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
