@@ -5,8 +5,9 @@ import { pair, attachDOM, eventually } from './helpers/authenticated-game.mjs';
 async function livePair(t, defaults = true, extraTown = false) {
   // Advance the relay's rate-limit window with simulated time, so fast CI
   // cannot compress several seconds of valid traffic into one wall-clock second.
+  const epoch=Date.now();
   let clock=0;
-  const fixture=await pair(t,{now:()=>clock});
+  const fixture=await pair(t,{now:()=>epoch+clock});
   const {host,guest,hostGame,guestGame}=fixture;
   if(defaults)hostGame.testPreviewDefaults();
   const hp=hostGame.CK_AUTH_LOBBY.preparation(),gp=guestGame.CK_AUTH_LOBBY.preparation();
