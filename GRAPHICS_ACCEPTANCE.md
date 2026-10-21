@@ -33,6 +33,13 @@ acceptance remain separate gates; native rendering does not establish either.
 The broad campaign smoke test has a pre-existing mission 3 timeout, reproduced
 on the unchanged baseline with identical state. Graphics work does not alter it.
 
+At code commit `cb3f8c17db1a679590793cc8e237ba954d669739`, all 53 targeted
+local regressions and game validation passed. The hosted
+[Chromium graphics and room-layout run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39607987905)
+also passed, including the SVG pixel comparisons, team projections, unchanged
+world checkpoints, cache upgrades and rendering with external atlases blocked.
+Physical Xbox Edge acceptance is still outstanding.
+
 The sections below record earlier atlas-based stages and their historical
 acceptance evidence; they do not describe the current default icon presentation.
 
