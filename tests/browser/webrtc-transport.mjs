@@ -51,6 +51,7 @@ async function fixture(){
     await page.evaluate(()=>{window.client=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false,connectTimeoutMs:30000});window.handled=[];});
   }
   const [host,guest]=pages;
+  try{
   const invitation=await host.evaluate(async()=>{const room=await client.connect();return room.roomId;});
   await guest.evaluate(inv=>{window.joined=client.connect(inv);void joined.catch(()=>{});},invitation);
   for(let n=0;n<50;n++){
@@ -60,6 +61,11 @@ async function fixture(){
   }
   await guest.evaluate(()=>joined);
   assert.equal(await host.evaluate(()=>client.snapshot().phase),'ready');
+  }catch(error){
+    lastDiagnostics=await Promise.all(pages.map(p=>p.evaluate(()=>({phase:client.snapshot().phase,...client.diagnostics(),pc:testPC?.connectionState,ice:testPC?.iceConnectionState,gather:testPC?.iceGatheringState,signaling:testPC?.signalingState,localType:testPC?.localDescription?.type,remoteType:testPC?.remoteDescription?.type})).catch(()=>({pageClosed:true}))));
+    lastDiagnostics.push({offerPresent:!!offer,answerPresent:!!answer,members,alive});
+    await Promise.all(contexts.map(c=>c.close()));throw error;
+  }
   return {host,guest,ops,endRoom:()=>{alive=false;},close:async()=>{
     lastDiagnostics=await Promise.all(pages.map(p=>p.evaluate(()=>({phase:client.snapshot().phase,...client.diagnostics(),pc:testPC.connectionState})).catch(()=>({pageClosed:true}))));
     await Promise.allSettled(pages.map(p=>p.evaluate(()=>client.close())));

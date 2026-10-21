@@ -56,10 +56,16 @@
       channel=candidate;
       channel.addEventListener('close',()=>{if(!closed)fail('channel-closed');});
       channel.addEventListener('error',()=>{if(!closed)fail('channel-error');});
-      channel.addEventListener('open',()=>{
-        try{check();channel.send(JSON.stringify({v:1,hello:true,matchId:room.matchId,sid:room.sid,team:room.team}));}
-        catch(_){void close();}
-      });
+      let helloSent=false;
+      const sendHello=()=>{
+        try{
+          check();if(helloSent||channel.readyState!=='open')return;
+          helloSent=true;channel.send(JSON.stringify({v:1,hello:true,matchId:room.matchId,sid:room.sid,team:room.team}));
+        }catch(_){fail('hello-send-failed');}
+      };
+      channel.addEventListener('open',sendHello);
+      // A remotely announced channel can already be open when attached.
+      sendHello();
       channel.addEventListener('message',event=>{
         try{
           check();
@@ -68,6 +74,7 @@
           if(!ready){
             if(!exact(wire,['v','hello','matchId','sid','team'])||wire.v!==1||wire.hello!==true||
               wire.matchId!==room.matchId||wire.sid!==peer.sid||wire.team!==peer.team)throw Error('Wrong authenticated peer');
+            sendHello();if(!helloSent)throw Error('Peer channel not open');
             ready=true;resolveReady();return;
           }
           if(!exact(wire,['v','sequence','kind','payload'])||wire.v!==1||!Number.isSafeInteger(wire.sequence)||wire.sequence!==received+1||
