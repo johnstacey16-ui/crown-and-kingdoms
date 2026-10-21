@@ -22,7 +22,8 @@ const browser=await chromium.launch({headless:true,args:['--disable-features=Web
 const contexts=[await browser.newContext(),await browser.newContext()];
 const pages=await Promise.all(contexts.map(c=>c.newPage()));
 const calls={signups:0,logouts:0,signaling:0,relay:0,gameplay:0};
-let result;
+let result,stage='source-check';
+const responses={},networkFailures={};
 try{
   // Fail before creating Auth users if the public origin serves stale/different code.
   // Exact project origin only, no arbitrary URL, credentials or protection bypass.
@@ -35,6 +36,19 @@ try{
     }
   }
   for(const page of pages){
+    page.on('response',response=>{
+      const url=response.url();
+      if(!url.startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/'))return;
+      const endpoint=url.includes('/auth/v1/signup')?'signup':url.includes('/auth/v1/logout')?'logout':
+        url.includes('/ck_relay_request')?'room':url.includes('/ck_relay_signal')?'signaling':'other';
+      const key=endpoint+':'+response.status();responses[key]=(responses[key]||0)+1;
+    });
+    page.on('requestfailed',req=>{
+      if(!req.url().startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/'))return;
+      const raw=req.failure()?.errorText||'unknown';
+      const key=/^net::ERR_[A-Z_]+$/.test(raw)?raw:'network-error';
+      networkFailures[key]=(networkFailures[key]||0)+1;
+    });
     page.on('request',req=>{
       if(!req.url().startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/')||req.method()!=='POST')return;
       if(req.url().endsWith('/signup'))calls.signups++;
@@ -66,13 +80,15 @@ try{
       }});
     });
   }
-  const [host,guest]=pages;
+  const [host,guest]=pages;stage='create-room';
   await host.getByRole('button',{name:'Create private room',exact:true}).click();
   await host.waitForFunction(()=>document.querySelector('input[aria-label="Private room invitation"]')?.value.length===43);
+  stage='join-room';
   const invitation=await host.getByRole('textbox',{name:'Private room invitation'}).inputValue();
   await guest.getByRole('textbox',{name:'Private room invitation'}).fill(invitation);
   await guest.getByRole('button',{name:'Join room',exact:true}).click();
   await host.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='Verify shared map'&&!b.disabled));
+  stage='verify-world';
   // The UI guards its poll against concurrent verification clicks.
   for(let n=0;n<20;n++){
     await host.getByRole('button',{name:'Verify shared map',exact:true}).click({timeout:1000}).catch(()=>{});
@@ -82,6 +98,7 @@ try{
   await Promise.all(pages.map(p=>p.waitForFunction(()=>window.smokeStart?.snapshot().phase==='verified'&&window.smokeLive!==undefined)));
   assert.equal(await host.evaluate(()=>smokeStart.snapshot().hash),await guest.evaluate(()=>smokeStart.snapshot().hash));
   assert.equal(await host.evaluate(()=>S.t),0);assert.equal(await guest.evaluate(()=>S.t),0);
+  stage='run-game';
   await host.getByRole('button',{name:'Run live preview',exact:true}).click();
   const started=performance.now();
   await Promise.all(pages.map(p=>p.waitForFunction(()=>smokeLive.snapshot().phase==='running')));
@@ -103,6 +120,7 @@ try{
   // Finished dialogs no longer advance simulation, and Leave tears down both peers.
   await new Promise(r=>setTimeout(r,100));
   for(const page of pages)assert.equal(await page.evaluate(()=>smokeLive.snapshot().frame),120);
+  stage='leave';
   await guest.getByRole('button',{name:'Leave setup',exact:true}).click();
   assert.equal(await guest.evaluate(()=>CK_AUTH_LOBBY.active()),false);
   await host.waitForFunction(()=>['closed','failed'].includes(wrtcClient.snapshot().phase));
@@ -111,6 +129,11 @@ try{
     elapsedGameplayMs:Math.round(elapsed),observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
     topology:'two Chromium contexts, one runner, numeric host ICE; '+(deployedOrigin?'production HTTPS game UI':'localhost game UI')+'; real Supabase Auth/HTTPS/CORS/signaling',
     deployedOrigin:deployedOrigin||null,verifiedAssetCount:deployedOrigin?verifiedAssets.length:0,authUserRecordsRemain:true};
+}catch(error){
+  result={status:'failed',stage,errorType:['TimeoutError','AssertionError'].includes(error.name)?error.name:'Error',
+    responses,networkFailures,...calls,deployedOrigin:deployedOrigin||null,
+    diagnostics:await Promise.all(pages.map(p=>p.evaluate(()=>window.wrtcClient?.diagnostics()||null).catch(()=>null)))};
+  throw error;
 }finally{
   await Promise.allSettled(pages.map(p=>p.evaluate(async()=>{CK_AUTH_LOBBY.close();await window.wrtcClient?.close();})));
   if(result){result.logouts=calls.logouts;await mkdir('artifacts/webrtc-live',{recursive:true});await writeFile('artifacts/webrtc-live/result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));}
