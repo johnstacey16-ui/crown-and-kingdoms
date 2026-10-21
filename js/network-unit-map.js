@@ -174,6 +174,17 @@
       }
     }
     function drawAtlas(e,x,y,sx,sy){
+      // Share the named SVG collection with the solo/campaign renderer.
+      if(typeof paintPixelIcon==='function'){
+        const size=e.size||0,name=(size?BUILDING_ICONS:UNIT_ICONS)[e.kind];
+        if(name){
+          const height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
+          context.save();context.translate(x+size*sx/2,y+(size?size*sy:2));
+          if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
+          paintPixelIcon(context,name,teamColor(e.team),height,height);
+          context.restore();return true;
+        }
+      }
       if(typeof assetFrame!=='function')return false;
       const size=e.size||0,time=view.battlefield?.time||0;
       // Preserve the actual kingdom palette for each player; relation rings
@@ -600,4 +611,3 @@
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);
-

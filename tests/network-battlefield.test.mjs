@@ -371,28 +371,41 @@ test('battlefield copies animation poses and construction progress without chang
  assert.equal(c.worldHash(),before);
 });
 
-test('original atlas rendering uses actual kingdom palettes, animation frames, anchors and screen depth without mutating game state',()=>{
+test('named SVG icons cover every unit and building with distinct, bounded pixel art',()=>{
+ const c=fixture();
+ const catalog=JSON.parse(c.run('JSON.stringify({icons:PIXEL_ICONS,units:UNIT_ICONS,buildings:BUILDING_ICONS,unitKeys:Object.keys(U),buildingKeys:Object.keys(B)})'));
+ assert.equal(Object.keys(catalog.icons).length,69);
+ for(const k of catalog.unitKeys)assert.ok(catalog.icons[catalog.units[k]],'missing unit '+k);
+ for(const k of catalog.buildingKeys)assert.ok(catalog.icons[catalog.buildings[k]],'missing building '+k);
+ const artworks=new Set();
+ for(const [name,svg] of Object.entries(catalog.icons)){
+  assert.ok(svg.startsWith('<svg '));assert.ok(svg.endsWith('</svg>'));
+  assert.ok(svg.includes('id="'+name+'"'));assert.ok(svg.includes('viewBox="0 0 32 32"'));
+  assert.ok(svg.includes('shape-rendering="crispEdges"'));assert.ok(svg.includes('fill="currentColor"'));
+  const body=svg.slice(svg.indexOf('>')+1,-6);assert.ok(!artworks.has(body),'duplicate artwork '+name);artworks.add(body);
+  const rects=[...svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" fill="([^"]+)"\/>/g)];
+  assert.ok(rects.length>0);
+  for(const m of rects){const [x,y,w,h]=m.slice(1,5).map(Number);assert.ok(w>0&&h>0&&x+w<=32&&y+h<=32,'clipped rectangle in '+name);}
+ }
+});
+
+test('SVG rendering takes precedence over atlases, preserves team colours and depth, and never mutates game state',()=>{
  const c=fixture();c.run(`
-  globalThis.artImage={tag:'original-atlas'};
-  const frame=(x,y,w=16,h=16)=>({x,y,w,h,ax:w/2,ay:h-2});
-  regAtlas('fixture',artImage,{anims:{
-   'vil/walk/0':{dur:.1,dirs:[[frame(0,0),frame(16,0)],[frame(32,0)],[frame(48,0)],[frame(64,0)]]},
-   'mil/idle/0':{frames:[frame(0,16)]},'mil/idle/1':{frames:[frame(16,16)]},
-   'bld_tc/work/0':{frames:[frame(0,32,32,32)]}
-  }});
+  regAtlas('legacy',{}, {anims:{'mil/idle/0':{frames:[{x:0,y:0,w:16,h:16,ax:8,ay:14}]}}});
+  globalThis.pixelDraws=[];const originalPixel=paintPixelIcon;
+  paintPixelIcon=function(g,name,tc,w,h,bottom){pixelDraws.push({name,tc,w,h});return originalPixel(g,name,tc,w,h,bottom)};
   worker.p=[[22.5,21.5]];S.t=.05;globalThis.castle=addB(0,'tc',24,27,true);
  `);
  const before=c.worldHash(),f=mapFixture(c);
- const first=f.draws.filter(d=>d[0]==='drawImage');assert.ok(first.length>=4);
- assert.ok(first.some(d=>d[2]===16&&d[3]===16),'visible opposing military uses team one artwork');
- assert.ok(first.some(d=>d[2]===0&&d[3]===16),'owned military uses team zero artwork');
- const soldierIndex=first.findIndex(d=>d[2]===0&&d[3]===16);
- const lowerBuildingIndex=first.findIndex(d=>d[3]===32&&Math.abs(d[7]+30/32*d[9]-30*680/72)<.01);
- assert.ok(lowerBuildingIndex>soldierIndex,'nearer building draws after the unit behind it');
+ const calls=JSON.parse(c.run('JSON.stringify(pixelDraws)'));
+ assert.ok(calls.some(d=>d.name==='soldier-icon'&&d.tc===c.run('teamColor(0)')));
+ assert.ok(calls.some(d=>d.name==='soldier-icon'&&d.tc===c.run('teamColor(1)')));
+ assert.ok(calls.some(d=>d.name==='villager-icon'));
+ assert.ok(calls.some(d=>d.name==='town-centre-icon'));
+ assert.ok(calls.findLastIndex(d=>d.name==='town-centre-icon')>calls.findIndex(d=>d.name==='soldier-icon'),'nearer building draws after the unit behind it');
+ assert.ok(!f.draws.some(d=>d[0]==='drawImage'),'legacy atlas cannot replace named icons');
  assert.equal(c.worldHash(),before);
- c.run('S.t=.15');const newHash=c.worldHash();f.draws.length=0;f.refresh();
- assert.ok(f.draws.some(d=>d[0]==='drawImage'&&d[2]===16&&d[3]===0),'walking frame advances with shared world time');
- assert.equal(c.worldHash(),newHash);
+ c.run('S.t=.15');const nextHash=c.worldHash();f.refresh();assert.equal(c.worldHash(),nextHash);
 });
 
 test('heading-aware atlas lookup handles four and eight directions while retaining existing callers',()=>{
@@ -408,7 +421,7 @@ test('heading-aware atlas lookup handles four and eight directions while retaini
  assert.equal(c.run("assetFrame('test',0,0,3,0).f.x"),3,'existing directional index semantics stay intact');
 });
 
-test('unavailable or undrawable atlas art falls back to procedural units and unfinished-building indicators',()=>{
+test('SVG art and unfinished-building indicators remain available with missing or undrawable atlases',()=>{
  const c=fixture();c.run("globalThis.foundation=addB(0,'house',24,27,false);foundation.pr=B.house.bt*.5");
  const before=c.worldHash(),f=mapFixture(c);assert.ok(!f.draws.some(d=>d[0]==='drawImage'));
  assert.ok(f.draws.some(d=>d[0]==='strokeRect'||d[0]==='ellipse'));
@@ -418,4 +431,3 @@ test('unavailable or undrawable atlas art falls back to procedural units and unf
  c.testFallbackMap=map;c.run('testFallbackMap.refresh(S,0,W,H,true)');
  assert.equal(c.worldHash(),before);
 });
-
