@@ -318,3 +318,33 @@ creates only two Auth records per execution and tears down relay/Auth leases.
 The public menu/default remains unchanged. Vercel access was requested solely to
 verify the existing static host's Free plan and deployed revision before cutover;
 it is not connected yet and no plan/deployment changes were made there.
+
+## Real peer-browser UI acceptance
+
+[Live UI acceptance 39549248705](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549248705)
+passed on code commit `255901b58d8247ab817e45f298129f5abea68e0d`. It clicked the actual
+Create / Join / Verify / Run / Train / Leave controls in two isolated Chromium
+contexts, using real guest Auth, HTTPS/CORS and Supabase signaling. Both maps
+verified without advancing simulation first. All 120 production world checkpoints
+matched, both teams paid for their training orders, and the final fixture frame
+was acknowledged before play stopped. Leave closed the peer connection.
+
+Observed UI simulation throughput: **25.79 frames/s** over 4.652 seconds. Traffic:
+6 signaling RPCs, 16 room/admission/roster/close RPCs and **zero database gameplay
+calls**. Both Auth leases signed out. Two more anonymous Auth records remain
+(twelve known smoke-created records total). This is a controlled one-runner,
+localhost-origin, numeric local-ICE measurement. It is not proof of public internet
+NAT traversal, production-origin acceptance, physical Xbox parity or universal
+25.79-fps performance. No paid relay or plan change was introduced.
+
+Post-hardening Security Advisor confirmed the broad legacy anonymous-player-policy
+warning is gone. Five deny-by-default RLS-without-policy informational notices
+remain (the four private relay tables and the unused player table). The existing
+password leak-protection warning remains unchanged; the game guest path has no
+password. See the linked security references above rather than adding permissive
+policies or paid features to silence these notices.
+
+The tested provider is opt-in through the dialog's transport factory. The public
+menu/default has not switched. Add the suggested Vercel connection to verify the
+existing host's Free plan and deployed revision; that connection is still unconfirmed.
+Separate-router/mobile NAT acceptance and Railway shutdown remain outstanding.
