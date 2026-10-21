@@ -41,3 +41,16 @@ checks inspect the actual new raster frames and a spear at the viewport edge.
 Chromium checks exercise changing frames, partial image-download failure and
 visible spear pixels with the unit's feet outside the close-zoom viewport.
 The in-engine preview is staged, not a physical Xbox performance capture.
+
+## Recorded verification
+
+Verified code: [56336f7](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/56336f752f3637afbe73c41108b03f76d54ec0af).
+
+- [Source/atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39684857364): passed, eight atlases and 1,608 frame references.
+- [Full regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39684857410): 163 standalone files, 19 isolated campaign simulations and three seeded production-AI skirmishes passed.
+- [Chromium graphics and responsive layouts](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39684857413): passed, including all 52 action/team combinations and actual visible spear pixels with its feet beyond the viewport.
+- Local targeted checks: 178 passed. Native Canvas2D contact inspection covered 48 new action/team samples; the viewport probe found 323 changed spear pixels. Running both packers with committed sources left all image and manifest hashes unchanged.
+
+[Four-second in-engine preview](painted-ranged-preview.webp) shows the actual
+painted units using the game's movement, attacks and rendering. It is a staged
+scene, not physical Xbox capture or evidence of full directional animation.
