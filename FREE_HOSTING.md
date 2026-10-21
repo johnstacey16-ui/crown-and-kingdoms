@@ -42,9 +42,10 @@ The existing client configuration points to project `isfzrqtbsbqlaojtpkxr`.
 Its public Auth settings endpoint returned 200 and reported anonymous user sign-in
 disabled on 21 October 2026. The connected Supabase plugin confirmed this project is ACTIVE_HEALTHY and its
 organization `rchuzzfoqscnjvhbctjt` is on `free` / `tier_free` on 21 October 2026.
-No plan upgrades or paid resources were created. Two apply_migration attempts
-failed with `Invalid or expired requestState`; a subsequent catalog read confirmed
-`ck_relay` does not exist. No schema/auth changes or new users were created.
+No plan upgrades or paid resources were created. After two earlier connector
+errors, retrying `apply_migration` succeeded on 21 October 2026. Migration
+`ck_free_relay_v1` is recorded in the actual project. No Auth settings were
+changed and no Auth users were created.
 
 The legacy `multiplayer.js` lobby/presence/marker path is not a replacement for the
 new synchronized relay. The latter currently calls the Node HTTP API. Preserve the
@@ -80,16 +81,16 @@ References: [cost control](https://supabase.com/docs/guides/platform/cost-contro
 [database functions](https://supabase.com/docs/guides/database/functions),
 [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
 
-## Prepared relay v1 (not live)
+## Installed relay v1 (game UI not switched)
 
 - `server/supabase-relay.sql` is an atomic deployment definition for migration
-  `ck_free_relay_v1`. It has not been applied to the real project. Do not run the
+  `ck_free_relay_v1`, now applied to the real Free-plan project. Do not run the
   test bootstrap there. New privileged state is in an unexposed RLS-enabled schema;
   the public invoker RPC calls a private definer implementation that checks
   `auth.uid()` and a hashed, Auth-bound relay credential. No browser table grants.
 - The existing empty `public.player` marker table has no owner column and broad
-  grants/policies. The proposed SQL revokes browser access while retaining data
-  and structure. This revocation is pending along with the rest of the migration.
+  grants/policies. The applied SQL revoked browser access while retaining data
+  and structure. Catalog checks verified these grants are removed.
 - Limits: 16 sessions / 8 rooms, 256 queued messages per recipient, 32 per poll,
   120 successful authenticated requests/second/session, 30-minute idle expiry,
   2-hour absolute session lifetime. Expired sessions cascade-delete their rooms
@@ -100,16 +101,20 @@ References: [cost control](https://supabase.com/docs/guides/platform/cost-contro
   failed requests, Auth, headers and other project traffic are not fully metered.
   Quota errors stop the match; authenticated close is still permitted.
 - `js/network-supabase.js` supplies the existing validated transport contract with
-  an Auth-token callback and fixed project/publishable key. It is opt-in and is
-  not loaded by the game UI yet. No secrets, cookies or persistent token storage.
+  an Auth-token callback and fixed project/publishable key. It also provides
+  `createGuestAuth` and `createGuestClient`: lazy anonymous signup, shared token
+  refresh with identity pinning, optional CAPTCHA token, bounded requests,
+  cancellation, and relay revocation before local Auth sign-out. No automatic
+  signup/refresh retry or identity replacement after failure. Credentials stay in
+  memory; snapshots omit them. It remains opt-in and is not loaded by the game UI.
 - `Supabase relay validation` runs the real SQL and JS adapter against disposable
   PostgreSQL 17 with simulated verified JWT claims, including simulation parity,
   sender spoofing, permissions, receipts, expiry and caps. This does not establish
   real Auth/JWT verification, HTTPS/CORS, two-browser operation or free capacity.
 
-Next gates: get the supported migration write working, apply and verify the SQL,
-run security advisors, enable anonymous Auth only after access controls are checked,
-then implement/test guest Auth lifecycle and measure actual two-browser traffic.
+Next gates: enable anonymous Auth, exercise real signup/refresh and independent
+browser clients through startup and terminal barriers, and measure actual traffic
+before deciding whether this REST relay meets gameplay latency and Free quotas.
 The connector currently exposes no Auth configuration update tool. Static hosting
 on a confirmed free plan and Railway shutdown still need to be completed before
 claiming the switch to free-only hosting is finished.
@@ -120,3 +125,34 @@ cases). Both simulated Auth identities produced matching game hashes through
 20 frames including a paid guest training order. The separate local HTTP/live
 session/server suite passed all 43 checks. These are transport/database tests;
 real-project Auth, browser, capacity and live migration gates above remain open.
+
+## Actual-project verification and current account step
+
+After applying the migration, role-scoped rollback tests on the real project
+verified two identities, token-theft rejection, host/guest message roles, stamped
+sender identity, stable non-destructive polls, duplicate transport ACKs and closure.
+No test sessions, rooms or messages remained; Auth users were never created by
+these SQL tests. These are simulated verified JWT claims, not real Auth sign-ins.
+The actual HTTPS REST endpoint rejected both no-Auth and invalid-JWT requests
+with 401; the latter reported cryptographic verification failure.
+
+Catalog checks confirmed RLS on all four private tables, no direct authenticated
+SELECT privilege, no unauthenticated RPC EXECUTE privilege, and no legacy marker
+UPDATE privilege. Security Advisor returned four informational
+[RLS-without-policy notices](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy)
+for these private tables. This deny-by-default setup is intentional: only the
+identity-checking private function may access them. Do not add permissive policies
+to silence the notices. Performance Advisor returned no findings.
+
+Anonymous sign-in is still disabled. The owner can enable **Anonymous Sign-Ins**
+and save under [Authentication providers](https://supabase.com/dashboard/project/isfzrqtbsbqlaojtpkxr/auth/providers).
+The connector exposes no Auth-settings update operation. Do not bypass supported
+Auth configuration by editing managed Auth tables. Validate any CAPTCHA/rate-limit
+settings before public rollout. Guest signup/refresh use the official auth-js REST
+routes (`/signup`, `/token?grant_type=refresh_token` and `/logout?scope=local`).
+The new local guest Auth suite passed 11 cases, plus all 11 existing HTTP transport
+checks. The PostgreSQL CI workflow also runs this Auth suite.
+
+Repository metadata identifies `https://crown-and-kingdoms.vercel.app` as the homepage.
+This identifies a possible existing static origin, not a verified Free hosting plan;
+confirm the hosting account and actual deployed revision before UI cutover.

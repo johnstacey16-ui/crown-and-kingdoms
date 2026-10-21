@@ -16,7 +16,7 @@
     if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) throw Error('Invalid timeout');
     const base = origin.origin + '/api/multiplayer';
     let token = null, sid = null, team = null, matchId = null, roomId = null;
-    let phase = 'idle', members = [], lastHandled = 0, polling = null;
+    let phase = 'idle', members = [], lastHandled = 0, polling = null, revocation = null;
     const controllers = new Set();
     const active = () => phase !== 'closed' && phase !== 'failed';
     function stop(failed) {
@@ -27,7 +27,8 @@
       token = null;
       members = [];
       // Best-effort revocation; expiry remains the fallback if the network is gone.
-      if (credential) void request('/session', 'DELETE', undefined, credential, true).catch(() => {});
+      if (credential) revocation = request('/session', 'DELETE', undefined, credential, true).catch(() => {});
+      return revocation || Promise.resolve();
     }
     async function request(path, method = 'GET', data, credential = token, cleanup = false) {
       const controller = new AbortController();

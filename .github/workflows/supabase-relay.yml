@@ -39,4 +39,4 @@ jobs:
           node-version: '22'
       - run: psql -X -v ON_ERROR_STOP=1 -f tests/supabase-bootstrap.sql
       - run: psql -X --single-transaction -v ON_ERROR_STOP=1 -f server/supabase-relay.sql
-      - run: node --test tests/supabase-relay.integration.mjs tests/network-http-transport.test.mjs
+      - run: node --test tests/supabase-relay.integration.mjs tests/supabase-auth.test.mjs tests/network-http-transport.test.mjs
