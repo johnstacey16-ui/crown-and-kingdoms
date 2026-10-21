@@ -240,3 +240,13 @@ Official references checked 21 October 2026:
 - https://www.ageofempires.com/news/a-new-naval-warfare-in-age-of-empires-ii-definitive-edition/
 - https://www.ageofempires.com/news/aoeii_de_update_56005/
 - https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-preview-125283/
+
+## Main validation for projectile/technology/age corrections
+
+Code `e133a3dbaba8464ab2517d7f7b7a4a6f6f6de203` passed all main checks on 21 October 2026:
+- [Regression 39583393316](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39583393316): 160 standalone files, all 19 isolated campaign missions and all three seeded production-AI skirmishes, including save/reload scenarios.
+- [Source/atlas validation 39583393370](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39583393370).
+- [Chromium graphics/menu/responsive checks 39583393348](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39583393348). Artifact 12338262137 was downloaded; ballistics-research-menu.png was visually inspected and shows the unlocked University entry, cost and RT+A prompt.
+- [WebRTC browser transport 39583393367](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39583393367), including the new versioned channel.
+
+These are named Node/Chromium checks, not physical Xbox or independent-network full-match acceptance. The remaining feature-family gaps listed above remain open. All changes were committed directly to main as requested.
