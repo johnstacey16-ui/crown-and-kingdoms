@@ -10,20 +10,27 @@
     'GET /room': 'roster', 'POST /messages': 'send', 'GET /messages': 'poll',
     'POST /messages/ack': 'ack', 'DELETE /session': 'close'
   });
-  function createClient({ getAccessToken, timeoutMs = 8000 } = {}) {
+  function createRpcRequest(getAccessToken) {
     if (typeof getAccessToken !== 'function') throw Error('Supabase Auth required');
-    if (!root.CK_AUTH_TRANSPORT) throw Error('Load network-transport.js first');
-    return root.CK_AUTH_TRANSPORT.createClient({ timeoutMs, request: async ({path,method,data,credential,signal}) => {
-      const op = routes[method + ' ' + path];
-      if (!op) throw Error('Unsupported relay operation');
+    return async (name, data, signal) => {
+      if (!['ck_relay_request','ck_relay_signal'].includes(name)) throw Error('Unsupported RPC');
       const accessToken = await getAccessToken({ signal });
       if (signal.aborted) throw Error('Relay request cancelled');
       if (typeof accessToken !== 'string' || !accessToken || accessToken.startsWith('sb_')) throw Error('Supabase Auth required');
-      return root.fetch(project + '/rest/v1/rpc/ck_relay_request', {
-        method: 'POST', redirect: 'error', credentials: 'omit', cache: 'no-store', signal,
-        headers: { 'Content-Type': 'application/json', apikey: publishableKey, Authorization: 'Bearer ' + accessToken },
-        body: JSON.stringify({ op, credential: credential ?? null, data: data ?? {} })
+      return root.fetch(project + '/rest/v1/rpc/' + name, {
+        method:'POST', redirect:'error', credentials:'omit', cache:'no-store', signal,
+        headers:{'Content-Type':'application/json', apikey:publishableKey, Authorization:'Bearer '+accessToken},
+        body:JSON.stringify(data)
       });
+    };
+  }
+  function createClient({ getAccessToken, timeoutMs = 8000 } = {}) {
+    const rpc = createRpcRequest(getAccessToken);
+    if (!root.CK_AUTH_TRANSPORT) throw Error('Load network-transport.js first');
+    return root.CK_AUTH_TRANSPORT.createClient({ timeoutMs, request: ({path,method,data,credential,signal}) => {
+      const op = routes[method + ' ' + path];
+      if (!op) throw Error('Unsupported relay operation');
+      return rpc('ck_relay_request',{op,credential:credential??null,data:data??{}},signal);
     }});
   }
 
@@ -127,5 +134,5 @@
     return Object.freeze({ connect:guarded('connect'), refreshRoster:guarded('refreshRoster'),
       send:guarded('send'), poll, snapshot:connection.snapshot, close });
   }
-  root.CK_SUPABASE_TRANSPORT = Object.freeze({ createClient, createGuestAuth, createGuestClient });
+  root.CK_SUPABASE_TRANSPORT = Object.freeze({ createClient, createGuestAuth, createGuestClient, createRpcRequest });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -228,6 +228,36 @@ a faster channel. An authenticated WebRTC data channel is a candidate: bind its 
 fingerprints to the admitted room identities, keep replay/ownership/hash and final
 ACK checks, bound buffers and disconnects, and test two independent browsers plus
 real network/NAT cases. No paid TURN service, plan upgrade or unverified public
-Broadcast identity may be introduced to bypass these requirements. This candidate
-is not implemented or validated yet. The static host's Free plan, browser/CORS
+Broadcast identity may be introduced to bypass these requirements. An opt-in implementation is being validated; it is not the game default. The static host's Free plan, browser/CORS
 acceptance and Railway shutdown also remain outstanding.
+
+## Opt-in peer transport implementation
+
+`js/network-webrtc.js` implements the existing connect/roster/send/poll/close
+contract using authenticated Supabase admission plus a reliable ordered WebRTC
+data channel. `server/supabase-rtc.sql` is an additive signaling migration; it
+reuses the existing credential validation, idle/absolute expiry, rate limits,
+monthly budgets and transaction lock. Only admitted Auth identities may publish
+their own offer/answer, once, bound to the match nonce; later changes are rejected.
+SDP is bounded to 8 KiB and its DTLS fingerprint is delivered only to room members.
+The public wrapper remains invoker-only, with no anonymous grant or table access.
+This migration must pass PostgreSQL tests before applying to the real project.
+
+The channel hello must match the server-owned SID/team/match roster, and native
+DTLS must match the authenticated SDP fingerprint. Gameplay packets carry no
+selectable SID/team; the receiver stamps the admitted peer identity. Both the
+new channel validator and existing transport/simulation guards check sequence,
+role, sizes and checksums. Receive queues cap at 256 packets and send buffers at
+64 KiB; unexpected channels, malformed packets, disconnects and overload terminate
+the session. Gameplay uses no database message/receipt RPCs. A 10-second roster
+heartbeat renews only the current Auth-bound lease; room expiry/revocation ends play.
+
+The default ICE configuration uses the public Google STUN endpoint shown in the
+[official WebRTC guide](https://webrtc.org/getting-started/peer-connections).
+No TURN account, paid relay, subscription or new host is provisioned. Some networks
+require TURN and therefore may fail to connect; there is no automatic paid fallback.
+Native Chromium tests on one runner can establish local DTLS/SCTP and protocol
+behavior, but do not prove connectivity through different routers, mobile NATs or
+production browser CORS. Real Supabase/two-browser acceptance remains a rollout
+gate. The UI still uses the original connection until these gates and the static
+host's Free plan are verified.
