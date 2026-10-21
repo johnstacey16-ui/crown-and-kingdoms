@@ -76,7 +76,7 @@ const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan
 const CAVARM=new Set(['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan']);
 Object.assign(U,{conq:{n:'Conquistador',hp:55,sp:1.3,dmg:16,rng:5.5,cd:3.2,arm:0,cost:{f:60,g:70},t:18,c:'#8a3a2a',r:8,age:2},genoa:{n:'Genoese Crossbowman',hp:45,sp:1.4,dmg:6,rng:5.5,cd:1.6,arm:0,cost:{w:45,g:35},t:15,c:'#3a6a9a',r:8,age:2,bn:{knight:4,scout:4}},boyar:{n:'Boyar',hp:130,sp:1.7,dmg:9,rng:.9,cd:1.8,arm:0,cost:{f:70,g:60},t:18,c:'#a05a2a',r:11,age:2,mt:1,lk:'knight'},tarkan:{n:'Tarkan',hp:110,sp:1.8,dmg:10,rng:.9,cd:1.7,arm:0,cost:{f:60,g:50},t:16,c:'#7a4a2a',r:11,age:2,mt:1,lk:'scout'},huskarl:{n:'Huskarl',hp:60,sp:1.4,dmg:10,rng:.9,cd:1.5,arm:0,cost:{f:50,g:30},t:14,c:'#5a5a6a',r:9,age:2},jaguar:{n:'Jaguar Warrior',hp:60,sp:1.5,dmg:10,rng:.9,cd:1.4,arm:0,cost:{f:60,g:30},t:15,c:'#b08a2a',r:9,age:2,bn:{mil:6,spear:6,axe:6}},plumed:{n:'Plumed Archer',hp:50,sp:1.6,dmg:5,rng:5.5,cd:1.5,arm:0,cost:{f:55,w:40},t:15,c:'#2a8a6a',r:8,age:2},kamayuk:{n:'Kamayuk',hp:65,sp:1.3,dmg:7,rng:.9,cd:1.6,arm:0,cost:{f:55,w:40},t:15,c:'#a0603a',r:9,age:2,bn:{knight:10,scout:10,camel:10,cata:8}},shotel:{n:'Shotel Warrior',hp:45,sp:2,dmg:12,rng:.9,cd:1.6,arm:0,cost:{f:50,g:30},t:13,c:'#3a8a3a',r:9,age:2},gbeto:{n:'Gbeto',hp:40,sp:1.8,dmg:4,rng:5,cd:1.5,arm:0,cost:{f:40,g:30},t:11,c:'#8a6a2a',r:8,age:2,bn:{arc:3,xbow:3}},wagon:{n:'War Wagon',hp:150,sp:1.5,dmg:5,rng:5.5,cd:1.2,arm:0,cost:{w:90,g:60},t:20,c:'#8a7a4a',r:11,age:2,mt:1,lk:'mgd'},huszar:{n:'Magyar Huszar',hp:85,sp:2,dmg:7,rng:.9,cd:1.7,arm:0,cost:{f:60,g:30},t:14,c:'#a0302a',r:10,age:2,mt:1,lk:'scout'}});
 Object.assign(MA,{boyar:3,tarkan:2,huskarl:1,kamayuk:1,huszar:1,wagon:1});Object.assign(PRA,{boyar:3,tarkan:2,huskarl:6,kamayuk:2,huszar:2,wagon:3,jaguar:1,gbeto:1});
-function setZoom(z){if(!Number.isFinite(z))return;z=cl(z,.8,2);const c=S?s2w(CW/2,CH/2):null;zm=z;TW=64*z;TH=32*z;if(c)ctr(c[0],c[1])}
+function setZoom(z){if(!Number.isFinite(z))return;z=cl(z,.8,3);const c=S?s2w(CW/2,CH/2):null;zm=z;TW=64*z;TH=32*z;if(c)ctr(c[0],c[1])}
 function emit(k,x,y,n,o){const cap=PMAX[gq];o=o||{};for(let i=0;i<n;i++){if(PT.length>=cap)return;PT.push({k,x,y,z:0,vx:(Math.random()-.5)*(o.s||1),vy:(Math.random()-.5)*(o.s||1),vz:(o.vz||0)*(.6+Math.random()*.8),l:o.l||.6,t:0,c:o.c||'#ccc',r:o.r||2})}}
 function updP(dt){for(let i=PT.length-1;i>=0;i--){const p=PT[i];p.t+=dt;if(p.t>=p.l){PT[i]=PT[PT.length-1];PT.pop();continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;if(p.k==='deb'||p.k==='spark')p.vz-=9*dt}}
 let WQ=[];
@@ -133,8 +133,18 @@ else{if(t&&t.t===0&&t.sh&&t.hp<U[t.k].hp)mk('Repair damaged ship',()=>{const vs=
 return{title:t&&t.t>0?'Target':t&&t.amt>0?'Resource':'Command',i:0,items:it}}
 function openRadial(wx,wy){cancelGameplayGestures();const target=pick(wx,wy),hasVillagers=S.sel.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);if(target&&target.amt>0&&!target.fi&&hasVillagers){menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}else if(S.sel.length){openMenu();if(menu){menu.rad=1;menu.pg=0}}else{menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}}
 function playCtl(dt){if(ov||cgo||menu||pat||place)cancelGameplayGestures();const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=650*cspd*(lt?.55:1);
-if(!rad){cur.x=cl(cur.x+ax(0)*sp*dt,0,CW);cur.y=cl(cur.y+ax(1)*sp*dt,0,CH)}
-const ex=cur.x<20?-.8:cur.x>CW-20?.8:0,ey=cur.y<20?-.8:cur.y>CH-20?.8:0;cam.x+=(ax(2)+ex)*700*camspd*dt;cam.y+=(ax(3)+ey)*700*camspd*dt;clampCam();
+if(ov){cur.x=cl(cur.x+ax(0)*sp*dt,0,CW);cur.y=cl(cur.y+ax(1)*sp*dt,0,CH)}
+else if(!menu&&!cgo){
+ const lx=ax(0),ly=ax(1);
+ if(lx||ly){cur.x=CW/2;cur.y=CH/2;cam.x+=lx*700*camspd*dt;cam.y+=ly*700*camspd*dt}
+ if(!lt&&ax(3))setZoom(cameraZoomLevel(zm,ax(3),dt));
+ // Preserve pointer edge scrolling without assigning the right stick to panning.
+ const ex=cur.x<20?-.8:cur.x>CW-20?.8:0,ey=cur.y<20?-.8:cur.y>CH-20?.8:0;
+ cam.x+=ex*700*camspd*dt;cam.y+=ey*700*camspd*dt;
+}
+clampCam();
+// A held selection box stays anchored to the map while the camera pans/zooms.
+if(aDown&&Number.isFinite(aDown.wx)&&Number.isFinite(aDown.wy)){const anchor=w2s(aDown.wx,aDown.wy);aDown.x=anchor[0];aDown.y=anchor[1]}
 const wxy=s2w(cur.x,cur.y),wx=wxy[0],wy=wxy[1];
 if(ov){const o=ovr();if(E[3]){const mw=m2w(o,cur.x,cur.y);ctr(mw[0],mw[1]);yc=1;ov=0;return}if(E[1]||E[5]||E[8]){ov=0;return}if(E[12]){const mw=m2w(o,cur.x,cur.y);S.flare={x:mw[0],y:mw[1],t:S.t};note('Signal sent')}if(E[15]){mmF=(mmF+1)%3;note(['Minimap: full','Minimap: simple','Minimap: no terrain'][mmF])}if(E[14]){mmM=(mmM+1)%3;note(['Minimap: everything','Minimap: economy only','Minimap: military only'][mmM])}return}
 if(cgo){const sx=ax(0),sy=ax(1);if(Math.hypot(sx,sy)>.45){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;cgo.sel=Math.floor(a/6.2832*8+.5)%8}S.cg=S.cg||[];const sl=cgo.sel,live=()=>controlGroupMembers(S.cg[sl]);
@@ -155,7 +165,7 @@ if(E[3]){yc=0;yDown=true}if(yDown&&P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){co
 // LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
 // Villager priorities must use the documented R3 wheel once that UI is ready.
 if(!lt&&!P[7]&&!P[4]&&!P[py]){if(E[12])qsel('idle');if(E[15])qsel('support');if(E[13])qsel('tc');if(E[14])qsel('mil')}
-if(E[0]){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y}}
+if(E[0]){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y,wx,wy}}
 if(aDown&&P[pa]&&Math.hypot(cur.x-aDown.x,cur.y-aDown.y)>14)boxR={x0:aDown.x,y0:aDown.y,x1:cur.x,y1:cur.y};
 if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,aDown.y);tapA(aw[0],aw[1],lt)}aDown=null}
 // X's contextual actions and R3's priorities wheel require their own Xbox
@@ -174,7 +184,7 @@ function frame2(now){const dt=Math.min(.25,(now-last)/1000);last=now;readPad();i
 const simStart=performance.now();if(mode==='play'){acc+=dt*gs;while(acc>=DT&&mode==='play'){step(DT);if(window.CK_NET&&typeof window.CK_NET.onSimulationStep==='function')window.CK_NET.onSimulationStep();acc-=DT}if(S&&!(window.CK_NET&&window.CK_NET.isRunning())&&now-lastAutoSaveAt>=60000){lastAutoSaveAt=now;saveG(true)}}perfStepMs=performance.now()-simStart;perfStepPeak=Math.max(perfStepPeak,perfStepMs);
 const drawStart=performance.now();draw(dt);perfDrawMs=performance.now()-drawStart;perfDrawPeak=Math.max(perfDrawPeak,perfDrawMs)}
 function sset(){try{localStorage.setItem('ck_set',JSON.stringify({ui,br,msz,diff,aiDifficultyVersion:2,vm,scoreLimit,mt,mapLayout,civ,zm,gq,aip,kingdoms,startRes,startArmy,startAge,startVillagers,gameMode,perfHud,vol:VOL,rmb,snd,mus}))}catch(e){}}
-try{hs=[0,1,2].some(n=>!!localStorage.getItem(skey(n)))||!!localStorage.getItem('ck_autosave');BM=JSON.parse(localStorage.getItem('ck_map'))||{};const st=JSON.parse(localStorage.getItem('ck_set')||'null');if(st){ui=[.8,1,1.25,1.5].includes(st.ui)?st.ui:1;br=cl(+st.br||1,.6,1.5);msz=cl(st.msz|0,0,3);diff=cl(st.aiDifficultyVersion===2?(st.diff|0):[1,2,4][cl(st.diff|0,0,2)],0,5);vm=cl(st.vm|0,0,6);scoreLimit=SCORE_LIMITS.includes(st.scoreLimit)?st.scoreLimit:1200;mt=cl(st.mt|0,0,MT.length-1);mapLayout=cl(st.mapLayout|0,0,13);if(mapLayout)applyMapLayout();civ=cl(st.civ|0,0,CIV.length-1);zm=cl(+st.zm||1.4,.8,2);TW=64*zm;TH=32*zm;gq=cl(st.gq===undefined?1:st.gq|0,0,2);if(st.vol){const v01=x=>{x=+x;return x>=0&&x<=1?x:1};VOL={m:v01(st.vol.m),mu:v01(st.vol.mu),sf:v01(st.vol.sf),am:v01(st.vol.am)}}aip=cl(st.aip|0,0,6);kingdoms=[2,3,4].includes(st.kingdoms)?st.kingdoms:4;startRes=cl(st.startRes|0,0,5);startArmy=cl(st.startArmy|0,0,3);startAge=cl(st.startAge|0,0,3);startVillagers=st.startVillagers===undefined?1:cl(st.startVillagers|0,0,3);gameMode=cl(st.gameMode|0,0,2);perfHud=st.perfHud?1:0;rmb=st.rmb===0?0:1;snd=st.snd===0?0:1;mus=st.mus===0?0:1;}}catch(e){}
+try{hs=[0,1,2].some(n=>!!localStorage.getItem(skey(n)))||!!localStorage.getItem('ck_autosave');BM=JSON.parse(localStorage.getItem('ck_map'))||{};const st=JSON.parse(localStorage.getItem('ck_set')||'null');if(st){ui=[.8,1,1.25,1.5].includes(st.ui)?st.ui:1;br=cl(+st.br||1,.6,1.5);msz=cl(st.msz|0,0,3);diff=cl(st.aiDifficultyVersion===2?(st.diff|0):[1,2,4][cl(st.diff|0,0,2)],0,5);vm=cl(st.vm|0,0,6);scoreLimit=SCORE_LIMITS.includes(st.scoreLimit)?st.scoreLimit:1200;mt=cl(st.mt|0,0,MT.length-1);mapLayout=cl(st.mapLayout|0,0,13);if(mapLayout)applyMapLayout();civ=cl(st.civ|0,0,CIV.length-1);zm=cl(+st.zm||1.4,.8,3);TW=64*zm;TH=32*zm;gq=cl(st.gq===undefined?1:st.gq|0,0,2);if(st.vol){const v01=x=>{x=+x;return x>=0&&x<=1?x:1};VOL={m:v01(st.vol.m),mu:v01(st.vol.mu),sf:v01(st.vol.sf),am:v01(st.vol.am)}}aip=cl(st.aip|0,0,6);kingdoms=[2,3,4].includes(st.kingdoms)?st.kingdoms:4;startRes=cl(st.startRes|0,0,5);startArmy=cl(st.startArmy|0,0,3);startAge=cl(st.startAge|0,0,3);startVillagers=st.startVillagers===undefined?1:cl(st.startVillagers|0,0,3);gameMode=cl(st.gameMode|0,0,2);perfHud=st.perfHud?1:0;rmb=st.rmb===0?0:1;snd=st.snd===0?0:1;mus=st.mus===0?0:1;}}catch(e){}
 rs();
 if(window.CK_STORAGE)window.CK_STORAGE.restoreMissing().then(()=>refreshSlots()).catch(()=>{});
 try{if('serviceWorker' in navigator&&window.location&&window.location.protocol==='https:')navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(()=>{})}catch(e){}
@@ -185,5 +195,3 @@ addEventListener('contextmenu',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e
 setInterval(aTick,120);
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
-
-

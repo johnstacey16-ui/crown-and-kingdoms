@@ -325,3 +325,20 @@ Code `2ea9efa796f4ca306988a493c277348ddc93cda6` passed all named main checks on 
 All code and this evidence record were committed directly to main. These checks
 are Node/Chromium acceptance; physical Xbox, full civilisation-specific parity
 and the occupied-container conversion limitations above remain outstanding.
+
+
+## Camera control correction — 21 October 2026
+
+The owner reaffirmed matching AoE II: DE Xbox controls as the target. The official
+[default-layout cards, updated 8 May 2026](https://support.ageofempires.com/hc/en-us/articles/37041870568468-Age-of-Empires-II-Definitive-Edition-Default-Controller-Layouts)
+confirm LS camera pan and RS zoom in general gameplay. Implemented direct analog
+zoom in solo/campaign and multiplayer, removed RS panning, preserved world-anchored
+A boxes, and prevented LT/menu contexts from leaking camera zoom. Multiplayer
+focus preserves the user's zoom; camera input never enters the command transport.
+The optional solo slider is supplemental, rather than the normal zoom mechanism.
+
+Status: PARTIAL parity. Current minimum, sensitivity, axis-direction convention,
+reticle behavior and initial framing need Xbox build/hardware comparison. R3
+priorities, View notification snapping, contextual X, LT Find/category/waypoint
+controls and other previously recorded gaps still need implementation/acceptance.
+Do not treat this camera increment as full game, full controller or DLC parity.

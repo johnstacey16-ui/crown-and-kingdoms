@@ -23,6 +23,69 @@ function fixture() {
 }
 const button=i=>Object.assign([],{[i]:true});
 
+function cameraFixture(){
+  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+  vm.runInContext(source+'\n'+readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8'),sandbox);
+  vm.runInContext(`
+    seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();snd=0;mode='play';
+    pad={axes:[0,0,0,0],buttons:[]};ctr(30,30);cur={x:CW/2,y:CH/2};
+    let cameraHeld=[];
+    globalThis.cameraStep=(axes=[0,0,0,0],held=[],dt=1/30)=>{
+      pad.axes=axes;P=held;E=Array.from({length:16},(_,i)=>!!held[i]&&!cameraHeld[i]);
+      RE=Array.from({length:16},(_,i)=>!held[i]&&!!cameraHeld[i]);cameraHeld=held.slice();ctl(dt);
+    };
+    globalThis.cameraState=()=>({zoom:zm,centre:s2w(CW/2,CH/2),cursor:{...cur},cam:{...cam},
+      screenCentre:{x:CW/2,y:CH/2},hash:CK_SIM_SYNC.worldCheckpoint(S,1).hash,selected:S.sel.map(u=>u.netId)});
+  `,sandbox);
+  return sandbox;
+}
+
+test('Xbox right-stick zoom is direct, dead-zone filtered and separate from camera pan',()=>{
+  const c=cameraFixture(),before=c.cameraState();
+  c.cameraStep([0,0,1,0]);assert.equal(c.cameraState().zoom,before.zoom);assert.deepEqual(c.cameraState().cam,before.cam);
+  c.cameraStep([0,0,0,.1]);assert.equal(c.cameraState().zoom,before.zoom);
+  c.cameraStep([0,0,0,-1]);const closer=c.cameraState();assert.ok(closer.zoom>before.zoom);
+  for(let i=0;i<2;i++)assert.ok(Math.abs(closer.centre[i]-before.centre[i])<1e-8);
+  c.cameraStep([0,0,0,1]);assert.ok(Math.abs(c.cameraState().zoom-before.zoom)<1e-8);
+  c.cameraStep([1,0,0,0]);assert.notDeepEqual(c.cameraState().cam,before.cam);
+  assert.deepEqual(c.cameraState().cursor,c.cameraState().screenCentre);
+  assert.ok(Math.abs(c.cameraState().zoom-before.zoom)<1e-8);assert.equal(c.cameraState().hash,before.hash);
+});
+
+test('LT, command/group wheels, expanded minimap and pause do not leak right-stick zoom',()=>{
+  for(const context of ['lt','command','group','overview','pause']){
+    const c=cameraFixture();
+    if(context==='command')vm.runInContext("menu={rad:1,items:[{fn(){}}],i:0}",c);
+    if(context==='group')vm.runInContext('cgo={sel:-1,done:0}',c);
+    if(context==='overview')vm.runInContext('ov=1',c);
+    if(context==='pause')vm.runInContext("mode='pause'",c);
+    const before=c.cameraState();c.cameraStep([0,0,0,-1],context==='lt'?button(6):[]);
+    assert.equal(c.cameraState().zoom,before.zoom,context);assert.equal(c.cameraState().hash,before.hash,context);
+  }
+});
+
+test('analog zoom is frame-rate independent, bounded and retains map position',()=>{
+  const a=cameraFixture(),b=cameraFixture();
+  for(let i=0;i<30;i++)a.cameraStep([0,0,0,-1],[],1/30);
+  for(let i=0;i<60;i++)b.cameraStep([0,0,0,-1],[],1/60);
+  assert.ok(Math.abs(a.cameraState().zoom-b.cameraState().zoom)<1e-8);
+  assert.equal(a.cameraState().zoom,3);
+  for(let i=0;i<60;i++)a.cameraStep([0,0,0,1],[],1/30);
+  assert.equal(a.cameraState().zoom,.8);
+});
+
+test('hold-A box selection stays on its world anchor while left-stick camera panning continues',()=>{
+  const c=cameraFixture();
+  vm.runInContext(`
+    const point=s2w(CW/2+35,CH/2+35);S.us=[];
+    globalThis.boxUnit=addU(0,'mil',point[0],point[1]);S.sel=[];
+  `,c);
+  const before=c.cameraState();c.cameraStep([0,0,0,0],button(0));
+  c.cameraStep([1,1,0,0],button(0),.1);c.cameraStep();
+  assert.deepEqual(Array.from(c.cameraState().selected),[c.boxUnit.netId]);
+  assert.equal(c.cameraState().hash,before.hash);
+});
+
 test('the documented Menu > Zoom path adjusts only the local camera and B resumes',()=>{
   const {source,sandbox}=headlessGame();vm.createContext(sandbox);
   vm.runInContext(source+'\n'+readFileSync(new URL('../js/ui.js',import.meta.url),'utf8'),sandbox);
@@ -38,7 +101,7 @@ test('the documented Menu > Zoom path adjusts only the local camera and B resume
   for(let i=0;i<index;i++)sandbox.zoomPress(13);
   sandbox.zoomPress(14);assert.equal(sandbox.zoomRead().zoom,+(before.zoom-.2).toFixed(1));
   sandbox.zoomPress(15);assert.equal(sandbox.zoomRead().zoom,before.zoom);
-  for(let i=0;i<20;i++)sandbox.zoomPress(15);assert.equal(sandbox.zoomRead().zoom,2);
+  for(let i=0;i<20;i++)sandbox.zoomPress(15);assert.equal(sandbox.zoomRead().zoom,3);
   for(let i=0;i<20;i++)sandbox.zoomPress(14);assert.equal(sandbox.zoomRead().zoom,.8);
   const after=sandbox.zoomRead();
   for(let i=0;i<2;i++)assert.ok(Math.abs(after.centre[i]-before.centre[i])<1e-8,'zoom retains the viewed world position');

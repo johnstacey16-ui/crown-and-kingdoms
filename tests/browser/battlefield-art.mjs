@@ -184,13 +184,15 @@ try{
  await page.evaluate(()=>artMap.control({1:true},{4:true,1:true}));
  const camera=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  for(let i=0;i<8;i++)artMap.control({}, {}, [0,0,0,-1],.1);
+  const analogZoom=artMap.viewport().zoom;
   artMap.control({4:true},{4:true},[0,-1]);artMap.control({3:true},{4:true,3:true},[0,-1]);artMap.control({},{});
   const viewport=artMap.viewport();
   const view=CK_UNIT_MAP.project(S,0,W,H);
-  return {viewport,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash,
+  return {viewport,analogZoom,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash,
     hidden:!view.battlefield.enemies.some(e=>e.id===artFixture.hidden)};
  });
- assert.equal(camera.viewport.zoom,2);assert.equal(camera.unchanged,true);assert.equal(camera.hidden,true);
+ assert.ok(camera.analogZoom>1);assert.equal(camera.viewport.zoom,camera.analogZoom);assert.equal(camera.unchanged,true);assert.equal(camera.hidden,true);
  await page.locator('#battlefield-art').screenshot({path:output+'/focused-world.png'});
  await page.evaluate(()=>artMap.control({5:true}));
  assert.equal(await page.evaluate(()=>artMap.viewport().overview),true);

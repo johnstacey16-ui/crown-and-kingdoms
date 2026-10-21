@@ -73,14 +73,14 @@ test('both humans recall local LB groups and reform Line/Split through HTTP with
   game.testRefreshMap(map,team);
   const units=p.eval(game,'fixtureRanks['+team+'].map(u=>({x:u.x,y:u.y,id:u.netId}))');
   map.choose(units[0]);map.choose(units[1],true);
-  const before=game.testHash();
+  const before=game.testHash();map.control({}, {}, [0,0,0,-1],.1);const cameraZoom=map.viewport().zoom;
   map.control({4:true},{4:true},[0,-1]);map.control({2:true},{4:true,2:true},[0,-1]);map.control({},{});
   map.control({1:true});assert.equal(map.selection().length,0);
   map.control({4:true},{4:true},[0,-1]);map.control({},{});
   assert.deepEqual(Array.from(map.selection()),Array.from(units,u=>u.id));
   assert.equal(game.testHash(),before,'assignment and recall never mutate the simulation');
   map.control({4:true},{4:true},[0,-1]);map.control({3:true},{4:true,3:true},[0,-1]);map.control({},{});
-  assert.equal(map.viewport().zoom,2);assert.equal(game.testHash(),before,'group camera focus is local');
+  assert.equal(map.viewport().zoom,cameraZoom);assert.equal(game.testHash(),before,'group camera focus preserves zoom and stays local');
   return map;
  });
  for(const value of ['split','line']){

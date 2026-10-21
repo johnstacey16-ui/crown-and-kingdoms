@@ -35,6 +35,27 @@ function mapFixture(c){
  return{map,orders,draws,description,refresh:()=>c.run('testMap.refresh(S,0,W,H,true)')};
 }
 
+test('multiplayer camera uses right-stick zoom and left-stick pan without sending orders or changing the world',()=>{
+ const c=fixture(),f=mapFixture(c),before=c.worldHash();
+ const initial=f.map.viewport();f.map.control({}, {}, [0,0,1,0],.1);
+ assert.equal(f.map.viewport().zoom,initial.zoom);
+ f.map.control({}, {}, [0,0,0,-1],.1);assert.ok(f.map.viewport().zoom>initial.zoom);
+ assert.ok(Math.abs((21.5-f.map.viewport().x)/f.map.viewport().width-21.5/72)<1e-8,'zoom preserves the world point under the reticle');
+ const zoom=f.map.viewport().zoom;f.map.control({}, {6:true}, [0,0,0,-1],.1);
+ assert.equal(f.map.viewport().zoom,zoom,'LT right-stick navigation is not reassigned to zoom');
+ for(let i=0;i<20;i++)f.map.control({}, {}, [0,0,0,-1],.1);
+ assert.equal(f.map.viewport().zoom,3);
+ const focused=f.map.viewport();f.map.control({}, {}, [1,0,0,0],.1);
+ assert.ok(f.map.viewport().x>focused.x,'left stick pans the cropped viewport');
+ f.map.control({5:true},{5:true});assert.equal(f.map.viewport().overview,true);assert.equal(f.map.viewport().zoom,1);
+ f.map.control({}, {}, [0,0,0,1],.1);f.map.control({1:true},{1:true});
+ assert.equal(f.map.viewport().zoom,3,'closing overview restores the prior zoom');
+ for(let i=0;i<30;i++)f.map.control({}, {}, [0,0,0,1],.1);
+ assert.equal(f.map.viewport().zoom,.8);
+ assert.ok(Number.isFinite(f.map.viewport().x));assert.ok(Number.isFinite(f.map.viewport().y));
+ assert.equal(c.worldHash(),before);assert.deepEqual(f.orders,[]);
+});
+
 test('authenticated Line/Split reforms both teams with atomic ownership and route checks',()=>{
  for(const team of [0,1]){
   const c=fixture();

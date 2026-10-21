@@ -81,12 +81,13 @@
     function clampCamera(){
       if(!camera||!view)return;
       const halfW=view.width/camera.zoom/2,halfH=view.height/camera.zoom/2;
-      camera.x=Math.max(halfW,Math.min(view.width-halfW,camera.x));camera.y=Math.max(halfH,Math.min(view.height-halfH,camera.y));
+      camera.x=halfW*2>=view.width?view.width/2:Math.max(halfW,Math.min(view.width-halfW,camera.x));
+      camera.y=halfH*2>=view.height?view.height/2:Math.max(halfH,Math.min(view.height-halfH,camera.y));
     }
     function closeOverview(){overview=false;if(overviewOrigin)cursor=overviewOrigin;overviewOrigin=null;}
     function focusView(point){
       if(!view||!Number.isFinite(point?.x)||!Number.isFinite(point?.y))return;
-      overview=false;overviewOrigin=null;camera={x:point.x,y:point.y,zoom:2};clampCamera();cursor={x:point.x,y:point.y};
+      overview=false;overviewOrigin=null;camera={x:point.x,y:point.y,zoom:camera?.zoom||1};clampCamera();cursor={x:point.x,y:point.y};
       cancelGesture();cancelShortcut();
     }
     function followCursor(){
@@ -126,7 +127,7 @@
     function cancelShortcut(){yGesture=null;}
     function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){closeGroup();cancelShortcut();wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection, Y focuses the group and releasing LB recalls it. RB opens the expanded minimap; Y focuses its cursor. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick pans the camera; right stick up/down zooms. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection, Y focuses the group and releasing LB recalls it. RB opens the expanded minimap; Y focuses its cursor. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function drawTerrain(sx,sy){
       const field=view.battlefield,visible=new Set(field.visible);
@@ -332,7 +333,7 @@
           context.fillText('Hold RT + LT + A: train 5',340,402);
         }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
-      if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('View '+v.zoom+'x · LB: Groups · RB: Map',662,664);}
+      if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('View '+v.zoom.toFixed(1)+'x · LB: Groups · RB: Map',662,664);}
       if(groupWheel)drawGroups();
       if(!groupWheel&&!overview&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
     }
@@ -356,7 +357,7 @@
       if(!selected)wheel=false;
       if(!cursor){const first=view.units[0]||view.buildings[0];cursor=first?{x:first.x,y:first.y}:{x:width/2,y:height/2};}
       canvas.setAttribute('aria-disabled',String(!enabled));
-      if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick moves the cursor; tap A to select or order; hold A and drag to box-select units. LT adds units or boxes; hold RT for commands. '+(view.battlefield?'Explore to reveal terrain, resources and opponents. A on a visible enemy attacks with selected units.':'Enemy positions and terrain are not shown.')+'';
+      if(!selected)description.textContent='D-pad: Up idle villager, Right support, Down town centre, Left military. Left stick pans; right stick up/down zooms. Tap A to select or order; hold A and drag to box-select units. LT adds units or boxes; hold RT for commands. '+(view.battlefield?'Explore to reveal terrain, resources and opponents. A on a visible enemy attacks with selected units.':'Enemy positions and terrain are not shown.')+'';
       draw();
     }
     function buildPoint(point){return {x:Math.max(1,Math.min(view.width-placement.size-1,Math.round(point.x-placement.size/2))),y:Math.max(1,Math.min(view.height-placement.size-1,Math.round(point.y-placement.size/2)))}}
@@ -591,8 +592,16 @@
       }
       const delta=Number.isFinite(dt)?Math.min(.1,Math.max(0,dt)):0;
       const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
-      cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*viewport().width*.6*delta));
-      cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*viewport().height*.6*delta));
+      if(!held[6]&&axis(3)){
+        const previous=viewport(),rx=(cursor.x-previous.x)/previous.width,ry=(cursor.y-previous.y)/previous.height;
+        camera.zoom=cameraZoomLevel(camera.zoom,axis(3),delta);
+        camera.x=cursor.x+(.5-rx)*view.width/camera.zoom;camera.y=cursor.y+(.5-ry)*view.height/camera.zoom;
+        clampCamera();
+      }
+      const dx=axis(0)*viewport().width*.6*delta,dy=axis(1)*viewport().height*.6*delta;
+      camera.x+=dx;camera.y+=dy;clampCamera();
+      cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+dx));
+      cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+dy));
       followCursor();
       if(placement&&buttons[0]&&!blockedA){choose(cursor,!!held[6],true);blockedA=true;return;}
       if(buttons[0]&&held[0]&&!blockedA&&!aGesture)aGesture={start:{...cursor},box:false};

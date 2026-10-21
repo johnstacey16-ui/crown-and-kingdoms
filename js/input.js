@@ -1,4 +1,10 @@
 /* Crown & Kingdoms — controller polling, selection, orders and menu navigation. */
+// Xbox default layout: left stick pans; right stick's vertical axis zooms.
+// Shared by solo and multiplayer; these are local camera values, never orders.
+function cameraZoomLevel(current,axis,dt){
+ if(!Number.isFinite(axis)||!Number.isFinite(dt)||dt<=0)return current;
+ return Math.max(.8,Math.min(3,current*Math.exp(-Math.max(-1,Math.min(1,axis))*1.2*Math.min(.1,dt))));
+}
 function readPad(){let g=null;try{const list=navigator.getGamepads?navigator.getGamepads():[];g=[...list].find(p=>p&&p.connected);gpErr=''}catch(e){gpErr=String(e&&e.name||e);if(pad&&pad.connected)g=pad}const changed=!!(g&&pad&&(g.index!==pad.index||g.id!==pad.id))||!!(g&&!pad);pad=g||null;const n=pad&&pad.buttons?Array.from(pad.buttons,b=>!!(b&&(b.pressed||b.value>.5))):[];if(changed){if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();prev=n.slice();RE=[];ER=n.map(()=>false);E=n.map(()=>false);P=n.slice();return}const mp=i=>Number.isInteger(BM[i])&&BM[i]>=0&&BM[i]<n.length?BM[i]:i;RE=prev.map((_,i)=>{const j=mp(i);return!!(prev[j]&&!n[j])});ER=n.map((v,i)=>v&&!prev[i]);E=ER.map((_,i)=>ER[mp(i)]);P=n.map((_,i)=>!!n[mp(i)]);prev=n}
 const ax=i=>{const raw=pad&&pad.axes?pad.axes[i]:0,v=Number.isFinite(raw)?Math.max(-1,Math.min(1,raw)):0,rawZone=i<2?dz:dzr,z=Number.isFinite(rawZone)?Math.max(0,Math.min(.95,rawZone)):.2;return Math.abs(v)<=z?0:Math.sign(v)*(Math.abs(v)-z)/(1-z)},tv=i=>{const v=pad&&pad.buttons[i]?pad.buttons[i].value:0;return Number.isFinite(v)?Math.max(0,Math.min(1,v)):0};
 window.addEventListener('gamepadconnected',()=>{prev=[];pad=null;gpErr='';});window.addEventListener('gamepaddisconnected',e=>{if(!pad||e.gamepad.index===pad.index){pad=null;prev=[];P=[];E=[];ER=[];RE=[];if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();}});window.addEventListener('focus',()=>{prev=[];if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();});
@@ -139,4 +145,3 @@ if(mode==='pause'){const PI=pmItems();if(E[12])pm=(pm+PI.length-1)%PI.length;if(
 if(mode!=='play')return;if(!pad){cancelGameplayGestures();mode='pause';return}if(E[9]){cancelGameplayGestures();mode='pause';return}
 playCtl(dt);return;}
 /* ===== RENDERING ===== */
-

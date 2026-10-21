@@ -108,7 +108,7 @@
     matchMenu.style.cssText=overlay.style.cssText;
     const menuTitle=document.createElement('h1');menuTitle.textContent='Multiplayer menu';
     const menuNotice=document.createElement('p');menuNotice.textContent='The multiplayer match continues while this menu is open.';
-    const cameraHelp=document.createElement('p');cameraHelp.textContent='Camera: RB opens the full-map overview. Move its cursor with the left stick, then press Y for 2x focus. Hold LB, choose a group with the left stick, then press Y to focus that group. B or RB closes the overview. Free zoom in/out is not yet available in multiplayer.';
+    const cameraHelp=document.createElement('p');cameraHelp.textContent='Camera: left stick pans; right stick up/down zooms during play. RB opens the full-map overview; move its cursor with the left stick, then press Y to focus. Hold LB, choose a group, then Y to focus it. Focusing preserves your zoom. LT uses a separate controller context.';
     const resumeButton=makeButton('Resume match'),objectivesButton=makeButton('Objectives'),exitButton=makeButton('Leave match');
     const menuControls=[resumeButton,objectivesButton,exitButton];
     const objectiveBody=document.createElement('section');objectiveBody.setAttribute('aria-label','Match objectives');
@@ -343,7 +343,7 @@
         return;
       }
       if(E[9]&&previewRunning){openMenu();return;}
-      if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E,P,[ax(0),ax(1)],dt); return; }
+      if (document.activeElement === unitCanvas && !E[9]) { unitMap.control(E,P,[ax(0),ax(1),ax(2),ax(3)],dt); return; }
       if (E[1] || E[9]) { close(); return; }
       const available = controls.filter(element => !element.disabled && !element.hidden);
       if (E[12] || E[13]) {
