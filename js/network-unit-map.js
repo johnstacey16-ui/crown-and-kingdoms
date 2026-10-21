@@ -138,7 +138,7 @@
         const grain=((tile.index*2654435761)>>>28)%3;
         context.fillStyle=tile.water===1?['#234f65','#28596b','#2b5c70'][grain]:
           tile.water===2?'#719b91':['#526b3d','#586f42','#5d7446'][grain];
-        context.fillRect(px,py,sx+.3,sy+.3);
+        if(!paintTerrain(context,tile.water===1?2:tile.water===2?3:0,x,y,px,py,sx+.3,sy+.3))context.fillRect(px,py,sx+.3,sy+.3);
         if(tile.water&&sx>=5){
           context.strokeStyle=tile.water===2?'rgba(230,226,177,.3)':'rgba(163,221,227,.22)';
           const ripple=tile.water===1?Math.sin(field.time*.8+x*.7+y)*sy*.08:0;
@@ -147,7 +147,7 @@
         }
         const n=tile.node;
         if(n&&sx>=3){
-          if(n.kind==='w'){
+          if(n.kind==='w'&&typeof ASSET!=='undefined'&&ASSET.n&&assetFrame('node_tree',0,0,0,0)){const art=assetFrame('node_tree',0,0,0,0),f=art.f,sc=Math.max(15,sx*2)/f.w;context.drawImage(art.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);}else if(n.kind==='w'){
             context.fillStyle='#392f22';context.fillRect(px+sx*.45,py+sy*.4,Math.max(1,sx*.13),sy*.6);
             context.fillStyle=grain?'#254b32':'#31583a';context.beginPath();
             context.arc(px+sx*.5,py+sy*.3,Math.max(2,sx*.48),0,Math.PI*2);context.fill();
@@ -175,17 +175,6 @@
       }
     }
     function drawAtlas(e,x,y,sx,sy){
-      // Share the named SVG collection with the solo/campaign renderer.
-      if(typeof paintPixelIcon==='function'){
-        const size=e.size||0,name=(size?BUILDING_ICONS:UNIT_ICONS)[e.kind];
-        if(name){
-          const height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
-          context.save();context.translate(x+size*sx/2,y+(size?size*sy:2));
-          if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
-          paintPixelIcon(context,name,teamColor(e.team),height,height);
-          context.restore();return true;
-        }
-      }
       if(typeof assetFrame!=='function')return false;
       const size=e.size||0,time=view.battlefield?.time||0;
       // Preserve the actual kingdom palette for each player; relation rings
@@ -193,10 +182,10 @@
       const sprite=assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,time,e.pose?.heading||0);
       if(!sprite)return false;
       const f=sprite.f,height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
-      const scale=height/f.h*(sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
+      const scale=height/f.h*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
       context.save();
       if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
-      try{context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,time,Math.cos(e.pose?.heading||0)<0);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
       catch(_){context.restore();return false;}
       context.restore();return true;
     }

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Static regression check for local sprite-atlas metadata. No dependencies required.
 import assert from 'node:assert/strict';
+import {webpDimensions} from '../scripts/raster-metadata.mjs';
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,13 +20,9 @@ for (const atlas of pack.atlases) {
   assert.ok(atlas.src.startsWith('./assets/'), `atlas ${atlas.id} must use a repository-local asset`);
   const assetPath = resolve(root, atlas.src);
   assert.ok(existsSync(assetPath), `missing atlas asset: ${atlas.src}`);
-  const svg = readFileSync(assetPath, 'utf8');
-  assert.doesNotMatch(svg, /<[^>]*</, `atlas ${atlas.src} contains an unclosed SVG tag`);
-  const dimensions = svg.match(/<svg\b[^>]*\bwidth=["']([\d.]+)["'][^>]*\bheight=["']([\d.]+)["']/i);
-  assert.ok(dimensions, `atlas ${atlas.src} must expose explicit SVG width and height`);
-  const width = Number(dimensions[1]);
-  const height = Number(dimensions[2]);
-  assert.ok(width > 0 && height > 0, `atlas ${atlas.src} has invalid dimensions`);
+  const {width,height}=webpDimensions(readFileSync(assetPath));
+  assert.equal(atlas.meta.painted,true);
+  assert.equal(atlas.meta.width,width);assert.equal(atlas.meta.height,height);
 
   for (const [key, animation] of Object.entries(atlas.meta.anims)) {
     animations++;

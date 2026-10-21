@@ -11,7 +11,7 @@ try {
     ['/index.html?release=test', 'text/html', '<canvas'],
     ['/js/network-session.js', 'text/javascript', 'CK_LIVE_SESSION'],
     ['/styles.css', 'text/css', 'canvas'],
-    ['/assets/wood-texture.svg', 'image/svg+xml', '<svg'],
+    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v1'],
     ['/sw.js', 'text/javascript', 'no-store']
   ]) {
     const response = await request(path);
@@ -19,6 +19,11 @@ try {
     assert.ok(response.headers.get('content-type').startsWith(type), path);
     assert.ok((await response.text()).includes(marker), path);
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  }
+  for(const name of ['painted-units','painted-buildings','painted-terrain']){
+    const response=await request('/assets/'+name+'.webp');
+    assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^image\/webp/);
+    const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.toString('ascii',8,12),'WEBP');
   }
   const health = await request('/healthz');
   assert.deepEqual(await health.json(), { status: 'ok' });

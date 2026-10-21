@@ -74,9 +74,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/input.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
-  assert.ok(render.startsWith('/* ===== PIXEL-ART SVG ICONS'));
-  assert.ok(render.indexOf('const PIXEL_ICONS')<render.indexOf('function drawWorld()'));
-  assert.ok(render.indexOf('const BUILDING_ICONS')<render.indexOf('function drawWorld()'));
+  assert.ok(render.startsWith('/* ===== PAINTED RASTER GRAPHICS'));
+  assert.ok(render.indexOf('function drawPaintedTroop')<render.indexOf('function drawWorld()'));
+  assert.ok(render.indexOf('function paintTerrain')<render.indexOf('function drawWorld()'));
   assert.ok(render.includes('function drawUnit(u,selectedUnits)'));
   assert.ok(render.includes('function drawRelic(q)'));
   assert.ok(render.includes('function paintTile(g,x,y,cx,cy)'));
@@ -182,7 +182,7 @@ test('offline cache can survive temporary hosting errors as well as network loss
 
 
 test('in-game About copy describes the real asset, audio and verification boundaries', () => {
-  assert.match(engine, /Named medieval pixel-art SVG icons, team colours and procedural fallbacks/);
+  assert.match(engine, /Painted medieval raster sprites, textured terrain and team-colour heraldry/);
   assert.match(engine, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
   assert.match(engine, /Multiplayer reliability and host-authoritative match state are active development goals/);
   assert.match(engine, /measure Xbox performance and verify multiplayer/);

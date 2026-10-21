@@ -4,7 +4,7 @@ import { createTransport } from './transport.mjs';
 
 const publicRoot = new URL('../', import.meta.url);
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml' };
+  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 
 // Keep implementation, tests, git metadata and deployment files off the public origin.
 // All public paths are single filenames in known directories; no filesystem joins from input.
@@ -23,7 +23,7 @@ export function createApplication() {
     catch { return send(400, 'Invalid path'); }
     if (path === '/healthz') return send(200, '{"status":"ok"}', 'application/json');
     if (path === '/') path = '/index.html';
-    if (!/^\/(?:index\.html|styles\.css|engine\.js|multiplayer\.js|persistence\.js|sw\.js|js\/[a-z0-9-]+\.js|assets\/[a-z0-9-]+\.(?:svg|json))$/.test(path)) {
+    if (!/^\/(?:index\.html|styles\.css|engine\.js|multiplayer\.js|persistence\.js|sw\.js|js\/[a-z0-9-]+\.js|assets\/[a-z0-9-]+\.(?:svg|webp|json))$/.test(path)) {
       return send(404, 'Not found');
     }
     let data;

@@ -4,11 +4,15 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v14';
+const CACHE_NAME = 'ck-shell-v15-painted';
 const CORE_ASSETS = [
   './',
   './index.html',
   './styles.css',
+  './assets/atlas-manifest.json',
+  './assets/painted-units.webp',
+  './assets/painted-buildings.webp',
+  './assets/painted-terrain.webp',
   './js/config.js',
   './js/state.js',
   './js/mapgen.js',
@@ -95,5 +99,3 @@ self.addEventListener('fetch', (event) => {
     return response;
   })());
 });
-
-

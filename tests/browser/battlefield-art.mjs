@@ -21,9 +21,10 @@ server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({headless:true});
 const errors=[];
-async function scene(page){
+async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===2&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -43,13 +44,13 @@ async function scene(page){
   addU(0,'trn',29.5,35.5);addU(0,'cog',31.5,35.5);addU(1,'gal',34.5,36.5);
   const host=document.createElement('main');
   host.style.cssText='position:fixed;inset:0;z-index:10000;background:#09141d;color:#eadfc2;font:16px system-ui;display:flex;align-items:center;flex-direction:column;overflow:auto';
-  const title=document.createElement('h1');title.textContent='Crown & Kingdoms — medieval pixel-art icons';title.style.fontSize='22px';
+  const title=document.createElement('h1');title.textContent='Crown & Kingdoms — painted medieval battlefield';title.style.fontSize='22px';
   const canvas=document.createElement('canvas');canvas.id='battlefield-art';
   const description=document.createElement('p');description.style.maxWidth='680px';
   host.append(title,canvas,description);document.body.append(host);
   const context=canvas.getContext('2d'),original=context.drawImage.bind(context);
   window.artDraws=[];
-  context.drawImage=(...args)=>{artDraws.push({icon:args[0].pixelIconName,teamColor:args[0].pixelIconColor,src:args[0].src,x:args[1],y:args[2],w:args[3],h:args[4]});return original(...args)};
+  context.drawImage=(...args)=>{artDraws.push({painted:args[0].paintedAtlas,team:args[0].paintedTeam,src:args[0].src,x:args[1],y:args[2],w:args[3],h:args[4]});return original(...args)};
   window.artOrders=[];
   window.artMap=CK_UNIT_MAP.create({canvas,description,submit:order=>{artOrders.push(order);return{ok:false}},leave(){}});
   window.artFixture={hidden:hidden.netId,soldier:soldier.netId};
@@ -65,34 +66,21 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
- const diagnostics=await page.evaluate(async()=>{
-  const results=[];
-  for(const [name,svg] of Object.entries(PIXEL_ICONS)){
-   const parsed=new DOMParser().parseFromString(svg,'image/svg+xml');
-   let matching=true,crisp=true;
-   for(let team=0;team<4;team++){
-    const canvas=document.createElement('canvas');canvas.width=canvas.height=32;
-    const context=canvas.getContext('2d');context.translate(16,32);
-    paintPixelIcon(context,name,teamColor(team),32,32);
-    const actual=context.getImageData(0,0,32,32).data;
-    const reference=document.createElement('canvas');reference.width=reference.height=32;
-    const image=new Image();image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg.replaceAll('currentColor',teamColor(team)));await image.decode();
-    const expectedContext=reference.getContext('2d');expectedContext.drawImage(image,0,0);
-    const expected=expectedContext.getImageData(0,0,32,32).data;
-    matching=matching&&actual.every((value,i)=>value===expected[i]);
-    canvas.width=canvas.height=80;const scaled=canvas.getContext('2d');scaled.translate(40,70);
-    paintPixelIcon(scaled,name,teamColor(team),44,56);
-    const pixels=scaled.getImageData(0,0,80,80).data;
-    crisp=crisp&&pixels.every((value,i)=>i%4!==3||value===0||value===255);
-   }
-   results.push({name,xmlError:parsed.querySelector('parsererror')?.textContent||null,matching,crisp});
-  }
-  return {icons:results,missingUnits:Object.keys(U).filter(k=>!UNIT_ICONS[k]),missingBuildings:Object.keys(B).filter(k=>!BUILDING_ICONS[k])};
+ const diagnostics=await page.evaluate(()=>{
+  const missingUnits=[],missingBuildings=[];
+  for(const k of Object.keys(U))for(let t=0;t<4;t++)for(let st=0;st<4;st++)if(!assetFrame(k,t,st,0,.1))missingUnits.push(k+'/'+t+'/'+st);
+  for(const k of Object.keys(B))for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
+  const a=assetFrame('mil',0,0,0,0),b=assetFrame('mil',1,0,0,0);
+  const pixels=a.img.getContext('2d').getImageData(0,0,a.img.width,a.img.height).data;
+  const red=b.img.getContext('2d').getImageData(0,0,b.img.width,b.img.height).data;
+  let transparent=0,changed=0;
+  for(let i=0;i<pixels.length;i+=4){if(!pixels[i+3])transparent++;if(pixels[i]!==red[i]||pixels[i+1]!==red[i+1]||pixels[i+2]!==red[i+2])changed++}
+  return {missingUnits,missingBuildings,transparent,changed,terrain:!!PAINT.terrain,atlases:ASSET.n};
  });
- console.log('Pixel SVG diagnostics: '+JSON.stringify(diagnostics));
- assert.equal(diagnostics.icons.length,69);
+ console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.ok(diagnostics.icons.every(d=>!d.xmlError&&d.matching&&d.crisp),'all named SVGs must match the canvas raster and retain sharp edges for all four teams');
+ assert.equal(diagnostics.atlases,2);assert.equal(diagnostics.terrain,true);
+ assert.ok(diagnostics.transparent>100000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const rendering=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
   const first=JSON.stringify(artDraws),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
@@ -100,15 +88,14 @@ try{
   S.t=.21;artDraws.length=0;const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.refresh(S,0,W,H,true);
   return {changed:first!==JSON.stringify(artDraws),sprites:artDraws.length,
-    icons:[...new Set(artDraws.map(d=>d.icon))],
-    teamColours:[...new Set(artDraws.map(d=>d.teamColor))],
+    painted:artDraws.filter(d=>d.painted).length,
+    teams:[...new Set(artDraws.filter(d=>d.painted).map(d=>d.team))],
     unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash,stable};
  });
  assert.equal(initial.hash,initial.after);assert.equal(initial.enemyHidden,true);
  assert.equal(initial.foundation,.5);
- assert.ok(rendering.sprites>=8);assert.equal(rendering.changed,false);assert.equal(rendering.unchanged,true);
- for(const name of ['villager-icon','soldier-icon','knight-icon','trade-cart-icon','conquistador-icon','palisade-wall-icon','town-centre-icon','transport-ship-icon','trade-cog-icon'])assert.ok(rendering.icons.includes(name),name+' is drawn on the battlefield');
- assert.ok(rendering.teamColours.length>=2,'both kingdom palettes are present');
+ assert.ok(rendering.sprites>=8);assert.equal(rendering.unchanged,true);
+ assert.ok(rendering.painted>=8);assert.ok(rendering.teams.length>=2,'both kingdom palettes are present');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
  const militaryMenu=await page.evaluate(()=>{
   const context=document.getElementById('battlefield-art').getContext('2d'),original=context.fillText.bind(context),labels=[];
@@ -201,22 +188,22 @@ try{
  const contact=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const canvas=document.createElement('canvas');canvas.id='extended-art';
-  const names=Object.keys(PIXEL_ICONS),rows=Math.ceil(names.length/8);
+  const names=[...Object.keys(U).filter(k=>!['tca','tw','cs'].includes(k)),...Object.keys(B).map(k=>'bld_'+k)],rows=Math.ceil(names.length/8);
   canvas.width=1280;canvas.height=rows*144;canvas.style.cssText='display:block;width:1280px;max-width:none';
   const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,canvas.width,canvas.height);
   let count=0;
   for(let i=0;i<names.length;i++){
    const x=i%8*160,y=Math.floor(i/8)*144;
    ctx.fillStyle='#f4e6ba';ctx.font='10px system-ui';ctx.fillText(names[i],x+4,y+14);
-   for(let team=0;team<2;team++)for(const [size,dx]of [[48,26],[32,74],[16,110]]){
-    ctx.save();ctx.translate(x+dx,y+64+team*60);
-    paintPixelIcon(ctx,names[i],teamColor(team),size,size);ctx.restore();count++;
+   for(let team=0;team<2;team++){
+    const art=assetFrame(names[i],team,0,0,.1),f=art.f,scale=Math.min(64/f.w,48/f.h);
+    ctx.drawImage(art.img,f.x,f.y,f.w,f.h,x+80-f.ax*scale,y+66+team*60-f.ay*scale,f.w*scale,f.h*scale);count++;
    }
   }
   document.querySelector('main').append(canvas);
   return {icons:names.length,sprites:count,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
- assert.equal(contact.icons,69);assert.equal(contact.sprites,414);assert.equal(contact.unchanged,true);
+ assert.equal(contact.icons,69);assert.equal(contact.sprites,138);assert.equal(contact.unchanged,true);
  await page.setViewportSize({width:1320,height:1450});
  await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});
  await page.setViewportSize({width:960,height:850});
@@ -252,19 +239,19 @@ try{
  const cacheUpgrade={oldShellRemoved:migrated,sprites:upgradedScene.sprites};
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
  fallback.on('pageerror',error=>errors.push(error.message));
- await fallback.route('**/assets/*atlas.svg',route=>route.abort());
- const without=await scene(fallback);
- assert.ok(without.sprites>=8);assert.equal(without.hash,without.after);assert.equal(without.enemyHidden,true);
+ await fallback.route('**/assets/painted-*.webp',route=>route.abort());
+ const without=await scene(fallback,false);
+ assert.equal(without.sprites,0);assert.equal(without.hash,without.after);assert.equal(without.enemyHidden,true);
  const colours=await fallback.evaluate(()=>{
   const c=document.getElementById('battlefield-art').getContext('2d'),data=c.getImageData(0,0,680,680).data,set=new Set();
   for(let i=0;i<data.length;i+=64)set.add(data[i]+','+data[i+1]+','+data[i+2]);
   return set.size;
  });
- assert.ok(colours>20,'inline pixel icons remain visible when every atlas request fails');
+ assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
  await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
- console.log('Real Chromium: pixel SVG equivalence, sharp scaling, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
+ console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{
  await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));

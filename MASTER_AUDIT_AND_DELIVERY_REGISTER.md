@@ -1,3 +1,10 @@
+<!-- Graphics increment: 21 October 2026 -->
+Painted raster artwork now replaces the rejected pixel SVG icon system in solo
+and multiplayer. Textured terrain, original medieval sprites and cached team
+heraldry are implemented. Full directional limb animation and physical Xbox
+performance acceptance remain pending. Controller and simulation behavior are
+unchanged. See GRAPHICS_ACCEPTANCE.md and docs/PAINTED_ART.md.
+
 # Current hosting constraint — free only
 
 The owner chose free-only hosting on 21 October 2026. This supersedes prior

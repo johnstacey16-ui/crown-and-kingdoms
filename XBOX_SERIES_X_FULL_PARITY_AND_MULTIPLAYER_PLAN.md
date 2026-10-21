@@ -1,3 +1,10 @@
+<!-- Graphics increment: 21 October 2026 -->
+Painted raster artwork now replaces the rejected pixel SVG icon system in solo
+and multiplayer. Textured terrain, original medieval sprites and cached team
+heraldry are implemented. Full directional limb animation and physical Xbox
+performance acceptance remain pending. Controller and simulation behavior are
+unchanged. See GRAPHICS_ACCEPTANCE.md and docs/PAINTED_ART.md.
+
 # Crown & Kingdoms — synchronized multiplayer and Xbox Series X full-content delivery plan
 
 **Scope decision:** 19 October 2026. **Target reference:** Age of Empires II: Definitive Edition **on Xbox Series X**, with all gameplay DLC available on Xbox as of the recorded reference date; the game's original code, artwork, audio, campaigns and identities must remain its own. Xbox Series S / Microsoft Edge remains a required lower-performance acceptance device. This expands the earlier base-game-only delivery scope.

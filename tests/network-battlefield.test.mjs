@@ -392,60 +392,15 @@ test('battlefield copies animation poses and construction progress without chang
  assert.equal(c.worldHash(),before);
 });
 
-test('named SVG icons cover every unit and building with distinct, bounded pixel art',()=>{
- const c=fixture();
- const catalog=JSON.parse(c.run('JSON.stringify({icons:PIXEL_ICONS,units:UNIT_ICONS,buildings:BUILDING_ICONS,unitKeys:Object.keys(U),buildingKeys:Object.keys(B)})'));
- assert.equal(Object.keys(catalog.icons).length,69);
- for(const k of catalog.unitKeys)assert.ok(catalog.icons[catalog.units[k]],'missing unit '+k);
- for(const k of catalog.buildingKeys)assert.ok(catalog.icons[catalog.buildings[k]],'missing building '+k);
- const artworks=new Set();
- for(const [name,svg] of Object.entries(catalog.icons)){
-  assert.ok(svg.startsWith('<svg '));assert.ok(svg.endsWith('</svg>'));
-  assert.ok(svg.includes('id="'+name+'"'));assert.ok(svg.includes('viewBox="0 0 32 32"'));
-  assert.ok(svg.includes('shape-rendering="crispEdges"'));assert.ok(svg.includes('fill="currentColor"'));
-  const body=svg.slice(svg.indexOf('>')+1,-6);assert.ok(!artworks.has(body),'duplicate artwork '+name);artworks.add(body);
-  const rects=[...svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" fill="([^"]+)"\/>/g)];
-  assert.ok(rects.length>0);
-  for(const m of rects){const [x,y,w,h]=m.slice(1,5).map(Number);assert.ok(w>0&&h>0&&x+w<=32&&y+h<=32,'clipped rectangle in '+name);}
- }
-});
-
-test('SVG rendering takes precedence over atlases, preserves team colours and depth, and never mutates game state',()=>{
- const c=fixture();c.run(`
-  regAtlas('legacy',{}, {anims:{'mil/idle/0':{frames:[{x:0,y:0,w:16,h:16,ax:8,ay:14}]}}});
-  globalThis.pixelDraws=[];const originalPixel=paintPixelIcon;
-  paintPixelIcon=function(g,name,tc,w,h,bottom){pixelDraws.push({name,tc,w,h});return originalPixel(g,name,tc,w,h,bottom)};
-  worker.p=[[22.5,21.5]];S.t=.05;globalThis.castle=addB(0,'tc',24,27,true);
- `);
- const before=c.worldHash(),f=mapFixture(c);
- const calls=JSON.parse(c.run('JSON.stringify(pixelDraws)'));
- assert.ok(calls.some(d=>d.name==='soldier-icon'&&d.tc===c.run('teamColor(0)')));
- assert.ok(calls.some(d=>d.name==='soldier-icon'&&d.tc===c.run('teamColor(1)')));
- assert.ok(calls.some(d=>d.name==='villager-icon'));
- assert.ok(calls.some(d=>d.name==='town-centre-icon'));
- assert.ok(calls.findLastIndex(d=>d.name==='town-centre-icon')>calls.findIndex(d=>d.name==='soldier-icon'),'nearer building draws after the unit behind it');
- assert.ok(f.draws.filter(d=>d[0]==='drawImage').every(d=>d[1].pixelIconName),'legacy atlas cannot replace named icons');
+test('painted troop rendering preserves the world and restores canvas state',()=>{
+ const c=fixture(),before=c.worldHash();
+ c.run(`globalThis.paintCalls=[];globalThis.paintStack=[];
+ const g={imageSmoothingEnabled:false,save(){paintStack.push(this.imageSmoothingEnabled)},restore(){this.imageSmoothingEnabled=paintStack.pop()},translate(){},rotate(){},scale(){},drawImage(...args){paintCalls.push(args)}};
+ const art={img:{},f:{x:0,y:0,w:80,h:100,ax:40,ay:95}};
+ drawPaintedTroop(g,art,20,30,.5,1,.1);drawPaintedTroop(g,art,20,30,.5,2,.3,true);
+ globalThis.restoredPaintState=g.imageSmoothingEnabled;`);
+ assert.equal(c.run('paintCalls.length'),2);assert.equal(c.run('restoredPaintState'),false);
  assert.equal(c.worldHash(),before);
- c.run('S.t=.15');const nextHash=c.worldHash();f.refresh();assert.equal(c.worldHash(),nextHash);
-});
-
-test('native icon rasters reuse the team cache and restore the caller canvas state',()=>{
- const c=fixture();
- c.run(`
-  globalThis.nativeDraws=[];
-  globalThis.saved=[];
-  globalThis.iconContext={imageSmoothingEnabled:true,fillStyle:'unchanged',
-   save(){saved.push(this.imageSmoothingEnabled)},restore(){this.imageSmoothingEnabled=saved.pop()},
-   drawImage(...args){nativeDraws.push(args)}};
-  paintPixelIcon(iconContext,'soldier-icon',teamColor(0),44,56);
-  paintPixelIcon(iconContext,'soldier-icon',teamColor(0),33,47);
-  paintPixelIcon(iconContext,'soldier-icon',teamColor(1),44,56);
- `);
- assert.equal(c.run('nativeDraws[0][0]===nativeDraws[1][0]'),true,'size changes reuse the 32-pixel raster');
- assert.equal(c.run('nativeDraws[0][0]===nativeDraws[2][0]'),false,'team palettes have separate rasters');
- assert.equal(c.run('nativeDraws[0][0].width'),32);assert.equal(c.run('nativeDraws[0][0].height'),32);
- assert.equal(c.run('nativeDraws[0][0].pixelIconName'),'soldier-icon');
- assert.equal(c.run('iconContext.imageSmoothingEnabled'),true);assert.equal(c.run('iconContext.fillStyle'),'unchanged');
 });
 
 test('heading-aware atlas lookup handles four and eight directions while retaining existing callers',()=>{
@@ -461,9 +416,9 @@ test('heading-aware atlas lookup handles four and eight directions while retaini
  assert.equal(c.run("assetFrame('test',0,0,3,0).f.x"),3,'existing directional index semantics stay intact');
 });
 
-test('SVG art and unfinished-building indicators remain available with missing or undrawable atlases',()=>{
+test('procedural fallback and unfinished-building indicators survive missing or undrawable atlases',()=>{
  const c=fixture();c.run("globalThis.foundation=addB(0,'house',24,27,false);foundation.pr=B.house.bt*.5");
- const before=c.worldHash(),f=mapFixture(c);assert.ok(f.draws.some(d=>d[0]==='drawImage'&&d[1].pixelIconName));
+ const before=c.worldHash(),f=mapFixture(c);assert.ok(f.draws.some(d=>d[0]==='fillRect'||d[0]==='ellipse'));
  assert.ok(f.draws.some(d=>d[0]==='strokeRect'||d[0]==='ellipse'));
  c.run("regAtlas('failed',{}, {anims:{'vil/idle/0':{frames:[{x:0,y:0,w:16,h:16,ax:8,ay:14}]}}})");
  const canvas={style:{},setAttribute(){},addEventListener(){},getContext:()=>new Proxy({},{get:(_,key)=>key==='drawImage'?()=>{throw Error('Image unavailable')}:()=>{}})};

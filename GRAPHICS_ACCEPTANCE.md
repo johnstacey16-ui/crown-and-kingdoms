@@ -1,6 +1,26 @@
 # Battlefield graphics acceptance
 
-## Current pixel-icon presentation — 21 October 2026
+## Current painted raster presentation — 21 October 2026
+
+The user rejected the pixel SVG icons. The default renderer now uses original
+painted WebP artwork: 47 playable troop types, 22 building types, three building
+combat proxies, forest clusters and six terrain materials. The pixel-icon
+collection has been removed from `js/render.js`; old optional atlas files are
+preserved for history but are no longer in the default asset manifest.
+
+Both battlefield renderers use transparent sprites, cached team-cloth recolouring
+and the same validated frame bounds. Missing assets retain procedural fallback.
+Single base poses have subtle presentation motion and facing mirroring; full
+limb and eight-direction animation remain unfinished. This is a graphics increment,
+not a claim of complete AoE II DE fidelity or physical Xbox performance acceptance.
+
+Native Canvas2D scenes verify solo/multiplayer rendering without world-checkpoint
+changes or camera-generated orders. CI checks actual WebP dimensions, complete
+catalogue coverage, HTTP MIME/security, controller contracts and Chromium rendering,
+team colours, cache migration and failed-asset fallback. See
+[art provenance](docs/PAINTED_ART.md) and [gameplay preview](docs/painted-gameplay-preview.webp).
+
+## Superseded pixel-icon presentation — 21 October 2026
 
 The user requested small, clean medieval pixel-art SVG icons in place of unit
 and building placeholders, with all definitions grouped at the top of the
