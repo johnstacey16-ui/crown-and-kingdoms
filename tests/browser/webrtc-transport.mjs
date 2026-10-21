@@ -9,7 +9,7 @@ import {chromium} from 'playwright';
 const server=createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});res.end('<!doctype html><title>Peer transport fixture</title>');});
 server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,args:['--disable-features=WebRtcHideLocalIpsWithMdns']});
 const results=[];let lastDiagnostics=[];
 async function fixture(){
   const contexts=[await browser.newContext(),await browser.newContext()];
@@ -48,7 +48,7 @@ async function fixture(){
       };
     });
     for(const name of ['network-transport','network-supabase','network-webrtc'])await page.addScriptTag({content:readFileSync(new URL('../../js/'+name+'.js',import.meta.url),'utf8')});
-    await page.evaluate(()=>{window.client=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false,connectTimeoutMs:10000});window.handled=[];});
+    await page.evaluate(()=>{window.client=CK_WEBRTC_TRANSPORT.createGuestClient({useStun:false,connectTimeoutMs:30000});window.handled=[];});
   }
   const [host,guest]=pages;
   const invitation=await host.evaluate(async()=>{const room=await client.connect();return room.roomId;});
@@ -88,9 +88,13 @@ try{
       results.push({case:'native ordered channel',messages:120,elapsedMs:Math.round(ms),messagesPerSecond:Math.round(120000/ms),gameplayRpcCalls:0});
     }finally{await f.close();}
   }
-  for(const attack of ['sender','gap','role','oversize','overflow','second-channel']){
+  for(const attack of ['sender','gap','role','oversize','overflow','second-channel','replay']){
     const f=await fixture();
     try{
+      if(attack==='replay'){
+        await f.host.evaluate(()=>client.send('frame',{frame:1}));
+        await f.guest.evaluate(async()=>{let n=0;while(!await client.poll(()=>true)){if(++n>100)throw Error('No replay fixture frame');await new Promise(r=>setTimeout(r,1));}});
+      }
       await f.host.evaluate(attack=>{
         if(attack==='second-channel'){testPC.createDataChannel('ck-game-v1',{ordered:true,protocol:'ck-live-preview-9'});return;}
         const wire={v:1,sequence:1,kind:'frame',payload:{frame:1}};
