@@ -190,3 +190,28 @@ test('real HTTP guest UI garrisons, unloads, repairs and lands transport passeng
  assert.equal(p.eval(p.hostGame,'CK_GAME_COMMANDS.lookup(fixtureShip).cg.length'),0);
 });
 
+
+
+test('both humans execute RT Patrol and Attack Move over authenticated HTTP with matching frame hashes',async t=>{
+ const p=await battlefieldPair(t,false,false,true);
+ for(const [game,live,team,type] of [[p.hostGame,p.hostLive,0,'patrol'],[p.guestGame,p.guestLive,1,'attack-move']]){
+  const orders=[],description={textContent:''};
+  const canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
+  const map=game.CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return live.submit(order)},leave(){}});
+  const unit=p.eval(game,`fixtureRanks[${team}][0]`);
+  game.testRefreshMap(map,team);map.choose({x:unit.x,y:unit.y});
+  map.control({7:true},{7:true});
+  const options=game.CK_GAME_COMMANDS.unitOptions(p.eval(game,'S'),team,unit),index=options.findIndex(o=>o.type===type),angle=index*Math.PI*2/options.length;
+  map.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+  assert.equal(orders.length,0,'menu selection is local');
+  const before=p.eval(game,`fixtureRanks[${team}][0].x`);
+  map.choose({x:unit.x+3,y:unit.y+2});assert.equal(orders.length,1);assert.equal(orders[0].type,type);
+  assert.equal(p.eval(game,`fixtureRanks[${team}][0].x`),before,'waits for the host frame');
+  for(let i=0;i<12;i++)await p.cycle();
+  assert.equal(live.snapshot().lastResult.ok,true);
+  for(const replica of [p.hostGame,p.guestGame]){
+   assert.equal(p.eval(replica,`fixtureRanks[${team}][0].pt.once`),type==='attack-move');
+   assert.notEqual(p.eval(replica,`fixtureRanks[${team}][0].x`),before,'production movement executes');
+  }
+ }
+});

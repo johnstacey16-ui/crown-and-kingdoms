@@ -76,6 +76,9 @@
     if (unit.k==='vil' || U[unit.k].sh) options.push({type:'repair',label:unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
     if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
       options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
+    if (militaryUnit(unit)) options.push(
+      {type:'patrol',label:'Patrol',targeted:true,cost:{},locked:''},
+      {type:'attack-move',label:'Attack Move',targeted:true,cost:{},locked:''});
     return options;
   }
 
@@ -311,14 +314,22 @@
       return true;
     }
     if (order.type === 'move') return moveUnits(entities, order.point);
-    if (order.type === 'attack-move') {
-      if (entities.some(u => ['vil', 'fish', 'cart', 'cog', 'trn', 'mon'].includes(u.k)))
-        return false;
-      for (const u of entities) {
-        u.pt = { a: [u.x, u.y], b: [order.point.x, order.point.y], to: 1, once: true };
-        u.o = 'p'; u.tg = null; u.p = []; u.rp = 0;
-        u.as = 0; u.autoWorker = 0; u.guardTarget = null;
-      }
+    if (order.type === 'attack-move' || order.type === 'patrol') {
+      if (entities.some(u => !militaryUnit(u) || !Number.isFinite(u.x) || !Number.isFinite(u.y) ||
+          u.x<0 || u.y<0 || u.x>=W || u.y>=H)) return false;
+      // Resolve every outbound route before replacing any existing order.
+      // Sight is not required for a ground destination; entity attacks still
+      // require authoritative current sight in the separate attack branch.
+      const routes=entities.map(u=>path(u,gp(order.point.x,order.point.y,1.2)));
+      if (routes.some(route=>!route)) return false;
+      entities.forEach((u,i)=>{
+        u.pt = { a: [u.x, u.y], b: [order.point.x, order.point.y], to: 1, once: order.type==='attack-move' };
+        u.o = 'p'; u.tg = null; u.p = routes[i].slice(); u.rp = 2;
+        u.as = 0; u.autoWorker = 0; u.guardTarget = null; u.ret = 0;
+        u.retreating = false; u.retreatTarget = null;
+        u.retreatRestUntil = 0; u.retreatRouteRetryAt = 0;
+        u.ut = null; u.unloadBeach = null; u.unloadRouteRetryAt = 0;
+      });
       return true;
     }
     if (order.type === 'attack') {

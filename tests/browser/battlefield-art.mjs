@@ -50,7 +50,8 @@ async function scene(page){
   const context=canvas.getContext('2d'),original=context.drawImage.bind(context);
   window.artDraws=[];
   context.drawImage=(...args)=>{artDraws.push({src:args[0].src,x:args[1],y:args[2],w:args[3],h:args[4]});return original(...args)};
-  window.artMap=CK_UNIT_MAP.create({canvas,description,submit:()=>({ok:false}),leave(){}});
+  window.artOrders=[];
+  window.artMap=CK_UNIT_MAP.create({canvas,description,submit:order=>{artOrders.push(order);return{ok:false}},leave(){}});
   window.artFixture={hidden:hidden.netId,soldier:soldier.netId};
   const hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.refresh(S,0,W,H,true);artMap.choose({x:soldier.x,y:soldier.y});
@@ -95,6 +96,30 @@ try{
  assert.ok(animation.originalSources.some(s=>s.endsWith('detailed-buildings-atlas.svg')));
  for(const file of ['trade-atlas.svg','unique-forces-atlas.svg','palisade-atlas.svg'])assert.ok(animation.originalSources.some(s=>s.endsWith(file)),file+' is used in the battlefield');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
+ const militaryMenu=await page.evaluate(()=>{
+  const context=document.getElementById('battlefield-art').getContext('2d'),original=context.fillText.bind(context),labels=[];
+  context.fillText=(text,...args)=>{labels.push(text);return original(text,...args)};
+  artMap.control({7:true},{7:true});
+  const unit=S.us.find(u=>u.netId===artFixture.soldier),items=CK_GAME_COMMANDS.unitOptions(S,0,unit);
+  items.forEach((_,i)=>{const angle=i*Math.PI*2/items.length;artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)])});
+  context.fillText=original;
+  return {patrol:labels.includes('Patrol'),attackMove:labels.includes('Attack Move')};
+ });
+ assert.equal(militaryMenu.patrol,true);assert.equal(militaryMenu.attackMove,true);
+ await page.locator('#battlefield-art').screenshot({path:output+'/military-command-menu.png'});
+ const militaryOrders=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  for(const type of ['patrol','attack-move']){
+   artMap.control({7:true},{7:true});
+   const soldier=S.us.find(u=>u.netId===artFixture.soldier),items=CK_GAME_COMMANDS.unitOptions(S,0,soldier);
+   const angle=items.findIndex(o=>o.type===type)*Math.PI*2/items.length;
+   artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
+   artMap.control({0:true},{7:true,0:true});artMap.control({},{});
+   artMap.choose({x:30.5,y:29.5});artMap.control({1:true},{1:true});artMap.control({},{});
+  }
+  return {types:artOrders.map(o=>o.type),points:artOrders.every(o=>o.point&&!o.target),unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.deepEqual(militaryOrders.types,['patrol','attack-move']);assert.equal(militaryOrders.points,true);assert.equal(militaryOrders.unchanged,true);
  const groups=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   artMap.control({4:true},{4:true},[0,-1]);artMap.control({2:true},{4:true,2:true},[0,-1]);artMap.control({},{});
@@ -185,7 +210,7 @@ try{
  assert.ok(colours>20,'procedural scene remains visible when every atlas request fails');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,animation,teamOne,contact,militaryMenu,militaryOrders,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: local SVG atlases, animation, both teams, fog, checksum isolation, cache upgrades and failed-image fallback passed');
  console.log(JSON.stringify(timing));
 }finally{

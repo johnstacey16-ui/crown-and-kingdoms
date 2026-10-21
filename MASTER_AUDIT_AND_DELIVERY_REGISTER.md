@@ -174,3 +174,30 @@ Still open: independent-router/mobile connectivity, physical Xbox Edge complete
 match and controller acceptance, sustained performance, anonymous-user retention,
 reconnect, more humans, full menu/feature/content/DLC/graphics/audio coverage and
 Railway shutdown. There is no full-game, full-DLC or universal-connectivity claim.
+
+
+## Authenticated military Patrol and Attack Move — 21 October 2026
+
+The multiplayer military RT menu now exposes Patrol and Attack Move. Both enter
+local ground targeting and submit only when A chooses a destination; B, menus,
+selection changes and suspension cancel targeting. No input changes simulation
+before host execution. The host validates current ownership, living ungarrisoned
+military membership, strict map coordinates and every outbound route before
+replacing any selected unit's orders. Soldiers and warships use production
+pathfinding. Patrol returns to its starting point and repeats; Attack Move ends
+at the destination. Both retain the production combat interruption/resumption
+policy and clear conflicting retreat/unload work. Unexplored ground is allowed;
+entity-targeted attacks still require current sight. Handshake ck-live-preview-10
+excludes older live clients; shell cache v12 updates the command modules.
+
+Focused local tests cover both teams and movement classes, arrival behavior,
+invalid inputs, atomic route rejection, RT confirmation/cancellation and pending
+orders. A real authenticated HTTP pair exercises both RT actions with production
+movement and matching checkpoints on every checked frame. Browser graphics CI
+now captures the military menu and checks typed ground targeting without local
+world mutation. Full regression/browser results are recorded in the change PR.
+
+The official Xbox Controls guide documents Patrol and Attack Move under the RT
+military command menu. Exact sectors, target gestures, formation spacing, combat
+behavior fidelity and physical Xbox Edge acceptance remain unverified. Trade,
+tribute/diplomacy, priorities, reconnect and additional humans remain open.
