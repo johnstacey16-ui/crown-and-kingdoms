@@ -342,3 +342,9 @@ reticle behavior and initial framing need Xbox build/hardware comparison. R3
 priorities, View notification snapping, contextual X, LT Find/category/waypoint
 controls and other previously recorded gaps still need implementation/acceptance.
 Do not treat this camera increment as full game, full controller or DLC parity.
+
+Camera validation at code commit `ad82b533fa740a8182fb000e9ffe75aa784a8c62`:
+125 targeted Node checks and game validation passed. The hosted
+[Chromium graphics and room-layout run 39657103778](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39657103778)
+passed, including direct analog zoom, zoom preservation through group focus,
+fog and unchanged game checkpoints. Physical Xbox acceptance remains open.
