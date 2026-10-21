@@ -102,6 +102,19 @@ try{
   await host.getByRole('button',{name:'Run live preview',exact:true}).click();
   const started=performance.now();
   await Promise.all(pages.map(p=>p.waitForFunction(()=>smokeLive.snapshot().phase==='running')));
+  stage='objectives-menu';
+  await host.evaluate(()=>{E=[];E[9]=true;CK_AUTH_LOBBY.control(1/30);E=[];});
+  const menu=host.getByRole('dialog',{name:'Multiplayer menu',exact:true});
+  await menu.waitFor();
+  await menu.getByRole('button',{name:'Objectives',exact:true}).click();
+  assert.match(await host.locator('#ck-match-objective').textContent(),/opposing Town Centre/);
+  const menuTime=await host.evaluate(()=>S.t);
+  await host.waitForFunction(before=>S.t>before+0.1,menuTime,{timeout:5000});
+  await menu.getByRole('button',{name:'Back to multiplayer menu',exact:true}).click();
+  assert.equal(await menu.getByRole('button',{name:'Objectives',exact:true}).evaluate(el=>el===document.activeElement),true);
+  await host.evaluate(()=>{E=[];E[9]=true;CK_AUTH_LOBBY.control(1/30);E=[];});
+  await menu.waitFor({state:'hidden'});
+  stage='train-orders';
   const before=[await host.evaluate(()=>smokeTeam(0)),await guest.evaluate(()=>smokeTeam(1))];
   await host.getByRole('button',{name:'Train villager',exact:true}).click();
   await guest.getByRole('button',{name:'Train villager',exact:true}).click();
@@ -125,7 +138,7 @@ try{
   assert.equal(await guest.evaluate(()=>CK_AUTH_LOBBY.active()),false);
   await host.waitForFunction(()=>['closed','failed'].includes(wrtcClient.snapshot().phase));
   result={status:'passed',testedAt:new Date().toISOString(),uiFlow:'Create / Join / Verify / Run / Train / Leave',
-    verifiedFrames:120,matchingWorlds:true,paidOrdersBothTeams:true,finalAck:120,terminal:'deterministic draw fixture',
+    verifiedFrames:120,objectivesWhileRunning:true,matchingWorlds:true,paidOrdersBothTeams:true,finalAck:120,terminal:'deterministic draw fixture',
     elapsedGameplayMs:Math.round(elapsed),observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
     topology:'two Chromium contexts, one runner, numeric host ICE; '+(deployedOrigin?'production HTTPS game UI':'localhost game UI')+'; real Supabase Auth/HTTPS/CORS/signaling',
     deployedOrigin:deployedOrigin||null,verifiedAssetCount:deployedOrigin?verifiedAssets.length:0,authUserRecordsRemain:true};
