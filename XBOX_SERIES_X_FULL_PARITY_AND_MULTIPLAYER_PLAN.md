@@ -1,3 +1,14 @@
+<!-- Core animation increment: 21 October 2026 -->
+CK-032: added 48 original painted movement/attack poses for infantry, knights
+and villagers, plus villager work playback. Shared game-time/cooldown pose
+calculation now freezes on pause and retains facing without mutating simulation
+entities. Fallen units keep painted artwork. Coverage is 3/47 playable kinds,
+with mirrored facing; remaining roster, specialised tools, directional/death
+sheets and physical Xbox performance are open. See docs/PAINTED_MOTION.md.
+The previous broad CI run also exposed stale SVG-atlas and automatic-focus-zoom
+assertions; these now test painted pack integration and explicit right-stick
+zoom with focus preserving that zoom. Controller bindings are unchanged.
+
 <!-- Graphics increment: 21 October 2026 -->
 Painted raster artwork now replaces the rejected pixel SVG icon system in solo
 and multiplayer. Textured terrain, original medieval sprites and cached team

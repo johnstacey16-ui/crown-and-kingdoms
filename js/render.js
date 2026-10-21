@@ -3,7 +3,7 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
-const PAINT={terrain:null};
+const PAINT={terrain:null,facing:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
@@ -23,11 +23,27 @@ function paintedTerrainKind(x,y){
  const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]===1)||(y<H-1&&S.wt[i+W]===1);
  return coast?3:hsh(x>>2,y>>2)<.1?1:0;
 }
+// Presentation pose shared by solo and team-relative multiplayer views.
+// Facing history stays in a weak cache, never on simulation entities.
+// Game time freezes stride/work cycles on pause; cooldown drives attack phase.
+function unitVisualPose(u,time){
+ const point=Array.isArray(u.p)&&u.p.length?u.p[0]:null;
+ const walking=!!(point&&point.length===2&&point.every(Number.isFinite));
+ const target=['a','g','b','rep'].includes(u.o)&&u.tg&&Number.isFinite(u.tg.x)&&Number.isFinite(u.tg.y)?u.tg:null;
+ const tx=walking?point[0]:target?target.x+(target.s||0)/2:null,ty=walking?point[1]:target?target.y+(target.s||0)/2:null;
+ const heading=tx!==null?Math.atan2(ty-u.y,tx-u.x):PAINT.facing.get(u)??(Number.isFinite(u.dr)?u.dr*Math.PI/4:0);
+ if(tx!==null)PAINT.facing.set(u,heading);
+ const state=walking?1:u.o==='a'&&u.cd>0?2:['g','b','rep'].includes(u.o)?3:0;
+ const duration=typeof U!=='undefined'&&U[u.k]?.cd>0?U[u.k].cd:1;
+ let offset=0;for(const c of String(u.netId||u.id||u.k||''))offset=(offset*31+c.charCodeAt(0))%997;
+ return {state,heading,time:(Number.isFinite(time)?time:0)+offset/997,
+  phase:state===2?Math.max(0,Math.min(1,1-u.cd/duration)):undefined};
+}
 function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false){
  const f=art.f,walk=state===1,attack=state===2,work=state===3;
- const bob=walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
+ const bob=art.animated?0:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
  g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.translate(x,y-bob);
- if(mirror)g.scale(-1,1);if(walk)g.rotate(Math.sin(time*10)*.018);if(attack)g.rotate(Math.sin(time*12)*.055);
+ if(mirror)g.scale(-1,1);if(walk&&!art.animated)g.rotate(Math.sin(time*10)*.018);if(attack&&!art.animated)g.rotate(Math.sin(time*12)*.055);
  g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);g.restore();
 }
 
@@ -41,9 +57,9 @@ else{const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]==
 if(!coast&&!dirt){if(hv>.8){X.strokeStyle='#3e7a30';X.lineWidth=1;X.beginPath();X.moveTo(cx-6,cy+2);X.lineTo(cx-4,cy-3);X.moveTo(cx-3,cy+2);X.lineTo(cx-2,cy-4);X.moveTo(cx+3,cy+3);X.lineTo(cx+4,cy-2);X.stroke()}else if(hv<.03){X.fillStyle=hv<.015?'#f4e04d':'#f2f2f2';X.fillRect(cx+hv*100-1,cy-1,3,3)}const tuft=hsh(x*13+7,y*19+3);if(tuft>.91){const tx=cx+(hsh(x+31,y+17)-.5)*14,ty=cy+(hsh(x+11,y+41)-.5)*6;X.strokeStyle=tuft>.97?'#577d35':'#426d2d';X.lineWidth=1;X.beginPath();X.moveTo(tx-3,ty+2);X.lineTo(tx-4,ty-2);X.moveTo(tx,ty+2);X.lineTo(tx,ty-4);X.moveTo(tx+3,ty+2);X.lineTo(tx+5,ty-1);X.stroke();if(tuft>.985){X.fillStyle='#d8c57b';X.beginPath();X.arc(tx+1,ty-4,1.2,0,7);X.fill()}}}else if(dirt&&!coast&&hv>.45){const peb=hsh(x*5+81,y*7+29);if(peb>.87){X.fillStyle=peb>.96?'rgba(205,190,151,.7)':'rgba(63,51,35,.45)';X.beginPath();X.ellipse(cx+(hv-.5)*12,cy+(peb-.9)*12,1.8,1,0,0,7);X.fill()}}}
 if(!S.ex[i]){X.fillStyle='#000';dia(cx,cy,hw+1.5,hh2+1.5);X.fill()}else{if(!S.vs[i]){X.fillStyle='rgba(0,0,0,.42)';dia(cx,cy,hw+1,hh2+1);X.fill()}const n=S.nd[i];if(n&&n.amt>0)L.push([x+y+1,0,n])}}
 for(const q of rub){const age=gt-q.t;if(age>40||!Number.isFinite(q.x)||!Number.isFinite(q.y)||q.x+q.s<x0-2||q.x>x1+2||q.y+q.s<y0-2||q.y>y1+2||!S.ex[q.y*W+q.x])continue;const N=w2s(q.x,q.y),E=w2s(q.x+q.s,q.y),Sx=w2s(q.x+q.s,q.y+q.s),Wv=w2s(q.x,q.y+q.s);X.globalAlpha=Math.min(1,(40-age)/10);X.fillStyle='#5b4a38';poly([N,E,Sx,Wv]);X.fill();X.fillStyle='#8a8378';for(let k=0;k<q.s*3;k++){const a=hsh(q.x*7+k,q.y*5)*q.s,b=hsh(q.y*3+k,q.x*11)*q.s,P=w2s(q.x+a,q.y+b);X.fillRect(P[0]-3,P[1]-3,6,4)}if(age<4){X.fillStyle='rgba(120,110,100,'+(.5-age/8)+')';const C=w2s(q.x+q.s/2,q.y+q.s/2);X.beginPath();X.arc(C[0],C[1]-12-age*8,16+age*4,0,7);X.fill()}X.globalAlpha=1}
-for(const c of corp){const age=gt-c.t;if(age>10||!Number.isFinite(c.x)||!Number.isFinite(c.y)||c.x<x0-3||c.x>x1+3||c.y<y0-3||c.y>y1+3)continue;const P=w2s(c.x,c.y),sz=USZ(c.k),sp=spr(c.k+'|'+c.tm+'|0|0',sz[0],sz[1],g=>paintUnit(g,c.k,teamColor(c.tm),0,0));X.save();X.translate(P[0],P[1]);X.globalAlpha=Math.min(1,(10-age)/4);
+for(const c of corp){const age=gt-c.t;if(age>10||!Number.isFinite(c.x)||!Number.isFinite(c.y)||c.x<x0-3||c.x>x1+3||c.y<y0-3||c.y>y1+3)continue;const P=w2s(c.x,c.y),sz=USZ(c.k),body=ASSET.n?assetFrame(c.k,c.tm,0,0,gt):null,sp=body?null:spr(c.k+'|'+c.tm+'|0|0',sz[0],sz[1],g=>paintUnit(g,c.k,teamColor(c.tm),0,0));X.save();X.translate(P[0],P[1]);X.globalAlpha=Math.min(1,(10-age)/4);
 if(c.sh){const k2=Math.min(1,age/1.2);X.translate(0,k2*18*zm);X.scale(1,1-k2*.5);X.globalAlpha*=1-k2*.6}else{const a=Math.min(1,age/.55);if(c.fd<0)X.scale(-1,1);X.rotate(a*1.45);X.translate(0,a*2*zm)}
-X.drawImage(sp,-sz[0]/2*zm,-(sz[1]-8)*zm,sz[0]*zm,sz[1]*zm);X.restore()}X.globalAlpha=1
+if(body){const f=body.f,sc=body.sc*zm;X.drawImage(body.img,f.x,f.y,f.w,f.h,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc)}else X.drawImage(sp,-sz[0]/2*zm,-(sz[1]-8)*zm,sz[0]*zm,sz[1]*zm);X.restore()}X.globalAlpha=1
 for(const b of S.bs){if(!Number.isFinite(b.x)||!Number.isFinite(b.y)||b.x+b.s<x0-5||b.x>x1+5||b.y+b.s<y0-5||b.y>y1+5)continue;if(b.t!==0&&!S.ex[b.y*W+b.x])continue;const P=w2s(b.x+b.s/2,b.y+b.s/2);if(P[0]<-160||P[0]>CW+160||P[1]<-180||P[1]>CH+180)continue;L.push([b.x+b.y+b.s,1,b])}
 for(const u of S.us){if(u.ld||u.hp<=0||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<x0-2||u.x>x1+2||u.y<y0-2||u.y>y1+2||!vis(u))continue;const P=w2s(u.x,u.y);if(P[0]<-40||P[0]>CW+40||P[1]<-60||P[1]>CH+60)continue;L.push([u.x+u.y,2,u])}
 for(const q of S.rel)if(!q.m&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=x0-2&&q.x<=x1+2&&q.y>=y0-2&&q.y<=y1+2&&(q.c||S.ex[(q.y|0)*W+(q.x|0)]))L.push([q.x+q.y,3,q]);
@@ -55,11 +71,11 @@ drawP();X.lineWidth=2;for(const p of S.pj){if(!p||!p.t||!Number.isFinite(p.x)||!
 for(const f of fx){if(!Number.isFinite(f.x)||!Number.isFinite(f.y)||f.x<x0-2||f.x>x1+2||f.y<y0-2||f.y>y1+2)continue;const P=w2s(f.x,f.y);if(f.k==='h'){X.strokeStyle='#ff6a4a';X.beginPath();for(let a=0;a<6;a++){X.moveTo(P[0],P[1]-8);X.lineTo(P[0]+Math.cos(a*1.05)*9,P[1]-8+Math.sin(a*1.05)*9)}X.stroke()}else{const r=20*(1.5-f.l*2);X.strokeStyle='#fff';X.beginPath();X.ellipse(P[0],P[1],r,r/2,0,0,7);X.stroke()}}X.lineWidth=1;
 if(place&&place.x!==undefined){const k=place.k,f={x:place.x,y:place.y,s:B[k].s,k,t:0,done:true,hp:1,mh:1,pr:1,q:[]};drawBld(f,1);X.fillStyle=place.ok?'rgba(80,255,120,.5)':'rgba(255,70,70,.5)';poly([w2s(f.x,f.y),w2s(f.x+f.s,f.y),w2s(f.x+f.s,f.y+f.s),w2s(f.x,f.y+f.s)]);X.fill()}}
 
-function drawUnit(u,selectedUnits){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1],mv=u.p&&u.p.length>0;if(mv){const q=u.p[0],dx=(q[0]-u.x)-(q[1]-u.y);if(Math.abs(dx)>.03)u.fd=dx>0?1:-1;u.dr=((Math.round(Math.atan2(((q[0]-u.x)+(q[1]-u.y))*.5,dx)/(Math.PI/4))%8)+8)%8}
-const st=mv?1:(u.o==='a'&&u.cd>0&&u.cd<.45)?2:(u.o==='g'||u.o==='b')?3:0,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
+function drawUnit(u,selectedUnits){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1],pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
+const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if((selectedUnits?selectedUnits.has(u):S.sel.includes(u))){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
-/* Prefer validated atlas frames for villagers and supported troop classes; keep procedural rendering as the automatic fallback when a frame is unavailable. *//* Prefer the new upright atlas for villagers, infantry and archers; validated legacy atlas frames and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,u.dr|0,gt+(u.rp||0)):null;if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,gt+(u.rp||0),(u.fd||1)<0)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],(u.fd||1)<0);
+/* Validated motion frames take priority; base poses and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null;if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}
 /* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */

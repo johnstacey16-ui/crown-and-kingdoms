@@ -19,8 +19,9 @@ images; this optional authoring tool requires `sharp`. Pass building, troop and
 terrain PNG paths as three positional arguments to repack source images.
 Runtime and CI validation require no native image libraries.
 
-Art is a base-pose collection, with mirroring and small visual motion; it is not
-a complete multi-frame directional animation set. Team recolouring is limited
+The original sheet is a base-pose collection. A new [core motion layer](PAINTED_MOTION.md)
+adds articulated walking/attack frames for infantry, knights and villagers, plus
+villager work. Full roster and multi-direction animation remain unfinished. Team recolouring is limited
 to blue cloth/heraldry pixels and cached once per team and sheet.
 
 The preview is a real Canvas2D game rendering of a staged village, not an

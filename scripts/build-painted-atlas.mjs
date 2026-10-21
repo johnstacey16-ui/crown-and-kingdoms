@@ -2,7 +2,7 @@
 // The generated artwork is original; this packs it without changing its contents.
 import {createRequire} from 'node:module';
 const sharp=createRequire(import.meta.url)('sharp');
-import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
 import vm from 'node:vm';
 const root=new URL('../',import.meta.url),asset=n=>new URL('assets/'+n,root);
 mkdirSync(new URL('assets/',root),{recursive:true});
@@ -42,5 +42,6 @@ for(let i=0;i<units.length;i++){
 for(let i=0;i<buildings.length;i++)bind(architecture,'bld_'+buildings[i],bf.frames[i],1);
 for(const [proxy,kind]of [['tca','tc'],['tw','tower'],['cs','castle']])bind(architecture,proxy,bf.frames[buildings.indexOf(kind)],.35);
 bind(architecture,'node_tree',bf.frames[23],.4);
+const motionPath=asset('motion-manifest.json');if(existsSync(motionPath)){const motion=JSON.parse(readFileSync(motionPath));pack.version='painted-raster-v2-motion';pack.atlases.unshift(...motion.atlases)}
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 console.log('Packed 47 troop types, 22 buildings, 3 combat proxies and painted terrain.');

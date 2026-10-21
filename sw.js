@@ -1,10 +1,10 @@
 /* Crown & Kingdoms — offline shell cache.
    HTML/JS/CSS/JSON use network-first so deployments refresh immediately online.
-   Local SVG art uses cache-first after its first successful download.
+   Local painted art uses cache-first after its first successful download.
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v15-painted';
+const CACHE_NAME = 'ck-shell-v16-motion';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,9 @@ const CORE_ASSETS = [
   './assets/painted-units.webp',
   './assets/painted-buildings.webp',
   './assets/painted-terrain.webp',
+  './assets/painted-motion-mil.webp',
+  './assets/painted-motion-knight.webp',
+  './assets/painted-motion-vil.webp',
   './js/config.js',
   './js/state.js',
   './js/mapgen.js',

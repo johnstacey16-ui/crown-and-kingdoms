@@ -24,7 +24,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===2&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===5&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -79,8 +79,17 @@ try{
  });
  console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.equal(diagnostics.atlases,2);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,5);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>100000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
+ const motion=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
+  for(const kind of ['mil','knight','vil'])for(let team=0;team<4;team++)for(const state of [1,2,...(kind==='vil'?[3]:[])]){
+   const a=assetFrame(kind,team,state,0,0,0,state===2?0:undefined),b=assetFrame(kind,team,state,0,.3,0,state===2?.5:undefined);
+   results.push({kind,team,state,animated:a.animated,changed:a.f.x!==b.f.x||a.f.y!==b.f.y,scale:a.sc===b.sc,bodyHeight:a.referenceHeight===b.referenceHeight});
+  }
+  return {results,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.equal(motion.results.length,28);assert.ok(motion.results.every(r=>r.animated&&r.changed&&r.scale&&r.bodyHeight));assert.equal(motion.unchanged,true);
  const rendering=await page.evaluate(()=>{
   artDraws.length=0;artMap.refresh(S,0,W,H,true);
   const first=JSON.stringify(artDraws),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
@@ -94,7 +103,7 @@ try{
  });
  assert.equal(initial.hash,initial.after);assert.equal(initial.enemyHidden,true);
  assert.equal(initial.foundation,.5);
- assert.ok(rendering.sprites>=8);assert.equal(rendering.unchanged,true);
+ assert.ok(rendering.sprites>=8);assert.equal(rendering.changed,true);assert.equal(rendering.unchanged,true);
  assert.ok(rendering.painted>=8);assert.ok(rendering.teams.length>=2,'both kingdom palettes are present');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
  const militaryMenu=await page.evaluate(()=>{
@@ -237,6 +246,12 @@ try{
  const upgradedScene=await scene(upgrade);
  assert.ok(upgradedScene.sprites>=8);assert.equal(upgradedScene.hash,upgradedScene.after);
  const cacheUpgrade={oldShellRemoved:migrated,sprites:upgradedScene.sprites};
+ const partial=await browser.newPage({viewport:{width:960,height:850}});
+ partial.on('pageerror',error=>errors.push(error.message));
+ await partial.route('**/assets/painted-motion-*.webp',route=>route.abort());
+ await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===2&&PAINT.terrain);
+ assert.equal(await partial.evaluate(()=>assetFrame('mil',0,1,0,.3).animated),false,'a failed motion sheet retains its painted base pose');
+ await partial.close();
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
  fallback.on('pageerror',error=>errors.push(error.message));
  await fallback.route('**/assets/painted-*.webp',route=>route.abort());
@@ -250,7 +265,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({initial,diagnostics,motion,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{

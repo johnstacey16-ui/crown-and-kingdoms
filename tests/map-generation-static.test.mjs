@@ -11,10 +11,11 @@ assert.match(html, /function drawUnit\(u,selectedUnits\)/, 'unit renderer must r
 assert.match(html, /ASSET\.n\?assetFrame/, 'validated upright atlas must be enabled with fallback');
 const atlasManifest = JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json', import.meta.url), 'utf8'));
 assert.ok(html.includes("fetch('./assets/atlas-manifest.json'"), 'the game must load the sprite manifest as a local external asset');
-assert.ok(atlasManifest.atlases.some((a) => a.id === 'ck-detailed-forces'), 'detailed troop, cavalry, siege and ship atlas must be integrated through the external manifest');
-assert.ok(atlasManifest.atlases.some((a) => a.id === 'ck-detailed-buildings'), 'detailed building atlas must be integrated through the external manifest');
-assert.match(html, /assetFrame\('bld_'\+b\.k,b\.t,3,0,gt\)/, 'completed buildings must use the detailed atlas with procedural fallback');
-assert.match(html, /const baf=b\.done&&!ghost&&ASSET\.n\?assetFrame/, 'building sprite rendering must retain a safe fallback');
+assert.ok(atlasManifest.atlases.some((a) => a.id === 'painted-forces'), 'detailed troop, cavalry, siege and ship atlas must be integrated through the external manifest');
+assert.ok(atlasManifest.atlases.some((a) => a.id === 'painted-architecture'), 'detailed building atlas must be integrated through the external manifest');
+assert.match(html, /assetFrame\('bld_'\+b\.k,b\.t,3,0,gt\)/, 'buildings must use the painted atlas with procedural fallback');
+assert.match(html, /const baf=ASSET\.n\?assetFrame/, 'building sprite rendering must retain a safe fallback');
 assert.match(html, /dockableStarts/, 'map audit must report starts with a legal Dock site nearby');
 assert.match(html, /partialNavalAccess:dockableStarts>0/, 'map audit must expose whether any valid dock site exists');
 console.log('map-generation-static: graphics and map assertions passed');
+

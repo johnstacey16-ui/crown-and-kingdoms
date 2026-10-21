@@ -4,6 +4,8 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 
 const context={};
+const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+vm.runInNewContext(input.slice(0,input.indexOf('function readPad()')),context);
 vm.runInNewContext(readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8'),context);
 const api=context.CK_UNIT_MAP;
 const world=()=>({teamN:2,us:[
@@ -44,13 +46,15 @@ function group(map,slot,{assign=false}={}){
  map.control({},{});
 }
 
-function focusAt(map,point){map.control({5:true});map.choose(point);map.control({3:true},{3:true});map.control({},{});}
+function zoomIn(map){for(let i=0;i<10;i++)map.control({}, {},[0,0,0,-1],.1)}
+
+function focusAt(map,point){zoomIn(map);map.control({5:true});map.choose(point);map.control({3:true},{3:true});map.control({},{});}
 
 test('LB+Y focuses an owned group camera locally and pointer orders invert the viewport',()=>{
  const f=fixture(),source=world();f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});group(f.map,0,{assign:true});
- const before=JSON.stringify(source);
+ zoomIn(f.map);const zoom=f.map.viewport().zoom,before=JSON.stringify(source);
  f.map.control({4:true},{4:true},[0,-1]);f.map.control({3:true},{4:true,3:true},[0,-1]);f.map.control({},{});
- const v=f.map.viewport();assert.equal(v.zoom,2);assert.equal(v.width,16);assert.equal(v.x,12);assert.equal(v.y,14);
+ const v=f.map.viewport();assert.equal(v.zoom,zoom);assert.equal(v.width,32/zoom);assert.equal(v.x,20-v.width/2);assert.equal(v.y,22-v.height/2);
  assert.deepEqual(Array.from(f.map.selection()),['u2']);assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
  f.handlers.get('click')({clientX:100+(24-v.x)*340/v.width,clientY:50+(24-v.y)*340/v.height});
  assert.deepEqual(JSON.parse(JSON.stringify(f.orders[0])),{type:'move',entities:['u2'],point:{x:24,y:24}});
@@ -58,13 +62,13 @@ test('LB+Y focuses an owned group camera locally and pointer orders invert the v
 });
 
 test('expanded minimap consumes A and D-pad, focuses only with Y and never submits gameplay',()=>{
- const f=fixture(),source=world();f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});const before=JSON.stringify(source);
+ const f=fixture(),source=world();f.map.refresh(source,1,32,32,true);f.map.choose({x:20,y:22});zoomIn(f.map);const zoom=f.map.viewport().zoom,before=JSON.stringify(source);
  f.map.control({5:true});assert.equal(f.map.viewport().overview,true);assert.equal(f.stopButton.disabled,true);
  for(const button of [0,12,13,14,15])f.map.control({[button]:true});
  assert.deepEqual(Array.from(f.map.selection()),['u2']);assert.equal(f.orders.length,0);
  f.map.choose({x:3,y:4});assert.equal(f.map.viewport().overview,true);
  f.map.control({3:true},{3:true});f.map.control({},{});
- assert.equal(f.map.viewport().overview,false);assert.equal(f.map.viewport().zoom,2);assert.equal(f.map.viewport().x,0);assert.equal(f.map.viewport().y,0);
+ assert.equal(f.map.viewport().overview,false);assert.equal(f.map.viewport().zoom,zoom);assert.equal(f.map.viewport().x,0);assert.equal(f.map.viewport().y,0);
  assert.equal(f.orders.length,0);assert.equal(JSON.stringify(source),before);
 });
 
@@ -80,12 +84,12 @@ test('minimap cancellation restores the original cursor and camera through B, RB
  }
 });
 
-test('focused cursor edge panning clamps the camera inside world bounds and ignores non-finite axes',()=>{
+test('left-stick camera panning clamps the camera inside world bounds and ignores non-finite axes',()=>{
  const f=fixture();f.map.refresh(world(),1,32,32,true);focusAt(f.map,{x:.01,y:.01});
  assert.equal(f.map.viewport().x,0);assert.equal(f.map.viewport().y,0);
  const v=JSON.stringify(f.map.viewport());f.map.control({}, {},[NaN,Infinity],NaN);assert.equal(JSON.stringify(f.map.viewport()),v);
  for(let i=0;i<100;i++)f.map.control({}, {},[1,1],.1);
- assert.equal(f.map.viewport().x,16);assert.equal(f.map.viewport().y,16);assert.equal(f.orders.length,0);
+ assert.equal(f.map.viewport().x,32-f.map.viewport().width);assert.equal(f.map.viewport().y,32-f.map.viewport().height);assert.equal(f.orders.length,0);
 });
 
 test('focused double A selects only units visible in the current camera, while unavailable groups cannot focus',()=>{
@@ -562,4 +566,5 @@ test('building double-tap cancellation and expiry preserve ordinary single-build
     assert.equal(f.orders.length,0,interruption);
   }
 });
+
 

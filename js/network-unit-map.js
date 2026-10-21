@@ -10,14 +10,7 @@
     const sight=root.CK_GAME_COMMANDS?.visibility?.(world,team,width,height);
     // Pose is a copied visual description. Rendering must never write facing or
     // animation fields into deterministic simulation entities.
-    const pose=e=>{
-      const point=Array.isArray(e.p)&&e.p.length?e.p[0]:null;
-      const walking=point&&point.length===2&&point.every(Number.isFinite);
-      const heading=walking?Math.atan2(point[1]-e.y,point[0]-e.x):
-        Number.isFinite(e.dr)?e.dr*Math.PI/4:0;
-      const state=walking?1:e.o==='a'&&e.cd>0&&e.cd<.45?2:['g','b','rep'].includes(e.o)?3:0;
-      return {state,heading};
-    };
+    const pose=e=>unitVisualPose(e,world.t);
     const construction=b=>({complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,
@@ -179,13 +172,13 @@
       const size=e.size||0,time=view.battlefield?.time||0;
       // Preserve the actual kingdom palette for each player; relation rings
       // identify ownership without repainting the other kingdom's artwork.
-      const sprite=assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,time,e.pose?.heading||0);
+      const sprite=assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,e.pose?.time??time,e.pose?.heading||0,e.pose?.phase);
       if(!sprite)return false;
       const f=sprite.f,height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
-      const scale=height/f.h*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
+      const scale=height/(sprite.referenceHeight||f.h)*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
       context.save();
       if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
-      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,time,Math.cos(e.pose?.heading||0)<0);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
       catch(_){context.restore();return false;}
       context.restore();return true;
     }
