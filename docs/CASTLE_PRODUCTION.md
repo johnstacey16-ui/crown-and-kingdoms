@@ -35,3 +35,16 @@ membership. The new tests use the full production game scripts.
 This restores access to already implemented content. It does not establish
 reference balance, complete civilisation restrictions, Xbox DLC coverage or
 physical controller acceptance. No hosting or service configuration is changed.
+
+## Recorded verification
+
+Verified code: [a09a055](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/a09a055a359313be7be525de01d490f9150ed209).
+
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509431): passed.
+- [Complete regression run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509556): 164 standalone files, 19 campaign simulations and three seeded AI skirmishes passed.
+- [Chromium graphics and responsive layouts](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509440): passed.
+- Local runs passed 43 production/research checks, 20 save checks, and 77 controller/live-multiplayer/rendering checks (overlapping suites), plus the two corrected isolated fixture checks. All three seeded skirmishes also completed locally.
+
+The full run exposed two additional isolated fixtures using the old static-only
+membership assumption or missing a catalogue stub. Their precondition, resource,
+HP-upgrade and completion assertions are retained and pass against the final code.
