@@ -7,7 +7,7 @@
   const VERSION = 2;
   const MAX_UNITS_PER_ORDER = 96;
   const MAX_ORDER_BYTES = 1024;
-  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark']);
+  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark', 'formation']);
   const HEX = n => (n >>> 0).toString(16).padStart(8, '0');
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
@@ -31,6 +31,7 @@
     if (['move', 'attack-move', 'build', 'rally', 'disembark'].includes(order.type) && !validPoint(order.point, mapSize)) return false;
     if (['attack', 'garrison', 'repair'].includes(order.type) && !validId(order.target)) return false;
     if (order.type === 'gather' && !validResourceId(order.target)) return false;
+    if (order.type === 'formation' && (order.entities.length < 2 || !['line','split'].includes(order.value))) return false;
     if (['build', 'train', 'research', 'stance'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-z0-9_-]{0,39}$/.test(order.value))) return false;
     if (order.type === 'rally' && order.target != null && !validId(order.target)) return false;
@@ -41,7 +42,7 @@
     const fields = ['type', 'entities'];
     if (['move', 'attack-move', 'build', 'rally', 'disembark'].includes(order.type)) fields.push('point');
     if (['attack', 'gather', 'garrison', 'repair'].includes(order.type) || order.type === 'rally' && order.target != null) fields.push('target');
-    if (['build', 'train', 'research', 'stance'].includes(order.type)) fields.push('value');
+    if (['build', 'train', 'research', 'stance', 'formation'].includes(order.type)) fields.push('value');
     if (order.type === 'train') fields.push('count');
     return Object.keys(order).every(k => fields.includes(k));
   }
@@ -183,7 +184,7 @@
     function allowed(order, team) {
       if (!validOrder(order, mapSize)) return false;
       const buildingAction = ['train', 'research', 'rally', 'cancel', 'unload'].includes(order.type);
-      const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance', 'garrison', 'repair', 'disembark'].includes(order.type);
+      const unitAction = ['stop', 'move', 'attack-move', 'attack', 'gather', 'build', 'stance', 'garrison', 'repair', 'disembark', 'formation'].includes(order.type);
       if (buildingAction && order.type !== 'train' && order.entities.length !== 1) return false;
       if (!buildingAction && !unitAction) return false;
       return order.entities.every(id => {
@@ -328,6 +329,7 @@
     const units = sorted(world.us.filter(u => u && u.hp > 0).map(u => ({
       id: u.netId, team:u.t, kind:u.k, x:u.x, y:u.y, hp:u.hp,
       order:u.o, path:u.p || [], target:ref(u.tg), load:ref(u.ld),
+      formation:u.netFormation === 'split' ? 'split' : 'line',
       cargo:u.car || 0, cargoType:u.ct, tradeCargo:u.tradeCargo || 0,
       tradeFromKey:u.tradeFromKey, cd:u.cd, retry:u.rp, ret:u.ret,
       autoWorker:u.autoWorker, ut:u.ut, unloadBeach:u.unloadBeach,
@@ -438,4 +440,5 @@
 
   root.CK_SIM_SYNC = Object.freeze({ VERSION, validId, validResourceId, validOrder, validPacket, createInbox, checksum, compareCheckpoint, lockRoster, validRoster, rosterTeam, createCommandHost, createFrameReplica, worldCheckpoint, createCheckpointTracker });
 })(typeof window !== 'undefined' ? window : globalThis);
+
 

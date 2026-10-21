@@ -21,7 +21,7 @@
     const construction=b=>({complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,
-      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,pose:pose(u),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
+      units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,military:!!root.CK_GAME_COMMANDS.militaryUnit?.(u),formation:u.netFormation==='split'?'split':'line',pose:pose(u),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),
       buildings:world.bs.filter(b=>b&&b.t===team&&b.hp>0&&position(b)).map(b=>({id:b.netId,kind:b.k,x:b.x,y:b.y,size:b.s||1,
         rallyable:!!b.done&&(sight?root.CK_GAME_COMMANDS.buildingOptions(world,team,b).some(o=>o.type==='train'):b.k==='tc'),
         ...(sight?{team:b.t,...construction(b),passengers:(b.cg||[]).filter(c=>c.hp>0&&c.ld===b&&c.t===team).length,selectable:!!b.done,label:B[b.k]?.n||b.k,commands:root.CK_GAME_COMMANDS.buildingOptions(world,team,b)}:{}),
@@ -56,7 +56,7 @@
   function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit',now=()=>Date.now()}) {
     const context=canvas.getContext('2d');
     if(!context)throw Error('Unit map canvas unavailable');
-    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,wheelIndex=0,buildPage=0,placement=null,targetAction=null,lastTap=null,aGesture=null,blockedA=false;
+    let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,wheelIndex=0,buildPage=0,placement=null,targetAction=null,lastTap=null,aGesture=null,blockedA=false,yGesture=null;
     const terrainMemory=new Map();
     const selectable=b=>b.rallyable||b.selectable;
     const isBuilding=id=>view?.buildings.some(b=>b.id===id&&selectable(b));
@@ -72,9 +72,11 @@
       return selection.length?[{type:'stop',label:'Stop',cost:{},locked:''}]:[];
     }
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
-    function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
+    function militarySelection(){return selection.length>=2&&selection.every(id=>view?.units.some(u=>u.id===id&&u.military));}
+    function cancelShortcut(){yGesture=null;}
+    function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){cancelShortcut();wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function drawTerrain(sx,sy){
       const field=view.battlefield,visible=new Set(field.visible);
@@ -262,9 +264,11 @@
           context.fillText('Hold RT + LT + A: train 5',340,402);
         }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
+      if(militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
     }
     function refresh(world,team,width,height,canCommand) {
-      if(view&&(view.team!==team||view.width!==width||view.height!==height)){cancelGesture();terrainMemory.clear();}
+      if(!canCommand)cancelShortcut();
+      if(view&&(view.team!==team||view.width!==width||view.height!==height)){cancelGesture();cancelShortcut();terrainMemory.clear();}
       view=project(world,team,width,height);enabled=canCommand;
       if(view.battlefield)for(const tile of view.battlefield.tiles)terrainMemory.set(tile.index,tile);
       if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind)&&
@@ -285,6 +289,7 @@
     }
     function buildPoint(point){return {x:Math.max(1,Math.min(view.width-placement.size-1,Math.round(point.x-placement.size/2))),y:Math.max(1,Math.min(view.height-placement.size-1,Math.round(point.y-placement.size/2)))}}
     function choose(point,add=false,controller=false) {
+      if(!controller)cancelShortcut();
       if(aGesture){aGesture=null;blockedA=true;}
       const previousTap=lastTap;lastTap=null;
       if(wheel||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
@@ -393,7 +398,7 @@
       draw();
     }
     if(stopButton){stopButton.disabled=true;stopButton.addEventListener('click',stop);}
-    canvas.addEventListener('blur',()=>{cancelGesture();targetAction=null;wheel=false;draw();});
+    canvas.addEventListener('blur',()=>{cancelShortcut();cancelGesture();targetAction=null;wheel=false;draw();});
     canvas.addEventListener('click',event=>{
       const bounds=canvas.getBoundingClientRect();
       if(!view||bounds.width<=0||bounds.height<=0)return;
@@ -402,6 +407,7 @@
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
       if(!held[0])blockedA=false;
       if(buttons[1]){
+        cancelShortcut();
         if(targetAction){targetAction=null;cancelGesture();description.textContent='Target command cancelled.';draw();return;}
         if(placement){placement=null;cancelGesture();description.textContent='Construction preview cancelled.';draw();return;}
         if(aGesture){cancelGesture();description.textContent='Selection gesture cancelled.';draw();return;}
@@ -416,7 +422,7 @@
       if(!held[7])wheel=false;
       if(buttons[7]&&selected){wheel=true;wheelIndex=0;}
       if(wheel){
-        cancelGesture();
+        cancelShortcut();cancelGesture();
         if(buttons[3]&&view.battlefield&&selection.every(id=>view.battlefield.builders.includes(id))){buildPage=1-buildPage;wheelIndex=0;}
         const items=options();
         if(view.battlefield&&items.length&&Math.hypot(axes[0]||0,axes[1]||0)>.45){
@@ -436,6 +442,20 @@
               if(result.ok)enabled=false;
             }
           }else if(view.buildings.some(b=>b.id===selected&&b.rallyable))train(held[6]?5:1);else if(!held[6])stop();
+        }
+        draw();return;
+      }
+      if(held[4]||held[5]||held[7]||placement||targetAction||
+          Object.keys(buttons).some(key=>buttons[key]&&key!=='3'&&key!=='6'))cancelShortcut();
+      if(buttons[3]&&held[3]&&!Object.keys(buttons).some(key=>buttons[key]&&key!=='3'&&key!=='6')&&!held[4]&&!held[5]&&!held[7]&&!held[0]&&!placement&&!targetAction&&enabled&&militarySelection())
+        yGesture=selection.join(',');
+      if(yGesture&&!held[3]){
+        const valid=yGesture===selection.join(',')&&enabled&&militarySelection();cancelShortcut();
+        if(valid){
+          const value=selection.every(id=>view.units.find(u=>u.id===id).formation==='line')?'split':'line';
+          const result=submit({type:'formation',entities:selection.slice(),value});
+          description.textContent=result.ok?'Formation: '+value+' submitted. Changes apply after host execution.':'Wait for the previous order to execute.';
+          if(result.ok)enabled=false;
         }
         draw();return;
       }
@@ -465,7 +485,8 @@
       }
       draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice()});
+    return Object.freeze({refresh,control,choose,suspend:()=>{cancelShortcut();wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice()});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);
+

@@ -93,7 +93,7 @@ function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==nu
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,yDown=false,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
 function cancelSelectionGesture(){aDown=boxR=null;lastTap=0;lastTapK=null}
 function cancelShortcutGesture(){yDown=false;yc=0}
-function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture()}
+function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture();window.CK_AUTH_LOBBY?.suspend?.()}
 const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost'];
 const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
@@ -185,4 +185,5 @@ addEventListener('contextmenu',e=>e.preventDefault());addEventListener('wheel',e
 setInterval(aTick,120);
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
+
 

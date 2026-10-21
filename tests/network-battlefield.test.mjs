@@ -35,6 +35,85 @@ function mapFixture(c){
  return{map,orders,draws,description,refresh:()=>c.run('testMap.refresh(S,0,W,H,true)')};
 }
 
+test('authenticated Line/Split reforms both teams with atomic ownership and route checks',()=>{
+ for(const team of [0,1]){
+  const c=fixture();
+  const ids=Array.from(c.run(`globalThis.rank=[addU(${team},'mil',24.5,27.5),addU(${team},'arc',26.5,27.5)];rank.forEach(u=>u.st=4);rank.map(u=>u.netId)`));
+  const originalSelection=c.run('S.sel'),soloFormation=c.run('fm');
+  assert.equal(c.act({type:'formation',entities:ids,value:'split'},team),true);
+  assert.equal(c.run("rank.every(u=>u.netFormation==='split')"),true);
+  assert.notEqual(c.run('JSON.stringify(rank[0].p.at(-1))'),c.run('JSON.stringify(rank[1].p.at(-1))'));
+  assert.equal(c.run('S.sel'),originalSelection);assert.equal(c.run('fm'),soloFormation);
+  const before=c.worldHash();
+  c.run("rank[0].netFormation='line'");assert.notEqual(c.worldHash(),before,'choice alone changes the checkpoint');
+  c.run("rank[0].netFormation='split'");
+  c.run('globalThis.originalPath=path;path=(u,g)=>u===rank[1]?null:originalPath(u,g)');
+  assert.equal(c.act({type:'formation',entities:ids,value:'line'},team),false);
+  assert.equal(c.worldHash(),before,'unreachable member cannot partly reform the other unit');
+  c.run('path=originalPath');
+  assert.equal(c.act({type:'formation',entities:ids,value:'line'},team),true);
+  assert.equal(c.run("rank.every(u=>u.netFormation==='line')"),true);
+  assert.notEqual(c.worldHash(),before,'formation choice is part of the checkpoint');
+ }
+});
+
+test('formation packets reject invalid shapes and stale, civilian, loaded or foreign selections',()=>{
+ for(const scenario of ['one','duplicate','civilian','foreign','loaded','dead','building','stale','value','extra']){
+  const c=fixture();const extra=c.run("globalThis.mate=addU(0,'arc',24.5,24.5);mate.netId");
+  const order={type:'formation',entities:[c.ids.soldier,extra],value:'split'};
+  if(scenario==='one')order.entities.pop();
+  if(scenario==='duplicate')order.entities[1]=order.entities[0];
+  if(scenario==='civilian')order.entities[1]=c.ids.worker;
+  if(scenario==='foreign')order.entities[1]=c.ids.target;
+  if(scenario==='loaded')c.run('mate.ld={}');
+  if(scenario==='dead')c.run('mate.hp=0');
+  if(scenario==='building')order.entities[1]=c.run('S.bs[0].netId');
+  if(scenario==='stale')c.run('S.us=S.us.filter(u=>u!==mate)');
+  if(scenario==='value')order.value='teleport';
+  if(scenario==='extra')order.point={x:2,y:2};
+  const before=c.worldHash();assert.equal(c.act(order),false,scenario);assert.equal(c.worldHash(),before,scenario);
+ }
+});
+
+test('land and naval formations retain separate centres and formation choice survives a save',()=>{
+ const c=fixture();
+ const ids=Array.from(c.run(`for(let y=30;y<42;y++)for(let x=18;x<42;x++)S.wt[y*W+x]=1;
+  globalThis.rank=[addU(1,'mil',22.5,26.5),addU(1,'arc',24.5,26.5),addU(1,'gal',32.5,35.5),addU(1,'gal',34.5,35.5)];rank.forEach(u=>u.st=4);rank.map(u=>u.netId)`));
+ assert.equal(c.act({type:'formation',entities:ids,value:'split'},1),true);
+ assert.equal(c.run('rank.every(u=>u.p.every(([x,y])=>!!(S.wt[(y|0)*W+(x|0)]===1)===!!u.sh))'),true);
+ assert.equal(c.run('saveG()'),true);assert.equal(c.run('loadG()'),true);
+ assert.equal(c.run(`S.us.filter(u=>${JSON.stringify(ids)}.includes(u.netId)).every(u=>u.netFormation==='split')`),true);
+});
+
+test('military Y waits for release, submits no optimistic movement, and uses acknowledged formation',()=>{
+ const c=fixture();c.run("globalThis.mate=addU(0,'mil',25.5,24.5)");const f=mapFixture(c);
+ f.map.choose({x:23.5,y:22.5});f.map.choose({x:25.5,y:24.5},true);
+ const selected=Array.from(f.map.selection()),before=c.worldHash();
+ f.map.control({3:true},{3:true});assert.equal(f.orders.length,0);
+ f.map.control({},{});assert.equal(f.orders.length,1);assert.equal(f.orders[0].type,'formation');assert.equal(f.orders[0].value,'split');
+ assert.equal(c.worldHash(),before);assert.deepEqual(Array.from(f.map.selection()),selected);
+ assert.equal(c.act(f.orders[0]),true);f.refresh();f.map.control({3:true},{3:true});f.map.control({},{});
+ assert.equal(f.orders[1].value,'line');assert.ok(f.draws.some(d=>d[0]==='fillText'&&d[1]==='Y: Line / Split formation'));
+});
+
+test('Y formation cannot leak through cancellation, modifier menus, selection changes or suspension',()=>{
+ for(const context of ['B','RT','LB','RB','cycle','suspend','pointer','selection','pending']){
+  const c=fixture();c.run("globalThis.mate=addU(0,'mil',25.5,24.5)");const f=mapFixture(c);
+  f.map.choose({x:23.5,y:22.5});f.map.choose({x:25.5,y:24.5},true);
+  f.map.control({3:true},{3:true});
+  if(context==='B')f.map.control({1:true},{3:true,1:true});
+  if(context==='RT')f.map.control({7:true},{3:true,7:true});
+  if(context==='LB')f.map.control({4:true},{3:true,4:true});
+  if(context==='RB')f.map.control({5:true},{3:true,5:true});
+  if(context==='cycle')f.map.control({14:true},{3:true,14:true});
+  if(context==='suspend')f.map.suspend();
+  if(context==='pointer')f.map.choose({x:23.5,y:22.5});
+  if(context==='selection'){c.run('mate.hp=0');f.refresh();}
+  if(context==='pending')c.run('testMap.refresh(S,0,W,H,false)');
+  f.map.control({},{});assert.equal(f.orders.length,0,context);
+ }
+});
+
 test('each team receives its own current sight, copied terrain/resources and only visible opponents',()=>{
  const c=fixture(),before=c.worldHash();c.run('S.vs.fill(1);S.ex.fill(1)');
  const view=c.view(0);
@@ -339,3 +418,4 @@ test('unavailable or undrawable atlas art falls back to procedural units and unf
  c.testFallbackMap=map;c.run('testFallbackMap.refresh(S,0,W,H,true)');
  assert.equal(c.worldHash(),before);
 });
+

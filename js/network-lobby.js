@@ -258,7 +258,7 @@
       }
     });
     root.addEventListener('pagehide', close);
-    panel = { close, control(dt) {
+    panel = { close, suspend:()=>unitMap.suspend(), control(dt) {
       if(menuOpen){
         if(E[1]||E[9]){closeMenu();return;}
         if(E[12]||E[13]){
@@ -283,5 +283,6 @@
     host.focus();
   }
   root.CK_AUTH_LOBBY = Object.freeze({ open, active:()=>!!panel, control:dt=>panel?.control(dt),
-    close:()=>panel?.close(), validConfig, settings, preparation });
+    close:()=>panel?.close(), suspend:()=>panel?.suspend(), validConfig, settings, preparation });
 })(window);
+

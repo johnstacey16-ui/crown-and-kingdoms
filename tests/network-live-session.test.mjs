@@ -81,7 +81,7 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.hostGame.testTeam(1).food,before.food);
 });
 
-for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
+for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7','ck-live-preview-8'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
   const p=await livePair(t);
   await p.host.send('run',{v:version,hash:p.openingHash});
   await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
@@ -459,3 +459,4 @@ test('DOM preview runs after verification and routes the guest training button t
   await new Promise(resolve=>setTimeout(resolve,60));
   assert.equal(hostGame.testWorld().time,frozen);
 });
+

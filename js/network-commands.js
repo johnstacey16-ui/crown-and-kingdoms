@@ -9,6 +9,10 @@
   const STANCES = Object.freeze({
     aggressive: 0, defensive: 1, 'stand-ground': 2, passive: 3, 'no-attack': 4
   });
+  function militaryUnit(unit) {
+    return !!unit && unit.hp > 0 && !unit.ld && !!U[unit.k] &&
+      !['vil','fish','cart','cog','trn','mon','king'].includes(unit.k);
+  }
 
   // Team-relative sight is calculated from the authoritative world. Never use
   // S.vs/S.ex here: those legacy arrays belong to the solo team-zero camera.
@@ -137,14 +141,25 @@
     return objects.length > 0 && objects.every(b => b.netId[0] === 'b' && b.done && B[b.k]);
   }
 
-  function moveUnits(units, point) {
+  function moveUnits(units, point, formation) {
     // Precompute every route before changing any unit command. Failed
     // all-member orders cannot strand a partly updated selection.
     const routes = [];
+    const destinations = new Map();
+    if (formation) for (const group of [units.filter(u=>!U[u.k].sh),units.filter(u=>U[u.k].sh)]) {
+      if (!group.length) continue;
+      const x=group.reduce((sum,u)=>sum+u.x,0)/group.length;
+      const y=group.reduce((sum,u)=>sum+u.y,0)/group.length;
+      const slots=formationSlots(group,x,y,formation==='split'?5:1);
+      group.forEach((u,i)=>{const [dx,dy]=slots(i);destinations.set(u,{x:x+dx,y:y+dy,cx:x,cy:y});});
+    }
     for (const u of units) {
-      const distance = Math.hypot(u.x - point.x, u.y - point.y);
-      const route = distance <= 1 ? [] : path(u, gp(point.x, point.y, 1));
-      if (!route && distance > 1) return false;
+      const goal=destinations.get(u)||point;
+      const distance = Math.hypot(u.x - goal.x, u.y - goal.y);
+      const route = formation ? path(u,gp(goal.x,goal.y,.8)) || path(u,gp(goal.x,goal.y,2)) ||
+        path(u,gp(goal.cx,goal.cy,.8)) || path(u,gp(goal.cx,goal.cy,2)) :
+        distance <= 1 ? [] : path(u, gp(goal.x, goal.y, 1));
+      if (!route && (formation || distance > 1)) return false;
       routes.push(route || []);
     }
     units.forEach((u, i) => {
@@ -156,6 +171,7 @@
       u.autoWorker = 0;
       u.guardTarget = null;
       u.rp = 1;
+      if (formation) u.netFormation = formation;
       if (u.k === 'cart' || u.k === 'cog') {
         u.manualTradeMove = true;
         u.tradePaused = false;
@@ -214,6 +230,11 @@
     }
 
     if (!activeUnits(entities)) return false;
+    if (order.type === 'formation') {
+      if (entities.some(u=>!militaryUnit(u)||!Number.isFinite(u.x)||!Number.isFinite(u.y)||
+          u.x<0||u.y<0||u.x>=W||u.y>=H)) return false;
+      return moveUnits(entities,null,order.value);
+    }
 
 
     if (order.type === 'garrison' || order.type === 'repair') {
@@ -328,11 +349,12 @@
   }
 
   root.CK_GAME_COMMANDS = Object.freeze({
-    lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions,
+    lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
+
 

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {pair} from './helpers/authenticated-game.mjs';
 
-async function battlefieldPair(t,terminal=false,shelter=false){
+async function battlefieldPair(t,terminal=false,shelter=false,formation=false){
  const p=await pair(t);p.hostGame.testPreviewDefaults();
  const hp=p.hostGame.CK_AUTH_LOBBY.preparation(),gp=p.guestGame.CK_AUTH_LOBBY.preparation();
  const stage=`
@@ -13,6 +13,11 @@ async function battlefieldPair(t,terminal=false,shelter=false){
   B.bar.bt=.1;U.vil.sp=30;U.mil.t=.1;TE.man.t=.1;
   const worker=addU(0,'vil',21.5,21.5),guestWorker=addU(1,'vil',30.5,21.5);
   globalThis.fixtureWorker=guestWorker.netId;
+  if(${formation}){
+   globalThis.fixtureRanks=[[addU(0,'mil',22.5,27.5),addU(0,'mil',24.5,27.5)],
+    [addU(1,'mil',32.5,27.5),addU(1,'mil',34.5,27.5)]];
+   fixtureRanks.flat().forEach(u=>u.st=4);
+  }
   if(!${terminal}){addB(1,'lumber',27,26,true);const resource=addN('w',32,22,100,0);globalThis.fixtureResource=resource.netId;guestWorker.car=9.99;guestWorker.ct='w';}
   if(${shelter}){
    for(let y=30;y<42;y++)for(let x=18;x<42;x++)S.wt[y*W+x]=1;
@@ -49,6 +54,29 @@ async function battlefieldPair(t,terminal=false,shelter=false){
  await hostLive.begin();await cycle();await cycle();
  return{...p,hostLive,guestLive,cycle,eval:(game,code)=>vm.runInContext(code,game)};
 }
+
+test('both human Y shortcuts reform Line/Split through HTTP without optimistic movement or desync',async t=>{
+ const p=await battlefieldPair(t,false,false,true);
+ const maps=[p.hostGame,p.guestGame].map((game,team)=>{
+  const canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
+  const map=game.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:o=>(team?p.guestLive:p.hostLive).submit(o),leave(){}});
+  game.testRefreshMap(map,team);
+  const units=p.eval(game,'fixtureRanks['+team+'].map(u=>({x:u.x,y:u.y,id:u.netId}))');
+  map.choose(units[0]);map.choose(units[1],true);return map;
+ });
+ for(const value of ['split','line']){
+  const before=p.hostGame.testHash();
+  maps.forEach((map,team)=>{
+   [p.hostGame,p.guestGame][team].testRefreshMap(map,team);
+   map.control({3:true},{3:true});map.control({},{});
+  });
+  assert.equal(p.hostGame.testHash(),before);assert.equal(p.guestGame.testHash(),before);
+  assert.equal(p.hostLive.snapshot().commandPending,true);assert.equal(p.guestLive.snapshot().commandPending,true);
+  for(let i=0;i<12;i++)await p.cycle();
+  assert.equal(p.hostLive.snapshot().lastResult.ok,true);assert.equal(p.guestLive.snapshot().lastResult.ok,true);
+  for(const game of [p.hostGame,p.guestGame])assert.equal(p.eval(game,`fixtureRanks.flat().every(u=>u.netFormation==='${value}')`),true);
+ }
+});
 
 test('real HTTP battlefield UI gathers resources, builds a barracks, trains military and researches through authenticated replay',async t=>{
  const p=await battlefieldPair(t),game=p.guestGame;
@@ -152,3 +180,4 @@ test('real HTTP guest UI garrisons, unloads, repairs and lands transport passeng
  assert.equal(get('S.wt[(CK_GAME_COMMANDS.lookup(fixturePassenger).y|0)*W+(CK_GAME_COMMANDS.lookup(fixturePassenger).x|0)]'),0);
  assert.equal(p.eval(p.hostGame,'CK_GAME_COMMANDS.lookup(fixtureShip).cg.length'),0);
 });
+
