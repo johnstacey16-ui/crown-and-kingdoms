@@ -108,6 +108,7 @@
     matchMenu.style.cssText=overlay.style.cssText;
     const menuTitle=document.createElement('h1');menuTitle.textContent='Multiplayer menu';
     const menuNotice=document.createElement('p');menuNotice.textContent='The multiplayer match continues while this menu is open.';
+    const cameraHelp=document.createElement('p');cameraHelp.textContent='Camera: RB opens the full-map overview. Move its cursor with the left stick, then press Y for 2x focus. Hold LB, choose a group with the left stick, then press Y to focus that group. B or RB closes the overview. Free zoom in/out is not yet available in multiplayer.';
     const resumeButton=makeButton('Resume match'),objectivesButton=makeButton('Objectives'),exitButton=makeButton('Leave match');
     const menuControls=[resumeButton,objectivesButton,exitButton];
     const objectiveBody=document.createElement('section');objectiveBody.setAttribute('aria-label','Match objectives');
@@ -118,7 +119,7 @@
     objectiveBody.append(objectiveText,objectiveClock,backButton);
     objectiveBody.hidden=true;objectiveBody.style.display='none';
     const activeMenuControls=()=>objectivesOpen?[backButton]:menuControls;
-    matchMenu.append(menuTitle,menuNotice,resumeButton,objectivesButton,exitButton,objectiveBody);
+    matchMenu.append(menuTitle,menuNotice,cameraHelp,resumeButton,objectivesButton,exitButton,objectiveBody);
     matchMenu.hidden=true;matchMenu.style.display='none';
     const unitCanvas = document.createElement('canvas'), mapDescription = document.createElement('p');
     mapDescription.setAttribute('role','status'); unitCanvas.hidden = mapDescription.hidden = stopButton.hidden = true;

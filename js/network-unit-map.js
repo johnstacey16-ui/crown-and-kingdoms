@@ -332,7 +332,7 @@
           context.fillText('Hold RT + LT + A: train 5',340,402);
         }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
-      if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('LB: Groups · RB: Minimap',662,664);}
+      if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('View '+v.zoom+'x · LB: Groups · RB: Map',662,664);}
       if(groupWheel)drawGroups();
       if(!groupWheel&&!overview&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
     }

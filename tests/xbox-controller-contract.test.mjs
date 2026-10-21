@@ -23,6 +23,29 @@ function fixture() {
 }
 const button=i=>Object.assign([],{[i]:true});
 
+test('the documented Menu > Zoom path adjusts only the local camera and B resumes',()=>{
+  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+  vm.runInContext(source+'\n'+readFileSync(new URL('../js/ui.js',import.meta.url),'utf8'),sandbox);
+  vm.runInContext(`
+    seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();snd=0;
+    pad={axes:[0,0,0,0],buttons:[]};mode='play';
+    globalThis.zoomPress=i=>{E=[];P=[];RE=[];E[i]=P[i]=true;ctl(DT);E=[];P=[];RE=[];RE[i]=true;ctl(DT)};
+    globalThis.zoomRead=()=>({mode,zoom:zm,centre:s2w(CW/2,CH/2),world:JSON.stringify([S.res,S.us,S.bs])});
+  `,sandbox);
+  const before=sandbox.zoomRead();sandbox.zoomPress(9);
+  assert.equal(sandbox.zoomRead().mode,'pause');
+  const index=vm.runInContext("pmItems().findIndex(it=>it.n==='Zoom')",sandbox);assert.ok(index>=0);
+  for(let i=0;i<index;i++)sandbox.zoomPress(13);
+  sandbox.zoomPress(14);assert.equal(sandbox.zoomRead().zoom,+(before.zoom-.2).toFixed(1));
+  sandbox.zoomPress(15);assert.equal(sandbox.zoomRead().zoom,before.zoom);
+  for(let i=0;i<20;i++)sandbox.zoomPress(15);assert.equal(sandbox.zoomRead().zoom,2);
+  for(let i=0;i<20;i++)sandbox.zoomPress(14);assert.equal(sandbox.zoomRead().zoom,.8);
+  const after=sandbox.zoomRead();
+  for(let i=0;i<2;i++)assert.ok(Math.abs(after.centre[i]-before.centre[i])<1e-8,'zoom retains the viewed world position');
+  assert.equal(after.world,before.world,'menu zoom does not change game entities or resources');
+  sandbox.zoomPress(1);assert.equal(sandbox.zoomRead().mode,'play');
+});
+
 test('LT+A adds a clicked unit without toggling automation or replacing selection',()=>{
   const c=fixture();
   vm.runInContext(`

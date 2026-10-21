@@ -182,7 +182,7 @@ test('offline cache can survive temporary hosting errors as well as network loss
 
 
 test('in-game About copy describes the real asset, audio and verification boundaries', () => {
-  assert.match(engine, /Original local SVG sprite atlases, team colours, animation metadata and procedural fallbacks/);
+  assert.match(engine, /Named medieval pixel-art SVG icons, team colours and procedural fallbacks/);
   assert.match(engine, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
   assert.match(engine, /Multiplayer reliability and host-authoritative match state are active development goals/);
   assert.match(engine, /measure Xbox performance and verify multiplayer/);
