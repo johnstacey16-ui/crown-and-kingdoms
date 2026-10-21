@@ -27,6 +27,7 @@ jobs:
       - name: Verify two real guest browsers and game checkpoints
         env:
           CK_RUN_WEBRTC_SMOKE: '1'
+          CK_WEBRTC_ORIGIN: 'https://crown-and-kingdoms.vercel.app'
         run: node tests/browser/webrtc-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()

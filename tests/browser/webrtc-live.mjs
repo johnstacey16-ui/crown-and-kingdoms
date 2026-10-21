@@ -3,12 +3,19 @@
 // Artifacts contain no credentials, SDP, invitations or player identifiers.
 import assert from 'node:assert/strict';
 import {once} from 'node:events';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {chromium} from 'playwright';
 import {createApplication} from '../../server/app.mjs';
 if(process.env.CK_RUN_WEBRTC_SMOKE!=='1'){console.error('Set CK_RUN_WEBRTC_SMOKE=1 for real-project browser acceptance.');process.exit(2);}
 const server=createApplication();server.listen(0,'127.0.0.1');await once(server,'listening');
-const origin='http://127.0.0.1:'+server.address().port;
+const deployedOrigin=process.env.CK_WEBRTC_ORIGIN;
+if(deployedOrigin!==undefined&&deployedOrigin!=='https://crown-and-kingdoms.vercel.app')throw Error('Unapproved smoke origin');
+const origin=deployedOrigin||'http://127.0.0.1:'+server.address().port;
+const verifiedAssets=['engine.js','multiplayer.js','js/network-sync.js','js/network-commands.js',
+  'js/network-delivery.js','js/network-uplink.js','js/network-transport.js','js/network-startup.js',
+  'js/network-session.js','js/network-unit-map.js','js/network-lobby.js','js/network-supabase.js','js/network-webrtc.js'];
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 // Numeric local ICE candidates make this controlled topology deterministic;
 // this does not establish different-router/mobile NAT or deployed-host acceptance.
 const browser=await chromium.launch({headless:true,args:['--disable-features=WebRtcHideLocalIpsWithMdns']});
@@ -17,6 +24,16 @@ const pages=await Promise.all(contexts.map(c=>c.newPage()));
 const calls={signups:0,logouts:0,signaling:0,relay:0,gameplay:0};
 let result;
 try{
+  // Fail before creating Auth users if the public origin serves stale/different code.
+  // Exact project origin only, no arbitrary URL, credentials or protection bypass.
+  if(deployedOrigin){
+    for(const path of verifiedAssets){
+      const expected=hash(await readFile(new URL('../../'+path,import.meta.url)));
+      const response=await fetch(origin+'/'+path,{cache:'no-store',redirect:'error',signal:AbortSignal.timeout(15000)});
+      assert.equal(response.status,200,'public asset '+path);
+      assert.equal(hash(Buffer.from(await response.arrayBuffer())),expected,'deployed code must match '+path);
+    }
+  }
   for(const page of pages){
     page.on('request',req=>{
       if(!req.url().startsWith('https://isfzrqtbsbqlaojtpkxr.supabase.co/')||req.method()!=='POST')return;
@@ -92,7 +109,8 @@ try{
   result={status:'passed',testedAt:new Date().toISOString(),uiFlow:'Create / Join / Verify / Run / Train / Leave',
     verifiedFrames:120,matchingWorlds:true,paidOrdersBothTeams:true,finalAck:120,terminal:'deterministic draw fixture',
     elapsedGameplayMs:Math.round(elapsed),observedFramesPerSecond:Number((120000/elapsed).toFixed(2)),...calls,
-    topology:'two Chromium contexts, one runner, numeric host ICE, localhost game UI; real Supabase Auth/HTTPS/CORS/signaling',authUserRecordsRemain:true};
+    topology:'two Chromium contexts, one runner, numeric host ICE; '+(deployedOrigin?'production HTTPS game UI':'localhost game UI')+'; real Supabase Auth/HTTPS/CORS/signaling',
+    deployedOrigin:deployedOrigin||null,verifiedAssetCount:deployedOrigin?verifiedAssets.length:0,authUserRecordsRemain:true};
 }finally{
   await Promise.allSettled(pages.map(p=>p.evaluate(async()=>{CK_AUTH_LOBBY.close();await window.wrtcClient?.close();})));
   if(result){result.logouts=calls.logouts;await mkdir('artifacts/webrtc-live',{recursive:true});await writeFile('artifacts/webrtc-live/result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));}
