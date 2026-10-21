@@ -69,6 +69,8 @@ test('both humans recall local LB groups and reform Line/Split through HTTP with
   map.control({4:true},{4:true},[0,-1]);map.control({},{});
   assert.deepEqual(Array.from(map.selection()),Array.from(units,u=>u.id));
   assert.equal(game.testHash(),before,'assignment and recall never mutate the simulation');
+  map.control({4:true},{4:true},[0,-1]);map.control({3:true},{4:true,3:true},[0,-1]);map.control({},{});
+  assert.equal(map.viewport().zoom,2);assert.equal(game.testHash(),before,'group camera focus is local');
   return map;
  });
  for(const value of ['split','line']){

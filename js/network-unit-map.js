@@ -58,7 +58,7 @@
     if(!context)throw Error('Unit map canvas unavailable');
     let view=null,selected=null,selection=[],cursor=null,enabled=false,wheel=false,wheelIndex=0,buildPage=0,placement=null,targetAction=null,lastTap=null,aGesture=null,blockedA=false,yGesture=null;
     const terrainMemory=new Map();
-    let groups=Array.from({length:8},()=>[]),groupWheel=null,availableIds=new Set();
+    let groups=Array.from({length:8},()=>[]),groupWheel=null,availableIds=new Set(),camera=null,overview=false,overviewOrigin=null;
     const selectable=b=>b.rallyable||b.selectable;
     const isBuilding=id=>view?.buildings.some(b=>b.id===id&&selectable(b));
     function options(){
@@ -73,6 +73,32 @@
       return selection.length?[{type:'stop',label:'Stop',cost:{},locked:''}]:[];
     }
     function cancelGesture(){if(aGesture)blockedA=true;aGesture=null;lastTap=null;}
+    function viewport(){
+      if(!view)return null;
+      const zoom=overview?1:camera?.zoom||1,width=view.width/zoom,height=view.height/zoom;
+      return Object.freeze({x:overview?0:(camera?.x??view.width/2)-width/2,y:overview?0:(camera?.y??view.height/2)-height/2,width,height,zoom,overview});
+    }
+    function clampCamera(){
+      if(!camera||!view)return;
+      const halfW=view.width/camera.zoom/2,halfH=view.height/camera.zoom/2;
+      camera.x=Math.max(halfW,Math.min(view.width-halfW,camera.x));camera.y=Math.max(halfH,Math.min(view.height-halfH,camera.y));
+    }
+    function closeOverview(){overview=false;if(overviewOrigin)cursor=overviewOrigin;overviewOrigin=null;}
+    function focusView(point){
+      if(!view||!Number.isFinite(point?.x)||!Number.isFinite(point?.y))return;
+      overview=false;overviewOrigin=null;camera={x:point.x,y:point.y,zoom:2};clampCamera();cursor={x:point.x,y:point.y};
+      cancelGesture();cancelShortcut();
+    }
+    function followCursor(){
+      if(!camera||overview||!cursor||camera.zoom===1)return;
+      const v=viewport(),mx=v.width*.12,my=v.height*.12;
+      if(cursor.x<v.x+mx)camera.x-=v.x+mx-cursor.x;
+      if(cursor.x>v.x+v.width-mx)camera.x+=cursor.x-(v.x+v.width-mx);
+      if(cursor.y<v.y+my)camera.y-=v.y+my-cursor.y;
+      if(cursor.y>v.y+v.height-my)camera.y+=cursor.y-(v.y+v.height-my);
+      clampCamera();
+    }
+    function onScreen(entity){const v=viewport(),size=entity.size||0;return entity.x+size>=v.x&&entity.y+size>=v.y&&entity.x<v.x+v.width&&entity.y<v.y+v.height;}
     function availableGroup(ids){return [...new Set(ids)].filter(id=>availableIds.has(id));}
     function closeGroup(){groupWheel=null;}
     function recallGroup(slot){
@@ -94,13 +120,13 @@
       }
       context.textAlign='center';context.fillStyle='#fff1ce';context.font='20px system-ui';context.fillText('Control groups',340,319);
       context.font='14px system-ui';context.fillText('Left stick: choose slot',340,345);context.fillText('X: assign selection',340,366);
-      context.fillText('Release LB: recall · B: cancel',340,391);
+      context.fillText('Y: focus group',340,387);context.fillText('Release LB: recall · B: cancel',340,408);
     }
     function militarySelection(){return selection.length>=2&&selection.every(id=>view?.units.some(u=>u.id===id&&u.military));}
     function cancelShortcut(){yGesture=null;}
     function setSelection(ids){const next=[...new Set(ids)],changed=next.length!==selection.length||next.some((id,i)=>id!==selection[i]);selection=next;selected=selection[0]||null;if(changed){closeGroup();cancelShortcut();wheelIndex=0;buildPage=0;placement=null;targetAction=null;}}
     canvas.width=canvas.height=680;canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection and releasing LB recalls it. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
+    canvas.setAttribute('aria-label','Your kingdom unit map. Left stick moves the cursor. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection, Y focuses the group and releasing LB recalls it. RB opens the expanded minimap; Y focuses its cursor. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function drawTerrain(sx,sy){
       const field=view.battlefield,visible=new Set(field.visible);
@@ -214,12 +240,13 @@
     }
     function draw() {
       if(stopButton)stopButton.disabled=!canStop();
-      for(const button of [previousButton,nextButton])if(button)button.disabled=!view?.units.length;
-      if(townButton)townButton.disabled=!view?.buildings.some(b=>b.kind==='tc'&&b.rallyable);
+      for(const button of [previousButton,nextButton])if(button)button.disabled=overview||!view?.units.length;
+      if(townButton)townButton.disabled=overview||!view?.buildings.some(b=>b.kind==='tc'&&b.rallyable);
       context.fillStyle='#090d16';context.fillRect(0,0,680,680);
       if(!view)return;
       const chosen=new Set(selection);
-      const sx=680/view.width,sy=680/view.height;
+      const sx=680/view.width,sy=680/view.height,v=viewport();
+      context.save();context.setTransform(v.zoom,0,0,v.zoom,-v.x*sx*v.zoom,-v.y*sy*v.zoom);
       if(view.battlefield)drawTerrain(sx,sy);
       context.strokeStyle=view.battlefield?'rgba(190,210,170,.08)':'#1b2a3f';context.lineWidth=1;
       for(let cell=0;cell<=view.width;cell+=8){context.beginPath();context.moveTo(cell*sx,0);context.lineTo(cell*sx,680);context.stroke();}
@@ -254,13 +281,19 @@
       if(placement&&cursor){
         const p=buildPoint(cursor),s=placement.size;context.fillStyle='rgba(236,218,150,.25)';context.fillRect(p.x*sx,p.y*sy,s*sx,s*sy);
         context.strokeStyle='#f5d58a';context.lineWidth=2;context.strokeRect(p.x*sx,p.y*sy,s*sx,s*sy);
-        context.fillStyle='rgba(8,16,20,.9)';context.fillRect(12,12,656,34);context.fillStyle='#ffe9b7';context.font='15px system-ui';context.textAlign='left';
-        context.fillText(placement.label+' · A: place · LT: repeat · B: cancel',24,34);
+
       }
       if(cursor){
         const x=cursor.x*sx,y=cursor.y*sy;
         context.strokeStyle='#fff';context.lineWidth=2;context.beginPath();
         context.moveTo(x-7,y);context.lineTo(x+7,y);context.moveTo(x,y-7);context.lineTo(x,y+7);context.stroke();
+      }
+      context.restore();
+      if(placement){context.fillStyle='rgba(8,16,20,.9)';context.fillRect(12,12,656,34);context.fillStyle='#ffe9b7';context.font='15px system-ui';context.textAlign='left';context.fillText(placement.label+' · A: place · LT: repeat · B: cancel',24,34);}
+      if(overview){
+        const w=view.width/camera.zoom,h=view.height/camera.zoom;
+        context.strokeStyle='#ffe5a1';context.lineWidth=2;context.strokeRect((camera.x-w/2)*sx,(camera.y-h/2)*sy,w*sx,h*sy);
+        context.fillStyle='rgba(8,16,20,.95)';context.fillRect(12,12,656,48);context.fillStyle='#ffe9b7';context.font='16px system-ui';context.textAlign='center';context.fillText('Expanded minimap · left stick: cursor · Y: focus · B / RB: close',340,41);
       }
       if(targetAction){
         context.fillStyle='rgba(9,13,22,.95)';context.fillRect(12,12,656,48);
@@ -288,14 +321,15 @@
           context.fillText('Hold RT + LT + A: train 5',340,402);
         }else if(!view.battlefield)context.fillText('Hold RT + A: confirm',340,384);
       }
-      if(!groupWheel){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('LB: Control groups',662,664);}
+      if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('LB: Groups · RB: Minimap',662,664);}
       if(groupWheel)drawGroups();
-      if(!groupWheel&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
+      if(!groupWheel&&!overview&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
     }
     function refresh(world,team,width,height,canCommand) {
       if(!canCommand)cancelShortcut();
-      if(view&&(view.team!==team||view.width!==width||view.height!==height)){closeGroup();groups=Array.from({length:8},()=>[]);setSelection([]);cancelGesture();cancelShortcut();terrainMemory.clear();}
+      if(view&&(view.team!==team||view.width!==width||view.height!==height)){overview=false;overviewOrigin=null;camera=null;cursor=null;closeGroup();groups=Array.from({length:8},()=>[]);setSelection([]);cancelGesture();cancelShortcut();terrainMemory.clear();}
       view=project(world,team,width,height);enabled=canCommand;
+      if(!camera)camera={x:width/2,y:height/2,zoom:1};
       availableIds=new Set(view.units.map(u=>u.id).concat(view.buildings.filter(selectable).map(b=>b.id)));
       if(view.battlefield)for(const tile of view.battlefield.tiles)terrainMemory.set(tile.index,tile);
       if(lastTap&&!view.units.some(u=>u.id===lastTap.id&&u.kind===lastTap.kind)&&
@@ -323,9 +357,10 @@
       if(wheel||!view||!Number.isFinite(point.x)||!Number.isFinite(point.y)||
         point.x<0||point.y<0||point.x>=view.width||point.y>=view.height)return;
       cursor={x:point.x,y:point.y};
+      if(overview){description.textContent='Minimap cursor moved. Y focuses the battlefield; B or RB closes.';draw();return;}
       if(targetAction){
         if(!enabled){description.textContent='Wait for the previous order to execute.';draw();return;}
-        const radius=Math.max(.8,view.width*8/680);
+        const radius=Math.max(.8/viewport().zoom,viewport().width*8/680);
         const candidates=[...view.units,...view.buildings,...(view.battlefield?.allies||[])];
         const target=candidates.find(e=>e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius);
         if(targetAction.type!=='disembark'&&!target){description.textContent='Choose a visible friendly target; B cancels.';draw();return;}
@@ -339,7 +374,7 @@
         description.textContent=result.ok?placement.label+' submitted. Construction and payment wait for host execution.':'Construction not submitted. Wait for the previous order.';
         if(result.ok){enabled=false;if(!add)placement=null;}draw();return;
       }
-      const radius=Math.max(0.8,view.width*8/680);
+      const radius=Math.max(.8/viewport().zoom,viewport().width*8/680);
       let nearest=null,distance=Infinity;
       for(const unit of view.units){const d=Math.hypot(unit.x-point.x,unit.y-point.y);if(d<=radius&&d<distance){nearest=unit;distance=d;}}
       const town=view.buildings.find(b=>selectable(b)&&point.x>=b.x&&point.x<b.x+b.size&&point.y>=b.y&&point.y<b.y+b.size);
@@ -349,7 +384,7 @@
         // The gesture is on the same unit, not two unrelated A selections.
         // This provisional window still needs comparison with physical Xbox.
         const double=controller&&!add&&previousTap&&previousTap.id===nearest.id&&previousTap.kind===nearest.kind&&at>=previousTap.at&&at-previousTap.at<=350;
-        const ids=double?view.units.filter(u=>u.kind===nearest.kind).map(u=>u.id):[nearest.id];
+        const ids=double?view.units.filter(u=>u.kind===nearest.kind&&onScreen(u)).map(u=>u.id):[nearest.id];
         setSelection(add?selection.concat(ids):ids);
         if(controller&&!add&&!double)lastTap={id:nearest.id,kind:nearest.kind,at};
         description.textContent=selection.length>1?selection.length+' units selected. A orders the group at the cursor; hold RT for commands; B deselects.':
@@ -359,7 +394,7 @@
         if(add&&selection.some(id=>id!==town.id)){description.textContent='LT addition of town centres and mixed building/unit selection are not available in this preview. Use double A to select completed town centres.';draw();return;}
         const at=controller&&!add?now():0;
         const double=controller&&!add&&previousTap&&previousTap.id===town.id&&previousTap.kind===town.kind&&at>=previousTap.at&&at-previousTap.at<=350;
-        setSelection(double?view.buildings.filter(b=>selectable(b)&&b.kind===town.kind).map(b=>b.id):[town.id]);
+        setSelection(double?view.buildings.filter(b=>selectable(b)&&b.kind===town.kind&&onScreen(b)).map(b=>b.id):[town.id]);
         if(controller&&!add&&!double)lastTap={id:town.id,kind:town.kind,at};
         description.textContent=view.battlefield?(town.label+' selected. Hold RT and choose training or research with the left stick. A sets a rally point for production buildings. B deselects.'):selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). Select one town centre to set a rally point. B deselects.':
           'Town centre selected. Double A selects visible completed town centres. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
@@ -392,7 +427,7 @@
       description.textContent=selection.length?selection.length+' units selected. Tap A orders the group; hold RT for commands; B deselects.':'No owned units in the selection box.';
       draw();
     }
-    function canStop() { return !!(enabled&&view&&selection.length&&selection.every(id=>view.units.some(u=>u.id===id))); }
+    function canStop() { return !!(enabled&&!overview&&!groupWheel&&view&&selection.length&&selection.every(id=>view.units.some(u=>u.id===id))); }
     function selectNext(direction,town=false,filter=()=>true) {
       cancelGesture();
       const choices=town?view?.buildings.filter(b=>b.kind==='tc'&&b.rallyable):view?.units.filter(filter);
@@ -404,7 +439,7 @@
       cursor.x=Math.min(view.width-0.01,cursor.x);cursor.y=Math.min(view.height-0.01,cursor.y);
       description.textContent=town?'Town centre selected. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.':
         'Selected '+nameOf(next)+' ('+(choices.indexOf(next)+1)+' of '+choices.length+'). A orders at the cursor. Hold RT for commands; B deselects.';
-      canvas.focus();draw();
+      followCursor();canvas.focus();draw();
     }
     for(const [button,direction,town] of [[previousButton,-1,false],[nextButton,1,false],[townButton,1,true]]){
       if(button){button.disabled=true;button.addEventListener('click',()=>selectNext(direction,town));}
@@ -419,22 +454,23 @@
     }
     function train(count=1) {
       cancelGesture();
-      if(!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
+      if(overview||groupWheel||!enabled||!view?.buildings.some(b=>b.id===selected&&b.rallyable))return;
       const result=submit({type:'train',entities:selection.slice(),value:'vil',...(count===5?{count:5}:{})});
       description.textContent=result.ok?(count===5?'Five-villager training batch submitted. Available resources, population and queue space limit how many are queued after host execution.':'Villager training submitted. Resources and queue change only after host execution.'):'Training not submitted. Wait for the previous order.';
       if(result.ok)enabled=false;
       draw();
     }
     if(stopButton){stopButton.disabled=true;stopButton.addEventListener('click',stop);}
-    canvas.addEventListener('blur',()=>{closeGroup();cancelShortcut();cancelGesture();targetAction=null;wheel=false;draw();});
+    canvas.addEventListener('blur',()=>{closeOverview();closeGroup();cancelShortcut();cancelGesture();targetAction=null;wheel=false;draw();});
     canvas.addEventListener('click',event=>{
       const bounds=canvas.getBoundingClientRect();
       if(!view||bounds.width<=0||bounds.height<=0)return;
-      canvas.focus();choose({x:(event.clientX-bounds.left)*view.width/bounds.width,y:(event.clientY-bounds.top)*view.height/bounds.height});
+      const v=viewport();canvas.focus();choose({x:v.x+(event.clientX-bounds.left)*v.width/bounds.width,y:v.y+(event.clientY-bounds.top)*v.height/bounds.height});
     });
     function control(buttons,held=buttons,axes=[0,0],dt=1/30) {
       if(!held[0])blockedA=false;
       if(buttons[1]){
+        if(overview){closeOverview();cancelShortcut();cancelGesture();description.textContent='Expanded minimap closed.';draw();return;}
         if(groupWheel){closeGroup();cancelShortcut();cancelGesture();description.textContent='Control groups cancelled.';draw();return;}
         cancelShortcut();
         if(targetAction){targetAction=null;cancelGesture();description.textContent='Target command cancelled.';draw();return;}
@@ -448,6 +484,20 @@
       }
       if(Object.keys(buttons).some(key=>buttons[key]&&key!=='0'&&key!=='6'))cancelGesture();
       if(!view||!cursor)return;
+      if(buttons[5]&&!held[4]&&!held[7]){
+        if(overview)closeOverview();else{overviewOrigin={...cursor};overview=true;}closeGroup();wheel=false;placement=null;targetAction=null;cancelShortcut();cancelGesture();
+        description.textContent=overview?'Expanded minimap. Left stick moves its cursor; Y focuses the battlefield; B or RB closes.':'Expanded minimap closed.';
+        draw();return;
+      }
+      if(overview){
+        cancelShortcut();cancelGesture();
+        const delta=Number.isFinite(dt)?Math.max(0,Math.min(.1,dt)):0;
+        const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
+        cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
+        cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
+        if(buttons[3]){focusView(cursor);description.textContent='Battlefield focused at minimap cursor.';}
+        draw();return;
+      }
       if(buttons[4]&&held[4]&&!held[5]&&!held[7]&&!placement&&!targetAction){
         cancelShortcut();cancelGesture();wheel=false;groupWheel={slot:-1,done:false};
       }
@@ -457,6 +507,16 @@
         if(held[4]){
           const x=Number.isFinite(axes[0])?axes[0]:0,y=Number.isFinite(axes[1])?axes[1]:0;
           if(Math.hypot(x,y)>.45){const angle=(Math.atan2(y,x)+Math.PI/2+Math.PI*2)%(Math.PI*2);groupWheel.slot=Math.floor(angle/(Math.PI*2)*8+.5)%8;}
+          if(buttons[3]&&groupWheel.slot>=0){
+            const active=groupWheel,ids=availableGroup(groups[active.slot]);
+            active.done=true;
+            if(ids.length){
+              setSelection(ids);groupWheel=active;
+              const anchor=view.units.find(u=>u.id===ids[0])||view.buildings.find(b=>b.id===ids[0]);
+              focusView({x:anchor.x+(anchor.size||0)/2,y:anchor.y+(anchor.size||0)/2});
+              description.textContent='Focused group '+(active.slot+1)+'.';
+            }else description.textContent='Group '+(active.slot+1)+' has no available members.';
+          }
           if(buttons[2]&&groupWheel.slot>=0){
             const slot=groupWheel.slot;groups[slot]=availableGroup(selection);groupWheel.done=true;
             description.textContent='Group '+(slot+1)+' assigned ('+groups[slot].length+').';
@@ -518,13 +578,14 @@
       }
       const delta=Number.isFinite(dt)?Math.min(.1,Math.max(0,dt)):0;
       const axis=i=>Number.isFinite(axes[i])?Math.max(-1,Math.min(1,axes[i])):0;
-      cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*view.width*.6*delta));
-      cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*view.height*.6*delta));
+      cursor.x=Math.max(0,Math.min(view.width-.01,cursor.x+axis(0)*viewport().width*.6*delta));
+      cursor.y=Math.max(0,Math.min(view.height-.01,cursor.y+axis(1)*viewport().height*.6*delta));
+      followCursor();
       if(placement&&buttons[0]&&!blockedA){choose(cursor,!!held[6],true);blockedA=true;return;}
       if(buttons[0]&&held[0]&&!blockedA&&!aGesture)aGesture={start:{...cursor},box:false};
       if(aGesture){
         // Reuse the solo gesture's provisional 14-pixel drag threshold.
-        if(held[0]&&Math.hypot((cursor.x-aGesture.start.x)*680/view.width,(cursor.y-aGesture.start.y)*680/view.height)>14){aGesture.box=true;lastTap=null;}
+        if(held[0]&&Math.hypot((cursor.x-aGesture.start.x)*680/viewport().width,(cursor.y-aGesture.start.y)*680/viewport().height)>14){aGesture.box=true;lastTap=null;}
         if(!held[0]){
           const gesture=aGesture;aGesture=null;
           if(gesture.box)selectBox(gesture.start,cursor,!!held[6]);else choose(gesture.start,!!held[6],true);
@@ -533,7 +594,7 @@
       }
       draw();
     }
-    return Object.freeze({refresh,control,choose,suspend:()=>{closeGroup();cancelShortcut();wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice(),controlGroups:()=>groups.map(ids=>ids.slice())});
+    return Object.freeze({refresh,control,choose,suspend:()=>{closeOverview();closeGroup();cancelShortcut();wheel=false;placement=null;targetAction=null;cancelGesture();draw();},selected:()=>selected,selection:()=>selection.slice(),controlGroups:()=>groups.map(ids=>ids.slice()),viewport});
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);

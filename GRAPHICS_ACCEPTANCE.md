@@ -106,3 +106,7 @@ node tests/browser/battlefield-art.mjs
 ## Multiplayer control-group wheel
 
 The battlefield draws an original eight-slot wheel with group numbers, current available counts, highlighted slot and LB/X/B instructions. The Chromium suite performs local assignment/recall, verifies the gameplay checkpoint stays unchanged and writes `control-groups.png` alongside the existing art captures; `metrics.json` includes the group result. This covers browser drawing and basic local interaction, not Xbox readability, exact reference sectors or LB+Y camera focus.
+
+## Focused battlefield camera
+
+World layers now support a local focused 2× viewport; original SVG art scales with terrain, paths, foundations, health/cargo markers and cursor. Menus and instructions stay at screen size. `focused-world.png` and `expanded-minimap.png` are captured by Chromium after LB+Y focus. The suite verifies camera changes leave production hashes unchanged and do not expose the hidden opponent. Node tests cover inverse pointer mapping and current-viewport double selection. This is a top-down camera/presentation stage; isometric projection, zoom/edge tuning and Xbox image/performance acceptance remain open.
