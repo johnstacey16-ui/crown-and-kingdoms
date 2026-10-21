@@ -1,3 +1,15 @@
+# Current hosting constraint — free only
+
+The owner chose free-only hosting on 21 October 2026. This supersedes prior
+Railway deployment instructions. [FREE_HOSTING.md](FREE_HOSTING.md) records the
+current shutdown status, account-access gates and secure migration requirements.
+The Railway service still exists: zero replicas was disallowed and automatic
+approval review rejected permanent deletion without explicit deletion approval.
+Sleep/no-restart/restricted-build settings were saved/read back; current compute
+shutdown is not confirmed. Supabase is reachable but anonymous sign-ins are off;
+its plugin/account connection and project-plan/schema inspection are pending.
+No paid upgrade or completed Supabase multiplayer migration is claimed.
+
 # Crown & Kingdoms — authoritative audit and delivery register
 
 Updated 21 October 2026. Work continues directly on `main`.

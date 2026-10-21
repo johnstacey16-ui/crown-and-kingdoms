@@ -13,3 +13,13 @@ campaign, multiplayer, menus, help text, modifiers and contextual actions.
   the button label. Keep controller help consistent with implemented behaviour.
 - Preserve authenticated ownership, pending-command and simulation guards.
 - Passing Node tests does not establish physical Xbox control parity.
+
+# Free-only hosting requirement
+
+The owner explicitly requires free-only hosting. Read `FREE_HOSTING.md` before
+hosting or multiplayer infrastructure work. Do not upgrade subscriptions, buy
+credits, enable paid overages/add-ons, provision trial-dependent replacements or
+restart/redeploy Railway without explicit owner approval. Verify the existing
+Supabase project's Free plan before rollout. Reaching a free quota must restrict
+service rather than enable billing. Preserve authenticated ownership and replay
+guards when adapting the transport. The Supabase migration is not yet live.
