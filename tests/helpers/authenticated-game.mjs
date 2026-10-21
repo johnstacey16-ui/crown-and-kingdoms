@@ -34,8 +34,8 @@ function game(origin, preferences) {
   `, sandbox);
   return sandbox;
 }
-export async function pair(t) {
-  const server = createTransport(); server.listen(0,'127.0.0.1'); await once(server,'listening');
+export async function pair(t, transportOptions = {}) {
+  const server = createTransport(transportOptions); server.listen(0,'127.0.0.1'); await once(server,'listening');
   const origin = `http://127.0.0.1:${server.address().port}`;
   const hostGame = game(origin, 'msz=0;mt=3;mapLayout=0;diff=5;startAge=2;startRes=3;startArmy=2;startVillagers=2;popLimit=300;gameMode=0;vm=4;scoreLimit=900;');
   const guestGame = game(origin, 'msz=3;mt=1;mapLayout=11;diff=0;startAge=0;startRes=5;startArmy=3;startVillagers=0;popLimit=50;gameMode=1;vm=0;scoreLimit=1800;gs=2;');
