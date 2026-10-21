@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {once} from 'node:events';
+import {chromium} from 'playwright';
+import {createApplication} from '../../server/app.mjs';
+const output='artifacts/battlefield-art';
+await mkdir(output,{recursive:true});
+const server=createApplication();server.listen(0,'127.0.0.1');await once(server,'listening');
+const browser=await chromium.launch({headless:true}),results=[];
+try{
+ for(const viewport of [{width:1280,height:900},{width:390,height:844},{width:320,height:640}]){
+  const page=await browser.newPage({viewport});
+  const errors=[],requests=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('request',r=>{if(r.url().includes('supabase.co')||r.url().includes('/api/multiplayer/'))requests.push(r.url());});
+  await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'networkidle'});
+  await page.evaluate(()=>{mode='multiplayer';CK_AUTH_LOBBY.open(()=>{mode='title';});});
+  const dialog=page.getByRole('dialog',{name:'Authenticated multiplayer setup'});
+  await dialog.waitFor();
+  const layout=await dialog.evaluate(el=>{
+   const cards=[...el.querySelectorAll('.ck-room-card')].map(c=>({width:c.getBoundingClientRect().width,x:c.getBoundingClientRect().x}));
+   return {overflow:el.scrollWidth>el.clientWidth+1,cards,focus:document.activeElement.textContent};
+  });
+  assert.equal(layout.overflow,false,'room must fit the viewport');
+  assert.equal(layout.cards.length,3);
+  assert.ok(layout.cards.every(c=>c.width>200));
+  assert.equal(layout.focus,'Create private room');
+  if(viewport.width<600)assert.ok(Math.abs(layout.cards[0].x-layout.cards[1].x)<1,'mobile cards stack');
+  else assert.ok(layout.cards[1].x>layout.cards[0].x,'desktop cards use two columns');
+  await page.screenshot({path:output+'/room-'+viewport.width+'.png'});
+  const leave=dialog.getByRole('button',{name:'Leave setup',exact:true});
+  await leave.focus();
+  assert.equal(await leave.evaluate(el=>getComputedStyle(el).outlineStyle),'solid');
+  await page.keyboard.press('Enter');
+  await dialog.waitFor({state:'detached'});
+  assert.equal(await page.evaluate(()=>CK_AUTH_LOBBY.active()),false);
+  assert.deepEqual(errors,[]);assert.deepEqual(requests,[],'opening the room screen must not sign up or connect');
+  results.push({viewport,...layout,networkRequests:requests.length});await page.close();
+ }
+ await writeFile(output+'/room-layout.json',JSON.stringify(results,null,2));
+ console.log('Room layout checks passed: '+results.length+' viewports; no multiplayer requests.');
+}finally{await browser.close();await new Promise(r=>server.close(r));}

@@ -27,6 +27,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Render original multiplayer art in Chromium
         run: node tests/browser/battlefield-art.mjs
+      - name: Check responsive multiplayer room layout
+        run: node tests/browser/room-layout.mjs
       - name: Save rendered evidence
         if: always()
         uses: actions/upload-artifact@v4

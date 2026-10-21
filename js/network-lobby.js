@@ -66,18 +66,20 @@
     let connection = null, startup = null, live = null, timer = null, progressTimer = null, busy = false, updating = false, closed = false, stopped = false;
     let previewRunning=false,menuOpen=false,menuFocus=null;
     const overlay = document.createElement('section');
+    overlay.className = 'ck-room-overlay';
     overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true');
     overlay.setAttribute('aria-label','Authenticated multiplayer setup');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:#090d16;color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:30;overflow:auto;background:radial-gradient(ellipse at top left,#243b4b,#090d16 65%);color:#eef2ff;padding:clamp(16px,5vw,64px);box-sizing:border-box;font:18px system-ui';
     const title = document.createElement('h1'); title.textContent = 'Two-player room setup';
     const description = document.createElement('p');
-    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then enter the battlefield preview: explore, construct buildings, train and research, and fight with your own kingdom. Terrain and opponents are shown only within your team’s sight. Select villagers and use A on a visible resource to gather. Deployment and real-browser acceptance remain unfinished.';
+    description.textContent = 'Create a private invitation or paste one to join. Verify the shared map, then enter the battlefield preview: explore, construct buildings, train and research, and fight with your own kingdom. Terrain and opponents are shown only within your team’s sight. Select villagers and use A on a visible resource to gather. This is a two-player preview. Leave setup to close the room.';
+    description.className = 'ck-room-intro';
     const details = document.createElement('p');
     details.textContent = 'The host’s current game settings will apply to both players, with two kingdoms.';
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 43;
     input.autocomplete = 'off'; input.spellcheck = false; input.placeholder = 'Paste private invitation';
     input.setAttribute('aria-label','Private room invitation');
-    const status = document.createElement('p'); status.setAttribute('role','status'); status.setAttribute('aria-live','polite');
+    const status = document.createElement('p'); status.className = 'ck-room-status'; status.setAttribute('role','status'); status.setAttribute('aria-live','polite');
     status.textContent = 'No room connected.';
     const makeButton = label => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; return b; };
     const host = makeButton('Create private room'), join = makeButton('Join room');
@@ -87,6 +89,7 @@
     const mapButton = makeButton('Control units on map'), stopButton = makeButton('Stop selected unit');
     const previousButton=makeButton('Previous unit'),nextButton=makeButton('Next unit'),townButton=makeButton('Select town centre');
     const matchMenu=document.createElement('section');
+    matchMenu.className = 'ck-room-overlay';
     matchMenu.setAttribute('role','dialog');matchMenu.setAttribute('aria-modal','true');
     matchMenu.setAttribute('aria-label','Multiplayer menu');
     matchMenu.style.cssText=overlay.style.cssText;
@@ -102,7 +105,7 @@
       submit:order=>live&&!stopped&&!menuOpen?live.submit(order):{ok:false},leave:()=>mapButton.focus(),
       nameOf:unit=>unitName(unit.kind,connection.snapshot().team)});
     for (const element of [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,stopButton,leave,...menuControls]) {
-      element.style.cssText = 'display:block;width:min(100%,680px);box-sizing:border-box;margin:14px 0;padding:14px;border:2px solid #c9a24a;border-radius:6px;background:#15243c;color:#fff;font:inherit';
+      element.className = 'ck-room-control';
     }
     function showMap(visible) {
       for(const element of [unitCanvas,mapDescription,previousButton,nextButton,townButton,stopButton]) {
@@ -112,7 +115,21 @@
     }
     showMap(false);
     verify.disabled = run.disabled = trainButton.disabled = cancelButton.disabled = mapButton.disabled = true;
-    overlay.append(title,description,details,host,input,join,verify,run,trainButton,cancelButton,economy,mapButton,previousButton,nextButton,townButton,unitCanvas,mapDescription,stopButton,status,leave);
+    const shell = document.createElement('div'); shell.className = 'ck-room-shell';
+    const brand = document.createElement('p'); brand.className = 'ck-room-brand'; brand.textContent = 'CROWN & KINGDOMS · MULTIPLAYER PREVIEW';
+    const grid = document.createElement('div'); grid.className = 'ck-room-grid';
+    function card(heading, ...children) {
+      const section = document.createElement('section'); section.className = 'ck-room-card';
+      const label = document.createElement('h2'); label.textContent = heading;
+      section.append(label,...children); return section;
+    }
+    const roomCard = card('1 · Private room',host,input,join);
+    const setupCard = card('2 · Shared battlefield',details,verify,run);
+    const battlefieldCard = card('Your kingdom',trainButton,cancelButton,economy,mapButton,previousButton,nextButton,townButton,unitCanvas,mapDescription,stopButton);
+    battlefieldCard.className += ' ck-room-battlefield';
+    grid.append(roomCard,setupCard,battlefieldCard);
+    const footer = document.createElement('footer'); footer.className = 'ck-room-footer'; footer.append(leave);
+    shell.append(brand,title,description,status,grid,footer); overlay.append(shell);
     document.body.appendChild(overlay);
     document.body.appendChild(matchMenu);
     const controls = [host,input,join,verify,run,trainButton,cancelButton,mapButton,previousButton,nextButton,townButton,unitCanvas,stopButton,leave];
