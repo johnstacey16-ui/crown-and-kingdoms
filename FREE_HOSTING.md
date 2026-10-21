@@ -156,3 +156,13 @@ checks. The PostgreSQL CI workflow also runs this Auth suite.
 Repository metadata identifies `https://crown-and-kingdoms.vercel.app` as the homepage.
 This identifies a possible existing static origin, not a verified Free hosting plan;
 confirm the hosting account and actual deployed revision before UI cutover.
+
+Guest lifecycle update verification:
+[Supabase relay validation 39544723296](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39544723296)
+passed all 25 checks with no skips (3 real PostgreSQL integration cases, 11 guest
+Auth lifecycle cases and 11 HTTP adapter cases). The separate local transport,
+live-session, server and Auth run passed 54 tests. Code commit:
+`b83ae93912cfb1afa766fafa277e8ad4276976b8`. Game validation also passed for that
+commit. Anonymous Auth was rechecked and remained disabled; enabling it is the
+current account prerequisite, not a paid upgrade. Real Auth/two-browser/static
+hosting gates remain open, and the default game connection remains unchanged.
