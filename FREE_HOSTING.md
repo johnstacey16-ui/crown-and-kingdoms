@@ -39,13 +39,13 @@ no database, and no service variables. The application code remains on GitHub.
 ## Supabase migration requirements
 
 The existing client configuration points to project `isfzrqtbsbqlaojtpkxr`.
-Its public Auth settings endpoint returned 200 and reported anonymous user sign-in
-disabled on 21 October 2026. The connected Supabase plugin confirmed this project is ACTIVE_HEALTHY and its
+Its public Auth settings endpoint initially reported anonymous sign-in disabled;
+the owner enabled it on 21 October 2026 and the endpoint now confirms it is enabled. The connected Supabase plugin confirmed this project is ACTIVE_HEALTHY and its
 organization `rchuzzfoqscnjvhbctjt` is on `free` / `tier_free` on 21 October 2026.
 No plan upgrades or paid resources were created. After two earlier connector
 errors, retrying `apply_migration` succeeded on 21 October 2026. Migration
-`ck_free_relay_v1` is recorded in the actual project. No Auth settings were
-changed and no Auth users were created.
+`ck_free_relay_v1` is recorded in the actual project. The migration itself changed no Auth settings and created no Auth users.
+The owner subsequently enabled anonymous Auth; live probes below create guest users.
 
 The legacy `multiplayer.js` lobby/presence/marker path is not a replacement for the
 new synchronized relay. The latter currently calls the Node HTTP API. Preserve the
@@ -112,8 +112,8 @@ References: [cost control](https://supabase.com/docs/guides/platform/cost-contro
   sender spoofing, permissions, receipts, expiry and caps. This does not establish
   real Auth/JWT verification, HTTPS/CORS, two-browser operation or free capacity.
 
-Next gates: enable anonymous Auth, exercise real signup/refresh and independent
-browser clients through startup and terminal barriers, and measure actual traffic
+Next gates: verify the complete live startup/terminal flow and independent
+browser clients, and measure actual traffic
 before deciding whether this REST relay meets gameplay latency and Free quotas.
 The connector currently exposes no Auth configuration update tool. Static hosting
 on a confirmed free plan and Railway shutdown still need to be completed before
@@ -126,7 +126,7 @@ cases). Both simulated Auth identities produced matching game hashes through
 session/server suite passed all 43 checks. These are transport/database tests;
 real-project Auth, browser, capacity and live migration gates above remain open.
 
-## Actual-project verification and current account step
+## Actual-project verification
 
 After applying the migration, role-scoped rollback tests on the real project
 verified two identities, token-theft rejection, host/guest message roles, stamped
@@ -144,8 +144,7 @@ for these private tables. This deny-by-default setup is intentional: only the
 identity-checking private function may access them. Do not add permissive policies
 to silence the notices. Performance Advisor returned no findings.
 
-Anonymous sign-in is still disabled. The owner can enable **Anonymous Sign-Ins**
-and save under [Authentication providers](https://supabase.com/dashboard/project/isfzrqtbsbqlaojtpkxr/auth/providers).
+The owner enabled **Anonymous Sign-Ins**. Settings are under [Authentication providers](https://supabase.com/dashboard/project/isfzrqtbsbqlaojtpkxr/auth/providers).
 The connector exposes no Auth-settings update operation. Do not bypass supported
 Auth configuration by editing managed Auth tables. Validate any CAPTCHA/rate-limit
 settings before public rollout. Guest signup/refresh use the official auth-js REST
@@ -163,6 +162,37 @@ passed all 25 checks with no skips (3 real PostgreSQL integration cases, 11 gues
 Auth lifecycle cases and 11 HTTP adapter cases). The separate local transport,
 live-session, server and Auth run passed 54 tests. Code commit:
 `b83ae93912cfb1afa766fafa277e8ad4276976b8`. Game validation also passed for that
-commit. Anonymous Auth was rechecked and remained disabled; enabling it is the
-current account prerequisite, not a paid upgrade. Real Auth/two-browser/static
+commit. Anonymous Auth was still disabled at that commit; it is now enabled by the owner. Real Auth/two-browser/static
 hosting gates remain open, and the default game connection remains unchanged.
+
+## Live Auth smoke and startup timing fix
+
+The enabled anonymous setting and Free plan were reverified. Three local live
+probes created two independent guest identities each (six Auth records total),
+refreshed both credentials while retaining the immutable room roster, then hit the
+original startup deadline. Every probe closed its own relay sessions/room and
+signed out both Auth leases. The managed anonymous Auth user records remain;
+no managed Auth tables were edited to remove them. These records need a retention
+policy before broad public rollout.
+
+The instrumented local probes observed median HTTPS request times of 231–246 ms
+and p95 of 5.0–6.0 seconds. These include this execution environment and are not
+measurements of Supabase database execution time or player-to-player browser latency.
+The old startup timer covered the entire handshake, even while valid stages were
+progressing. Startup now renews its existing timeout only for a validated new
+ready/commit stage. Identity, version, hash, ordering and final confirmation checks
+remain mandatory. Stalls still expire and duplicate confirmations fail closed;
+two new deterministic HTTP regression cases cover slow progress, stalls and replay.
+
+`scripts/verify-supabase-relay.mjs` is an explicit live probe gated by
+`CK_RUN_SUPABASE_SMOKE=1`. It creates two real guest users, checks token refresh,
+map agreement, both teams' paid training orders, matching production checkpoints,
+and final acknowledgment of a deterministic terminal fixture. It logs aggregate
+counts/timings only. It is not a browser/CORS or natural combat-victory test.
+
+The dedicated `Live Supabase guest smoke` workflow runs on changes to the probe or
+its workflow, and on manual dispatch; ordinary game pushes do not run it. It creates
+two additional anonymous Auth records per execution and retains its non-secret
+log artifact for seven days. No paid resources or plan changes are involved.
+Results must be recorded before claiming the live handshake or battlefield works.
+The game UI default and Railway shutdown status remain unchanged.

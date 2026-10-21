@@ -116,3 +116,32 @@ test('DOM/controller setup flow creates and joins, confirms frozen worlds, and h
   hostGame.testControl(1);
   assert.equal(hostLeft,1);assert.equal(hd.dialog().removed,true);
 });
+
+
+test('verified handshake progress renews each bounded idle lease across a slow multi-stage start',async t=>{
+  const p=await pair(t);let clock=0;
+  const make=(game,transport)=>game.CK_MATCH_STARTUP.create({transport,validateConfig:()=>true,
+    prepare:()=> 'aaaaaaaa',now:()=>clock,timeoutMs:10});
+  const host=make(p.hostGame,p.host),guest=make(p.guestGame,p.guest);
+  await host.begin({seed:1});
+  clock=6;await guest.pump();clock=9;await host.pump();
+  clock=15;await guest.pump();clock=18;await host.pump();
+  assert.equal(host.snapshot().phase,'verified');assert.equal(guest.snapshot().phase,'verified');
+});
+
+test('a stalled new stage still expires, and duplicate confirmations cannot renew startup',async t=>{
+  for(const replay of [false,true]){
+    const p=await pair(t);let clock=0;
+    const make=(game,transport)=>game.CK_MATCH_STARTUP.create({transport,validateConfig:()=>true,
+      prepare:()=> 'aaaaaaaa',now:()=>clock,timeoutMs:10});
+    const host=make(p.hostGame,p.host),guest=make(p.guestGame,p.guest);
+    await host.begin({seed:1});clock=6;await guest.pump();clock=9;await host.pump();
+    if(replay){
+      clock=15;await p.guest.send('ready',{v:'ck-auth-start-1',hash:'aaaaaaaa'});
+      await assert.rejects(host.pump(),/Unexpected startup message/);
+    }else{
+      clock=19;await assert.rejects(host.pump(),/timed out/);
+    }
+    assert.equal(host.snapshot().phase,'failed');
+  }
+});

@@ -53,10 +53,14 @@
       }
       if (!exact(payload, ['v', 'hash']) || payload.hash !== hash) throw Error('Wrong opening confirmation');
       if (identity.team === 0 && phase === 'awaiting-ready' && kind === 'ready') {
+        // A verified new handshake stage renews the idle lease. The initial
+        // deadline must not expire a peer that is still making valid progress.
+        deadline = now() + timeoutMs;
         await transport.send('commit', { v: VERSION, hash });
         current(); phase = 'awaiting-commit-ack'; return true;
       }
       if (identity.team === 1 && phase === 'awaiting-commit' && kind === 'commit') {
+        deadline = now() + timeoutMs;
         await transport.send('committed', { v: VERSION, hash });
         current(); phase = 'verified'; deadline = null; return true;
       }
@@ -81,3 +85,4 @@
   }
   root.CK_MATCH_STARTUP = Object.freeze({ create, VERSION });
 })(typeof window !== 'undefined' ? window : globalThis);
+
