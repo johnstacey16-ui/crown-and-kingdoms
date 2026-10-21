@@ -1,3 +1,11 @@
+<!-- Raider animation increment: 22 October 2026 -->
+CK-032: scouts now have horse-trot and mounted sword-attack frames; skirmishers
+have walking and javelin-throw frames. Both have matching ready poses. Current
+coverage is 8/47 playable kinds, with mirrored facing. Other troops, full
+directions, specialised work/death sheets and physical Xbox acceptance remain
+open. Gameplay, controller bindings and original assets are unchanged.
+See docs/PAINTED_RAIDERS.md.
+
 <!-- Ranged animation increment: 21 October 2026 -->
 CK-032: added walking, firing and thrust frames for archers, crossbowmen and
 spearmen. All six motion types now have matching ready poses. Coverage is 6/47

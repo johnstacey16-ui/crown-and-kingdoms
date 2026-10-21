@@ -1,3 +1,5 @@
+Current coverage: eight playable kinds, including scouts and skirmishers. See [the latest animation increment](PAINTED_RAIDERS.md). The increment-specific coverage below records its original stage.
+
 # Original painted medieval art
 
 Created for Crown & Kingdoms with the built-in image-generation tool on

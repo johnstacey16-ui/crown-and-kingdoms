@@ -1,3 +1,5 @@
+Current coverage: eight playable kinds, including scouts and skirmishers. See [the latest animation increment](PAINTED_RAIDERS.md). The increment-specific coverage below records its original stage.
+
 # Archer, crossbowman and spearman animation — 21 October 2026
 
 The painted motion layer now covers six playable kinds: infantry, knights,

@@ -1,3 +1,5 @@
+Current coverage: eight playable kinds, including scouts and skirmishers. See [the latest animation increment](PAINTED_RAIDERS.md). The increment-specific coverage below records its original stage.
+
 # Core painted unit motion — 21 October 2026
 
 The [ranged and spear increment](PAINTED_RANGED.md) extends current coverage to
