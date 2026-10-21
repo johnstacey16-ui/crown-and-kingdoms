@@ -369,3 +369,11 @@ stages/reasons are fixed strings with no tokens, room IDs or SDP. Explicit Leave
 remains an ordinary close, without a timeout/failure reason. A stalled-connection
 regression checks bounded failure and closure on both peers. Controller mappings
 and the public transport default remain unchanged.
+
+Validation: the 66-check local transport/startup/live/Auth suite passed, plus the
+new DOM regression for progress, safe timeout text, disabled actions and timer
+cleanup. Code commit `def75f5de2189e97c25bcc465eb1975d50555dca` passed
+[WebRTC browser transport](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549941825),
+[Battlefield browser graphics](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549941682)
+and [Game validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39549941648).
+These checks do not establish public-origin/NAT acceptance.

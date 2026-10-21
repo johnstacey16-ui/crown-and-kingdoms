@@ -2,6 +2,32 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pair, attachDOM, eventually } from './helpers/authenticated-game.mjs';
 
+test('peer setup shows connection progress, safe retry guidance, and stops status updates after failure',async t=>{
+  const {hostGame}=await pair(t),dom=attachDOM(hostGame);
+  let rejectConnect,closed=0,failure='';
+  const transport={
+    connect:()=>new Promise((_,reject)=>{rejectConnect=reject;}),
+    diagnostics:()=>({stage:'connecting',failure}),
+    close:()=>{closed++;return Promise.resolve();}
+  };
+  hostGame.CK_AUTH_LOBBY.open(()=>{}, {createTransport:()=>transport});
+  t.after(()=>hostGame.CK_AUTH_LOBBY.close());
+  dom.button('Create private room').click();
+  assert.match(dom.status().textContent,/Connecting directly/);
+  failure='connection-timeout';rejectConnect(Error('private diagnostic text must not reach the UI'));
+  await eventually(()=>/could not connect directly/.test(dom.status().textContent));
+  assert.match(dom.status().textContent,/new room/);
+  assert.doesNotMatch(dom.status().textContent,/private diagnostic/);
+  assert.equal(dom.active(),dom.button('Leave setup'));
+  assert.equal(dom.button('Verify shared map').disabled,true);
+  assert.equal(closed,1);
+  const stoppedStatus=dom.status().textContent;
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(dom.status().textContent,stoppedStatus);
+  dom.button('Leave setup').click();
+  assert.equal(dom.dialog().removed,true);
+});
+
 test('real HTTP startup overrides conflicting preferences and requires final confirmation without advancing time', async t => {
   const {host,guest,hostGame,guestGame} = await pair(t);
   const hostBefore = hostGame.testSettings(), guestBefore = guestGame.testSettings();
