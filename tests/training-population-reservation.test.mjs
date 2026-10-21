@@ -17,6 +17,7 @@ const context = {
   pay: (team, cost, refund = 0) => { for (const [k, n] of Object.entries(cost)) S.res[team][k] += refund ? n : -n; },
   popOf: team => population[team] + S.bs.reduce((n,b)=>n+(b.t===team&&b.hp>0?b.q.length:0),0), capOf: team => caps[team],
 };
+context.trOf=b=>context.B[b.k]?.tr||[];
 vm.createContext(context);
 const begin = simulation.indexOf('function queuedPopulation(t){');
 const end = simulation.indexOf('\nfunction okPlace(', begin);

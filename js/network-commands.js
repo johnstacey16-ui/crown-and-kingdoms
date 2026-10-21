@@ -50,11 +50,11 @@
   function buildingOptions(world, team, building) {
     if (!building || building.t !== team || building.hp <= 0 || !building.done ||
         !world.bs.includes(building) || !B[building.k]) return [];
-    const options = [], definition = B[building.k], tech = world.tech?.[team] || {};
-    const training = definition.tr || [];
+    const options = [], tech = world.tech?.[team] || {};
+    const training = trOf(building,world.civ);
     for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
       label:unitName(kind,team),cost:{...U[kind].cost},locked:U[kind].age > world.age[team] ? 'Requires '+AG[U[kind].age].n : ''});
-    const research = definition.rs || [];
+    const research = rsOf(building,world.civ);
     if (building.k === 'tc' && AG[world.age[team]+1]) {
       const age = AG[world.age[team]+1];
       options.push({type:'research',value:'age',label:'Advance: '+age.n,cost:{...age.cost},locked:ageRequirements(team,world).ready?'':'Requires two different current-age buildings'+(age.single?' or one Castle':'')});
@@ -213,7 +213,7 @@
       if (order.type === 'train') {
         const count = Object.hasOwn(order, 'count') ? order.count : 1;
         const buildings = entities.filter(b => Array.isArray(b.q) && !b.rs &&
-          Array.isArray(B[b.k].tr) && B[b.k].tr.includes(order.value));
+          Array.isArray(B[b.k].tr) && trOf(b).includes(order.value));
         let queued = 0;
         // Match solo batching: each accepted unit pays its own cost and
         // reserves population/queue space. Stop at the first rejected unit.
@@ -369,5 +369,3 @@
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
-
-

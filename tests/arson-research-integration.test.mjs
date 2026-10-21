@@ -17,6 +17,7 @@ const context = {
   can: (t, cost) => Object.entries(cost).every(([k, n]) => S.res[t][k] >= n),
   pay: (t, cost) => { for (const [k, n] of Object.entries(cost)) S.res[t][k] -= n; },
 };
+context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
 function load(start, end) {
   const a = sim.indexOf(start), b = sim.indexOf(end, a + start.length);

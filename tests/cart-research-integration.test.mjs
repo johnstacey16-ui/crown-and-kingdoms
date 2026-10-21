@@ -23,6 +23,7 @@ const context = {
   can: (team, cost) => Object.entries(cost).every(([k, n]) => S.res[team][k] >= n),
   pay: (team, cost) => { for (const [k, n] of Object.entries(cost)) S.res[team][k] -= n; },
 };
+context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
 vm.runInContext(source, context);
 const research = vm.runInContext('research', context);

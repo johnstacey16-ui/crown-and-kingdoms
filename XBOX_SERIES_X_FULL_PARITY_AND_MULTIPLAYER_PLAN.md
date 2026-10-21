@@ -1,3 +1,11 @@
+<!-- Castle production increment: 22 October 2026 -->
+CK-014/025/027: restored access to existing civilisation-specific castle units
+and technologies. Shared catalogue checks now govern solo production,
+authenticated multiplayer menus/commands and saved queues. Foreign entries
+remain blocked; controller bindings, costs and population guards are unchanged.
+All 26 implemented civilisations are exercised by production-script tests.
+See docs/CASTLE_PRODUCTION.md. Reference balance/content acceptance remains open.
+
 <!-- Raider animation increment: 22 October 2026 -->
 CK-032: scouts now have horse-trot and mounted sword-attack frames; skirmishers
 have walking and javelin-throw frames. Both have matching ready poses. Current

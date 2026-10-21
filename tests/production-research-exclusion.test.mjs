@@ -14,6 +14,8 @@ const S = { tech: [{}, {}], age: [0,0], bs: [], res: [{f:1000,w:1000,g:1000,s:10
 let payments = 0;
 const context = { B, U, TE, AG, S, note: () => {}, can: () => true,
   pay: () => { payments++; }, popOf: () => 0, queuedPopulation: () => 0, capOf: () => 20 };
+context.rsOf=b=>context.B[b.k]?.rs||[];
+context.trOf=b=>context.B[b.k]?.tr||[];
 vm.createContext(context);
 vm.runInContext(source.slice(a, b) + '\n' + source.slice(c, d), context);
 const research = vm.runInContext('research', context);

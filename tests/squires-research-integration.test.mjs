@@ -19,6 +19,7 @@ const context = {
   can: (team, cost) => Object.entries(cost).every(([key, value]) => S.res[team][key] >= value),
   pay: (team, cost) => { for (const [key, value] of Object.entries(cost)) S.res[team][key] -= value; },
 };
+context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
 function extract(begin, end) {
   const start = simulation.indexOf(begin);

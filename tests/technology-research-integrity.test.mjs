@@ -7,7 +7,7 @@ assert.match(html, /function research\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|
   'Research must validate the building, match state and researching kingdom');
 assert.match(html, /if\(k==='age'\)\{if\(b\.k!=='tc'\)\{if\(!t\)note\('Advance Age requires a Town Centre'\);return false\}/,
   'Age advancement must only start from a Town Centre');
-assert.match(html, /d=TE\[k\];if\(!d\|\|!Array\.isArray\(B\[b\.k\]\.rs\)\|\|!B\[b\.k\]\.rs\.includes\(k\)\)\{if\(!t\)note\('Research unavailable at this building'\);return false\}/,
+assert.match(html, /d=TE\[k\];if\(!d\|\|!Array\.isArray\(B\[b\.k\]\.rs\)\|\|!rsOf\(b\)\.includes\(k\)\)\{if\(!t\)note\('Research unavailable at this building'\);return false\}/,
   'Unknown research and upgrades from the wrong building must be rejected before spending resources');
 assert.match(html, /if\(!can\(t,d\.cost\)\)\{if\(!t\)note\('Not enough resources'\);return false\}pay\(t,d\.cost\);b\.rs=\{k,t:d\.t\};return true/,
   'Valid, affordable research must retain the normal payment and research-queue flow');

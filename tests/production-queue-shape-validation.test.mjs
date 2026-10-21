@@ -9,7 +9,7 @@ const train = simulation.slice(start, end);
 
 assert.match(train, /^function train\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|!Number\.isInteger\(b\.t\)\|\|!S\|\|!S\.tech\[b\.t\]/,
   'Training must reject invalid buildings and owners');
-assert.match(train, /!Array\.isArray\(B\[b\.k\]\.tr\)\|\|!B\[b\.k\]\.tr\.includes\(k\)\|\|!U\[k\]\|\|!Array\.isArray\(b\.q\)/,
+assert.match(train, /!Array\.isArray\(B\[b\.k\]\.tr\)\|\|!trOf\(b\)\.includes\(k\)\|\|!U\[k\]\|\|!Array\.isArray\(b\.q\)/,
   'Training must validate supported unit types and the production queue before reading its length');
 assert.match(train, /if\(!can\(t,d\.cost\)\)/,
   'Resource affordability must be checked before spending');

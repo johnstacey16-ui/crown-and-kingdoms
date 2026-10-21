@@ -23,6 +23,7 @@ const context = {
   pay: (team, cost) => resourcesSpent.push({ team, cost }),
   note: () => {},
 };
+context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
 vm.runInContext(source.slice(start, end), context);
 const research = vm.runInContext('research', context);
