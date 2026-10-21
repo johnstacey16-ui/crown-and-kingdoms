@@ -313,3 +313,15 @@ contextual A. The authenticated HTTP pair researches Atonement and converts a
 human-owned Monk with matching production hashes on every frame, then checks
 that the former owner's production command is refused. All 19 isolated campaign
 missions passed locally. Main CI results are recorded separately below.
+
+## Main CI acceptance for Monastery/Murder Holes increment
+
+Code `2ea9efa796f4ca306988a493c277348ddc93cda6` passed all named main checks on 21 October 2026:
+- [Regression 39588987534](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39588987534): all 161 standalone files, all 19 isolated campaign missions and all three seeded production-AI skirmishes.
+- [Source/atlas 39588987673](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39588987673).
+- [WebRTC Chromium transport 39588987539](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39588987539).
+- [Chromium graphics/controllers/responsive room 39588987417](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39588987417). Artifact 12339554329 was downloaded; monastery-research-menu.png and monk-convert-menu.png were visually inspected. Browser assertions verify Atonement's unlocked research entry/cost, RT Convert, the typed hostile target and unchanged simulation checksum before host execution.
+
+All code and this evidence record were committed directly to main. These checks
+are Node/Chromium acceptance; physical Xbox, full civilisation-specific parity
+and the occupied-container conversion limitations above remain outstanding.
