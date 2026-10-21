@@ -196,3 +196,38 @@ two additional anonymous Auth records per execution and retains its non-secret
 log artifact for seven days. No paid resources or plan changes are involved.
 Results must be recorded before claiming the live handshake or battlefield works.
 The game UI default and Railway shutdown status remain unchanged.
+
+## Live acceptance result and transport decision
+
+[Live Supabase guest smoke 39546204721](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39546204721)
+passed against the real Free-plan project at commit
+`c53a4be6af8d0138b4858fb3ece8335917385e82`. The evidence log contains no credentials
+or invitations. Both real guest Auth leases refreshed once; both starting worlds
+verified; both teams paid for training; all 24 production checkpoints matched; and
+both clients stopped at the acknowledged deterministic draw fixture's final frame.
+Two local startup regression cases cover the timeout fix. All 62 local startup,
+HTTP, live-session, server and Auth checks passed, and Game validation passed.
+This is headless Node acceptance, not physical-controller, browser/CORS or natural
+combat-victory acceptance.
+
+Measured totals: 177 RPCs, 26,177 response-body bytes, 29,567 request-body bytes,
+170 ms median request time, 261 ms p95, 35.363 s total, 27.703 s gameplay, **0.87
+observed simulation frames/s**. Headers, TLS and other project traffic are excluded
+from byte counts. The post-test catalog check found zero relay sessions, rooms and
+messages. This CI run created two more anonymous Auth user records (eight known
+smoke-created records total); local sign-out revokes leases, not managed user rows.
+
+**Do not switch the game UI to this HTTP gameplay relay.** The measured throughput
+is unsuitable for the game's 30-Hz simulation. Its 100,000-message application cap
+would also cover only about 28 minutes of frame+ACK traffic at 30 Hz, before command
+or handshake traffic. A working Auth/checkpoint test is not a playable public launch.
+
+The next transport should retain verified Supabase room admission, immutable roster,
+nonce, Auth lifecycle and bounded signaling, while moving frequent game packets to
+a faster channel. An authenticated WebRTC data channel is a candidate: bind its SDP
+fingerprints to the admitted room identities, keep replay/ownership/hash and final
+ACK checks, bound buffers and disconnects, and test two independent browsers plus
+real network/NAT cases. No paid TURN service, plan upgrade or unverified public
+Broadcast identity may be introduced to bypass these requirements. This candidate
+is not implemented or validated yet. The static host's Free plan, browser/CORS
+acceptance and Railway shutdown also remain outstanding.
