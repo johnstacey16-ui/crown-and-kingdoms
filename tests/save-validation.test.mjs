@@ -23,7 +23,7 @@ for(const required of [
   '!j.age.every','!j.tech.every',
   'j.wt.length!==j.sz*j.sz','j.ex.length!==j.sz*j.sz',
   '!j.res.every','!j.us.every(u=>validSavedUnitOrders(u,j.sz)',
-  'validSavedProduction(b)','j.rngState!==undefined'
+  'validSavedProduction(b,j.civ||[0,1])','j.rngState!==undefined'
 ])assert.ok(validation.includes(required),'Save guard must validate '+required);
 assert.match(save,/try\{j=JSON\.parse\(localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)\)\}catch\(e\)\{\}/,
   'malformed JSON must be reported as an invalid save rather than a loader crash');
