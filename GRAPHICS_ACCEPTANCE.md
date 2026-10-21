@@ -112,3 +112,40 @@ The battlefield draws an original eight-slot wheel with group numbers, current a
 World layers now support a local focused 2× viewport; original SVG art scales with terrain, paths, foundations, health/cargo markers and cursor. Menus and instructions stay at screen size. `focused-world.png` and `expanded-minimap.png` are captured by Chromium after LB+Y focus. The suite verifies camera changes leave production hashes unchanged and do not expose the hidden opponent. Node tests cover inverse pointer mapping and current-viewport double selection. This is a top-down camera/presentation stage; isometric projection, zoom/edge tuning and Xbox image/performance acceptance remain open.
 
 Camera evidence: [Chromium run 39532755526](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39532755526) passed at `d7a169d999db4c18bc752aa43cec9ff81e080e24`. Artifact `12316465728` includes `focused-world.png` and `expanded-minimap.png`; both were downloaded and visually inspected. Camera metrics report a 2× viewport, unchanged world hash and preserved hidden-enemy exclusion. This code is pending Railway deployment because the platform API temporarily rejected deploys; the live release remains `f1240f8`.
+
+
+## Responsive multiplayer room presentation — 21 October 2026
+
+The authenticated setup screen now groups private-room admission, shared-map
+preparation and kingdom controls into responsive bordered panels. It uses the
+existing navy/gold game palette, a serif title, a separate connection-status
+banner, visible focus rings and distinct disabled controls. Panels stack at
+600 CSS pixels and below. This changes presentation, not controller mappings,
+room ownership, commands, fog, checksums or the selected transport.
+
+Real Chromium exposed an existing global-input issue: the engine suppressed
+native Tab/Enter and wheel behavior in the HTML room dialog. The engine now
+preserves keyboard defaults, context menus and wheel scrolling inside
+`.ck-room-overlay`; game-canvas handling outside the dialog is unchanged.
+
+[Browser acceptance 39550895539](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39550895539)
+passed on `7b9fa8a965c40f0124e614d5161a7bfd6204d528`. The production page was
+checked at 1280×900, 390×844 and 320×640: no horizontal overflow, two desktop
+columns, stacked phone panels, initial Create focus, native Tab to the invitation,
+visible focus, wheel scrolling and Enter activation of Leave. Opening the screen
+made zero Supabase or multiplayer API requests. The existing original-art, fog,
+checksum-isolation and image-fallback browser checks also passed.
+
+Artifact `12323766339` contains `room-1280.png`, `room-390.png`,
+`room-320.png` and `room-layout.json`; all three captures were downloaded and
+visually inspected. Phone captures may show a scrolled position while the
+invitation has keyboard focus. The local startup/live-session suite passed 33
+checks after regrouping the controls. The earlier full game regression run
+[39550084577](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39550084577)
+also completed successfully before this presentation update.
+
+This is the room-screen portion of the graphics overhaul. Isometric rendering,
+physical Xbox image/control acceptance, actual phone touch testing and the wider
+graphics requirements above remain open. The faster peer provider remains opt-in;
+Vercel team access/Free-plan verification, production-origin and separate-network
+acceptance are still rollout gates. No Railway redeploy or paid feature was enabled.
