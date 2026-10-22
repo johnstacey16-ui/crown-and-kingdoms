@@ -40,11 +40,11 @@ function unitVisualPose(u,time){
  const work=!!(target&&((((u.o==='g'&&!u.ret)||u.o==='b')&&d2(u.x,u.y,target)<=1.1)||(u.o==='rep'&&d2(u.x,u.y,target)<=1.5)));
  const casting=u.k==='mon'&&u.o==='v'&&Number.isFinite(u.cv)&&u.cv>0;
  const attacking=u.o==='a'&&u.cd>0;
- const walking=routed&&!work&&!casting&&!attacking&&now-moveTime<=.25;
+ const walking=routed&&!work&&!attacking&&now-moveTime<=.25;
  const tx=walking?point[0]:target?target.x+(target.s||0)/2:null,ty=walking?point[1]:target?target.y+(target.s||0)/2:null;
  const heading=tx!==null?Math.atan2(ty-u.y,tx-u.x):PAINT.facing.get(u)??(Number.isFinite(u.dr)?u.dr*Math.PI/4:0);
  if(tx!==null)PAINT.facing.set(u,heading);
- const state=casting?3:attacking?2:work?3:walking?1:0;
+ const state=walking?1:casting?3:attacking?2:work?3:0;
  const duration=typeof U!=='undefined'&&U[u.k]?.cd>0?U[u.k].cd:1;
  let offset=0;for(const c of String(u.netId||u.id||u.k||''))offset=(offset*31+c.charCodeAt(0))%997;
  return {state,heading,time:now+offset/997,
