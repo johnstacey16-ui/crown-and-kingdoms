@@ -11,7 +11,7 @@ try {
     ['/index.html?release=test', 'text/html', '<canvas'],
     ['/js/network-session.js', 'text/javascript', 'CK_LIVE_SESSION'],
     ['/styles.css', 'text/css', 'canvas'],
-    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v6-motion'],
+    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v7-motion'],
     ['/sw.js', 'text/javascript', 'no-store']
   ]) {
     const response = await request(path);
@@ -20,7 +20,7 @@ try {
     assert.ok((await response.text()).includes(marker), path);
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   }
-  for(const name of ['painted-units','painted-units-v2','painted-buildings','painted-terrain','painted-motion-mil','painted-motion-knight','painted-motion-vil','painted-motion-arc','painted-motion-xbow','painted-motion-spear','painted-motion-scout','painted-motion-skirm','painted-motion-mon','painted-motion-axe','painted-motion-lbow','painted-motion-woad','painted-motion-bers','painted-motion-saml','painted-motion-tk']){
+  for(const name of ['painted-units','painted-units-v2','painted-buildings','painted-terrain','painted-motion-mil','painted-motion-knight','painted-motion-vil','painted-motion-arc','painted-motion-xbow','painted-motion-spear','painted-motion-scout','painted-motion-skirm','painted-motion-mon','painted-motion-axe','painted-motion-lbow','painted-motion-woad','painted-motion-bers','painted-motion-saml','painted-motion-tk','painted-motion-huskarl','painted-motion-jaguar','painted-motion-kamayuk','painted-motion-shotel']){
     const response=await request('/assets/'+name+'.webp');
     assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^image\/webp/);
     const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.toString('ascii',8,12),'WEBP');

@@ -1,3 +1,12 @@
+<!-- Warrior artwork increment: 22 October 2026 -->
+CK-032/041: added Huskarl, Jaguar Warrior, Kamayuk and Shotel Warrior walking,
+melee attack and matching ready poses. Animation coverage is 19/47 playable
+kinds; all 47 retain base painted art. Original painted references, blue team
+cloth, complete weapon silhouettes and the existing reflow packer are retained.
+Gameplay, controller mappings and camera controls are unchanged. Full directions,
+remaining units and physical Xbox performance remain open.
+See docs/PAINTED_WARRIORS.md for prompts and verification.
+
 <!-- Special infantry artwork increment: 22 October 2026 -->
 CK-032/041: added Woad Raider, Berserk, Samurai and Teutonic Knight walking,
 melee attack and matching ready poses. Animation coverage is 15/47 playable

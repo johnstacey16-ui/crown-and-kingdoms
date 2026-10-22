@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'],args=process.argv.slice(2),sources={},atlases=[];
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!kinds.includes(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
@@ -33,6 +33,6 @@ for(const kind of kinds){
 }
 writeFileSync(new URL('assets/motion-manifest.json',root),JSON.stringify({version:1,atlases}));
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
-pack.version='painted-raster-v6-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
+pack.version='painted-raster-v7-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
 writeFileSync(manifest,JSON.stringify(pack));
-console.log('Packed 240 original motion poses for fifteen unit types.');
+console.log('Packed 304 original motion poses for nineteen unit types.');

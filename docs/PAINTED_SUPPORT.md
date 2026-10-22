@@ -1,4 +1,4 @@
-Current animation coverage is 15 playable kinds. See [the latest artwork increment](PAINTED_INFANTRY.md). The support increment below records its earlier stage.
+Current animation coverage is 19 playable kinds. See [the latest artwork increment](PAINTED_WARRIORS.md). The support increment below records its earlier stage.
 
 # Monk, longbowman and throwing-axeman animation — 22 October 2026
 

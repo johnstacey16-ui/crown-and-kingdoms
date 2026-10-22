@@ -1,3 +1,5 @@
+Current animation coverage is 19 playable kinds. See [the latest artwork increment](PAINTED_WARRIORS.md). The infantry increment below records its earlier stage.
+
 # Special infantry animation — 22 October 2026
 
 Animation coverage is now **15/47 playable kinds**, adding Woad Raiders (`woad`),
