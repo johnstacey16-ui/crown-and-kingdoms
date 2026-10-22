@@ -65,7 +65,7 @@ test('solo and multiplayer renderers share the same presentation-only pose and p
   run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'camel',20,20)");
   const before=run('JSON.stringify(a)');
   const checksum=run('JSON.stringify(unitVisualPose(a,S.t))');
-  for(let i=0;i<8;i++)run("paintedSecondaryPose(a.k,1,S.t+i/8)");
+  for(let i=0;i<8;i++)run(`paintedSecondaryPose(a.k,1,S.t+${i}/8)`);
   assert.equal(run('JSON.stringify(a)'),before);
   assert.equal(run('JSON.stringify(unitVisualPose(a,S.t))'),checksum);
 });
