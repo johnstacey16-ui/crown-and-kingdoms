@@ -8,8 +8,8 @@ carrying food back to the drop-off point. Worker assignments choose nearby
 non-full resources and do not stand in a queue at full sites.
 
 Base villager movement changed from Crown & Kingdoms' 1.5 to AoE II's 0.8
-tiles/second. Wheelbarrow adds 10% movement and 25% base carrying capacity;
-Hand Cart adds a further 10% movement and 50% base carrying capacity.
+tiles/second. Wheelbarrow adds 10% movement and raises base carrying capacity to 13;
+Hand Cart adds a further 10% movement and raises it to 20.
 Crown & Kingdoms' own separate generic Carry Capacity research remains.
 
 | Source | Base units/second | Time for 10 (no travel) |
