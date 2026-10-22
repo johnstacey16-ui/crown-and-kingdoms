@@ -383,7 +383,7 @@ test('battlefield copies animation poses and construction progress without chang
  const worker=view.units.find(u=>u.id===c.ids.worker),soldier=view.units.find(u=>u.id===c.ids.soldier);
  assert.equal(worker.pose.state,1);assert.equal(worker.pose.heading,0);assert.equal(worker.team,0);
  assert.equal(soldier.pose.state,2);
- assert.equal(view.battlefield.enemies.find(u=>u.id===c.ids.guest).pose.state,3);
+ assert.equal(view.battlefield.enemies.find(u=>u.id===c.ids.guest).pose.state,0,'repair order without a target or movement must not animate work on the spot');
  assert.equal(view.battlefield.enemies.some(u=>u.id===c.ids.hidden),false);
  const b=view.buildings.find(b=>b.id===c.run('foundation.netId'));
  assert.equal(b.complete,false);assert.ok(Math.abs(b.progress-.4)<1e-9);
