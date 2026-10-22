@@ -23,9 +23,9 @@ const snippets=[
 function scenario(){
  const W=16,H=16;
  const S={t:10,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),
-  nd:new Array(W*H).fill(null),bs:[],res:[{f:0,w:0,g:0,s:0}],pl:{gath:0},
+  nd:new Array(W*H).fill(null),bs:[],us:[],nodes:[],ex:new Uint8Array(W*H).fill(1),res:[{f:0,w:0,g:0,s:0}],pl:{gath:0},
   tech:[{}],vp:{enabled:false}};
- const context={W,H,S,U:{vil:{sp:2,cd:1}},B:{house:{bt:20}},CAP:10,GR:1,gt:0,
+ const context={W,H,S,D8:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],U:{vil:{sp:2,cd:1}},B:{house:{bt:20}},CAP:10,GR:1,gt:0,
   gm:()=>1,sfx:()=>{},note:()=>{},Math,
   goalNear:()=>()=>false,path:()=>[[2.5,6.5],[3.5,6.5],[4.5,6.5]]};
  vm.createContext(context);
