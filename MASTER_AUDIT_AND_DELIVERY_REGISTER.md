@@ -429,3 +429,13 @@ Camera validation at code commit `ad82b533fa740a8182fb000e9ffe75aa784a8c62`:
 [Chromium graphics and room-layout run 39657103778](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39657103778)
 passed, including direct analog zoom, zoom preservation through group focus,
 fog and unchanged game checkpoints. Physical Xbox acceptance remains open.
+
+## Villager movement, work-site routes and painted poses — 22 October 2026
+
+Status: PARTIAL live-game acceptance; targeted implementation and automated coverage committed to main.
+
+- Villagers discard obsolete queued travel waypoints and retry timers when gathering or constructing at a work site. Work proceeds without holding an old walking route.
+- Solo and team-relative multiplayer pose projections share a presentation-only position cache. A queued waypoint alone does not sustain indefinite walking; actual displacement and a short initial-route grace window control walking poses. Gather/build work poses take precedence when in range. Monk movement continues to take precedence over conversion gestures, with attack/cast precedence otherwise unchanged.
+- Regression scenarios cover travelling and arriving at resources, work-site path clearing, building progress, stationary-route animation stopping, resumed displacement, and rerouting after a waypoint becomes blocked. No new controller binding, paid hosting or simulation/network entity field was introduced.
+- CI: [Game validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994776), [Chromium battlefield](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994819), [regression suite and 19 campaign missions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994982). These are code/Chromium checks, not a claim of physical Xbox Edge or owner's live-save visual acceptance.
+- The active skirmish regression separately accepts a scripted win before an AI coordinated raid; passive skirmishes still independently require an AI raid. This does not waive production AI behaviour in the passive skirmish.
