@@ -1,4 +1,4 @@
-Current animation coverage is 11 playable kinds. See [the latest artwork increment](PAINTED_SUPPORT.md). Coverage below records this document's earlier stage.
+Current animation coverage is 15 playable kinds. See [the latest artwork increment](PAINTED_INFANTRY.md). Coverage below records this document's earlier stage.
 
 # Archer, crossbowman and spearman animation — 21 October 2026
 

@@ -1,3 +1,41 @@
+// Repack complete connected figures before cell extraction. Generated long
+// weapons can cross nominal source-cell edges; padding must not crop them.
+export function reflowSpriteGrid(data,width,height,columns,rows,count){
+ if(data.length!==width*height*4||width%columns||height%rows||count>columns*rows)throw Error('Invalid RGBA sprite grid');
+ const cw=width/columns,ch=height/rows,padX=64,padY=16,nw=(cw+padX*2)*columns,nh=(ch+padY*2)*rows;
+ const seen=new Uint8Array(width*height),queue=new Int32Array(width*height),figures=Array(count).fill(null);
+ for(let first=0;first<seen.length;first++){
+  if(seen[first]||data[first*4+3]<=32)continue;
+  seen[first]=1;queue[0]=first;let tail=1,l=width,t=height,r=0,b=0;
+  for(let head=0;head<tail;head++){
+   const n=queue[head],x=n%width,y=Math.floor(n/width);l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y);
+   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=width||yy>=height)continue;const next=yy*width+xx;
+    if(!seen[next]&&data[next*4+3]>32){seen[next]=1;queue[tail++]=next}
+   }
+  }
+  if(tail<64)continue;
+  const col=Math.floor((l+r)/2/cw),row=Math.floor((t+b)/2/ch),cell=row*columns+col;
+  if(cell>=count||figures[cell])throw Error('Ambiguous source figure '+cell);
+  figures[cell]={pixels:Array.from(queue.subarray(0,tail)),col,row};
+ }
+ const out=Buffer.alloc(nw*nh*4);
+ figures.forEach((figure,cell)=>{
+  if(!figure)throw Error('Missing source figure '+cell);
+  const {col,row}=figure;
+  for(const n of figure.pixels){const x=n%width,y=Math.floor(n/width);
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    const sx=x+dx,sy=y+dy;if(sx<0||sy<0||sx>=width||sy>=height)continue;
+    const tx=col*(cw+padX*2)+sx-col*cw+padX,ty=row*(ch+padY*2)+sy-row*ch+padY;
+    if(tx<col*(cw+padX*2)||tx>=(col+1)*(cw+padX*2)||ty<row*(ch+padY*2)||ty>=(row+1)*(ch+padY*2))throw Error('Source figure exceeds padding '+cell);
+    const a=(sy*width+sx)*4,z=(ty*nw+tx)*4;
+    if(data[a+3]>out[z+3])for(let k=0;k<4;k++)out[z+k]=data[a+k];
+   }
+  }
+ });
+ return {data:out,width:nw,height:nh};
+}
+
 // Isolate one connected character per generated grid cell, keeping edge alpha.
 // Detached fragments from neighbouring cells must not appear in runtime art.
 export function extractSpriteGrid(data,width,height,columns,rows,count,selection=null){

@@ -1,3 +1,12 @@
+<!-- Special infantry artwork increment: 22 October 2026 -->
+CK-032/041: added Woad Raider, Berserk, Samurai and Teutonic Knight walking,
+melee attack and matching ready poses. Animation coverage is 15/47 playable
+kinds; all 47 retain base painted art. Existing cooldown/game-time playback,
+team colours and shared solo/multiplayer rendering are preserved. Gameplay,
+controller bindings and camera controls are unchanged. Full directions,
+remaining units and physical Xbox performance remain open.
+See docs/PAINTED_INFANTRY.md.
+
 <!-- Support and ranged artwork increment: 22 October 2026 -->
 CK-032/041: added monk walking/conversion gestures, longbowman walking/firing
 and throwing-axeman walking/throwing sequences, each with a matching ready pose.

@@ -1,3 +1,12 @@
+<!-- Special infantry artwork increment: 22 October 2026 -->
+CK-032/041: added Woad Raider, Berserk, Samurai and Teutonic Knight walking,
+melee attack and matching ready poses. Animation coverage is 15/47 playable
+kinds; all 47 retain base painted art. Existing cooldown/game-time playback,
+team colours and shared solo/multiplayer rendering are preserved. Gameplay,
+controller bindings and camera controls are unchanged. Full directions,
+remaining units and physical Xbox performance remain open.
+See docs/PAINTED_INFANTRY.md.
+
 <!-- Support and ranged artwork increment: 22 October 2026 -->
 CK-032/041: added monk walking/conversion gestures, longbowman walking/firing
 and throwing-axeman walking/throwing sequences, each with a matching ready pose.
@@ -147,7 +156,7 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 | CK-029 | P2 | Console tutorials and tooltips | PARTIAL | ui.js in-game control help and First Hearth training exist; assess guided teachability and missing accessibility assistance. |
 | CK-030 | P2 | Post-match statistics and spectator/replay scope | INVESTIGATE | Verify actual end-screen stats against Xbox reference; decide whether replay/spectator are mandatory in agreed base, optional online capability or separate milestone. |
 | CK-031 | P0 | Shared 2–4 human multiplayer integration | PARTIAL — two humans | Two authenticated human slots share a simulation and terminal result. Garrison/unload, trade, tribute/diplomacy, priorities/full formation menus, reconnect and 3–4 humans remain open. Browser play has no native Xbox matchmaking integration. |
-| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL — atlas integration | Original unit/ship/building atlases now render in multiplayer with copied poses and depth ordering. 50/50 unit keys and 21/22 building definitions have atlas entries; farms use crop tiles. New trade/unique-force/palisade assets, Chromium evidence and remaining quality gates are in GRAPHICS_ACCEPTANCE.md. |
+| CK-032 | P1 | Original sprite/animation asset quality | PARTIAL — painted raster motion | All 47 playable unit kinds and 22 buildings have base painted art; 15 unit kinds have walking/action sequences and matching ready poses. Full directional/death animation, remaining units and physical Xbox budgets remain open. See docs/PAINTED_INFANTRY.md. |
 | CK-033 | P1 | Music, ambience and feedback | PARTIAL | audio.js procedural sound; audit actual audible events, prompt initiation/resume and production-ready original sound suite. |
 | CK-034 | P3 | AI and civilisation balance | UNVERIFIED | Repeatable test batteries and human matches; record win rates and concrete deviations, avoid arbitrary 1:1 numerical approximations unsupported by reference evidence. |
 | CK-035 | P3 | Canvas/game-loop rendering and input profiling | UNVERIFIED | Measure simulation/draw frame time, memory/GC, p95 input delay, sprite and A* counts on real Xbox Series S first. |
