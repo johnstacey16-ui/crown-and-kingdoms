@@ -50,14 +50,59 @@ function unitVisualPose(u,time){
  return {state,heading,time:now+offset/997,
   phase:state===2?Math.max(0,Math.min(1,1-u.cd/duration)):undefined};
 }
-function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false){
- const f=art.f,walk=state===1,attack=state===2,work=state===3;
- const bob=art.animated?0:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
- g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.translate(x,y-bob);
- if(mirror)g.scale(-1,1);if(walk&&!art.animated)g.rotate(Math.sin(time*10)*.018);if(attack&&!art.animated)g.rotate(Math.sin(time*12)*.055);
- g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);g.restore();
+// The remaining 28 kinds use their EXISTING painted portraits for a light
+// presentation-only movement/recoil pass. This is not equivalent to the
+// sixteen individually painted frames available for the nineteen motion kinds.
+const PAINT_SECONDARY=Object.freeze({
+  cart:'siege',fish:'ship',gal:'ship',trn:'ship',cog:'ship',
+  ram:'siege',mamel:'mounted',jan:'ranged',chuko:'ranged',
+  eled:'elephant',hcan:'ranged',bomb:'siege',mgd:'mounted',
+  cata:'mounted',ele:'elephant',treb:'siege',camel:'mounted',
+  king:'foot',mang:'siege',scor:'siege',conq:'mounted',
+  genoa:'ranged',boyar:'mounted',tarkan:'mounted',
+  plumed:'ranged',gbeto:'foot',wagon:'siege',huszar:'mounted'
+});
+function paintedSecondaryPose(kind,state,time,phase){
+  const family=PAINT_SECONDARY[kind];
+  if(!family||(state!==1&&state!==2)||!Number.isFinite(time))return null;
+  const speed={foot:10,ranged:9,mounted:12,elephant:5,siege:8,ship:4}[family];
+  const wave=Math.sin(time*speed),lift=Math.abs(wave),shift=Math.cos(time*speed);
+  if(state===1){
+    // Different weight and tempo for feet, horses, elephants, wheels and hulls.
+    if(family==='mounted')return {dx:wave*.55,dy:lift*1.45,turn:wave*.021,sx:1+shift*.01,sy:1-shift*.013};
+    if(family==='elephant')return {dx:wave*.35,dy:lift*.9,turn:wave*.011,sx:1+shift*.005,sy:1-shift*.008};
+    if(family==='ship')return {dx:wave*.35,dy:lift*.35,turn:wave*.027,sx:1,sy:1};
+    if(family==='siege')return {dx:wave*.4,dy:lift*.45,turn:wave*.009,sx:1,sy:1};
+    if(family==='ranged')return {dx:wave*.3,dy:lift*.82,turn:wave*.026,sx:1+shift*.008,sy:1-shift*.012};
+    return {dx:wave*.34,dy:lift*1.05,turn:wave*.035,sx:1+shift*.01,sy:1-shift*.018};
+  }
+  // The production cooldown phase supplies the impact/recovery timing, including
+  // on paused frames. Do not mutate any unit or advance an independent clock.
+  const progress=Number.isFinite(phase)?Math.max(0,Math.min(1,phase)):((time*1.6)%1+1)%1;
+  const hit=Math.max(0,1-progress*3.5),recover=Math.sin(progress*Math.PI);
+  if(family==='ship')return {dx:-hit*1.5,dy:recover*.15,turn:-hit*.028,sx:1,sy:1};
+  if(family==='siege')return {dx:-hit*2,dy:hit*.55,turn:-hit*.025,sx:1-hit*.018,sy:1};
+  if(family==='mounted')return {dx:hit*1.1,dy:recover*.6,turn:hit*.035,sx:1,sy:1-hit*.012};
+  if(family==='elephant')return {dx:hit*.8,dy:recover*.4,turn:hit*.022,sx:1,sy:1};
+  if(family==='ranged')return {dx:-hit*1.15,dy:hit*.4,turn:-hit*.043,sx:1,sy:1};
+  return {dx:hit*1.1,dy:recover*.65,turn:hit*.075,sx:1,sy:1-hit*.018};
 }
-
+function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase){
+  const f=art.f,walk=state===1,attack=state===2,work=state===3;
+  const motion=art.animated?null:paintedSecondaryPose(kind,state,time,phase);
+  // Art width/height, feet anchor and image/team palette remain unchanged.
+  // Scale the offset with visible body height rather than with the source sheet.
+  const unitScale=Math.max(.25,Math.min(2.5,(art.referenceHeight||f.h)*scale/(PAINT_SECONDARY[kind]==='mounted'?60:46)));
+  const bob=art.animated?0:motion?motion.dy*unitScale:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
+  g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+  g.translate(x+(motion?motion.dx*unitScale:0),y-bob);
+  if(mirror)g.scale(-1,1);
+  if(motion){g.rotate(motion.turn);g.scale(motion.sx,motion.sy)}
+  else if(walk&&!art.animated)g.rotate(Math.sin(time*10)*.018);
+  else if(attack&&!art.animated)g.rotate(Math.sin(time*12)*.055);
+  g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
+  g.restore();
+}
 
 function drawWorld(){const selectedUnits=new Set(S.sel);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';const cs4=[[0,0],[CW,0],[0,CH],[CW,CH]].map(p=>s2w(p[0],p[1])),xs=cs4.map(p=>p[0]),ys=cs4.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs))-1),x1=Math.min(W-1,Math.ceil(Math.max(...xs))+1),y0=Math.max(0,Math.floor(Math.min(...ys))-1),y1=Math.min(H-1,Math.ceil(Math.max(...ys))+1),hw=TW/2,hh2=TH/2,L=[];if(CHK)drawChunks(x0,x1,y0,y1);
 for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x,cx=(x-y)*hw-cam.x,cy=(x+y+1)*hh2-cam.y;if(cx<-hw||cx>CW+hw||cy<-hh2-50||cy>CH+hh2+50)continue;const wv=S.wt[i],hv=hsh(x,y);
@@ -86,7 +131,7 @@ function drawUnit(u,selectedUnits){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=w2s(u.
 const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,c=spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if((selectedUnits?selectedUnits.has(u):S.sel.includes(u))){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
-/* Validated motion frames take priority; base poses and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null;if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
+/* Validated motion frames take priority; base poses and procedural painters remain fallbacks. */const af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null;if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}
 /* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */
