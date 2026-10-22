@@ -21,10 +21,10 @@ test('AoE II base movement, upgrade bonuses and real per-resource continuous gat
  }
  run("S.tech[0].wheel=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.88)<1e-9);
- assert.equal(run("gatherCapacity(v)"),12.5);
+ assert.equal(run("gatherCapacity(v)"),13);
  run("S.tech[0].handcart=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.96)<1e-9);
- assert.equal(run("gatherCapacity(v)"),17.5);
+ assert.equal(run("gatherCapacity(v)"),20);
 });
 test('a farm admits one working villager including claimed return trips',()=>{
  const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.b=addU(0,'vil',20,21);globalThis.f=addN('f',23,20,175,1);f.t=0");
