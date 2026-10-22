@@ -32,7 +32,7 @@ const orderStart = html.indexOf('function orderSel(tg,wx,wy)');
 const orderEnd = html.indexOf('function openMenu()', orderStart);
 assert.ok(orderStart >= 0 && orderEnd > orderStart, 'The central explicit order function must remain present');
 const order = html.slice(orderStart, orderEnd);
-assert.ok(order.includes('u.autoWorker=0;') && order.includes("u.ct=tg.k"),
+assert.ok(order.includes('u.autoWorker=0;') && order.includes("u.ct=node.k"),
   'Direct site gathering must override automation and retain the selected resource type');
 contains("const dk=t.k==='w'?'lumber':(t.k==='g'||t.k==='s')?'mine':'mill';mk('Build '+B[dk].n+' here'",
   'Contextual gather assignment must preserve the existing resource-side building shortcut');
