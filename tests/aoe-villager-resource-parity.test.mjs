@@ -17,7 +17,9 @@ test('AoE II base movement, upgrade bonuses and real per-resource continuous gat
  assert.equal(run("FOG_OFFSETS[4].some(([x,y])=>x===5&&y===0)"),false);
  assert.equal(run("unitSpeed(v)"),.8);
  assert.equal(run("gatherCapacity(v)"),10);
- assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),35);
+ run("v.tg={k:'f',an:1}");
+ assert.equal(run("gatherCapacity(v)"),35);
+ run("v.tg=null");
  const rates={w:.39,g:.38,s:.36,berry:.31,farm:.32,hunt:.41,fish:.43};
  for(const [kind,rate] of Object.entries(rates)){
   const n=kind==='berry'?{k:'f'}:kind==='farm'?{k:'f',fm:1}:kind==='hunt'?{k:'f',an:1}:kind==='fish'?{k:'f',fi:1}:{k:kind};
@@ -26,11 +28,15 @@ test('AoE II base movement, upgrade bonuses and real per-resource continuous gat
  run("S.tech[0].wheel=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.88)<1e-9);
  assert.equal(run("gatherCapacity(v)"),13);
- assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),44);
+ run("v.tg={k:'f',an:1}");
+ assert.equal(run("gatherCapacity(v)"),44);
+ run("v.tg=null");
  run("S.tech[0].handcart=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.96)<1e-9);
  assert.equal(run("gatherCapacity(v)"),20);
- assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),66);
+ run("v.tg={k:'f',an:1}");
+ assert.equal(run("gatherCapacity(v)"),66);
+ run("v.tg=null");
 });
 test('a farm admits one working villager including claimed return trips',()=>{
  const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.b=addU(0,'vil',20,21);globalThis.f=addN('f',23,20,175,1);f.t=0");
@@ -43,7 +49,7 @@ test('a farm admits one working villager including claimed return trips',()=>{
  assert.equal(run("resourceHasWorksite(b,f)"),true);
 });
 test('known resources follow shared explored player tiles, never per-villager private memory',()=>{
- const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.n=addN('g',22,20,300)");
+ const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.n={k:'g',x:22,y:20,amt:300}");
  assert.equal(run("knownResource(a,n)"),run("!!S.ex[n.y*W+n.x]"));
  run("S.ex[n.y*W+n.x]=1");
  assert.equal(run("knownResource(a,n)"),true);
@@ -51,7 +57,7 @@ test('known resources follow shared explored player tiles, never per-villager pr
  assert.equal(run("knownResource(b,n)"),true);
 });
 test('full farm retargeting prefers next known free farm rather than waiting',()=>{
- const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.b=addU(0,'vil',20,21);globalThis.one=addN('f',22,20,175,1);globalThis.two=addN('f',23,20,175,1);one.t=two.t=0;S.ex[one.y*W+one.x]=S.ex[two.y*W+two.x]=1");
+ const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.b=addU(0,'vil',20,21);for(const [x,y] of [[22,20],[23,20]]){const i=y*W+x;S.nodes=S.nodes.filter(n=>n.x!==x||n.y!==y);S.g[i]=0;S.nd[i]=null;S.wt[i]=0;}globalThis.one=addN('f',22,20,175,1);globalThis.two=addN('f',23,20,175,1);one.t=two.t=0;S.ex[one.y*W+one.x]=S.ex[two.y*W+two.x]=1");
  run("a.o='g';a.tg=one;a.ct='f';b.o='g';b.tg=one;b.ct='f';b.p=[]");
  run("upU(b,1/30)");
  assert.equal(run("b.tg===two"),true);
