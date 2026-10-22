@@ -11,9 +11,11 @@ assert.ok(start>=0&&finish>start,'automatic villager route helpers must remain a
 const logic=kingdom.slice(start,finish);
 
 function harness(nodes,route){
- const S={t:100,nodes,wt:new Uint8Array(100*100),vp:{enabled:true,w:1}};
+ const S={t:100,nodes,wt:new Uint8Array(100*100),ex:new Uint8Array(100*100).fill(1),g:new Uint8Array(100*100),us:[],vp:{enabled:true,w:1}};
  let attempts=0;
  const context={S,W:100,H:100,WORKER_TARGETS:[{k:'w'}],
+  knownResource:(u,n)=>u.t!==0||!!S.ex[n.y*100+n.x],
+  resourceHasWorksite:(u,n)=>n.amt>0&&!S.us.some(v=>v!==u&&v.hp>0&&v.o==='g'&&v.tg===n),
   path:(u,n)=>{attempts++;return route(u,n)},
   goalNear:n=>n,
   villagerAssignedCount:()=>0,
