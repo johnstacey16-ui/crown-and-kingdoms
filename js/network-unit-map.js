@@ -178,7 +178,7 @@
       const scale=height/(sprite.referenceHeight||f.h)*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
       context.save();
       if(size&&e.complete===false)context.globalAlpha=.4+.45*(e.progress||0);
-      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0,e.kind,e.pose?.phase);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
       catch(_){context.restore();return false;}
       context.restore();return true;
     }
