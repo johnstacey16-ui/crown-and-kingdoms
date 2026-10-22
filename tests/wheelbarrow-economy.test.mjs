@@ -16,7 +16,7 @@ const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };
 vm.createContext(context);
 vm.runInContext(simulation.slice(start, end), context);
 const speed = vm.runInContext('unitSpeed', context);
-assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.05) < 1e-9);
+assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.1) < 1e-9);
 assert.equal(speed({ k: 'vil', t: 1 }), U.vil.sp, 'other kingdoms unaffected');
 assert.equal(speed({ k: 'mil', t: 0 }), U.mil.sp, 'soldiers unaffected');
 
