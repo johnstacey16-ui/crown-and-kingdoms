@@ -56,6 +56,9 @@ if(activePlayer){assert.ok(['win','lose'].includes(state.result),'Active skirmis
 else assert.equal(state.result,'lose','Production AI must defeat the passive kingdom within the configured time limit');
 assert.equal(state.mode,'end','Natural defeat enters the results screen');
 assert.equal(state.teams[state.result==='win'?1:0].townCentreHP,0,'Defeat follows Town Centre destruction');
-assert.ok(state.teams[1].wave>0&&state.age[1]>=1,'AI develops and launches an attack');
+assert.ok(state.age[1]>=1,'AI develops beyond the starting age');
+// In the active-player scenario the scripted player can win before the AI's
+// first coordinated raid. The passive scenario independently verifies AI waves.
+if(!activePlayer)assert.ok(state.teams[1].wave>0,'AI launches an attack against the passive kingdom');
 assert.ok(!reloadAt||reloaded,'Requested checkpoint was reached');
 console.log(JSON.stringify({type:'complete',seed,difficulty,reloaded,...state}));
