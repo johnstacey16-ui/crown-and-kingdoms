@@ -757,9 +757,12 @@ globalThis.__CK_TEST__ = {
     if (!p) throw new Error('Could not find a legal trade-cart spawn tile');
     const cart = addU(0, 'cart', p[0], p[1]);
     cart.tradeFromKey = [0, 'market', src.x, src.y].join(':');
+     // Explicit allied destination, mirroring a real controller trade command.
+     S.dip[0][enemyTc.t] = S.dip[enemyTc.t][0] = 'ally';
+     cart.tradeDestKey = [dst.t, 'market', dst.x, dst.y].join(':');
     const distance = Math.hypot((src.x + src.s / 2) - (dst.x + dst.s / 2), (src.y + src.s / 2) - (dst.y + dst.s / 2));
     if (distance < 10) throw new Error('Trade route is too short to provide a meaningful gold-delivery test');
-    return { gold: S.res[0].g, distance };
+    return { gold: S.res[0].g, distance, speed: U.cart.sp };
   },
   beginHouseConstruction() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
@@ -1362,7 +1365,8 @@ console.log(`construction-smoke: house at ${plannedHouse.x},${plannedHouse.y} co
 
 game.start(123456, 1);
 const tradeBefore = game.beginTradeRoute();
-for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+const tradeTicks = Math.ceil((tradeBefore.distance * 2 / tradeBefore.speed + 40) * 30);
+for (let tick = 0; tick < tradeTicks; tick += 1) game.tick(1 / 30);
 const tradeAfter = game.state();
 assert.ok(tradeAfter.playerGold > tradeBefore.gold,
   'A real trade cart travelling between completed allied/enemy markets should deliver gold');
