@@ -3,7 +3,7 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
-const PAINT={terrain:null,facing:new WeakMap()};
+const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
@@ -27,17 +27,27 @@ function paintedTerrainKind(x,y){
 // Facing history stays in a weak cache, never on simulation entities.
 // Game time freezes stride/work cycles on pause; cooldown drives attack phase.
 function unitVisualPose(u,time){
+ const now=Number.isFinite(time)?time:0;
  const point=Array.isArray(u.p)&&u.p.length?u.p[0]:null;
- const walking=!!(point&&point.length===2&&point.every(Number.isFinite));
+ const routed=!!(point&&point.length===2&&point.every(Number.isFinite));
+ // A queued path alone does not mean a villager is moving. Stop walking poses
+ // once displacement ceases; presentation history never enters saved game state.
+ const prev=PAINT.motion.get(u);
+ const moved=!!(prev&&Math.hypot(u.x-prev.x,u.y-prev.y)>.01);
+ const moveTime=routed&&(moved||!prev?.routed||now<prev.time)?now:(prev?.moveTime??-Infinity);
+ PAINT.motion.set(u,{x:u.x,y:u.y,time:now,routed,moveTime});
  const target=['a','g','b','rep','v'].includes(u.o)&&u.tg&&Number.isFinite(u.tg.x)&&Number.isFinite(u.tg.y)?u.tg:null;
+ const work=!!(target&&((((u.o==='g'&&!u.ret)||u.o==='b')&&d2(u.x,u.y,target)<=1.1)||(u.o==='rep'&&d2(u.x,u.y,target)<=1.5)));
+ const casting=u.k==='mon'&&u.o==='v'&&Number.isFinite(u.cv)&&u.cv>0;
+ const attacking=u.o==='a'&&u.cd>0;
+ const walking=routed&&!work&&!casting&&!attacking&&now-moveTime<=.25;
  const tx=walking?point[0]:target?target.x+(target.s||0)/2:null,ty=walking?point[1]:target?target.y+(target.s||0)/2:null;
  const heading=tx!==null?Math.atan2(ty-u.y,tx-u.x):PAINT.facing.get(u)??(Number.isFinite(u.dr)?u.dr*Math.PI/4:0);
  if(tx!==null)PAINT.facing.set(u,heading);
- const casting=u.k==='mon'&&u.o==='v'&&Number.isFinite(u.cv)&&u.cv>0;
- const state=walking?1:casting?3:u.o==='a'&&u.cd>0?2:['g','b','rep'].includes(u.o)?3:0;
+ const state=casting?3:attacking?2:work?3:walking?1:0;
  const duration=typeof U!=='undefined'&&U[u.k]?.cd>0?U[u.k].cd:1;
  let offset=0;for(const c of String(u.netId||u.id||u.k||''))offset=(offset*31+c.charCodeAt(0))%997;
- return {state,heading,time:(Number.isFinite(time)?time:0)+offset/997,
+ return {state,heading,time:now+offset/997,
   phase:state===2?Math.max(0,Math.min(1,1-u.cd/duration)):undefined};
 }
 function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false){
