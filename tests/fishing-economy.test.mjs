@@ -7,13 +7,13 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
-const begin=sim.indexOf('function findNode(u,k,r=16){');
+const begin=sim.indexOf('function resourceApproachCapacity(n,u){');
 const end=sim.indexOf('\nfunction dropoffKey(',begin);
 assert.ok(begin>=0&&end>begin,'resource selection logic must remain executable');
 
 function selector(nodes){
- const S={nodes,wt:new Uint8Array(32*32)};
- const fn=vm.runInNewContext(sim.slice(begin,end)+'\n;findNode;',{S,W:32,H:32});
+ const S={nodes,wt:new Uint8Array(32*32),g:new Uint8Array(32*32),us:[],ex:new Uint8Array(32*32).fill(1)};
+ const fn=vm.runInNewContext(sim.slice(begin,end)+'\n;findNode;',{S,W:32,H:32,D8:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]});
  return {S,findNode:fn};
 }
 test('fish ships are naval units made at docks, not land villagers',()=>{
