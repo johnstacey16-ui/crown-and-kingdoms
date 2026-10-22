@@ -80,7 +80,7 @@ function findReachableAutoNode(u,k,r=18){
  const now=Number.isFinite(S.t)?S.t:0;
  const all=[],live=new Set();
  for(const n of S.nodes){
-  if(!n||n.amt<=0||n.an||n.fi||!Number.isInteger(n.x)||!Number.isInteger(n.y)||n.x<0||n.y<0||n.x>=W||n.y>=H||S.wt[n.y*W+n.x]===1)continue;
+  if(!n||n.amt<=0||n.an||n.fi||!Number.isInteger(n.x)||!Number.isInteger(n.y)||n.x<0||n.y<0||n.x>=W||n.y>=H||S.wt[n.y*W+n.x]===1||!knownResource(u,n)||!resourceHasWorksite(u,n))continue;
   if(!WORKER_TARGETS.some(target=>target.k===n.k))continue;
   live.add(autoNodeKey(n));
   if(n.k===k)all.push(n);

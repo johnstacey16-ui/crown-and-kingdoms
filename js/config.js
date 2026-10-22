@@ -2,8 +2,8 @@ const DIFFICULTY_NAMES=['Easiest','Easy','Moderate','Hard','Hardest','Extreme'];
 const difficultyName=i=>DIFFICULTY_NAMES[i]||'Unknown';
 /* Crown & Kingdoms — game constants and balance data. Loaded before engine.js. */
 /* ===== CONFIG / BALANCE ===== */
-let TW=89.6,TH=44.8,zm=1.4;const T=32,DT=1/30,GR=.8,CAP=10,SZ=[72,96,128,176];let W=72,H=72;
-const U={vil:{n:'Villager',hp:25,sp:1.5,dmg:3,rng:.9,cd:1.5,arm:0,cost:{f:50},t:8,c:'#e8c07a',r:7},
+let TW=89.6,TH=44.8,zm=1.4;const T=32,DT=1/30,GR=.39,CAP=10,SZ=[72,96,128,176];let W=72,H=72;
+const U={vil:{n:'Villager',hp:25,sp:.8,dmg:3,rng:.9,cd:1.5,arm:0,cost:{f:50},t:8,c:'#e8c07a',r:7},
 mil:{n:'Militia',hp:50,sp:1.4,dmg:8,rng:.9,cd:1.2,arm:1,cost:{f:50,g:20},t:10,c:'#d5d9e2',r:9,age:0},
 arc:{n:'Archer',hp:30,sp:1.4,dmg:6,rng:5,cd:1.4,arm:0,cost:{w:40,g:30},t:11,c:'#8fd18a',r:8,age:1},
 spear:{n:'Spearman',hp:45,sp:1.4,dmg:5,rng:.9,cd:1.4,arm:1,cost:{f:35,w:25},t:9,c:'#b6a98a',r:9,age:1,bn:{scout:10,knight:12,camel:8,cata:8,ele:12,eled:8,boyar:12,tarkan:10}},
