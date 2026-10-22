@@ -6,6 +6,11 @@ cloth, complete weapon silhouettes and the existing reflow packer are retained.
 Gameplay, controller mappings and camera controls are unchanged. Full directions,
 remaining units and physical Xbox performance remain open.
 See docs/PAINTED_WARRIORS.md for prompts and verification.
+Code commit: 3e2bac3a88a706e2ef6d618fc62226eed3aeb7a3.
+Local: 118 targeted checks, 256 decoded raster samples and reproducible packing passed.
+[Source/atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487499)
+and [Chromium graphics/layout](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487481) passed.
+[Full regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487522) passed: 164 standalone files, all 19 campaigns and three seeded production-AI skirmishes.
 
 <!-- Special infantry artwork increment: 22 October 2026 -->
 CK-032/041: added Woad Raider, Berserk, Samurai and Teutonic Knight walking,

@@ -53,4 +53,12 @@ live sessions, controller contracts, solo/multiplayer projection and castle
 civilisation production. Both authoring packers reproduce all nineteen motion
 images, the cleaned base sheet and both manifests unchanged.
 
-Hosted verification results will be recorded here against the tested code commit.
+Verified code: [3e2bac3](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/3e2bac3a88a706e2ef6d618fc62226eed3aeb7a3).
+
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487499): passed.
+- [Chromium graphics and responsive layouts](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487481): passed. Coverage includes 21 atlases, 160 action/team lookups and 54 decoded raster action/team sequences with eight distinct poses each, including the four new units, cache upgrades and failed-motion fallback.
+- [Complete regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487522): all 164 standalone test files, all 19 isolated campaign simulations and three seeded production-AI skirmishes passed.
+
+These automated and staged rendering checks do not establish full directional
+animation, physical Xbox frame budgets or independent human multiplayer acceptance.
+No deployment was performed.
