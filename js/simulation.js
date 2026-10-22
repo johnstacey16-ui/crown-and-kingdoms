@@ -294,8 +294,7 @@ function resourceClaimCount(n,u){
  return count;
 }
 function resourceHasWorksite(u,n){
- return !!(u&&n&&n.amt>0&&(!n.fm||!Number.isInteger(n.t)||n.t===u.t)&&
-   resourceClaimCount(n,u)<resourceApproachCapacity(n,u));
+ return !!(u&&n&&n.amt>0&&resourceClaimCount(n,u)<resourceApproachCapacity(n,u));
 }
 function knownResource(u,n){
  // AoE's explored map belongs to the player, not to each individual villager.
