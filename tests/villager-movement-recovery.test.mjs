@@ -26,7 +26,8 @@ function scenario(){
   nd:new Array(W*H).fill(null),bs:[],res:[{f:0,w:0,g:0,s:0}],pl:{gath:0},
   tech:[{}],vp:{enabled:false}};
  const context={W,H,S,U:{vil:{sp:2,cd:1}},B:{house:{bt:20}},CAP:10,GR:1,gt:0,
-  gm:()=>1,sfx:()=>{},note:()=>{},Math};
+  gm:()=>1,sfx:()=>{},note:()=>{},Math,
+  goalNear:()=>()=>false,path:()=>[[2.5,6.5],[3.5,6.5],[4.5,6.5]]};
  vm.createContext(context);
  vm.runInContext(snippets+'\n;globalThis.step=upU;globalThis.pose=unitVisualPose;',context);
  const worker=(x,y,tg,order='g')=>({k:'vil',t:0,hp:25,x,y,o:order,tg,ct:'w',
@@ -83,4 +84,19 @@ test('a motionless unit with a stale queued route stops walking after a short gr
  assert.equal(h.pose(u,11).state,0,'repeated paused frames have stable poses');
  assert.notEqual(JSON.stringify(u),before,'fixture moved only when the test explicitly changed x');
  assert.equal(u.p.length,1,'rendering never mutates movement orders');
+});
+
+test('a dynamically blocked resource route is discarded and replanned instead of freezing the worker',()=>{
+ const h=scenario(),tree={k:'w',x:8,y:5,s:1,amt:100};
+ h.S.nd[5*h.W+8]=tree;h.S.g[5*h.W+8]=1;
+ h.S.g[5*h.W+3]=1; // A building appeared over the next waypoint.
+ const u=h.worker(2.5,5.5,tree);
+ u.p=[[3.5,5.5],[4.5,5.5]];
+ h.step(u,.25);
+ assert.equal(u.x,2.5,'the worker does not walk through a new obstacle');
+ assert.equal(u.p.length,0,'the stale route is discarded');
+ assert.equal(u.o,'g','the gathering order survives obstruction');
+ h.step(u,.25);
+ assert.ok(u.y>5.5,'the worker takes a fresh detour after an obstructed waypoint');
+ assert.equal(u.o,'g');
 });
