@@ -70,13 +70,13 @@ This register tracks the 46 agreed delivery tasks. PARTIAL means implementation 
 
 ## Current verified code
 
-- Code commit: [`a09a055`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/a09a055a359313be7be525de01d490f9150ed209).
-- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509431): passed on GitHub Ubuntu / Node 22; ten atlases, 1,268 animation entries and 1,744 frame references.
-- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509556): all 164 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
-- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39696509440): painted rendering, team colours, animation, fog, checksum isolation, viewport-edge weapons, cache upgrades, failed-image fallback and responsive room layouts passed.
-- Castle production tests exercise all 26 implemented civilisations through paid unique-unit training, refunds, unique research completion and unit spawning. Guest scheduled-frame training/cancel/research, foreign-entry rejection, valid unique queues across reload, legacy saves and invalid-save isolation pass. See [castle production evidence](docs/CASTLE_PRODUCTION.md).
-- Targeted local production/research, save, controller, authenticated HTTP multiplayer and rendering checks passed. Three seeded AI matches also completed locally, including active play and reloads. Initial broad CI found two older isolated fixtures that still required static-only membership or omitted the new catalogue dependency; these are updated and the final complete run passes.
-- Motion coverage remains eight of 47 playable kinds, with mirrored facing. Full roster/directional/death sheets, reference balance/content fidelity, independent-network human matches and physical Xbox acceptance remain open. See [graphics coverage](docs/PAINTED_RAIDERS.md).
+- Code commit: [`78f266a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/78f266a2722b0d5c46e8cb62a2f16196c4d64e9b).
+- [Source and atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486866): passed on GitHub Ubuntu / Node 22; 13 atlases, 1,308 animation entries and 1,980 frame references.
+- [Regression suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486869): all 164 standalone test files, all 19 isolated campaign simulations and all three seeded production-AI skirmishes passed.
+- [Chromium graphics suite](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486800): all 13 painted atlases load; 96 motion action/team lookups and 22 decoded raster action/team sequences with eight distinct frames each pass. Rendering, team colours, fog, checksum isolation, viewport-edge weapons, cache upgrades, failed-image fallback and responsive layouts pass.
+- Targeted local checks: 182 passed, covering monk gesture state/paused time, shared multiplayer projection, controller contracts, authenticated live play, castle production and asset loading. Native Canvas2D inspection checked 48 new action samples and an actual battle with monk conversion; drawing preserved the world checkpoint. Both packers reproduce all committed image/manifest hashes unchanged.
+- Motion coverage is now 11/47 playable kinds: infantry, knights, villagers, archers, crossbowmen, spearmen, scouts, skirmishers, monks, throwing axemen and longbowmen. All 47 retain base painted art. Full roster/directional/death animation, reference balance/content fidelity, independent-network human matches and physical Xbox acceptance remain open. See [artwork coverage and provenance](docs/PAINTED_SUPPORT.md).
+- The preceding civilisation-specific castle production repair remains covered by the full suite. See [castle production evidence](docs/CASTLE_PRODUCTION.md).
 
 These are automated and staged-rendering results. Independent-network human
 full matches and physical Xbox acceptance remain separate requirements. The

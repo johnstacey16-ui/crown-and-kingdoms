@@ -42,3 +42,16 @@ production battle with an active conversion. Drawing left the world checkpoint
 unchanged. Atlas validation accepts 13 atlases, 1,308 entries and 1,980 frame
 references. Earlier motion/base art and gameplay/controller source files are
 preserved; `js/render.js` only adds conversion-facing and casting-state selection.
+
+## Recorded verification
+
+Verified code: [78f266a](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/78f266a2722b0d5c46e8cb62a2f16196c4d64e9b).
+
+- [Source/atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486866): passed.
+- [Complete regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486869): 164 standalone files, 19 campaign simulations and three seeded production-AI skirmishes passed.
+- [Chromium graphics and responsive layouts](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39699486800): passed. Checks cover 96 action/team lookups and 22 actual decoded raster action/team sequences, each with eight distinct visible poses.
+- Both authoring packers reproduce committed images and metadata unchanged. The eight earlier motion sheets and all base art preserve their Git blob hashes.
+
+These are automated checks and staged rendering evidence. They do not establish
+full directional animation, physical Xbox frame budgets or complete human
+multiplayer acceptance. No gameplay, controller or hosting change is claimed.
