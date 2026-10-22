@@ -12,8 +12,12 @@ function fixture(){
 test('AoE II base movement, upgrade bonuses and real per-resource continuous gather rates',()=>{
  const run=fixture();run("seedOv=123456;start();mode='title';globalThis.v=addU(0,'vil',20,20)");
  assert.equal(run("U.vil.sp"),.8);
+ assert.equal(run("unitSight(v)"),4);
+ assert.equal(run("FOG_OFFSETS[4].some(([x,y])=>x===4&&y===0)"),true);
+ assert.equal(run("FOG_OFFSETS[4].some(([x,y])=>x===5&&y===0)"),false);
  assert.equal(run("unitSpeed(v)"),.8);
  assert.equal(run("gatherCapacity(v)"),10);
+ assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),35);
  const rates={w:.39,g:.38,s:.36,berry:.31,farm:.32,hunt:.41,fish:.43};
  for(const [kind,rate] of Object.entries(rates)){
   const n=kind==='berry'?{k:'f'}:kind==='farm'?{k:'f',fm:1}:kind==='hunt'?{k:'f',an:1}:kind==='fish'?{k:'f',fi:1}:{k:kind};
@@ -22,9 +26,11 @@ test('AoE II base movement, upgrade bonuses and real per-resource continuous gat
  run("S.tech[0].wheel=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.88)<1e-9);
  assert.equal(run("gatherCapacity(v)"),13);
+ assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),44);
  run("S.tech[0].handcart=1");
  assert.ok(Math.abs(run("unitSpeed(v)")-.96)<1e-9);
  assert.equal(run("gatherCapacity(v)"),20);
+ assert.equal(run("gatherCapacity(v,{k:'f',an:1})"),66);
 });
 test('a farm admits one working villager including claimed return trips',()=>{
  const run=fixture();run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',20,20);globalThis.b=addU(0,'vil',20,21);globalThis.f=addN('f',23,20,175,1);f.t=0");
