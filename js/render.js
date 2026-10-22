@@ -29,11 +29,12 @@ function paintedTerrainKind(x,y){
 function unitVisualPose(u,time){
  const point=Array.isArray(u.p)&&u.p.length?u.p[0]:null;
  const walking=!!(point&&point.length===2&&point.every(Number.isFinite));
- const target=['a','g','b','rep'].includes(u.o)&&u.tg&&Number.isFinite(u.tg.x)&&Number.isFinite(u.tg.y)?u.tg:null;
+ const target=['a','g','b','rep','v'].includes(u.o)&&u.tg&&Number.isFinite(u.tg.x)&&Number.isFinite(u.tg.y)?u.tg:null;
  const tx=walking?point[0]:target?target.x+(target.s||0)/2:null,ty=walking?point[1]:target?target.y+(target.s||0)/2:null;
  const heading=tx!==null?Math.atan2(ty-u.y,tx-u.x):PAINT.facing.get(u)??(Number.isFinite(u.dr)?u.dr*Math.PI/4:0);
  if(tx!==null)PAINT.facing.set(u,heading);
- const state=walking?1:u.o==='a'&&u.cd>0?2:['g','b','rep'].includes(u.o)?3:0;
+ const casting=u.k==='mon'&&u.o==='v'&&Number.isFinite(u.cv)&&u.cv>0;
+ const state=walking?1:casting?3:u.o==='a'&&u.cd>0?2:['g','b','rep'].includes(u.o)?3:0;
  const duration=typeof U!=='undefined'&&U[u.k]?.cd>0?U[u.k].cd:1;
  let offset=0;for(const c of String(u.netId||u.id||u.k||''))offset=(offset*31+c.charCodeAt(0))%997;
  return {state,heading,time:(Number.isFinite(time)?time:0)+offset/997,

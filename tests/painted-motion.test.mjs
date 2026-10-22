@@ -9,7 +9,7 @@ function fixture(){const {source,sandbox}=headlessGame();vm.createContext(sandbo
 test('all four kingdoms resolve eight distinct poses for core walking, attacks and villager work',()=>{
  const run=fixture();
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
- for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm'])for(let team=0;team<4;team++)for(const state of [1,2,...(kind==='vil'?[3]:[])]){
+ for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon'].includes(kind)?[3]:[])]){
   const frames=new Set();
   for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).f)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
@@ -49,9 +49,28 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion).length,kinds.length);
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){const idle=a.meta.anims[kind+'/idle/'+team],walk=a.meta.anims[kind+'/walk/'+team];assert.equal(idle.frames.length,1);assert.equal(idle.scale,walk.scale);assert.equal(idle.referenceHeight,walk.referenceHeight)}
  }
+});
+
+test('monk conversion gestures follow active progress, yield to walking and never mutate orders',()=>{
+ const run=fixture();
+ run("globalThis.actor={k:'mon',netId:'u:mon',x:12,y:15,p:[],o:'v',cd:0,cv:2,tg:{x:10,y:15}}");
+ const before=run('JSON.stringify(actor)'),pose=run('JSON.stringify(unitVisualPose(actor,4))');
+ assert.equal(run('unitVisualPose(actor,4).state'),3);
+ assert.equal(run('unitVisualPose(actor,4).phase'),undefined);
+ assert.equal(run('unitVisualPose(actor,4).heading'),Math.PI);
+ assert.equal(run('JSON.stringify(unitVisualPose(actor,4))'),pose,'paused game time freezes the gesture');
+ assert.equal(run('JSON.stringify(actor)'),before);
+ run('actor.cv=0');assert.equal(run('unitVisualPose(actor,4).state'),0,'an unstarted conversion has no casting gesture');
+ run('actor.cv=2;actor.p=[[11,15]]');assert.equal(run('unitVisualPose(actor,4).state'),1);
+ run("actor.p=[];actor.o='i'");assert.equal(run('unitVisualPose(actor,4).state'),0);
+ run("actor.o='v';actor.k='mil'");assert.equal(run('unitVisualPose(actor,4).state'),0);
+ for(const name of ['network-sync','network-commands','network-unit-map'])run(readFileSync(new URL('../js/'+name+'.js',import.meta.url),'utf8'));
+ run("seedOv=123456;start();mode='title';actor=addU(0,'mon',20,20);actor.o='v';actor.cv=2;actor.tg=addU(1,'mil',22,20);globalThis.beforePose=CK_SIM_SYNC.worldCheckpoint(S,1).hash");
+ assert.equal(run('CK_UNIT_MAP.project(S,0,W,H).units.find(u=>u.id===actor.netId).pose.state'),3);
+ assert.equal(run('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),run('beforePose'),'multiplayer projection leaves conversion and simulation untouched');
 });

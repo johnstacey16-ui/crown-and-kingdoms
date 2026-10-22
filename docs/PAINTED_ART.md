@@ -1,3 +1,5 @@
+Current animation coverage is 11 playable kinds. See [the latest artwork increment](PAINTED_SUPPORT.md). Coverage below records this document's earlier stage.
+
 Current coverage: eight playable kinds, including scouts and skirmishers. See [the latest animation increment](PAINTED_RAIDERS.md). The increment-specific coverage below records its original stage.
 
 # Original painted medieval art

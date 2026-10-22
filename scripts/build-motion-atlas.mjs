@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow'],args=process.argv.slice(2),sources={},atlases=[];
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!kinds.includes(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
@@ -26,12 +26,12 @@ for(const kind of kinds){
   anims[kind+'/idle/'+team]={dur:1,scale,referenceHeight,frames:[swing[0]]};
   anims[kind+'/walk/'+team]={dur:['knight','scout'].includes(kind)?.075:.095,scale,referenceHeight,frames:walk};
   anims[kind+'/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
-  if(kind==='vil')anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
+  if(['vil','mon'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
  }
  atlases.push({id:'painted-motion-'+kind,src,meta:{painted:true,motion:true,width:info.width,height:info.height,anims}});
 }
 writeFileSync(new URL('assets/motion-manifest.json',root),JSON.stringify({version:1,atlases}));
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
-pack.version='painted-raster-v4-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
+pack.version='painted-raster-v5-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
 writeFileSync(manifest,JSON.stringify(pack));
-console.log('Packed 128 original motion poses for eight unit types.');
+console.log('Packed 176 original motion poses for eleven unit types.');

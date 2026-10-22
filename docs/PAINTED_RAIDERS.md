@@ -1,3 +1,5 @@
+Current animation coverage is 11 playable kinds. See [the latest artwork increment](PAINTED_SUPPORT.md). Coverage below records this document's earlier stage.
+
 # Scout and skirmisher animation — 22 October 2026
 
 Scouts now trot and swing their swords; skirmishers walk and throw javelins.

@@ -1,3 +1,12 @@
+<!-- Support and ranged artwork increment: 22 October 2026 -->
+CK-032/041: added monk walking/conversion gestures, longbowman walking/firing
+and throwing-axeman walking/throwing sequences, each with a matching ready pose.
+Animation coverage is 11/47 playable kinds. Monk casting reads existing
+conversion progress and shares paused game-time playback across renderers.
+Gameplay and controller rules are unchanged. Original art remains preserved.
+See docs/PAINTED_SUPPORT.md; full directions, remaining units and hardware
+performance acceptance remain open.
+
 <!-- Castle production increment: 22 October 2026 -->
 CK-014/025/027: restored access to existing civilisation-specific castle units
 and technologies. Shared catalogue checks now govern solo production,
