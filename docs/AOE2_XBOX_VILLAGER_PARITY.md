@@ -9,7 +9,9 @@ non-full resources and do not stand in a queue at full sites.
 
 Base villager movement changed from Crown & Kingdoms' 1.5 to AoE II's 0.8
 tiles/second. Wheelbarrow adds 10% movement and raises base carrying capacity to 13;
-Hand Cart adds a further 10% movement and raises it to 20.
+Hand Cart adds a further 10% movement and raises it to 20. Hunted animals
+use the AoE II hunter carry capacity of 35 (44/66 with the upgrades),
+not the standard resource capacity of 10.
 Crown & Kingdoms' own separate generic Carry Capacity research remains.
 
 | Source | Base units/second | Time for 10 (no travel) |
@@ -31,6 +33,8 @@ stone stone, gold gold and food food. Unit movement speed varies with upgrades.
 AoE II base villager line of sight is **four tiles**, but the explored world is
 owned by the **player**: other friendly scouts and units reveal resources too.
 The existing player-shared `S.ex` explored grid therefore remains in place.
+The actual villager line-of-sight radius is corrected from 8 to **4 tiles**;
+the fog-of-war offset table is expanded to support that radius.
 Automated player workers now select known explored nodes; per-villager private
 resource memory was deliberately not introduced. Terrain/tree occlusion that
 would make exploration private is likewise not part of the verified mechanic.
