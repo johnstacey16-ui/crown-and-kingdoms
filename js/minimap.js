@@ -1,5 +1,5 @@
 /* Shared fog-of-war visibility and minimap data. */
-const FOG_OFFSETS={};for(let r=8;r<=17;r++){const a=[];for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)a.push([x,y]);FOG_OFFSETS[r]=a}
+const FOG_OFFSETS={};for(let r=4;r<=17;r++){const a=[];for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)a.push([x,y]);FOG_OFFSETS[r]=a}
 function fog(){S.vs.fill(0);const m=(e,r)=>{const h=(e.s||0)/2,cx=(e.x+h)|0,cy=(e.y+h)|0,a=FOG_OFFSETS[r];for(let i=0;i<a.length;i++){const x=cx+a[i][0],y=cy+a[i][1];if(x>=0&&x<W&&y>=0&&y<H)S.vs[y*W+x]=S.ex[y*W+x]=1}};
 const sharesVision=t=>t===0||diplomacyRelation(0,t)==='ally';
 for(const u of S.us)if(sharesVision(u.t)&&u.hp>0)m(u,unitSight(u));
