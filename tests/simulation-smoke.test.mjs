@@ -1115,6 +1115,7 @@ globalThis.__CK_TEST__ = {
       units: S.us.length,
       buildings: S.bs.length,
       playerGold: S.res[0].g,
+       tradeCart: (()=>{const u=S.us.find(u=>u.t===0&&u.k==='cart'&&u.tradeFromKey);return u?{x:u.x,y:u.y,order:u.o,hp:u.hp,routeLength:u.p?.length,returning:u.tradeReturning,cargo:u.tradeCargo,paused:u.tradePaused,destination:u.tradeDestKey,source:u.tradeFromKey,wait:u.trWait,sourceWait:u.tradeSourceWait}:null})(),
       campaign: cmp ? { index: cmp.i, goals: { ...cmp.d }, time: cmp.t } : null,
       repairTarget: (() => {
         const u = S.us.find((u) => u.testRepairTarget === true);
@@ -1369,7 +1370,7 @@ const tradeTicks = Math.ceil((tradeBefore.distance * 2 / tradeBefore.speed + 40)
 for (let tick = 0; tick < tradeTicks; tick += 1) game.tick(1 / 30);
 const tradeAfter = game.state();
 assert.ok(tradeAfter.playerGold > tradeBefore.gold,
-  'A real trade cart travelling between completed allied/enemy markets should deliver gold');
+  'A real trade cart travelling between completed allied/enemy markets should deliver gold: '+JSON.stringify({before:tradeBefore,after:tradeAfter.tradeCart,time:tradeAfter.time,gold:tradeAfter.playerGold}));
 console.log(`trade-smoke: cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over 60 simulated seconds`);
 
 game.start(123456);
