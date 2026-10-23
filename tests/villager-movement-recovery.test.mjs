@@ -12,7 +12,7 @@ function section(source,from,to){
  return source.slice(a,b);
 }
 const snippets=[
- section(sim,'function gatherCapacity(u)','/* ===== COMBAT ===== */'),
+ section(sim,'function baseGatherRate(u,n){','/* ===== COMBAT ===== */'),
  section(sim,'function upU(u,dt){','function spawnPos(b)'),
  section(sim,'const mv=(u,dx,dy)=>','/* Local spatial grid'),
  section(finding,'function d2(px,py,t){','const goalNear='),
