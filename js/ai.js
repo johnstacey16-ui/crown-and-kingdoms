@@ -115,8 +115,16 @@ function aiRebal(vil,R,t=1){
   }
   return false;
  };
- if(R.w<150&&assigned.w<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?['f','g']:['g','f']);
+ // Rebuild a timber economy after aging: Feudal military buildings cost
+ // wood even when the food/gold stockpiles were spent on advancement.
+ if(R.w<150&&assigned.w<nv*.4&&(Math.max(R.f,R.g)>250||S.age[t]>=1))move('w',R.f>R.g?['f','g']:['g','f']);
  else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
+ // As the Dark Age closes, redirect excess loggers/miners into food
+ // instead of spending the Feudal-age budget on additional villagers.
+ // Keep enough workers on other resources to maintain construction.
+ if(S.age[t]===0&&nv>=12&&ageRequirements(t).ready&&R.f<AG[1].cost.f&&assigned.f<Math.ceil(nv*.7)){
+  if(move('f',['g','w']))return;
+ }
  if(R.w>800){
   if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300&&assigned.s<Math.max(3,nv*.12|0))move('s',['w'])}
   else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300&&assigned.g<nv*.3)move('g',['w'])}
@@ -126,10 +134,36 @@ function aiRebal(vil,R,t=1){
 function aiNear(vs,k,nk,t=1){const d=B[k],available=vs.some(aiAvailableBuilder),tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!available||!tc||!can(t,d.cost))return;
 const ns=S.nodes.filter(n=>nk.includes(n.k)&&n.amt>0&&!n.an&&!n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<45&&!S.bs.some(q=>q.t===t&&q.k===k&&q.hp>0&&Math.hypot(q.x-n.x,q.y-n.y)<7)).sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y));
 for(const n of ns.slice(0,32))for(const[dx,dy]of[[-2,0],[1,0],[0,-2],[0,1],[-2,-2],[1,1]]){const x=n.x+dx,y=n.y+dy;if(okPlace(t,k,x,y)&&!cor(tc,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const building=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=building;builder.p=route;return}}}
+// Stop continuous food spending once a healthy Dark Age economy can save
+// for the next age. A food threshold alone is too late: the Town Centre
+// otherwise consumes the 50 food that should finish the age-up budget.
+function aiSavingAgeFood(t,villagers){
+ const next=AG[S.age[t]+1];
+ return !!(next&&villagers>=16&&ageRequirements(t).ready);
+}
 function aiTownTechReady(t,tc,villagers){if(villagers<8||!tc.done||tc.hp<=0||tc.rs||!Array.isArray(tc.q)||!S.tech[t])return false;for(const k of ['loom','wheel','handcart']){const e=TE[k];if(e&&B.tc.rs&&B.tc.rs.includes(k)&&!S.tech[t][k]&&!S.bs.some(other=>other!==tc&&other.t===t&&other.hp>0&&other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost))return true}return false}
 function aiRetreat(t,my,tc,bl){if(!tc||!tc.done)return;const shelters=bl.filter(b=>b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle'));for(const u of my){if(u.k==='vil'||u.k==='mon'||u.k==='king'||u.k==='cart'||u.k==='cog'||u.sh||u.hp<=0||u.ld)continue;const ratio=u.hp/Math.max(1,mhp(u));if(u.retreating){const safe=u.retreatTarget;if(ratio>=.65||!safe||safe.hp<=0||!safe.done){u.retreating=false;u.retreatTarget=null;if(u.tg===safe){u.o='i';u.tg=null;u.p=[];u.rp=0}}else{if(d2(u.x,u.y,safe)<=1.3){continue}if((u.o!=='m'||!u.p||!u.p.length)&&d2(u.x,u.y,safe)>1.3&&S.t>=(u.retreatRepathAt||0)){u.retreatRepathAt=S.t+4;const route=path(u,goalNear(safe,1));if(route){u.o='m';u.tg=safe;u.p=route;u.rp=1}else{u.retreating=false;u.retreatTarget=null;u.o='i';u.tg=null;u.retreatRepathAt=S.t+8}}continue}}if(ratio<=.22&&S.t>=(u.retreatRepathAt||0)&&S.t>=(u.retreatCooldownUntil||0)){u.retreatRepathAt=S.t+8;const threats=S.us.filter(enemy=>enemy&&enemy.hp>0&&!enemy.ld&&isHostile(u.t,enemy.t)&&U[enemy.k]?.dmg>0&&!U[enemy.k].sh);const rankedShelters=shelters.map(safe=>{const sz=safe.s||0,dx=Math.max(safe.x-u.x,0,u.x-(safe.x+sz)),dy=Math.max(safe.y-u.y,0,u.y-(safe.y+sz));let danger=0;const cx=safe.x+sz/2,cy=safe.y+sz/2;for(const enemy of threats){const ex=enemy.x-cx,ey=enemy.y-cy;if(ex*ex+ey*ey<100)danger++}return {safe,score:dx*dx+dy*dy+danger*64}}).sort((a,b)=>a.score-b.score);
 for(const {safe} of rankedShelters){const p=path(u,goalNear(safe,1));if(!p)continue;u.retreating=true;u.retreatTarget=safe;u.retreatRestUntil=0;u.retreatCooldownUntil=S.t+30;u.o='m';u.tg=safe;u.p=p;u.rp=1;break}}}}
 function ai(dt){if(!Number.isFinite(dt)||dt<=0)return;for(let t=1;t<S.teamN;t++)if(!Array.isArray(S.humanTeams)||!S.humanTeams.includes(t))aiTeam(t,dt)}
+// After an opening attack breaks off to fight enemy villagers, survivors must
+// resume attacking a live objective rather than idling with A.on still true.
+// One bounded route check per reachable objective and soldier every ten seconds.
+function aiResumeIdleWave(t,A){
+ if(!A?.on||A.stg||!Array.isArray(A.wu)||S.t<(A.nextWaveObjectiveAt||0))return 0;
+ A.nextWaveObjectiveAt=S.t+10;
+ const candidates=S.bs.filter(b=>b&&b.hp>0&&isHostile(t,b.t)).sort((a,b)=>Number(b.k==='tc')-Number(a.k==='tc'));
+ if(!candidates.length)return 0;
+ let retasked=0;
+ for(const u of A.wu){
+  if(!u||u.hp<=0||u.ld||u.retreating||u.o!=='i'||!U[u.k]||U[u.k].dmg<=0)continue;
+  for(const target of candidates.slice(0,3)){
+   const route=path(u,goalNear(target,1));
+   if(!route||!route.length)continue;
+   u.o='a';u.tg=target;u.p=route;u.rp=1;retasked++;break;
+  }
+ }
+ return retasked;
+}
 function aiTeam(t,dt){if(!S||!Number.isInteger(t)||t<=0||t>=S.teamN||!Number.isFinite(dt)||dt<=0||!S.res?.[t])return;const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([4.5,3.2,2.4,1.8,1.35,1.05][diff])*(1+(t-1)*.05);const R=S.res[t],my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;for(const u of S.us)if(u&&u.t===t&&u.hp>0&&U[u.k]){my.push(u);if(u.k==='vil'&&!u.ld)vil.push(u);else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);if(u.k==='fish'&&!u.ld)fish.push(u);if(u.k==='scout'&&!u.ld)scouts.push(u);if(u.k==='gal'&&!u.ld)galleys.push(u)}for(const b of S.bs)if(b&&b.t===t&&b.hp>0){bl.push(b);if(b.k==='tc'&&b.hp>0&&(!tc||(!tc.done&&b.done)))tc=b}if(!tc)return;
 const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;if(!e.ld&&!U[e.k].sh)humanArmy.push(e);if(U[e.k].sh){if(!e.ld&&e.k!=='fish')hostileShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4){navalThreatCount++;hostileFleet.push(e)}}}
 if(S.t-(A.lastTributeAt??-90)>=90){
@@ -175,7 +209,7 @@ if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
 }
 const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&b.hp>0&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
-if(tc.done&&!tc.rs&&Array.isArray(tc.q)&&!aiTownTechReady(t,tc,vil.length)&&vil.length+tc.q.filter(q=>q&&q.k==='vil').length<([12,18,26,32,38,44][diff]*PERS[aip].v|0)&&tc.q.length<2&&!(AG[S.age[t]+1]&&ageRequirements(t).ready&&R.f>=AG[S.age[t]+1].cost.f))train(tc,'vil');
+if(tc.done&&!tc.rs&&Array.isArray(tc.q)&&!aiTownTechReady(t,tc,vil.length)&&vil.length+tc.q.filter(q=>q&&q.k==='vil').length<([12,18,26,32,38,44][diff]*PERS[aip].v|0)&&tc.q.length<2&&!aiSavingAgeFood(t,vil.length))train(tc,'vil');
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
@@ -374,10 +408,15 @@ if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
 if(bl.some(b=>b.k==='market'&&b.done&&b.hp>0)&&S.t-(A.lastMarketTrade??-99)>=15){for(const k of ['f','w','s']){if(R[k]>1100&&R.g<400){if(trade(t,k,'sell')){A.lastMarketTrade=S.t;break}}else if(R[k]<80&&R.g>600&&k!=='s'){if(trade(t,k,'buy')){A.lastMarketTrade=S.t;break}}}}
 if(A.stg){const wu=(A.wu||[]).filter(u=>u.hp>0&&!u.ld&&u.k!=='mon'&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if((!A.stg.tg||A.stg.tg.hp<=0)&&wu.length){const next=S.bs.filter(b=>b.hp>0&&isHostile(t,b.t)).sort((a,b)=>d2(tc.x,tc.y,a)-d2(tc.x,tc.y,b)).slice(0,16).find(b=>wu.slice(0,3).some(u=>path(u,goalNear(b,2))));if(next){A.stg.tg=next;A.stg.siegeT=next}else{for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='i';u.tg=null;u.p=[];u.rp=0}A.on=0;A.nx=S.t+90}}if(!A.on||!A.stg.tg||A.stg.tg.hp<=0||!wu.length){A.stg=null}else if(wu.every(u=>u.o!=='m')||S.t-A.stg.t>50){for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='a';u.tg=['ram','mang','scor','treb','bomb'].includes(u.k)&&A.stg.siegeT&&A.stg.siegeT.hp>0?A.stg.siegeT:A.stg.tg;u.p=[]}A.stg=null}}
 {A.kn=A.kn||new Set();for(const known of A.kn)if(!known||known.hp<=0||!isHostile(t,known.t))A.kn.delete(known);for(const b of S.bs)if(isHostile(t,b.t)&&b.hp>0&&!A.kn.has(b)&&my.some(u=>Math.hypot(u.x-b.x,u.y-b.y)<9))A.kn.add(b);
-if(A.on){A.wu=(A.wu||[]).filter(u=>u.hp>0&&!u.ld&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if(!A.wu.length||A.wu.length<A.ws*.4){A.on=0;A.stg=null;for(const u of A.wu){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.rp=1;u.tg=null}}A.nx=S.t+[320,260,210,170,135,110][diff];note('The enemy army is retreating!')}else if(A.wu.length&&A.wu.every(u=>u.o==='i')){A.on=0;A.stg=null}}
+aiResumeIdleWave(t,A);
+ if(A.on){A.wu=(A.wu||[]).filter(u=>u.hp>0&&!u.ld&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if(!A.wu.length||A.wu.length<A.ws*.4){A.on=0;A.stg=null;for(const u of A.wu){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.rp=1;u.tg=null}}A.nx=S.t+[320,260,210,170,135,110][diff];note('The enemy army is retreating!')}else if(A.wu.length&&A.wu.every(u=>u.o==='i')){A.on=0;A.stg=null}}
 if(A.rd){A.rd.u=A.rd.u.filter(u=>u.hp>0&&!u.ld&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if(A.rd.u.length<2||S.t-A.rd.t>150||!A.rd.u.some(u=>u.tg&&u.tg.hp>0&&isHostile(t,u.tg.t))){for(const u of A.rd.u){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.rp=1;u.tg=null}}A.rd=null}}
 else if(!A.on&&!A.stg&&S.t>Math.max(A.rn||420*PERS[aip].r,[780,570,420,330,260,210][diff])&&S.age[t]>=1){const pt=arm.filter(u=>u.o==='i'&&u.hp>0&&!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&['knight','camel','mgd','cata','arc','xbow','skirm','lbow','spear','pike','halb','ram','mang','scor','treb','bomb','ele','tk','jan','hcan'].includes(u.k)).slice(0,10),tg2=[...A.kn].filter(b=>b.hp>0&&isHostile(t,b.t)&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y))[0];if(pt.length>=4&&tg2){let raidTarget=tg2,reachable=pt.filter(u=>path(u,goalNear(tg2,2)));if(reachable.length<4){for(const candidate of [...A.kn].filter(b=>b!==tg2&&b.hp>0&&isHostile(t,b.t)&&['lumber','mine','mill','house','market','dock'].includes(b.k)).slice(0,6)){const group=pt.filter(u=>path(u,goalNear(candidate,2)));if(group.length>=4){raidTarget=candidate;reachable=group;break}}}if(reachable.length<4){A.rn=S.t+45}else{A.rd={u:reachable,t:S.t};A.rn=S.t+[450,330,260,210,170,140][diff]*PERS[aip].r;for(const u of reachable){u.o='a';u.tg=raidTarget;u.p=[]}}}}}
 const enemyBs=S.bs.filter(b=>isHostile(t,b.t)&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y)),need=Math.min(60,Math.round(([12,14,18,22,26,30][diff]+Math.min(A.wave,8)*[2,3,3,4,5,5][diff])*PERS[aip].n));
-const waveReady=arm.filter(u=>u.hp>0&&!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&u.o!=='b'&&u.o!=='B'&&u.o!=='G'&&u.o!=='F'&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&(!A.rd||!A.rd.u.includes(u)));const launchReady=!A.on&&!A.stg&&waveReady.length>=need&&waveReady.filter(u=>u.k!=='mon').length>=4&&S.t>=[720,540,360,260,190,150][diff]&&S.t>=(A.nx||0)&&S.t>=(A.targetRetryAt||0);let tgt=null;if(launchReady){if(vm===5)tgt={x:W/2,y:H/2,t:-1,k:'hill',hp:1};else{const preferred=vm===1?enemyBs.filter(b=>b.k==='wonder'&&b.done):[];const candidates=[...preferred,...enemyBs.filter(b=>b.k==='tc'),...enemyBs.filter(b=>b.done),...enemyBs];const leader=waveReady.find(u=>u.k!=='mon'&&!u.sh)||waveReady.find(u=>u.k!=='mon')||waveReady[0];const checked=new Set();for(const candidate of candidates){if(checked.has(candidate))continue;checked.add(candidate);if(path(leader,goalNear(candidate,2))){tgt=candidate;break}if(checked.size>=16)break}}if(!tgt)A.targetRetryAt=S.t+15}if(launchReady&&tgt){A.wave++;A.nx=S.t+(vm===5?[240,200,170,145,125,105][diff]:[420,340,280,230,190,155][diff])*PERS[aip].g;A.wu=waveReady;A.ws=A.wu.length;A.on=1;const sx=vm===5?W/2:tc.x+(tgt.x-tc.x)*.35,sy=vm===5?H/2:tc.y+(tgt.y-tc.y)*.35,sol=A.wu.filter(u=>u.k!=='mon'),slots=formationSlots(sol,sx,sy,1+((S.r()*3)|0)%3);sol.forEach((u,i)=>{const fo=vm===5?[(i%5-2),((Math.floor(i/5)%5)-2)]:slots(i),p=path(u,gp(sx+fo[0],sy+fo[1],1.2));if(p){u.o='m';u.p=p;u.rp=1}else{u.o='a';u.tg=tgt;u.p=[]}});const siegeLeader=sol.find(u=>['ram','mang','scor','treb','bomb'].includes(u.k));const siegeT=aiSiegeTarget(siegeLeader,enemyBs,tgt);A.stg={t:S.t,tg:tgt,siegeT};for(const u of A.wu)if(u.k==='mon'){const p=path(u,goalNear(tgt,7));if(p){u.o='m';u.p=p}}}}
+// The first Feudal push can be a smaller skirmish. Using the full
+// late-game difficulty wave size before the first raid stalls real AI games
+// when villagers gather at DE reference speeds. Later waves are unchanged.
+function aiOpeningWaveNeed(base,age,wave){return age===1&&wave===0?Math.max(6,Math.ceil(base*.7)):base}
+const waveReady=arm.filter(u=>u.hp>0&&!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&u.o!=='b'&&u.o!=='B'&&u.o!=='G'&&u.o!=='F'&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&(!A.rd||!A.rd.u.includes(u)));const launchReady=!A.on&&!A.stg&&waveReady.length>=aiOpeningWaveNeed(need,S.age[t],A.wave)&&waveReady.filter(u=>u.k!=='mon').length>=4&&S.t>=[720,540,360,260,190,150][diff]&&S.t>=(A.nx||0)&&S.t>=(A.targetRetryAt||0);let tgt=null;if(launchReady){if(vm===5)tgt={x:W/2,y:H/2,t:-1,k:'hill',hp:1};else{const preferred=vm===1?enemyBs.filter(b=>b.k==='wonder'&&b.done):[];const candidates=[...preferred,...enemyBs.filter(b=>b.k==='tc'),...enemyBs.filter(b=>b.done),...enemyBs];const leader=waveReady.find(u=>u.k!=='mon'&&!u.sh)||waveReady.find(u=>u.k!=='mon')||waveReady[0];const checked=new Set();for(const candidate of candidates){if(checked.has(candidate))continue;checked.add(candidate);if(path(leader,goalNear(candidate,2))){tgt=candidate;break}if(checked.size>=16)break}}if(!tgt)A.targetRetryAt=S.t+15}if(launchReady&&tgt){A.wave++;A.nx=S.t+(vm===5?[240,200,170,145,125,105][diff]:[420,340,280,230,190,155][diff])*PERS[aip].g;A.wu=waveReady;A.ws=A.wu.length;A.on=1;const sx=vm===5?W/2:tc.x+(tgt.x-tc.x)*.35,sy=vm===5?H/2:tc.y+(tgt.y-tc.y)*.35,sol=A.wu.filter(u=>u.k!=='mon'),slots=formationSlots(sol,sx,sy,1+((S.r()*3)|0)%3);sol.forEach((u,i)=>{const fo=vm===5?[(i%5-2),((Math.floor(i/5)%5)-2)]:slots(i),p=path(u,gp(sx+fo[0],sy+fo[1],1.2));if(p){u.o='m';u.p=p;u.rp=1}else{u.o='a';u.tg=tgt;u.p=[]}});const siegeLeader=sol.find(u=>['ram','mang','scor','treb','bomb'].includes(u.k));const siegeT=aiSiegeTarget(siegeLeader,enemyBs,tgt);A.stg={t:S.t,tg:tgt,siegeT};for(const u of A.wu)if(u.k==='mon'){const p=path(u,goalNear(tgt,7));if(p){u.o='m';u.p=p}}}}
 
 
