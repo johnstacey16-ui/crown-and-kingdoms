@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
+const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const {U,TE,GR,CAP}=vm.runInNewContext(config+'\n;({U,TE,GR,CAP})');
+const start=sim.indexOf('function baseGatherRate(u,n){');
+const end=sim.indexOf('function walk(u,dt){',start);
+assert.ok(start>=0&&end>start);
+const S={tech:[{},{wheel:1},{wheel:1,handcart:1}]};
+const api=vm.runInNewContext(sim.slice(start,end)+'\n;({baseGatherRate,unitSpeed,gatherCapacity})',{
+ U,TE,GR,CAP,S,CAVARM:new Set(),INFARM:new Set()
+});
+const villager={k:'vil',t:0};
+test('AoE2 DE base villager cost, speed, creation, and cart tech durations',()=>{
+ assert.equal(U.vil.cost.f,50);assert.equal(U.vil.sp,.8);assert.equal(U.vil.t,25);
+ assert.equal(TE.wheel.t,75);assert.equal(TE.handcart.t,55);
+ assert.equal(api.unitSpeed(villager),.8);
+ assert.ok(Math.abs(api.unitSpeed({...villager,t:1})-.88)<1e-9);
+ assert.ok(Math.abs(api.unitSpeed({...villager,t:2})-.96)<1e-9);
+});
+test('AoE2 DE villager land resource gather rates',()=>{
+ for(const [k,flags,rate] of [
+  ['w',{},.39],['g',{},.38],['s',{},.36],
+  ['f',{},.31],['f',{fm:1},.32],['f',{an:1},.41]
+ ])assert.equal(api.baseGatherRate(villager,{k,...flags}),rate);
+ assert.equal(api.baseGatherRate({k:'fish',t:0},{k:'f',fi:1}),GR,'ship rates await the naval audit');
+});
+test('DE villager Wheelbarrow and Hand Cart carrying progression stays 10, 13, 20',()=>{
+ assert.equal(api.gatherCapacity(villager),10);
+ assert.equal(api.gatherCapacity({...villager,t:1}),13);
+ assert.equal(api.gatherCapacity({...villager,t:2}),20);
+});
