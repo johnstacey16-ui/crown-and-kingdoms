@@ -35,6 +35,23 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Evidence policy:** save target **game build/patch, civilization, age, upgrade state, unit variant, research effects**, URL and fixture with every accepted value. Official pages have precedence for Xbox UI behaviour; dat-derived patch-specific metadata is preferred for exact base stats; third-party compendia need cross-checking. No wholesale scraping or copying other games' artwork, audio, UI code, descriptions, or copyrighted campaign content.
 
+## Combat parity batch — 24 October 2026
+
+**Reference baseline:** AoE2: DE standard units, no civilization bonuses, without researched damage/armor upgrades. Detailed unit pages: [Militia](https://ageofempires.fandom.com/wiki/Militia_(Age_of_Empires_II)), [Archer](https://ageofempires.fandom.com/wiki/Archer_(Age_of_Empires_II)), [Spearman](https://ageofempires.fandom.com/wiki/Spearman_(Age_of_Empires_II)), [upgrade table](https://ageofempires.fandom.com/wiki/Upgrade_(Age_of_Empires_II)). Cross-check subsequent official patches and faction restrictions before changing any values again.
+
+| Line / reference property | Previous game | Reference baseline implemented on branch |
+| --- | --- | --- |
+| Dark Age Militia | 50 HP / 8 attack / speed 1.4 / reload 1.2 / train 10s | **40 HP / 4 attack / speed .9 / reload 2 / train 21s**, 50 food + 20 gold, **0 melee / 1 pierce armor** |
+| Archer | 30 HP / 6 attack / range 5 / speed 1.4 / reload 1.4 / train 11s / 40W+30G | **30 HP / 4 attack / range 4 / speed .96 / reload 2 / train 35s / 25W+45G**, +3 against Spearmen; base 0/0 armor |
+| Spearman | 45 HP / 5 attack / speed 1.4 / reload 1.4 / train 9s / melee armor 1 | **45 HP / 3 attack / speed 1 / reload 3 / train 22s / melee armor 0**; appropriate bonus ranges against cavalry, camels and elephants |
+| Militia-line upgrade HP / attack | Incorrect cumulative +HP and +attack | **40/4 → 45/6 → 60/9 → 65/12 → 70/14** from Militia through Champion; Man-at-Arms changes movement to .96; Long Swordsman adds 1 melee armor |
+| Spearman-line upgrade HP / attack | Incorrect +HP and generic late bonus | **45/3 → 55/4 → 60/6** from Spearman through Halberdier; cavalry bonus **+15/+22/+32**, camel **+12/+18/+26**, elephant **+15/+25/+28** |
+| Research | Mixed legacy time and costs | Source-pinned Man-at-Arms, Long Swordsman, Two-Handed Swordsman, Champion, Pikeman, Halberdier upgrade time and cost (see config and executable tests) |
+
+**Implementation notes:** `engine.js` initial melee-armor table and `js/simulation.js` damage model were changed as well as `js/config.js` so these numbers affect real hits and actual movement, not just UI stats. Source-checked tests execute real damage calculations and validate upgrade ladders. The game's generic `U.mil` and `U.spear` rows continue to represent the evolving upgrade *line* using `S.tech` modifiers; they are not additional trainable standalone rows.
+
+**Still not AoE2:DE-exact:** armor-class bonuses for ships/other specialist regional units; archery accuracy (**80% baseline**), frame delay and projectile trajectory, garrison arrows; full distinct melee/pierce upgrade technology trees, elevation, target priority and town-centre/chateau defenses; faction-specific bonuses and missing unit types. These are **explicitly open** until tested. Core combat data parity also makes existing battle/AI pacing slower; campaign and seeded full-skirmish regressions are release gates, and hardware Xbox verification is still pending.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.
@@ -50,9 +67,9 @@ Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/
 | Resource occupancy | nearest-node and automated routing without a universal exclusive farm reservation | one worker per farm; **no universal fixed 8/6/3 worker caps** on other resource kinds | **P0 open**: enforce farm exclusivity, no parking at occupied farm, nearest reachable alternative |
 | Villager discovery | radius search (16/18/30 etc.) and shared map exploration | unit LOS and player visibility need separate verification; user-proposed permanent private resource memories are not established AoE2 rule | **P1 open**: visibility/fog tests and explicit-command constraints |
 | Building priority | ordered building command; construction completion can trigger nearby resource lookup | not automatic assistance at every visible foundation | **P1 open**: resume explicit orders and auto economy coherently |
-| Militia | 50 HP, 8 damage, 1.4 speed, 10s train | 40 HP, 4 damage, 0.9 speed, 21s train | **P0 open** — combat/AI implications require scenario tests |
-| Archer | 6 damage, 5 range, 1.4 speed, 40W/30G, 11s train | 4 damage, 4 range, .96 speed, 25W/45G, 35s train | **P0 open**, projectile class/bonuses/accuracy not equivalent |
-| Spearman | 5 damage, 1.4 speed, 9s train | 3 damage, 1.0 speed, 22s train (normal line) | **P0 open** — includes anti-cavalry class targeting |
+| Militia | 50 HP, 8 damage, 1.4 speed, 10s train | 40 HP, 4 damage, 0.9 speed, 21s train | **Implemented in combat batch** with correct line progression, melee and pierce armor; seeded battles and full faction parity remain gates |
+| Archer | 6 damage, 5 range, 1.4 speed, 40W/30G, 11s train | 4 damage, 4 range, .96 speed, 25W/45G, 35s train | **Implemented in combat batch** with +3 vs Spearmen; **accuracy/attack delay still open** |
+| Spearman | 5 damage, 1.4 speed, 9s train | 3 damage, 1.0 speed, 22s train (normal line) | **Implemented in combat batch** with evolving anti-cavalry/camel/elephant bonuses, more armor classes still open |
 | Tech/age system | `AG`, `TE`, broad age eligibility and resource upgrade simplifications | DE era requirements, buildings, upgrade chain and civ restrictions differ | **P0 open** — full source/version matrix before replacements |
 | Combat | simplified attack/armor `arm`, class bonuses, projectile and counter rules | DE distinguishes armor classes, melee/pierce armor, accuracy, projectile flight, splash and elevation | **P0 open**; stats alone do not fix damage parity |
 | Xbox priorities | custom worker numerical targets under menu | R3 **seven presets**, configurable proportional ratios, automated rebalancing | **P0 open**: actual console UX and persistent allocation parity |
