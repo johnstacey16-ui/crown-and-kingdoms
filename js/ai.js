@@ -117,6 +117,12 @@ function aiRebal(vil,R,t=1){
  };
  if(R.w<150&&assigned.w<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?['f','g']:['g','f']);
  else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
+ // As the Dark Age closes, redirect excess loggers/miners into food
+ // instead of spending the Feudal-age budget on additional villagers.
+ // Keep enough workers on other resources to maintain construction.
+ if(S.age[t]===0&&nv>=12&&ageRequirements(t).ready&&R.f<AG[1].cost.f&&assigned.f<Math.ceil(nv*.7)){
+  if(move('f',['g','w']))return;
+ }
  if(R.w>800){
   if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300&&assigned.s<Math.max(3,nv*.12|0))move('s',['w'])}
   else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300&&assigned.g<nv*.3)move('g',['w'])}
