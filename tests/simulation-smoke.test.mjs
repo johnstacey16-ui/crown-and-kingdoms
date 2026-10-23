@@ -1419,6 +1419,7 @@ assert.ok(activeAi.some((a) => a.buildings > (aiBefore.aiGrowth.find((b) => b &&
   a.militaryUnits > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.militaryUnits ?? 0) ||
   a.age > (aiBefore.aiGrowth.find((b) => b && b.team === a.team)?.age ?? 0)),
   'Rival AI must make measurable economic, military or age progression during twelve simulated minutes');
+console.log('aoe2-de-ai-debug: '+JSON.stringify(activeAi.map(a=>({team:a.team,age:a.age,buildings:a.buildings,military:a.militaryUnits,resources:aiAfter.resources[a.team]}))));
 assert.ok(activeAi.some((a) => a.age >= 1),
   'At least one rival should complete Feudal Age after meeting building and food prerequisites');
 assert.ok(activeAi.some((a) => a.completedMilitaryBuildings > 0),
