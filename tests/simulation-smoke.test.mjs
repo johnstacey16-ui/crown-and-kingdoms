@@ -1168,6 +1168,10 @@ globalThis.__CK_TEST__ = {
         structureKinds: S.bs.filter(b=>b.t===team&&b.hp>0).map(b=>b.k+(b.done?'':'*')),
         tcQueue: (S.bs.find(b=>b.t===team&&b.k==='tc')?.q||[]).map(q=>q.k),
         tcResearch: S.bs.find(b=>b.t===team&&b.k==='tc')?.rs?.k||null,
+        waveNeed: Math.min(60,Math.round(([12,14,18,22,26,30][diff]+Math.min(a.wave||0,8)*[2,3,3,4,5,5][diff])*PERS[aip].n)),
+        readyArmy: S.us.filter(u=>u.t===team&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&u.k!=='vil'&&!U[u.k].sh&&u.o!=='b'&&u.o!=='B'&&u.o!=='G'&&u.o!=='F'&&(!a.rd||!a.rd.u.includes(u))).length,
+        currentArmy: S.us.filter(u=>u.t===team&&u.hp>0&&u.k!=='vil'&&!U[u.k].sh).map(u=>u.k+':'+u.o),
+        playerTownAlive: S.bs.some(b=>b.t===0&&b.k==='tc'&&b.hp>0),
       })).filter(Boolean),
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
       worker: (() => {
@@ -1441,6 +1445,7 @@ assert.ok(matureTeams.some((a) => a.completedMilitaryBuildings > 0),
   'A rival must complete a military production building in the later production phase');
 assert.ok(Object.values(matureAi.aiPeak).some((count) => count >= 4),
   'A rival must field at least four military units after reaching Feudal Age');
+console.log('aoe2-de-ai-mature-debug: '+JSON.stringify(matureTeams.map(a=>({...a,resources:matureAi.resources[a.team]}))));
 assert.ok(matureTeams.some((a) => a.wave > 0),
   'A rival must launch a real coordinated attack wave during the mature economy phase');
 assert.ok(matureAi.gameOver === null || matureAi.gameOver === 'lose',
