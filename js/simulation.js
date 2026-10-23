@@ -283,7 +283,14 @@ function foe(u,r,building){
  return b
 }
 /* ===== ECONOMY / UNIT BEHAVIOUR ===== */
-function findNode(u,k,r=16){if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;let b=null,bd2=r*r;for(const n of S.nodes)if(n&&n.k===k&&n.amt>0&&!n.an&&!!n.fi===!!u.sh&&(!n.trap||n.t===u.t)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&(u.sh||S.wt[n.y*W+n.x]!==1)){const dx=n.x-u.x,dy=n.y-u.y,d2=dx*dx+dy*dy;if(d2<bd2){bd2=d2;b=n}}return b}
+// Farms have one live assigned worker. Old duplicate orders use stable unit order.
+function farmAvailableTo(u,n){
+ if(!n?.fm)return true;
+ if(!u||u.k!=='vil'||!Number.isInteger(n.t)||n.t!==u.t)return false;
+ const workers=Array.isArray(S?.us)?S.us:[],at=workers.indexOf(u);
+ return !workers.some((v,i)=>v&&v!==u&&v.k==='vil'&&v.hp>0&&!v.ld&&!v.retreating&&v.o==='g'&&v.tg===n&&(at<0||i<at));
+}
+function findNode(u,k,r=16){if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;let b=null,bd2=r*r;for(const n of S.nodes)if(n&&n.k===k&&n.amt>0&&!n.an&&!!n.fi===!!u.sh&&(!n.trap||n.t===u.t)&&farmAvailableTo(u,n)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&(u.sh||S.wt[n.y*W+n.x]!==1)){const dx=n.x-u.x,dy=n.y-u.y,d2=dx*dx+dy*dy;if(d2<bd2){bd2=d2;b=n}}return b}
 function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
 function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))}
 function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
@@ -394,7 +401,7 @@ if(u.ret){
  }
  walk(u,dt);return
 }
-if(!tg||tg.amt<=0||S.nd[tg.y*W+tg.x]!==tg||!!tg.fi!==!!u.sh||tg.trap&&tg.t!==u.t){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else u.o='i';return}
+if(!tg||tg.amt<=0||S.nd[tg.y*W+tg.x]!==tg||!!tg.fi!==!!u.sh||tg.trap&&tg.t!==u.t||tg.fm&&!farmAvailableTo(u,tg)){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else{u.o='i';u.tg=null;u.p=[]}return}
 if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;const g=Math.min(tg.amt,baseGatherRate(u,tg)*gm(u,tg)*(tg.an&&S.tech[u.t]?.hunt?1.4:1)*dt);tg.amt-=g;u.car+=g;u.ct=tg.k;if(gt>(u.sn||0)){u.sn=gt+.7+Math.random()*.5;if(tg.k==='w')sfx('chop',u.x,u.y);else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y)}if(tg.amt<=0){if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}else if(tg.fm){tg.amt=0;if(u.t===0)note('Farm exhausted; awaiting owner 60 wood to reseed')}else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}}if(u.car>=gatherCapacity(u)){u.ret=1;u.p=[]}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){if(u.t===0&&u.autoWorker)skipAutoNode(u,tg);u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
 if(u.o==='b'){if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||(tg.done&&tg.hp>=tg.mh)){u.o='i';u.tg=null;if(tg&&tg.done&&tg.hp>0){const ak={lumber:'w',mine:'g',mill:'f'}[tg.k],n=ak&&findNode(u,ak,16);if(n){u.o='g';u.tg=n;u.ct=n.k;u.p=[];u.ret=0}}return}

@@ -67,6 +67,14 @@ Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/
 - **Ten resources in 1.8–2.5 seconds:** not standard base gather timings (resource-specific baseline rates above).
 - **All food gathering identical:** deer, livestock, forage, farms and fishing require distinct treatment.
 
+## Farm occupancy parity implementation (follow-up)
+
+**One active villager per farm** is an AoE2:DE farming rule. This batch checks a farm's living, ungarrisoned, currently assigned worker, with deterministic priority for the earliest already-assigned worker in the unit roster. Returning with a harvest still reserves the farm. Death, retasking, garrisoning and invalid orders release that assignment automatically; no permanent per-node lock survives incorrectly across save/load. Old saves with duplicate assignments are resolved on the next simulation tick.
+
+**Affected surfaces:** normal resource retargeting in `js/simulation.js`; controller/direct orders in `js/input.js` and newly placed farms in `engine.js`; Xbox-style automated villager targets in `js/kingdom.js`; AI worker reassignment in `js/ai.js`; and authenticated multiplayer build/gather commands in `js/network-commands.js`. Extra workers seek another reachable food resource; if none can be reached, they remain idle rather than chopping the same farm together. A separate source test covers live-owner priority, death/garrison/unassignment recovery, farm ownership, nearest alternatives, and automatic assignment.
+
+**Not included:** authentic farm footprints, placement animation, full AoE2 farming walking choreography/harvest pacing, periodic replant queues, Xbox's seven exact automatic worker presets, or an invented fixed quota on trees/berries/mines. These remain on the E1/E9 checklist.
+
 ## Full-system audit backlog (acceptance criteria)
 
 | Workstream | Priority | Inspection target and acceptance before mark complete |

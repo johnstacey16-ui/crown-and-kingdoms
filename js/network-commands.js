@@ -117,7 +117,14 @@
     units.forEach((u,i)=>{
       u.o=option.value==='farm'?'g':'b';u.tg=entity;u.p=routes[i];u.pt=null;u.rp=1;
       u.as=0;u.autoWorker=0;u.guardTarget=null;u.ret=0;
-      if(option.value==='farm'){u.ct='f';u.car=0;}
+      if(option.value==='farm'){
+        if(!farmAvailableTo(u,entity)){
+          const alt=findReachableAutoNode(u,'f',36);
+          if(alt){u.o='g';u.tg=alt.n;u.p=alt.route;u.rp=1}
+          else{u.o='i';u.tg=null;u.p=[];u.rp=0}
+        }
+        u.ct='f';u.car=0;
+      }
     });
     return true;
   }
@@ -294,8 +301,12 @@
       const routes=entities.map(u=>path(u,goalNear(node,1)));
       if(routes.some(route=>!route))return false;
       entities.forEach((u,i)=>{
+        const full=!!node.fm&&!farmAvailableTo(u,node);
+        const alt=full?findReachableAutoNode(u,'f',36):null;
+        const site=full?alt?.n:node;
         if(u.ct!==node.k)u.car=0;
-        u.o='g';u.tg=node;u.ct=node.k;u.ret=0;u.p=routes[i];u.rp=1;
+        u.o=site?'g':'i';u.tg=site||null;u.ct=node.k;u.ret=0;
+        u.p=site?(alt?alt.route:routes[i]):[];u.rp=site?1:0;
         u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
       });
       return true;

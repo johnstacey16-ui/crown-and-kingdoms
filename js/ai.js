@@ -102,7 +102,7 @@ function aiRebal(vil,R,t=1){
   const nodes=S.nodes.filter(n=>n&&n.k===kind&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&!S.wt[n.y*W+n.x]);
   if(!nodes.length)return false;
   for(const w of workers){
-   const near=nodes.filter(n=>Math.hypot(n.x-w.x,n.y-w.y)<=36)
+   const near=nodes.filter(n=>farmAvailableTo(w,n)&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
     .sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y));
    for(const n of near.slice(0,12)){
     const route=path(w,goalNear(n,1));

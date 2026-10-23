@@ -7,7 +7,7 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
-const begin=sim.indexOf('function findNode(u,k,r=16){');
+const begin=sim.indexOf('function farmAvailableTo(u,n){');
 const end=sim.indexOf('\nfunction dropoffKey(',begin);
 assert.ok(begin>=0&&end>begin,'resource selection logic must remain executable');
 
