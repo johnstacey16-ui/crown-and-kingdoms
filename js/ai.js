@@ -115,7 +115,9 @@ function aiRebal(vil,R,t=1){
   }
   return false;
  };
- if(R.w<150&&assigned.w<nv*.4&&Math.max(R.f,R.g)>250)move('w',R.f>R.g?['f','g']:['g','f']);
+ // Rebuild a timber economy after aging: Feudal military buildings cost
+ // wood even when the food/gold stockpiles were spent on advancement.
+ if(R.w<150&&assigned.w<nv*.4&&(Math.max(R.f,R.g)>250||S.age[t]>=1))move('w',R.f>R.g?['f','g']:['g','f']);
  else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
  // As the Dark Age closes, redirect excess loggers/miners into food
  // instead of spending the Feudal-age budget on additional villagers.
