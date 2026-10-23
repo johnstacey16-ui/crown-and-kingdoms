@@ -105,15 +105,15 @@ const dx=tx-u.x,dy=ty-u.y,d=Math.hypot(dx,dy),st=Math.max(0,unitSpeed(u)*dt),tl=
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon']);
+const SPEAR_CAMELS=new Set(['camel','mamel']);
+const SPEAR_ELEPHANTS=new Set(['ele','eled']);
 function spearLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,tech=S.tech[a.t]||{};
  const tier=tech.halb?2:tech.pike?1:0;
- const cavalry=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon']);
- const camel=new Set(['camel','mamel']);
- const elephant=new Set(['ele','eled']);
- if(elephant.has(key)||elephant.has(alias))return [15,25,28][tier];
- if(camel.has(key)||camel.has(alias))return [12,18,26][tier];
- if(cavalry.has(key)||cavalry.has(alias))return [15,22,32][tier];
+ if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return [15,25,28][tier];
+ if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return [12,18,26][tier];
+ if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias))return [15,22,32][tier];
  return U.spear.bn?.[key]||U.spear.bn?.[alias]||0;
 }
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],ta=S.tech[t.t]||{},bd=(ak.rng<2?(tk.atkM2?5:tk.atkM?2:0):arrowBonus(a))+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(tk.gf?4:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ib=(INFARM.has(t.k)&&ta.armI?1:0)+(ARCHARM.has(t.k)&&ta.armR?1:0)+(CAVARM.has(t.k)&&ta.armC?1:0),ar=t.s?(cls==='p'?8:2):cls==='p'?(PRA[t.k]||0)+ib:(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0);t.hp-=Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);fx.push({x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,l:.2,k:'h'});if(!t.s)t.hit=gt;emit('spark',t.x+(t.s||0)/2,t.y+(t.s||0)/2,t.s?3:5,{s:2.2,vz:2.6,l:.35,c:ak.rng>2?'#e8d8a0':'#ffb050',r:1.6});
