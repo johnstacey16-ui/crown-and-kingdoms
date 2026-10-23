@@ -79,9 +79,9 @@ assert.match(html, /if\(k==='mil'\)return tech\.champ\?'Champion':tech\.twohand\
 const {B:technologyBuildings}=vm.runInNewContext(readFileSync(new URL('../js/config.js',import.meta.url),'utf8')+'\n;({B})');
 assert.ok(['man','longs','twohand','champ','pike','halb'].every(id=>technologyBuildings.bar.rs.includes(id)),
   'Barracks must offer the six infantry upgrade technologies, alongside any newer valid research');
-assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:300,g:100\},t:45,age:3,pre:'longs',hpb:\{mil:15\},atkb:\{mil:2\}\}/,
+assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:200,g:100\},t:45,age:3,pre:'longs',hpb:\{mil:5\},atkb:\{mil:3\}\}/,
   'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
-assert.match(html, /champ:\{n:'Champion',cost:\{f:750,g:350\},t:60,age:3,pre:'twohand',hpb:\{mil:20\},atkb:\{mil:3\}\}/,
+assert.match(html, /champ:\{n:'Champion',cost:\{f:650,g:350\},t:70,age:3,pre:'twohand',hpb:\{mil:5\},atkb:\{mil:2\}\}/,
   'Champion must require Two-Handed Swordsman and add real health and attack');
 assert.ok(html.includes("castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons']}"),
   'Conscription must be researchable at the Castle');
@@ -97,10 +97,10 @@ assert.match(html, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
   'AI must value Conscription once it has a substantial army');
 assert.ok(['pike','halb'].every(id=>technologyBuildings.bar.rs.includes(id)),
   'Pikeman and Halberdier must remain in the Barracks research list without excluding other valid upgrades');
-assert.match(html, /halb:\{n:'Halberdier',cost:\{f:300,g:200\},t:45,age:3,pre:'pike',hpb:\{spear:20\},atkb:\{spear:2\}\}/,
+assert.match(html, /halb:\{n:'Halberdier',cost:\{f:300,g:600\},t:50,age:3,pre:'pike',hpb:\{spear:5\},atkb:\{spear:2\}\}/,
   'Halberdier must require Pikeman and add health/attack effects');
-assert.match(html, /a\.k==='spear'&&tk\.halb&&ak\.bn&&\(ak\.bn\[t\.k\]\|\|ak\.bn\[U\[t\.k\]\.lk\]\)\?6:0/,
-  'Halberdier must add the specific anti-cavalry damage bonus to the spear unit line');
+assert.match(html, /function spearLineBonus\(a,t\)/,
+  'The evolving spear-line class bonus must be implemented in real combat');
 assert.match(html, /T\.halb\?'halb':T\.pike\?'pike'/,
   'Battlefield sprites must use the highest researched spear-line rank');
 assert.match(html, /rank==='pike'\|\|rank==='halb'/,

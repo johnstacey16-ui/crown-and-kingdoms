@@ -1248,7 +1248,7 @@ for (const key of ['villager','cart','fish','transport','tradeCog']) {
 console.log('conscription-smoke: military queues run at 4/3 speed; economy/trade/transport queues remain unchanged');
 const husbandrySpeeds = game.auditHusbandrySpeeds();
 assert.ok(Math.abs(husbandrySpeeds.knight - 2.31) < 1e-9, 'Husbandry must increase Knight movement speed by 10%');
-assert.equal(husbandrySpeeds.infantry, 1.4, 'Husbandry must not increase infantry speed');
+assert.equal(husbandrySpeeds.infantry, .9, 'Husbandry must not increase base Militia speed (AoE2:DE is 0.9)');
 assert.equal(husbandrySpeeds.transport, husbandrySpeeds.transportBase, 'Husbandry must not increase transport-ship speed');
 assert.equal(husbandrySpeeds.conqMounted, true, 'Mounted unique cavalry must be included in the mounted set');
 console.log('husbandry-smoke: cavalry receives +10% speed; infantry and transport ships are unchanged');
@@ -1315,16 +1315,16 @@ console.log('research-smoke: Gather Rate research completed through 31 simulated
 
 game.start(123456, 1);
 const hpBeforeUpgrade = game.beginManAtArmsResearch();
-for (let tick = 0; tick < 930; tick += 1) game.tick(1 / 30);
+for (let tick = 0; tick < 1230; tick += 1) game.tick(1 / 30);
 const hpAfterUpgrade = game.state();
 assert.equal(hpAfterUpgrade.research.manAtArms, 1, 'Man-at-Arms research should complete through the real research timer');
-assert.equal(hpAfterUpgrade.upgradedUnits.existing.maxHp, hpBeforeUpgrade.beforeMax + 15,
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.maxHp, hpBeforeUpgrade.beforeMax + 5,
   'The researched hit-point bonus must increase the maximum HP of an existing Militia unit');
-assert.equal(hpAfterUpgrade.upgradedUnits.existing.hp, hpBeforeUpgrade.beforeHp + 15,
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.hp, hpBeforeUpgrade.beforeHp + 5,
   'Upgrading an injured unit must preserve its existing damage rather than fully healing it');
 game.addPostUpgradeMilitia();
 const hpWithNewUnit = game.state().upgradedUnits.newlyTrained;
-assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 15,
+assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 5,
   'New Militia created after research must inherit the same HP bonus');
 assert.equal(hpWithNewUnit.hp, hpWithNewUnit.maxHp,
   'New Militia should spawn at its upgraded maximum HP');
