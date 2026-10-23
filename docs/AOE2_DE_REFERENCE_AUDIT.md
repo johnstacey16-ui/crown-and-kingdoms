@@ -12,6 +12,16 @@
 | AoE2 Tech Tree / Siege Engineers | https://aoe2techtree.net/ | Accessible, displays **AoE2:DE Update 185872** during this audit. Primary community tech-tree/data extraction view; verify patch and civ before comparing. |
 | Age of Empires II: DE wiki | https://ageofempires.fandom.com/wiki/Age_of_Empires_II:_Definitive_Edition | User-requested game overview; direct retrieval blocked, but indexed detailed wiki subpages are useful **secondary** references. Validate patch notes and figures individually. |
 
+## Official September 2026 DE patch baseline (Update 185872)
+
+**Primary patch-note source:** https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-185872/
+
+On this current reference update, AoE2:DE explicitly changed gathering and navigation. The official release notes mention improved lumberjack corner navigation, crowded-mine work positioning, villager collision recovery, drop-off site selection, paths around depots, movement through small gaps, regrouping/formation slot allocation, edge-of-map idle animation, and notification of stuck villagers. These are behavioural requirements **beyond raw gather-speed numbers**.
+
+**New priority checks:** verify our lumberjacks can reach working faces of dense forests; crowded miners do not repeatedly walk to the opposite side of mines; workers pick their nearest *reachable* drop-off; workers aren't stuck in narrow passages or at building outlines; animation state resets when movement genuinely stops; group orders don't shuffle distant formation slots. Add focused reproducible tests before claiming current DE patch parity.
+
+**Official Xbox tutorial** (linked below) also confirms seven villager priority presets, manual ratios, automatic farms around Mills/Town Centres and prioritizing Wood if auto-farm construction is unaffordable. The current custom numeric targets and lack of complete site-aware farm automation remain open.
+
 ## Additional verified sources for implementation
 
 - https://www.ageofempires.com/learn-to-play/military-economy-xbox/ — **official Xbox Villager Priorities** tutorial: right stick opens menu; seven presets; manual *ratios*; assignment over time; workers do not independently build new resource drop-offs.
@@ -69,6 +79,8 @@ Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/
 | E6 — Unit vision and map | P1 | Explored vs visible, shared team vision, 4-tile **base villager** sight, line-of-sight rules, unit upgrades, stealth, terrain, passability, generated map resources and building footprints. |
 | E7 — Factions / upgrades | P0 | For each civilization, unit availability, unique units, regional exceptions, economic/military bonuses and full age-dependent tech tree. No shared one-size-fits-all value where civ changes it. |
 | E8 — AI | P0 | Fair economy, worker assignment with limited sources, building timing, rush/defense decisions, army groups, raids, retreat, age-up and noncheating difficulty; benchmark across seeds. |
+
+**E8 diagnostic checkpoint:** After first DE villager speed/resource-rate corrections, a 12-minute seeded smoke found the AI failing to gather 500 food for Feudal Age. Age-food reservation and worker redistribution restored at least two age-ups by 720 seconds. By 20 minutes two rivals had 11 and 13 ready soldiers but the legacy minimum first-wave size was 14; the initial Feudal push now targets 70% of that threshold (minimum six), while later waves keep their difficulty-sized criteria. This is an **AI pacing repair**, not a claim AoE2:DE runs that exact percentage. Full seeded tests must pass before release.
 | E9 — Xbox Series X controls | P0 | R3 economy radial seven presets and ratios, quick select, garrison, farm reseeding, radial building wheels, controller-only match flow, UI legibility; test on actual Xbox Edge. |
 | E10 — Naval, trade and diplomacy | P1 | Ships, transport, fish traps, repair, trade route revenue, diplomacy/tribute, terrain routes, destinations, allied trade and naval battles. |
 | E11 — Online determinism | P0 | 1v1 authoritative state, order validation, save/resume/reconnect, late join protocol, desync recovery, user-visible failure handling, anti-spoof, longer match. |
