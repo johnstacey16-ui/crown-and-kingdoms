@@ -83,4 +83,7 @@ jobs:
           set -euo pipefail
           node scripts/run-skirmish.mjs
           CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
-          CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 node scripts/run-skirmish.mjs
+          # Source-correct slower soldier training/movement extends contested battles.
+          # Still require an actual natural win/loss and Town Centre destruction.
+          # Passive AI tests retain the strict original 1800-second window.
+          CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 CK_MAX_SECONDS=2700 node scripts/run-skirmish.mjs
