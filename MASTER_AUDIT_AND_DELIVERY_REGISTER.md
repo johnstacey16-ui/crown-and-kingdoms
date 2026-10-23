@@ -1,3 +1,9 @@
+## Reference-first Age of Empires II: DE source audit — 23 October 2026
+
+**Canonical source list and tracked discrepancies:** [AoE2: DE reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md). Requested references include aoe2database.com (unreachable in this check), aoe2.net (sunset), the historical aoe2de-api project, aoe2techtree.net (currently identifies DE update 185872) and the Age of Empires II: DE Fandom wiki. Also includes official Xbox controller and economy lessons, source-linked discrepancy table, prioritized correction backlog and test acceptance conditions. Initial verified differences include base villager movement (1.5 vs 0.8), creation time (8 vs 25s), Wheelbarrow (45 vs 75s), cart movement upgrades, generic gathering 0.8 vs individual resource rates, and substantial base militia/archer differences. **This is a first-pass inspection, not a claim that all systems already match AoE2: DE or that Xbox hardware has been tested.**
+
+---
+
 <!-- Warrior artwork increment: 22 October 2026 -->
 CK-032/041: added Huskarl, Jaguar Warrior, Kamayuk and Shotel Warrior walking,
 melee attack and matching ready poses. Animation coverage is 19/47 playable
