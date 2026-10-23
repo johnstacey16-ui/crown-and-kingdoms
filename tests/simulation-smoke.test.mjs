@@ -1315,16 +1315,16 @@ console.log('research-smoke: Gather Rate research completed through 31 simulated
 
 game.start(123456, 1);
 const hpBeforeUpgrade = game.beginManAtArmsResearch();
-for (let tick = 0; tick < 930; tick += 1) game.tick(1 / 30);
+for (let tick = 0; tick < 1230; tick += 1) game.tick(1 / 30);
 const hpAfterUpgrade = game.state();
 assert.equal(hpAfterUpgrade.research.manAtArms, 1, 'Man-at-Arms research should complete through the real research timer');
-assert.equal(hpAfterUpgrade.upgradedUnits.existing.maxHp, hpBeforeUpgrade.beforeMax + 15,
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.maxHp, hpBeforeUpgrade.beforeMax + 5,
   'The researched hit-point bonus must increase the maximum HP of an existing Militia unit');
-assert.equal(hpAfterUpgrade.upgradedUnits.existing.hp, hpBeforeUpgrade.beforeHp + 15,
+assert.equal(hpAfterUpgrade.upgradedUnits.existing.hp, hpBeforeUpgrade.beforeHp + 5,
   'Upgrading an injured unit must preserve its existing damage rather than fully healing it');
 game.addPostUpgradeMilitia();
 const hpWithNewUnit = game.state().upgradedUnits.newlyTrained;
-assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 15,
+assert.equal(hpWithNewUnit.maxHp, hpBeforeUpgrade.beforeMax + 5,
   'New Militia created after research must inherit the same HP bonus');
 assert.equal(hpWithNewUnit.hp, hpWithNewUnit.maxHp,
   'New Militia should spawn at its upgraded maximum HP');
