@@ -24,7 +24,7 @@ async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ba
    globalThis.fixtureMonastery=addB(1,'monastery',33,25,true);TE.atonement.t=.1;S.age[1]=2;
   }
   if(${ballistics}){
-   globalThis.fixtureBow=addU(1,'arc',26.5,24.5);fixtureBow.st=2;
+   globalThis.fixtureBow=addU(1,'arc',25.5,24.5);fixtureBow.st=2;
    globalThis.fixtureMovingTarget=addU(0,'scout',23.5,24.5);fixtureMovingTarget.st=4;fixtureMovingTarget.hp=200;
    globalThis.fixtureUniversity=addB(1,'univ',33,25,true);TE.ballistics.t=.1;S.age[1]=2;
   }
