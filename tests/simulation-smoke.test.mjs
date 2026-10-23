@@ -1161,6 +1161,13 @@ globalThis.__CK_TEST__ = {
         completedMilitaryBuildings: S.bs.filter((b) => b.t === team && b.done && ['bar', 'rng', 'stable', 'siege'].includes(b.k)).length,
         militaryUnits: S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length,
         wave: a.wave || 0,
+        villagers: S.us.filter(u=>u.t===team&&u.k==='vil'&&u.hp>0).length,
+        foodWorkers: S.us.filter(u=>u.t===team&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='f').length,
+        idleVillagers: S.us.filter(u=>u.t===team&&u.k==='vil'&&u.hp>0&&u.o==='i').length,
+        ageReady: ageRequirements(team).ready,
+        structureKinds: S.bs.filter(b=>b.t===team&&b.hp>0).map(b=>b.k+(b.done?'':'*')),
+        tcQueue: (S.bs.find(b=>b.t===team&&b.k==='tc')?.q||[]).map(q=>q.k),
+        tcResearch: S.bs.find(b=>b.t===team&&b.k==='tc')?.rs?.k||null,
       })).filter(Boolean),
       woodNodes: S.nodes.filter((n) => n.k === 'w').reduce((sum, n) => sum + n.amt, 0),
       worker: (() => {
