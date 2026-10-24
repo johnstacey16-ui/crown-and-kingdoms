@@ -124,6 +124,26 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Remaining differences:** attack animation frame quantization in AoE2 is roughly aligned to the simulation tick but may vary by patch/controller; region-specific delay values for Skirmisher, mounted archers, siege and ships need dedicated audits. Realistic terrain elevation, special projectiles and missed shots striking collateral units are still open. This is not Xbox hardware-certified fidelity.
 
+## Civilization-specific Archer research — 24 October 2026
+
+**Source-checked:** [Siege Engineers AoE2 Tech Tree](https://github.com/SiegeEngineers/aoe2techtree/blob/3bb43b1439eef88dfe7fe892d7f7dc41ac9dd76f/data/data.json) (data release committed **22 September 2026**). Crossbowman is source Unit ID **24**; Arbalester Unit ID **492**; Thumb Ring technology ID **437**. This is an in-game availability matrix derived from the DE tech-tree source, not a generic assertion that all combat/gameplay is edition-exact. Our `Indians` faction is historical, and maps to the source's **Hindustanis** tech tree for these three research decisions pending a broader naming/roster modernization.
+
+**Before:** all 26 Crown & Kingdoms civilizations could research Crossbowman, Arbalester and Thumb Ring at the Archery Range, including unsupported tiers. **After:** all 26 have source-pinned permissions, enforced by the existing shared `rsOf()` policy used by Xbox menus, human input, AI research, authenticated multiplayer action menus and the underlying `research()` call; the Age and prerequisite checks are still mandatory and resources are never deducted for rejected research.
+
+| Technology | Civilizations available | Civilizations missing it in our 26-civ roster |
+| --- | ---: | --- |
+| Crossbowman | **25 / 26** | Spanish |
+| Arbalester | **16 / 26** | Franks, Persians, Teutons, Celts, Turks, Indians (Hindustanis), Spanish, Slavs, Huns, Goths |
+| Thumb Ring | **17 / 26** | Franks, Britons, Teutons, Celts, Vikings, Khmer, Slavs, Goths, Aztecs |
+
+**User-visible consequences:** Britons still reach Arbalester but cannot use Thumb Ring; Franks and Teutons still train Crossbowmen but cannot upgrade to Arbalester; Spanish keep basic Archer recruitment but have no Crossbowman (and therefore no Arbalester), while retaining Thumb Ring for other supported archer types. The production menu continues to display each civilization's own unique Castle technology and all otherwise supported Archery Range research, including Elite Skirmisher, without unintended removal.
+
+**Save compatibility:** Existing saves can contain ongoing Archer-line research started before the restriction matrix existed. `validSavedProduction()` explicitly allows **only** those three previously legal, already-in-progress Archery Range research entries to load as legacy state. Such a pending upgrade may finish on resume as a grandfathered exception; no new forbidden research can be started. Existing completed research flags and fielded units remain intact, and unique-technology validation still rejects foreign Castle research. This trades strict retroactive enforcement for preserving players' saved campaigns, documented as intentional compatibility behavior.
+
+**Regression gate:** `tests/aoe2-de-civilization-archery-tech.test.mjs` checks all 26 named factions and 78 availability combinations, normal paid research, unauthorised research charging zero resources, independent team catalogs, authenticated host rejection/application, and legacy save recovery. Generic Archer/Thumb Ring tests now explicitly select Mongols, a faction with both technologies, so tests do not bypass faction rules.
+
+**Still open:** full unit roster accuracy, over 26 additional DE civilization identities, all other civilization-specific tech restrictions (e.g. Hand Cannoneer, Siege Onager, Halberdier), upgraded unique-unit lines, civ bonuses and unique regional buildings, balance patch differences, and Xbox Series X device acceptance. Do not assume that an unavailable faction-specific technology should appear as a disabled button; it is omitted from available technology choices, matching the current game's menu model.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.

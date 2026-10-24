@@ -13,7 +13,7 @@ function game(){
  vm.runInNewContext(source+`
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;startAge=3;startRes=3;start();
   snd=0;S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.gt.fill(0);
-  S.tech[0]={};S.tech[1]={};S.age[0]=2;S.age[1]=2;
+  S.civ=[2,1];S.tech[0]={};S.tech[1]={};S.age[0]=2;S.age[1]=2;
   for(const r of S.res)r.f=r.w=r.g=r.s=10000;
   globalThis.evalGame=code=>eval(code);
  `,sandbox,{timeout:15000});
