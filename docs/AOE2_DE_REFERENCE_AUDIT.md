@@ -54,6 +54,23 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Still not AoE2:DE-exact:** armor-class bonuses for ships/other specialist regional units; archery accuracy (**80% baseline**), frame delay and projectile trajectory, garrison arrows; full distinct melee/pierce upgrade technology trees, elevation, target priority and town-centre/chateau defenses; faction-specific bonuses and missing unit types. These are **explicitly open** until tested. Core combat data parity also makes existing battle/AI pacing slower; campaign and seeded full-skirmish regressions are release gates, and hardware Xbox verification is still pending.
 
+## Scout Cavalry, Knight and Skirmisher parity batch — 24 October 2026
+
+**Reference baseline:** AoE2: Definitive Edition generic units without civilization-specific bonuses. Sources: [Scout Cavalry](https://ageofempires.fandom.com/wiki/Scout_Cavalry_(Age_of_Empires_II)), [Light Cavalry](https://ageofempires.fandom.com/wiki/Light_Cavalry_(Age_of_Empires_II)), [Knight](https://ageofempires.fandom.com/wiki/Knight_(Age_of_Empires_II)), [Cavalier](https://ageofempires.fandom.com/wiki/Cavalier), [Skirmisher](https://ageofempires.fandom.com/wiki/Skirmisher_(Age_of_Empires_II)), [Elite Skirmisher](https://ageofempires.fandom.com/wiki/Elite_Skirmisher_(Age_of_Empires_II)), and [upgrade table](https://ageofempires.fandom.com/wiki/Upgrade_(Age_of_Empires_II)). Patch-specific civ bonuses and unusual armor classes still require individual audit.
+
+| Component | Old game values | Corrected baseline |
+| --- | --- | --- |
+| Scout Cavalry | 45 HP, speed 2.6, 4 damage, reload 1.6s, 9s training and bonus damage vs Archers/villagers | **45 HP, speed 1.55, 3 Dark-Age / 5 Feudal-Age attack, reload 2s, 30s train, +6 vs Monks**, no invented Archer/villager bonus |
+| Light Cavalry | Scout +25 HP / +3 attack; upgrade 35s | **Scout +15 HP / +2 attack** (60 HP / 7 attack), speed **1.5**, +10 vs Monks, upgrade **150 food / 50 gold / 45s** |
+| Knight | 100 HP, speed 2.1, attack 12, 14s train, invented bonuses vs Archer, villager and siege | **100 HP, speed 1.35, attack 10, 30s train, 2 melee / 2 pierce armor**, no invented class bonuses |
+| Cavalier | +30 HP / +4 attack, upgrade 300 food / 200 gold / 45s | **+20 HP / +2 attack** (120 HP / 12 attack), upgrade **300 food / 300 gold / 80s** |
+| Skirmisher | Speed 1.5, 3 attack, range 5, 1.6s reload, 9s train, +6 vs Archers | **Speed 0.96, 2 attack, range 4 (min. 1), 3s reload, 26s train**, +3 vs Archer and Spearman, +2 vs Mameluke; **3 pierce armor** |
+| Elite Skirmisher | +10 HP / +2 attack, 35s upgrade costing food and wood | **+5 HP / +1 attack** (35 HP / 3 attack), **+1 range**, **+1 pierce armor** (4 total), **22s unit training**, **230 wood / 130 gold / 50s** research, +4 vs Archer/Spearman; +2 vs selected Cavalry Archer-line units |
+
+**Implementation:** base training stats and line research values are in `js/config.js`. Age-dependent Scout attack, Light Cavalry speed, skirmisher counter/armor/range, and post-Elite production queue durations are applied to the live `js/simulation.js` combat, movement, and queue paths. The unit-key format (`scout`, `knight`, `skirm`) and paint atlases are deliberately unchanged, preserving existing save files, network IDs, team coloring and sprites. Regression tests verify live damage rather than simply asserting config values.
+
+**Remaining audit discrepancies:** Skirmisher armor classes are partially modelled via explicit sets; cavalry archers/regional gunpowder equivalents and special unit armor rules need a full patch-version class matrix. Archer accuracy, missed arrows/secondary projectile collisions, anti-Monk conversion resistance, elevation/line-of-sight, exact attack animations, civilization-specific Scout bonuses and multiplayer hardware controller behavior are **not** established as DE-exact. Scout's Dark→Feudal damage increase is handled through the current research-age state; unusual civilization replacements and Dark-Age starting scout formation still need a separate review. Do not describe this as all-47-unit parity.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.
