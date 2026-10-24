@@ -87,6 +87,45 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Koreans':'xat',
  'Magyars':'xat'
 });
+/* Source-backed standard military lines for the 26 implemented factions.
+ * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
+ * Research unit IDs: Man-at-Arms 75, Long Swordsman 77, Two-Handed 473,
+ * Champion 567, Pikeman 358, Halberdier 359, Light Cavalry 546,
+ * Cavalier 283, Elite Skirmisher 6; trained Scout Cavalry 448, Knight 38.
+ * "Indians" maps to Hindustanis. Incas have a different new regional
+ * infantry line; preserve C&K's legacy Militia progression until the
+ * regional replacement is implemented so campaigns/saves remain playable.
+ * This matrix does not cover all cavalry/unique-unit/tech exceptions. */
+const CIV_CORE_MILITARY=Object.freeze({
+ 'Franks':'mltcphvaesk',
+ 'Britons':'mltcphvaesk',
+ 'Mongols':'mltcpvaesk',
+ 'Byzantines':'mltcphvaesk',
+ 'Persians':'mlphvaesk',
+ 'Teutons':'mltcphaesk',
+ 'Celts':'mltcphvaesk',
+ 'Vikings':'mltcpvaesk',
+ 'Saracens':'mltcpvesk',
+ 'Turks':'mltcvask',
+ 'Chinese':'mltcphvaesk',
+ 'Japanese':'mltcphvaesk',
+ 'Khmer':'mltphvaesk',
+ 'Indians':'mltcpves',
+ 'Spanish':'mltcphvaesk',
+ 'Italians':'mltcpvaesk',
+ 'Slavs':'mltcphvaesk',
+ 'Huns':'mltphvaesk',
+ 'Goths':'mltcphvaesk',
+ 'Aztecs':'mltcpe',
+ 'Mayans':'mltphe',
+ 'Incas':'mltcphe',
+ 'Ethiopians':'mltphvaesk',
+ 'Malians':'mltcpvaesk',
+ 'Koreans':'mltcphvaesk',
+ 'Magyars':'mltcphvaesk'
+});
+const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
+const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
 const rsOf=(b,civs=S?.civ)=>{
  const l=B[b.k]?.rs||[],index=civs?.[b.t],c=Number.isInteger(index)?CIV[index]:null;
@@ -94,7 +133,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const available=b.k==='rng'&&allowed!==undefined
   ?l.filter(k=>!ARCHERY_RESEARCH_KEYS.has(k)||allowed.includes(k==='xbow'?'x':k==='arb'?'a':'t'))
   :l;
- return b.k==='castle'&&c?[...new Set([...available,c.ut.k])]:available;
+ const core=c&&CIV_CORE_MILITARY[c.n];
+ const researched=core===undefined?available:available.filter(k=>!CORE_MILITARY_RESEARCH_KEYS[k]||core.includes(CORE_MILITARY_RESEARCH_KEYS[k]));
+ return b.k==='castle'&&c?[...new Set([...researched,c.ut.k])]:researched;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
@@ -102,13 +143,15 @@ const CATU={scout:'cav',knight:'cav',camel:'cav',mgd:'cav',cata:'cav',mamel:'cav
 function pickW(o){const w=o.map(k=>PW[aip][CATU[k]||'inf']||1),t=w.reduce((a,b)=>a+b,0);let r=S.r()*t;for(let i=0;i<o.length;i++){r-=w[i];if(r<=0)return o[i]}return o[o.length-1]}
 const trOf=(b,civs=S?.civ)=>{
  const l=B[b.k]?.tr||[],c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
+ const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
+ const eligible=core===undefined?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
- if(b.k==='rng')return l.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
+ if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
  // Castles in DE cannot independently create foot Crossbowmen. Campaign
  // scripted units and older save IDs remain valid.
- if(b.k==='castle')return c?[...new Set([...l.filter(k=>k!=='xbow'),c.uu])]:l.filter(k=>k!=='xbow');
- return l;
+ if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
+ return eligible;
 };
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
