@@ -5,11 +5,11 @@ const difficultyName=i=>DIFFICULTY_NAMES[i]||'Unknown';
 let TW=89.6,TH=44.8,zm=1.4;const T=32,DT=1/30,GR=.8,CAP=10,SZ=[72,96,128,176];let W=72,H=72;
 const U={vil:{n:'Villager',hp:25,sp:.8,dmg:3,rng:.9,cd:1.5,arm:0,cost:{f:50},t:25,c:'#e8c07a',r:7},
 mil:{n:'Militia',hp:40,sp:.9,dmg:4,rng:.9,cd:2,arm:0,cost:{f:50,g:20},t:21,c:'#d5d9e2',r:9,age:0},
-arc:{n:'Archer',hp:30,sp:.96,dmg:4,rng:4,cd:2,acc:.8,arm:0,cost:{w:25,g:45},t:35,c:'#8fd18a',r:8,age:1,bn:{spear:3}},
+arc:{n:'Archer',hp:30,sp:.96,dmg:4,rng:4,cd:2,delay:.35,ps:7,acc:.8,arm:0,cost:{w:25,g:45},t:35,c:'#8fd18a',r:8,age:1,bn:{spear:3}},
 spear:{n:'Spearman',hp:45,sp:1,dmg:3,rng:.9,cd:3,arm:0,cost:{f:35,w:25},t:22,c:'#b6a98a',r:9,age:1,bn:{scout:15,knight:15,camel:12,cata:15,ele:15,eled:15,boyar:15,tarkan:15,huszar:15,mamel:12}},
 scout:{n:'Scout Cavalry',hp:45,sp:1.55,dmg:3,rng:.9,cd:2,arm:0,cost:{f:80},t:30,c:'#d9b38c',r:9,age:1,bn:{mon:6}},
 knight:{n:'Knight',hp:100,sp:1.35,dmg:10,rng:.9,cd:1.8,arm:2,cost:{f:60,g:75},t:30,c:'#f0e0a0',r:11,age:2},
-xbow:{n:'Crossbowman',hp:35,sp:.96,dmg:5,rng:5,cd:2,acc:.85,arm:0,cost:{w:25,g:45},t:27,c:'#a8e6c0',r:8,age:2,bn:{spear:3}},
+xbow:{n:'Crossbowman',hp:35,sp:.96,dmg:5,rng:5,cd:2,delay:.35,ps:7,acc:.85,arm:0,cost:{w:25,g:45},t:27,c:'#a8e6c0',r:8,age:2,bn:{spear:3}},
 cart:{n:'Trade Cart',hp:45,sp:1.6,dmg:0,rng:.9,cd:2,arm:0,cost:{w:100},t:30,c:'#b99a63',r:8,age:1},
 fish:{n:'Fishing Ship',hp:40,sp:2,dmg:1,rng:.9,cd:2,arm:0,cost:{w:75},t:12,c:'#7fd4e6',r:10,age:0,sh:1},
 gal:{n:'War Galley',hp:90,sp:2.2,dmg:8,rng:6,cd:1.8,arm:1,cost:{w:90,g:50},t:16,c:'#4aa3c8',r:11,age:2,sh:1,bn:{fish:8,trn:6}},
