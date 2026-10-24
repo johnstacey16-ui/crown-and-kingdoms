@@ -29,7 +29,7 @@ test('duplicates, destroyed, foreign and unfinished structures never bypass the 
 });
 
 test('Fletching, Bodkin and Bracer research in sequence, charge once and affect arrow attack/range per owner',()=>{
- const c=fixture();c.run("globalThis.smith=addB(0,'smith',12,12,true);globalThis.archer=addU(0,'arc',22.5,22.5);globalThis.victim=addU(1,'mil',28.5,22.5);victim.hp=1000;victim.st=4");
+ const c=fixture();c.run("S.civ[0]=2;globalThis.smith=addB(0,'smith',12,12,true);globalThis.archer=addU(0,'arc',22.5,22.5);globalThis.victim=addU(1,'mil',28.5,22.5);victim.hp=1000;victim.st=4");
  const base=c.run('attackRange(archer)');
  for(const [key,bonus] of [['atkR',1],['bodkin',2],['atkR2',3]]){
   assert.equal(c.run(`research(smith,'${key}')`),true);c.run(`upB(smith,TE.${key}.t)`);
