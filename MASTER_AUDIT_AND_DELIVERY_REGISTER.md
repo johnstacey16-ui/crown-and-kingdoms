@@ -1,3 +1,10 @@
+## 25 October 2026 — Blacksmith source eligibility and armour-time corrections (release pending)
+
+DE update 185872, SiegeEngineers pinned tech tree `c4f7da961e82a8231b1ba49459949c4d6e479bc8`: verified all 26-civ Blacksmith access for `atkM`, `atkM2`, `armI`, `armR` and `armC`. Disabled now-prohibited source final attack tier for Byzantines/Malians/Koreans and first cavalry armour for Aztecs/Mayans/Incas, via common research menu and host validation; corrected food-only first armor tiers and durations. Existing completed and paid in-flight work remains untouched in saves. Testing includes source matrix and actual runtime payment/timing, host rejection, team isolation and reload.
+
+Do not mark full AoE2 Blacksmith parity: current game compresses up to three reference tiers into one armor key and two melee attack keys. Add real tech chains and combat modifiers separately. All painted artwork intact; Xbox hardware still unverified. **CI and production release status pending until checked.**
+
+---
 ## Verified release — University technology and civilization parity, 25 October 2026
 
 **Merge:** [PR #49](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/49), code commit `3c39375f6486970446fe573ee2ce0adf1a0dcc70`. Eight University tech entries gated by versioned 26-civilization source matrix. Costs, ages, timing and tower/wall dependencies corrected where grounded in DE update 185872. No changes to source artwork, existing unit keys or save format. Saved already-paid forbidden research remains loadable and completable.
