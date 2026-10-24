@@ -124,6 +124,24 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Koreans':'mltcphvaesk',
  'Magyars':'mltcphvaesk'
 });
+/* Bracer / Bloodlines / Husbandry verified from
+ * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Tech IDs: Bracer 201, Bloodlines 435, Husbandry 39.
+ * r = Bracer, b = Bloodlines, h = Husbandry. All represented civs have
+ * Fletching, Bodkin Arrow and Ballistics in the source snapshot.
+ * "Indians" maps to Hindustanis. Existing queued research in old saves
+ * completes; newly requested forbidden research is rejected.
+ */
+const CIV_FIELD_RESEARCH=Object.freeze({
+ 'Franks':'h','Britons':'rh','Mongols':'rbh','Byzantines':'rh',
+ 'Persians':'bh','Teutons':'b','Celts':'h','Vikings':'r',
+ 'Saracens':'rbh','Turks':'rbh','Chinese':'rbh','Japanese':'rbh',
+ 'Khmer':'rbh','Indians':'rbh','Spanish':'rbh','Italians':'rbh',
+ 'Slavs':'bh','Huns':'rbh','Goths':'rbh','Aztecs':'r',
+ 'Mayans':'r','Incas':'r','Ethiopians':'rh','Malians':'bh',
+ 'Koreans':'rh','Magyars':'rbh'
+});
+const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -135,7 +153,9 @@ const rsOf=(b,civs=S?.civ)=>{
   :l;
  const core=c&&CIV_CORE_MILITARY[c.n];
  const researched=core==null?available:available.filter(k=>!CORE_MILITARY_RESEARCH_KEYS[k]||core.includes(CORE_MILITARY_RESEARCH_KEYS[k]));
- return b.k==='castle'&&c?[...new Set([...researched,c.ut.k])]:researched;
+ const field=c&&CIV_FIELD_RESEARCH[c.n];
+ const permitted=field==null?researched:researched.filter(k=>!FIELD_RESEARCH_KEYS[k]||field.includes(FIELD_RESEARCH_KEYS[k]));
+ return b.k==='castle'&&c?[...new Set([...permitted,c.ut.k])]:permitted;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
