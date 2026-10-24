@@ -1,3 +1,10 @@
+## 25 October 2026 — University civilian technology audit (implementation, release checks pending)
+
+Using the Sep 2026 official DE update 185872 and pinned SiegeEngineers data blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`, gated eight already-implemented University researches across each of the 26 civilizations through `rsOf`. Corrected six source-verified research cost/time records, made Arrowslits Imperial-only, and removed invalid dependence on Arrowslits/Masonry for Guard Tower/Fortified Wall respectively. Kept old saved paid research and unit/net IDs intact. Added a source-matrix test for 208 availability cases, actual queue/resource mutations, network command acceptance/rejection and save restoration.
+
+This implementation is intentionally scoped. Treadmill Crane tech-tree permissions, regional swaps and full tower research **effects** still need source and gameplay parity; existing sprites and music unchanged. **Acceptance pending:** full PR/main GitHub Actions, production commit match and Xbox console testing.
+
+---
 ## Verified release record — 24 October 2026, Monastery civilization eligibility
 
 **Merged:** [PR #48](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/48), application commit `81e5e949b78fc740108a87b6819dc9205a669df1`. Added patch-185872 tech-tree gating for all 11 already-implemented Monastery technologies across the 26 supported civilizations. The implementation retains existing painted artwork, multiplayer IDs, campaigns, technology effects and already-paid older-save research.
