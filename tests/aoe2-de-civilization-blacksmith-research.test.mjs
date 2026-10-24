@@ -87,8 +87,10 @@ test('Blacksmith catalogue and authenticated research menus source-gate all five
    assert.equal(list.includes(k),permitted,name+' '+k+' catalogue');
    assert.equal(menu.some(o=>o.type==='research'&&o.value===k),permitted,name+' '+k+' command menu');
   }
-  for(const key of ['atkR','bodkin','atkR2'])assert.equal(list.includes(key),true,
-   name+' retains universally available lower archery attack research or separately gated Bracer');
+  for(const key of ['atkR','bodkin'])assert.equal(list.includes(key),true,
+   name+' retains universally available lower archery attack research');
+  assert.equal(list.includes('atkR2'),c("CIV_FIELD_RESEARCH['"+name+"'].includes('r')"),
+   name+' Bracer remains independently civilization-gated');
  }
 });
 test('allowed Blacksmith purchases queue and spend; forbidden purchases do neither for any civ',()=>{
@@ -159,6 +161,7 @@ test('pre-restriction save retains paid forbidden research and forbids subsequen
  c("upB(S.bs.find(b=>b.k==='smith'&&b.t===0),10)");
  assert.equal(c('S.tech[0].armC'),1,'previously paid upgrade completes');
  const before=c('JSON.stringify(S.res[0])');
+ c('S.tech[0].atkM=1');
  assert.equal(c("research(S.bs.find(b=>b.k==='smith'&&b.t===0),'atkM2')"),true,
   'Aztecs can still buy their allowed final melee tier');
  c("S.bs.find(b=>b.k==='smith'&&b.t===0).rs=null");
