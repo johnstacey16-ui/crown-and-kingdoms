@@ -1,3 +1,15 @@
+## Verified release record — 24 October 2026, Monastery civilization eligibility
+
+**Merged:** [PR #48](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/48), application commit `81e5e949b78fc740108a87b6819dc9205a669df1`. Added patch-185872 tech-tree gating for all 11 already-implemented Monastery technologies across the 26 supported civilizations. The implementation retains existing painted artwork, multiplayer IDs, campaigns, technology effects and already-paid older-save research.
+
+**All PR release checks PASSED at test commit `67d02b1b4cd2c6746e7ed0e45fee6c27619e508f`:** [Game validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40136622476); [Chromium battlefield and original art](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40136622484); [Full regression](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40136622468) with **181 standalone regression files, 19 isolated campaigns and three seeded AI skirmishes**. Initial red checks on the branch were repaired by giving older behavioral tests verified eligible civilizations rather than bypassing faction restrictions. Post-merge `main` runs: [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40137016412), [Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40137016377), [full regression](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40137016429); evaluate their final statuses independently.
+
+**Production verification:** Vercel deployment `dpl_EnCS7BVHLa3TXxxWy83YwK8Vctea` was READY and assigned `crown-and-kingdoms.vercel.app` with exact Git commit `81e5e949b78fc740108a87b6819dc9205a669df1` after PR merge. The previous deployment lag behind `30fb23c` was not observed. Subsequent documentation-only commits must independently verify their deployed Git SHA; do not mistake this record for perpetual production health.
+
+**Still open:** detailed University and Blacksmith armor civilization technology restrictions; regional unit replacements, unique technologies/bonuses, naval parity, full console/controller testing, multiplayer recovery and live Xbox Series X performance. The title below records the state **before** PR verification and is superseded by this release record.
+
+---
+
 ## 24 October 2026 — Monastery civilization restrictions (CI and production acceptance pending)
 
 AoE2:DE Update 185872 / SiegeEngineers data blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`: enforce faction availability for all 11 already-implemented Monastery technologies across the existing 26 civilizations, including the `Indians` → Hindustanis reference mapping. Shared research lists now prevent new forbidden purchases in local/controller, AI and authenticated network actions. Paid research in old saves is grandfathered, with unchanged on-map unit and artwork identities. Added an exhaustive 26 × 11 matrix fixture with payment, multiplayer and restored-queue checks. This is **not** an assertion that all Monastery mechanics or full game parity is finished.
