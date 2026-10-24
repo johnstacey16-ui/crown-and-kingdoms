@@ -331,7 +331,7 @@
       order:u.o, path:u.p || [], target:ref(u.tg), load:ref(u.ld),
       formation:u.netFormation === 'split' ? 'split' : 'line',
       cargo:u.car || 0, cargoType:u.ct, tradeCargo:u.tradeCargo || 0,
-      tradeFromKey:u.tradeFromKey, cd:u.cd, retry:u.rp, ret:u.ret,
+      tradeFromKey:u.tradeFromKey, cd:u.cd, wind:u.wind||0, windTarget:u.windTarget||null, retry:u.rp, ret:u.ret,
       autoWorker:u.autoWorker, ut:u.ut, unloadBeach:u.unloadBeach,
       conversion:u.cv,conversionNext:u.cvNext,conversionTarget:u.cvTargetId,conversionOwner:u.cvTeam,faith:u.faith,
       retreating:u.retreating, retreatTarget:ref(u.retreatTarget),
