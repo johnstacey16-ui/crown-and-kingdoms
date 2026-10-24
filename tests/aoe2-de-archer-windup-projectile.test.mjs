@@ -71,7 +71,7 @@ test('speed-seven Archer projectiles stay in flight for their actual distance',(
  assert.equal(c('S.pj.length'),1);
  c('pjs(.5)');
  assert.equal(c('S.pj.length'),1,'four tiles cannot be traveled in half a second at speed seven');
- assert.ok(Math.abs(c('S.pj[0].x-24)<1e-8);
+ assert.ok(Math.abs(c('S.pj[0].x')-24)<1e-8);
  assert.equal(c('t.hp'),40);
  c('pjs(.1)');
  assert.equal(c('S.pj.length'),0);
