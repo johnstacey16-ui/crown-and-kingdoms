@@ -5,7 +5,7 @@
 - [x] Remove the invented Guard Tower → Arrowslits and Fortified Wall → Masonry dependencies; keep Keep → Guard Tower, make Arrowslits Imperial-only.
 - [x] Add source-pinned 26 × 8 matrix, actual paid/denied research, age/prerequisite, multiplayer/team-isolation and legacy-save regression tests.
 - [ ] Finish Treadmill Crane per-civ access from patch-specific source, University tower and siege runtime effects, Blacksmith melee/armor three-tier research migrations, and regional replacement/unique-unit production.
-- [ ] Pass PR CI (full 19 campaign missions, all standalone tests, three seeded production AI games, Chromium and validation) and production SHA parity before treating this as delivered.
+- [x] Passed [PR #49 full CI](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40141413981) (all 182 standalone files, 19 campaigns and three seeded production AI games), [Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40141413790) and [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40141413791). Merged at `3c39375f6486970446fe573ee2ce0adf1a0dcc70` and Vercel production READY at exactly that commit (deployment `dpl_U8HZb8AHBHz5tVbHft63GbJprVZt`). Post-merge main CI is tracked separately.
 
 See [reference findings](docs/AOE2_DE_REFERENCE_AUDIT.md).
 
