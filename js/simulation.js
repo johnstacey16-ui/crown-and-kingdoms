@@ -198,7 +198,7 @@ function pjs(dt){
   // Old saves lack an aim: migrate once, then retain the same fixed trajectory.
   if(p.tx===undefined&&p.ty===undefined){p.tx=p.t.x+(p.t.s||0)/2;p.ty=p.t.y+(p.t.s||0)/2;}
   if(!Number.isFinite(p.tx)||!Number.isFinite(p.ty)||p.tx<0||p.ty<0||p.tx>=W||p.ty>=H||p.t.hp<=0||p.t.ld||!isHostile(p.a.t,p.t.t)){p.dead=1;continue;}
-  const dx=p.tx-p.x,dy=p.ty-p.y,dist=Math.hypot(dx,dy),travel=projectileSpeed(p.a)*dt;
+  const dx=p.tx-p.x,dy=p.ty-p.y,dist=Math.hypot(dx,dy),travel=(U[p.a.k].ps||14)*dt;
   if(dist>travel){p.x+=dx/dist*travel;p.y+=dy/dist*travel;continue;}
   p.x=p.tx;p.y=p.ty;
   const size=p.t.s||0,gapX=Math.max(p.t.x-p.tx,0,p.tx-p.t.x-size),gapY=Math.max(p.t.y-p.ty,0,p.ty-p.t.y-size);
