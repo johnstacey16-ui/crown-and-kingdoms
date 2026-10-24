@@ -5,7 +5,7 @@
 - [x] Correct Feudal first-tier infantry and ranged armor to 100 food / 40s, cavalry armor to 150 food / 45s.
 - [x] Regression coverage for research trees, correct spend/time, team isolation, network host and historical paid research.
 - [ ] Implement separate DE three-tier melee/infantry/ranged/cavalry upgrade lines and faithfully represent their actual effects, costs, chains and civilization availability (migration and AI/UI work required).
-- [ ] Final PR/main GitHub Actions and Vercel SHA match before marking this batch released.
+- [x] [PR #50 merged](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/50) at `e604d6c6ff1503534777ed0700e38e103857c1d6`; [183 standalone tests, 19 campaigns and 3 AI seeds passed](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142666393), [PR browser](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142666414) and [PR validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142666416). Post-merge [regression](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142925214), [browser](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142925206), and [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40142925226) also all passed. Production READY verified on gameplay commit by explicit Git-backed deploy `dpl_96AyUwocsJ8dqhrtkR4DsrZjPTJg`. Audit-note commits require independent production synchronization.
 
 See [source audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
 
