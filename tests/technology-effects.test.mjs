@@ -57,7 +57,7 @@ assert.match(html, /if\(k==='armR'&&ownRanged<2\)score-=28/,
   'AI should delay ranged armour when it has no meaningful ranged force');
 assert.match(html, /if\(k==='armC'&&ownCav<2\)score-=28/,
   'AI should delay cavalry armour when it has no meaningful cavalry force');
-assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
+assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics','thumb'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
   'AI should avoid premature ranged attack research before fielding ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
@@ -156,7 +156,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics','devotion','faith','heresy','redemption','atonement','fervor','blockPrinting','illumination','theocracy','herbalMedicine','murderHoles']);
+const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics','thumb','devotion','faith','heresy','redemption','atonement','fervor','blockPrinting','illumination','theocracy','herbalMedicine','murderHoles']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);

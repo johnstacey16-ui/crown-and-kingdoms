@@ -48,7 +48,7 @@ test('Fletching, Bodkin and Bracer research in sequence, charge once and affect 
  c.run('S.age[0]=0');assert.equal(c.run("research(smith,'atkR')"),false);
 });
 function flight(ballistics,turn=false){
- const c=fixture();c.run(`S.tech[0].ballistics=${ballistics?1:0};globalThis.archer=addU(0,'arc',20.5,30.5);globalThis.target=addU(1,'scout',26.5,30.5);target.hp=100;target.o='m';target.p=[[26.5,60.5]];launchProjectile(archer,target);globalThis.shot=S.pj[0];`);
+ const c=fixture();c.run(`S.tech[0].ballistics=${ballistics?1:0};S.tech[0].thumb=1;globalThis.archer=addU(0,'arc',20.5,30.5);globalThis.target=addU(1,'scout',26.5,30.5);target.hp=100;target.o='m';target.p=[[26.5,60.5]];launchProjectile(archer,target);globalThis.shot=S.pj[0];`);
  const aim=c.run('JSON.stringify([shot.tx,shot.ty])');
  for(let i=0;i<30&&c.run('S.pj.length');i++)c.run(`target.y+=unitSpeed(target)*DT*${turn?-1:1};pjs(DT)`);
  assert.equal(c.run('JSON.stringify([shot.tx,shot.ty])'),aim,'aim never follows later target motion');

@@ -88,6 +88,24 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Important open differences:** exact 80%/85%/90% accuracy, missed arrows and stray projectile damage, 0.35s attack-frame delay, projectile speed 7, full sight calculations (Archer 6 / Crossbow and Arbalester 7), Thumb Ring firing speed/accuracy, Briton and other civ exceptions, unavailable Crossbow/Arbalester upgrade for some civilizations, and complete Castle/Archery Range production restrictions. These require their own source-based tests and Xbox controller/hardware acceptance. Passing this PR does *not* certify all AoE2 mechanics.
 
+## Thumb Ring and deterministic ranged-accuracy parity — 24 October 2026
+
+**Source version and interpretation:** [Thumb Ring — AoE2 Wiki](https://ageofempires.fandom.com/wiki/Thumb_Ring), [Archer-unit accuracy table](https://ageofempires.fandom.com/wiki/Archer_unit_(Age_of_Empires_II)), [AoE2 Tech Tree](https://aoe2techtree.net/), and [official published patch notes](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-185872/). The standard Thumb Ring upgrade is researched at the Archery Range in Castle Age for **300 food / 250 wood / 45 seconds**. It makes covered archers **100% nominally accurate at stationary targets**; Ballistics is separate and movement after firing can still dodge an accurately aimed arrow. Reload is reduced by **15%** for foot Archers; by **10%** for the implemented mounted Archer group, **20%** for Chu Ko Nu, and **0%** for Skirmishers, whose rate correction cancels Thumb Ring's generic bonus. (This follows the wiki's listed exceptions and must be reevaluated for regional archers as their data is audited.)
+
+| Unit or mechanic | Previously | Implemented and tested |
+| --- | --- | --- |
+| Archer | 100%-accurate direct arrow at fixed aim, no miss chance | **80%** aimed accuracy before Thumb Ring, **100%** afterward; reload **2.0s → 1.7s** |
+| Crossbowman | Fixed aim without random inaccuracy | **85%** before Thumb Ring, **100%** afterward; reload **2.0s → 1.7s** |
+| Arbalester | Crossbow accuracy persisted | **90%** after Arbalester research, **100%** if Thumb Ring researched |
+| Skirmisher | 100%-accurate javelin | **90%** before Thumb Ring, **100%** afterward; reload stays **3.0s** |
+| Mounted special archers (Mangudai/War Wagon) | Thumb Ring unavailable | Thumb Ring reduces reload to **90%** where researched; full baseline accuracy/unique armor class remain unverified |
+| Chu Ko Nu | No Thumb Ring rate effect | Reload uses **80%** of its current defined baseline where researched (not a claim that its burst projectile model is fully authentic) |
+| Ballistics | Fixed-aim interception with constant-velocity prediction | Preserved. Thumb Ring alone does **not** lead moving targets or cause arrows to track them |
+
+**Implementation architecture:** `TE.thumb` is a real range research entry and `S.tech[t].thumb` is the owner-specific flag. `U.arc.acc=.8`, `U.xbow.acc=.85`, `U.skirm.acc=.9`; the Arbalester rank overrides Crossbow accuracy to .9. For a hit/miss roll, `launchProjectile()` samples the **same persisted, seeded `S.r` RNG used in gameplay**. Inaccurate arrows are launched toward a stable, bounded lateral deviation from the chosen aim point. An arrow never homes into the original target afterward. Shots against buildings, siege and unsupported weapon families retain existing behavior and **do not consume extra accuracy rolls**. AI may research Thumb Ring once enough ranged units are in its army. Tests validate actual research, shooting, hit/miss/armor, per-owner research, cooldown, and save/load RNG trajectory persistence. The authenticated multiplayer regression and seeded AI skirmishes remain release gates.
+
+**Open for later fidelity batches (do not mark exact):** exact DE probability distribution for missed projectiles, short-range glancing hits and stray arrows striking *other* units; 0.35-second foot-archer animation/windup delay; true projectile speed versus the game's current 14 tiles/sec; unique-unit accuracy baselines and burst-arrow behavior; elevation, armor-class table, LOS/cover and fog; full Thumb Ring civilization tech-tree availability (e.g. Britons), civ-specific reload adjustments and special tech modifiers. The 100% accuracy designation means *nominal target accuracy*, not guaranteed hits against moving units or environmental obstruction. Xbox Series X controller acceptance remains pending.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.

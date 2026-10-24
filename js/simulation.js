@@ -138,6 +138,24 @@ if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.a
 if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
 // Arrow technology applies to explicit weapon families, never all ranged damage.
 const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','gal','tw','cs','tca']);
+// AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
+// Skirmishers gain accuracy but no faster reload; mounted archers gain a
+// smaller firing-speed increase; Chu Ko Nu gains a larger one.
+const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled']);
+const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon']);
+function rangedAccuracy(a){
+ const d=U[a.k];if(!d)return 1;
+ if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm'].includes(a.k)))return 1;
+ return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
+}
+function attackReload(u){
+ const base=U[u.k]?.cd||2;
+ if(!S.tech[u.t]?.thumb)return base;
+ if(u.k==='chuko')return base*.8;
+ if(THUMB_MOUNTED_ARCHERS.has(u.k))return base*.9;
+ if(THUMB_FOOT_ARCHERS.has(u.k))return base*.85;
+ return base;
+}
 function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.atkR2?3:t.bodkin?2:t.atkR?1:0):0}
 function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)}
@@ -157,7 +175,20 @@ function projectileAim(a,t){
  }
  return {tx:Math.max(0,Math.min(W-.001,x)),ty:Math.max(0,Math.min(H-.001,y))};
 }
-function launchProjectile(a,t){const aim=projectileAim(a,t);S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim})}
+function launchProjectile(a,t){
+ const aim=projectileAim(a,t);
+ // Fixed inaccurate aim is sampled at launch from the saved/replicated RNG.
+ // A miss never magically homes back towards its original target.
+ // Building targets are fully accurate; projectile collision is still checked
+ // at arrival, so Ballistics and target movement remain distinct mechanics.
+ if(!t.s&&rangedAccuracy(a)<1&&S.r()>=rangedAccuracy(a)){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,distance=Math.hypot(dx,dy)||1;
+  const deviation=(.8+S.r()*.6)*(S.r()<.5?-1:1);
+  aim.tx=Math.max(0,Math.min(W-.001,aim.tx-dy/distance*deviation));
+  aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
+ }
+ S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+}
 const hit=(a,t)=>{if(U[a.k].rng>2){sfx(U[a.k].sg?'launch':'bow',a.x,a.y);launchProjectile(a,t)}else dmgT(a,t)};
 function pjs(dt){
  if(!Number.isFinite(dt)||dt<=0)return;
@@ -418,7 +449,7 @@ if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTa
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
 const dist=d2(u.x,u.y,tg),minR=d.minR||0,range=attackRange(u);
 if(minR&&dist<minR){if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,minR+.5));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
-if(dist<=range){u.p=[];if(u.cd<=0){hit(u,tg);u.cd=d.cd}}
+if(dist<=range){u.p=[];if(u.cd<=0){hit(u,tg);u.cd=attackReload(u)}}
 else if(u.st===2){u.o='i';u.tg=null}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,range-(range>2?.4:.1)));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt)}return}
 if(u.o==='g'){
 if(u.ret){
