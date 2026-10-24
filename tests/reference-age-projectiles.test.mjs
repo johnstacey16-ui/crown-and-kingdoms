@@ -41,7 +41,7 @@ test('Fletching, Bodkin and Bracer research in sequence, charge once and affect 
  for(const kind of ['arc','gal','tw','cs'])assert.equal(c.run(`attackRange({k:'${kind}',t:0})-U.${kind}.rng`),3,kind);
  assert.equal(c.run("attackRange({k:'tca',t:0})"),c.run('U.tca.rng'),'town centre gains attack/sight, not range');
  assert.equal(c.run("arrowSightBonus({k:'tc',t:0})"),3);
- c.run('archer.o=\'a\';archer.tg=victim;archer.cd=0;upU(archer,DT)');assert.equal(c.run('S.pj.length'),1,'combat uses upgraded range');
+ c.run('archer.o=\'a\';archer.tg=victim;archer.cd=0;for(let i=0;i<12;i++)upU(archer,DT)');assert.equal(c.run('S.pj.length'),1,'combat uses upgraded range after Archer windup');
  const upgraded=c.run('victim.hp');c.run('dmgT(archer,victim)');const damage=c.run('victim.hp');
  c.run('S.tech[0].atkR=S.tech[0].bodkin=S.tech[0].atkR2=0;victim.hp=1000;dmgT(archer,victim)');assert.equal(upgraded-damage,1000-c.run('victim.hp')+3);
  c.run('S.tech[0]={};smith.rs=null');assert.equal(c.run("research(smith,'bodkin')"),false);assert.equal(c.run("research(smith,'atkR2')"),false);

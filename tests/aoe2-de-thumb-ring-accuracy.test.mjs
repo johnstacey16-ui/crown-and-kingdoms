@@ -88,7 +88,11 @@ test('Thumb Ring speeds up foot and mounted archers but not Skirmishers or gunpo
  assert.equal(c('attackReload({k:"arc",t:1})'),2,'opposing team has no attack-speed research');
  c("globalThis.archer=addU(0,'arc',20.5,20.5);globalThis.enemy=addU(1,'mil',22.5,20.5);archer.o='a';archer.tg=enemy;archer.cd=0");
  c('upU(archer,DT)');
- assert.ok(Math.abs(c('archer.cd')-1.7)<1e-9,'real combat uses Thumb Ring cooldown, not display-only stats');
+ assert.equal(c('S.pj.length'),0,'Archer has to wind up before its arrow is released');
+ assert.equal(c('archer.wind'),.35);
+ for(let i=0;i<11;i++)c('upU(archer,DT)');
+ assert.equal(c('S.pj.length'),1,'arrow launches only after the animation windup');
+ assert.ok(Math.abs(c('archer.cd')-1.35)<1e-9,'reload excludes the elapsed 0.35-second firing animation');
 });
 
 test('accuracy rolls and aimed projectiles persist over save/load without resampling',()=>{

@@ -106,6 +106,24 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Open for later fidelity batches (do not mark exact):** exact DE probability distribution for missed projectiles, short-range glancing hits and stray arrows striking *other* units; 0.35-second foot-archer animation/windup delay; true projectile speed versus the game's current 14 tiles/sec; unique-unit accuracy baselines and burst-arrow behavior; elevation, armor-class table, LOS/cover and fog; full Thumb Ring civilization tech-tree availability (e.g. Britons), civ-specific reload adjustments and special tech modifiers. The 100% accuracy designation means *nominal target accuracy*, not guaranteed hits against moving units or environmental obstruction. Xbox Series X controller acceptance remains pending.
 
+## Archer release timing and projectile travel — 24 October 2026
+
+**Reference:** DE [Archer](https://ageofempires.fandom.com/wiki/Archer_(Age_of_Empires_II)), [Crossbowman](https://ageofempires.fandom.com/wiki/Crossbowman_(Age_of_Empires_II)), [Arbalester](https://ageofempires.fandom.com/wiki/Arbalester), and [Attack Delay overview](https://ageofempires.fandom.com/wiki/Attack_delay). The current Archer line uses **0.35-second attack delay** between beginning the attack animation and releasing its arrow, and arrow travel speed **7 game tiles/sec**. Note the historical standalone Archer **0.525s HD** reference: do not silently substitute legacy patch/edition numbers. Reference values are scoped to the Archer→Crossbowman→Arbalester line, not the entire game's ranged unit roster.
+
+| Mechanic | Previously | Implemented in this correction |
+| --- | --- | --- |
+| Archer-line shot release | Instantly launched on the first ready attack tick | Pending **0.35s** windup before launching the projectile; releases only while the target is still alive/in range and the Archer retains its attack order |
+| Firing interval | Existing 2.0s base, 1.7s with Thumb Ring | Existing interval preserved by subtracting the elapsed 0.35s windup from the *post-release* cooldown. Avoid double-counting delay and artificially lowering Archer DPS |
+| Archer-line projectile speed | 14 tiles/sec; Ballistics intercept assumed fixed 14 | **7 tiles/sec**, including Ballistics interception equation and actual projectile movement |
+| Other weapon projectiles | 14 tiles/sec | **Unchanged** until separate unit-by-unit source audit |
+| Pending shot save/load | None | `wind` elapsed-second countdown and `windTarget` immutable network unit/building ID serialized in existing save units; validated, restored without re-firing or converting the target reference |
+| Multiplayer synchronization | Unit cooldown and existing projectile aim in checkpoint | Include `wind` countdown and `windTarget` in deterministic world checkpoint to detect a desynchronized bow-release phase |
+| Orders & range | An archer could fire immediately on an issued order | Winding is cancelled on stop/move, changed target, or leaving range. Old saves without wind fields preserve preexisting orders and begin the new animation on their next ready attack |
+
+**Tests:** `tests/aoe2-de-archer-windup-projectile.test.mjs` covers exact line configuration, real `upU()` first-shot release, reload pacing, target/order/range cancellation, 7-speed flight and actual damage, Ballistics lead, save/load restoration and checkpoint-hash sensitivity. Existing Thumb Ring and Ballistics tests also assert the necessary wait for Archer attack animation before any projectile exists. All long skirmish and multiplayer workflows must pass before a merge.
+
+**Remaining differences:** attack animation frame quantization in AoE2 is roughly aligned to the simulation tick but may vary by patch/controller; region-specific delay values for Skirmisher, mounted archers, siege and ships need dedicated audits. Realistic terrain elevation, special projectiles and missed shots striking collateral units are still open. This is not Xbox hardware-certified fidelity.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.
