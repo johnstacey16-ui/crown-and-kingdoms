@@ -18,8 +18,8 @@ assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain i
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
 const techKeys = techMatches.map((match) => match[1]);
-assert.equal(techKeys.length, 59, 'Technology table must retain all 59 implemented upgrades including Crossbowman research');
-assert.ok(techKeys.includes('xbow'), 'Crossbowman research must be present in the audited tech roster');
+assert.equal(techKeys.length, 60, 'Technology table must retain all 60 implemented upgrades including Crossbowman and Thumb Ring');
+assert.ok(techKeys.includes('xbow')&&techKeys.includes('thumb'), 'Crossbowman and Thumb Ring must be present in the audited tech roster');
 assert.equal(new Set(techKeys).size, techKeys.length, 'Technology keys must be unique');
 
 const buildingStart = html.indexOf('const B={');
@@ -70,5 +70,5 @@ assert.match(html, /tk\.gtow\?3:0/,
 assert.match(html, /tk\.keep\?3:0/,
   'Keep must affect defensive building attack damage');
 
-console.log('technology-research-integrity: research availability and 59 technology records validated');
+console.log('technology-research-integrity: research availability and 60 technology records validated');
 
