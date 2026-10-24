@@ -963,6 +963,7 @@ globalThis.__CK_TEST__ = {
     };
   },
   beginBloodlinesResearch() {
+    S.civ[0] = 2; // Mongols have Bloodlines; source-verified rather than relying on random civilization.
     S.age[0] = 2;
     let stable = S.bs.find((b) => b.t === 0 && b.k === 'stable' && b.done);
     if (!stable) {
