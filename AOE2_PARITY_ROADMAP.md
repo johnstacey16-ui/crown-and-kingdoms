@@ -1,3 +1,15 @@
+## 25 October 2026 — Blacksmith eligibility and first armour-tier audit
+
+- [x] Source-pin 26 civilizations × five implemented Blacksmith keys (Forging, Blast Furnace proxy, Scale Mail, Padded Archer, Scale Barding).
+- [x] Reject unavailable `atkM2` for Byzantines, Malians, Koreans; unavailable `armC` for Aztecs, Mayans, Incas, using shared production/network research checks.
+- [x] Correct Feudal first-tier infantry and ranged armor to 100 food / 40s, cavalry armor to 150 food / 45s.
+- [x] Regression coverage for research trees, correct spend/time, team isolation, network host and historical paid research.
+- [ ] Implement separate DE three-tier melee/infantry/ranged/cavalry upgrade lines and faithfully represent their actual effects, costs, chains and civilization availability (migration and AI/UI work required).
+- [ ] Final PR/main GitHub Actions and Vercel SHA match before marking this batch released.
+
+See [source audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## 25 October 2026 — University technology matrix batch
 
 - [x] Add DE update 185872 source-backed 26-civilization access matrix for **eight implemented University technologies** via the shared, server-authoritative research catalogue; preserve older saved research, all painted art and network IDs.

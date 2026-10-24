@@ -217,6 +217,44 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Magyars':'mgcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
+/* DE build 185872: 26-civilization availability for implemented Blacksmith keys.
+ * SiegeEngineers/aoe2techtree data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Source IDs: Forging 67, Blast Furnace 75, Scale Mail Armor 74,
+ * Padded Archer Armor 211, Scale Barding Armor 81.
+ * atkM2 represents the existing compressed *last* attack tier, not DE's
+ * independently researched Iron Casting / Blast Furnace chain: only its
+ * final-tier eligibility is mapped, not its unsplit effects or costs.
+ * Historical Indians maps to Hindustanis; paid old research survives saves.
+ */
+const CIV_BLACKSMITH_RESEARCH=Object.freeze({
+ 'Franks':'mbirc',
+ 'Britons':'mbirc',
+ 'Mongols':'mbirc',
+ 'Byzantines':'mirc',
+ 'Persians':'mbirc',
+ 'Teutons':'mbirc',
+ 'Celts':'mbirc',
+ 'Vikings':'mbirc',
+ 'Saracens':'mbirc',
+ 'Turks':'mbirc',
+ 'Chinese':'mbirc',
+ 'Japanese':'mbirc',
+ 'Khmer':'mbirc',
+ 'Indians':'mbirc',
+ 'Spanish':'mbirc',
+ 'Italians':'mbirc',
+ 'Slavs':'mbirc',
+ 'Huns':'mbirc',
+ 'Goths':'mbirc',
+ 'Aztecs':'mbir',
+ 'Mayans':'mbir',
+ 'Incas':'mbir',
+ 'Ethiopians':'mbirc',
+ 'Malians':'mirc',
+ 'Koreans':'mirc',
+ 'Magyars':'mbirc'
+});
+const BLACKSMITH_RESEARCH_KEYS=Object.freeze({atkM:'m',atkM2:'b',armI:'i',armR:'r',armC:'c'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -233,7 +271,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const monastery=c&&CIV_MONASTERY_RESEARCH[c.n];
  const monastic=monastery==null?permitted:permitted.filter(k=>!MONASTERY_RESEARCH_KEYS[k]||monastery.includes(MONASTERY_RESEARCH_KEYS[k]));
  const university=b.k==='univ'&&c&&CIV_UNIVERSITY_RESEARCH[c.n];
- const finalList=university==null?monastic:monastic.filter(k=>!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]));
+ const academic=university==null?monastic:monastic.filter(k=>!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]));
+ const blacksmith=b.k==='smith'&&c&&CIV_BLACKSMITH_RESEARCH[c.n];
+ const finalList=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
