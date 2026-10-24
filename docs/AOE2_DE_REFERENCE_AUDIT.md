@@ -267,3 +267,14 @@ Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/
 5. **Xbox economy radial**, controller verification, fog/resource orders, then civ matrix, online full match, graphics and Xbox hardware.
 
 **Status terms:** VERIFIED = code + source-specific tests and intended integration proven; IMPLEMENTED = code changed but broader checks pending; AUDITED = compared but unchanged; UNVERIFIED = no meaningful end-to-end evidence. Do not represent this initial inventory as a finished game-wide audit. If a source version changes, re-run and explicitly reclassify stale comparisons.
+
+
+## Civilization-specific Monastery research eligibility — 24 October 2026
+
+**Version and source:** AoE2: Definitive Edition build **185872** (22 September 2026) and [SiegeEngineers/aoe2techtree data/data.json](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json), exact blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. The game's 26 civilizations are matched to the standard base tech-tree entries; legacy `Indians` uses Hindustanis. No inference about regional replacements, civ-specific free research, modified costs or nonstandard modes is made.
+
+The game now filters all eleven **implemented** Monastery technologies by faction, rather than offering the complete catalogue to every civilization. Relevant tech IDs: Devotion **46**, Faith **45**, Heresy **439**, Redemption **316**, Atonement **319**, Sanctity **231**, Fervor **252**, Block Printing **230**, Illumination **233**, Theocracy **438**, Herbal Medicine **441**. Existing tech effects, costs, research timing, age/prerequisite checks, sprites and saved technology keys are unchanged. `CIV_MONASTERY_RESEARCH` and `MONASTERY_RESEARCH_KEYS` in `engine.js` are the versioned eligibility matrix; `rsOf()` applies it before both local and authenticated multiplayer menus, AI catalogue choices, and `research()` payment.
+
+**Meaningful exceptions:** Franks have no Redemption or Atonement; Saracens and Teutons retain all eleven; Magyars lack Faith; Mongols lack Block Printing, Illumination and Theocracy. For consistency with older saves, a Monastery research entry paid and already in progress before these restrictions may still finish on load; no **new** unavailable research can be initiated. Tests pin all 26 × 11 availability decisions and exercise paid/denied research, per-team authorization and saved queues. These tests are not a claim that the entire Monastery, AI, or Xbox interface is reference-exact.
+
+**Still open:** civilization bonuses, unique technologies, regional unit substitutions, additional Monastery technologies introduced in future DE updates, accurate conversion class/resistance details and console hardware acceptance. Full campaign, browser and seeded AI tests are release gates; final run IDs and results belong in the delivery report after they complete.
