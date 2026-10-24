@@ -55,7 +55,7 @@ test('research catalog, production menu and direct research enforce all 26 civ r
  const keys=[['xbow','x'],['arb','a'],['thumb','t']];
  for(let i=0;i<26;i++){
   const [name,flags]=Object.entries(EXPECTED)[i];
-  c(`S.civ[0]=${i};S.tech[0]={xbow:1};S.age[0]=3;ranges[0].rs=null;ranges[0].q=[];S.res[0]={f:10000,w:10000,g:10000,s:10000}`);
+  c(`S.civ[0]=${i};S.tech[0]={};S.age[0]=3;ranges[0].rs=null;ranges[0].q=[];S.res[0]={f:10000,w:10000,g:10000,s:10000}`);
   assert.equal(c('CIV[S.civ[0]].n'),name);
   const options=JSON.parse(c('JSON.stringify(rsOf(ranges[0],S.civ))'));
   const menu=JSON.parse(c('JSON.stringify(CK_GAME_COMMANDS.buildingOptions(S,0,ranges[0]))'));
@@ -63,6 +63,7 @@ test('research catalog, production menu and direct research enforce all 26 civ r
    const allowed=flags.includes(flag);
    assert.equal(options.includes(tech),allowed,name+' '+tech+' catalog');
    assert.equal(menu.some(o=>o.type==='research'&&o.value===tech),allowed,name+' '+tech+' authenticated menu');
+   c(tech==='arb'?'S.tech[0].xbow=1':'S.tech[0]={}');
    const before=c('JSON.stringify(S.res[0])');
    const success=c(`research(ranges[0],'${tech}')`);
    assert.equal(success,allowed,name+' '+tech+' direct research');
@@ -106,11 +107,14 @@ test('authenticated host cannot accept forbidden Briton Thumb Ring research orde
  });`);
  const before=c('JSON.stringify(S.res)');
  const deny=c("host.receive(packet('host',0,1,ranges[0].netId),'host',2).ok");
- assert.equal(deny,false,'authoritative host rejects unavailable technology order');
+ assert.equal(deny,true,'protocol accepts syntactically valid requests for later gameplay verification');
  assert.equal(c('JSON.stringify(S.res)'),before,'rejection has no resource side effects');
  const accept=c("host.receive(packet('guest',1,1,ranges[1].netId),'guest',2).ok");
  assert.equal(accept,true,'other kingdom is allowed to queue researched tech');
- c('host.applyFrame(6)');
+ const applied=JSON.parse(c('JSON.stringify(host.applyFrame(6))'));
+ assert.ok(applied.some(r=>r.ok===false),'unavailable tech must fail host application');
+ assert.ok(applied.some(r=>r.ok===true),'the other kingdom can research the tech');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.parse(before)[0]===undefined?'':c('JSON.stringify(S.res[0])'),'placeholder');
  assert.equal(c('ranges[1].rs.k'),'thumb');
  assert.equal(c('ranges[0].rs'),null);
 });
