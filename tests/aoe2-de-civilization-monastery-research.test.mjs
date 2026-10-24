@@ -127,7 +127,7 @@ test('multiplayer host rejects Franks Redemption and accepts Saracen Redemption 
  assert.ok(applied.some(x=>x.ok===true),'allowed packet applied');
  assert.deepEqual(JSON.parse(c('JSON.stringify(S.res[0])')),before[0]);
  assert.notDeepEqual(JSON.parse(c('JSON.stringify(S.res[1])')),before[1]);
- assert.equal(c('monasteries[0].rs'),null);
+ assert.equal(c('monasteries[0].rs??null'),null,'a rejected order never starts research');
  assert.equal(c('monasteries[1].rs.k'),'redemption');
 });
 
