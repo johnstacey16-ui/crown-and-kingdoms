@@ -6,7 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 function fixture(){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  const modules=['network-sync','network-commands','network-unit-map'].map(n=>readFileSync(new URL('../js/'+n+'.js',import.meta.url),'utf8')).join('\n');
- vm.runInContext(source+'\n'+modules+`\nseedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=3;startRes=3;start();snd=0;S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);S.res.forEach(r=>{r.f=r.w=r.g=r.s=20000});
+ vm.runInContext(source+'\n'+modules+`\nseedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=3;startRes=3;start();snd=0;S.civ=[8,8];S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);S.res.forEach(r=>{r.f=r.w=r.g=r.s=20000});
  globalThis.monk=addU(0,'mon',20.5,20.5);globalThis.target=addU(1,'mil',23.5,20.5);target.st=4;
  globalThis.run=code=>eval(code);globalThis.hash=()=>CK_SIM_SYNC.worldCheckpoint(S,1).hash;
  globalThis.act=(order,team=0)=>CK_GAME_COMMANDS.execute(order,team,1);`,sandbox);return sandbox;
