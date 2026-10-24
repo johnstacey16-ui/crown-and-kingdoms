@@ -176,13 +176,16 @@ try{
  await page.locator('#battlefield-art').screenshot({path:output+'/ballistics-research-menu.png'});
  await page.evaluate(()=>{artMap.control({1:true},{1:true});artMap.control({},{});const soldier=S.us.find(u=>u.netId===artFixture.soldier);artMap.choose({x:soldier.x,y:soldier.y});});
  const monkResearch=await page.evaluate(()=>{
+  // Saracens have Atonement in the pinned DE tech tree; preserve the prior civ.
+  const originalCivilization=S.civ[0];S.civ[0]=8;
   const monastery=addB(0,'monastery',31,28,true);artMap.refresh(S,0,W,H,true);artMap.choose({x:32.5,y:29.5});artMap.control({7:true},{7:true});
   const options=CK_GAME_COMMANDS.buildingOptions(S,0,monastery),index=options.findIndex(o=>o.value==='atonement'),entry=options[index];
   const angle=index*Math.PI*2/options.length;artMap.control({}, {7:true},[Math.sin(angle),-Math.cos(angle)]);
-  return {present:index>=0,label:entry?.label,locked:entry?.locked,cost:entry?.cost};
+  return {present:index>=0,label:entry?.label,locked:entry?.locked,cost:entry?.cost,originalCivilization};
  });
  assert.equal(monkResearch.label,'Atonement');assert.equal(monkResearch.locked,'');assert.deepEqual(monkResearch.cost,{g:325});
  await page.locator('#battlefield-art').screenshot({path:output+'/monastery-research-menu.png'});
+ await page.evaluate(original=>{S.civ[0]=original;},monkResearch.originalCivilization);
  const monkMenu=await page.evaluate(()=>{
   artMap.control({1:true},{1:true});artMap.control({},{});
   window.artMonk=addU(0,'mon',27.5,27.5);window.artConvertTarget=addU(1,'mil',30.5,28.5);artMap.refresh(S,0,W,H,true);artMap.choose({x:artMonk.x,y:artMonk.y});
