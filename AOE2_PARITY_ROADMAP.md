@@ -1,3 +1,10 @@
+## October 24, 2026 — civilization-specific Monastery technology parity
+
+**Implementation on parity branch (verification pending):** Source-pin eleven Monastery research permissions against AoE2:DE update 185872 for all 26 implemented kingdoms. Deny unauthorized new research through the same catalogue used by solo/controller, authenticated multiplayer and AI; preserve previous paid research in older saved games. Regression coverage checks all 286 faction/technology combinations, actual payment, multiplayer ownership and old-save recovery. See [reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md). Existing painted artwork, unit keys and battle calculations are untouched.
+
+**Next highest-priority gaps:** civilization-specific University and economic Blacksmith technology availability; Hand Cannoneer and siege roster restrictions; regional replacements (notably Inca Champi Warriors), civilization bonuses and technology effect parity. Verify all long-form GitHub Actions checks before merging. Xbox hardware and production Vercel commit matching remain separate, unresolved acceptance gates.
+
+---
 ## Reference-first Age of Empires II: DE source audit — 23 October 2026
 
 **Canonical source list and tracked discrepancies:** [AoE2: DE reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md). Requested references include aoe2database.com (unreachable in this check), aoe2.net (sunset), the historical aoe2de-api project, aoe2techtree.net (currently identifies DE update 185872) and the Age of Empires II: DE Fandom wiki. Also includes official Xbox controller and economy lessons, source-linked discrepancy table, prioritized correction backlog and test acceptance conditions. Initial verified differences include base villager movement (1.5 vs 0.8), creation time (8 vs 25s), Wheelbarrow (45 vs 75s), cart movement upgrades, generic gathering 0.8 vs individual resource rates, and substantial base militia/archer differences. **This is a first-pass inspection, not a claim that all systems already match AoE2: DE or that Xbox hardware has been tested.**

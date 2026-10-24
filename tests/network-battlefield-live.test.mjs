@@ -19,6 +19,9 @@ async function battlefieldPair(t,terminal=false,shelter=false,formation=false,ba
    fixtureRanks.flat().forEach(u=>u.st=4);
   }
   if(${conversion}){
+   // Saracens have Atonement (tech ID 319) in DE build 185872.
+   // Set the reference-eligible civilization on both deterministic peers.
+   S.civ[1]=8;
    globalThis.fixtureMonk=addU(1,'mon',27.5,24.5);fixtureMonk.st=2;
    globalThis.fixtureConvertTarget=addU(0,'mon',24.5,24.5);fixtureConvertTarget.st=4;
    globalThis.fixtureMonastery=addB(1,'monastery',33,25,true);TE.atonement.t=.1;S.age[1]=2;
