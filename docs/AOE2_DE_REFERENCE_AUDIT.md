@@ -166,6 +166,38 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Validation:** `tests/aoe2-de-civ-core-military-tech.test.mjs` pins all 26 civilization flags and tests UI/research visibility, affordability, direct recruitment, multiplayer rejection without losing resources, team isolation and old-save compatibility. The prior Archer tech-tree tests remain release gates. Source update or mod compatibility must be reevaluated if the AoE2 tech tree changes.
 
+## Blacksmith/Stable civilization technology availability — 24 October 2026
+
+**Source:** [SiegeEngineers/aoe2techtree `data/data.json`](https://github.com/SiegeEngineers/aoe2techtree/blob/master/data/data.json), source blob SHA `c4f7da961e82a8231b1ba49459949c4d6e479bc8`, cross-checked against the [Bracer](https://ageofempires.fandom.com/wiki/Bracer), [Bloodlines](https://ageofempires.fandom.com/wiki/Bloodlines) and [Husbandry](https://ageofempires.fandom.com/wiki/Husbandry_(Age_of_Empires_II)) availability charts. Tech IDs: Bracer **201**, Bloodlines **435**, Husbandry **39**. The game's inherited **Indians** civ label maps to contemporary **Hindustanis**. The complete 26-civilization bitmask is encoded as `CIV_FIELD_RESEARCH` in `engine.js` and pinned in `tests/aoe2-de-civilization-field-research.test.mjs`.
+
+| Civilization | Bracer | Bloodlines | Husbandry |
+| --- | :---: | :---: | :---: |
+| Franks | No | No | Yes |
+| Britons | Yes | No | Yes |
+| Mongols | Yes | Yes | Yes |
+| Byzantines | Yes | No | Yes |
+| Persians | No | Yes | Yes |
+| Teutons | No | Yes | No |
+| Celts | No | No | Yes |
+| Vikings | Yes | No | No |
+| Saracens, Turks, Chinese, Japanese, Khmer | Yes | Yes | Yes |
+| Indians (Hindustanis), Spanish, Italians | Yes | Yes | Yes |
+| Slavs | No | Yes | Yes |
+| Huns, Goths | Yes | Yes | Yes |
+| Aztecs, Mayans, Incas | Yes | No | No |
+| Ethiopians | Yes | No | Yes |
+| Malians | No | Yes | Yes |
+| Koreans | Yes | No | Yes |
+| Magyars | Yes | Yes | Yes |
+
+**The source also grants Fletching (199), Bodkin Arrow (200), and Ballistics (93) to every represented civilization.** Those technologies remain available; this batch does not invent restrictions on universal upgrades or reprice technologies.
+
+**Enforcement:** the common `rsOf` research catalog filters `atkR2` (Bracer), `blood` (Bloodlines), and `husb` (Husbandry). This same catalog is used by controller and production menus, normal research validation, production AI, and authenticated multiplayer command execution. Forbidden new researches cannot enter a queue or spend resources. Other existing military/archery restrictions continue to be applied independently. A game saved before the restrictions with a **pending** otherwise-forbidden technology still loads and finishes that paid research—preserving backward compatibility rather than deleting user progress. Research that is permitted continues to modify existing soldiers and new production exactly as before.
+
+**Acceptance:** Source-pinned tests examine the entire 26-civilization matrix, each building's options, forbidden research budget, authorized multiplayer host rejection, independent teams, real Bracer range, Bloodlines HP, Husbandry movement, and saved research migration. Full standalone, browser, campaign and seeded skirmish workflows remain mandatory before merge.
+
+**Open:** Full civilization-level research availability for remaining Blacksmith armor lines and Monastery/University upgrades, region-specific unit substitutions, the actual AoE2 cost/research multipliers, and unique-tech mechanics. This is a **three-technology researched-access fix**, not completed parity for every tree. The live Vercel production alias also remains behind GitHub and requires separate deployment permissions/configuration.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.
