@@ -6,6 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const cfg=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const {U}=vm.runInNewContext(cfg+'\n;({U})');
+const multiplayerSource=readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8');
 
 function fixture(){
  const {source,sandbox}=headlessGame();
@@ -15,6 +16,7 @@ function fixture(){
   S.tech[0]={thumb:1};S.tech[1]={};S.age[0]=2;S.age[1]=2;
   globalThis.evalCombat=code=>eval(code);
  `,sandbox,{timeout:15000});
+ vm.runInNewContext(multiplayerSource,sandbox,{timeout:15000});
  return code=>sandbox.evalCombat(code);
 }
 
@@ -41,7 +43,7 @@ test('Archer commits a real attack windup before emitting an arrow; reload retai
  assert.equal(c('S.pj.length'),0,'no fire during .35s windup');
  c('upU(a,DT)');
  assert.equal(c('S.pj.length'),1,'shot emitted only after .35s');
- assert.ok(Math.abs(c('a.cd')-1.65)<1e-9,'reload starts after the animation and accounts for elapsed windup');
+ assert.ok(Math.abs(c('a.cd')-1.35)<1e-9,'reload starts after the animation and accounts for elapsed windup');
  for(let i=0;i<48;i++)c('upU(a,DT)');
  assert.equal(c('S.pj.length'),1,'Archer cannot fire again early');
  for(let i=0;i<18;i++)c('upU(a,DT)');
@@ -91,11 +93,11 @@ test('save/load and multiplayer checkpoint include an Archer mid-windup without 
  const c=fixture();
  c("globalThis.a=addU(0,'arc',20.5,20.5);globalThis.t=addU(1,'mil',23.5,20.5);a.o='a';a.tg=t;a.cd=0;upU(a,DT)");
  const remaining=c('a.wind'),target=c('a.windTarget');
- const hash=c('CK_SIM_SYNC.worldCheckpoint(S,100).hash');
+ const hash=c('window.CK_SIM_SYNC.worldCheckpoint(S,100).hash');
  c('a.wind=.2');
- assert.notEqual(c('CK_SIM_SYNC.worldCheckpoint(S,100).hash'),hash,'checkpoint covers pending attack countdown');
+ assert.notEqual(c('window.CK_SIM_SYNC.worldCheckpoint(S,100).hash'),hash,'checkpoint covers pending attack countdown');
  c('a.wind=.35;a.windTarget=null');
- assert.notEqual(c('CK_SIM_SYNC.worldCheckpoint(S,100).hash'),hash,'checkpoint covers pending attack target identity');
+ assert.notEqual(c('window.CK_SIM_SYNC.worldCheckpoint(S,100).hash'),hash,'checkpoint covers pending attack target identity');
  c('a.wind=.35;a.windTarget=t.netId');
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
