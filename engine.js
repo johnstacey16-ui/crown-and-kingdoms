@@ -54,7 +54,48 @@ const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t
 {n:'Koreans',uu:'wagon',d:'Walls and gates +80% HP, siege +20 HP; War Wagons',fx:t=>{S.tech[t].fw=1;hpbF(t,'mang',20);hpbF(t,'ram',20)},ut:{k:'ut24',n:'Shinkichon',cost:{f:300,g:250},t:50,age:2,fx:t=>{atkbF(t,'wagon',3);hpbF(t,'wagon',30)}}},
 {n:'Magyars',uu:'huszar',d:'Cavalry +1 attack, +100 wood; Magyar Huszars',fx:t=>{atkbF(t,'scout',1);atkbF(t,'knight',1);S.res[t].w+=100},ut:{k:'ut25',n:'Corvinian Army',cost:{f:300,g:200},t:50,age:2,fx:t=>{atkbF(t,'huszar',2);hpbF(t,'huszar',20)}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut});
-const rsOf=(b,civs=S?.civ)=>{const l=B[b.k]?.rs||[],c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];return c?[...new Set([...l,c.ut.k])]:l};
+/* Archer research availability for our 26 civilizations, source-pinned to
+ * SiegeEngineers/aoe2techtree data/data.json @ 3bb43b1439eef88dfe7fe892d7f7dc41ac9dd76f
+ * x: Crossbowman unit ID 24; a: Arbalester unit ID 492; t: Thumb Ring tech ID 437.
+ * Our historical "Indians" label uses the source Hindustanis tech tree.
+ * This controls only these three verified techs; other faction parity is open. */
+const CIV_ARCHERY_RESEARCH=Object.freeze({
+ 'Franks':'x',
+ 'Britons':'xa',
+ 'Mongols':'xat',
+ 'Byzantines':'xat',
+ 'Persians':'xt',
+ 'Teutons':'x',
+ 'Celts':'x',
+ 'Vikings':'xa',
+ 'Saracens':'xat',
+ 'Turks':'xt',
+ 'Chinese':'xat',
+ 'Japanese':'xat',
+ 'Khmer':'xa',
+ 'Indians':'xt',
+ 'Spanish':'t',
+ 'Italians':'xat',
+ 'Slavs':'x',
+ 'Huns':'xt',
+ 'Goths':'x',
+ 'Aztecs':'xa',
+ 'Mayans':'xat',
+ 'Incas':'xat',
+ 'Ethiopians':'xat',
+ 'Malians':'xat',
+ 'Koreans':'xat',
+ 'Magyars':'xat'
+});
+const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
+const rsOf=(b,civs=S?.civ)=>{
+ const l=B[b.k]?.rs||[],index=civs?.[b.t],c=Number.isInteger(index)?CIV[index]:null;
+ const allowed=c&&CIV_ARCHERY_RESEARCH[c.n];
+ const available=b.k==='rng'&&allowed!==undefined
+  ?l.filter(k=>!ARCHERY_RESEARCH_KEYS.has(k)||allowed.includes(k==='xbow'?'x':k==='arb'?'a':'t'))
+  :l;
+ return b.k==='castle'&&c?[...new Set([...available,c.ut.k])]:available;
+};
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
 const CATU={scout:'cav',knight:'cav',camel:'cav',mgd:'cav',cata:'cav',mamel:'cav',ele:'cav',eled:'cav',arc:'rng',xbow:'rng',lbow:'rng',skirm:'rng',hcan:'rng',jan:'rng',chuko:'rng',axe:'rng',boyar:'cav',tarkan:'cav',huszar:'cav',wagon:'cav',conq:'rng',genoa:'rng',plumed:'rng',gbeto:'rng',ram:'sg',mang:'sg',scor:'sg',treb:'sg',bomb:'sg'},PW=[{},{cav:1.6,inf:1.4,rng:.8},{rng:1.5,inf:1.2,cav:.6,sg:.7},{sg:1.2},{inf:1.8,cav:1,rng:.6,sg:.3},{rng:1.6,cav:.5,sg:.8},{cav:2.2,rng:1.2,inf:.5,sg:.6}];
