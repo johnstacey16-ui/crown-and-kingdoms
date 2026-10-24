@@ -144,6 +144,28 @@ On this current reference update, AoE2:DE explicitly changed gathering and navig
 
 **Still open:** full unit roster accuracy, over 26 additional DE civilization identities, all other civilization-specific tech restrictions (e.g. Hand Cannoneer, Siege Onager, Halberdier), upgraded unique-unit lines, civ bonuses and unique regional buildings, balance patch differences, and Xbox Series X device acceptance. Do not assume that an unavailable faction-specific technology should appear as a disabled button; it is omitted from available technology choices, matching the current game's menu model.
 
+## Civilization-specific core military units and upgrades — 24 October 2026
+
+**Source and scope:** [SiegeEngineers/aoe2techtree `data/data.json`](https://github.com/SiegeEngineers/aoe2techtree/blob/master/data/data.json) and the [interactive AoE2 DE tech tree](https://aoe2techtree.net/), inspected 24 October 2026. This extension uses each civilization's standard Unit availability list. Source unit IDs: Man-at-Arms **75**, Long Swordsman **77**, Two-Handed Swordsman **473**, Champion **567**, Pikeman **358**, Halberdier **359**, Light Cavalry **546**, Cavalier **283**, Elite Skirmisher **6**, Scout Cavalry **448**, Knight **38**. Existing game keys and saved records are unchanged. The previous 26-civilization Crossbowman/Arbalester/Thumb Ring matrix remains in force.
+
+**Implementation:** `CIV_CORE_MILITARY` lists source-backed unit and research eligibility for all 26 implemented kingdoms. The shared `rsOf` and `trOf` now filter unavailable research/recruitment; controllers, normal battles, AI, accessible UI, and the authenticated multiplayer host share those functions. Direct `research()` and `train()` reject the same forbidden operations *before* resource deduction. Existing saved soldiers, queues, completed technology flags and research already in progress are retained rather than silently deleted. The older Castle Knight recruitment is filtered for factions that cannot train Knights; the remaining Castle training model is a separate building-parity gap.
+
+**Verified representative gaps fixed:**
+
+| Civilization | Former C&K possibility | Current source-backed restriction |
+| --- | --- | --- |
+| Aztecs, Mayans, Incas | Generic Scout Cavalry and Knight recruitment | No Scout Cavalry/Knights; cavalry upgrades unavailable |
+| Hindustanis (game's legacy `Indians` label) | Knights and Cavalier research | Cannot create Knights or research Cavalier; Scout/Light Cavalry retained |
+| Teutons | Light Cavalry upgrade | No Light Cavalry upgrade (ordinary Scout recruits remain) |
+| Turks | Pikeman and Elite Skirmisher upgrade | Neither upgrade; their base Spearman and Skirmisher remain |
+| Mongols, Vikings | Halberdier research | No Halberdier, even after Pikeman |
+| Persians | Two-Handed Swordsman or Champion | Their Militia upgrades stop at Long Swordsman |
+| Franks, Byzantines, Japanese | Generic upgrade lines allowed | Keep legitimately available upgrade options |
+
+**Documented regional exception:** the source's current Incas roster substitutes a **regional Champi Warrior infantry line** for conventional Militia tiers. Crown & Kingdoms still models Incas using its historical generic Militia actor and sprites, so **existing Inca Man-at-Arms through Champion upgrades intentionally remain enabled** until that regional replacement and migration are implemented. This is not full Inca AoE2 parity; it prevents breaking existing saved games and campaigns without offering the appropriate replacement. The other missing regional units and civilization bonuses, and the full roster of unique technologies/production buildings, remain open.
+
+**Validation:** `tests/aoe2-de-civ-core-military-tech.test.mjs` pins all 26 civilization flags and tests UI/research visibility, affordability, direct recruitment, multiplayer rejection without losing resources, team isolation and old-save compatibility. The prior Archer tech-tree tests remain release gates. Source update or mod compatibility must be reevaluated if the AoE2 tech tree changes.
+
 ## Code audit — confirmed initial discrepancies
 
 Current implementation was inspected in `js/config.js`, `js/simulation.js`, `js/kingdom.js`, `js/ai.js`, `js/mapgen.js`, `js/input.js`, `js/entities.js` and existing integration tests. Where the current code uses a purposefully simplified rule, it is still a parity gap if the target is exact DE simulation.

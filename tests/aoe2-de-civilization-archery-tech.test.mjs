@@ -16,6 +16,12 @@ const EXPECTED=Object.freeze({
 // 3bb43b1439eef88dfe7fe892d7f7dc41ac9dd76f (22 Sep 2026).
 // Source keys: Crossbowman unit 24, Arbalester unit 492, Thumb Ring tech 437.
 // Our legacy game name "Indians" corresponds to source "Hindustanis".
+// The Archer-only inventory test must not assume every faction has Elite
+// Skirmisher. Full 26-faction cavalry/infantry/skirmisher values are pinned
+// separately in aoe2-de-civ-core-military-tech.test.mjs.
+function CIV_CORE_HAS_ELITE(name){
+ return !['Turks'].includes(name);
+}
 function fixture(){
  const {source,sandbox}=headlessGame();
  const network=['network-sync','network-commands']
@@ -72,8 +78,8 @@ test('research catalog, production menu and direct research enforce all 26 civ r
    else assert.equal(c('JSON.stringify(S.res[0])'),before,name+' denied research costs nothing');
    c('ranges[0].rs=null');
   }
-  assert.equal(c("rsOf(ranges[0]).includes('elsk')"),true,
-   name+' must keep other research unchanged');
+  assert.equal(c("rsOf(ranges[0]).includes('elsk')"),CIV_CORE_HAS_ELITE(name),
+   name+' Elite Skirmisher must follow the source-backed military roster');
  }
 });
 
