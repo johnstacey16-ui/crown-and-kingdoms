@@ -117,7 +117,7 @@ test('authenticated host cannot accept forbidden Briton Thumb Ring research orde
  assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(JSON.parse(before)[0]),'forbidden tech must leave host budget unchanged');
  assert.notEqual(c('JSON.stringify(S.res[1])'),JSON.stringify(JSON.parse(before)[1]),'legal guest research pays normally');
  assert.equal(c('ranges[1].rs.k'),'thumb');
- assert.equal(c('ranges[0].rs'),null);
+ assert.equal(c('ranges[0].rs??null'),null,'forbidden research must leave the host range without an active research queue');
 });
 
 test('pre-restriction save with pending research loads without dropping the player game',()=>{
