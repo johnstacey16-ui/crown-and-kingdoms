@@ -139,7 +139,7 @@ test('Scout and Knight training respects faction, plus old castle recruit lists 
 test('authenticated commands reject prohibited unit training and research without charging either kingdom',()=>{
  const c=fixture();
  c("S.civ=[19,0];S.age=[3,3];S.tech=[{},{}];globalThis.host=CK_SIM_SYNC.createCommandHost({roster:CK_SIM_SYNC.lockRoster('host','guest',2),mapSize:W,lookupEntity:CK_GAME_COMMANDS.lookup,execute:CK_GAME_COMMANDS.execute})");
- const packet=(sid,team,seq,entity,type,key)=>({sid,team,seq,frame:10,order:{type,entities:[entity],value:key}});
+ const packet=(sid,team,seq,entity,type,key)=>({sid,team,seq,frame:6,order:{type,entities:[entity],value:key}});
  const hostStable=c('structures.stable.netId'),guestStable=c('structures.enemyStable.netId');
  const p1=packet('host',0,1,hostStable,'train','knight');
  const p2=packet('host',0,2,hostStable,'research','cavl');
@@ -148,7 +148,7 @@ test('authenticated commands reject prohibited unit training and research withou
  c(`host.receive({...(${JSON.stringify(p2)}),v:CK_SIM_SYNC.VERSION},'host',2)`);
  c(`host.receive({...(${JSON.stringify(p3)}),v:CK_SIM_SYNC.VERSION},'guest',2)`);
  const before=c('JSON.stringify(S.res)');
- const applied=JSON.parse(c('JSON.stringify(host.applyFrame(10))'));
+ const applied=JSON.parse(c('JSON.stringify(host.applyFrame(6))'));
  assert.ok(applied.filter(x=>!x.ok).length>=2,'host rejects unaffordable-to-faction commands');
  assert.ok(applied.some(x=>x.ok),'guest Franks have allowed Knight recruitment');
  assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(JSON.parse(before)[0]));
