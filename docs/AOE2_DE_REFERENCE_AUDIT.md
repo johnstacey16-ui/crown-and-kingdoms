@@ -1,3 +1,26 @@
+
+## Civilization-specific University research and researched-value corrections — 25 October 2026
+
+**Verified source:** [Age of Empires II: DE official update 185872 (22 September 2026)](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-185872/) and [SiegeEngineers tech-tree data, pinned blob c4f7da9](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json). Game's legacy `Indians` label maps to the Hindustanis *base* tree.
+
+Eight implemented University research entries have source Tech IDs: **Masonry 50, Arrowslits 608, Guard Tower 140, Keep 63, Fortified Wall 194, Chemistry 47, Ballistics 93, Murder Holes 322**. The `CIV_UNIVERSITY_RESEARCH` flag matrix in `engine.js` represents all **26 civilizations × 8 researched-access decisions**. Examples: Huns/Goths lack Guard Tower, Keep, Arrowslits and Fortified Wall; Byzantines and Aztecs lack Masonry; Franks lack Keep; Chemistry, Ballistics and Murder Holes remain available to all 26. The shared `rsOf` catalogue controls existing solo/controller, AI and authenticated multiplayer entries and the actual paid `research()` operation. Saved previously-paid unfinished research is preserved for historical compatibility; newly forbidden attempts spend nothing.
+
+Reference-aligned values in `js/config.js`, in food/wood/gold/stone units and seconds:
+
+| Technology | Cost | Time | Minimum age | Prerequisite |
+| --- | --- | --- | --- | --- |
+| Masonry | 150 food, 175 wood | 50s | Castle | — |
+| Arrowslits | 250 food, 250 wood | 25s | Imperial | — |
+| Guard Tower | 100 food, 250 wood | 30s | Castle | — |
+| Keep | 500 food, 350 wood | 75s | Imperial | Guard Tower |
+| Fortified Wall | 200 food, 100 wood | 50s | Castle | — |
+| Chemistry | 300 food, 200 gold | 100s | Imperial | — |
+| Ballistics | 300 wood, 175 gold | 60s | Castle | — |
+| Murder Holes | 200 food, 100 stone | 35s | Castle | — |
+
+**Corrected false prerequisites:** Guard Tower no longer requires Arrowslits (which is itself Imperial-only). Fortified Wall no longer requires Masonry. Keep retains Guard Tower as its prerequisite. These apply to newly requested research only, not completed flags in older saves.
+
+**Deliberate exclusions:** Existing legacy Treadmill Crane (`crane`) remains available until its patch-specific per-civilization data can be verified independently; the source snapshot does not include a clear `data.Tech` record to build a safe eligibility matrix. Do not claim all University effects are DE-accurate: tower damage/upgrade representation, Siege Engineers building location, special stone defenses, town-specific tech pricing/discounts and missing units require dedicated runtime parity work. Research permission alone is not a fidelity claim. Physical Xbox Series X validation remains outstanding.
 # Age of Empires II: Definitive Edition — reference and parity audit
 
 **First pass:** 23 October 2026. **Platform benchmark:** Xbox Series X, controller input, core AoE2:DE gameplay. **Audit state: partial** — static source inspection and representative published facts, *not* an exhaustive 47-unit/technology/civilization comparison or live console certification.

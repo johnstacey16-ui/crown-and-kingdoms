@@ -1,3 +1,15 @@
+## 25 October 2026 — University technology matrix batch
+
+- [x] Add DE update 185872 source-backed 26-civilization access matrix for **eight implemented University technologies** via the shared, server-authoritative research catalogue; preserve older saved research, all painted art and network IDs.
+- [x] Correct verified costs and research durations for Masonry, Arrowslits, Guard Tower, Keep, Fortified Wall and Chemistry.
+- [x] Remove the invented Guard Tower → Arrowslits and Fortified Wall → Masonry dependencies; keep Keep → Guard Tower, make Arrowslits Imperial-only.
+- [x] Add source-pinned 26 × 8 matrix, actual paid/denied research, age/prerequisite, multiplayer/team-isolation and legacy-save regression tests.
+- [ ] Finish Treadmill Crane per-civ access from patch-specific source, University tower and siege runtime effects, Blacksmith melee/armor three-tier research migrations, and regional replacement/unique-unit production.
+- [ ] Pass PR CI (full 19 campaign missions, all standalone tests, three seeded production AI games, Chromium and validation) and production SHA parity before treating this as delivered.
+
+See [reference findings](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## October 24, 2026 — civilization-specific Monastery technology parity
 
 **Implementation on parity branch (verification pending):** Source-pin eleven Monastery research permissions against AoE2:DE update 185872 for all 26 implemented kingdoms. Deny unauthorized new research through the same catalogue used by solo/controller, authenticated multiplayer and AI; preserve previous paid research in older saved games. Regression coverage checks all 286 faction/technology combinations, actual payment, multiplayer ownership and old-save recovery. See [reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md). Existing painted artwork, unit keys and battle calculations are untouched.

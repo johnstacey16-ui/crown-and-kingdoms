@@ -1351,6 +1351,9 @@ console.log('bloodlines-smoke: Stable research improves existing and newly creat
 game.start(123456, 1);
 const chemistryBefore = game.beginChemistryResearch();
 for (let tick = 0; tick < 1830; tick += 1) game.tick(1 / 30);
+assert.equal(game.state().research.chemistry, 0,
+  'DE Chemistry cannot complete on the outdated 60-second timer');
+for (let tick = 1830; tick < 3030; tick += 1) game.tick(1 / 30);
 const chemistryAfter = game.state();
 assert.equal(chemistryAfter.research.chemistry, 1, 'Chemistry research should complete through the real University timer');
 const chemistryShot = game.resolveChemistryShot();
