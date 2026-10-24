@@ -114,7 +114,8 @@ test('authenticated host cannot accept forbidden Briton Thumb Ring research orde
  const applied=JSON.parse(c('JSON.stringify(host.applyFrame(6))'));
  assert.ok(applied.some(r=>r.ok===false),'unavailable tech must fail host application');
  assert.ok(applied.some(r=>r.ok===true),'the other kingdom can research the tech');
- assert.equal(c('JSON.stringify(S.res[0])'),JSON.parse(before)[0]===undefined?'':c('JSON.stringify(S.res[0])'),'placeholder');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(JSON.parse(before)[0]),'forbidden tech must leave host budget unchanged');
+ assert.notEqual(c('JSON.stringify(S.res[1])'),JSON.stringify(JSON.parse(before)[1]),'legal guest research pays normally');
  assert.equal(c('ranges[1].rs.k'),'thumb');
  assert.equal(c('ranges[0].rs'),null);
 });
