@@ -4,7 +4,8 @@ import vm from 'node:vm';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-assert.match(sim, /b\.q\.push\(\{k,t:d\.t\}\)/, 'training queues store objects with a unit key');
+assert.match(sim, /b\.q\.push\(\{k,t:/, 'training queues store objects with a unit key and a duration');
+assert.match(sim, /k==='skirm'&&S\.tech\[t\]\?\.elsk\?22:d\.t/, 'Elite Skirmisher queue uses upgraded 22-second training; others use source duration');
 assert.ok(ai.includes("const queuedUnits=k=>aiQueuedUnits(bl,k)"), 'AI uses centralized unit queue-counting policy');
 const aiQueuedUnits=vm.runInNewContext(ai+'\n;aiQueuedUnits;');
 for (const kind of ['gal', 'fish', 'scout', 'cart', 'cog']) {

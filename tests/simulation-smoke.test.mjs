@@ -1247,7 +1247,7 @@ for (const key of ['villager','cart','fish','transport','tradeCog']) {
 }
 console.log('conscription-smoke: military queues run at 4/3 speed; economy/trade/transport queues remain unchanged');
 const husbandrySpeeds = game.auditHusbandrySpeeds();
-assert.ok(Math.abs(husbandrySpeeds.knight - 2.31) < 1e-9, 'Husbandry must increase Knight movement speed by 10%');
+assert.ok(Math.abs(husbandrySpeeds.knight - 1.485) < 1e-9, 'Husbandry must increase AoE2 base Knight speed (1.35) by 10%');
 assert.equal(husbandrySpeeds.infantry, .9, 'Husbandry must not increase base Militia speed (AoE2:DE is 0.9)');
 assert.equal(husbandrySpeeds.transport, husbandrySpeeds.transportBase, 'Husbandry must not increase transport-ship speed');
 assert.equal(husbandrySpeeds.conqMounted, true, 'Mounted unique cavalry must be included in the mounted set');
