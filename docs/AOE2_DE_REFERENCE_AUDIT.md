@@ -1,3 +1,22 @@
+## Blacksmith technology availability and first armour-tier correction — 25 October 2026
+
+**Reference:** [Official AoE2:DE 22 September 2026 update 185872](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-185872/) and [SiegeEngineers snapshot, pinned blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json). Historical `Indians` key uses the source **Hindustanis** base tree.
+
+The `CIV_BLACKSMITH_RESEARCH` mask in `engine.js` covers **26 civilizations × five existing tech keys**, keyed against Forging (source ID 67), Blast Furnace (75), Scale Mail Armor (74), Padded Archer Armor (211), and Scale Barding Armor (81). All 26 have Forging, Scale Mail and Padded Archer Armor. Byzantines, Malians, and Koreans cannot access Blast Furnace; thus the game's existing combined end-tier melee research `atkM2` is disallowed for those factions. Aztecs, Mayans, and Incas cannot access Scale Barding; thus the game's first-tier cavalry armour `armC` is disallowed for those factions. Existing `atkR2` (Bracer) remains gated independently by the already-shipped `CIV_FIELD_RESEARCH` matrix. Unknown/mismatched team tech is never charged.
+
+**Source first-tier technology values** (without inventing gold expenditure):
+
+| Existing C&K technology key | DE reference tech | Corrected cost | Duration | Available age |
+| --- | --- | --- | --- | --- |
+| `armI` | Scale Mail Armor (74) | 100 food | 40s | Feudal |
+| `armR` | Padded Archer Armor (211) | 100 food | 40s | Feudal |
+| `armC` | Scale Barding Armor (81) | 150 food | 45s | Feudal |
+
+**Scope boundary, explicitly important:** The game still has **one** armour tier per class and an amalgamated `atkM` melee tech and `atkM2` final tech; this change does **not** add Iron Casting (68), Chain/Plate Mail (76/77), Leather/Ring Archer Armour (212/219), Chain/Plate Barding (82/80) or their full prerequisites, additive effects and per-civilization exceptions. In particular, the existing `atkM2` numeric bonus and cost are not the independent AoE2 Blast Furnace effect. Only eligibility for the game's already-existing final composite tier is matched to the source's top-tier availability. No claim of complete Blacksmith numerical or tier fidelity is made. Existing paid research queues and finished flags remain loadable and retain their historic effects. The original art and network/save IDs remain untouched. On-console Xbox validation is still open.
+
+**Runtime acceptance:** source-pinned matrix checks 130 eligibility decisions, checks authorized multiplayer command rejection, actual resource charge/no-charge, first armour costs and completion times, independent team arrays, and old-save paid-research recovery. Full PR and post-merge workflow gates required.
+
+---
 
 ## Civilization-specific University research and researched-value corrections — 25 October 2026
 
