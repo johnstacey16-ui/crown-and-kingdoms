@@ -45,8 +45,8 @@ assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','ca
   'Cavalry armour must be restricted to mounted units in the current roster');
 assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
-assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150,g:100\},t:30,age:1\}/,
-  'Cavalry Armour must have explicit cost, research time and age');
+assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150\},t:45,age:1\}/,
+  'Cavalry Armour matches the first source-pinned armor tier cost, research time and age');
 assert.match(html, /if\(k==='armC'&&ownCav>=3\)score\+=32/,
   'AI research priority must value cavalry armour when its own army fields cavalry');
 assert.match(html, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
