@@ -181,9 +181,7 @@ function launchProjectile(a,t){
  // A miss never magically homes back towards its original target.
  // Building targets are fully accurate; projectile collision is still checked
  // at arrival, so Ballistics and target movement remain distinct mechanics.
- if(!t.s&&S.r()<rangedAccuracy(a)){
-  // Accurate attack: target can still dodge or turn after this shot launches.
- }else if(!t.s){
+ if(!t.s&&rangedAccuracy(a)<1&&S.r()>=rangedAccuracy(a)){
   const dx=aim.tx-a.x,dy=aim.ty-a.y,distance=Math.hypot(dx,dy)||1;
   const deviation=(.8+S.r()*.6)*(S.r()<.5?-1:1);
   aim.tx=Math.max(0,Math.min(W-.001,aim.tx-dy/distance*deviation));
