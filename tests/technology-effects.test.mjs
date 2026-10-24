@@ -57,7 +57,7 @@ assert.match(html, /if\(k==='armR'&&ownRanged<2\)score-=28/,
   'AI should delay ranged armour when it has no meaningful ranged force');
 assert.match(html, /if\(k==='armC'&&ownCav<2\)score-=28/,
   'AI should delay cavalry armour when it has no meaningful cavalry force');
-assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
+assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics','thumb'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
   'AI should avoid premature ranged attack research before fielding ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
