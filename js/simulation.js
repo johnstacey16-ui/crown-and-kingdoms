@@ -161,6 +161,7 @@ function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)}
 // A shot records a fixed impact point at launch. Ballistics predicts constant
 // movement along the current path segment; later turns can still dodge it.
+function projectileSpeed(a){return U[a.k]?.ps||14}
 function projectileAim(a,t){
  let x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
  const next=t.p?.[0],predict=S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor');
@@ -168,7 +169,7 @@ function projectileAim(a,t){
   const dx=next[0]-t.x,dy=next[1]-t.y,length=Math.hypot(dx,dy);
   if(length>0&&Number.isFinite(length)){
    const speed=unitSpeed(t),vx=dx/length*speed,vy=dy/length*speed,rx=x-a.x,ry=y-a.y;
-   const aa=vx*vx+vy*vy-196,bb=2*(rx*vx+ry*vy),cc=rx*rx+ry*ry,disc=bb*bb-4*aa*cc;
+   const arrowSpeed=projectileSpeed(a),aa=vx*vx+vy*vy-arrowSpeed*arrowSpeed,bb=2*(rx*vx+ry*vy),cc=rx*rx+ry*ry,disc=bb*bb-4*aa*cc;
    const time=Math.abs(aa)<1e-9?(bb<0?-cc/bb:0):disc>=0?(-bb-Math.sqrt(disc))/(2*aa):0;
    if(Number.isFinite(time)&&time>0){x+=vx*time;y+=vy*time;}
   }
@@ -197,7 +198,7 @@ function pjs(dt){
   // Old saves lack an aim: migrate once, then retain the same fixed trajectory.
   if(p.tx===undefined&&p.ty===undefined){p.tx=p.t.x+(p.t.s||0)/2;p.ty=p.t.y+(p.t.s||0)/2;}
   if(!Number.isFinite(p.tx)||!Number.isFinite(p.ty)||p.tx<0||p.ty<0||p.tx>=W||p.ty>=H||p.t.hp<=0||p.t.ld||!isHostile(p.a.t,p.t.t)){p.dead=1;continue;}
-  const dx=p.tx-p.x,dy=p.ty-p.y,dist=Math.hypot(dx,dy),travel=14*dt;
+  const dx=p.tx-p.x,dy=p.ty-p.y,dist=Math.hypot(dx,dy),travel=projectileSpeed(p.a)*dt;
   if(dist>travel){p.x+=dx/dist*travel;p.y+=dy/dist*travel;continue;}
   p.x=p.tx;p.y=p.ty;
   const size=p.t.s||0,gapX=Math.max(p.t.x-p.tx,0,p.tx-p.t.x-size),gapY=Math.max(p.t.y-p.ty,0,p.ty-p.t.y-size);
@@ -382,7 +383,7 @@ function findDropoffRoute(u){
 }
 function deployFishTrap(ships){let made=0;for(const u of ships){if(!u||u.k!=='fish'||u.hp<=0||u.ld||!S.res[u.t]||S.res[u.t].w<100)continue;let spot=null;for(let r=1;r<=4&&!spot;r++)for(let y=Math.max(1,(u.y|0)-r);y<=Math.min(H-2,(u.y|0)+r)&&!spot;y++)for(let x=Math.max(1,(u.x|0)-r);x<=Math.min(W-2,(u.x|0)+r);x++){const i=y*W+x;if(S.wt[i]===1&&!S.nd[i]&&(x+.5-u.x)**2+(y+.5-u.y)**2<=16){spot={x,y,i};break}}if(!spot)continue;S.res[u.t].w-=100;const n={k:'f',x:spot.x,y:spot.y,s:1,amt:900,fi:1,trap:1,t:u.t};S.nodes.push(n);S.nd[spot.i]=n;made++;}if(made)note('Fish trap deployed ('+made+'; -'+made*100+' wood)');else note('Need 100 wood per trap and an empty nearby water tile');return made}
 function killNode(n){if(!n||!S.nodes.includes(n))return false;const i=n.y*W+n.x;if(S.nd[i]===n){S.nd[i]=null;S.g[i]=0}S.nodes=S.nodes.filter(m=>m!==n);return true}
-function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;let tg=u.tg;if(u.k==='mon'){u.faith=Math.min(100,(u.faith??100)+dt*1.6*(S.tech[u.t].illumination?2:1));if(u.o!=='v')resetConversion(u);}if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.t===u.t&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'))||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null;u.p=[];u.o='i'}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';// Shelter proximity alone does not heal military units. Monks and unit-specific abilities use their own rules.
+function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;if(u.o!=='a'&&u.wind>0){u.wind=0;u.windTarget=null}let tg=u.tg;if(u.k==='mon'){u.faith=Math.min(100,(u.faith??100)+dt*1.6*(S.tech[u.t].illumination?2:1));if(u.o!=='v')resetConversion(u);}if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.t===u.t&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'))||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null;u.p=[];u.o='i'}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';// Shelter proximity alone does not heal military units. Monks and unit-specific abilities use their own rules.
 if(u.hp>=mhp(u)*.65||S.t>=(u.retreatRestUntil||(u.retreatRestUntil=S.t+8))){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null}}else{if((!u.p.length||u.rp<=0)&&S.t>=(u.retreatRouteRetryAt||0)){u.p=path(u,goalNear(shelter,1))||[];u.rp=1;u.retreatRouteRetryAt=S.t+(u.p.length?1:5)}if(u.p.length)walk(u,dt);return}if(u.retreating)return}}if((u.k==='cart'||u.k==='cog')&&u.o!=='B'&&u.o!=='rep'){if(u.tradePaused){u.o='i';u.p=[];u.rp=0;return}if(u.manualTradeMove&&u.o==='m'){if(walk(u,dt)){u.o='i';u.manualTradeMove=false;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;}return}u.manualTradeMove=false;tickTrader(u,dt);return}if(u.k==='bers'&&u.hp<mhp(u))u.hp=Math.min(mhp(u),u.hp+.5*dt);
 if(u.k==='mon'&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=16)continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+4)}}
 if(u.k==='mon'&&u.o==='a'){const target=u.tg;if(!beginConversion([u],target)){u.o='i';u.tg=null;u.p=[];}return;}
@@ -448,8 +449,17 @@ if(!u.p.length||u.rp<=0){const g=pt.to?pt.b:pt.a,p=path(u,gp(g[0],g[1],1.2));u.r
 if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTarget.hp>0?u.guardTarget:null;u.o=guard?'G':u.pt?'p':'i';u.tg=guard;u.guardTarget=null;u.p=[];return}
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
 const dist=d2(u.x,u.y,tg),minR=d.minR||0,range=attackRange(u);
+if(u.wind>0&&(u.windTarget!==tg.netId||dist>range||minR&&dist<minR)){u.wind=0;u.windTarget=null}
 if(minR&&dist<minR){if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,minR+.5));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
-if(dist<=range){u.p=[];if(u.cd<=0){hit(u,tg);u.cd=attackReload(u)}}
+if(dist<=range){u.p=[];
+ if(u.wind>0){
+  u.wind=Math.max(0,u.wind-dt);
+  if(u.wind===0){u.windTarget=null;hit(u,tg);u.cd=Math.max(0,attackReload(u)-(d.delay||0))}
+ }else if(u.cd<=0){
+  if(d.delay){u.wind=d.delay;u.windTarget=tg.netId||null}
+  else{hit(u,tg);u.cd=attackReload(u)}
+ }
+}
 else if(u.st===2){u.o='i';u.tg=null}else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,range-(range>2?.4:.1)));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt)}return}
 if(u.o==='g'){
 if(u.ret){
