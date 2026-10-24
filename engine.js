@@ -141,6 +141,9 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Mayans':'r','Incas':'r','Ethiopians':'rh','Malians':'bh',
  'Koreans':'rh','Magyars':'rbh'
 });
+// Source: SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+// The legacy "Indians" name means Hindustanis in the current DE tree.
+const CIV_CAMEL_AVAILABLE=new Set(['Mongols','Byzantines','Persians','Saracens','Turks','Indians','Ethiopians','Malians']);
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
@@ -155,7 +158,8 @@ const rsOf=(b,civs=S?.civ)=>{
  const researched=core==null?available:available.filter(k=>!CORE_MILITARY_RESEARCH_KEYS[k]||core.includes(CORE_MILITARY_RESEARCH_KEYS[k]));
  const field=c&&CIV_FIELD_RESEARCH[c.n];
  const permitted=field==null?researched:researched.filter(k=>!FIELD_RESEARCH_KEYS[k]||field.includes(FIELD_RESEARCH_KEYS[k]));
- return b.k==='castle'&&c?[...new Set([...permitted,c.ut.k])]:permitted;
+ const camel=b.k==='stable'&&c&&!CIV_CAMEL_AVAILABLE.has(c.n)?permitted.filter(k=>k!=='hcamel'):permitted;
+ return b.k==='castle'&&c?[...new Set([...camel,c.ut.k])]:camel;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
@@ -165,13 +169,14 @@ const trOf=(b,civs=S?.civ)=>{
  const l=B[b.k]?.tr||[],c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
+ const stableEligible=b.k==='stable'&&civ&&!CIV_CAMEL_AVAILABLE.has(civ.n)?eligible.filter(k=>k!=='camel'):eligible;
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
- if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
+ if(b.k==='rng')return stableEligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
  // Castles in DE cannot independently create foot Crossbowmen. Campaign
  // scripted units and older save IDs remain valid.
- if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
- return eligible;
+ if(b.k==='castle')return c?[...new Set([...stableEligible.filter(k=>k!=='xbow'),c.uu])]:stableEligible.filter(k=>k!=='xbow');
+ return stableEligible;
 };
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
