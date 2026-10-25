@@ -8,7 +8,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 // data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
 // IDs: Forging 67, Blast Furnace 75, Scale Mail 74,
 // Padded Archer Armor 211, Scale Barding Armor 81.
-// atkM2 is a simplified C&K end-tier proxy, NOT a true three-tier DE chain.
+// Legacy atkM/atkM2 +2/+5 must survive paid saves, but new orders use Forging/Iron Casting/Blast Furnace.
 // Legacy "Indians" resolves the source's Hindustanis tree.
 const EXPECTED=Object.freeze({
   "Franks": "mbirc",
@@ -83,7 +83,7 @@ test('Blacksmith catalogue and authenticated research menus source-gate all five
   const list=JSON.parse(c('JSON.stringify(rsOf(smiths[0]))'));
   const menu=JSON.parse(c('JSON.stringify(CK_GAME_COMMANDS.buildingOptions(S,0,smiths[0]))'));
   for(const [k,flag] of Object.entries(TECHS)){
-   const permitted=mask.includes(flag);
+   const permitted=mask.includes(flag)&&k!=='atkM'&&k!=='atkM2';
    assert.equal(list.includes(k),permitted,name+' '+k+' catalogue');
    assert.equal(menu.some(o=>o.type==='research'&&o.value===k),permitted,name+' '+k+' command menu');
   }
@@ -100,7 +100,7 @@ test('allowed Blacksmith purchases queue and spend; forbidden purchases do neith
   for(const [key,flag] of Object.entries(TECHS)){
    c('S.tech[0]='+(key==='atkM2'?'{atkM:1}':'{}')+
     ';smiths[0].rs=null;smiths[0].q=[];S.res[0]={f:10000,w:10000,g:10000,s:10000}');
-   const before=c('JSON.stringify(S.res[0])'),permitted=mask.includes(flag);
+   const before=c('JSON.stringify(S.res[0])'),permitted=mask.includes(flag)&&key!=='atkM'&&key!=='atkM2';
    assert.equal(c("research(smiths[0],'"+key+"')"),permitted,name+' '+key);
    assert.equal(c('smiths[0].rs?.k||null'),permitted?key:null,name+' research queue');
    assert.equal(c('JSON.stringify(S.res[0])')===before,!permitted,
@@ -130,26 +130,26 @@ test('first armor tier research uses verified DE cost and 40/45-second timers',(
 test('team isolation and explicit civilization arrays are respected for Blacksmith research',()=>{
  const c=fixture();
  c('S.civ=[3,0];S.age=[3,3];S.tech=[{},{}]');
- assert.equal(c("rsOf(smiths[0]).includes('atkM2')"),false);
- assert.equal(c("rsOf(smiths[1]).includes('atkM2')"),true);
- assert.equal(c("rsOf(smiths[0],[0,3]).includes('atkM2')"),true);
- assert.equal(c("CK_GAME_COMMANDS.buildingOptions(S,0,smiths[0]).some(x=>x.value==='atkM2')"),false);
- assert.equal(c("CK_GAME_COMMANDS.buildingOptions(S,1,smiths[1]).some(x=>x.value==='atkM2')"),true);
+ assert.equal(c("rsOf(smiths[0]).includes('blastFurnace')"),false);
+ assert.equal(c("rsOf(smiths[1]).includes('blastFurnace')"),true);
+ assert.equal(c("rsOf(smiths[0],[0,3]).includes('blastFurnace')"),true);
+ assert.equal(c("CK_GAME_COMMANDS.buildingOptions(S,0,smiths[0]).some(x=>x.value==='blastFurnace')"),false);
+ assert.equal(c("CK_GAME_COMMANDS.buildingOptions(S,1,smiths[1]).some(x=>x.value==='blastFurnace')"),true);
 });
 test('authenticated host rejects unavailable Blacksmith research without budget leaks',()=>{
  const c=fixture();
- c("S.civ=[3,0];S.age=[3,3];S.tech=[{atkM:1},{atkM:1}];globalThis.host=CK_SIM_SYNC.createCommandHost({roster:CK_SIM_SYNC.lockRoster('host','guest',2),mapSize:W,lookupEntity:CK_GAME_COMMANDS.lookup,execute:CK_GAME_COMMANDS.execute})");
- c("globalThis.packet=(sid,team,seq,id)=>({v:CK_SIM_SYNC.VERSION,sid,team,seq,frame:6,order:{type:'research',entities:[id],value:'atkM2'}})");
+ c("S.civ=[3,0];S.age=[3,3];S.tech=[{forging:1,ironCasting:1},{forging:1,ironCasting:1}];globalThis.host=CK_SIM_SYNC.createCommandHost({roster:CK_SIM_SYNC.lockRoster('host','guest',2),mapSize:W,lookupEntity:CK_GAME_COMMANDS.lookup,execute:CK_GAME_COMMANDS.execute})");
+ c("globalThis.packet=(sid,team,seq,id)=>({v:CK_SIM_SYNC.VERSION,sid,team,seq,frame:6,order:{type:'research',entities:[id],value:'blastFurnace'}})");
  const before=JSON.parse(c('JSON.stringify(S.res)'));
  assert.equal(c("host.receive(packet('host',0,1,smiths[0].netId),'host',2).ok"),true);
  assert.equal(c("host.receive(packet('guest',1,1,smiths[1].netId),'guest',2).ok"),true);
  const result=JSON.parse(c('JSON.stringify(host.applyFrame(6))'));
- assert.ok(result.some(x=>x.ok===false),'unavailable Blast Furnace proxy rejected');
+ assert.ok(result.some(x=>x.ok===false),'unavailable Blast Furnace rejected');
  assert.ok(result.some(x=>x.ok===true),'permitted final-tier upgrade accepted');
  assert.deepEqual(JSON.parse(c('JSON.stringify(S.res[0])')),before[0]);
  assert.notDeepEqual(JSON.parse(c('JSON.stringify(S.res[1])')),before[1]);
  assert.equal(c('smiths[0].rs??null'),null);
- assert.equal(c('smiths[1].rs.k'),'atkM2');
+ assert.equal(c('smiths[1].rs.k'),'blastFurnace');
 });
 test('pre-restriction save retains paid forbidden research and forbids subsequent purchases',()=>{
  const c=fixture();
@@ -161,9 +161,9 @@ test('pre-restriction save retains paid forbidden research and forbids subsequen
  c("upB(S.bs.find(b=>b.k==='smith'&&b.t===0),10)");
  assert.equal(c('S.tech[0].armC'),1,'previously paid upgrade completes');
  const before=c('JSON.stringify(S.res[0])');
- c('S.tech[0].atkM=1');
- assert.equal(c("research(S.bs.find(b=>b.k==='smith'&&b.t===0),'atkM2')"),true,
-  'Aztecs can still buy their allowed final melee tier');
+ c('S.tech[0].forging=1;S.tech[0].ironCasting=1');
+ assert.equal(c("research(S.bs.find(b=>b.k==='smith'&&b.t===0),'blastFurnace')"),true,
+  'Aztecs can still buy their allowed actual Blast Furnace tier');
  c("S.bs.find(b=>b.k==='smith'&&b.t===0).rs=null");
  assert.equal(c("research(S.bs.find(b=>b.k==='smith'&&b.t===0),'armC')"),false,
   'American civ cannot purchase forbidden cavalry armor again');
