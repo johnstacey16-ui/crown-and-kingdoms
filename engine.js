@@ -41,7 +41,7 @@ function loadSeriesSPerformanceSave(){
   for(let t=0;t<S.teamN;t++){
    const tc=S.bs.find(b=>b.t===t&&b.k==='tc');
    if(!tc)throw Error('Performance fixture needs both Town Centres');
-   const cx=tc.x+1,cy=tc.y+1;
+   const cx=tc.x+1,cy=tc.y+1,usedSoldierTiles=new Set();
    function openFootprint(x,y,size){
     if(x<2||y<2||x+size>=W-2||y+size>=H-2)return false;
     for(let yy=y;yy<y+size;yy++)for(let xx=x;xx<x+size;xx++)
@@ -53,7 +53,7 @@ function loadSeriesSPerformanceSave(){
      for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
       if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
       const x=cx+dx,y=cy+dy;
-      if(openFootprint(x,y,size))return[x,y];
+      if(openFootprint(x,y,size)&&!(size===1&&usedSoldierTiles.has(y*W+x)))return[x,y];
      }
     }
     return null;
@@ -67,6 +67,7 @@ function loadSeriesSPerformanceSave(){
     const k=['mil','spear','arc','knight'][i%4],p=findPlace(1);
     if(!p)throw Error('No room for test soldier');
     const u=addU(t,k,p[0]+.5,p[1]+.5);
+    usedSoldierTiles.add(p[1]*W+p[0]);
     // Soldiers are map-aware but do not need to receive commands to render.
     if(!u)throw Error('Could not create test soldier');
    }
