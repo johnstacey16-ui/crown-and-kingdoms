@@ -1,3 +1,16 @@
+## 25 October 2026 — Actual three-tier melee research (Batch 54)
+
+- [x] Implement real Feudal Forging (150 food / 50s, +1), Castle Iron Casting (220 food/120 gold / 75s, +1), Imperial Blast Furnace (275 food/225 gold / 100s, +2), each with prerequisite chain, all in Blacksmith.
+- [x] Source-gate new research by all 26 civilizations; Byzantines, Malians, Koreans cannot purchase Blast Furnace; validate host no-charge and resource isolation.
+- [x] Retain legacy paid `atkM` (+2) and `atkM2` (+5) in existing saves, with normalization to modern prerequisite flags, preserving exact historical damage and never offering retired shortcuts to new players.
+- [x] Include actual melee damage in live combat and AI research scoring; protect ordinary ranged attacks and all unit IDs/art.
+- [x] Add 26-civ pinned tech, timing, spend, combat, multiplayer and old save tests. 
+- [ ] Confirm all PR/main GitHub Actions and verify latest live Vercel production commit; previous `api-deployments-free-per-day` HTTP 402 blocks assuming deployment.
+- [ ] Continue unique unit, civilization discount/automatic research bonuses, deeper armour class assignment, Xbox hardware and network reliability audits.
+
+See [reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## 25 October 2026 — Three-tier cavalry armour (Batch 53)
 
 - [x] Separate the cavalry armour Blacksmith progression into Scale (`armC`), Chain (`armC2`) and Plate (`armC3`), retaining the legacy first-tier key.
