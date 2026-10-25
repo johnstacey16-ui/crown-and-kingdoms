@@ -1,3 +1,10 @@
+## 25 October 2026 — Infantry-armour line split (CI and release verification pending)
+
+Implemented all three independent AoE2:DE Blacksmith infantry armour tiers: Feudal `armI` Scale Mail +1/+1, Castle `armI2` Chain Mail +1/+1, Imperial `armI3` Plate Mail +1 melee/+2 pierce. Source costs, research seconds, age/prerequisite gates and exact five civilizations without Plate Mail are pinned to SiegeEngineers game build 185872 blob `c4f7da9`. Live combat uses the cumulative class-based armor bonus on existing and future units; civilization restrictions cannot be bypassed by solo/AI/multiplayer research paths. Retrocompatible paid research and old-tech saves maintained. AI evaluates new research tiers.
+
+Test plan covers all 26 civilizations, source masks, paid/denied research, timing and affordable budgets, live melee versus pierce shots and no buff to unrelated classes, network host command authentication and save/load. Full PR/main CI, 19 missions, three seeded AI matches, Chromium and Vercel commit parity remain acceptance gates. Ranged/cavalry armour and melee attack are **not** yet fully three-tier research lines; the older simplified entries are intentionally unchanged, with no made-up migration. Artwork and network IDs untouched; Xbox console testing remains open.
+
+---
 ## 25 October 2026 — Blacksmith source eligibility and armour-time corrections (verified release)
 
 DE update 185872, SiegeEngineers pinned tech tree `c4f7da961e82a8231b1ba49459949c4d6e479bc8`: verified all 26-civ Blacksmith access for `atkM`, `atkM2`, `armI`, `armR` and `armC`. Disabled now-prohibited source final attack tier for Byzantines/Malians/Koreans and first cavalry armour for Aztecs/Mayans/Incas, via common research menu and host validation; corrected food-only first armor tiers and durations. Existing completed and paid in-flight work remains untouched in saves. Testing includes source matrix and actual runtime payment/timing, host rejection, team isolation and reload.
