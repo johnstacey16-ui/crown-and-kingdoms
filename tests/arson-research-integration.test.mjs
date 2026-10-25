@@ -26,7 +26,7 @@ function load(start, end) {
 }
 load('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
 load('function upB(b,dt){', '\nfunction train(b,k){');
-load('function meleeResearchAttackBonus(', 'function normalizeLegacyMeleeTechnology(');
+load('function meleeResearchAttackBonus(', 'function dmgT(a,t){');
 load('function dmgT(a,t){', 'const hit=(a,t)=>');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);
