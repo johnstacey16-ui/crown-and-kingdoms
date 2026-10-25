@@ -22,7 +22,7 @@ const context = {
 vm.createContext(context);
 // Isolated combat harness must load the same melee research bonus helper as production.
 const bonusStart=sim.indexOf('function meleeResearchAttackBonus(');
-const bonusEnd=sim.indexOf('function normalizeLegacyMeleeTechnology(',bonusStart);
+const bonusEnd=sim.indexOf('function dmgT(a,t){',bonusStart);
 assert.ok(bonusStart>=0&&bonusEnd>bonusStart,'melee attack helper is part of combat');
 vm.runInContext(sim.slice(bonusStart,bonusEnd),context);
 vm.runInContext(sim.slice(start, end), context);
