@@ -12,7 +12,7 @@ test('AI protects its full next-age budget from optional research',()=>{
  const canAfford=vm.runInNewContext(ai+'\n;aiCanResearchWhileSaving;');
  assert.match(ai,/const savingForAge=/);
  assert.match(ai,/agePrereqs=nextAge&&ageRequirements\(t\)\.ready/);
- assert.match(ai,/aiCanResearchWhileSaving\(R,e\.cost,nextAge\.cost\)/);
+ assert.match(ai,/aiCanResearchWhileSaving\(R,researchCost\(b,k\),nextAge\.cost\)/);
  assert.equal(canAfford({f:1000,g:400},{f:100,g:150},{f:800,g:200}),true,
    'research may proceed if enough food and gold remain for advancement');
  assert.equal(canAfford({f:850,g:200},{f:100,g:25},{f:800,g:200}),false,

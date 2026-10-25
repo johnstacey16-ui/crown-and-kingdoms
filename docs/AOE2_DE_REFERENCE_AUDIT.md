@@ -1,3 +1,14 @@
+## Spanish Blacksmith civilization cost exemption — 25 October 2026
+
+**Authority:** [Forgotten Empires official Spanish civilization card](https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/spanish), which explicitly states **Blacksmith upgrades do not cost gold**. Applies to the 26-civ roster of this game's AoE2:DE build-185872 parity efforts.
+
+The game now calculates a research-specific **effective price** through `researchCost(b,k,civs)`. Spanish-owned Blacksmith research has its gold component set to zero while retaining exactly the base wood/food/stone components and normal research time, age, prerequisite and restrictions. Non-Spanish prices are unchanged. Gold cost from research in any other building (e.g. Bloodlines at the Stable, Ballistics at the University) remains fully payable. This does **not** mutate the global technology catalogue `TE` and therefore cannot leak Spanish discounts to another team, AI, replay or command host.
+
+**One-source-of-truth implementation:** gamepad research menu `js/input.js`, multiplayer offered commands/prices `js/network-commands.js`, autonomous `js/ai.js` resource eligibility and save-for-age logic, and actual `js/simulation.js` research payment all use the same effective price. In-progress paid orders, completed research, game saves and all unchanged unit and network IDs continue to work. Rejected purchases do not spend food or gold. Seven independent tests verify all 26 civs across every Blacksmith key, UI/AI source integration, menu prices per team, actual gold-free research timers, other-building exclusions, host authority and save reload.
+
+**Scope deliberately limited:** Spanish other civilization bonuses (builders, gunpowder, trade, potential technology-completion income) are not implemented here. The official primary-source card grounds this change in **no gold cost**, not a blanket discount or unverified rebate. Other civ-specific research discounts and automatic free upgrades, regional armour class exceptions, Xbox hardware checks and Vercel production parity remain outstanding. Previous Vercel HTTP 402 daily build quota must be checked independently before calling any new code live.
+
+---
 ## Real Forging → Iron Casting → Blast Furnace melee tiers — 25 October 2026
 
 **Pinned source**: AoE2:DE build **185872**, [SiegeEngineers/aoe2techtree data/data.json (blob c4f7da9)](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json); [AoE2 Forging](https://liquipedia.net/ageofempires/Forging), [Iron Casting](https://liquipedia.net/ageofempires/Iron_Casting), and [Blast Furnace](https://www.aoe2insights.com/civilization/britons/tech-tree/).

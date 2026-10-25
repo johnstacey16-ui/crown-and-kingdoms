@@ -1,3 +1,15 @@
+## 25 October 2026 — Spanish gold-free Blacksmith technology (Batch 55)
+
+- [x] Implement the official Spanish Blacksmith gold-cost exemption for all source-available upgrades; keep food/wood/stone, age, prerequisites and research timers unchanged.
+- [x] Share exact effective per-team costs across controller UI, authenticated multiplayer menus, AI affordability/age-saving decisions and live research payment; never mutate `TE`.
+- [x] Test all 26 civs, non-Blacksmith exclusion, zero-gold payment, source menus, host team isolation, current-version save/load and static AI/console use.
+- [ ] PR/main standalone regressions, all campaigns, three seeded AI games, browser and validation must pass before merging or marking delivered.
+- [ ] Production remains **separate** until Vercel is READY on exactly latest `main`. Previous attempts were rejected by daily deployment quota HTTP 402.
+- [ ] Other regional technology bonuses (especially Magyars' free melee upgrades and Korean free archer armour), unit armour classes and real Xbox controls remain open.
+
+Reference: [official Spanish profile](https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/spanish).
+
+---
 ## 25 October 2026 — Actual three-tier melee research (Batch 54)
 
 - [x] Implement real Feudal Forging (150 food / 50s, +1), Castle Iron Casting (220 food/120 gold / 75s, +1), Imperial Blast Furnace (275 food/225 gold / 100s, +2), each with prerequisite chain.

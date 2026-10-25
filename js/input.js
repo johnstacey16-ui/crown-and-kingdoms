@@ -126,7 +126,7 @@ function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or bui
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
 const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
 if(s.k==='tc'){it.push({l:'Town Bell: Garrison villagers',c:{},lk:'',fn:()=>{townBell(s.t);menu=null}});const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?(ageRequirements(0).ready?'':'Needs two different current-age buildings'+(g.single?' or one Castle':'')):'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
-for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:e.cost,lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
+for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:researchCost(s,k),lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
 if(d.tx)for(const r of mkTrades())it.push(r);
 if(s.cg&&s.cg.length&&GAR[s.k])it.push({l:'Unload garrison ('+s.cg.length+')',c:{},lk:'',fn:()=>{unload(s);menu=null}});
 menu={title:d.n,b:s,i:0,items:it}}
