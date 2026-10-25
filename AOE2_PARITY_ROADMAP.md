@@ -1,3 +1,16 @@
+## 25 October 2026 — Three-tier cavalry armour (Batch 53)
+
+- [x] Separate the cavalry armour Blacksmith progression into Scale (`armC`), Chain (`armC2`) and Plate (`armC3`), retaining the legacy first-tier key.
+- [x] Apply reference costs/times, Castle and Imperial ages, sequential prerequisites and cumulative +1/+1, +1/+1, +1/**+2 pierce** combat results.
+- [x] Enforce a pinned 26-civilization cavalry tech tree: no Scale/Chain/Plate for Aztecs, Mayans or Incas; no Plate for Mongols, Celts, Vikings, Japanese, Goths, Ethiopians or Koreans.
+- [x] Extend AI research prioritization; regression coverage for real hits, unit classes, all civilization budgets, host authorization and legacy saves.
+- [ ] Verify Batch 53 PR + post-merge tests and current Vercel production deployment status. **Never mark live until production READY matches latest main commit.** A previous Vercel daily deployment quota 402 blocked Batches 51 and 52.
+- [ ] Make independent Forging, Iron Casting and Blast Furnace melee attack techs, replacing the old composite two-step melee damage model with careful legacy-save migration.
+- [ ] Finish unit-specific cavalry/archer armour masks and civilization bonuses; test real Xbox Series X controller and long-running multiplayer matches.
+
+See the [pinned reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## 25 October 2026 — Ranged armour three-tier progression (Batch 52)
 
 - [x] Add Leather Archer Armor (`armR2`) and Ring Archer Armor (`armR3`) with source DE Castle/Imperial ages, 150f/150g/55s and 250f/250g/70s respectively, enforced research prerequisites.
