@@ -1,3 +1,15 @@
+## 25 October 2026 — Large-battle rendering performance, terrain cache (Batch 54)
+
+- [x] Inspect seven user gameplay recordings and screenshot showing approx **4 FPS**, 78 units, 94 buildings. Captured performance overlay reports a **612.8 ms draw** while simulation measured **15.7 ms**, so prioritize rendering bottlenecks without changing combat.
+- [x] Identify repeated terrain regeneration: world-aligned isometric bounding-box chunk traversal generates **offscreen** textures; the fixed **48-chunk** LRU can evict visible chunks within a single frame when the viewport needs over 48.
+- [x] Cull chunk rectangles before creating canvases; keep visible chunk set in LRU with small camera-panning margin and a maximum cache bound. Maintain painted art, exact chunk projection, fog, water animations, node/building/unit sprite drawing and simulation unchanged.
+- [x] Add independent renderer tests with realistic wide screen and zoom cases, including >48 visible chunks, 30 unchanged frames, panning overlap, exact pixel-placement geometry, bounded cache, resize/zoom and explicit invalidation.
+- [ ] **Run complete GitHub PR + post-merge main checks** (regression, 19 campaigns, AI skirmishes, Chromium and validation), then verify Vercel production **READY at latest main SHA**. Earlier 402 deployment/day quota may still block production.
+- [ ] Benchmark actual render time/FPS on the same hardware/zoom/resolution, with the same crowded save, **before claiming a measured FPS improvement**; investigate remaining high-cost atlas scaling/building drawing if needed.
+
+See [performance evidence and test protocol](docs/PERFORMANCE_RENDER_AUDIT.md).
+
+---
 ## 25 October 2026 — Spanish gold-free Blacksmith technology (Batch 55)
 
 - [x] Implement the official Spanish Blacksmith gold-cost exemption for all source-available upgrades; keep food/wood/stone, age, prerequisites and research timers unchanged.
