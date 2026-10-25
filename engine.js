@@ -28,15 +28,15 @@ function loadSeriesSPerformanceSave(){
  const previous={seedOv,mapLayout,mt,msz,kingdoms,startAge,startRes,startVillagers,
   startArmy,gameMode,vm,cmp,civ,aiCiv,diff,aip};
  try{
-  cmp=null;seedOv=202697;mapLayout=0;mt=7;msz=1;kingdoms=2;
+  cmp=null;seedOv=202697;mapLayout=0;mt=3;msz=1;kingdoms=2;
   startAge=3;startRes=5;startVillagers=2;startArmy=0;gameMode=0;
   vm=0;civ=0;aiCiv=1;diff=0;aip=0;
   start();
   // Two built-out settlements: around 28 buildings and 20-25 units per team.
   // The screenshot overlay displays totals across the entire map.
-  const roster=['house','house','barracks','archery','stable','blacksmith',
+  const roster=['house','house','bar','rng','stable','smith',
    'market','tower','house','house','mill','lumber','mine','house','house',
-   'barracks','archery','stable','house','outpost','house','tower','house',
+   'bar','rng','stable','house','outpost','house','tower','house',
    'house','castle','house','house'];
   for(let t=0;t<S.teamN;t++){
    const tc=S.bs.find(b=>b.t===t&&b.k==='tc');
@@ -521,7 +521,7 @@ const trOf=(b,civs=S?.civ)=>{
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function setQ(v){gq=v;rs();sset()}
-function autoPause(){if(mode==='play'){cancelGameplayGestures();if(!perfTestMatch&&!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
+function autoPause(){if(mode==='play'){cancelGameplayGestures();if((typeof perfTestMatch==='undefined'||!perfTestMatch)&&!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
 function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
 function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
 
