@@ -1,3 +1,13 @@
+## 25 October 2026 — Xbox Series S confirmed 6 → 60 FPS flat-field A/B; next stage isolation
+
+Owner provided paired screenshots from their actual Series S running Edge at the **beginning of a game**, not a large battle. **Normal scene:** **6 FPS**, 166.8 ms RAF, 163.5 ms GAP, LOOP 3.3 ms, SIM 1.4 ms, DRAW 2.0 ms, about 30 units/54 buildings. **Flat field:** **60 FPS**, 16.7 ms RAF, 15.9 ms GAP, LOOP 1.8 ms, SIM 0.0 ms, DRAW 1.8 ms, about 30 units/56 buildings. Flat-field green background is expected and temporary: the live HUD, units in simulation, and control inputs continue while the battlefield is intentionally omitted. These counts vary slightly because the match is still running. The roughly **10×** frame rate change under the controlled setting strongly implicates drawing/presenting world graphics (including GPU/compositor effects), despite the small JavaScript draw duration. It does **not** identify which layer or prove a graphics-driver fault.
+
+A second unsaved diagnostic, **Render layer diagnosis**, adds **Normal**, **Terrain only**, and **Objects only** in the pause menu. Terrain-only renders original cached terrain/water/fog but skips world entities/effects; Objects-only shows units/buildings/resource nodes over a blank field, skips terrain tiles/chunks/fog, but retains normal sight gates. These modes are explicitly for developer diagnosis, not playable render-quality options. Switching one on switches the existing Flat-field test off, and vice versa; leaving a match clears both. User should compare FPS/RAF/GAP on the Series S in the same match for Terrain only versus Objects only and restore Normal afterwards. No gameplay, AI, controller bindings, network authority, save format, sprite art, hosting tier or paid services are modified. Do not claim smooth full graphics until physical Series S measurements on a restored Normal scene.
+
+**CI/deployment:** pending final post-commit checks.
+
+---
+
 ## 25 October 2026 — Series S Edge: 5 FPS / 193 ms off-loop; renderer isolation acceptance pending
 
 The owner confirmed the actual test machine is **Xbox Series S using Edge**, rather than Series X. The latest real-device screenshot reports **5 FPS**, 200.1 ms RAF, **36 units / 67 buildings**, 8.9 ms SIM, 5.7 ms DRAW, previous JS callback **LOOP 7.1 ms**, controller **PAD 0.2 ms**, controls **CTL 0.1 ms**, and **GAP 193.0 ms** while the document is **VISIBLE** and focused. The old 326.7 ms DRAW peak is not the current frame. Crucially, GAP is unmeasured time before the next animation callback: it may be compositor/GPU backpressure, browser scheduling, browser work elsewhere, or display policy. Current evidence does **not** prove a deliberate 5 FPS cap or a CPU bottleneck.
