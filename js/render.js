@@ -244,7 +244,8 @@ c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);return c}
 // outside the SCREEN. Cull those chunks *before* generating their canvases.
 // A fixed 48-chunk LRU evicted visible chunks on wide/zoomed-out views,
 // causing the expensive terrain texture painter to rerun every single frame.
-// Retain the whole visible set plus a small panning margin, then trim LRU.
+// Retain all visible chunks (even above 320 on unusually large screens),
+// plus a capped panning margin, then trim the least-recently-used canvases.
 function drawChunks(x0,x1,y0,y1){
  let visible=0;
  for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){
@@ -255,7 +256,7 @@ function drawChunks(x0,x1,y0,y1){
   X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
   visible++;
  }
- const budget=Math.min(224,Math.max(64,visible+16));
+ const budget=Math.max(64,visible,Math.min(320,visible+16));
  while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
 }
 const PMAX=[100,260,520],PT=[];
