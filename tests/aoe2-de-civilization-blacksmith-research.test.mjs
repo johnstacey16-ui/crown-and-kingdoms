@@ -6,39 +6,38 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 // Source-pinned AoE2 DE build 185872, SiegeEngineers/aoe2techtree
 // data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
-// IDs: Forging 67, Blast Furnace 75, Scale Mail 74,
-// Padded Archer Armor 211, Scale Barding Armor 81.
-// Legacy atkM/atkM2 +2/+5 must survive paid saves, but new orders use Forging/Iron Casting/Blast Furnace.
+// IDs: Scale Mail 74, Padded Archer Armor 211, Scale Barding Armor 81.
+// Forging/Iron Casting/Blast Furnace are tested in the separate melee tier suite.
 // Legacy "Indians" resolves the source's Hindustanis tree.
 const EXPECTED=Object.freeze({
-  "Franks": "mbirc",
-  "Britons": "mbirc",
-  "Mongols": "mbirc",
-  "Byzantines": "mirc",
-  "Persians": "mbirc",
-  "Teutons": "mbirc",
-  "Celts": "mbirc",
-  "Vikings": "mbirc",
-  "Saracens": "mbirc",
-  "Turks": "mbirc",
-  "Chinese": "mbirc",
-  "Japanese": "mbirc",
-  "Khmer": "mbirc",
-  "Indians": "mbirc",
-  "Spanish": "mbirc",
-  "Italians": "mbirc",
-  "Slavs": "mbirc",
-  "Huns": "mbirc",
-  "Goths": "mbirc",
-  "Aztecs": "mbir",
-  "Mayans": "mbir",
-  "Incas": "mbir",
-  "Ethiopians": "mbirc",
-  "Malians": "mirc",
-  "Koreans": "mirc",
-  "Magyars": "mbirc"
+  "Franks": "irc",
+  "Britons": "irc",
+  "Mongols": "irc",
+  "Byzantines": "irc",
+  "Persians": "irc",
+  "Teutons": "irc",
+  "Celts": "irc",
+  "Vikings": "irc",
+  "Saracens": "irc",
+  "Turks": "irc",
+  "Chinese": "irc",
+  "Japanese": "irc",
+  "Khmer": "irc",
+  "Indians": "irc",
+  "Spanish": "irc",
+  "Italians": "irc",
+  "Slavs": "irc",
+  "Huns": "irc",
+  "Goths": "irc",
+  "Aztecs": "ir",
+  "Mayans": "ir",
+  "Incas": "ir",
+  "Ethiopians": "irc",
+  "Malians": "irc",
+  "Koreans": "irc",
+  "Magyars": "irc"
 });
-const TECHS=Object.freeze({atkM:'m',atkM2:'b',armI:'i',armR:'r',armC:'c'});
+const TECHS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 const COSTS=Object.freeze({armI:{f:100},armR:{f:100},armC:{f:150}});
 const TIMES=Object.freeze({armI:40,armR:40,armC:45});
 function fixture(){
@@ -58,24 +57,22 @@ function fixture(){
  vm.runInNewContext(source+'\n'+networking+'\n'+setup,sandbox,{timeout:15000});
  return code=>sandbox.runBlacksmith(code);
 }
-test('all 26 civilizations have pinned five-key Blacksmith eligibility',()=>{
+test('all 26 civilizations have pinned three-key first-tier armor availability',()=>{
  const c=fixture(),actual=JSON.parse(c('JSON.stringify(CIV.map(x=>[x.n,CIV_BLACKSMITH_RESEARCH[x.n]]))'));
  assert.deepEqual(actual,Object.entries(EXPECTED));
  assert.equal(Object.keys(EXPECTED).length,26);
- assert.equal(new Set(Object.values(TECHS)).size,5);
+ assert.equal(new Set(Object.values(TECHS)).size,3);
  for(const [civ,mask] of Object.entries(EXPECTED)){
-  assert.match(mask,/^[mbirc]*$/,civ+' only known source technology keys');
+  assert.match(mask,/^[irc]*$/,civ+' only known source technology keys');
   assert.equal(new Set(mask).size,mask.length,civ+' no duplicate flags');
-  assert.ok(mask.includes('m')&&mask.includes('i')&&mask.includes('r'),
-   civ+' retains universal Forging, Scale Mail and Padded Archer Armor');
+  assert.ok(mask.includes('i')&&mask.includes('r'),
+   civ+' retains universal Scale Mail and Padded Archer Armor');
  }
- assert.ok(['Byzantines','Malians','Koreans'].every(k=>!EXPECTED[k].includes('b')),
-  'three DE factions lack the final melee attack tech Blast Furnace');
  assert.ok(['Aztecs','Mayans','Incas'].every(k=>!EXPECTED[k].includes('c')),
   'three American factions lack Scale Barding Armor');
- assert.equal(EXPECTED.Saracens,'mbirc','Saracens retain both special capabilities');
+ assert.equal(EXPECTED.Saracens,'irc','Saracens retain both special capabilities');
 });
-test('Blacksmith catalogue and authenticated research menus source-gate all five keys',()=>{
+test('Blacksmith catalogue and authenticated research menus source-gate all three armor keys',()=>{
  const c=fixture();
  for(const [i,[name,mask]] of Object.entries(EXPECTED).entries()){
   c('S.civ[0]='+i+';S.age[0]=3;S.tech[0]={}');
@@ -83,7 +80,7 @@ test('Blacksmith catalogue and authenticated research menus source-gate all five
   const list=JSON.parse(c('JSON.stringify(rsOf(smiths[0]))'));
   const menu=JSON.parse(c('JSON.stringify(CK_GAME_COMMANDS.buildingOptions(S,0,smiths[0]))'));
   for(const [k,flag] of Object.entries(TECHS)){
-   const permitted=mask.includes(flag)&&k!=='atkM'&&k!=='atkM2';
+   const permitted=mask.includes(flag);
    assert.equal(list.includes(k),permitted,name+' '+k+' catalogue');
    assert.equal(menu.some(o=>o.type==='research'&&o.value===k),permitted,name+' '+k+' command menu');
   }
@@ -98,9 +95,9 @@ test('allowed Blacksmith purchases queue and spend; forbidden purchases do neith
  for(const [i,[name,mask]] of Object.entries(EXPECTED).entries()){
   c('S.civ[0]='+i+';S.age[0]=3');
   for(const [key,flag] of Object.entries(TECHS)){
-   c('S.tech[0]='+(key==='atkM2'?'{atkM:1}':'{}')+
+   c('S.tech[0]={}'+
     ';smiths[0].rs=null;smiths[0].q=[];S.res[0]={f:10000,w:10000,g:10000,s:10000}');
-   const before=c('JSON.stringify(S.res[0])'),permitted=mask.includes(flag)&&key!=='atkM'&&key!=='atkM2';
+   const before=c('JSON.stringify(S.res[0])'),permitted=mask.includes(flag);
    assert.equal(c("research(smiths[0],'"+key+"')"),permitted,name+' '+key);
    assert.equal(c('smiths[0].rs?.k||null'),permitted?key:null,name+' research queue');
    assert.equal(c('JSON.stringify(S.res[0])')===before,!permitted,
