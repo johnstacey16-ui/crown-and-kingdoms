@@ -531,9 +531,8 @@ globalThis.__CK_TEST__ = {
   auditArmourResearchDamage() {
     const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
     const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
-    const tech = S.tech[0], armour = S.tech[1];
+    const armour = S.tech[1];
     const oldArmI = armour.armI, oldArmR = armour.armR, oldArmC = armour.armC;
-    const oldAtkM = tech.atkM, oldAtkM2 = tech.atkM2, oldAtkR = tech.atkR, oldAtkR2 = tech.atkR2;
     const oldKind = target.k, oldHp = target.hp, oldDead = target.dead;
     const damage = (attackerKind, targetKind, armourKey) => {
       attacker.k = attackerKind;
@@ -559,11 +558,6 @@ globalThis.__CK_TEST__ = {
       if (oldArmI !== undefined) armour.armI = oldArmI;
       if (oldArmR !== undefined) armour.armR = oldArmR;
       if (oldArmC !== undefined) armour.armC = oldArmC;
-      for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
-      if (oldAtkM !== undefined) tech.atkM = oldAtkM;
-      if (oldAtkM2 !== undefined) tech.atkM2 = oldAtkM2;
-      if (oldAtkR !== undefined) tech.atkR = oldAtkR;
-      if (oldAtkR2 !== undefined) tech.atkR2 = oldAtkR2;
     }
   },
   auditSpatialTargets() {
