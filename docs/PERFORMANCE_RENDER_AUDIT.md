@@ -1,3 +1,12 @@
+## Release evidence — 25 October 2026
+
+The source-level fix was merged in [PR #56](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/56) at gameplay SHA `242b66948193a46f697a8772baaea3f1201fa7ee`. [PR 189 regression files, 19 campaigns and three AI seeds](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170077859), [PR Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170077819), [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170077875) all passed. On merged `main`, [regression/campaign/AI](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170408502), [Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170408454), [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40170408451) all passed.
+
+Vercel accepted production deployment `dpl_As5NMW4ynB9qypiuaXPJkX3QnYam`, confirmed **READY**, active alias `crown-and-kingdoms.vercel.app`, and exactly the merged gameplay SHA at the time of verification. The prior daily deployment quota had cleared. Following documentation-only commits require a fresh check/deployment to keep production tracking latest `main`.
+
+**Remaining user-hardware test:** reproduce the same Imperial-Age battle at matching browser resolution and game zoom, with the performance overlay on, and compare **FPS / draw ms / SIM ms**. No specific FPS gain is claimed from CI. If draw ms remains extreme, next profile painted building sprites, scaling and fog/terrain per-tile overlays without deleting visual assets.
+
+---
 # Renderer performance investigation — 25 October 2026
 
 ## Captured evidence
