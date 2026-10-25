@@ -37,7 +37,7 @@ A rotated, isometric diamond viewport becomes an enclosing rectangle in world co
 - Calculate each terrain chunk's projected canvas bounds using the existing `CKS=8`, `zoom`, camera offset, `CW` and `CH`, **before** calling `chunkOf()`.
 - Skip projected rectangles that cannot intersect the screen. Keep the existing `drawImage` source and coordinates identical for visible chunks; no paint palette or artwork changes.
 - Move LRU trimming to the end of the visible draw list, so a frame cannot evict other terrain it still needs to draw.
-- Dynamically retain the number of visible chunks **plus 16 cached neighbors**, with a lower bound of **64** and upper bound of **224** chunk canvases (512 × 256 original backing pixels). This minimizes camera-pan misses while still bounding memory.
+- Dynamically retain the number of visible chunks **plus 16 cached neighbors**, with a lower bound of **64**, a capped **320-chunk** panning budget and a strict floor of **all visible chunks** even on ultra-high-resolution displays (512 × 256 original backing pixels). This minimizes camera-pan misses while still bounding memory.
 - Respect existing `TCH.clear()` calls on map size changes and painted terrain load. Do not change save files, map generation, fog, water, units, buildings or gameplay.
 
 ## Verification
@@ -47,7 +47,7 @@ Source-backed `tests/terrain-chunk-visible-cache.test.mjs` runs actual productio
 1. A 2560 × 1440 low-zoom isometric viewport has more than 48 visible chunks yet paints each only once, and creates none for the offscreen bounding rectangle.
 2. A completely stationary view repaints **zero** terrain textures across thirty successive renders.
 3. Camera pans reuse chunks and never exceed the configured max cache size.
-4. 1280 × 720, 1920 × 1080, 2560 × 1440, 3840 × 2160 and max zoom draw exactly the geometrically visible chunks with identical screen positions, dimensions and original backing sizes.
+4. 1280 × 720, 1920 × 1080, 2560 × 1440, 3840 × 2160, 5120 × 2880 and max zoom draw exactly the geometrically visible chunks with identical screen positions, dimensions and original backing sizes.
 5. Explicit cache invalidation reliably regenerates terrain when required.
 
 Passing CI proves cache correctness, not device FPS. Production deployment and a same-machine before/after frame-timing recording remain independent release/validation gates. Continue performance profiling for sprite drawing, asset-scale quality and Canvas compositing if the recorded draw time remains high.
