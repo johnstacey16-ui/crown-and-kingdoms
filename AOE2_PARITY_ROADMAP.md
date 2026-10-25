@@ -1,3 +1,16 @@
+## 25 October 2026 — Ranged armour three-tier progression (Batch 52)
+
+- [x] Add Leather Archer Armor (`armR2`) and Ring Archer Armor (`armR3`) with source DE Castle/Imperial ages, 150f/150g/55s and 250f/250g/70s respectively, enforced research prerequisites.
+- [x] Make existing Padded, new Leather and Ring armour contributions stack in real ranged unit combat: +1/+1, +1/+1, +1/+2 (melee/pierce). Protect existing-unit, future-unit and original saved `armR` flags.
+- [x] Enforce all 26 civ tech trees: no Ring for Franks, Mongols, Huns or Aztecs, with shared research menu and multiplayer host validation.
+- [x] Extend AI priorities and add live damage, full civ matrix, independent research payment, tech timers, multiplayer and legacy save tests.
+- [ ] Confirm Batch 52 PR and post-merge GitHub Actions; production Vercel is **not** considered deployed until READY on the latest main SHA. Prior 402 `api-deployments-free-per-day` quota may still prevent a new deployment.
+- [ ] Add the independent Scale/Chain/Plate **cavalry armour** line and separate Forging/Iron Casting/Blast Furnace **melee** progression with migration and authentic bonuses.
+- [ ] Verify physical Xbox Series X controls and long-match multiplayer recovery.
+
+See [reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## 25 October 2026 — Infantry armour three-tier progression
 
 - [x] Add **Chain Mail Armor** (`armI2`, 200 food + 100 gold / 55s / Castle / after `armI`) and **Plate Mail Armor** (`armI3`, 300 food + 150 gold / 70s / Imperial / after Chain Mail) in the actual Blacksmith.

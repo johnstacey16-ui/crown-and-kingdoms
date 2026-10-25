@@ -1,3 +1,10 @@
+## 25 October 2026 — Ranged armour tiers and Ring pierce-protection (Batch 52; release pending)
+
+Pinned to DE 185872, SiegeEngineers technology blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. Implemented actual Feudal Padded Archer Armor `armR` (+1 melee/+1 pierce), Castle Leather `armR2` (+1/+1, 150f/150g, 55s after Padded), Imperial Ring `armR3` (+1/+2, 250f/250g, 70s after Leather) in the Blacksmith and cumulative `dmgT` class-aware combat. Source-pin 26 civilization research matrices; Franks, Mongols, Huns, Aztecs cannot newly research Ring. Preserved old `armR` effect, art and save/multiplayer identifiers. Shared permissions and costs cover human, AI and host multiplayer. Ranged-unit armour art indicator still works; higher-tier graphical distinction not yet implemented.
+
+Tests include 26×3 menu permissions, direct costs and age/prerequisites, actual ranged-unit melee and pierce damage, rejection of unrelated-unit buffs, team authority/no-charge, and paid old-save survival. All full GitHub Actions, campaign and seeded AI checks must pass before merge. The previous production Vercel alias was still at Batch 50 after Batch 51 because Vercel returned HTTP 402 daily deployment quota (`api-deployments-free-per-day`); **do not report Batch 52 live without an independently verified production READY exact SHA**. Cavalry and melee Blacksmith tier parity plus Xbox hardware remain open.
+
+---
 ## 25 October 2026 — Infantry-armour line split (all CI passed; Vercel deployment quota blocked)
 
 Implemented all three independent AoE2:DE Blacksmith infantry armour tiers: Feudal `armI` Scale Mail +1/+1, Castle `armI2` Chain Mail +1/+1, Imperial `armI3` Plate Mail +1 melee/+2 pierce. Source costs, research seconds, age/prerequisite gates and exact five civilizations without Plate Mail are pinned to SiegeEngineers game build 185872 blob `c4f7da9`. Live combat uses the cumulative class-based armor bonus on existing and future units; civilization restrictions cannot be bypassed by solo/AI/multiplayer research paths. Retrocompatible paid research and old-tech saves maintained. AI evaluates new research tiers.

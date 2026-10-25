@@ -1,3 +1,22 @@
+## Ranged armour three-tier Blacksmith progression — 25 October 2026
+
+**Source pin:** Age of Empires II: Definitive Edition build **185872**, [SiegeEngineers technology dataset blob c4f7da9](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json), and [Ring Archer Armor rules](https://liquipedia.net/ageofempires/Ring_Archer_Armor). Historical `Indians` faction maps to modern **Hindustanis**.
+
+The previously existing `armR` (Padded Archer Armor, ID 211) remains compatible with all existing game saves. The production Blacksmith now offers actual successive Castle / Imperial ranged armour tiers:
+
+| C&K key | Technology | Minimum age | Prerequisite | Price | Duration | Additional effect |
+| --- | --- | --- | --- | --- | --- | --- |
+| `armR` | Padded Archer Armor (211) | Feudal | None | 100 food | 40 sec | +1 melee, +1 pierce armour |
+| `armR2` | Leather Archer Armor (212) | Castle | Padded Archer | 150 food, 150 gold | 55 sec | +1 melee, +1 pierce armour |
+| `armR3` | Ring Archer Armor (219) | Imperial | Leather Archer | 250 food, 250 gold | 70 sec | +1 melee, **+2 pierce** armour |
+
+The `dmgT` combat resolver sums these research flags **by the incoming attack class**, adding exactly +1/+1, +1/+1, and +1/+2 ranged-unit protection in sequence. This affects live and newly recruited `ARCHARM` roster units without changing unit IDs or save format, and does not add ranged armour to ordinary infantry, cavalry or buildings. The existing `armR` sprite indicator remains intact. `rsOf`, player controller, AI and host multiplayer use the same research gate, payment and technology ledger. Previously queued and completed research remains loadable even when current tech trees restrict new orders.
+
+**Civ-tree matrix:** 26 represented civilizations all offer Leather Archer Armor; **Franks, Mongols, Huns and Aztecs** do **not** offer Ring Archer Armor. The others, including `Indians`→Hindustanis, can research Ring if in Imperial Age with Leather already researched. Source-pinned matrix tests verify 26×3 options, technology chains, cost/duration, real melee and pierce damage, unrelated-unit safety, independent team finances, host authorization and legacy saved queues.
+
+**Still open:** Authentic three-tier cavalry barding and melee attack techs; civilization bonuses (including free/discounted Korean Blacksmith upgrades), detailed regional unit armour class exceptions, Xbox Series X hardware verification and complete network battle recovery. Padded's existing name has been clarified; no art asset is replaced and no undocumented retroactive research migration occurs. Vercel deploy quota blocking from Batch 51 is tracked separately; this branch is **not** automatically claimed deployed.
+
+---
 ## Infantry armour three-tier Blacksmith progression — 25 October 2026
 
 **Sources:** Age of Empires II: Definitive Edition build **185872** represented by [SiegeEngineers pinned tech-tree data](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json); [AoE2 Companion tech descriptions](https://app.aoe2companion.com/explore/technologies?section=Blacksmith), including Plate Mail's +1 melee and +2 pierce effect. Historical `Indians` game key maps to source `Hindustanis`. Existing art/sprites, unit identities and old saves remain intact.
