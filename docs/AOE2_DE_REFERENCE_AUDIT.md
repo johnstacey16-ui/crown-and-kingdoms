@@ -1,3 +1,22 @@
+## Cavalry Barding research tiers — 25 October 2026
+
+**Pinned reference:** AoE II: Definitive Edition update/build 185872, [SiegeEngineers `data/data.json` blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json), and [the Blacksmith descriptions in AoE2 Companion](https://app.aoe2companion.com/explore/technologies?section=Blacksmith). The game's historical `Indians` civ key corresponds to source **Hindustanis**.
+
+The old `armC` research is retained intact as a persistent flag for saved games, but is now named **Scale Barding Armor**. The genuine 3-tier Blacksmith cavalry armour progression is:
+
+| Game flag | DE technology | Source ID | Available | Prerequisite | Resources | Time | Bonus (melee / pierce) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `armC` | Scale Barding Armor | 81 | Feudal | — | 150 food | 45 seconds | +1 / +1 |
+| `armC2` | Chain Barding Armor | 82 | Castle | Scale Barding | 250 food, 150 gold | 60 seconds | +1 / +1 |
+| `armC3` | Plate Barding Armor | 80 | Imperial | Chain Barding | 350 food, 200 gold | 75 seconds | +1 / **+2** |
+
+Production combat `dmgT` sums the three flags by incoming attack class, with the Imperial tier specifically adding **two pierce armour**. This protects eligible `CAVARM` roster units already on the map and those recruited later, without rewriting saved units, network IDs or replacing original artwork. The existing first-tier cavalry barding sprite indicator remains. Generic infantry, archers and buildings do not gain the cavalry-only upgrade.
+
+**Civilizations:** The pinned source matrix covers all 26 original C&K civ keys. Aztecs, Mayans and Incas have **none** of the three cavalry armour technologies. All other 23 have Scale and Chain. **Mongols, Celts, Vikings, Japanese, Goths, Ethiopians and Koreans** additionally lack Plate. The other **16** have all three. The shared `rsOf` catalogue filters gamepad/player menus, AI choices, multiplayer authorized host research commands and actual resource payment before queuing. A fully paid research queue from an old save remains valid even if its civilization is now restricted; newer attempted purchases follow the tree. Full 26-civ purchase/denial, proper age and prerequisites, physical/pierce damage, team isolation, authenticated host and saved paid research receive automated tests.
+
+**Known limitations:** Unique mounted unit armour class assignments remain the game's simplified class masks (including some camel and mounted-ranged overlap), individual civilization discounts/free tech and speed bonuses are not fully modelled, and melee attack remains the game's compressed two-step `atkM` / `atkM2` system. Neither Xbox console controls nor Vercel production is asserted from this source change. Previous production deployment requests hit Vercel's 100-per-day API limit; production must be verified independently at the exact SHA before calling it live.
+
+---
 ## Ranged armour three-tier Blacksmith progression — 25 October 2026
 
 **Source pin:** Age of Empires II: Definitive Edition build **185872**, [SiegeEngineers technology dataset blob c4f7da9](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json), and [Ring Archer Armor rules](https://liquipedia.net/ageofempires/Ring_Archer_Armor). Historical `Indians` faction maps to modern **Hindustanis**.
