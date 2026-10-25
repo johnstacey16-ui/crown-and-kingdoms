@@ -1,3 +1,11 @@
+## 25 October 2026 — Lazy procedural sprite rendering (main change, acceptance pending)
+
+Rendering now resolves original painted unit/building atlas frames **before** requesting the procedural fallback canvas. Successful painted or non-painted atlas frames no longer allocate/cache an unused 2× procedural sprite, or repeatedly perform its cache lookup per game frame. Missing, invalid or failed atlas frames still use exactly the previous procedural art, including when an atlas becomes unavailable after an earlier painted frame. This changes rendering allocation only: no simulation, unit/building balance, save, network, controller, UI position or art asset is changed.
+
+New `tests/lazy-procedural-sprite.test.mjs` uses the production renderer, registered original unit/house atlas metadata, missing-atlas fallback and partial-atlas cases. The change is motivated by the reported **4 FPS** crowded battlefield and costly draw path, but **no improved FPS or Xbox performance is claimed** until the same real-device save and draw-time HUD are compared. Full main CI, Chromium capture and production alias verification remain separate acceptance evidence.
+
+---
+
 ## 25 October 2026 — Terrain chunk cache performance work (PR #56, production verified)
 
 A supplied battlefield screenshot and seven ~10–18-second 1080p gameplay clips show late Imperial Age fighting at **4 FPS** with **78 units and 94 buildings**. The visible diagnostic displays **SIM 15.70 ms** (peak 166.70) and **DRAW 612.80 ms** (peak 694.80). These readings point to an especially slow canvas draw in that captured scene; do not assume a per-device improvement without comparing on the same hardware.
