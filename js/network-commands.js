@@ -61,7 +61,7 @@
     }
     for (const key of research) if (TE[key]) {
       const entry = TE[key];
-      options.push({type:'research',value:key,label:entry.n,cost:{...entry.cost},
+      options.push({type:'research',value:key,label:entry.n,cost:{...researchCost(building,key,world.civ)},
         locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
