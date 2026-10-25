@@ -7,7 +7,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 // Source: AoE2 DE 185872; SiegeEngineers/aoe2techtree
 // data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
 // IDs Forging 67, Iron Casting 68, Blast Furnace 75.
-// The game retains old +2/+5 atkM/atkM2 ledger flags ONLY for saved games.
+// Only the authentic current-game melee attack technologies are supported.
 const EXPECTED=Object.freeze({
   "Franks": "fib",
   "Britons": "fib",
@@ -135,22 +135,13 @@ test('actual melee combat uses +1, +1, +2 and does not buff ranged strikes',()=>
  assert.deepEqual(range,[range[0],range[0],range[0],range[0]],
   'new melee techs must not buff arrow attack');
  assert.equal(c('meleeResearchAttackBonus({forging:1,ironCasting:1,blastFurnace:1})'),4);
- assert.equal(c('meleeResearchAttackBonus({atkM:1})'),2,'legacy +2 unchanged');
- assert.equal(c('meleeResearchAttackBonus({atkM2:1,atkM:1})'),5,'legacy +5 unchanged');
- assert.equal(c('meleeResearchAttackBonus({atkM:1,forging:1,ironCasting:1,blastFurnace:1})'),5,
-  'historic +2 can progress through remaining authentic research without losing attack');
+ assert.equal(c('meleeResearchAttackBonus({})'),0,'unresearched melee starts at zero bonus');
 });
-test('old research shortcuts cannot be purchased on any civilization',()=>{
+test('obsolete combined attack technologies do not exist in the current catalogue',()=>{
  const c=fixture();
- for(const i of [0,3,19,23,24]){
-  c('S.civ[0]='+i+';S.age[0]=3;S.tech[0]={};smiths[0].rs=null;'+
-   'S.res[0]={f:10000,w:10000,g:10000,s:10000}');
-  const prior=c('JSON.stringify(S.res[0])');
-  for(const key of ['atkM','atkM2']){
-   assert.equal(c("research(smiths[0],'"+key+"')"),false,'retired '+key+' unavailable');
-   assert.equal(c('smiths[0].rs??null'),null);
-   assert.equal(c('JSON.stringify(S.res[0])'),prior);
-  }
+ for(const key of ['atkM','atkM2']){
+  assert.equal(c('Object.hasOwn(TE,"'+key+'")'),false,key+' no longer has a tech definition');
+  assert.equal(c('B.smith.rs.includes("'+key+'")'),false,key+' not in Blacksmith research');
  }
 });
 test('host enforces Blast Furnace civ availability and per-team resources',()=>{
@@ -172,41 +163,19 @@ test('host enforces Blast Furnace civ availability and per-team resources',()=>{
  assert.equal(c('smiths[0].rs??null'),null);
  assert.equal(c('smiths[1].rs.k'),'blastFurnace');
 });
-test('save migration preserves historical +2 completed research and enables later DE tiers',()=>{
+test('current-game researched melee upgrades survive ordinary save/load',()=>{
  const c=fixture();
- c("S.civ=[8,3];S.tech[0]={atkM:1};slot=0");
+ c("S.civ=[8,3];S.tech[0]={forging:1,ironCasting:1};slot=0");
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
- assert.equal(c('S.tech[0].atkM'),1);
- assert.equal(c('S.tech[0].forging'),1,'old +2 implies Forging prerequisite without repurchase');
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),2,'unchanged legacy damage');
- assert.equal(c('rsOf(S.bs.find(b=>b.k===\'smith\'&&b.t===0)).includes(\'ironCasting\')'),true);
+ assert.equal(c('S.tech[0].forging'),1);
+ assert.equal(c('S.tech[0].ironCasting'),1);
+ assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),2);
  const smith="S.bs.find(b=>b.k==='smith'&&b.t===0)";
- assert.equal(c("research("+smith+",'ironCasting')"),true);
- c('upB('+smith+',75)');
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),3,'new Iron Casting adds +1');
  assert.equal(c("research("+smith+",'blastFurnace')"),true);
  c('upB('+smith+',100)');
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),5,'Blast adds +2 while keeping old +2');
+ assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),4);
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),5,'migrated save roundtrip remains stable');
-});
-test('paid historical +5 melee upgrade completes and remains +5 with entire new chain marked',()=>{
- const c=fixture();
- c("S.civ=[0,3];S.tech[0]={atkM:1};smiths[0].rs={k:'atkM2',t:9};slot=0");
- assert.equal(c('saveG()'),true);
- assert.equal(c('loadG()'),true);
- const smith="S.bs.find(b=>b.k==='smith'&&b.t===0)";
- assert.equal(c(smith+'.rs.k'),'atkM2','old paid in-flight queue still valid');
- c('upB('+smith+',9)');
- for(const flag of ['forging','ironCasting','blastFurnace'])
-  assert.equal(c('S.tech[0].'+flag),1,'old +5 paid upgrade completes full tier chain');
- assert.equal(c('S.tech[0].atkM2'),1,'historic +5 ledger preserved');
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),5,'old damage unchanged');
- for(const key of ['forging','ironCasting','blastFurnace','atkM','atkM2'])
-  assert.equal(c("research("+smith+",'"+key+"')"),false,'cannot repurchase old or normalized tiers');
- assert.equal(c('saveG()'),true);
- assert.equal(c('loadG()'),true);
- assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),5,'old +5 saved again');
+ assert.equal(c('meleeResearchAttackBonus(S.tech[0])'),4);
 });
