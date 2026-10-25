@@ -39,11 +39,11 @@ context.S.tech[0].carry=1;
 assert.equal(gatherCapacity(workingVillager),15,'an existing villager gains the carrying upgrade immediately');
 context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
-assert.match(html, /INFARM\.has\(t\.k\)&&ta\.armI\?1:0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)\+\(CAVARM\.has\(t\.k\)&&ta\.armC\?1:0\)/,
+assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)&&ta\.armR\?1:0\)\+\(CAVARM\.has\(t\.k\)&&ta\.armC\?1:0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
   'Cavalry armour must be restricted to mounted units in the current roster');
-assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armR','armC','atkM2','atkR2','bodkin'\]/,
+assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['atkM','atkR','armI','armI2','armI3','armR','armC','atkM2','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Cavalry Armour \+1',cost:\{f:150\},t:45,age:1\}/,
   'Cavalry Armour matches the first source-pinned armor tier cost, research time and age');
@@ -156,7 +156,7 @@ const techEnd = html.indexOf('};', techStart);
 assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain identifiable');
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
-const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics','thumb','devotion','faith','heresy','redemption','atonement','fervor','blockPrinting','illumination','theocracy','herbalMedicine','murderHoles']);
+const handledFlags = new Set(['gath','carry','wheel','handcart','squires','arson','atkM','atkR','armI','armI2','armI3','armR','armC','cons','husb','fw','gtow','keep','crane','mas','slit','axe','saw','gmine','smine','coll','plow','crop','atkM2','atkR2','bodkin','ballistics','thumb','devotion','faith','heresy','redemption','atonement','fervor','blockPrinting','illumination','theocracy','herbalMedicine','murderHoles']);
 const techRows = techMatches.map((match,index)=>{
  const end=index+1<techMatches.length?techMatches[index+1].index:techText.length;
  const block=techText.slice(match.index,end);
