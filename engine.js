@@ -559,8 +559,8 @@ if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,a
 // behaviour; do not substitute an extra generic order or subgroup cycling.
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
-function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;
-if(mode!=='play'&&mode!=='pause')perfFlatField=0;
+function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
+if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');
 if(perfFlatField){
  // Reversible GPU/presentation isolation: keep sim, input and the live HUD;
