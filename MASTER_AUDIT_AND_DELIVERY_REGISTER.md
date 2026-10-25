@@ -1,3 +1,15 @@
+## 25 October 2026 — Late-battle fog batching and per-stage draw timings (video evidence)
+
+A new 5.23-second 1080p user video shows **4–5 FPS**, frame intervals roughly **200–250 ms**, **176 units / 105 buildings**, simulation **approximately 18–48 ms**, and drawing **approximately 160–190 ms**; peak counters are historical and not attributable to these five seconds. The previous captured ~612 ms draw period had fewer units and different conditions, so this is not a controlled before/after result. The bottleneck remains primarily rendering in the new clip.
+
+The solo isometric renderer formerly issued one Canvas2D `fill()` for *each* unexplored or explored-but-hidden diamond on every frame. It now collects those diamonds into **one black path and one translucent explored-fog path**, rendered together after the tile/animated water pass and before world objects; preserves exact original diamond points, colours, unexplored visibility, resource gating, world order, and team-relative multiplayer projection (unchanged). Skips redundant tile-hash calculation when textured terrain chunks are enabled.
+
+When the optional performance HUD is enabled, a new line breaks measured draw time into `CHUNK` (terrain blits), `TILE` (dynamic tile effects/fog), `WORLD` (objects/units/sorting), `FX` (world overlays), and `UI` (interface). These *do not include* browser/GPU present time and are not per-unit timings. A production-backed test verifies path batching and mixed sight states. No frame-rate gain is claimed until the user's same late-battle device/save is retested. No gameplay/simulation, maps, saves, controller bindings, artwork, multiplayer authority or hosting plan changes.
+
+**Acceptance evidence:** pending post-commit GitHub validation/regressions/Chromium and actual device metrics.
+
+---
+
 ## 25 October 2026 — Lazy procedural sprite rendering (main change, acceptance pending)
 
 Rendering now resolves original painted unit/building atlas frames **before** requesting the procedural fallback canvas. Successful painted or non-painted atlas frames no longer allocate/cache an unused 2× procedural sprite, or repeatedly perform its cache lookup per game frame. Missing, invalid or failed atlas frames still use exactly the previous procedural art, including when an atlas becomes unavailable after an earlier painted frame. This changes rendering allocation only: no simulation, unit/building balance, save, network, controller, UI position or art asset is changed.

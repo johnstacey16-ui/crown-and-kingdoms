@@ -561,7 +561,8 @@ if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.p
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');drawWorld();
-drawGameOverlays(dt)}
+const uiStart=perfHud?performance.now():0;drawGameOverlays(dt);
+if(perfHud)perfUiMs=performance.now()-uiStart}
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
 /* Runtime exceptions used to be painted as a thin red strip while the same failing simulation kept running every frame. Halt immediately and expose useful diagnostics instead of repeatedly executing a broken step. */
 let CK_ERR=null;
