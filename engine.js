@@ -291,6 +291,43 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'c'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
+/* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
+ * data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Leather Archer Armor 212 (l), Ring Archer Armor 219 (r).
+ * All represented civilizations have Leather. Franks, Mongols, Huns and
+ * Aztecs lack Ring. Padded Archer Armor 211 is already in BLACKSMITH.
+ * 'Indians' maps to source Hindustanis, which HAS Ring in this snapshot.
+ * Only new purchases are gated; old queued saves remain loadable.
+ */
+const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
+ 'Franks':'l',
+ 'Britons':'lr',
+ 'Mongols':'l',
+ 'Byzantines':'lr',
+ 'Persians':'lr',
+ 'Teutons':'lr',
+ 'Celts':'lr',
+ 'Vikings':'lr',
+ 'Saracens':'lr',
+ 'Turks':'lr',
+ 'Chinese':'lr',
+ 'Japanese':'lr',
+ 'Khmer':'lr',
+ 'Indians':'lr',
+ 'Spanish':'lr',
+ 'Italians':'lr',
+ 'Slavs':'lr',
+ 'Huns':'l',
+ 'Goths':'lr',
+ 'Aztecs':'l',
+ 'Mayans':'lr',
+ 'Incas':'lr',
+ 'Ethiopians':'lr',
+ 'Malians':'lr',
+ 'Koreans':'lr',
+ 'Magyars':'lr'
+});
+const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -311,7 +348,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const blacksmith=b.k==='smith'&&c&&CIV_BLACKSMITH_RESEARCH[c.n];
  const forged=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
  const infantry=b.k==='smith'&&c&&CIV_INFANTRY_ARMOR_RESEARCH[c.n];
- const finalList=infantry==null?forged:forged.filter(k=>!INFANTRY_ARMOR_RESEARCH_KEYS[k]||infantry.includes(INFANTRY_ARMOR_RESEARCH_KEYS[k]));
+ const armored=infantry==null?forged:forged.filter(k=>!INFANTRY_ARMOR_RESEARCH_KEYS[k]||infantry.includes(INFANTRY_ARMOR_RESEARCH_KEYS[k]));
+ const archers=b.k==='smith'&&c&&CIV_ARCHER_ARMOR_RESEARCH[c.n];
+ const finalList=archers==null?armored:armored.filter(k=>!ARCHER_ARMOR_RESEARCH_KEYS[k]||archers.includes(ARCHER_ARMOR_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
