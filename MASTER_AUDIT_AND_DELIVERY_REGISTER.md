@@ -1,3 +1,15 @@
+## 25 October 2026 — Series S Edge: 5 FPS / 193 ms off-loop; renderer isolation acceptance pending
+
+The owner confirmed the actual test machine is **Xbox Series S using Edge**, rather than Series X. The latest real-device screenshot reports **5 FPS**, 200.1 ms RAF, **36 units / 67 buildings**, 8.9 ms SIM, 5.7 ms DRAW, previous JS callback **LOOP 7.1 ms**, controller **PAD 0.2 ms**, controls **CTL 0.1 ms**, and **GAP 193.0 ms** while the document is **VISIBLE** and focused. The old 326.7 ms DRAW peak is not the current frame. Crucially, GAP is unmeasured time before the next animation callback: it may be compositor/GPU backpressure, browser scheduling, browser work elsewhere, or display policy. Current evidence does **not** prove a deliberate 5 FPS cap or a CPU bottleneck.
+
+Two small isolated steps target the next diagnosis. At **exactly brightness 1.0**, the main canvas now uses `filter: none` instead of the visually identical `brightness(1)` (a possible avoidable compositing cost); non-default brightness remains unchanged. In the Xbox pause menu, **Render isolation test: Normal / Flat field** is an explicit, reversible, unsaved local diagnostic. In Flat field mode the game keeps running: controller input, simulation, sound, network and all UI/performance HUD work normally; only the battlefield graphics are replaced by a flat fill. The diagnostics mark `TEST: FLAT FIELD` and zero out unused world stages. Turning the menu option back to Normal immediately restores the rendered world; leaving a match clears the toggle. Do not confuse this opt-in visual diagnostic with a shippable graphics mode or recommend players use it for real gameplay.
+
+To identify whether *scene raster/compositing* is the dominant issue, compare normal and Flat field RAF/FPS/GAP readings in the **same match on the same Series S**. A large increase in Flat field FPS suggests scene-rendering or GPU-related pressure; no increase suggests another source of scheduling delays (but still does not prove it). The visual test cannot measure present/display time directly. No measured FPS gain or physical Xbox acceptance is claimed until the owner retests. New production-game headless tests check brightness settings, render isolation/reversibility, HUD persistence and cleanup.
+
+**Acceptance:** GitHub validation, regression, campaign and Chromium checks pending, then Vercel exact SHA verification.
+
+---
+
 ## 25 October 2026 — 11 FPS on a fast frame: RAF scheduling diagnostics (screenshot)
 
 In the user's new screenshot the game reports **11 FPS**, a **100.0 ms** frame interval with **30 units / 25 buildings**, while the measured **SIM 0.50 ms** and **DRAW 2.30 ms** are short. World objects are about **1.2 ms**, UI **1.3 ms**, and other stages round to zero. The displayed **672.10 ms DRAW peak** is historical, not the current frame. These measurements do not justify further unit-draw optimisation as the default diagnosis: the remaining interval may involve browser scheduling, compositor/GPU waiting, unrelated JavaScript, tab/window throttling, or sampling differences.
