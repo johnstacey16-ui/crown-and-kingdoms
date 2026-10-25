@@ -14,10 +14,10 @@ function scene(){
   'globalThis.evaluate=code=>eval(code);',
   'globalThis.ASSET={n:0};',
   'globalThis.layerCounts={chunks:0,units:0,buildings:0};',
-  'const originalChunks=drawChunks,originalUnit=drawUnit,originalBld=drawBld;',
-  'drawChunks=function(...a){layerCounts.chunks++;return originalChunks(...a)};',
-  'drawUnit=function(...a){layerCounts.units++;return originalUnit(...a)};',
-  'drawBld=function(...a){layerCounts.buildings++;return originalBld(...a)};',
+  'drawChunks=function(){layerCounts.chunks++};',
+  'drawUnit=function(){layerCounts.units++};',
+  'drawBld=function(){layerCounts.buildings++};',
+  'drawNode=function(){};',
  ].join('\n'),sandbox);
  const run=sandbox.evaluate;
  run('start();S.ex.fill(1);S.vs.fill(1);perfHud=1');
