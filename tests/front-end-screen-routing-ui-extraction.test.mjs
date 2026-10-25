@@ -18,11 +18,15 @@ test('full-screen routing is owned by js/ui.js', () => {
 });
 
 test('screen routing still precedes world and live-match drawing', () => {
-  const clear = engine.indexOf("X.fillRect(0,0,CW,CH);if(drawFrontEndScreen())return;");
-  const notes = engine.indexOf("for(const n of notes)n.t-=dt", clear);
-  const world = engine.indexOf("drawWorld();", clear);
+  const draw = engine.slice(engine.indexOf('function draw(dt){'), engine.indexOf('/* ===== MAIN LOOP'));
+  const clear = draw.indexOf('X.fillRect(0,0,CW,CH);');
+  const reset = draw.indexOf("if(mode!=='play'&&mode!=='pause')perfFlatField=0;");
+  const route = draw.indexOf('if(drawFrontEndScreen())return;');
+  const notes = draw.indexOf('for(const n of notes)n.t-=dt');
+  const world = draw.indexOf('drawWorld();');
   assert.ok(clear >= 0, 'canvas must be cleared before full-screen routing');
-  assert.ok(notes > clear, 'notes and world drawing must not run for full-screen menus');
+  assert.ok(reset > clear && route > reset, 'unsaved render isolation must clear before full-screen routing');
+  assert.ok(notes > route, 'notes and world drawing must not run for full-screen menus');
   assert.ok(world > notes, 'world drawing must only follow an unhandled screen');
   assert.match(ui, /if\(mode==='multiplayer'\)\{if\(window\.CK_NET\)window\.CK_NET\.drawLobby\(\);else drawTitle\(\);return true\}/);
 });
