@@ -1,3 +1,13 @@
+## 25 October 2026 — 11 FPS on a fast frame: RAF scheduling diagnostics (screenshot)
+
+In the user's new screenshot the game reports **11 FPS**, a **100.0 ms** frame interval with **30 units / 25 buildings**, while the measured **SIM 0.50 ms** and **DRAW 2.30 ms** are short. World objects are about **1.2 ms**, UI **1.3 ms**, and other stages round to zero. The displayed **672.10 ms DRAW peak** is historical, not the current frame. These measurements do not justify further unit-draw optimisation as the default diagnosis: the remaining interval may involve browser scheduling, compositor/GPU waiting, unrelated JavaScript, tab/window throttling, or sampling differences.
+
+With the performance HUD on, the game now separately reports **LOOP** (duration of the *previous* complete JS game callback), **PAD** (controller polling), **CTL** (input/control), **GAP** (positive remainder of the new requestAnimationFrame interval after the previous callback), **RAF** (raw uncapped time between RAF callbacks), and browser **TAB visibility / FOCUS** status. GAP is explicitly **unattributed time**, *not* proof of idle or of a specific GPU/browser bug. The split separates slow game callbacks from delayed scheduling and avoids the 250 ms simulation-delta clamp hiding a large RAF interval. Profiling overhead is gated on the optional HUD; gameplay fixed-step calculation, error recovery, network command authority, audio, saves, controller mappings, graphics and hosting remain unchanged. New pure-budget and production-source tests cover the 100 ms scenario and wiring.
+
+**Acceptance:** source regression/Chromium and same-device RAF/GAP reading required. No sustained FPS gain claimed from diagnostics alone.
+
+---
+
 ## 25 October 2026 — Late-battle fog batching and per-stage draw timings (video evidence)
 
 A new 5.23-second 1080p user video shows **4–5 FPS**, frame intervals roughly **200–250 ms**, **176 units / 105 buildings**, simulation **approximately 18–48 ms**, and drawing **approximately 160–190 ms**; peak counters are historical and not attributable to these five seconds. The previous captured ~612 ms draw period had fewer units and different conditions, so this is not a controlled before/after result. The bottleneck remains primarily rendering in the new clip.
