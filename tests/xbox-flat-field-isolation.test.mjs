@@ -42,8 +42,8 @@ test('reversible flat field avoids world draws while game UI stays active',()=>{
 });
 test('test mode clears when no match is in progress and cannot persist into a new match',()=>{
  const run=instrumentedGame();
- run('perfFlatField=1;mode="title";draw(.033)');
- assert.equal(run('perfFlatField'),0);
+ run('perfFlatField=1;mode="title";drawFrontEndScreen=function(){return true};draw(.033)');
+ assert.equal(run('perfFlatField'),0,'front-end early return must also clear the unsaved render diagnostic');
 });
 test('Xbox pause menu exposes an explicit controller-toggle and the test is never saved',()=>{
  assert.match(uiSrc,/n:'Render isolation test'/);
