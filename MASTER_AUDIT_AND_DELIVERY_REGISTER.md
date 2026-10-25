@@ -1,3 +1,13 @@
+## 25 October 2026 — Xbox Series S: avoid uploading unexplored terrain chunks
+
+Owner's paired Series S Edge screenshots showed 6 FPS for a normal early match versus 60 FPS with the world deliberately hidden: large RAF gaps appear associated with painting/presenting the battlefield, despite low measured JS draw time. A focused renderer change now **skips canvas chunk allocations and GPU drawImage calls for entirely unexplored 8×8 chunks**. Previously large 512×256 chunk textures were uploaded behind an opaque black fog mask. This live `S.ex` visibility check is evaluated each frame, allowing previously unknown chunks to draw immediately upon exploration; explored, coastal and water graphics are unchanged. The existing viewport bounds, palette, LRU, fog masking and all world entities remain intact. Animated water shimmer on completely unknown tiles is also skipped.
+
+**Not a final Xbox performance acceptance:** benchmark actual Normal FPS/RAF/GAP in the built-in Xbox FPS Test Save. Terrain-only and Objects-only diagnostic settings remain available to isolate further. Native Xbox Edge GPU/compositor presentation time cannot be inferred from JS callbacks alone. The improvement requires hardware measurements; no FPS increase is claimed yet.
+
+**CI and Vercel:** pending.
+
+---
+
 ## 25 October 2026 — Built-in Series S FPS test save (user request)
 
 Owner deleted their temporary local match and asked for a **saved game to test**, rather than repeatedly building a new kingdom. The main menu now includes **Xbox FPS Test Save**: a deterministic two-kingdom 96×96 Open Plains match seeded at 202697 with completed settlements (~56 buildings) and substantial original rendered units (~52), plus native terrain/fog, controller and AI simulation. Each invocation regenerates the same game state and saves/loads it through the *actual validated production serializer* using a reserved `ck_series_s_fps_fixture_v1` key. No manual save slots (`ck_save*`), recovery autosave (`ck_autosave`) or saved setup options (`ck_set`) are overwritten. If Edge disallows storage, the freshly generated in-memory sample remains playable. Automatic saving of this special fixture is disabled, including on pause and during play; manual "Save game" is still explicit. The sample is not a user's missing/deleted save and cannot recover it.

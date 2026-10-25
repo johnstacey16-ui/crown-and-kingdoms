@@ -14,7 +14,7 @@ function scene({CW=2560,CH=1440,zoom=.8,center=128}={}){
  const blits=[],created=[];
  const TCH=new Map();
  const fake={
-  CKS:8,W:256,H:256,TCH,CW,CH,zm:zoom,
+  CKS:8,W:256,H:256,TCH,CW,CH,zm:zoom,S:{ex:new Uint8Array(256*256).fill(1)},
   cam:{x:0,y:0},
   document:{createElement(tag){
    assert.equal(tag,'canvas');
@@ -108,6 +108,40 @@ test('camera panning retains an overlap cushion while bounding terrain canvas me
   paints=s.paints;
  }
 });
+test('fog-hidden chunks cost no draws, then reappear exactly when exploration expands',()=>{
+ const s=scene({CW:1280,CH:720,zoom:1.4,center:128}),r=s.view(),original=s.expected(r);
+ assert.ok(original.length>1);
+ s.fake.S.ex.fill(0);
+ assert.equal(s.draw(r).length,0,'unknown terrain never uploads');
+ assert.equal(s.created.length,0,'unknown terrain never allocates');
+ assert.equal(s.paints,0,'unknown terrain never textures tiles');
+ const central=original[Math.floor(original.length/2)],cx=Math.floor(central.key/4096),cy=central.key%4096;
+ s.fake.S.ex[(cy*8)*s.fake.W+cx*8]=1;
+ let actual=s.draw(r);
+ assert.equal(actual.length,1,'the first explored tile reveals its chunk immediately');
+ assert.equal(s.TCH.size,1);
+ assert.equal(s.paints,64,'only the discovered chunk is painted');
+ assert.deepEqual([actual[0].x,actual[0].y,actual[0].w,actual[0].h],
+  [central.sx,central.sy,central.sw,central.sh]);
+ const before=s.paints;s.draw(r);assert.equal(s.paints,before,'explored chunks still reuse atlas cache');
+ s.fake.S.ex.fill(1);actual=s.draw(r);
+ assert.equal(actual.length,original.length);
+ for(let i=0;i<original.length;i++)assert.deepEqual(
+  [actual[i].x,actual[i].y,actual[i].w,actual[i].h],
+  [original[i].sx,original[i].sy,original[i].sw,original[i].sh]);
+ s.fake.S.ex.fill(0);
+ assert.equal(s.draw(r).length,0,'cached chunks become invisible if exploration is reset');
+});
+
+test('map-edge visibility is bounded and an explored chunk still renders at any tile kind',()=>{
+ const s=scene({CW:1280,CH:720,zoom:1.4,center:12}),r=s.view(),original=s.expected(r);
+ assert.ok(original.length);
+ s.fake.S.ex.fill(0);
+ const focus=original[0],cx=Math.floor(focus.key/4096),cy=focus.key%4096;
+ s.fake.S.ex[cy*8*s.fake.W+cx*8]=1;
+ assert.equal(s.draw(r).length,1);
+});
+
 test('zoom changes, resolution changes and terrain invalidation remain safe',()=>{
  for(const [w,h,z] of [[1280,720,1.4],[1920,1080,1],[2560,1440,.8],[3840,2160,.8],[5120,2880,.8],[1920,1080,3]]){
   const s=scene({CW:w,CH:h,zoom:z}),r=s.view(),v=s.expected(r);
