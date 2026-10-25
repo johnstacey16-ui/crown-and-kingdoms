@@ -1,3 +1,12 @@
+## 25 October 2026 — Spanish Blacksmith gold exemption (Batch 55, acceptance pending)
+
+Source verified against official [Forgotten Empires Spanish profile](https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/spanish). The Spanish-only zero-gold Blacksmith research discount is calculated per owning team, without global catalogue mutation or discount to Stable, University and other non-Blacksmith technologies. Same effective price reaches controller UI, network option quotes, AI affordability/savings and actual resource charge. All source-required research times, age and tech prereqs stay unchanged. Artwork and multiplayer entity IDs untouched; existing current-version technology queues and saves remain reliable. Other speculative civilization bonuses not invented.
+
+Regression coverage includes all 26 civs × all Blacksmith tech keys, no cross-team leakage, actual food/gold charge with unaffordable foreign civs, host authorization and zero-gold research, exact completions, current-save roundtrips and UI/AI integration guards.
+
+**Release gates pending:** Require green PR and main CI, including all standalone tests, 19 campaigns, three seeded AI skirmishes, validation and Chromium. Vercel still has the separately verified HTTP 402 free-deploy quota blocker until confirmed READY on latest exact Git commit. Do not claim this batch live without production evidence.
+
+---
 ## 25 October 2026 — Forging, Iron Casting and Blast Furnace (Batch 54, acceptance pending)
 
 Pinned to AoE2:DE 185872 dataset blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. Independent Blacksmith Forging (150f/50s, Feudal, +1), Iron Casting (220f/120g/75s, Castle, +1), Blast Furnace (275f/225g/100s, Imperial, +2) replace the former combined melee shortcuts. The 26-civ source matrix excludes Blast Furnace from Byzantines, Malians and Koreans. Damage resolution and AI use the actual additive melee attack bonuses without altering ordinary ranged combat or art.
