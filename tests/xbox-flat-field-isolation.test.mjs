@@ -32,13 +32,13 @@ test('normal brightness bypasses compositor filter without affecting selected br
 test('reversible flat field avoids world draws while game UI stays active',()=>{
  const run=instrumentedGame();
  run('draw(.033)');
- assert.deepEqual(run('JSON.parse(JSON.stringify(probeCount))'),{world:1,ui:1});
+ assert.deepEqual(JSON.parse(run('JSON.stringify(probeCount)')),{world:1,ui:1});
  run('perfChunksMs=9;perfTilesMs=8;perfObjectsMs=7;perfEffectsMs=6;perfFlatField=1;draw(.033)');
- assert.deepEqual(run('JSON.parse(JSON.stringify(probeCount))'),{world:1,ui:2});
+ assert.deepEqual(JSON.parse(run('JSON.stringify(probeCount)')),{world:1,ui:2});
  assert.deepEqual(JSON.parse(run('JSON.stringify([perfChunksMs,perfTilesMs,perfObjectsMs,perfEffectsMs])')),[0,0,0,0]);
  assert.equal(run('mode'),'play','test must not pause simulation');
  run('perfFlatField=0;draw(.033)');
- assert.deepEqual(run('JSON.parse(JSON.stringify(probeCount))'),{world:2,ui:3});
+ assert.deepEqual(JSON.parse(run('JSON.stringify(probeCount)')),{world:2,ui:3});
 });
 test('test mode clears when no match is in progress and cannot persist into a new match',()=>{
  const run=instrumentedGame();

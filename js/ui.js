@@ -44,7 +44,7 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 {n:'Voice / ambient audio',v:()=>'not available'},
 {n:'Vibration',v:()=>rumbleOK()?(rmb?'On':'Off'):'not supported',l:()=>{rmb^=1},r:()=>{rmb^=1},a:()=>{rmb^=1}},
 {n:'Graphics quality',v:()=>['Low','Medium','High'][gq],l:()=>setQ((gq+2)%3),r:()=>setQ((gq+1)%3)},
-{n:'Performance overlay',v:()=>perfHud?'On':'Off',d:()=> 'Live frame rate, frame interval and unit counts. Useful for scale testing.',l:()=>{perfHud^=1;perfFps=0},r:()=>{perfFlatField^=1;perfHud=1;perfFps=0},a:()=>{perfHud^=1;perfFps=0}},
+{n:'Performance overlay',v:()=>perfHud?'On':'Off',d:()=> 'Live frame rate, frame interval and unit counts. Useful for scale testing.',l:()=>{perfHud^=1;perfFps=0},r:()=>{perfHud^=1;perfFps=0},a:()=>{perfHud^=1;perfFps=0}},
 {n:'Render isolation test',v:()=>perfFlatField?'Flat field':'Normal',d:()=> 'Xbox Edge diagnostic: temporarily hide the battlefield but keep simulation and the performance HUD active. Toggle again to restore graphics. Not saved.',l:()=>{perfFlatField^=1;perfHud=1;perfFps=0},r:()=>{perfFlatField^=1;perfHud=1;perfFps=0},a:()=>{perfFlatField^=1;perfHud=1;perfFps=0}},
 {n:'Remap buttons',a:()=>{rbk='pause';mode='remap';ri=0;rw=0}},{n:'Save game',a:()=>openSlots('save','pause')},{n:'Load game',a:()=>openSlots('load','pause')},
 {n:'Restart match',a:()=>{if(cmp)startScenario(cmp.i);else start()}},{n:window.CK_NET&&window.CK_NET.snapshot().roomCode?'Leave Multiplayer':'Main menu',a:()=>{if(window.CK_NET&&window.CK_NET.snapshot().roomCode)window.CK_NET.leaveToSinglePlayer();else mode='title'}}]}
