@@ -238,9 +238,27 @@ function drawHill(o){
 function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){TCH.delete(key);TCH.set(key,c);return c}
 const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');
 for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
-c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);if(TCH.size>48)TCH.delete(TCH.keys().next().value);return c}
+c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);return c}
 
-function drawChunks(x0,x1,y0,y1){for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){const c=chunkOf(cx,cy);X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)}}
+// The isometric view's axis-aligned WORLD bounding box includes terrain far
+// outside the SCREEN. Cull those chunks *before* generating their canvases.
+// A fixed 48-chunk LRU evicted visible chunks on wide/zoomed-out views,
+// causing the expensive terrain texture painter to rerun every single frame.
+// Retain all visible chunks (even above 320 on unusually large screens),
+// plus a capped panning margin, then trim the least-recently-used canvases.
+function drawChunks(x0,x1,y0,y1){
+ let visible=0;
+ for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){
+  const x=cx*CKS,y=cy*CKS,ox=(x-y-CKS+1)*32-32,oy=(x+y+1)*16-16;
+  const sx=ox*zm-cam.x,sy=oy*zm-cam.y,sw=CKS*64*zm,sh=((2*CKS-2)*16+32)*zm;
+  if(sx>=CW||sy>=CH||sx+sw<=0||sy+sh<=0)continue;
+  const c=chunkOf(cx,cy);
+  X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
+  visible++;
+ }
+ const budget=Math.max(64,visible,Math.min(320,visible+16));
+ while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
+}
 const PMAX=[100,260,520],PT=[];
 
 /* Draw the particles whose lifecycle is updated by engine.js. */
