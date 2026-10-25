@@ -40,7 +40,7 @@ test('test sample does not overwrite real autosave even after pausing or steppin
  run('autoPause()');
  assert.equal(run('mode'),'pause');
  assert.equal(storage.get('ck_autosave'),'do-not-replace');
- run('mode="play";frame2(performance.now()+100000)');
+ run('mode="play";perfFlatField=1;frame2(performance.now()+100000)');
  assert.equal(storage.get('ck_autosave'),'do-not-replace');
 });
 test('the built-in sample is inaccessible from another live match or an online session',()=>{
