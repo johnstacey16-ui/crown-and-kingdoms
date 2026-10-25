@@ -1,3 +1,12 @@
+## 25 October 2026 — Cavalry Barding armour tiers (Batch 53; release pending)
+
+Source AoE II DE build 185872, [SiegeEngineers data blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json): implemented source-accurate **Scale Barding** `armC` 150 food/45 sec, **Chain Barding** `armC2` 250 food + 150 gold/60 sec at Castle after Scale, and **Plate Barding** `armC3` 350 food + 200 gold/75 sec at Imperial after Chain. Damage calculation now stacks +1/+1, +1/+1 and +1/+2 melee/pierce protection for eligible mounted roster units, without touching original sprite art or network/save IDs. Original first-tier armor save flags preserve their old effect.
+
+Pinned 26-civ gates prohibit all 3 for Aztecs/Mayans/Incas and final Plate for Mongols, Celts, Vikings, Japanese, Goths, Ethiopians and Koreans. Research menus, AI and authoritative multiplayer commands all pass through existing shared `rsOf`; forbidden orders never spend resources, old already-paid research may complete. New standalone regression tests verify source availability, actual combat melee and pierce protection, other-unit isolation, exact costs/timers and ages, party ownership, host command filtering and saves.
+
+**Acceptance and deployment pending:** merge only after standalone source integrity and runtime tests, all campaigns, seeded production AI skirmishes, Chromium rendering and validation pass. The prior live alias at `crown-and-kingdoms.vercel.app` was last verified at Batch 50, with Batches 51–52 still blocked by Vercel API deployment daily quota (HTTP 402). Do not claim production until a READY deployment serving latest `main` commit is verified. Xbox hardware and melee attack tech remain open.
+
+---
 ## 25 October 2026 — Ranged armour tiers (Batch 52; PR/main all green, Vercel 402 deployment blocked)
 
 Pinned to DE 185872, SiegeEngineers technology blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. Implemented actual Feudal Padded Archer Armor `armR` (+1 melee/+1 pierce), Castle Leather `armR2` (+1/+1, 150f/150g, 55s after Padded), Imperial Ring `armR3` (+1/+2, 250f/250g, 70s after Leather) in the Blacksmith and cumulative `dmgT` class-aware combat. Source-pin 26 civilization research matrices; Franks, Mongols, Huns, Aztecs cannot newly research Ring. Preserved old `armR` effect, art and save/multiplayer identifiers. Shared permissions and costs cover human, AI and host multiplayer. Ranged-unit armour art indicator still works; higher-tier graphical distinction not yet implemented.

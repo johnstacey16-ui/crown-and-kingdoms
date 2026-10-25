@@ -328,6 +328,44 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
+/* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
+ * data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Chain Barding Armor 82 (c), Plate Barding Armor 80 (p).
+ * Chain is unavailable to Aztecs, Mayans and Incas (no cavalry tech line).
+ * Plate is additionally absent for Mongols, Celts, Vikings, Japanese,
+ * Goths, Ethiopians and Koreans. Existing Scale Barding Armor 81
+ * remains covered by CIV_BLACKSMITH_RESEARCH (armC).
+ * 'Indians' maps to historical Hindustanis; paid old saves remain valid.
+ */
+const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
+ 'Franks':'cp',
+ 'Britons':'cp',
+ 'Mongols':'c',
+ 'Byzantines':'cp',
+ 'Persians':'cp',
+ 'Teutons':'cp',
+ 'Celts':'c',
+ 'Vikings':'c',
+ 'Saracens':'cp',
+ 'Turks':'cp',
+ 'Chinese':'cp',
+ 'Japanese':'c',
+ 'Khmer':'cp',
+ 'Indians':'cp',
+ 'Spanish':'cp',
+ 'Italians':'cp',
+ 'Slavs':'cp',
+ 'Huns':'cp',
+ 'Goths':'c',
+ 'Aztecs':'',
+ 'Mayans':'',
+ 'Incas':'',
+ 'Ethiopians':'c',
+ 'Malians':'cp',
+ 'Koreans':'c',
+ 'Magyars':'cp'
+});
+const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -350,7 +388,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const infantry=b.k==='smith'&&c&&CIV_INFANTRY_ARMOR_RESEARCH[c.n];
  const armored=infantry==null?forged:forged.filter(k=>!INFANTRY_ARMOR_RESEARCH_KEYS[k]||infantry.includes(INFANTRY_ARMOR_RESEARCH_KEYS[k]));
  const archers=b.k==='smith'&&c&&CIV_ARCHER_ARMOR_RESEARCH[c.n];
- const finalList=archers==null?armored:armored.filter(k=>!ARCHER_ARMOR_RESEARCH_KEYS[k]||archers.includes(ARCHER_ARMOR_RESEARCH_KEYS[k]));
+ const armoredArchers=archers==null?armored:armored.filter(k=>!ARCHER_ARMOR_RESEARCH_KEYS[k]||archers.includes(ARCHER_ARMOR_RESEARCH_KEYS[k]));
+ const cavalry=b.k==='smith'&&c&&CIV_CAVALRY_ARMOR_RESEARCH[c.n];
+ const finalList=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
