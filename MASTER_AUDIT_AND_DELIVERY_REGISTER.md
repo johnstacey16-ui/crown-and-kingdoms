@@ -1,3 +1,12 @@
+## 25 October 2026 — Terrain chunk cache performance work (Batch 54, release pending)
+
+A supplied battlefield screenshot and seven ~10–18-second 1080p gameplay clips show late Imperial Age fighting at **4 FPS** with **78 units and 94 buildings**. The visible diagnostic displays **SIM 15.70 ms** (peak 166.70) and **DRAW 612.80 ms** (peak 694.80). These readings point to an especially slow canvas draw in that captured scene; do not assume a per-device improvement without comparing on the same hardware.
+
+Identified a deterministic performance bug in `js/render.js`: `drawChunks()` iterates every terrain chunk in the isometric viewport's *world-coordinate bounding rectangle*, painting many that are outside the visible screen. Meanwhile `chunkOf()` trims its LRU to **48 chunks on every cache miss**. Wide or zoomed-out views with more than 48 on-screen chunks can therefore repaint terrain continuously, even if the camera never moves. Change culls projected offscreen chunks **before** expensive canvas construction, retains all visible chunks plus a panning margin, and prunes after each render with a bound (64–224 chunks). No changes to original art, combat, S.tech, saves, camera geometry, or multiplayer tick calculation.
+
+Added `tests/terrain-chunk-visible-cache.test.mjs` to exercise realistic 1280/1920/2560/3840 viewports, full painted chunk placement, zero stationary redraws over 30 frames, panning reuse, explicit cache invalidation and bounded storage. Full PR/main acceptance checks and production exact SHA remain required; Vercel previously refused Batch 51/52 releases with HTTP 402 daily deployment quota. **Do not mark performance improved on the user's PC or this batch shipped until measured and deployed.**
+
+---
 ## 25 October 2026 — Spanish Blacksmith gold exemption (Batch 55, PR/main tests all green; production READY)
 
 Source verified against official [Forgotten Empires Spanish profile](https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/spanish). The Spanish-only zero-gold Blacksmith research discount is calculated per owning team, without global catalogue mutation or discount to Stable, University and other non-Blacksmith technologies. Same effective price reaches controller UI, network option quotes, AI affordability/savings and actual resource charge. All source-required research times, age and tech prereqs stay unchanged. Artwork and multiplayer entity IDs untouched; existing current-version technology queues and saves remain reliable. Other speculative civilization bonuses not invented.
