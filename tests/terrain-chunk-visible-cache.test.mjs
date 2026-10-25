@@ -109,10 +109,11 @@ test('camera panning retains an overlap cushion while bounding terrain canvas me
  }
 });
 test('zoom changes, resolution changes and terrain invalidation remain safe',()=>{
- for(const [w,h,z] of [[1280,720,1.4],[1920,1080,1],[2560,1440,.8],[3840,2160,.8],[1920,1080,3]]){
+ for(const [w,h,z] of [[1280,720,1.4],[1920,1080,1],[2560,1440,.8],[3840,2160,.8],[5120,2880,.8],[1920,1080,3]]){
   const s=scene({CW:w,CH:h,zoom:z}),r=s.view(),v=s.expected(r);
   assert.equal(s.draw(r).length,v.length,'visible terrain count for '+[w,h,z]);
   assert.equal(s.created.length,v.length,'offscreen chunks not created for '+[w,h,z]);
+  assert.ok(s.TCH.size>=v.length,'large viewport never evicts its own visible chunks');
   const before=s.paints;
   s.draw(r);
   assert.equal(s.paints,before,'stable viewport never invalidates '+[w,h,z]);
