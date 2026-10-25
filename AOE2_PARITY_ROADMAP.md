@@ -5,7 +5,9 @@
 - [x] Apply source-backed 26-civilization availability to new tiers; Plate Mail unavailable to Khmer, Hindustanis, Huns, Goths and Magyars.
 - [x] Keep AI research valuation, team-specific menus, hostile multiplayer command rejection and historical saves compatible; add source-pinned combat and save tests.
 - [ ] Separate full **ranged armour**, **cavalry armour**, and **melee attack** lines with correct effects/research-tier migration, civilization restrictions and current multiplayer validation.
-- [ ] Finish all PR and main Actions, validate production exact commit, and test real Xbox Series X controls.
+- [x] [PR #51 merged](https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/51) at `829a65c25f44c478b4b277153b711c074d7b2dc8`; [PR full regressions (184 tests, 19 campaigns, 3 AI seeds)](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146019413), [PR validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146019417) and [PR Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146019391) passed. Post-merge [main full regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146361712), [main validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146361716) and [main Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40146361734) passed.
+- [ ] **Production deployment is blocked as of 25 October 2026.** Vercel returned 402 `api-deployments-free-per-day`, retry-after 86,400s (24h) for an authorized gitSource production deployment. Latest verified live `crown-and-kingdoms.vercel.app` is still prior Batch 50 main `851278af65b899b2e06fc8bf639d4679a0fcdc80`; do not claim Batch 51 is live until production is READY and production SHA matches current main. No CLI fallback is installed in the connected runtime. Requires daily limit reset or Vercel user billing/plan action.
+- [ ] Test real Xbox Series X controls and long-match multiplayer recovery.
 
 See [source reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
 
