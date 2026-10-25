@@ -366,6 +366,43 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
+/* New DE three-tier melee research from AoE2 DE build 185872; SiegeEngineers
+ * data/data.json SHA c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Forging 67 (f), Iron Casting 68 (i), Blast Furnace 75 (b).
+ * Source prohibits Blast for Byzantines, Malians and Koreans; all have
+ * Forging and Iron Casting. 'Indians' maps to Hindustanis.
+ * Keep retired atkM/atkM2 in B.smith.rs only for old paid save queues;
+ * rsOf deliberately hides those legacy shortcuts from NEW orders.
+ */
+const CIV_MELEE_RESEARCH=Object.freeze({
+ 'Franks':'fib',
+ 'Britons':'fib',
+ 'Mongols':'fib',
+ 'Byzantines':'fi',
+ 'Persians':'fib',
+ 'Teutons':'fib',
+ 'Celts':'fib',
+ 'Vikings':'fib',
+ 'Saracens':'fib',
+ 'Turks':'fib',
+ 'Chinese':'fib',
+ 'Japanese':'fib',
+ 'Khmer':'fib',
+ 'Indians':'fib',
+ 'Spanish':'fib',
+ 'Italians':'fib',
+ 'Slavs':'fib',
+ 'Huns':'fib',
+ 'Goths':'fib',
+ 'Aztecs':'fib',
+ 'Mayans':'fib',
+ 'Incas':'fib',
+ 'Ethiopians':'fib',
+ 'Malians':'fi',
+ 'Koreans':'fi',
+ 'Magyars':'fib'
+});
+const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -390,7 +427,10 @@ const rsOf=(b,civs=S?.civ)=>{
  const archers=b.k==='smith'&&c&&CIV_ARCHER_ARMOR_RESEARCH[c.n];
  const armoredArchers=archers==null?armored:armored.filter(k=>!ARCHER_ARMOR_RESEARCH_KEYS[k]||archers.includes(ARCHER_ARMOR_RESEARCH_KEYS[k]));
  const cavalry=b.k==='smith'&&c&&CIV_CAVALRY_ARMOR_RESEARCH[c.n];
- const finalList=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
+ const barded=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
+ const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
+ const current=b.k==='smith'?barded.filter(k=>k!=='atkM'&&k!=='atkM2'):barded;
+ const finalList=melee==null?current:current.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
