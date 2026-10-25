@@ -255,6 +255,42 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Magyars':'mbirc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({atkM:'m',atkM2:'b',armI:'i',armR:'r',armC:'c'});
+/* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
+ * data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * Chain Mail 76 (c), Plate Mail 77 (p). Each represented civ has Chain,
+ * but Khmer, Hindustanis, Huns, Goths and Magyars lack Plate Mail.
+ * This is independent of existing Scale Mail 74 in CIV_BLACKSMITH_RESEARCH.
+ * Keep old paid/finished saves loadable; only new requests are gated.
+ */
+const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
+ 'Franks':'cp',
+ 'Britons':'cp',
+ 'Mongols':'cp',
+ 'Byzantines':'cp',
+ 'Persians':'cp',
+ 'Teutons':'cp',
+ 'Celts':'cp',
+ 'Vikings':'cp',
+ 'Saracens':'cp',
+ 'Turks':'cp',
+ 'Chinese':'cp',
+ 'Japanese':'cp',
+ 'Khmer':'c',
+ 'Indians':'c',
+ 'Spanish':'cp',
+ 'Italians':'cp',
+ 'Slavs':'cp',
+ 'Huns':'c',
+ 'Goths':'c',
+ 'Aztecs':'cp',
+ 'Mayans':'cp',
+ 'Incas':'cp',
+ 'Ethiopians':'cp',
+ 'Malians':'cp',
+ 'Koreans':'cp',
+ 'Magyars':'c'
+});
+const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -273,7 +309,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const university=b.k==='univ'&&c&&CIV_UNIVERSITY_RESEARCH[c.n];
  const academic=university==null?monastic:monastic.filter(k=>!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]));
  const blacksmith=b.k==='smith'&&c&&CIV_BLACKSMITH_RESEARCH[c.n];
- const finalList=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
+ const forged=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
+ const infantry=b.k==='smith'&&c&&CIV_INFANTRY_ARMOR_RESEARCH[c.n];
+ const finalList=infantry==null?forged:forged.filter(k=>!INFANTRY_ARMOR_RESEARCH_KEYS[k]||infantry.includes(INFANTRY_ARMOR_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];

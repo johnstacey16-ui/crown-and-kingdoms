@@ -1,3 +1,15 @@
+## 25 October 2026 — Infantry armour three-tier progression
+
+- [x] Add **Chain Mail Armor** (`armI2`, 200 food + 100 gold / 55s / Castle / after `armI`) and **Plate Mail Armor** (`armI3`, 300 food + 150 gold / 70s / Imperial / after Chain Mail) in the actual Blacksmith.
+- [x] Stack researched +1/+1 Scale Mail, +1/+1 Chain Mail, +1/+2 Plate Mail correctly in physical/pierce `dmgT` calculations for every existing and future generic infantry unit, without altering other armor families.
+- [x] Apply source-backed 26-civilization availability to new tiers; Plate Mail unavailable to Khmer, Hindustanis, Huns, Goths and Magyars.
+- [x] Keep AI research valuation, team-specific menus, hostile multiplayer command rejection and historical saves compatible; add source-pinned combat and save tests.
+- [ ] Separate full **ranged armour**, **cavalry armour**, and **melee attack** lines with correct effects/research-tier migration, civilization restrictions and current multiplayer validation.
+- [ ] Finish all PR and main Actions, validate production exact commit, and test real Xbox Series X controls.
+
+See [source reference audit](docs/AOE2_DE_REFERENCE_AUDIT.md).
+
+---
 ## 25 October 2026 — Blacksmith eligibility and first armour-tier audit
 
 - [x] Source-pin 26 civilizations × five implemented Blacksmith keys (Forging, Blast Furnace proxy, Scale Mail, Padded Archer, Scale Barding).
