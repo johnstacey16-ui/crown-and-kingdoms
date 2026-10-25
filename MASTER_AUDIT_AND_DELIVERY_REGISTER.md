@@ -1,3 +1,13 @@
+## 25 October 2026 — Built-in Series S FPS test save (user request)
+
+Owner deleted their temporary local match and asked for a **saved game to test**, rather than repeatedly building a new kingdom. The main menu now includes **Xbox FPS Test Save**: a deterministic two-kingdom 96×96 Open Plains match seeded at 202697 with completed settlements (~56 buildings) and substantial original rendered units (~52), plus native terrain/fog, controller and AI simulation. Each invocation regenerates the same game state and saves/loads it through the *actual validated production serializer* using a reserved `ck_series_s_fps_fixture_v1` key. No manual save slots (`ck_save*`), recovery autosave (`ck_autosave`) or saved setup options (`ck_set`) are overwritten. If Edge disallows storage, the freshly generated in-memory sample remains playable. Automatic saving of this special fixture is disabled, including on pause and during play; manual "Save game" is still explicit. The sample is not a user's missing/deleted save and cannot recover it.
+
+From **Home → Xbox FPS Test Save → Menu → Render layer diagnosis**, compare Normal, Terrain only, and Objects only in the *same* built-in scene. Green flat-field is intentionally blank and is a distinct existing mode. Normal restores all graphics. The test produces its own fixed starting population, placements and camera, but still runs live AI after loading, so later timestamps will naturally differ. The aim is to isolate the 6-to-60 FPS Series S GPU/render stall; this is not a final performance fix. No hosting-tier or network changes.
+
+**Verification:** pending game regression suite, browser and exact production deployment.
+
+---
+
 ## 25 October 2026 — Xbox Series S confirmed 6 → 60 FPS flat-field A/B; next stage isolation
 
 Owner provided paired screenshots from their actual Series S running Edge at the **beginning of a game**, not a large battle. **Normal scene:** **6 FPS**, 166.8 ms RAF, 163.5 ms GAP, LOOP 3.3 ms, SIM 1.4 ms, DRAW 2.0 ms, about 30 units/54 buildings. **Flat field:** **60 FPS**, 16.7 ms RAF, 15.9 ms GAP, LOOP 1.8 ms, SIM 0.0 ms, DRAW 1.8 ms, about 30 units/56 buildings. Flat-field green background is expected and temporary: the live HUD, units in simulation, and control inputs continue while the battlefield is intentionally omitted. These counts vary slightly because the match is still running. The roughly **10×** frame rate change under the controlled setting strongly implicates drawing/presenting world graphics (including GPU/compositor effects), despite the small JavaScript draw duration. It does **not** identify which layer or prove a graphics-driver fault.
