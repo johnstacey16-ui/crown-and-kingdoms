@@ -18,8 +18,8 @@ assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain i
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
 const techKeys = techMatches.map((match) => match[1]);
-assert.equal(techKeys.length, 64, 'Technology table must include 64 upgrades including separate Chain/Plate and Leather/Ring armour tiers');
-assert.ok(techKeys.includes('xbow')&&techKeys.includes('thumb')&&techKeys.includes('armI2')&&techKeys.includes('armI3')&&techKeys.includes('armR2')&&techKeys.includes('armR3'), 'Crossbowman, Thumb Ring, Chain Mail and Plate Mail must remain defined');
+assert.equal(techKeys.length, 66, 'Technology table must include 66 upgrades with independent infantry, archer and cavalry armor tiers');
+assert.ok(techKeys.includes('xbow')&&techKeys.includes('thumb')&&techKeys.includes('armI2')&&techKeys.includes('armI3')&&techKeys.includes('armR2')&&techKeys.includes('armR3')&&techKeys.includes('armC2')&&techKeys.includes('armC3'), 'Crossbowman, Thumb Ring, Chain Mail and Plate Mail must remain defined');
 assert.equal(new Set(techKeys).size, techKeys.length, 'Technology keys must be unique');
 
 const buildingStart = html.indexOf('const B={');
@@ -70,5 +70,5 @@ assert.match(html, /tk\.gtow\?3:0/,
 assert.match(html, /tk\.keep\?3:0/,
   'Keep must affect defensive building attack damage');
 
-console.log('technology-research-integrity: research availability and 64 technology records validated');
+console.log('technology-research-integrity: research availability and 66 technology records validated');
 
