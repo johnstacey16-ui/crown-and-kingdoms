@@ -1,3 +1,23 @@
+## Real Forging → Iron Casting → Blast Furnace melee tiers — 25 October 2026
+
+**Pinned source**: AoE2:DE build **185872**, [SiegeEngineers/aoe2techtree data/data.json (blob c4f7da9)](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json); [AoE2 Forging](https://liquipedia.net/ageofempires/Forging), [Iron Casting](https://liquipedia.net/ageofempires/Iron_Casting), and [Blast Furnace](https://www.aoe2insights.com/civilization/britons/tech-tree/).
+
+| New game tech | Source ID | Age | Prerequisite | Cost | Time | Added melee attack |
+| --- | --- | --- | --- | --- | --- | --- |
+| `forging` | 67 | Feudal | none | 150 food | 50s | +1 |
+| `ironCasting` | 68 | Castle | Forging | 220 food, 120 gold | 75s | +1 |
+| `blastFurnace` | 75 | Imperial | Iron Casting | 275 food, 225 gold | 100s | **+2** |
+
+Together these confer **+4 melee attack**, not +3; the new `meleeResearchAttackBonus()` feeds the existing live combat `dmgT` resolver and does not buff standard ranged attacks. The 26-civilization `CIV_MELEE_RESEARCH` masks gate all three actual technologies using the shared `rsOf` production and multiplayer/AI authorisation path. **Byzantines, Malians and Koreans lack Blast Furnace**, and all original 26 have Forging and Iron Casting. The game key `Indians` still maps to source Hindustanis. The new AI scores military melee research against its actual army mix. Ordinary source-era civilization bonuses (e.g. Magyars' free upgrades, Spanish Iron Casting gold-cost reduction, Chinese Blacksmith discounts, Inca villager attack exceptions) still need separate work.
+
+**Pre-release save policy (user-approved):** This game is still being tested by its only player. Backward compatibility with older test saves is **not required** until completion. The previous combined `atkM` (+2) and `atkM2` (+5) technologies and all their save-migration code have been removed. Fresh games use only the three source-backed tiers, while saves made with **this** tech model can save/load normally. No old-version save conversion is attempted. The new attack progression is independent of melee/pierce armour defense; infantry, ranged and cavalry armour tiers and all artwork/network entity IDs remain unchanged.
+
+**Tests:** pinned 26×3 matrix, real combat +1/+1/+2 vs ranged isolation, exact costs/ages/prerequisites/timers, absent obsolete tech keys, authenticated host rejection and current-version save round-trip. No pre-release migration promises are made. Unit-specific attack bonuses, civ economic discounts and real Xbox hardware tests remain open.
+
+**Release gate:** All PR and post-merge main standalone regressions, 19 campaigns, three seeded AI matches, Chromium and game validation must pass before merge/deployment claims. Vercel production must independently be READY on latest `main` SHA; previous HTTP 402 quota is tracked separately.
+
+
+---
 ## Cavalry Barding research tiers — 25 October 2026
 
 **Pinned reference:** AoE II: Definitive Edition update/build 185872, [SiegeEngineers `data/data.json` blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json), and [the Blacksmith descriptions in AoE2 Companion](https://app.aoe2companion.com/explore/technologies?section=Blacksmith). The game's historical `Indians` civ key corresponds to source **Hindustanis**.

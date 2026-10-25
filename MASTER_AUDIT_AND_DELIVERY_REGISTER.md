@@ -1,3 +1,13 @@
+## 25 October 2026 — Forging, Iron Casting and Blast Furnace (Batch 54, acceptance pending)
+
+Pinned to AoE2:DE 185872 dataset blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. Independent Blacksmith Forging (150f/50s, Feudal, +1), Iron Casting (220f/120g/75s, Castle, +1), Blast Furnace (275f/225g/100s, Imperial, +2) replace the former combined melee shortcuts. The 26-civ source matrix excludes Blast Furnace from Byzantines, Malians and Koreans. Damage resolution and AI use the actual additive melee attack bonuses without altering ordinary ranged combat or art.
+
+**User explicitly waived pre-release backward save compatibility:** The prior `atkM` and `atkM2` keys and their migration logic are removed entirely, rather than retained solely for old test saves. Current-version saves still support their own completion and reload. No earlier game-version save is promised to work. All current multiplayer IDs stay unchanged.
+
+Coverage: 26-civ technology tree, timing, price/age/preconditions, real combat, no obsolete tech keys, authenticated host budget isolation and current-version save roundtrips. **Merge and release require all CI checks.** Vercel previously blocked new production builds with HTTP 402 `api-deployments-free-per-day`; verify READY and exact latest production SHA before calling Batch 54 live. Unit-specific exceptions, discounts, Xbox device controls and advanced multiplayer audits are still open.
+
+
+---
 ## 25 October 2026 — Cavalry Barding armour tiers (Batch 53; PR/main CI passed, Vercel quota blocked)
 
 Source AoE II DE build 185872, [SiegeEngineers data blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json): implemented source-accurate **Scale Barding** `armC` 150 food/45 sec, **Chain Barding** `armC2` 250 food + 150 gold/60 sec at Castle after Scale, and **Plate Barding** `armC3` 350 food + 200 gold/75 sec at Imperial after Chain. Damage calculation now stacks +1/+1, +1/+1 and +1/+2 melee/pierce protection for eligible mounted roster units, without touching original sprite art or network/save IDs. Original first-tier armor save flags preserve their old effect.

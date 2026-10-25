@@ -17,6 +17,11 @@ const context = {
   emit: () => {}, hitSnd: () => {}, sfx: () => {}, note: () => {},
 };
 vm.createContext(context);
+// Keep the isolated combat function's production attack-tier helper available.
+const bonusStart=simulation.indexOf('function meleeResearchAttackBonus(');
+const bonusEnd=simulation.indexOf('function dmgT(a,t){',bonusStart);
+assert.ok(bonusStart>=0&&bonusEnd>bonusStart);
+vm.runInContext(simulation.slice(bonusStart,bonusEnd),context);
 vm.runInContext(simulation.slice(a, b), context);
 const dmgT = vm.runInContext('dmgT', context);
 const attacker = { k: 'mil', t: 0 };

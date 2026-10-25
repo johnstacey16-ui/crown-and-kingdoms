@@ -217,44 +217,42 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Magyars':'mgcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
-/* DE build 185872: 26-civilization availability for implemented Blacksmith keys.
- * SiegeEngineers/aoe2techtree data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
- * Source IDs: Forging 67, Blast Furnace 75, Scale Mail Armor 74,
- * Padded Archer Armor 211, Scale Barding Armor 81.
- * atkM2 represents the existing compressed *last* attack tier, not DE's
- * independently researched Iron Casting / Blast Furnace chain: only its
- * final-tier eligibility is mapped, not its unsplit effects or costs.
- * Historical Indians maps to Hindustanis; paid old research survives saves.
+/* DE build 185872, SiegeEngineers tech tree blob
+ * c4f7da961e82a8231b1ba49459949c4d6e479bc8.
+ * First infantry, archer and cavalry armor tier availability, respectively
+ * Scale Mail 74 (i), Padded Archer 211 (r), Scale Barding 81 (c).
+ * The three American civs have no cavalry armor. Melee attack research is
+ * separately modeled by CIV_MELEE_RESEARCH below.
  */
 const CIV_BLACKSMITH_RESEARCH=Object.freeze({
- 'Franks':'mbirc',
- 'Britons':'mbirc',
- 'Mongols':'mbirc',
- 'Byzantines':'mirc',
- 'Persians':'mbirc',
- 'Teutons':'mbirc',
- 'Celts':'mbirc',
- 'Vikings':'mbirc',
- 'Saracens':'mbirc',
- 'Turks':'mbirc',
- 'Chinese':'mbirc',
- 'Japanese':'mbirc',
- 'Khmer':'mbirc',
- 'Indians':'mbirc',
- 'Spanish':'mbirc',
- 'Italians':'mbirc',
- 'Slavs':'mbirc',
- 'Huns':'mbirc',
- 'Goths':'mbirc',
- 'Aztecs':'mbir',
- 'Mayans':'mbir',
- 'Incas':'mbir',
- 'Ethiopians':'mbirc',
- 'Malians':'mirc',
- 'Koreans':'mirc',
- 'Magyars':'mbirc'
+ 'Franks':'irc',
+ 'Britons':'irc',
+ 'Mongols':'irc',
+ 'Byzantines':'irc',
+ 'Persians':'irc',
+ 'Teutons':'irc',
+ 'Celts':'irc',
+ 'Vikings':'irc',
+ 'Saracens':'irc',
+ 'Turks':'irc',
+ 'Chinese':'irc',
+ 'Japanese':'irc',
+ 'Khmer':'irc',
+ 'Indians':'irc',
+ 'Spanish':'irc',
+ 'Italians':'irc',
+ 'Slavs':'irc',
+ 'Huns':'irc',
+ 'Goths':'irc',
+ 'Aztecs':'ir',
+ 'Mayans':'ir',
+ 'Incas':'ir',
+ 'Ethiopians':'irc',
+ 'Malians':'irc',
+ 'Koreans':'irc',
+ 'Magyars':'irc'
 });
-const BLACKSMITH_RESEARCH_KEYS=Object.freeze({atkM:'m',atkM2:'b',armI:'i',armR:'r',armC:'c'});
+const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
  * data/data.json blob c4f7da961e82a8231b1ba49459949c4d6e479bc8.
  * Chain Mail 76 (c), Plate Mail 77 (p). Each represented civ has Chain,
@@ -366,6 +364,40 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
+/* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
+ * Forging 67 (f), Iron Casting 68 (i), Blast Furnace 75 (b).
+ * Byzantines, Malians and Koreans lack Blast Furnace.
+ * Historic 'Indians' maps to Hindustanis.
+ */
+const CIV_MELEE_RESEARCH=Object.freeze({
+ 'Franks':'fib',
+ 'Britons':'fib',
+ 'Mongols':'fib',
+ 'Byzantines':'fi',
+ 'Persians':'fib',
+ 'Teutons':'fib',
+ 'Celts':'fib',
+ 'Vikings':'fib',
+ 'Saracens':'fib',
+ 'Turks':'fib',
+ 'Chinese':'fib',
+ 'Japanese':'fib',
+ 'Khmer':'fib',
+ 'Indians':'fib',
+ 'Spanish':'fib',
+ 'Italians':'fib',
+ 'Slavs':'fib',
+ 'Huns':'fib',
+ 'Goths':'fib',
+ 'Aztecs':'fib',
+ 'Mayans':'fib',
+ 'Incas':'fib',
+ 'Ethiopians':'fib',
+ 'Malians':'fi',
+ 'Koreans':'fi',
+ 'Magyars':'fib'
+});
+const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
@@ -390,7 +422,9 @@ const rsOf=(b,civs=S?.civ)=>{
  const archers=b.k==='smith'&&c&&CIV_ARCHER_ARMOR_RESEARCH[c.n];
  const armoredArchers=archers==null?armored:armored.filter(k=>!ARCHER_ARMOR_RESEARCH_KEYS[k]||archers.includes(ARCHER_ARMOR_RESEARCH_KEYS[k]));
  const cavalry=b.k==='smith'&&c&&CIV_CAVALRY_ARMOR_RESEARCH[c.n];
- const finalList=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
+ const barded=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
+ const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
+ const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];

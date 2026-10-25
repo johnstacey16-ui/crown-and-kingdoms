@@ -20,6 +20,11 @@ const context = {
   rumble: () => {}, W: 72, cmp: null, vm: 0,
 };
 vm.createContext(context);
+// Isolated combat harness must load the same melee research bonus helper as production.
+const bonusStart=sim.indexOf('function meleeResearchAttackBonus(');
+const bonusEnd=sim.indexOf('function dmgT(a,t){',bonusStart);
+assert.ok(bonusStart>=0&&bonusEnd>bonusStart,'melee attack helper is part of combat');
+vm.runInContext(sim.slice(bonusStart,bonusEnd),context);
 vm.runInContext(sim.slice(start, end), context);
 const dmgT = vm.runInContext('dmgT', context);
 function damage(attacker, building, arson) {

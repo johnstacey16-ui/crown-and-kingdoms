@@ -499,40 +499,40 @@ globalThis.__CK_TEST__ = {
   auditAttackResearchDamage() {
     const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
     const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
-    const tech = S.tech[0], oldM = tech.atkM, oldM2 = tech.atkM2, oldR = tech.atkR, oldR2 = tech.atkR2;
+    const tech = S.tech[0], keys = ['forging','ironCasting','blastFurnace','atkR','atkR2'];
+    const prior = Object.fromEntries(keys.map(k=>[k,tech[k]]));
     const oldHp = target.hp, oldDead = target.dead;
-    const damage = (key, value) => {
-      delete tech.atkM; delete tech.atkM2; delete tech.atkR; delete tech.atkR2;
-      if (key) tech[key] = value;
+    const damage = enabled => {
+      for (const key of keys) delete tech[key];
+      for (const key of enabled) tech[key]=1;
       target.hp = 100000; target.dead = 0;
       dmgT(attacker, target);
       return 100000 - target.hp;
     };
     try {
-      const meleeBase = damage(null, 0);
-      const meleeBasic = damage('atkM', 1);
-      const meleeAdvanced = damage('atkM2', 1);
+      const meleeBase = damage([]);
+      const meleeBasic = damage(['forging']);
+      const meleeIntermediate = damage(['forging','ironCasting']);
+      const meleeAdvanced = damage(['forging','ironCasting','blastFurnace']);
       attacker.k = 'xbow';
-      const rangedBase = damage(null, 0);
-      const rangedBasic = damage('atkR', 1);
-      const rangedAdvanced = damage('atkR2', 1);
-      return { meleeBase, meleeBasic, meleeAdvanced, rangedBase, rangedBasic, rangedAdvanced };
+      const rangedBase = damage([]);
+      const rangedBasic = damage(['atkR']);
+      const rangedAdvanced = damage(['atkR2']);
+      return { meleeBase, meleeBasic, meleeIntermediate, meleeAdvanced, rangedBase, rangedBasic, rangedAdvanced };
     } finally {
       attacker.k = 'mil';
       target.hp = oldHp; target.dead = oldDead;
-      for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
-      if (oldM !== undefined) tech.atkM = oldM;
-      if (oldM2 !== undefined) tech.atkM2 = oldM2;
-      if (oldR !== undefined) tech.atkR = oldR;
-      if (oldR2 !== undefined) tech.atkR2 = oldR2;
+      for (const key of keys) {
+        delete tech[key];
+        if (prior[key] !== undefined) tech[key]=prior[key];
+      }
     }
   },
   auditArmourResearchDamage() {
     const attacker = { t: 0, k: 'mil', x: 8, y: 8, hp: 100 };
     const target = { t: 1, k: 'mil', x: 9, y: 8, hp: 100000, dead: 0 };
-    const tech = S.tech[0], armour = S.tech[1];
+    const armour = S.tech[1];
     const oldArmI = armour.armI, oldArmR = armour.armR, oldArmC = armour.armC;
-    const oldAtkM = tech.atkM, oldAtkM2 = tech.atkM2, oldAtkR = tech.atkR, oldAtkR2 = tech.atkR2;
     const oldKind = target.k, oldHp = target.hp, oldDead = target.dead;
     const damage = (attackerKind, targetKind, armourKey) => {
       attacker.k = attackerKind;
@@ -558,11 +558,6 @@ globalThis.__CK_TEST__ = {
       if (oldArmI !== undefined) armour.armI = oldArmI;
       if (oldArmR !== undefined) armour.armR = oldArmR;
       if (oldArmC !== undefined) armour.armC = oldArmC;
-      for (const key of ['atkM','atkM2','atkR','atkR2']) delete tech[key];
-      if (oldAtkM !== undefined) tech.atkM = oldAtkM;
-      if (oldAtkM2 !== undefined) tech.atkM2 = oldAtkM2;
-      if (oldAtkR !== undefined) tech.atkR = oldAtkR;
-      if (oldAtkR2 !== undefined) tech.atkR2 = oldAtkR2;
     }
   },
   auditSpatialTargets() {
@@ -1254,11 +1249,12 @@ assert.equal(husbandrySpeeds.transport, husbandrySpeeds.transportBase, 'Husbandr
 assert.equal(husbandrySpeeds.conqMounted, true, 'Mounted unique cavalry must be included in the mounted set');
 console.log('husbandry-smoke: cavalry receives +10% speed; infantry and transport ships are unchanged');
 const attackResearch = game.auditAttackResearchDamage();
-assert.equal(attackResearch.meleeBasic - attackResearch.meleeBase, 2, 'Melee Attack +2 must increase live melee damage by exactly two');
-assert.equal(attackResearch.meleeAdvanced - attackResearch.meleeBase, 5, 'Melee Attack +5 must increase live melee damage by exactly five');
+assert.equal(attackResearch.meleeBasic - attackResearch.meleeBase, 1, 'Forging must increase live melee damage by exactly one');
+assert.equal(attackResearch.meleeIntermediate - attackResearch.meleeBase, 2, 'Iron Casting adds one more melee damage');
+assert.equal(attackResearch.meleeAdvanced - attackResearch.meleeBase, 4, 'Blast Furnace must add two more melee damage');
 assert.equal(attackResearch.rangedBasic - attackResearch.rangedBase, 1, 'Ranged Attack +1 must increase live ranged damage by exactly one');
 assert.equal(attackResearch.rangedAdvanced - attackResearch.rangedBase, 3, 'Ranged Attack +3 must increase live ranged damage by exactly three');
-console.log('attack-research-smoke: basic and advanced melee/ranged upgrades verified against live combat damage');
+console.log('attack-research-smoke: three melee tiers and ranged upgrades verified against live combat damage');
 const armourResearch = game.auditArmourResearchDamage();
 assert.equal(armourResearch.infantryBase - armourResearch.infantryArmour, 1,
   'Infantry Armour research must reduce incoming melee damage by exactly one');
