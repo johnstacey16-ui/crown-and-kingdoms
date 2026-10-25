@@ -6,7 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 function setup(){
  const {source,sandbox,storage}=headlessGame();
  vm.createContext(sandbox);
- vm.runInContext(source+'\nglobalThis.evaluate=code=>eval(code);',sandbox);
+ vm.runInContext(source+'\nglobalThis.evaluate=code=>eval(code);globalThis.drawFrontEndScreen=()=>false;globalThis.drawGameOverlays=()=>{};',sandbox);
  return {run:sandbox.evaluate,storage};
 }
 const details=run=>JSON.parse(run('JSON.stringify({mode,perfTestMatch,perfHud,perfFlatField,perfLayerMode,units:S.us.length,buildings:S.bs.length,seedW:W,seedH:H,civ:S.civ,age:S.age,positions:S.bs.map(b=>[b.t,b.k,b.x,b.y]),unitPositions:S.us.map(u=>[u.t,u.k,u.x,u.y]),camera:cam})'));

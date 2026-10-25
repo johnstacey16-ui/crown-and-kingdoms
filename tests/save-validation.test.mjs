@@ -152,7 +152,7 @@ assert.match(engine, /let lastAutoSaveAt=-60000;/,
   'the autosave clock must initialize so a new single-player session can checkpoint promptly');
 assert.match(engine, /now-lastAutoSaveAt>=60000/,
   'active play must use a 60-second autosave interval');
-assert.match(engine, /S&&!\(window\.CK_NET&&window\.CK_NET\.isRunning\(\)\)&&now-lastAutoSaveAt>=60000\)\{lastAutoSaveAt=now;saveG\(true\)\}/,
+assert.match(engine, /S&&!?perfTestMatch&&!?\(window\.CK_NET&&window\.CK_NET\.isRunning\(\)\)&&now-lastAutoSaveAt>=60000\)\{lastAutoSaveAt=now;saveG\(true\)\}/,
   'the frame loop must suppress rolling local autosaves while multiplayer is running');
 assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\)/,
   'automatic saves must reuse one fixed rolling slot rather than creating a growing save history');

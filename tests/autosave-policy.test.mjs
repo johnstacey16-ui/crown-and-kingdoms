@@ -17,7 +17,7 @@ assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\)/,
   'Autosaves must use one stable rolling key, separate from manual slots');
 assert.match(save, /localStorage\.setItem\(key,payload\)/,
   'A subsequent autosave must replace the previous payload under that same key');
-assert.match(save, /loadG\(auto=false\)[\s\S]*?localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)/,
+assert.match(save, /loadG\(auto=false(?:,keyOverride=null)?\)[\s\S]*?localStorage\.getItem\(auto\?'ck_autosave':skey\(slot\)\)/,
   'The loader must restore the rolling autosave when requested');
 
 const pauseSource=engine.match(/function autoPause\(\)\{[^\n]+/)?.[0];
