@@ -1,3 +1,12 @@
+## 25 October 2026 — Genuine Forging / Iron Casting / Blast Furnace progression (Batch 54, acceptance pending)
+
+Based on AoE2:DE 185872 source dataset blob `c4f7da961e82a8231b1ba49459949c4d6e479bc8`. Added independent Blacksmith research `forging` 150f/50s Feudal +1, `ironCasting` 220f/120g/75s Castle +1, and `blastFurnace` 275f/225g/100s Imperial +2. Correct +1/+1/+2 attack progression in live `dmgT` melee calculations, without changes to ranged attacks or original sprites. Shared 26 civ matrix excludes Blast Furnace for Byzantines, Malians, Koreans; unknown/legacy shortcuts rejected for new network orders. AI now values current melee tiers based on its actual melee force.
+
+Historical game saves paid for legacy `atkM` (+2) and `atkM2` (+5), which were not real separate AoE2 tiers. The old keys remain only in the static registry to validate/finish old paid queues. They are hidden from all new research menus and new command validation. The validated save loader normalizes their prerequisite flags, keeping +2 or +5 combat effects exactly and not double-counting. Paid old research completes with legacy effect and all modern prerequisites satisfied. This is compatibility-by-design; no previously paid attack is silently reduced.
+
+Tests source-pin all 26 trees and true +1/+1/+2 melee damage, protected ranged damage, age/prerequisites/timings/costs, team auth with no forbidden charges, and old +2/+5 save reloads. **CI / production delivery remain pending acceptance checks.** Prior Batches 51–53 were merged and tested but could not deploy due to Vercel 402 `api-deployments-free-per-day`. Confirm exact READY production SHA separately before declaring Batch 54 live. Civilization discounts and unit armor class expansions remain open.
+
+---
 ## 25 October 2026 — Cavalry Barding armour tiers (Batch 53; PR/main CI passed, Vercel quota blocked)
 
 Source AoE II DE build 185872, [SiegeEngineers data blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json): implemented source-accurate **Scale Barding** `armC` 150 food/45 sec, **Chain Barding** `armC2` 250 food + 150 gold/60 sec at Castle after Scale, and **Plate Barding** `armC3` 350 food + 200 gold/75 sec at Imperial after Chain. Damage calculation now stacks +1/+1, +1/+1 and +1/+2 melee/pierce protection for eligible mounted roster units, without touching original sprite art or network/save IDs. Original first-tier armor save flags preserve their old effect.
