@@ -12,6 +12,7 @@ function scene(){
  vm.createContext(sandbox);
  vm.runInContext(source+[
   'globalThis.evaluate=code=>eval(code);',
+  'globalThis.ASSET={n:0};',
   'globalThis.layerCounts={chunks:0,units:0,buildings:0};',
   'const originalChunks=drawChunks,originalUnit=drawUnit,originalBld=drawBld;',
   'drawChunks=function(...a){layerCounts.chunks++;return originalChunks(...a)};',
