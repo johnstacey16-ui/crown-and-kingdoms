@@ -1,3 +1,22 @@
+## Infantry armour three-tier Blacksmith progression — 25 October 2026
+
+**Sources:** Age of Empires II: Definitive Edition build **185872** represented by [SiegeEngineers pinned tech-tree data](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json); [AoE2 Companion tech descriptions](https://app.aoe2companion.com/explore/technologies?section=Blacksmith), including Plate Mail's +1 melee and +2 pierce effect. Historical `Indians` game key maps to source `Hindustanis`. Existing art/sprites, unit identities and old saves remain intact.
+
+The existing `armI` represents **Scale Mail Armor** (source tech ID 74) and still confers +1 melee / +1 pierce armour on existing infantry. Two separately researched Blacksmith tiers have been added:
+
+| Game research | Actual tech | Minimum age | Prerequisite | Price | Research duration | Additional protection |
+| --- | --- | --- | --- | --- | --- | --- |
+| `armI` | Scale Mail Armor (74) | Feudal | — | 100 food | 40s | +1 melee / +1 pierce |
+| `armI2` | Chain Mail Armor (76) | Castle | Scale Mail | 200 food, 100 gold | 55s | +1 melee / +1 pierce |
+| `armI3` | Plate Mail Armor (77) | Imperial | Chain Mail | 300 food, 150 gold | 70s | +1 melee / **+2 pierce** |
+
+The three additive armour contributions apply in the real `dmgT` collision/damage resolver and take effect immediately for all eligible infantry owned by the researching team, both already present and later trained. They do **not** buff archers, cavalry, buildings or other types. The research/AI menus and authoritative multiplayer path share `rsOf`. No retroactive unit rewrite or new saved-unit schema is required: technology ledger flags identify the researched tiers. Completed flags and paid research already pending in old saves are preserved (even if a now-disallowed civilization has a pending Plate order).
+
+All 26 represented civilizations have Chain Mail in the cited snapshot. **Khmer, Hindustanis, Huns, Goths, and Magyars lack Plate Mail**; the `CIV_INFANTRY_ARMOR_RESEARCH` matrix denies them a newly requested Imperial tier without charging resources. Full 26×2 source access and 26×3 research menus are tested, alongside actual melee/pierce damage differences, age/tech prerequisites, costs, timers, authoritative network rejection, AI priorities and save roundtrips.
+
+**Remaining parity gaps:** ranged and cavalry armour lines still combine three AoE2 reference tiers into a single `armR` or `armC` flag; the melee attack line likewise remains compressed. Civilizational discounts/bonus armour classes (including Inca villager special cases), unit-specific armor class assignments, regional unit substitutions, actual Xbox device testing and broad multiplayer recovery remain separate work. This is genuine complete tier research for the generic **infantry-armour line only**, not full Blacksmith fidelity.
+
+---
 ## Blacksmith technology availability and first armour-tier correction — 25 October 2026
 
 **Reference:** [Official AoE2:DE 22 September 2026 update 185872](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-185872/) and [SiegeEngineers snapshot, pinned blob `c4f7da9`](https://github.com/SiegeEngineers/aoe2techtree/blob/c4f7da961e82a8231b1ba49459949c4d6e479bc8/data/data.json). Historical `Indians` key uses the source **Hindustanis** base tree.
