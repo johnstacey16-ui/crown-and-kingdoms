@@ -658,7 +658,7 @@ if(perfFlatField){
  perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
 }else drawWorld();
 const uiStart=perfHud?performance.now():0;
-if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&mode==='play'){
+if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
  // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
  // Keep the original canvas/control coordinate system and guaranteed context
  // restoration even if an overlay renderer throws.

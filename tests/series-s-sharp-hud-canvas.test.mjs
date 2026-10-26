@@ -45,6 +45,8 @@ test('world and UI render on distinct canvases when sharp HUD mode enabled and X
  assert.equal(run('hudUsed'),true);
  assert.equal(run('X===WORLD_X'),true);
  assert.ok(renders.hud>=2);
+ run('mode="pause";draw(.016)');
+ assert.equal(run('hudUsed'),true,'pause menu also stays sharp when full-resolution HUD is enabled');
  run('perfSharpHud=0;rs();draw(.016)');
  assert.equal(run('hudUsed'),false,'HUD returns to original world canvas when disabled');
 });
