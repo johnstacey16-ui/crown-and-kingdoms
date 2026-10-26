@@ -642,7 +642,7 @@ if(perfFlatField){
  // Reversible GPU/presentation isolation: keep sim, input and the live HUD;
  // replace world/fog/units with one flat clear. Never save this preference.
  X.fillStyle='#15251b';X.fillRect(0,0,CW,CH);
- perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;
+ perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
 }else drawWorld();
 const uiStart=perfHud?performance.now():0;drawGameOverlays(dt);
 if(perfHud)perfUiMs=performance.now()-uiStart}
