@@ -151,6 +151,15 @@ if(mode==='setup'){setupCtl();return}
 if(mode==='opts'){optsCtl();return}
 if(mode==='end'){if(window.CK_NET&&window.CK_NET.snapshot().roomCode&&(E[0]||E[1])){window.CK_NET.leaveToTitle();return}if(E[0])endA();if(E[1])endB();return}
 if(mode==='pause'){const PI=pmItems();if(E[12])pm=(pm+PI.length-1)%PI.length;if(E[13])pm=(pm+1)%PI.length;const it=PI[pm];if(E[14]&&it.l){it.l();sset()}if(E[15]&&it.r){it.r();sset()}if(E[0]&&it.a){it.a();sset()}if(E[9]||E[1])mode='play';return}
-if(mode!=='play')return;if(!pad){cancelGameplayGestures();mode='pause';return}if(E[9]){cancelGameplayGestures();mode='pause';return}
+if(mode!=='play')return;
+if(!pad){if(typeof canvasBenchmark!=='undefined'&&canvasBenchmark)stopCanvasBenchmark(true);cancelGameplayGestures();mode='pause';return}
+// Keep a reproducible camera and unchanged selection/order state during the
+// opt-in offline Series S benchmark. Menu or B cancels instantly; all standard
+// Xbox controller bindings return immediately when the test is cancelled.
+if(typeof canvasBenchmark!=='undefined'&&canvasBenchmark){
+ if(E[9]||E[1]){stopCanvasBenchmark(true);cancelGameplayGestures();mode='pause';pm=0}
+ return;
+}
+if(E[9]){cancelGameplayGestures();mode='pause';return}
 playCtl(dt);return;}
 /* ===== RENDERING ===== */

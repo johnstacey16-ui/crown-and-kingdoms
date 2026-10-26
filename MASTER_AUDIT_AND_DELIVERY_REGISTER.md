@@ -1,3 +1,13 @@
+## 26 October 2026 — Bench camera/input isolation, controller cancellation and deployment status
+
+Following the newly introduced **Run Xbox FPS comparison** (100/75/50/100 pixels) and **Run Xbox graphics comparison** (Normal / Terrain / Objects / Flat / Normal), GitHub's latest commit f90af932 passed all automated checks: Chromium, 19 campaigns, standalone regressions and seeded AI skirmishes. The previous standalone autosave test regression had already been fixed by def21e6c. Exact Vercel production at the last verification was **def21e6c**; Vercel rejected the newer deployment with its **Hobby free-plan daily deployment quota** (`api-deployments-free-per-day`, HTTP 402). Do **not** purchase credits or change hosting tier; the newer benchmarks are committed to main, but aren't yet on the public production URL.
+
+A new guard prevents an opt-in benchmark from accidentally being spoiled by camera movement, gameplay orders, selections, mouse-gamepad axis jitter or default hotkeys. Only while a benchmark is active, the regular `playCtl()` gameplay path is suppressed. **Menu or B** cancels immediately, returns to the standard pause menu and resets game speed, full-resolution canvas, flat-field and terrain/object diagnostic layers. Controller disconnection cancels too. Outside this session-local benchmark, the exact default Xbox mappings and game actions are unchanged. Source tests verify no camera, cursor, selections or gameplay orders can change during active measurement; cancellation restores all original rendering and saved slots remain intact.
+
+Physical Xbox Series S median FPS still needs acceptance after Vercel becomes deployable again; do not advertise performance gains merely from the CPU render speedup or Node tests.
+
+---
+
 ## 26 October 2026 — Automatic Xbox layer comparison in the built-in save
 
 The user's preceding screenshots demonstrated a Series S slowdown with full graphical presentation despite troop CPU draw reduction from 204.3 ms to 1.0 ms per 26 onscreen units. The already-installed **Run Xbox FPS comparison** samples median requestAnimationFrame delays at 100/75/50/100% resolution and restores original resolution. Its initially failing isolated autosave source test was corrected in commit def21e6c, with all four GitHub checks green. The identical commit was explicitly deployed as Vercel production after GitHub/Vercel automatic synchronization was found lagging.
