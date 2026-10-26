@@ -1,3 +1,13 @@
+## 26 October 2026 — Automatic Xbox layer comparison in the built-in save
+
+The user's preceding screenshots demonstrated a Series S slowdown with full graphical presentation despite troop CPU draw reduction from 204.3 ms to 1.0 ms per 26 onscreen units. The already-installed **Run Xbox FPS comparison** samples median requestAnimationFrame delays at 100/75/50/100% resolution and restores original resolution. Its initially failing isolated autosave source test was corrected in commit def21e6c, with all four GitHub checks green. The identical commit was explicitly deployed as Vercel production after GitHub/Vercel automatic synchronization was found lagging.
+
+**New addition:** In the same paused offline built-in **Xbox FPS Test Save**, there is also **Run Xbox graphics comparison**. This uses the existing deterministic frozen-scene RAF median mechanism to compare five passes at **100% pixel density**: full scene, terrain only, objects only, flat field, then full scene again. Every phase lasts 7 seconds with the first 1-second GPU warmup excluded; the ~35-second run reports all five **median FPS** together in the on-screen HUD so **one Xbox photo** covers the comparison. The final full-scene repeat reveals time-order drift; speeds, rendering modes, and original resolution are restored on completion or cancellation. The test is never available in multiplayer or normal matches, does not alter any saved games, and preserves original art without any production quality reduction. It supplements rather than replaces the 100/75/50% comparison.
+
+**Status:** CI and Vercel exact-head production confirmation pending; actual Series S median FPS still required. Neither timed benchmark can directly reveal GPU-present duration or distinguish GPU driver stalling from OS scheduling without further evidence.
+
+---
+
 ## 26 October 2026 — Automated Series S full-scene canvas comparison, no more repeated screenshots
 
 The owner demonstrated **4 FPS on Xbox Series S** after animated troop frame caching despite measured unit drawing falling **204.3 ms → 1.0 ms** for **26 visible soldiers**, a ~99.5% improvement in the measured CPU unit painter. Latest scene: WORLD 2.3 ms, DRAW 4.8 ms, SIM 4.4 ms, LOOP 11.6 ms, RAF 266.9 ms, GAP 255.3 ms. The remaining delay is largely outside the JS callback, so the prior manually selectable 100/75/50% canvas resolution test was deployed. Its full regressions and skirmishes all passed.
