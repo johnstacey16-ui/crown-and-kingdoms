@@ -87,6 +87,37 @@ function paintedSecondaryPose(kind,state,time,phase){
   if(family==='ranged')return {dx:-hit*1.15,dy:hit*.4,turn:-hit*.043,sx:1,sy:1};
   return {dx:hit*1.1,dy:recover*.65,turn:hit*.075,sx:1,sy:1-hit*.018};
 }
+// Painted unit sprites are animated as usual, but their atlas textures can be
+// >1500px square. Series S Edge spends significant time sampling/reuploading the
+// large team-coloured sheet for each soldier. Crop each original-resolution
+// motion frame once and reuse the much smaller Canvas2D image every draw.
+// No downscaling or palette changes; always keep the original atlas fallback.
+// A total-pixel budget protects Edge from an unbounded frame-texture cache.
+const TROOP_TEXTURE_PIXEL_LIMIT=6*1024*1024,TROOP_TEXTURE_ENTRY_LIMIT=160;
+const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
+let troopTextureSeq=0,troopTexturePixels=0;
+function troopFrameTexture(art){
+ const img=art?.img,f=art?.f;
+ if(!img||!f||typeof img!=='object')return null;
+ const {x,y,w,h}=f;
+ if(![x,y,w,h].every(Number.isFinite)||w<=0||h<=0||w*h>TROOP_TEXTURE_PIXEL_LIMIT)return null;
+ let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
+ const key=id+'/'+x+'/'+y+'/'+w+'/'+h;
+ let cv=TROOP_TEXTURE_LRU.get(key);
+ if(cv){TROOP_TEXTURE_LRU.delete(key);TROOP_TEXTURE_LRU.set(key,cv);return cv}
+ try{
+  cv=document.createElement('canvas');cv.width=w;cv.height=h;
+  const ctx=cv.getContext('2d');if(!ctx)return null;
+  ctx.drawImage(img,x,y,w,h,0,0,w,h);
+  TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=w*h;
+  while(troopTexturePixels>TROOP_TEXTURE_PIXEL_LIMIT||TROOP_TEXTURE_LRU.size>TROOP_TEXTURE_ENTRY_LIMIT){
+   const oldKey=TROOP_TEXTURE_LRU.keys().next().value;
+   const old=TROOP_TEXTURE_LRU.get(oldKey);
+   TROOP_TEXTURE_LRU.delete(oldKey);troopTexturePixels-=old.width*old.height;
+  }
+  return cv;
+ }catch(_){return null}
+}
 function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase){
   const f=art.f,walk=state===1,attack=state===2,work=state===3;
   const motion=art.animated?null:paintedSecondaryPose(kind,state,time,phase);
@@ -100,7 +131,9 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   if(motion){g.rotate(motion.turn);g.scale(motion.sx,motion.sy)}
   else if(walk&&!art.animated)g.rotate(Math.sin(time*10)*.018);
   else if(attack&&!art.animated)g.rotate(Math.sin(time*12)*.055);
-  g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
+  const frame=troopFrameTexture(art);
+  if(frame)g.drawImage(frame,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
+  else g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
   g.restore();
 }
 

@@ -1,3 +1,15 @@
+## 26 October 2026 — Series S soldier sprite atlas bottleneck: bounded original-resolution frame crops
+
+The latest Xbox Series S Edge owner screenshot confirms **4 FPS**, **300.3 ms RAF**, **220.6 ms previous JS callback**, **216.0 ms total draw**, **205.0 ms WORLD**, and the newly split breakdown **NODE 0.3 ms (22 resources)**, **BLD 0.3 ms (20 buildings)**, **UNIT 204.3 ms (26 on-screen soldiers)**. The game contains 60 total units and 56 buildings, but the renderer only drew 26 visible soldiers. Thus, approximately all measured WORLD time is in troop draw calls. The 704.2 ms peak is a historical peak and not the current draw duration. The 79.7 ms GAP is unattributed scheduling/compositor time, not proof of an intentional FPS cap.
+
+The main unit painter used to issue `drawImage()` **from full painted animation atlases for every soldier on every frame**, including large full-colour recoloured atlas canvases. The new `troopFrameTexture(art)` makes an **original source-resolution frame crop** once per unique underlying image and source-rectangle; subsequent soldiers re-use the small ready-to-present frame. The existing `drawPaintedTroop()` bobbing, 8-frame action cycles, pose selection, mirroring, facing, foot anchor, custom palette, zoom, selection/shadows, and unit health bars are unchanged. The procedural and unavailable-asset fallback paths stay intact. A global LRU, limited to ~6M RGBA pixels (about 24 MiB) and 160 frames, prevents unbounded canvas texture growth while a WeakMap keyed by team-coloured image identity invalidates reloaded atlas contents. Canvas failure uses the unmodified large-atlas drawImage instead; no gameplay/simulation state changes.
+
+New tests verify production frame cache reuse, per-team/per-image separation, frame changes, bounded eviction, failure fallback, and faithful renderer transform/depth behaviour. **Series S GPU/frame-time acceptance is still pending**: compare the one-click sample save in Normal graphics mode and report the RAF/FPS and UNIT ms/count. Code tests alone cannot verify actual Xbox graphics performance or quality. All hosting remains free-only.
+
+**CI and production deployment:** pending.
+
+---
+
 ## 26 October 2026 — Series S confirmed WORLD hotspot: static resource atlas crops + diagnostics
 
 Three actual Xbox Series S Edge screenshots using the one-click sample save: full Normal **5 FPS / 216.9 ms RAF / 158.0 ms WORLD / 54 units / 56 buildings**; Terrain only **9 FPS / 106.8 ms RAF / 0 ms WORLD / 63 units**; Objects only **7 FPS / 133.5 ms RAF / 103.7 ms WORLD / 65 units**. Counts differ because AI advances; these are point measurements, not controlled benchmark runs. GPU/compositor and object painter contributions may differ across frames, but the CPU-renderer WORLD time remains large even with terrain suppressed.
