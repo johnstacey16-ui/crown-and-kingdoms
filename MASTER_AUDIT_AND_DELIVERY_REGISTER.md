@@ -1,3 +1,13 @@
+## 26 October 2026 — Xbox picture mode regression and resume hygiene
+
+The first opt-in normal-game picture preset build a59b6c9 was deployed and passed source validation and all 19 campaigns, but its new standalone test file had **two harness failures**: `pmItems` was not part of the test-only headless module bundle, and it attempted to begin a restricted automatic FPS benchmark from a non-fixture game. No rendering failure was indicated. The regression harness now loads the actual `js/ui.js` module and stubs only unrelated social menu providers; it enables the built-in fixture flag for that benchmark test, leaving the production-only restriction in place.
+
+An adjacent real UX issue has also been addressed. The **Xbox picture preset** is remembered only for the active session even when entering Tech Tree, Objectives, or Save/Load screens. Those temporary full-screen views still render at **native resolution for crisp text**, but on returning to Pause/Play the selected lower-resolution world and full-resolution Sharp HUD are restored automatically. Manual Canvas pixel test or Sharp HUD test adjustments relinquish the remembered preset rather than being unexpectedly overridden. On starting another match, returning to Title, ending/error or entering multiplayer, the remembered preset is discarded and Original 100% restored. There is still no saved-profile field and no controller/gameplay/network changes. Added tests cover these screen transitions, normal pause menu choices, custom overrides and the original benchmark restrictions.
+
+**CI/production:** pending full rerun. Hardware impact is not yet accepted at 40%; user-tested 50% Sharp HUD remains the reference option.
+
+---
+
 ## 26 October 2026 — Opt-in Xbox picture presets for ordinary matches; readable HUD without repeat setup
 
 Real Xbox Series S hardware established that canvas pixel workload matters: the frozen built-in sample rendered at **100% 7 median FPS**, **75% 10**, **50% 30** (repeat 100% 7). An independent ordinary active-play test at **50%** showed **Sharp HUD On 13 FPS** versus **Off 14 FPS**, with the owner explicitly confirming that **Sharp HUD text was clearer**. The full battlefield at 100% earlier remained 4–7 FPS despite unit CPU rendering reducing from 204.3 to about 1.0 ms for 26 visible units. The per-frame display scheduling/presentation gap remains substantial and is not fully attributed.

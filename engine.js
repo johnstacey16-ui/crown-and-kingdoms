@@ -26,7 +26,7 @@ const w2s=(x,y)=>[(x-y)*TW/2-cam.x,(x+y)*TH/2-cam.y];
 const s2w=(sx,sy)=>{const u=(sx+cam.x)/(TW/2),v=(sy+cam.y)/(TH/2);return[(u+v)/2,(v-u)/2]};
 function clampCam(){const[x,y]=s2w(CW/2,CH/2),cx=cl(x,1,W-1),cy=cl(y,1,H-1);cam.x=(cx-cy)*TW/2-CW/2;cam.y=(cx+cy)*TH/2-CH/2}
 const ctr=(x,y)=>{cam.x=(x-y)*TW/2-CW/2;cam.y=(x+y)*TH/2-CH/2;clampCam()};
-function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;
+function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;selectedXboxPicturePreset=-1;
 if(perfRenderScale!==1||perfSharpHud){perfRenderScale=1;perfSharpHud=0;rs()}
 perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
 /* Built-in, reproducible Series S render performance SAVE.
@@ -534,6 +534,7 @@ function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(
 // User-selectable, session-local Xbox Edge picture presets. Backing pixels
 // change, but the HUD keeps native DPR for legible Xbox menus and controls.
 // Neither the original graphics tier nor the save/command format is changed.
+let selectedXboxPicturePreset=-1;
 const CK_XBOX_PICTURE_PRESETS=[
  {name:'Original 100%',scale:1,sharp:0},
  {name:'Balanced 75%',scale:.75,sharp:1},
@@ -547,6 +548,7 @@ function setXboxPicturePreset(index){
  if(canvasBenchmark||mode!=='play'&&mode!=='pause')return false;
  const p=CK_XBOX_PICTURE_PRESETS[index];
  if(!p)return false;
+ selectedXboxPicturePreset=index;
  perfRenderScale=p.scale;perfSharpHud=p.sharp;
  perfFlatField=0;perfLayerMode=0;
  perfFps=0;rs();return true;
@@ -669,7 +671,19 @@ if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,a
 // behaviour; do not substitute an extra generic order or subgroup cycling.
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
-function draw(dt){X=WORLD_X;gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
+function draw(dt){X=WORLD_X;
+// Keep picture modes session-local but reapply after temporary full-screen
+// views (save slots, objectives, technology tree), which render at native
+// resolution for sharp text and previously reset canvas DPR.
+if(mode==='play'||mode==='pause'){
+ if(selectedXboxPicturePreset>=0&&!canvasBenchmark&&currentXboxPicturePreset()!==selectedXboxPicturePreset){
+  const p=CK_XBOX_PICTURE_PRESETS[selectedXboxPicturePreset];
+  perfRenderScale=p.scale;perfSharpHud=p.sharp;rs();
+ }
+}else if(mode==='title'||mode==='end'||mode==='error'||mode==='multiplayer'){
+ selectedXboxPicturePreset=-1;
+}
+gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
 if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
 if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
@@ -735,7 +749,7 @@ function beginCanvasBenchmark(kind='pixels'){
  if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
  if(kind!=='layers')kind='pixels';
  stopCanvasBenchmark(true);
- canvasBenchSummary=null;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
+ canvasBenchSummary=null;selectedXboxPicturePreset=-1;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
  gs=0;acc=0;perfHud=1;perfSharpHud=0;setupCanvasBenchmarkStage(canvasBenchmark);
  mode='play';return true;
 }
