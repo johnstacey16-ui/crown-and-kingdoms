@@ -15,7 +15,9 @@ test('resource bar and in-match HUD have one owner in js/ui.js', () => {
   assert.doesNotMatch(engine, /function topbar\(r\)\{/);
   assert.doesNotMatch(engine, /function hud\(\)\{/);
   assert.match(ui, /function drawGameOverlays\(dt\)\{if\(mode==='play'\)\{const\[wx,wy\]=s2w\(cur\.x,cur\.y\);hud\(\);/);
-  assert.match(engine, /drawWorld\(\);[\s\S]{0,160}?drawGameOverlays\(dt\)/);
+  assert.match(engine, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
+  assert.match(engine, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+  assert.match(engine, /else drawGameOverlays\(dt\)/);
 });
 
 test('victory-mode status remains part of the extracted HUD', () => {

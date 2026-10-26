@@ -19,7 +19,9 @@ test('radial menu, control-group and quick-select drawing live in js/ui.js', () 
 
 test('draw loop and command state remain connected to the extracted overlays', () => {
   assert.match(ui, /function drawGameOverlays\(dt\)\{[\s\S]*?if\(menu&&menu\.rad\)drawRadial\(\);if\(cgo\)drawCg\(\)/);
-  assert.match(engine, /drawWorld\(\);[\s\S]{0,160}?drawGameOverlays\(dt\)/);
+  assert.match(engine, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
+  assert.match(engine, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+  assert.match(engine, /else drawGameOverlays\(dt\)/);
   assert.match(engine, /function openRadial\(wx,wy\)\{/);
   assert.match(engine, /function playCtl\(dt\)\{/);
   assert.match(engine, /let aDown=null/);

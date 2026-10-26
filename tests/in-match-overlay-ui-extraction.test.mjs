@@ -16,7 +16,9 @@ test('in-match presentation overlays are owned by js/ui.js', () => {
     "window.CK_NET.drawMatchStatus()"
   ]) assert.ok(ui.includes(marker), marker+' must remain in the UI overlay');
   assert.doesNotMatch(engine, /if\(mode==='play'\)\{const\[wx,wy\]=s2w\(cur\.x,cur\.y\);hud\(\);/);
-  assert.match(engine, /drawWorld\(\);[\s\S]{0,160}?drawGameOverlays\(dt\)/);
+  assert.match(engine, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
+  assert.match(engine, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+  assert.match(engine, /else drawGameOverlays\(dt\)/);
 });
 
 test('extraction keeps selection, menu and match-status overlays wired', () => {

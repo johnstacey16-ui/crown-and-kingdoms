@@ -50,7 +50,7 @@ test('world and UI render on distinct canvases when sharp HUD mode enabled and X
  run('perfSharpHud=0;rs();draw(.016)');
  assert.equal(run('hudUsed'),false,'HUD returns to original world canvas when disabled');
 });
-test('the user's automatic benchmarks exclude a second HUD layer and restore it after testing',()=>{
+test("the user's automatic benchmarks exclude a second HUD layer and restore it after testing",()=>{
  const {run}=game();
  run('start();perfTestMatch=1;mode="pause";perfSharpHud=1;perfRenderScale=.5;rs()');
  assert.equal(run('beginCanvasBenchmark()'),true);

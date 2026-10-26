@@ -57,7 +57,7 @@ test('Xbox menu test uses explicit controller choices, labels physical pixels an
  assert.match(ui,/a=\[1,\.75,\.5\]/);
  assert.match(ui,/SCALE '\+Math\.round\(perfRenderScale\*100\)/);
  assert.match(ui,/cv\.width\+'x'\+cv\.height/);
- assert.match(engine,/DPR=Math\.min\(window\.devicePixelRatio\|\|1,\[1,1\.25,1\.5\]\[gq\]\)\*perfRenderScale/);
+ assert.match(engine,/const hudDpr=Math\.min\(window\.devicePixelRatio\|\|1,\[1,1\.25,1\.5\]\[gq\]\);DPR=hudDpr\*perfRenderScale/);
  const save=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(save);
  assert.ok(!save[1].includes('perfRenderScale'));
