@@ -17,7 +17,7 @@ const w2s=(x,y)=>[(x-y)*TW/2-cam.x,(x+y)*TH/2-cam.y];
 const s2w=(sx,sy)=>{const u=(sx+cam.x)/(TW/2),v=(sy+cam.y)/(TH/2);return[(u+v)/2,(v-u)/2]};
 function clampCam(){const[x,y]=s2w(CW/2,CH/2),cx=cl(x,1,W-1),cy=cl(y,1,H-1);cam.x=(cx-cy)*TW/2-CW/2;cam.y=(cx+cy)*TH/2-CH/2}
 const ctr=(x,y)=>{cam.x=(x-y)*TW/2-CW/2;cam.y=(x+y)*TH/2-CH/2;clampCam()};
-function start(){perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
+function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
 /* Built-in, reproducible Series S render performance SAVE.
  * Uses the production save serializer and loader, under a key reserved for the
  * sample. Never uses a manual slot or ck_autosave and never starts online play.
@@ -521,7 +521,7 @@ const trOf=(b,civs=S?.civ)=>{
 const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffect);let lastRb=0;
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function setQ(v){gq=v;rs();sset()}
-function autoPause(){if(mode==='play'){cancelGameplayGestures();if((typeof perfTestMatch==='undefined'||!perfTestMatch)&&!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
+function autoPause(){if(mode==='play'){if(canvasBenchmark)stopCanvasBenchmark(true);cancelGameplayGestures();if((typeof perfTestMatch==='undefined'||!perfTestMatch)&&!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}
 function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
 function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
 
@@ -636,6 +636,8 @@ if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.p
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
+if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
+if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
 if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
 if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');
@@ -655,6 +657,53 @@ let lastAutoSaveAt=-60000;
 /* Frame delta spans the *previous* game callback and browser time before this
  * callback. The residual is unattributed (vsync, compositor/GPU, throttling,
  * unrelated tasks); it is NOT proof that the browser sat idle. */
+/* Controller-friendly Xbox Edge experiment: median RAF intervals over a
+ * fixed scene. Run only in the offline bundled test match, never in multiplayer.
+ * Freeze simulation during measurements, not the visual renderer. Save and
+ * restore prior game speed; comparison is invalidated if the tab is hidden. */
+const CK_CANVAS_BENCH_STAGES=[1,.75,.5,1],CK_CANVAS_BENCH_WARM_MS=1000,CK_CANVAS_BENCH_STAGE_MS=7000;
+let canvasBenchmark=null,canvasBenchSummary=null;
+function canvasBenchmarkMedian(values){
+ if(!values.length)return null;
+ const v=values.slice().sort((a,b)=>a-b),m=v.length>>1;
+ return v.length%2?v[m]:(v[m-1]+v[m])/2;
+}
+function stopCanvasBenchmark(abort=false){
+ const b=canvasBenchmark;if(!b)return false;
+ canvasBenchmark=null;gs=b.oldSpeed;acc=0;perfRenderScale=1;rs();perfFps=0;
+ if(abort)canvasBenchSummary=null;
+ return true;
+}
+function beginCanvasBenchmark(){
+ if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
+ stopCanvasBenchmark(true);
+ canvasBenchSummary=null;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs};
+ gs=0;acc=0;perfHud=1;perfFps=0;perfRenderScale=1;
+ perfFlatField=0;perfLayerMode=0;rs();mode='play';return true;
+}
+function sampleCanvasBenchmark(now,rafMs){
+ const b=canvasBenchmark;if(!b)return;
+ if(mode!=='play'||!perfTestMatch||window.CK_NET?.isRunning?.()||document.hidden){stopCanvasBenchmark(true);return}
+ if(b.start===null){b.start=now;return}
+ const elapsed=Math.max(0,now-b.start);
+ if(elapsed>=CK_CANVAS_BENCH_STAGE_MS){
+  const median=canvasBenchmarkMedian(b.intervals);
+  b.results.push({scale:CK_CANVAS_BENCH_STAGES[b.phase],ms:median,n:b.intervals.length});
+  b.phase++;
+  if(b.phase===CK_CANVAS_BENCH_STAGES.length){
+   canvasBenchSummary={results:b.results.slice()};
+   stopCanvasBenchmark(false);
+  }else{
+   b.start=now;b.intervals=[];perfRenderScale=CK_CANVAS_BENCH_STAGES[b.phase];
+   perfFps=0;rs();
+  }
+  return;
+ }
+ // Ignore initial canvas reset and GPU texture warmup at each resolution.
+ if(elapsed>=CK_CANVAS_BENCH_WARM_MS&&Number.isFinite(rafMs)&&rafMs>=1&&rafMs<=3000)
+  b.intervals.push(rafMs);
+}
+
 function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
 function frame2(now){
  const timing=!!perfHud,loopStart=timing?performance.now():0,rafMs=Math.max(0,now-last);
@@ -662,6 +711,7 @@ function frame2(now){
  else perfLoopMs=0;
  try{
   const dt=Math.min(.25,(now-last)/1000);last=now;
+  if(canvasBenchmark)sampleCanvasBenchmark(now,rafMs);
   const padStart=timing?performance.now():0;
   readPad();
   if(timing)perfPadMs=performance.now()-padStart;

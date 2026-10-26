@@ -1,3 +1,15 @@
+## 26 October 2026 — Automated Series S full-scene canvas comparison, no more repeated screenshots
+
+The owner demonstrated **4 FPS on Xbox Series S** after animated troop frame caching despite measured unit drawing falling **204.3 ms → 1.0 ms** for **26 visible soldiers**, a ~99.5% improvement in the measured CPU unit painter. Latest scene: WORLD 2.3 ms, DRAW 4.8 ms, SIM 4.4 ms, LOOP 11.6 ms, RAF 266.9 ms, GAP 255.3 ms. The remaining delay is largely outside the JS callback, so the prior manually selectable 100/75/50% canvas resolution test was deployed. Its full regressions and skirmishes all passed.
+
+Now in the **bundled offline Xbox FPS Test Save only**, the pause menu adds **Run Xbox FPS comparison**, a single-A-button benchmark: four phases **100%, 75%, 50%, 100%** of the original full scene, each **7 seconds** with the first **1 second disregarded as texture warmup**. The logic collects actual raw `requestAnimationFrame` callback intervals and reports **median frame rate** for each phase in the on-screen performance overlay, leaving a final screenshot-ready comparison. The repeated full-resolution phase gives a rudimentary check for time/order and thermal drift. To keep the scene and draw counts comparable, simulation speed is set to zero *only for the bundled offline fixture during the benchmark*, restoring the original speed and resolution automatically afterwards. The active canvas is still repainted, shaders/sprites and HUD remain enabled, and the normal game resumes afterward. All benchmark state is session-local, never written to save/config/storage, and the test cancels/restores normal rendering if interrupted (pause, tab background, title, new match). The individual resolution controls remain available for manual A/B.
+
+The results distinguish **canvas pixel-count dependence** versus other browser compositor/texture bottlenecks; they are not a hardware GPU profiler and a large residual gap still cannot identify an exact driver cause. Compare 100/75/50/100 median FPS and, if needed, unit counts. No FPS improvement is claimed until the owner's Series S outputs are observed. The mode must never be accessible in authenticated multiplayer or ordinary player matches.
+
+**CI + Vercel verification:** pending.
+
+---
+
 ## 26 October 2026 — Series S troop draw CPU fixed, GPU/browser RAF gap still slow; test canvas pixel workload
 
 On the Xbox Series S Edge, the owner supplied a new normal-graphics screenshot from the same test save with **4 FPS**, **250.0 ms on-screen FPS interval**, **60 units total / 56 buildings**, **26 visible soldiers**, and **UNIT 1.0 ms**. The preceding comparable screenshot had 26 visible soldiers with UNIT **204.3 ms**—approximately **99.5% lower measured soldier-drawing CPU time**, a strong result of per-team animated frame caching. NODE 0.3 ms (33), BLD 0.8 ms (28), WORLD 2.3 ms, DRAW 4.8 ms, SIM 4.4 ms, LOOP 11.6 ms, and **GAP 255.3 ms / RAF 266.9 ms**. The FPS did **not** improve despite major CPU drawing savings. We cannot infer the precise GPU or compositor cause from requestAnimationFrame and CPU timings.
