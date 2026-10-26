@@ -1,7 +1,16 @@
 
 'use strict';
-const cv=document.getElementById('c'),X=cv.getContext('2d');let CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
-const rs=()=>{DPR=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq])*perfRenderScale;CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter=br===1?'none':'brightness('+br+')';const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
+const cv=document.getElementById('c'),WORLD_X=cv.getContext('2d'),
+  hudCanvas=document.getElementById('ck-hud'),HUD_X=hudCanvas?.getContext('2d')||null;
+let X=WORLD_X,CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
+const rs=()=>{const hudDpr=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);DPR=hudDpr*perfRenderScale;CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter=br===1?'none':'brightness('+br+')';
+if(hudCanvas&&HUD_X){
+ const sharp=!!perfSharpHud&&perfRenderScale<1;
+ hudCanvas.style.display=sharp?'block':'none';
+ if(sharp){hudCanvas.width=Math.round(CW*hudDpr);hudCanvas.height=Math.round(CH*hudDpr);hudCanvas.style.width=innerWidth+'px';hudCanvas.style.height=innerHeight+'px';hudCanvas.style.filter=cv.style.filter}
+ else{hudCanvas.width=1;hudCanvas.height=1}
+}
+const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
 /* ===== GAME STATE / MAP ===== */
 /* ===== GENERATED MAP CONNECTIVITY AUDIT =====
    Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
@@ -17,7 +26,7 @@ const w2s=(x,y)=>[(x-y)*TW/2-cam.x,(x+y)*TH/2-cam.y];
 const s2w=(sx,sy)=>{const u=(sx+cam.x)/(TW/2),v=(sy+cam.y)/(TH/2);return[(u+v)/2,(v-u)/2]};
 function clampCam(){const[x,y]=s2w(CW/2,CH/2),cx=cl(x,1,W-1),cy=cl(y,1,H-1);cam.x=(cx-cy)*TW/2-CW/2;cam.y=(cx+cy)*TH/2-CH/2}
 const ctr=(x,y)=>{cam.x=(x-y)*TW/2-CW/2;cam.y=(x+y)*TH/2-CH/2;clampCam()};
-function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
+function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;perfSharpHud=0;perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
 /* Built-in, reproducible Series S render performance SAVE.
  * Uses the production save serializer and loader, under a key reserved for the
  * sample. Never uses a manual slot or ck_autosave and never starts online play.
@@ -634,10 +643,11 @@ if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,a
 // behaviour; do not substitute an extra generic order or subgroup cycling.
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
-function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
+function draw(dt){X=WORLD_X;gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
 if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
 if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
+if(mode!=='play'&&mode!=='pause'&&perfSharpHud){perfSharpHud=0;rs()}
 if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
 if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');
@@ -647,7 +657,15 @@ if(perfFlatField){
  X.fillStyle='#15251b';X.fillRect(0,0,CW,CH);
  perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
 }else drawWorld();
-const uiStart=perfHud?performance.now():0;drawGameOverlays(dt);
+const uiStart=perfHud?performance.now():0;
+if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&mode==='play'){
+ // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
+ // Keep the original canvas/control coordinate system and guaranteed context
+ // restoration even if an overlay renderer throws.
+ X=HUD_X;X.setTransform(hudCanvas.width/CW,0,0,hudCanvas.height/CH,0,0);
+ X.clearRect(0,0,CW,CH);
+ try{drawGameOverlays(dt)}finally{X=WORLD_X}
+}else drawGameOverlays(dt);
 if(perfHud)perfUiMs=performance.now()-uiStart}
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
 /* Runtime exceptions used to be painted as a thin red strip while the same failing simulation kept running every frame. Halt immediately and expose useful diagnostics instead of repeatedly executing a broken step. */
@@ -683,7 +701,7 @@ function canvasBenchmarkMedian(values){
 }
 function stopCanvasBenchmark(abort=false){
  const b=canvasBenchmark;if(!b)return false;
- canvasBenchmark=null;gs=b.oldSpeed;acc=0;perfRenderScale=1;perfFlatField=0;perfLayerMode=0;rs();perfFps=0;
+ canvasBenchmark=null;gs=b.oldSpeed;acc=0;perfRenderScale=1;perfFlatField=0;perfLayerMode=0;perfSharpHud=b.oldSharpHud||0;rs();perfFps=0;
  if(abort)canvasBenchSummary=null;
  return true;
 }
@@ -691,8 +709,8 @@ function beginCanvasBenchmark(kind='pixels'){
  if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
  if(kind!=='layers')kind='pixels';
  stopCanvasBenchmark(true);
- canvasBenchSummary=null;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,kind};
- gs=0;acc=0;perfHud=1;setupCanvasBenchmarkStage(canvasBenchmark);
+ canvasBenchSummary=null;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
+ gs=0;acc=0;perfHud=1;perfSharpHud=0;setupCanvasBenchmarkStage(canvasBenchmark);
  mode='play';return true;
 }
 function sampleCanvasBenchmark(now,rafMs){

@@ -76,3 +76,13 @@ canvas:focus-visible {
  .ck-room-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
  .ck-room-status { padding: 14px; }
 }
+
+/* Optional Series S quality experiment. The second canvas is never interactive
+ * and only becomes visible when the player explicitly selects Sharp HUD test. */
+#ck-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  outline: none;
+}
