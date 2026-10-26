@@ -1,7 +1,7 @@
 
 'use strict';
 const cv=document.getElementById('c'),X=cv.getContext('2d');let CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
-const rs=()=>{DPR=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter=br===1?'none':'brightness('+br+')';const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
+const rs=()=>{DPR=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq])*perfRenderScale;CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter=br===1?'none':'brightness('+br+')';const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
 /* ===== GAME STATE / MAP ===== */
 /* ===== GENERATED MAP CONNECTIVITY AUDIT =====
    Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.
@@ -636,6 +636,7 @@ if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.p
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
+if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
 if(drawFrontEndScreen())return;
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');
 if(perfFlatField){

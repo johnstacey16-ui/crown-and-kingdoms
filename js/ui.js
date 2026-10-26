@@ -1,7 +1,7 @@
 function drawPerfOverlay(dt){
  if(!perfHud||mode!=='play'||!S)return;
  const instant=dt>0?1/dt:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
- const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=perfFlatField||perfLayerMode?154:136;
+ const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=perfFlatField||perfLayerMode?172:154;
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+(dt*1000).toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
  const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
@@ -12,9 +12,10 @@ function drawPerfOverlay(dt){
  tx('LOOP '+perfLoopMs.toFixed(1)+'  PAD '+perfPadMs.toFixed(1)+'  CTL '+perfControlMs.toFixed(1)+'  GAP '+perfGapMs.toFixed(1)+' ms',x+9,y+108,11,'#cbd5e1');
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';
  tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus,x+9,y+126,11,'#cbd5e1');
- if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+144,11,'#fbd38d');
-else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+144,11,'#fbd38d');
-else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+144,11,'#fbd38d');
+ tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2),x+9,y+144,11,'#f8e6b5');
+ if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+162,11,'#fbd38d');
+else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+162,11,'#fbd38d');
+else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+162,11,'#fbd38d');
 }
 
 const ovr=()=>{const w=Math.min(CW-80,(CH-190)*2)|0;return{x:(CW-w)/2,y:(CH-w/2)/2+12,w,h:w/2}};
@@ -47,6 +48,7 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 {n:'Voice / ambient audio',v:()=>'not available'},
 {n:'Vibration',v:()=>rumbleOK()?(rmb?'On':'Off'):'not supported',l:()=>{rmb^=1},r:()=>{rmb^=1},a:()=>{rmb^=1}},
 {n:'Graphics quality',v:()=>['Low','Medium','High'][gq],l:()=>setQ((gq+2)%3),r:()=>setQ((gq+1)%3)},
+{n:'Canvas pixel test',v:()=>Math.round(perfRenderScale*100)+'%',d:()=> 'Xbox Edge GPU presentation test. Temporarily draw the full original scene at 100, 75 or 50 percent canvas pixels. Text and art may look softer at low settings; use 100 percent to restore. Not saved.',l:()=>{const a=[.5,.75,1],i=a.indexOf(perfRenderScale);perfRenderScale=a[Math.max(0,i-1)];perfHud=1;perfFps=0;rs()},r:()=>{const a=[.5,.75,1],i=a.indexOf(perfRenderScale);perfRenderScale=a[Math.min(2,i+1)];perfHud=1;perfFps=0;rs()},a:()=>{const a=[1,.75,.5],i=a.indexOf(perfRenderScale);perfRenderScale=a[(i+1)%3];perfHud=1;perfFps=0;rs()}},
 {n:'Performance overlay',v:()=>perfHud?'On':'Off',d:()=> 'Live frame rate, frame interval and unit counts. Useful for scale testing.',l:()=>{perfHud^=1;perfFps=0},r:()=>{perfHud^=1;perfFps=0},a:()=>{perfHud^=1;perfFps=0}},
 {n:'Render isolation test',v:()=>perfFlatField?'Flat field':'Normal',d:()=> 'Xbox Edge diagnostic: temporarily hide the battlefield but keep simulation and the performance HUD active. Toggle again to restore graphics. Not saved.',l:()=>{perfFlatField^=1;perfHud=1;perfFps=0;perfLayerMode=0},r:()=>{perfFlatField^=1;perfHud=1;perfFps=0;perfLayerMode=0},a:()=>{perfFlatField^=1;perfHud=1;perfFps=0;perfLayerMode=0}},
 {n:'Render layer diagnosis',v:()=>['Normal','Terrain only','Objects only'][perfLayerMode],d:()=> 'Series S diagnosis: compare just the terrain with just the units/buildings; keep gameplay and HUD running. Normal restores the full scene. Not saved.',l:()=>{perfLayerMode=(perfLayerMode+2)%3;perfFlatField=0;perfHud=1;perfFps=0},r:()=>{perfLayerMode=(perfLayerMode+1)%3;perfFlatField=0;perfHud=1;perfFps=0},a:()=>{perfLayerMode=(perfLayerMode+1)%3;perfFlatField=0;perfHud=1;perfFps=0}},

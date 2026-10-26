@@ -1,3 +1,15 @@
+## 26 October 2026 — Series S troop draw CPU fixed, GPU/browser RAF gap still slow; test canvas pixel workload
+
+On the Xbox Series S Edge, the owner supplied a new normal-graphics screenshot from the same test save with **4 FPS**, **250.0 ms on-screen FPS interval**, **60 units total / 56 buildings**, **26 visible soldiers**, and **UNIT 1.0 ms**. The preceding comparable screenshot had 26 visible soldiers with UNIT **204.3 ms**—approximately **99.5% lower measured soldier-drawing CPU time**, a strong result of per-team animated frame caching. NODE 0.3 ms (33), BLD 0.8 ms (28), WORLD 2.3 ms, DRAW 4.8 ms, SIM 4.4 ms, LOOP 11.6 ms, and **GAP 255.3 ms / RAF 266.9 ms**. The FPS did **not** improve despite major CPU drawing savings. We cannot infer the precise GPU or compositor cause from requestAnimationFrame and CPU timings.
+
+To directly test whether Xbox Edge is bound by **presentation/backing-store pixel workload** rather than JavaScript, the pause menu now exposes an unsaved, reversible **Canvas pixel test**: **100% (unchanged original), 75% and 50%**. This controls only the canvas DPR/backing width and height; the CSS display dimensions, logical input coordinates, selection, camera, minimap, game state, original unit sprites, texture atlas animation, render depth and network commands are unchanged. Lower settings temporarily upscale a smaller rendered frame and will look softer. It is deliberately a *diagnostic*, not evidence that lower graphic quality is acceptable for production. Leaving a match automatically resets to 100%. HUD explicitly shows the actual canvas dimensions, selected scale and effective DPR so Series S screenshots can be compared correctly; the test turns on the FPS overlay automatically. It does not modify `ck_set`, game saves or autosaves. CI/headless checks test exact 100/75/50 backing pixels, stable CSS/input geometry, reset on title and safe coexistence with Flat field/Terrain only.
+
+**Next hardware evidence:** In the **same built-in Xbox FPS Test Save**, use Normal scene and compare 100%, 75% and 50% **RAF/GAP/FPS** after about 10 seconds per setting. If 50% runs much faster, GPU fill/texture/present cost rises to the top. If it stays near 4 FPS, investigate texture upload/surface complexity and scheduling rather than canvas pixel count. No FPS claim until actual Series S test.
+
+**CI and production acceptance:** pending.
+
+---
+
 ## 26 October 2026 — Series S soldier sprite atlas bottleneck: bounded original-resolution frame crops
 
 The latest Xbox Series S Edge owner screenshot confirms **4 FPS**, **300.3 ms RAF**, **220.6 ms previous JS callback**, **216.0 ms total draw**, **205.0 ms WORLD**, and the newly split breakdown **NODE 0.3 ms (22 resources)**, **BLD 0.3 ms (20 buildings)**, **UNIT 204.3 ms (26 on-screen soldiers)**. The game contains 60 total units and 56 buildings, but the renderer only drew 26 visible soldiers. Thus, approximately all measured WORLD time is in troop draw calls. The 704.2 ms peak is a historical peak and not the current draw duration. The 79.7 ms GAP is unattributed scheduling/compositor time, not proof of an intentional FPS cap.
