@@ -59,6 +59,7 @@ test('only sample game exposes an Xbox graphics comparison with screenshot-ready
  assert.match(ui,/n:'Run Xbox graphics comparison'/);
  assert.match(ui,/beginCanvasBenchmark\('layers'\)/);
  assert.match(ui,/MEDIAN FPS: FULL /);
+ assert.match(ui,/if\(!canvasBenchmark\)\{[\s\S]*?if\(perfFlatField\)tx\('TEST: FLAT FIELD/,'separate in-progress bench row from manual isolation captions');
  assert.match(ui,/FLAT '\+f\(3\)/);
  assert.match(source,/CK_LAYER_BENCH_STAGES=\[/);
  assert.match(source,/if\(mode!=='play'&&mode!=='pause'&&canvasBenchmark\)stopCanvasBenchmark\(true\)/);

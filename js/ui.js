@@ -13,9 +13,11 @@ function drawPerfOverlay(dt){
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';
  tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus,x+9,y+126,11,'#cbd5e1');
  tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2),x+9,y+144,11,'#f8e6b5');
- if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+162,11,'#fbd38d');
-else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+162,11,'#fbd38d');
-else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+162,11,'#fbd38d');
+ if(!canvasBenchmark){
+  if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+162,11,'#fbd38d');
+  else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+162,11,'#fbd38d');
+  else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+162,11,'#fbd38d');
+ }
  if(canvasBenchmark){
   const b=canvasBenchmark,percent=b.start===null?0:Math.min(100,Math.max(0,(performance.now()-b.start)/CK_CANVAS_BENCH_STAGE_MS*100));
   const step=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase].label:Math.round(CK_CANVAS_BENCH_STAGES[b.phase]*100)+'%';
