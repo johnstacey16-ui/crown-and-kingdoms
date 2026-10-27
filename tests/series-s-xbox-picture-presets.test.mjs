@@ -97,7 +97,7 @@ test('manual graphics diagnostics override a previously selected preset',()=>{
 test('no saved state field, source artwork degradation, new controls or hosted services',()=>{
  assert.match(engine,/perfRenderScale=p\.scale;perfSharpHud=p\.sharp/);
  assert.match(engine,/perfFlatField=0;perfLayerMode=0/);
- assert.match(ui,/Original keeps full resolution/);
+ assert.match(ui,/Original 100%, Balanced 75%, Smooth 50%, Extra smooth 40%/);
  const setting=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(setting);
  for(const word of ['perfSharpHud','perfRenderScale','xboxPicturePreset'])assert.ok(!setting[1].includes(word));
