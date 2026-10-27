@@ -66,8 +66,8 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 {n:'Voice / ambient audio',v:()=>'not available'},
 {n:'Vibration',v:()=>rumbleOK()?(rmb?'On':'Off'):'not supported',l:()=>{rmb^=1},r:()=>{rmb^=1},a:()=>{rmb^=1}},
 {n:'Graphics quality',v:()=>['Low','Medium','High'][gq],l:()=>setQ((gq+2)%3),r:()=>setQ((gq+1)%3)},
-{n:'Xbox picture preset',v:()=>selectedXboxPicturePreset===4?'Adaptive '+Math.round(adaptivePictureScale*100)+'%':CK_XBOX_PICTURE_PRESETS[currentXboxPicturePreset()]?.name||'Custom',
- d:()=> 'Original 100%, Balanced 75%, Smooth 50%, Extra smooth 40% or optional Adaptive. Adaptive starts at 50%, then tests sustained frame rates every 8 seconds to adjust between 40% and 75% with a sharp Xbox HUD. 40% is unverified and may be softer. Not saved; no change to controls or gameplay.',
+{n:'Xbox picture preset',v:()=>selectedXboxPicturePreset===3?'Adaptive '+Math.round(adaptivePictureScale*100)+'%':CK_XBOX_PICTURE_PRESETS[currentXboxPicturePreset()]?.name||'Custom',
+ d:()=> 'Original 100%, Balanced 75%, Smooth 50%, or optional Adaptive. Adaptive uses only 50%–75% battlefield detail with a sharp Xbox HUD, adjusting after sustained frame-rate measurements. 40% was removed because it looked too blurry on Xbox Series S. Not saved; no change to controls or gameplay.',
  l:()=>cycleXboxPicturePreset(-1),r:()=>cycleXboxPicturePreset(1),a:()=>cycleXboxPicturePreset(1)},
 ...(perfTestMatch?[
  {n:'Run Xbox FPS comparison',d:()=> 'One-click comparison of full graphics at 100%, 75%, 50%, then 100% again. Holds the test scene still for ~28 seconds, locks gameplay controls and restores the original resolution. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark()},

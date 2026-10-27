@@ -17,13 +17,13 @@ function game(){
 }
 const snap=run=>JSON.parse(run('JSON.stringify({scale:perfRenderScale,sharp:perfSharpHud,dpr:DPR,canvas:[cv.width,cv.height],logical:[CW,CH],mode,selected:currentXboxPicturePreset()})'));
 
-test('original, balanced, smooth and extra-smooth presets keep controller and game projection unchanged',()=>{
+test('original, balanced and smooth presets keep controller and game projection unchanged',()=>{
  const {run,storage}=game();
  run('start();mode="pause"');
  const start=snap(run);
  const controls=run('JSON.stringify([cam,cur,s2w(420,360),w2s(15,25),CW,CH])');
  assert.equal(start.scale,1);assert.equal(start.sharp,0);assert.equal(start.selected,0);
- for(const [i,scale,width,height] of [[1,.75,960,540],[2,.5,640,360],[3,.4,512,288],[0,1,1280,720]]){
+ for(const [i,scale,width,height] of [[1,.75,960,540],[2,.5,640,360],[0,1,1280,720]]){
   assert.equal(run('setXboxPicturePreset('+i+')'),true);
   const t=snap(run);
   assert.equal(t.scale,scale);assert.equal(t.sharp,i===0?0:1);
@@ -62,6 +62,7 @@ test('preset cannot run outside a match or mutate ongoing benchmark, and new mat
  run('stopCanvasBenchmark(true)');
  run('mode="pause";setXboxPicturePreset(3)');
  assert.equal(snap(run).selected,3);
+ assert.equal(snap(run).scale,.5,'Adaptive replaces the rejected 40% setting');
  run('start()');
  assert.equal(snap(run).selected,0);
  assert.equal(run('currentXboxPicturePreset()'),0);
@@ -97,7 +98,8 @@ test('manual graphics diagnostics override a previously selected preset',()=>{
 test('no saved state field, source artwork degradation, new controls or hosted services',()=>{
  assert.match(engine,/perfRenderScale=p\.scale;perfSharpHud=p\.sharp/);
  assert.match(engine,/perfFlatField=0;perfLayerMode=0/);
- assert.match(ui,/Original 100%, Balanced 75%, Smooth 50%, Extra smooth 40%/);
+ assert.match(ui,/Original 100%, Balanced 75%, Smooth 50%, or optional Adaptive/);
+ assert.doesNotMatch(engine,/Extra smooth 40%/);
  const setting=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(setting);
  for(const word of ['perfSharpHud','perfRenderScale','xboxPicturePreset'])assert.ok(!setting[1].includes(word));

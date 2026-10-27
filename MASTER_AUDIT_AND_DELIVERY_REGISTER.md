@@ -1,3 +1,13 @@
+## 27 October 2026 — Physical Xbox Series S feedback rejects 40% image quality
+
+The owner tested 40% battlefield scaling on a real Xbox Series S / Edge and reported **“40% is terrible looking.”** This fails the visual-quality acceptance requirement. As a result, the **Extra smooth 40%** preset is removed, and the optional **Adaptive** preset is restricted to **50% or 75%** only. When performance slows at 75%, Adaptive drops no lower than 50%; it starts at 50% and can raise detail to 75% after two sustained fast windows. 50% continues to use the Sharp HUD that the owner explicitly found clearer. Fixed Original 100%, Balanced 75%, and Smooth 50% remain available. The 100/75/50% diagnostic benchmark and original sprite artwork are retained. Neither old saves, game simulation, controller bindings nor free hosting are changed.
+
+The original 50% performance measurements still show live game frame rates below the desired target, but dropping to rejected 40% is not an acceptable solution. Future work should optimise presentation/render workload while keeping 50% as the current minimum. Updated regressions verify Adaptive never renders below 50%, regardless of prolonged slow RAF timing, and the pause menu can no longer select the rejected 40% preset.
+
+**CI and exact production deployment:** pending verification.
+
+---
+
 ## 27 October 2026 — Optional adaptive Series S resolution with sharp controller HUD
 
 The preceding static-picture preset commit c0c46c6 is fully verified: all four GitHub checks passed and Vercel is live at the same SHA. The user's Xbox Series S measured pixel-only median FPS of **100% 7, 75% 10 and 50% 30**, while ordinary live gameplay at 50% was ~13–14 FPS; the owner explicitly confirmed that the high-resolution Sharp HUD was clearer. Canvas compositor/surface work or RAF scheduling, not measured JavaScript unit drawing, remains the suspected dominant cost; exact GPU time cannot be attributed from this telemetry.

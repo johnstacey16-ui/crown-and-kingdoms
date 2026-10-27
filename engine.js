@@ -541,7 +541,7 @@ function resetAdaptivePictureSampling(){adaptiveWindowStart=null;adaptiveSamples
 // Optional conservative frame-pacing governor. Only when expressly selected.
 // Warm up for 1.5s after each window, and resize at most once every 8s.
 function sampleAdaptivePicture(now,rafMs){
- if(selectedXboxPicturePreset!==4||mode!=='play'||!S||canvasBenchmark||perfFlatField||perfLayerMode||document.hidden){
+ if(selectedXboxPicturePreset!==3||mode!=='play'||!S||canvasBenchmark||perfFlatField||perfLayerMode||document.hidden){
   resetAdaptivePictureSampling();return;
  }
  if(!Number.isFinite(rafMs)||rafMs<1||rafMs>1000){resetAdaptivePictureSampling();return}
@@ -550,7 +550,7 @@ function sampleAdaptivePicture(now,rafMs){
  if(elapsed>=ADAPTIVE_WINDOW_MS){
   const median=canvasBenchmarkMedian(adaptiveSamples);
   if(median!==null&&adaptiveSamples.length>=16){
-   const levels=[.4,.5,.75],index=levels.indexOf(adaptivePictureScale);
+   const levels=[.5,.75],index=levels.indexOf(adaptivePictureScale);
    if(median>46&&index>0){adaptivePictureScale=levels[index-1];adaptiveFastWindows=0}
    else if(median<24&&index<2){
     if(++adaptiveFastWindows>=2){adaptivePictureScale=levels[index+1];adaptiveFastWindows=0}
@@ -566,11 +566,10 @@ const CK_XBOX_PICTURE_PRESETS=[
  {name:'Original 100%',scale:1,sharp:0},
  {name:'Balanced 75%',scale:.75,sharp:1},
  {name:'Smooth 50%',scale:.5,sharp:1},
- {name:'Extra smooth 40%',scale:.4,sharp:1},
  {name:'Adaptive (experimental)',scale:.5,sharp:1,adaptive:true}
 ];
 function currentXboxPicturePreset(){
- if(selectedXboxPicturePreset===4&&perfSharpHud&&[.4,.5,.75].includes(perfRenderScale))return 4;
+ if(selectedXboxPicturePreset===3&&perfSharpHud&&[.5,.75].includes(perfRenderScale))return 3;
  return CK_XBOX_PICTURE_PRESETS.findIndex(p=>!p.adaptive&&p.scale===perfRenderScale&&p.sharp===perfSharpHud);
 }
 function setXboxPicturePreset(index){
