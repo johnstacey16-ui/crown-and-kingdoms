@@ -26,7 +26,7 @@ const w2s=(x,y)=>[(x-y)*TW/2-cam.x,(x+y)*TH/2-cam.y];
 const s2w=(sx,sy)=>{const u=(sx+cam.x)/(TW/2),v=(sy+cam.y)/(TH/2);return[(u+v)/2,(v-u)/2]};
 function clampCam(){const[x,y]=s2w(CW/2,CH/2),cx=cl(x,1,W-1),cy=cl(y,1,H-1);cam.x=(cx-cy)*TW/2-CW/2;cam.y=(cx+cy)*TH/2-CH/2}
 const ctr=(x,y)=>{cam.x=(x-y)*TW/2-CW/2;cam.y=(x+y)*TH/2-CH/2;clampCam()};
-function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;selectedXboxPicturePreset=-1;
+function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary=null;selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();
 if(perfRenderScale!==1||perfSharpHud){perfRenderScale=1;perfSharpHud=0;rs()}
 perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
 /* Built-in, reproducible Series S render performance SAVE.
@@ -534,21 +534,51 @@ function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(
 // User-selectable, session-local Xbox Edge picture presets. Backing pixels
 // change, but the HUD keeps native DPR for legible Xbox menus and controls.
 // Neither the original graphics tier nor the save/command format is changed.
-let selectedXboxPicturePreset=-1;
+let selectedXboxPicturePreset=-1,adaptivePictureScale=.5;
+const ADAPTIVE_WINDOW_MS=8000,ADAPTIVE_WARMUP_MS=1500;
+let adaptiveWindowStart=null,adaptiveSamples=[],adaptiveFastWindows=0;
+function resetAdaptivePictureSampling(){adaptiveWindowStart=null;adaptiveSamples=[];adaptiveFastWindows=0}
+// Optional conservative frame-pacing governor. Only when expressly selected.
+// Warm up for 1.5s after each window, and resize at most once every 8s.
+function sampleAdaptivePicture(now,rafMs){
+ if(selectedXboxPicturePreset!==4||mode!=='play'||!S||canvasBenchmark||perfFlatField||perfLayerMode||document.hidden){
+  resetAdaptivePictureSampling();return;
+ }
+ if(!Number.isFinite(rafMs)||rafMs<1||rafMs>1000){resetAdaptivePictureSampling();return}
+ if(adaptiveWindowStart===null){adaptiveWindowStart=now;return}
+ const elapsed=now-adaptiveWindowStart;
+ if(elapsed>=ADAPTIVE_WINDOW_MS){
+  const median=canvasBenchmarkMedian(adaptiveSamples);
+  if(median!==null&&adaptiveSamples.length>=16){
+   const levels=[.4,.5,.75],index=levels.indexOf(adaptivePictureScale);
+   if(median>46&&index>0){adaptivePictureScale=levels[index-1];adaptiveFastWindows=0}
+   else if(median<24&&index<2){
+    if(++adaptiveFastWindows>=2){adaptivePictureScale=levels[index+1];adaptiveFastWindows=0}
+   }else adaptiveFastWindows=0;
+   if(perfRenderScale!==adaptivePictureScale){perfRenderScale=adaptivePictureScale;perfFps=0;rs()}
+  }
+  adaptiveWindowStart=now;adaptiveSamples=[];return;
+ }
+ if(elapsed>=ADAPTIVE_WARMUP_MS&&adaptiveSamples.length<1000)adaptiveSamples.push(rafMs);
+}
+
 const CK_XBOX_PICTURE_PRESETS=[
  {name:'Original 100%',scale:1,sharp:0},
  {name:'Balanced 75%',scale:.75,sharp:1},
  {name:'Smooth 50%',scale:.5,sharp:1},
- {name:'Extra smooth 40%',scale:.4,sharp:1}
+ {name:'Extra smooth 40%',scale:.4,sharp:1},
+ {name:'Adaptive (experimental)',scale:.5,sharp:1,adaptive:true}
 ];
 function currentXboxPicturePreset(){
- return CK_XBOX_PICTURE_PRESETS.findIndex(p=>p.scale===perfRenderScale&&p.sharp===perfSharpHud);
+ if(selectedXboxPicturePreset===4&&perfSharpHud&&[.4,.5,.75].includes(perfRenderScale))return 4;
+ return CK_XBOX_PICTURE_PRESETS.findIndex(p=>!p.adaptive&&p.scale===perfRenderScale&&p.sharp===perfSharpHud);
 }
 function setXboxPicturePreset(index){
  if(canvasBenchmark||mode!=='play'&&mode!=='pause')return false;
  const p=CK_XBOX_PICTURE_PRESETS[index];
  if(!p)return false;
  selectedXboxPicturePreset=index;
+ adaptivePictureScale=p.scale;resetAdaptivePictureSampling();
  perfRenderScale=p.scale;perfSharpHud=p.sharp;
  perfFlatField=0;perfLayerMode=0;
  perfFps=0;rs();return true;
@@ -678,10 +708,10 @@ function draw(dt){X=WORLD_X;
 if(mode==='play'||mode==='pause'){
  if(selectedXboxPicturePreset>=0&&!canvasBenchmark&&currentXboxPicturePreset()!==selectedXboxPicturePreset){
   const p=CK_XBOX_PICTURE_PRESETS[selectedXboxPicturePreset];
-  perfRenderScale=p.scale;perfSharpHud=p.sharp;rs();
+  perfRenderScale=p.adaptive?adaptivePictureScale:p.scale;perfSharpHud=p.sharp;rs();
  }
 }else if(mode==='title'||mode==='end'||mode==='error'||mode==='multiplayer'){
- selectedXboxPicturePreset=-1;
+ selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();
 }
 gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
@@ -749,7 +779,7 @@ function beginCanvasBenchmark(kind='pixels'){
  if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
  if(kind!=='layers')kind='pixels';
  stopCanvasBenchmark(true);
- canvasBenchSummary=null;selectedXboxPicturePreset=-1;canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
+ canvasBenchSummary=null;selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
  gs=0;acc=0;perfHud=1;perfSharpHud=0;setupCanvasBenchmarkStage(canvasBenchmark);
  mode='play';return true;
 }
@@ -785,6 +815,7 @@ function frame2(now){
  try{
   const dt=Math.min(.25,(now-last)/1000);last=now;
   if(canvasBenchmark)sampleCanvasBenchmark(now,rafMs);
+  else sampleAdaptivePicture(now,rafMs);
   const padStart=timing?performance.now():0;
   readPad();
   if(timing)perfPadMs=performance.now()-padStart;

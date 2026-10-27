@@ -1,3 +1,13 @@
+## 27 October 2026 — Optional adaptive Series S resolution with sharp controller HUD
+
+The preceding static-picture preset commit c0c46c6 is fully verified: all four GitHub checks passed and Vercel is live at the same SHA. The user's Xbox Series S measured pixel-only median FPS of **100% 7, 75% 10 and 50% 30**, while ordinary live gameplay at 50% was ~13–14 FPS; the owner explicitly confirmed that the high-resolution Sharp HUD was clearer. Canvas compositor/surface work or RAF scheduling, not measured JavaScript unit drawing, remains the suspected dominant cost; exact GPU time cannot be attributed from this telemetry.
+
+A new fifth, **explicitly optional and experimental Adaptive** Xbox picture preset starts at the previously preferred **50%** rendering and keeps the HUD/menus fully sharp. During continuous active play, after warmup (1.5 s), it measures median raw RAF intervals across 8-second windows with at least 16 samples; if frames are consistently slower than roughly 22 FPS it steps 75→50→40. If frames are consistently faster than ~42 FPS for two full windows it steps 40→50→75. These thresholds and minimum periods prevent per-frame resizing or uncontrolled flicker. It never sets 100% in adaptive mode and never goes below 40%. During tabs hidden, pauses, benchmarks and diagnostic layer modes it discards incomplete windows. The selected adaptive detail level survives full-screen objectives/tech tree/save dialogs until play resumes. Other manually selected presets are unchanged. No gameplay, assets, controller assignments, authority, hosting, saves or settings data are changed.
+
+**Series S hardware acceptance still pending:** the owner hasn't yet measured 40% visual quality or FPS, so no gain is asserted for adaptive mode. All static picture settings remain available for users who dislike changing detail. **CI/production status:** pending.
+
+---
+
 ## 26 October 2026 — Xbox picture mode regression and resume hygiene
 
 The first opt-in normal-game picture preset build a59b6c9 was deployed and passed source validation and all 19 campaigns, but its new standalone test file had **two harness failures**: `pmItems` was not part of the test-only headless module bundle, and it attempted to begin a restricted automatic FPS benchmark from a non-fixture game. No rendering failure was indicated. The regression harness now loads the actual `js/ui.js` module and stubs only unrelated social menu providers; it enables the built-in fixture flag for that benchmark test, leaving the production-only restriction in place.
