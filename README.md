@@ -33,6 +33,8 @@ battlefield. Use the named battlefield preview for shared simulation.
 
 ## Checks
 
+**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 4 wins, 7 defeats and 8 timeouts, including 3 failing assertions. Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
+
 Requires Node.js 22 or a compatible current release. No package installation is required.
 
 ```sh
@@ -106,3 +108,4 @@ In the LB wheel, **Y** focuses an available group's first member in the local ba
 ## Focused battlefield camera
 
 Camera focus provides a 2× local battlefield view with fixed-size command/group menus. The cursor pans the camera near its edges; pointer selection and commands use the inverse viewport transform, and double A groups only eligible entities visible in the current view. RB's expanded minimap shows team-relative observed terrain and a viewport outline. A and D-pad do not issue gameplay commands there; Y alone focuses its cursor. Cancel restores the previous camera and cursor. Focus never changes sight, simulation state or checkpoints. The initial whole-map view is retained until focus is requested. The zoom ratio, edge speed, full minimap tools, isometric presentation and Xbox hardware acceptance remain open to refinement.
+

@@ -1191,21 +1191,25 @@ const timed = (label, run) => {
     console.log('section-timing: '+label+' elapsedMs='+(Date.now()-startedAt));
   }
 };
+const campaignPlaythroughResults = [];
 const playCampaignScenarioTimed = (index, maxSeconds) => {
   const result = timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
-  console.log('campaign-isolation-result: '+JSON.stringify({
+  const evidence = {
     mission: index,
     outcome: result.over === 'win' ? 'win' : result.over === 'lose' ? 'lose' : 'timeout',
     campaignTime: Number(result.campaignTime.toFixed(1)),
     completedObjectives: result.objectives.filter(objective => objective.complete).map(objective => objective.title),
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
     totalObjectives: result.objectives.length
-  }));
+  };
+  campaignPlaythroughResults.push(evidence);
+  console.log('campaign-isolation-result: '+JSON.stringify(evidence));
   return result;
 };
 const requestedMission = process.env.CK_MISSION === undefined ? null : Number(process.env.CK_MISSION);
 if (requestedMission !== null) assert.ok(Number.isInteger(requestedMission) && requestedMission >= 0 && requestedMission < 19, 'CK_MISSION must be an integer from 0 to 18');
 const skipCampaignPlaythroughs = process.env.CK_SKIP_CAMPAIGN === '1';
+assert.ok(!(skipCampaignPlaythroughs && requestedMission !== null), 'CK_MISSION cannot be combined with CK_SKIP_CAMPAIGN=1');
 const shouldRunCampaignMission = index => !skipCampaignPlaythroughs && (requestedMission === null || requestedMission === index);
 if (skipCampaignPlaythroughs) console.log('campaign-playthrough-mode: skipped all 19 scripted playthroughs (CK_SKIP_CAMPAIGN=1)');
 else if (requestedMission !== null) console.log('campaign-playthrough-mode: running mission '+(requestedMission+1)+' only (CK_MISSION='+requestedMission+')');
@@ -1586,6 +1590,9 @@ assert.equal(campaignGoalAudit.defeats.length, 19, 'Every mission must have its 
 for (const mission of campaignGoalAudit.defeats) assert.equal(mission.lost, true, `Mission ${mission.index + 1} must reach defeat when its Town Centre is destroyed`);
 assert.equal(campaignGoalAudit.kingDefeat, true, 'The Last Crown must also defeat when the player King is killed');
 console.log('campaign-goal-reachability: 19 missions; every goal predicate satisfied directly; all Town Centre defeat routes and the Last Crown King defeat route passed');
+}
+
+// Mission runs must remain outside the general standalone-only checks.
 if (shouldRunCampaignMission(0)) {
 const firstHearthPlaythrough = playCampaignScenarioTimed(0, 240);
 assert.equal(firstHearthPlaythrough.trainingGate, null, 'First Hearth must permit its required soldier training without an impossible age prerequisite: '+JSON.stringify(firstHearthPlaythrough));
@@ -1852,4 +1859,17 @@ console.log('four-kingdom-mass-battle: '+massBattle.requestedTotal+' units, 500/
 
 
 }
-}
+
+// This assertion deliberately lives outside every execution-mode guard. A
+// misplaced scope must fail rather than produce a green no-op mission run.
+const expectedMissions = skipCampaignPlaythroughs ? [] : requestedMission === null
+  ? Array.from({length:19}, (_, index) => index) : [requestedMission];
+assert.deepEqual(campaignPlaythroughResults.map(result => result.mission).sort((a,b) => a-b), expectedMissions,
+  'Every requested campaign must execute exactly one real playthrough');
+console.log('campaign-suite-result: '+JSON.stringify({
+  requested:expectedMissions.length,
+  executed:campaignPlaythroughResults.length,
+  wins:campaignPlaythroughResults.filter(result => result.outcome === 'win').length,
+  defeats:campaignPlaythroughResults.filter(result => result.outcome === 'lose').length,
+  timeouts:campaignPlaythroughResults.filter(result => result.outcome === 'timeout').length
+}));
