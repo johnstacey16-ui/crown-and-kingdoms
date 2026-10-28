@@ -1,14 +1,14 @@
 {
   "date": "2026-10-28",
-  "runtimeCommit": "b45bf083c83bf25accd0c8d88b4f4bded4eebb05",
+  "runtimeCommit": null,
   "testFileSha256": "6878d7d2e846c3f6d51aa8d38fffe61a59a79d39ee4670ab42ff6c45c9a18692",
   "command": "CK_MISSION=<missionIndex> node tests/simulation-smoke.test.mjs",
   "scope": "Seeded scripted-player Node simulations; no controller, browser or physical Xbox campaign acceptance. Timeout/defeat are not victory. Some legacy assertions allow these outcomes.",
   "summary": {
     "executed": 19,
     "wins": 7,
-    "defeats": 4,
-    "timeouts": 8,
+    "defeats": 6,
+    "timeouts": 6,
     "assertionFailures": 1
   },
   "missions": [
@@ -50,7 +50,7 @@
       "title": "The Feudal Frontier",
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 744.5,
+      "campaignTime": 683.5,
       "completedObjectives": [
         "Reach the Feudal Age",
         "Build 2 Towers",
@@ -66,7 +66,7 @@
       "title": "The Relic Road",
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 227,
+      "campaignTime": 133,
       "completedObjectives": [
         "Build a Monastery",
         "Hold 3 relics in your Monasteries"
@@ -143,8 +143,8 @@
       "missionNumber": 10,
       "title": "Siege of Greywatch",
       "testExitCode": 0,
-      "outcome": "timeout",
-      "campaignTime": 900,
+      "outcome": "lose",
+      "campaignTime": 780.3,
       "completedObjectives": [],
       "objectiveCount": 0,
       "totalObjectives": 1
@@ -195,13 +195,12 @@
       "missionNumber": 14,
       "title": "The Strait\u2019s Last Relic",
       "testExitCode": 0,
-      "outcome": "timeout",
-      "campaignTime": 1200,
+      "outcome": "lose",
+      "campaignTime": 932,
       "completedObjectives": [
-        "Build a Monastery",
-        "Hold 2 relics in your Monasteries"
+        "Build a Monastery"
       ],
-      "objectiveCount": 2,
+      "objectiveCount": 1,
       "totalObjectives": 4
     },
     {
@@ -210,7 +209,7 @@
       "title": "The Siege of Tidewatch",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 608.5,
+      "campaignTime": 570.5,
       "completedObjectives": [
         "Build a Siege Workshop"
       ],
@@ -238,13 +237,12 @@
       "title": "The Causeway Muster",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 596.1,
+      "campaignTime": 573.5,
       "completedObjectives": [
         "Build a Dock",
-        "Have 3 War Galleys alive",
         "Build 2 completed Towers"
       ],
-      "objectiveCount": 3,
+      "objectiveCount": 2,
       "totalObjectives": 5
     },
     {
@@ -253,7 +251,7 @@
       "title": "The Crown Holds the Crossing",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 582.9,
+      "campaignTime": 590,
       "completedObjectives": [
         "Build 2 completed Castles"
       ],
@@ -266,21 +264,27 @@
       "title": "The Iron Pass",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 557.2,
+      "campaignTime": 520.6,
       "completedObjectives": [
-        "Build 2 completed Towers",
-        "Hold the pass for 9:00"
+        "Build 2 completed Towers"
       ],
-      "objectiveCount": 2,
+      "objectiveCount": 1,
       "totalObjectives": 3
     }
   ],
   "previousSummary": {
     "executed": 19,
-    "wins": 4,
-    "defeats": 7,
+    "wins": 7,
+    "defeats": 4,
     "timeouts": 8,
-    "assertionFailures": 3
+    "assertionFailures": 1
   },
-  "previousEvidenceCommit": "b45bf083c83bf25accd0c8d88b4f4bded4eebb05"
+  "previousEvidenceCommit": "9af265942576b54bcf3717088df502e02cfc74b9",
+  "runtimeBaseCommit": "9af265942576b54bcf3717088df502e02cfc74b9",
+  "runtimeFileSha256": {
+    "js/simulation.js": "05dbcf52aa2f0bc584904dd981fe3b90be42764f9c6e53e0beb2aba0b91f409b",
+    "js/network-session.js": "f7b032fc9109cba14dbebabfb24decaecbe0f082a60fe87371c1dadaee665e69",
+    "js/network-webrtc.js": "77836d3e95d81b8706b58440ca23c0bfd4449405433fff8ad380c36dd439f99d",
+    "sw.js": "3e932af40f0a7ae98aad69a871f833cc6fbc89630093f6da110cddfac979efb9"
+  }
 }

@@ -518,6 +518,9 @@ function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech
 if(popOf(t)>=capOf(t)){if(!t)note('Population cap reached - build houses');return false}if(b.q.length>=5)return false;pay(t,d.cost);b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t});return true}
 function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();pay(b.t,U[q.k].cost,1);note('Cancelled - full refund');return true}
 function okPlace(t,k,x,y){if(!S||!B[k]||!Number.isInteger(t)||!S.tech[t]||!Number.isInteger(x)||!Number.isInteger(y))return false;if(vm===6&&k==='tc')return false;const s=B[k].s;if(x<1||y<1||x+s>W-1||y+s>H-1)return false;
+// A solid foundation or farm would strand any unit already on these tiles:
+// pathfinding and movement correctly reject a blocked starting tile.
+for(const u of S.us||[])if(u&&u.hp>0&&!u.ld&&u.x>=x&&u.x<x+s&&u.y>=y&&u.y<y+s)return false;
 for(let j=0;j<s;j++)for(let i=0;i<s;i++){const n=(y+j)*W+x+i;if(S.g[n]||S.wt[n]||(t===0&&!S.ex[n]))return false}if(B[k].wat){let w=0;for(let j=-1;j<=s;j++)for(let i=-1;i<=s;i++){const X2=x+i,Y2=y+j;if((i<0||j<0||i>=s||j>=s)&&X2>=0&&Y2>=0&&X2<W&&Y2<H&&S.wt[Y2*W+X2]&&!S.nd[Y2*W+X2])w++}if(!w)return false}return true}
 /* Enemy strategy and composition-aware decisions are implemented in js/ai.js. */
 /* ===== SIMULATION STEP ===== */
@@ -637,5 +640,6 @@ function step(dt){foeGridDirty=true;S.t+=dt;for(const n of S.nodes)if(n&&n.fm&&n
 for(const s of S.us)if(s.cg&&s.cg.length){if(s.hp<=0)s.cg.forEach(c=>c.hp=0);else s.cg.forEach(c=>{c.x=s.x;c.y=s.y})}for(const b of S.bs)upB(b,dt);pjs(dt);if(!(cmp&&CAMP[cmp.i].noai))ai(dt);
 for(const f of fx)f.l-=dt;compactPositive(fx,'l');compactPositive(S.us,'hp');compactPositive(S.bs,'hp');compactPositive(S.sel,'hp');
 if(++S.vt%30===0)S.scoreCache=Array.from({length:S.teamN},(_,t)=>kingdomScore(t));if(S.vt%6===0){fog();if(S.vt%(W*H>20000?24:W*H>9000?12:6)===0)mmUp()}}
+
 
 

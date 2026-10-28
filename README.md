@@ -12,6 +12,8 @@ Serve `index.html` from a static web server and play with a connected controller
 
 ## Two-player battlefield preview
 
+**28 October construction update:** buildings and farms reject ground occupied by living units, preventing new foundations from trapping them. Both players must refresh for protocol `ck-live-preview-13` before creating a new room.
+
 1. Open **Multiplayer** from the title screen, then select **Two-player battlefield preview**.
 2. The host chooses **Create private room** and shares the private invitation.
 3. The guest pastes the invitation and chooses **Join room**.
@@ -33,7 +35,7 @@ battlefield. Use the named battlefield preview for shared simulation.
 
 ## Checks
 
-**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 7 wins, 4 defeats and 8 timeouts, including 1 failing assertion (The Golden Coast). Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
+**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 7 wins, 6 defeats and 6 timeouts, including 1 failing assertion (The Golden Coast). Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
 
 Requires Node.js 22 or a compatible current release. No package installation is required.
 
@@ -97,7 +99,7 @@ Active authenticated requests now renew each player's 30-minute idle lease, allo
 
 ## Multiplayer military formations
 
-Select at least two owned military units, then press and release **Y** to switch between Line and Split. The request executes on the shared host frame; it never moves units optimistically. Land and naval groups reform around separate centres with the existing formation/pathfinding planners. Civilian, loaded, dead, foreign, duplicate and unreachable selections are rejected without partial changes. The live handshake is now `ck-live-preview-9`; both players must refresh after updating. Remaining Y build/train shortcuts, full formation wheels, reconnect and physical Xbox acceptance are open.
+Select at least two owned military units, then press and release **Y** to switch between Line and Split. The request executes on the shared host frame; it never moves units optimistically. Land and naval groups reform around separate centres with the existing formation/pathfinding planners. Civilian, loaded, dead, foreign, duplicate and unreachable selections are rejected without partial changes. The live handshake is now `ck-live-preview-13`; both players must refresh after updating. Remaining Y build/train shortcuts, full formation wheels, reconnect and physical Xbox acceptance are open.
 
 ## Multiplayer control groups
 

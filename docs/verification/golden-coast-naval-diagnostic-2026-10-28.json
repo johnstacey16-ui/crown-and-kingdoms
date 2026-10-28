@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-28",
+  "runtimeBase": "9af265942576b54bcf3717088df502e02cfc74b9",
+  "scope": "Fresh production mission opening; 8-neighbour ship traversability with corner blocking and resource occupancy, matching pathfinding. No gameplay state is modified after setup.",
+  "missionIndex": 12,
+  "seed": 913,
+  "width": 96,
+  "height": 96,
+  "largestNavigableComponent": 1626,
+  "ships": [
+    {
+      "team": 0,
+      "x": 19.5,
+      "y": 83.5,
+      "waterComponent": 3,
+      "componentTiles": 36
+    },
+    {
+      "team": 0,
+      "x": 19.5,
+      "y": 82.5,
+      "waterComponent": 3,
+      "componentTiles": 36
+    },
+    {
+      "team": 1,
+      "x": 76.5,
+      "y": 13.5,
+      "waterComponent": 0,
+      "componentTiles": 36
+    },
+    {
+      "team": 1,
+      "x": 76.5,
+      "y": 14.5,
+      "waterComponent": 0,
+      "componentTiles": 36
+    },
+    {
+      "team": 1,
+      "x": 76.5,
+      "y": 12.5,
+      "waterComponent": 0,
+      "componentTiles": 36
+    }
+  ],
+  "openingPlayerGalleyCanReachEnemy": false,
+  "runtimeFileSha256": {
+    "js/simulation.js": "05dbcf52aa2f0bc584904dd981fe3b90be42764f9c6e53e0beb2aba0b91f409b",
+    "js/network-session.js": "f7b032fc9109cba14dbebabfb24decaecbe0f082a60fe87371c1dadaee665e69",
+    "js/network-webrtc.js": "77836d3e95d81b8706b58440ca23c0bfd4449405433fff8ad380c36dd439f99d",
+    "sw.js": "3e932af40f0a7ae98aad69a871f833cc6fbc89630093f6da110cddfac979efb9"
+  }
+}

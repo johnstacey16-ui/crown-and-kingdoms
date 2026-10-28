@@ -102,7 +102,7 @@ try{
         await f.guest.evaluate(async()=>{let n=0;while(!await client.poll(()=>true)){if(++n>100)throw Error('No replay fixture frame');await new Promise(r=>setTimeout(r,1));}});
       }
       await f.host.evaluate(attack=>{
-        if(attack==='second-channel'){testPC.createDataChannel('ck-game-v1',{ordered:true,protocol:'ck-live-preview-12'});return;}
+        if(attack==='second-channel'){testPC.createDataChannel('ck-game-v1',{ordered:true,protocol:'ck-live-preview-13'});return;}
         const wire={v:1,sequence:1,kind:'frame',payload:{frame:1}};
         if(attack==='sender')wire.senderSid='forged';
         if(attack==='gap')wire.sequence=2;
@@ -135,3 +135,4 @@ try{
   console.log(JSON.stringify({status:'passed',results}));
 }catch(error){console.error(JSON.stringify({lastDiagnostics,results}));throw error;}
 finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
+
