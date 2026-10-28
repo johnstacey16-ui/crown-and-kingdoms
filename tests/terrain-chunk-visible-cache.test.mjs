@@ -18,7 +18,9 @@ function scene({CW=2560,CH=1440,zoom=.8,center=128}={}){
   cam:{x:0,y:0},
   document:{createElement(tag){
    assert.equal(tag,'canvas');
-   const cv={width:0,height:0,getContext(kind){assert.equal(kind,'2d');return {};}};
+   // This suite exercises the original chunk fallback; the separate viewport
+   // suite supplies a complete compositing context and checks its cache.
+   const cv={width:0,height:0,getContext(kind,options){assert.equal(kind,'2d');if(options?.alpha===false){const i=created.indexOf(cv);if(i>=0)created.splice(i,1);return null}return {};}};
    created.push(cv);return cv;
   }},
   paintTile(){paints++},
@@ -156,3 +158,4 @@ test('zoom changes, resolution changes and terrain invalidation remain safe',()=
   assert.equal(s.paints,before*2,'explicit map/texture invalidation paints fresh terrain '+[w,h,z]);
  }
 });
+

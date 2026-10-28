@@ -552,7 +552,7 @@ function sampleAdaptivePicture(now,rafMs){
   if(median!==null&&adaptiveSamples.length>=16){
    const levels=[.5,.75],index=levels.indexOf(adaptivePictureScale);
    if(median>46&&index>0){adaptivePictureScale=levels[index-1];adaptiveFastWindows=0}
-   else if(median<24&&index<2){
+   else if(median<24&&index<levels.length-1){
     if(++adaptiveFastWindows>=2){adaptivePictureScale=levels[index+1];adaptiveFastWindows=0}
    }else adaptiveFastWindows=0;
    if(perfRenderScale!==adaptivePictureScale){perfRenderScale=adaptivePictureScale;perfFps=0;rs()}
@@ -850,3 +850,4 @@ addEventListener('contextmenu',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e
 setInterval(aTick,120);
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
+

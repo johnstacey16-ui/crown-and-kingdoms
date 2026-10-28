@@ -333,18 +333,51 @@ function chunkHasExploredLand(cx,cy){
 // Retain all visible chunks (even above 320 on unusually large screens),
 // plus a capped panning margin, then trim the least-recently-used canvases.
 function drawChunks(x0,x1,y0,y1){
- let visible=0;
+ let visible=0;const chunks=[];
  for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){
   const x=cx*CKS,y=cy*CKS,ox=(x-y-CKS+1)*32-32,oy=(x+y+1)*16-16;
   const sx=ox*zm-cam.x,sy=oy*zm-cam.y,sw=CKS*64*zm,sh=((2*CKS-2)*16+32)*zm;
   if(sx>=CW||sy>=CH||sx+sw<=0||sy+sh<=0)continue;
   if(!chunkHasExploredLand(cx,cy))continue;
   const c=chunkOf(cx,cy);
-  X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
+  chunks.push(c);
   visible++;
  }
  const budget=Math.max(64,visible,Math.min(320,visible+16));
  while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
+ drawTerrainViewport(chunks);
+}
+// Flatten static terrain at the current backing resolution. Reusing one opaque
+// surface avoids resampling overlapping transparent chunk textures each frame.
+// Fog, waves and all world objects are still painted live by drawWorld().
+const TERRAIN_VIEW={canvas:null,key:null,pending:null,chunks:[]};
+function drawTerrainViewport(chunks){
+ const dpr=typeof DPR==='number'?DPR:1,w=Math.round(CW*dpr),h=Math.round(CH*dpr);
+ const direct=()=>{for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)};
+ // At most 16 MiB of additional pixels. Oversized views keep the original path.
+ if(w<1||h<1||w*h>4000000){
+  if(TERRAIN_VIEW.canvas){TERRAIN_VIEW.canvas.width=TERRAIN_VIEW.canvas.height=1}
+  TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];direct();return;
+ }
+ const key=[cam.x,cam.y,zm,CW,CH,w,h,dpr].join('|');
+ // While panning/zooming use the original path. Flatten only after the view
+ // remains stable for a second frame, avoiding an extra full-screen pass per pan.
+ if(TERRAIN_VIEW.pending!==key){TERRAIN_VIEW.pending=key;TERRAIN_VIEW.key=null;direct();return}
+ try{
+  const cv=TERRAIN_VIEW.canvas||(TERRAIN_VIEW.canvas=document.createElement('canvas'));
+  const g=cv.getContext('2d',{alpha:false});
+  if(!g){direct();return}
+  if(TERRAIN_VIEW.key!==key||chunks.length!==TERRAIN_VIEW.chunks.length||chunks.some((c,i)=>c!==TERRAIN_VIEW.chunks[i])){
+   TERRAIN_VIEW.key=null;
+   if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
+   g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#000';g.fillRect(0,0,CW,CH);
+   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+   for(const c of chunks)g.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
+   TERRAIN_VIEW.chunks=chunks.slice();TERRAIN_VIEW.key=key;
+  }
+  // Copy physical pixels 1:1, including fractional-DPR edge rounding.
+  X.save();try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cv,0,0)}finally{X.restore()}
+ }catch(_){TERRAIN_VIEW.key=null;direct()}
 }
 const PMAX=[100,260,520],PT=[];
 
@@ -566,4 +599,5 @@ const PALS=[{g:GC,d:GCd,l:GCl,coast:'#cdbd82',dirt:['#8d7b4c','#867449']}];
 function bar(x,y,w,f,c){X.fillStyle='#000a';X.fillRect(x,y,w,5);X.fillStyle=c;X.fillRect(x,y,w*cl(f,0,1),5)}
 function dia(cx,cy,hw,hh){X.beginPath();X.moveTo(cx,cy-hh);X.lineTo(cx+hw,cy);X.lineTo(cx,cy+hh);X.lineTo(cx-hw,cy);X.closePath()}
 function poly(a){X.beginPath();X.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)X.lineTo(a[i][0],a[i][1]);X.closePath()}
+
 
