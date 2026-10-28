@@ -50,5 +50,6 @@
     "js/network-session.js": "f7b032fc9109cba14dbebabfb24decaecbe0f082a60fe87371c1dadaee665e69",
     "js/network-webrtc.js": "77836d3e95d81b8706b58440ca23c0bfd4449405433fff8ad380c36dd439f99d",
     "sw.js": "3e932af40f0a7ae98aad69a871f833cc6fbc89630093f6da110cddfac979efb9"
-  }
+  },
+  "runtimeCommit": "c641c072d882f877daecdad8b8958b75f49faf7b"
 }

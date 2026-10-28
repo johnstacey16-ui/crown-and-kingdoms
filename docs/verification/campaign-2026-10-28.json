@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "runtimeCommit": null,
+  "runtimeCommit": "c641c072d882f877daecdad8b8958b75f49faf7b",
   "testFileSha256": "6878d7d2e846c3f6d51aa8d38fffe61a59a79d39ee4670ab42ff6c45c9a18692",
   "command": "CK_MISSION=<missionIndex> node tests/simulation-smoke.test.mjs",
   "scope": "Seeded scripted-player Node simulations; no controller, browser or physical Xbox campaign acceptance. Timeout/defeat are not victory. Some legacy assertions allow these outcomes.",
