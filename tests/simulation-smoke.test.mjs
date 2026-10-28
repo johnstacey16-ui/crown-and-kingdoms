@@ -31,49 +31,48 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
-    const assignFood = unit => {
-      const node = S.nodes.filter(n => n && n.k === 'f' && n.amt > 0)
+    // Reissuing a bot decision must not erase harvested cargo, a return trip
+    // or a working route. Resource switching follows ordinary manual semantics.
+    const assignResource = (unit, kind) => {
+      if (unit.o === 'g' && unit.ct === kind && unit.tg?.amt > 0) return true;
+      const node = S.nodes.filter(n => n && n.k === kind && n.amt > 0)
         .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
       if (!node) return false;
-      unit.o = 'g'; unit.tg = node; unit.ct = 'f'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
+      if (unit.ct !== kind) unit.car = 0;
+      unit.o = 'g'; unit.tg = node; unit.ct = kind; unit.ret = 0; unit.p = []; unit.rp = 0;
       return true;
     };
-    const assignWood = unit => {
-      const node = S.nodes.filter(n => n && n.k === 'w' && n.amt > 0)
-        .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
-      if (!node) return false;
-      unit.o = 'g'; unit.tg = node; unit.ct = 'w'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
-      return true;
-    };
-    const assignGold = unit => {
-      const node = S.nodes.filter(n => n && n.k === 'g' && n.amt > 0)
-        .sort((a, b) => Math.hypot(a.x - unit.x, a.y - unit.y) - Math.hypot(b.x - unit.x, b.y - unit.y))[0];
-      if (!node) return false;
-      unit.o = 'g'; unit.tg = node; unit.ct = 'g'; unit.car = 0; unit.ret = 0; unit.p = []; unit.rp = 0;
-      return true;
-    };
+    const assignFood = unit => assignResource(unit, 'f');
+    const assignWood = unit => assignResource(unit, 'w');
+    const assignGold = unit => assignResource(unit, 'g');
+    const assignStone = unit => assignResource(unit, 's');
     const placeBuilding = (kind, count = 1) => {
+      // Serial construction avoids placing several foundations across the same
+      // narrow approach while other workers are travelling through it.
+      if(S.bs.some(b=>b.t===0&&b.hp>0&&!b.done))return false;
       const existing = S.bs.filter(building => building.t === 0 && building.k === kind && building.hp > 0);
       if (existing.length >= count || existing.some(building => !building.done)) return true;
       if ((B[kind].age || 0) > S.age[0]) return false;
       if (!can(0, B[kind].cost)) return false;
       const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
       const available = workers.filter(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
-      const worker = available.sort((a, b) => Math.hypot(a.x - (tc.x + tc.s / 2), a.y - (tc.y + tc.s / 2)) - Math.hypot(b.x - (tc.x + tc.s / 2), b.y - (tc.y + tc.s / 2)))[0];
-      if (!worker) return false;
-      let site = null;
+      available.sort((a, b) => Math.hypot(a.x - (tc.x + tc.s / 2), a.y - (tc.y + tc.s / 2)) - Math.hypot(b.x - (tc.x + tc.s / 2), b.y - (tc.y + tc.s / 2)));
+      let worker = null, site = null;
       const originX = Math.floor(tc.x + tc.s / 2), originY = Math.floor(tc.y + tc.s / 2);
+      for(const candidateWorker of available){
       for (let radius = 3; radius <= 18 && !site; radius++) {
         for (let dy = -radius; dy <= radius && !site; dy++) for (let dx = -radius; dx <= radius && !site; dx++) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
           const x = originX + dx, y = originY + dy;
           const candidate = { x, y, s: B[kind].s };
-          if (okPlace(0, kind, x, y) && path(worker, goalNear(candidate, 1))) site = [x, y];
+          if (okPlace(0, kind, x, y) && path(candidateWorker, goalNear(candidate, 1))) site = [x, y];
         }
+      }
+      if(site){worker=candidateWorker;break}
       }
       if (!site) return false;
       pay(0, B[kind].cost);
@@ -84,6 +83,8 @@ globalThis.__CK_TEST__ = {
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     let trainingGate = null;
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
+      // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
+      if(tick%30===0){
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
       const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
       if (plan.villagers > 0 && villagers + queuedVillagers < plan.villagers && tc.q.length < 5) train(tc, 'vil');
@@ -107,10 +108,14 @@ globalThis.__CK_TEST__ = {
         if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
         else train(barracks, 'mil');
       }
-      const woodNeeded = index === 2 && S.res[0].w < 180;
+      const woodNeeded = index === 2 && S.res[0].w < 350;
       if (woodNeeded) {
-        const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b');
+        const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b' && (unit.ct==='w'||unit.car===0));
         if (woodWorker) assignWood(woodWorker);
+      }
+      if(index===2&&S.res[0].s<200&&!S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='s')){
+        const worker=S.us.find(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o!=='b'&&u.ct!=='w'&&u.car===0);
+        if(worker)assignStone(worker);
       }
       if (index === 6 && S.res[0].g < 120 && !S.us.some(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && unit.o === 'g' && unit.ct === 'g')) {
         const goldWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o === 'g' && unit.ct === 'f');
@@ -136,6 +141,7 @@ globalThis.__CK_TEST__ = {
       }
       for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld)) {
         if (unit.o === 'i') assignFood(unit);
+      }
       }
       this.tick(1 / 30);
     }

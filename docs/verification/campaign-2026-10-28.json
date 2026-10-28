@@ -1,15 +1,15 @@
 {
   "date": "2026-10-28",
-  "runtimeCommit": "c83ee5e1ce7175be15b4386e7b30d7e84a2646df",
-  "testFileSha256": "c0cab30152ef91ced191f97273e99530e821f69d8e90df19fd1cc93702e1e277",
+  "runtimeCommit": "b45bf083c83bf25accd0c8d88b4f4bded4eebb05",
+  "testFileSha256": "6878d7d2e846c3f6d51aa8d38fffe61a59a79d39ee4670ab42ff6c45c9a18692",
   "command": "CK_MISSION=<missionIndex> node tests/simulation-smoke.test.mjs",
   "scope": "Seeded scripted-player Node simulations; no controller, browser or physical Xbox campaign acceptance. Timeout/defeat are not victory. Some legacy assertions allow these outcomes.",
   "summary": {
     "executed": 19,
-    "wins": 4,
-    "defeats": 7,
+    "wins": 7,
+    "defeats": 4,
     "timeouts": 8,
-    "assertionFailures": 3
+    "assertionFailures": 1
   },
   "missions": [
     {
@@ -18,7 +18,7 @@
       "title": "First Hearth",
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 197.5,
+      "campaignTime": 163.5,
       "completedObjectives": [
         "Build a House",
         "Build a Lumber Camp",
@@ -48,14 +48,16 @@
       "missionIndex": 2,
       "missionNumber": 3,
       "title": "The Feudal Frontier",
-      "testExitCode": 1,
-      "outcome": "timeout",
-      "campaignTime": 900,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 744.5,
       "completedObjectives": [
         "Reach the Feudal Age",
-        "Build a Market"
+        "Build 2 Towers",
+        "Build a Market",
+        "Reach the Castle Age"
       ],
-      "objectiveCount": 2,
+      "objectiveCount": 4,
       "totalObjectives": 4
     },
     {
@@ -64,7 +66,7 @@
       "title": "The Relic Road",
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 226,
+      "campaignTime": 227,
       "completedObjectives": [
         "Build a Monastery",
         "Hold 3 relics in your Monasteries"
@@ -90,8 +92,8 @@
       "missionNumber": 6,
       "title": "The Last Crown",
       "testExitCode": 0,
-      "outcome": "lose",
-      "campaignTime": 1031.9,
+      "outcome": "timeout",
+      "campaignTime": 1200,
       "completedObjectives": [],
       "objectiveCount": 0,
       "totalObjectives": 1
@@ -114,13 +116,15 @@
       "missionIndex": 7,
       "missionNumber": 8,
       "title": "Crossing at Redwater",
-      "testExitCode": 1,
-      "outcome": "timeout",
-      "campaignTime": 600,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 480,
       "completedObjectives": [
+        "Build a Market",
+        "Build 2 Towers",
         "Hold the crossing for 8:00"
       ],
-      "objectiveCount": 1,
+      "objectiveCount": 3,
       "totalObjectives": 3
     },
     {
@@ -165,7 +169,7 @@
       "title": "The Relic Road",
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 180.5,
+      "campaignTime": 179.5,
       "completedObjectives": [
         "Return both relics to your Monastery"
       ],
@@ -180,9 +184,10 @@
       "outcome": "timeout",
       "campaignTime": 1200,
       "completedObjectives": [
-        "Build a Dock"
+        "Build a Dock",
+        "Have 3 War Galleys alive"
       ],
-      "objectiveCount": 1,
+      "objectiveCount": 2,
       "totalObjectives": 4
     },
     {
@@ -190,12 +195,13 @@
       "missionNumber": 14,
       "title": "The Strait\u2019s Last Relic",
       "testExitCode": 0,
-      "outcome": "lose",
-      "campaignTime": 931.6,
+      "outcome": "timeout",
+      "campaignTime": 1200,
       "completedObjectives": [
-        "Build a Monastery"
+        "Build a Monastery",
+        "Hold 2 relics in your Monasteries"
       ],
-      "objectiveCount": 1,
+      "objectiveCount": 2,
       "totalObjectives": 4
     },
     {
@@ -204,7 +210,7 @@
       "title": "The Siege of Tidewatch",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 459.1,
+      "campaignTime": 608.5,
       "completedObjectives": [
         "Build a Siege Workshop"
       ],
@@ -216,13 +222,14 @@
       "missionNumber": 16,
       "title": "The Bridge at Blackwood",
       "testExitCode": 0,
-      "outcome": "lose",
-      "campaignTime": 443.3,
+      "outcome": "win",
+      "campaignTime": 480,
       "completedObjectives": [
         "Build 2 completed Towers",
-        "Build 6 completed Wall sections"
+        "Build 6 completed Wall sections",
+        "Hold Blackwood for 8:00"
       ],
-      "objectiveCount": 2,
+      "objectiveCount": 3,
       "totalObjectives": 3
     },
     {
@@ -231,7 +238,7 @@
       "title": "The Causeway Muster",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 607.4,
+      "campaignTime": 596.1,
       "completedObjectives": [
         "Build a Dock",
         "Have 3 War Galleys alive",
@@ -246,7 +253,7 @@
       "title": "The Crown Holds the Crossing",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 722.6,
+      "campaignTime": 582.9,
       "completedObjectives": [
         "Build 2 completed Castles"
       ],
@@ -259,7 +266,7 @@
       "title": "The Iron Pass",
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 540.2,
+      "campaignTime": 557.2,
       "completedObjectives": [
         "Build 2 completed Towers",
         "Hold the pass for 9:00"
@@ -267,5 +274,13 @@
       "objectiveCount": 2,
       "totalObjectives": 3
     }
-  ]
+  ],
+  "previousSummary": {
+    "executed": 19,
+    "wins": 4,
+    "defeats": 7,
+    "timeouts": 8,
+    "assertionFailures": 3
+  },
+  "previousEvidenceCommit": "b45bf083c83bf25accd0c8d88b4f4bded4eebb05"
 }

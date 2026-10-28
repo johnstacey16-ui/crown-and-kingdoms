@@ -33,7 +33,7 @@ battlefield. Use the named battlefield preview for shared simulation.
 
 ## Checks
 
-**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 4 wins, 7 defeats and 8 timeouts, including 3 failing assertions. Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
+**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 7 wins, 4 defeats and 8 timeouts, including 1 failing assertion (The Golden Coast). Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
 
 Requires Node.js 22 or a compatible current release. No package installation is required.
 

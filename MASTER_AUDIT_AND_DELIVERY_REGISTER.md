@@ -1,3 +1,15 @@
+## 28 October 2026 — Standing approval and campaign scripted-economy corrections
+
+The owner explicitly asks to keep building through the roadmap, treating routine follow-ups as “yes” and “continue”. This standing authorization is recorded in AGENTS.md; routine implementation, relevant validation, evidence updates and main commits do not need repeated confirmation. Existing free-only hosting, controller, simulation and asset constraints still apply.
+
+Campaign verification improved from **4 wins / 7 defeats / 8 timeouts / 3 strict failures** to **7 wins / 4 defeats / 8 timeouts / 1 strict failure**, with all 19 missions actually rerun. Newly verified scripted victories: **The Feudal Frontier (744.5 simulated seconds), Crossing at Redwater (480 s), and The Bridge at Blackwood (480 s)**. The remaining strict failure is **The Golden Coast**, which times out at 1,200 simulated seconds after completing its dock and three-galley objectives. Other tolerated defeats/timeouts remain open acceptance work; 18 zero exit codes do not mean 18 campaign wins.
+
+Corrections are to the development-only scripted player: repeated gather decisions retain live work, cargo and return trips; build-site search tries other available villagers when the nearest one has no route; construction is serial so simultaneous foundations do not block narrow approach routes; Feudal Frontier builds its paid second Feudal prerequisite and assigns wood/stone workers; bot decisions run once per simulated second while the real game still ticks at 30 Hz. The shared gathering helper includes normal stone-gather orders. Five targeted regressions check cargo, return-route and resource-order preservation.
+
+No mission objective, starting resource budget, difficulty, assertion or production gameplay rule was weakened. Source validation, the standalone simulation checks and the five bot-economy regressions pass. Exact harness SHA-256, all 19 outcomes/objective counts and the previous summary are in [current campaign evidence](docs/verification/campaign-2026-10-28.json); the previous full run remains in git history. Runtime remains the existing main gameplay code. Physical controller playthroughs and hosted CI acceptance remain separate gates. **Next priority: diagnose Golden Coast’s remaining economy, production and assault failures, then the tolerated non-victory missions.**
+
+---
+
 ## 28 October 2026 — Campaign isolation runner corrected; real mission results
 
 **CK-001/002/022: PARTIAL / failures now exposed.** The `CK_MISSION` blocks were nested inside a `requestedMission === null` guard, so all isolated CI mission commands previously exited successfully without running a mission. The guard now ends before the mission section. Every execution mode has an assertion outside all guards comparing requested mission IDs against actual playthrough IDs, preventing a green no-op or duplicate run. Contradictory `CK_SKIP_CAMPAIGN=1` plus `CK_MISSION` now fails explicitly. Each run reports executed count and separate victory, defeat and timeout counts.
@@ -462,8 +474,8 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 
 | ID | Prio | Track / task | Status | Implementation/evidence and acceptance requirement |
 |---|---|---|---|---|
-| CK-001 | P0 | Comprehensive CI failure inventory | PARTIAL — campaign runner corrected | 28 October: all 19 missions now actually execute; 4 wins, 7 defeats, 8 timeouts and 3 strict assertion failures. Earlier isolated green runs were no-ops. Hosted startup remains unverified. |
-| CK-002 | P0 | Repair current regression failures | OPEN — 3 campaign assertions | Feudal Frontier, Crossing at Redwater and Golden Coast fail now that isolated playthroughs execute. Preserve their assertions and diagnose bot versus gameplay faults. |
+| CK-001 | P0 | Comprehensive CI failure inventory | PARTIAL — campaign runner corrected | 28 October follow-up: all 19 execute; 7 wins, 4 defeats, 8 timeouts and 1 strict assertion failure. Earlier isolated green runs were no-ops. Hosted startup remains unverified. |
+| CK-002 | P0 | Repair current regression failures | OPEN — Golden Coast assertion | Feudal Frontier and Redwater now win with the same strict assertions; Golden Coast still times out. Preserve the existing assertion and diagnose remaining bot versus gameplay faults. |
 | CK-003 | P0 | Basic complete land skirmish | PARTIAL | Three seeded passive/active production-AI land skirmishes finish naturally, including reloads. Real controller/browser matches and more seeds remain open. |
 | CK-004 | P0 | AI ability to finish matches | PARTIAL | Production AI is covered by seeded active and passive skirmish results. Broader map/seed/late-game and human opposition acceptance remains open. |
 | CK-005 | P0 | Current-version save round-trip | PARTIAL | Manual/autosave reference and counter validation now covers persistent resource IDs as well as units/buildings. Long browser/naval/garrison checkpoint coverage remains required. |
@@ -483,7 +495,7 @@ Static Vercel hosting does not supply the Node relay process. There is no reconn
 | CK-019 | P1 | Land and naval map correctness | PARTIAL | mapgen.js map audit, transport landing, docks, ships; confirm starts, food/gold/stone/wood, viable shores, accessible enemies, correct terrain and match completion. |
 | CK-020 | P1 | Diplomacy, alliances and victory rules | PARTIAL | kingdom.js and simulation.js support several modes and alliances; test win/lose precedence, simultaneous defeat, team relations, tribute, sudden death and scoring rules. |
 | CK-021 | P1 | Save game deletion and recovery UX | PARTIAL | Manual slots, rolling autosave, IndexedDB mirrors and explicit delete UI exist; test corrupt-save delete, cancel, overwrite, restored-backup tombstones, offline quota exhaustion. |
-| CK-022 | P1 | Full 19-mission campaign human acceptance | PARTIAL | 28 October actual scripted runs: 4 wins, 7 defeats, 8 timeouts; old isolated CI commands were no-ops. All 19 still require controller gameplay, triggers, save/reload, unlock and softlock acceptance. |
+| CK-022 | P1 | Full 19-mission campaign human acceptance | PARTIAL | 28 October follow-up scripted runs: 7 wins, 4 defeats, 8 timeouts; old isolated CI commands were no-ops. All 19 still require controller gameplay, triggers, save/reload, unlock and softlock acceptance. |
 | CK-023 | P1 | Xbox screen readability and accessibility | UNVERIFIED | ui.js and render.js: TV distance legibility, contrast, scaling, button prompts, focus, controller disconnect and button remapping; physical Xbox Edge required. |
 | CK-024 | P2 | Reference civilisation table | PARTIAL | engine.js CIV has 26 entries, bonuses and unique units/techs; compare verified **included base** Xbox reference roster, bonuses, team bonuses, restrictions and architecture one by one. |
 | CK-025 | P2 | Reference unit catalogue | PARTIAL | config.js U plus engine.js Object.assign(U). List effective runtime roster after extensions, distinguish unit upgrade labels from new unit keys, identify real missing lines/abilities. |

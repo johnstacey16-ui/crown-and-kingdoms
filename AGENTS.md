@@ -4,6 +4,17 @@ The owner requires all work directly on `main` (21 October 2026).
 Do not create feature branches or pull requests unless the owner explicitly asks.
 Run relevant checks before committing, preserve unrelated work and never force-push `main`.
 
+## Standing roadmap authorization — 28 October 2026
+
+The owner asks to keep building the game through the roadmap and to treat routine
+follow-up answers as “yes” and “continue”. Proceed autonomously with investigation,
+implementation, relevant checks, roadmap evidence and commits directly to main.
+Do not stop after a milestone merely to request permission for the next routine
+roadmap task. Preserve the existing scope, controller contract, original assets,
+simulation integrity and free-only hosting requirements. This does not authorize
+spending, paid upgrades, destructive account/infrastructure actions or messaging
+other people. Report actual results and remaining acceptance gaps accurately.
+
 # Controller requirements
 
 The user requires the entire default button system and its functions to mimic
@@ -47,4 +58,5 @@ Keep missing/partial/verified distinctions; do not infer completeness from tests
 or content names. Physical Xbox controls/performance and independent-network
 multiplayer require their own acceptance evidence. Preserve original assets and
 the existing free-only hosting rules.
+
 
