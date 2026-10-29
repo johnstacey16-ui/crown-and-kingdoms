@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 25,
+  "atlases": 27,
   "units": [
     {
       "kind": "vil",
@@ -376,8 +376,8 @@
       "kind": "plumed",
       "name": "Plumed Archer",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -403,8 +403,8 @@
       "kind": "gbeto",
       "name": "Gbeto",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -615,8 +615,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "21 of 47 kinds have painted multi-frame walk and attack",
-      "remaining": "26 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "23 of 47 kinds have painted multi-frame walk and attack",
+      "remaining": "24 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Building artwork",

@@ -4,7 +4,7 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v29-ranged-motion';
+const CACHE_NAME = 'ck-shell-v30-light-missile-motion';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -36,6 +36,8 @@ const CORE_ASSETS = [
   './assets/painted-motion-shotel.webp',
   './assets/painted-motion-jan.webp',
   './assets/painted-motion-genoa.webp',
+  './assets/painted-motion-plumed.webp',
+  './assets/painted-motion-gbeto.webp',
   './js/config.js',
   './js/state.js',
   './js/mapgen.js',

@@ -1,0 +1,168 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 211,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 27,
+    "entries": 1464,
+    "references": 2808
+  },
+  "motionCoverage": {
+    "painted": 23,
+    "playable": 47,
+    "remaining": 24,
+    "independentDirections": "unfinished"
+  },
+  "chromium": "complete battlefield-art suite passed locally",
+  "lightMotion": {
+    "poses": [
+      {
+        "kind": "plumed",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      },
+      {
+        "kind": "gbeto",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      }
+    ],
+    "raster": [
+      {
+        "kind": "plumed",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1413
+      },
+      {
+        "kind": "plumed",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1530
+      },
+      {
+        "kind": "plumed",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1413
+      },
+      {
+        "kind": "plumed",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1530
+      },
+      {
+        "kind": "plumed",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1413
+      },
+      {
+        "kind": "plumed",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1530
+      },
+      {
+        "kind": "plumed",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1413
+      },
+      {
+        "kind": "plumed",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1530
+      },
+      {
+        "kind": "gbeto",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1291
+      },
+      {
+        "kind": "gbeto",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1538
+      },
+      {
+        "kind": "gbeto",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1291
+      },
+      {
+        "kind": "gbeto",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1538
+      },
+      {
+        "kind": "gbeto",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1291
+      },
+      {
+        "kind": "gbeto",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1538
+      },
+      {
+        "kind": "gbeto",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1291
+      },
+      {
+        "kind": "gbeto",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1538
+      }
+    ],
+    "before": "fnv1a32-84072875-7a3d",
+    "after": "fnv1a32-84072875-7a3d"
+  },
+  "motionLookups": 192,
+  "motionRasterSequences": 70,
+  "motionRebuild": "no-argument rebuild byte-identical",
+  "oldRasterArt": "all previously committed WebP Git object hashes unchanged",
+  "sourceSHA256": {
+    "scripts/build-motion-atlas.mjs": "6442ee13c598012feebe38e195d1e51e742c071304014ea6178b3911df197812",
+    "scripts/build-painted-atlas.mjs": "e3db2aaa964c53822f8f10a1abfe2c549c9f232d263978b9370325d0e270c3e3",
+    "assets/painted-motion-plumed.webp": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
+    "assets/painted-motion-gbeto.webp": "f20e9c334d7577743886840b4c338c0f844ecccf5ad2e94cb979e5f1427c8995",
+    "assets/atlas-manifest.json": "958912d98ac6c1662cca92f62c31fc579c1f5f33d17eb4c331f2f0d9c9d65ebc",
+    "assets/motion-manifest.json": "0e85867459f5d860ab89458c8d92c69d9980624f7836f05623592f90ebdc7a0b",
+    "sw.js": "44cfe84d4a7504ca523b9296c2d843aa18e5468a1198cfd97080ff147855a555"
+  },
+  "production": {
+    "status": "awaiting deployment verification for this increment"
+  },
+  "xboxHardware": "unverified"
+}

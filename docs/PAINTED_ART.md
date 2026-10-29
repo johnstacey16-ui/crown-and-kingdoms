@@ -1,3 +1,5 @@
+Current motion coverage is **23/47** playable kinds, adding Plumed Archers and Gbetos. See [the latest motion increment](PAINTED_LIGHT_MISSILE_MOTION.md). Earlier counts below record historical stages.
+
 Current motion coverage is **21/47** playable kinds, adding Janissaries and Genoese Crossbowmen. See [the latest motion increment](PAINTED_RANGED_EXPANSION.md). Earlier counts below record historical stages.
 
 Current animation coverage is 19 playable kinds. See [the latest artwork increment](PAINTED_WARRIORS.md). Coverage below records this document's earlier stage.

@@ -166,6 +166,20 @@
   "xboxHardware": "unverified",
   "runtimeCommit": "572c80a5ec91c3e719be5268cce5c836cc9a0e43",
   "production": {
+    "status": "Subsequently deployed: Vercel success for main 140ca299a6b1716c06c6b9b79f3babed1328ec02; live manifest v8 with 25 atlases on 29 October",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "manifestVersion": "painted-raster-v8-motion",
+    "atlases": 25
+  },
+  "hostedCI": {
+    "status": "failure before executing job steps; cause unverified",
+    "runs": [
+      40838324098,
+      40838324176,
+      40838324106
+    ]
+  },
+  "initialProductionAttempt": {
     "status": "NOT DEPLOYED: Vercel commit status failure with build-rate-limit target; previous release remains live",
     "statusTarget": "https://vercel.com/acme-a675?upgradeToPro=build-rate-limit",
     "files": [
@@ -192,13 +206,5 @@
     ],
     "resetTime": "unverified; deployment-list API returns 403; CLI unavailable",
     "paidUpgrade": "not enabled"
-  },
-  "hostedCI": {
-    "status": "failure before executing job steps; cause unverified",
-    "runs": [
-      40838324098,
-      40838324176,
-      40838324106
-    ]
   }
 }

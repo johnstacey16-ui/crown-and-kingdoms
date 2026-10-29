@@ -1,5 +1,3 @@
-**Release pending — 29 October 2026:** runtime `572c80a5ec91c3e719be5268cce5c836cc9a0e43` is tested and committed, but Vercel returned `build-rate-limit`. The new Janissary/Genoese animations are **not live**; the previous environment/resource release remains live. Direct HTTP checks return 404 for both new sheets and older manifest/shell bytes. No paid upgrade, alternate host or quota bypass was enabled. Exact reset time is unverified (deployment API access unavailable). Retry publishing the tested main runtime only when the existing free quota permits; continue local graphics work without repeated deploy attempts. Hosted GitHub jobs also fail before any steps execute.
-
 # Crown & Kingdoms
 
 **Hosting policy: free-only.** See [FREE_HOSTING.md](FREE_HOSTING.md). Earlier Railway deployment instructions are superseded. The Railway shutdown and authenticated Supabase migration are **not complete**; do not restart Railway or enable paid plans/overages.
@@ -17,6 +15,8 @@ A controller-first medieval real-time strategy game targeting Xbox Series X thro
 **Environment artwork — 29 October:** painted deer, fishing shoals, relics and three tree types now join stone/gold/berries. The [whole-game graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md) tracks every remaining category; full animation and Xbox acceptance remain unfinished.
 
 **Motion update — 29 October:** Janissaries and Genoese Crossbowmen now have painted walking and firing/loading sequences. Motion coverage is 21/47 playable troops; 26 remain. See [the latest artwork increment](docs/PAINTED_RANGED_EXPANSION.md).
+
+**Motion update — 29 October:** Plumed Archers and Gbetos gain painted walking and firing/throwing sequences. Motion coverage is 23/47 playable troops, with 24 remaining. See [the latest graphics increment](docs/PAINTED_LIGHT_MISSILE_MOTION.md).
 
 ## Run
 

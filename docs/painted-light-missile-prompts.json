@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-29",
+  "tool": "built-in image generation",
+  "transparentBackground": true,
+  "references": {
+    "role": "Main centered original base character only as identity/style reference; neighboring fragments and preview background ignored.",
+    "source": "assets/painted-units-v2.webp",
+    "catalogue": "painted-forces",
+    "keys": [
+      "plumed/idle/0",
+      "gbeto/idle/0"
+    ]
+  },
+  "prompts": [
+    {
+      "kind": "plumed",
+      "prompt": "Use case: stylized-concept. Asset type: original transparent 4x4 full-body animation atlas for Crown & Kingdoms, a painted medieval isometric RTS. Reference is identity/style only: retain ONLY the main centered warrior, ignore neighboring fragments and preview background. 1536x1024 landscape, strict four columns four rows, sixteen separate complete connected character poses, same 3/4 isometric camera facing right, upper-left warm daylight, painterly realistic textures, consistent person and equipment. Real transparency, no grid, labels or terrain. Generous margins within EVERY cell, full headgear, hands, weapon and both feet visible without crossing cell edges. Body around 190 pixels high per cell, readable at 46 gameplay pixels. Top two rows (frames0-7): eight sequential distinct walking poses with clearly alternating stepping legs and arms, not copies of one stance. Bottom two rows (frames8-15): weapon action sequence, frame8 ready idle, frames9-11 preparing/aiming, frame12 release/throw instant, frames13-15 follow-through/recovery, loops into ready. NO airborne ammunition or detached projectile, no extra limbs or weapons. Keep the weapon and hands visually connected to the figure when held. Tiny soft transparent foot contact shadow. No pixel art or flat icons. Character: the original Plumed Archer from the reference, an athletic warm brown-skinned male Mesoamerican archer, large blue feather fan headdress with gold headband, bare chest with brown leather/gold ornaments, short blue waistcloth, leather arm bands and sandals, long simple wooden bow and back quiver. During walking, carry bow diagonally in one hand with stable headdress and clearly alternating feet. Action: bring bow up, nock and draw with correct two-handed archery anatomy, release at frame12 with one bow only and no flying arrow, lower/recover and reach toward quiver. Include blue feathers and cloth that can be recoloured while natural skin, wood and gold retain their colours. No shield, sword, crossbow, firearm or armour helmet."
+    },
+    {
+      "kind": "gbeto",
+      "prompt": "Use case: stylized-concept. Asset type: original transparent 4x4 full-body animation atlas for Crown & Kingdoms, a painted medieval isometric RTS. Reference is identity/style only: retain ONLY the main centered warrior, ignore neighboring fragments and preview background. 1536x1024 landscape, strict four columns four rows, sixteen separate complete connected character poses, same 3/4 isometric camera facing right, upper-left warm daylight, painterly realistic textures, consistent person and equipment. Real transparency, no grid, labels or terrain. Generous margins within EVERY cell, full headgear, hands, weapon and both feet visible without crossing cell edges. Body around 190 pixels high per cell, readable at 46 gameplay pixels. Top two rows (frames0-7): eight sequential distinct walking poses with clearly alternating stepping legs and arms, not copies of one stance. Bottom two rows (frames8-15): weapon action sequence, frame8 ready idle, frames9-11 preparing/aiming, frame12 release/throw instant, frames13-15 follow-through/recovery, loops into ready. NO airborne ammunition or detached projectile, no extra limbs or weapons. Keep the weapon and hands visually connected to the figure when held. Tiny soft transparent foot contact shadow. No pixel art or flat icons. Character: the original Gbeto from the reference, athletic dark brown-skinned West African female warrior, white wrapped head cloth, cream-white short sleeveless tunic/dress, diagonal blue sash crossing torso and blue waist cloth, leather belt/arm bands and brown boots. Single compact curved iron throwing blade in her right hand; no axe head, no shield. Walking: balanced stride, held blade near hip, natural left-arm counter-swing. Action: ready stance, draw the blade-holding arm back with torso twist, step and throw at frame12 with an EMPTY open throwing hand after release and NO detached or flying blade anywhere, follow through and return to ready with a replacement blade at frame15. Clear planted feet and full arm silhouettes; correct anatomy and consistent clothing. No bow, spear, sword, firearm, extra weapons or background figures."
+    }
+  ]
+}
