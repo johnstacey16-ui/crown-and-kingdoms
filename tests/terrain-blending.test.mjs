@@ -23,3 +23,20 @@ test('uniform/unknown edges allocate nothing; unavailable canvases retain origin
  assert.equal(vm.runInContext('terrainTileTexture(0,0,0,[1,-1,-1,-1])',c),null);
  assert.equal(allocations,1);
 });
+
+test('unit-map textures oversample display pixels and retain native source resolution at close zoom',()=>{
+ const c=fixture();assert.deepEqual([2,4,7,10,20,40].map(x=>c.terrainBlendResolution(x)),[8,16,32,32,64,64]);
+ assert.equal(c.terrainBlendResolution(NaN),64);assert.equal(c.terrainBlendResolution(-1),64);
+});
+test('small terrain textures avoid the former 256-entry thrash within the same pixel budget',()=>{
+ let creations=0;const c=fixture({createElement(){creations++;return {width:0,height:0,getContext(){return {drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}}}}}});
+ const neighbors=Array.from({length:625},(_,n)=>[1+n%5,1+Math.floor(n/5)%5,1+Math.floor(n/25)%5,1+Math.floor(n/125)%5]);
+ for(const ns of neighbors)c.terrainTileTexture(0,0,0,ns,16);
+ const after=creations;
+ for(const ns of neighbors){const cv=c.terrainTileTexture(0,0,0,ns,16);assert.equal(cv.width,16);assert.equal(cv.height,16)}
+ assert.equal(creations,after,'all 625 reused textures avoid new surfaces');
+ assert.ok(vm.runInContext('terrainBlendPixels<=1024*1024&&TERRAIN_BLEND.size<=4096',c));
+ c.clearTerrainBlend();assert.equal(vm.runInContext('terrainBlendPixels',c),0);
+ for(const ns of neighbors)c.terrainTileTexture(0,0,0,ns,64);
+ assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),256,'native solo tiles retain the original pixel cap');
+});

@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 31,
+  "atlases": 37,
   "units": [
     {
       "kind": "vil",
@@ -232,8 +232,8 @@
       "kind": "mgd",
       "name": "Mangudai",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -241,8 +241,8 @@
       "kind": "cata",
       "name": "Cataphract",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -322,8 +322,8 @@
       "kind": "conq",
       "name": "Conquistador",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -340,8 +340,8 @@
       "kind": "boyar",
       "name": "Boyar",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -349,8 +349,8 @@
       "kind": "tarkan",
       "name": "Tarkan",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -421,8 +421,8 @@
       "kind": "huszar",
       "name": "Magyar Huszar",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     }
@@ -615,8 +615,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "27 of 47 kinds have painted multi-frame walk and attack",
-      "remaining": "20 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "33 of 47 kinds have painted multi-frame walk and attack",
+      "remaining": "14 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Building artwork",

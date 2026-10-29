@@ -4,7 +4,7 @@ export async function checkCampaignNavies(browser,origin,output){
  const page=await browser.newPage({viewport:{width:960,height:850}});
  try{
   await page.goto(origin,{waitUntil:'networkidle'});
-  await page.waitForFunction(()=>typeof startScenario==='function'&&ASSET.n===31&&PAINT.terrain);
+  await page.waitForFunction(()=>typeof startScenario==='function'&&ASSET.n===37&&PAINT.terrain);
   const result=await page.evaluate(()=>{
    startScenario(12);fog();mode='pause';
    const ships=S.us.filter(u=>u.k==='gal'&&u.hp>0),player=ships.find(u=>u.t===0);

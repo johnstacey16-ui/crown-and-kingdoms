@@ -127,7 +127,9 @@
     canvas.setAttribute('aria-label','Your kingdom unit map. Left stick pans the camera; right stick up/down zooms. Tap A to select or order; hold A and drag with the left stick for a selection box. Double A on a unit or completed town centre selects your visible eligible entities of that type. Hold LT to add units or boxes to selection. D-pad Up selects an idle villager, Right support, Down a town centre, Left military. Hold LB and choose a slot with the left stick; X assigns selection, Y focuses the group and releasing LB recalls it. RB opens the expanded minimap; Y focuses its cursor. Hold RT for the command menu and press A to confirm; at a town centre, LT+A requests five villagers. Y switches a selected military group between Line and Split. B cancels a box, clears selection or closes the command menu.');
     canvas.style.cssText='display:block;width:min(100%,680px);height:auto;aspect-ratio:1;border:2px solid #c9a24a;background:#090d16;touch-action:manipulation';
     function drawTerrain(sx,sy){
-      const field=view.battlefield,visible=new Set(field.visible);
+      const field=view.battlefield,visible=new Set(field.visible),v=viewport();
+      const resolution=terrainBlendResolution(Math.max(sx,sy)*v.zoom);
+      const left=Math.floor(v.x)-4,right=Math.ceil(v.x+v.width)+4,top=Math.floor(v.y)-4,bottom=Math.ceil(v.y+v.height)+4;
       // Only tiles previously seen by this player enter this local art cache.
       // It contains terrain/resources, never remembered enemy positions.
       const rememberedKind=(x,y)=>{
@@ -138,10 +140,11 @@
       };
       for(const tile of terrainMemory.values()){
         const x=tile.index%view.width,y=Math.floor(tile.index/view.width),px=x*sx,py=y*sy;
+        if(x<left||x>right||y<top||y>bottom)continue;
         const grain=((tile.index*2654435761)>>>28)%3;
         context.fillStyle=tile.water===1?['#234f65','#28596b','#2b5c70'][grain]:
           tile.water===2?'#719b91':['#526b3d','#586f42','#5d7446'][grain];
-        if(!paintTerrain(context,rememberedKind(x,y),x,y,px,py,sx+.3,sy+.3,false,terrainNeighborKinds(x,y,rememberedKind,view.width,view.height)))context.fillRect(px,py,sx+.3,sy+.3);
+        if(!paintTerrain(context,rememberedKind(x,y),x,y,px,py,sx+.3,sy+.3,false,terrainNeighborKinds(x,y,rememberedKind,view.width,view.height),resolution))context.fillRect(px,py,sx+.3,sy+.3);
         if(tile.water&&sx>=5){
           context.strokeStyle=tile.water===2?'rgba(230,226,177,.3)':'rgba(163,221,227,.22)';
           const ripple=tile.water===1?Math.sin(field.time*.8+x*.7+y)*sy*.08:0;

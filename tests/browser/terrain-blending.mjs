@@ -19,7 +19,7 @@ export async function checkTerrainBlending(page,output){
    for(let i=0;i<400;i++)terrainTileTexture(0,i%3,0,[1,(i>>2)%6,(i>>5)%6,(i>>1)%6]);
    bounded=TERRAIN_BLEND.size<=256;
    PAINT.terrain=original;reloaded=terrainTileTexture(0,0,0,[1,-1,-1,-1])!==a;
-  }finally{PAINT.terrain=original;TERRAIN_BLEND.clear()}
+  }finally{PAINT.terrain=original;clearTerrainBlend()}
   // Original art, same world geometry: a clear visual comparison in both projections.
   const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=720;
   const g=canvas.getContext('2d');g.fillStyle='#111c24';g.fillRect(0,0,1200,720);

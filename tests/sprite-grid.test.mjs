@@ -57,3 +57,14 @@ test('mounted spear extensions use explicit wider padding without cropping or ch
  assert.equal(packed.width,784);assert.equal(packed.data[((10+16)*packed.width+285+96)*4+3],255,'spear tip survives');
  assert.throws(()=>reflowSpriteGrid(data,width,height,2,1,2,false,-1),/padding/);
 });
+
+test('explicit multipart extraction retains a detached hoof while default cleanup still removes fragments',()=>{
+ const width=64,height=64,data=Buffer.alloc(width*height*4);
+ for(let y=10;y<20;y++)for(let x=10;x<20;x++)data[(y*width+x)*4+3]=255;
+ for(let y=30;y<54;y++)for(let x=40;x<43;x++)data[(y*width+x)*4+3]=255;
+ data[(12*width+9)*4+3]=20;data[(60*width+60)*4+3]=255;
+ const usual=extractSpriteGrid(data,width,height,1,1,1),multipart=extractSpriteGrid(data,width,height,1,1,1,null,true);
+ assert.equal(usual.data[(40*width+41)*4+3],0);
+ assert.equal(multipart.data[(40*width+41)*4+3],255);assert.equal(multipart.data[(12*width+9)*4+3],20);
+ assert.equal(multipart.data[(60*width+60)*4+3],0,'tiny detached debris is still excluded');assert.equal(multipart.coverage[0].primary,172);
+});

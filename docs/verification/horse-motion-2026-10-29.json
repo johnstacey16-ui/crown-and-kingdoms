@@ -1,0 +1,479 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 211,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 37,
+    "entries": 1584,
+    "references": 3488
+  },
+  "motionCoverage": {
+    "painted": 33,
+    "playable": 47,
+    "remaining": 14,
+    "independentDirections": "unfinished"
+  },
+  "chromium": "complete battlefield-art suite passed locally",
+  "horseMotion": {
+    "poses": [
+      {
+        "kind": "mgd",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      },
+      {
+        "kind": "cata",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      },
+      {
+        "kind": "conq",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      },
+      {
+        "kind": "boyar",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      },
+      {
+        "kind": "tarkan",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      },
+      {
+        "kind": "huszar",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstImpact": true,
+        "referencePixels": 60
+      }
+    ],
+    "raster": [
+      {
+        "kind": "mgd",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3910
+      },
+      {
+        "kind": "mgd",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4089
+      },
+      {
+        "kind": "mgd",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3910
+      },
+      {
+        "kind": "mgd",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4089
+      },
+      {
+        "kind": "mgd",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3910
+      },
+      {
+        "kind": "mgd",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4089
+      },
+      {
+        "kind": "mgd",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3910
+      },
+      {
+        "kind": "mgd",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4089
+      },
+      {
+        "kind": "cata",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4227
+      },
+      {
+        "kind": "cata",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4308
+      },
+      {
+        "kind": "cata",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4227
+      },
+      {
+        "kind": "cata",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4308
+      },
+      {
+        "kind": "cata",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4227
+      },
+      {
+        "kind": "cata",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4308
+      },
+      {
+        "kind": "cata",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4227
+      },
+      {
+        "kind": "cata",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4308
+      },
+      {
+        "kind": "conq",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3629
+      },
+      {
+        "kind": "conq",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4034
+      },
+      {
+        "kind": "conq",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3629
+      },
+      {
+        "kind": "conq",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4034
+      },
+      {
+        "kind": "conq",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3629
+      },
+      {
+        "kind": "conq",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4034
+      },
+      {
+        "kind": "conq",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3629
+      },
+      {
+        "kind": "conq",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4034
+      },
+      {
+        "kind": "boyar",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4212
+      },
+      {
+        "kind": "boyar",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4142
+      },
+      {
+        "kind": "boyar",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4212
+      },
+      {
+        "kind": "boyar",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4142
+      },
+      {
+        "kind": "boyar",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4212
+      },
+      {
+        "kind": "boyar",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4142
+      },
+      {
+        "kind": "boyar",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 4212
+      },
+      {
+        "kind": "boyar",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 4142
+      },
+      {
+        "kind": "tarkan",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3913
+      },
+      {
+        "kind": "tarkan",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3749
+      },
+      {
+        "kind": "tarkan",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3913
+      },
+      {
+        "kind": "tarkan",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3749
+      },
+      {
+        "kind": "tarkan",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3913
+      },
+      {
+        "kind": "tarkan",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3749
+      },
+      {
+        "kind": "tarkan",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3913
+      },
+      {
+        "kind": "tarkan",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3749
+      },
+      {
+        "kind": "huszar",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3804
+      },
+      {
+        "kind": "huszar",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3735
+      },
+      {
+        "kind": "huszar",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3804
+      },
+      {
+        "kind": "huszar",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3735
+      },
+      {
+        "kind": "huszar",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3804
+      },
+      {
+        "kind": "huszar",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3735
+      },
+      {
+        "kind": "huszar",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3804
+      },
+      {
+        "kind": "huszar",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3735
+      }
+    ],
+    "conqSize": [
+      90,
+      86
+    ],
+    "before": "fnv1a32-09ec641b-907b",
+    "after": "fnv1a32-09ec641b-907b"
+  },
+  "mapTerrainCache": {
+    "baseline": {
+      "averageMs": 18.76999999997206,
+      "canvases": 0,
+      "entries": 190,
+      "pixels": 778240
+    },
+    "optimized": {
+      "averageMs": 14.95500000002794,
+      "canvases": 0,
+      "entries": 190,
+      "pixels": 194560
+    },
+    "pixels": {
+      "meanRGBDelta": 0.3136029411764706,
+      "maxChannelDelta": 73,
+      "changedPixels": 21839
+    },
+    "before": "fnv1a32-29532405-93d7",
+    "after": "fnv1a32-29532405-93d7"
+  },
+  "navalTerrainCache": {
+    "baseline": {
+      "averageMs": 1029.3299999999813,
+      "canvases": 34240,
+      "entries": 256,
+      "pixels": 1048576
+    },
+    "optimized": {
+      "averageMs": 102.01500000003725,
+      "canvases": 0,
+      "entries": 736,
+      "pixels": 753664
+    },
+    "pixels": {
+      "meanRGBDelta": 1.2101744521337947,
+      "maxChannelDelta": 72,
+      "changedPixels": 82382
+    },
+    "before": "fnv1a32-4f53a258-12e7c",
+    "after": "fnv1a32-4f53a258-12e7c"
+  },
+  "motionLookups": 272,
+  "motionRasterSequences": 110,
+  "motionRebuild": "new sheets and manifests byte-identical after no-argument rebuild",
+  "oldRasterArt": "all previously committed WebP object hashes unchanged",
+  "sourceSHA256": {
+    "js/render.js": "112f1c35600a1948e228fa02eca2d14e18991e703b78d459a01efb2eebd44b96",
+    "js/network-unit-map.js": "a8e7421b70acd832ad7074b3b2909a1bba87a500a2f6e13da88694d625575624",
+    "scripts/build-motion-atlas.mjs": "7f65cc7ee3c9ba3cd3d54ae6ae9311e81fc2cdd17958fc3760df86c0227f2aab",
+    "scripts/build-painted-atlas.mjs": "c428ccf89801cc1439269cb272ffe43da68a1f457c00e1c1b77792ab2d987ea7",
+    "scripts/sprite-grid.mjs": "359d9a1a0c7eb3b6f8906e1337935ec08e34f75f85e30e448b072badf3296dad",
+    "assets/painted-motion-mgd.webp": "b73b51712c2c7b37dabfa8865377aa613ce324d177ce7265184a4e4f221c02ac",
+    "assets/painted-motion-cata.webp": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
+    "assets/painted-motion-conq.webp": "8b00ada2d9dc0b83da6cb9457946df9c5ead5156f1fbbcbddfc80d04bc2c5af2",
+    "assets/painted-motion-boyar.webp": "8086796c0db32ee7336955db2564075354dbd8de8c87bf30847e088a3a551a8a",
+    "assets/painted-motion-tarkan.webp": "dc3354e02382703293a3195b570f1e6da89bb2123081250473e5ed421a868756",
+    "assets/painted-motion-huszar.webp": "68e3674ad88f0c716bf7536192289f1a8082231066fe5d963a2ef7e2809d5756",
+    "assets/atlas-manifest.json": "6ff5056d574d4c1fd052f0e86788cc0552445ddd9b62195be5b2cf84391830a7",
+    "assets/motion-manifest.json": "94b4e1648740f31d67db1e1e8d2ee23fa24266782e23f88b0a2bdbd57bc22ef7",
+    "sw.js": "92e05348787795f868a67c4669c8c8f1363ba8c83731d620a877d647963d8399"
+  },
+  "production": {
+    "status": "awaiting deployment verification"
+  },
+  "xboxHardware": "unverified"
+}

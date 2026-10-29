@@ -7,22 +7,28 @@ const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
-// Native-size blended tiles are reused by chunks and the team-relative map.
-// 256 RGBA tiles cap retained texture pixels at 4 MiB; no per-frame masks.
+// Solo keeps native 64px blends. The unit map oversamples its actual tile
+// display size by at least 3x (up to the original 64px source), retaining more
+// small textures within the same 4 MiB pixel budget instead of LRU thrashing.
 const TERRAIN_BLEND=new Map();
-let terrainBlendImage=null;
-function terrainTileTexture(kind,x,y,neighbors){
+let terrainBlendImage=null,terrainBlendPixels=0;
+function clearTerrainBlend(){TERRAIN_BLEND.clear();terrainBlendPixels=0}
+function terrainBlendResolution(displayPixels){
+ if(!Number.isFinite(displayPixels)||displayPixels<=0)return 64;
+ return Math.min(64,2**Math.ceil(Math.log2(Math.max(4,displayPixels*3))));
+}
+function terrainTileTexture(kind,x,y,neighbors,resolution=64){
  const image=PAINT.terrain;if(!image||!neighbors||!neighbors.some(k=>Number.isInteger(k)&&k>=0&&k!==kind))return null;
- if(terrainBlendImage!==image){TERRAIN_BLEND.clear();terrainBlendImage=image}
- const side=(image.naturalWidth||image.width)/3,sample=64;
- const tx=((x*sample)%side+side)%side,ty=((y*sample)%side+side)%side;
- const key=[kind,tx,ty,...neighbors].join('/');
+ if(terrainBlendImage!==image){clearTerrainBlend();terrainBlendImage=image}
+ const side=(image.naturalWidth||image.width)/3,source=64,sample=[4,8,16,32,64].includes(resolution)?resolution:64;
+ const tx=((x*source)%side+side)%side,ty=((y*source)%side+side)%side;
+ const key=[kind,tx,ty,sample,...neighbors].join('/');
  let cv=TERRAIN_BLEND.get(key);
  if(cv){TERRAIN_BLEND.delete(key);TERRAIN_BLEND.set(key,cv);return cv}
  try{
   cv=document.createElement('canvas');cv.width=cv.height=sample;
   const g=cv.getContext('2d');if(!g)return null;
-  const draw=(ctx,k)=>ctx.drawImage(image,(k%3)*side+tx,Math.floor(k/3)*side+ty,sample,sample,0,0,sample,sample);
+  const draw=(ctx,k)=>ctx.drawImage(image,(k%3)*side+tx,Math.floor(k/3)*side+ty,source,source,0,0,sample,sample);
   draw(g,kind);
   const layer=document.createElement('canvas');layer.width=layer.height=sample;
   const c=layer.getContext('2d');if(!c)return null;
@@ -30,26 +36,30 @@ function terrainTileTexture(kind,x,y,neighbors){
    const other=neighbors[edge];if(!Number.isInteger(other)||other<0||other===kind)continue;
    // A short wet edge keeps land/water ownership legible. Wider soil edges
    // soften the repeating diamonds without replacing the painted texture.
-   const width=kind===2||other===2?10:20;
+   const width=(kind===2||other===2?10:20)*sample/source;
    c.clearRect(0,0,sample,sample);c.globalCompositeOperation='source-over';draw(c,other);
    const ends=[[0,0,width,0],[sample,0,sample-width,0],[0,0,0,width],[0,sample,0,sample-width]][edge];
    const mask=c.createLinearGradient(...ends);mask.addColorStop(0,'rgba(0,0,0,.5)');mask.addColorStop(1,'rgba(0,0,0,0)');
    c.globalCompositeOperation='destination-in';c.fillStyle=mask;c.fillRect(0,0,sample,sample);
    g.drawImage(layer,0,0);
   }
-  TERRAIN_BLEND.set(key,cv);while(TERRAIN_BLEND.size>256)TERRAIN_BLEND.delete(TERRAIN_BLEND.keys().next().value);
+  TERRAIN_BLEND.set(key,cv);terrainBlendPixels+=sample*sample;
+  while(terrainBlendPixels>1024*1024||TERRAIN_BLEND.size>4096){
+   const oldest=TERRAIN_BLEND.keys().next().value,old=TERRAIN_BLEND.get(oldest);
+   TERRAIN_BLEND.delete(oldest);terrainBlendPixels-=old.width*old.height;
+  }
   return cv;
  }catch(_){return null}
 }
 function terrainNeighborKinds(x,y,kindAt,width,height){
  return [x>0?kindAt(x-1,y):-1,x<width-1?kindAt(x+1,y):-1,y>0?kindAt(x,y-1):-1,y<height-1?kindAt(x,y+1):-1];
 }
-function paintTerrain(g,kind,x,y,px,py,w,h,isometric=false,neighbors=null){
+function paintTerrain(g,kind,x,y,px,py,w,h,isometric=false,neighbors=null,resolution=64){
  const image=PAINT.terrain;if(!image)return false;
  const side=(image.naturalWidth||image.width)/3,row=Math.floor(kind/3),col=kind%3;
  const sample=64,tx=((x*sample)%side+side)%side,ty=((y*sample)%side+side)%side;
- const tile=terrainTileTexture(kind,x,y,neighbors);
- const draw=(dw,dh)=>tile?g.drawImage(tile,0,0,64,64,0,0,dw,dh):g.drawImage(image,col*side+tx,row*side+ty,sample,sample,0,0,dw,dh);
+ const tile=terrainTileTexture(kind,x,y,neighbors,resolution);
+ const draw=(dw,dh)=>tile?g.drawImage(tile,0,0,tile.width,tile.height,0,0,dw,dh):g.drawImage(image,col*side+tx,row*side+ty,sample,sample,0,0,dw,dh);
  g.save();g.imageSmoothingEnabled=true;
  if(isometric){
   g.beginPath();g.moveTo(px,py-16);g.lineTo(px+32.5,py);g.lineTo(px,py+16.5);g.lineTo(px-32.5,py);g.closePath();g.clip();
@@ -651,7 +661,7 @@ if(k==='gal'){g.strokeStyle='#5a3b1e';g.lineWidth=1.4;for(const o of[-12,-4,4,12
 if(k==='trn'){g.fillStyle='#8a6a3a';g.fillRect(-10,-17,8,6);g.fillRect(-1,-17,8,6);g.strokeStyle=E;g.lineWidth=.6;g.strokeRect(-10,-17,8,6);g.strokeRect(-1,-17,8,6)}}}
 function paintUnit(g,k,tc,st,fr){if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{conq:{cloth:'#8a3a2a',pant:'#2a2a30',helm:'kettle',wpn:'gun',mail:1,tab:1},genoa:{cloth:'#3a6a9a',pant:'#2a3a4a',helm:'kettle',wpn:'xbow',mail:1,tab:1,shield:'kite'},huskarl:{cloth:'#5a5a6a',pant:'#3a3a40',helm:'great',wpn:'axe',shield:'round',mail:1},jaguar:{cloth:'#b08a2a',pant:'#6a4a2a',helm:'feather',wpn:'axe',shield:'round'},plumed:{cloth:'#2a8a6a',pant:'#4a3a24',helm:'feather',wpn:'bow',quiv:1},kamayuk:{cloth:'#a0603a',pant:'#5a4030',helm:'band',wpn:'spear',shield:'kite'},shotel:{cloth:'#3a8a3a',pant:'#2a2a30',helm:'band',wpn:'sword'},gbeto:{cloth:'#8a6a2a',pant:'#4a3a24',helm:'band',wpn:'jav'}});
-const USZ=k=>U[k].sh?[110,90]:k==='ele'||k==='eled'?[130,120]:(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb')?[100,90]:(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='mamel')?[90,86]:[56,72];
+const USZ=k=>U[k].sh?[110,90]:k==='ele'||k==='eled'?[130,120]:(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb')?[100,90]:(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='mamel'||k==='conq')?[90,86]:[56,72];
 
 /* Deterministic terrain variation, team foliage colours and tile palettes. */
 const hsh=(x,y)=>{let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296};

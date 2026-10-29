@@ -42,7 +42,7 @@ export function reflowSpriteGrid(data,width,height,columns,rows,count,allowMulti
 
 // Isolate one connected character per generated grid cell, keeping edge alpha.
 // Detached fragments from neighbouring cells must not appear in runtime art.
-export function extractSpriteGrid(data,width,height,columns,rows,count,selection=null){
+export function extractSpriteGrid(data,width,height,columns,rows,count,selection=null,keepDetached=false){
  const clean=Buffer.from(data),frames=[],coverage=[];
  if(data.length!==width*height*4||count>columns*rows)throw Error('Invalid RGBA sprite grid');
  for(let i=0;i<count;i++){
@@ -62,7 +62,8 @@ export function extractSpriteGrid(data,width,height,columns,rows,count,selection
      if(!visited[n]&&data[((y0+ny)*width+x0+nx)*4+3]>32){visited[n]=1;queue[tail++]=n}
     }
    }
-   if(tail>occupied){occupied=tail;l=cl;t=ct;r=cr;b=cb;primary=Array.from(queue.subarray(0,tail))}
+   if(keepDetached&&tail>=64){occupied+=tail;l=Math.min(l,cl);t=Math.min(t,ct);r=Math.max(r,cr);b=Math.max(b,cb);primary=primary.concat(Array.from(queue.subarray(0,tail)))}
+   else if(!keepDetached&&tail>occupied){occupied=tail;l=cl;t=ct;r=cr;b=cb;primary=Array.from(queue.subarray(0,tail))}
   }
   if(occupied<64)throw Error('Empty sprite cell '+i);
   const keep=new Uint8Array(cw*ch);
