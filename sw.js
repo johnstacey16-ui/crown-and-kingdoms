@@ -4,7 +4,7 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v25-connected-campaign-navies';
+const CACHE_NAME = 'ck-shell-v26-textured-terrain-edges';
 const CORE_ASSETS = [
   './',
   './index.html',

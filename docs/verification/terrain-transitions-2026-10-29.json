@@ -1,0 +1,228 @@
+{
+  "date": "2026-10-29",
+  "scope": "Original painted terrain edge blending in solo and team-relative multiplayer views",
+  "standaloneFilesPassed": 209,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 21,
+    "entries": 1404,
+    "references": 2524
+  },
+  "chromium": "complete battlefield-art suite passed locally",
+  "terrainBlending": {
+    "edges": [
+      {
+        "edge": 0,
+        "pixels": [
+          [
+            130,
+            118,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ]
+        ],
+        "center": [
+          224,
+          32,
+          32,
+          255
+        ]
+      },
+      {
+        "edge": 1,
+        "pixels": [
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            130,
+            118,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ]
+        ],
+        "center": [
+          224,
+          32,
+          32,
+          255
+        ]
+      },
+      {
+        "edge": 2,
+        "pixels": [
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            130,
+            118,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ]
+        ],
+        "center": [
+          224,
+          32,
+          32,
+          255
+        ]
+      },
+      {
+        "edge": 3,
+        "pixels": [
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            224,
+            32,
+            32,
+            255
+          ],
+          [
+            130,
+            118,
+            32,
+            255
+          ]
+        ],
+        "center": [
+          224,
+          32,
+          32,
+          255
+        ]
+      }
+    ],
+    "cacheHit": true,
+    "bounded": true,
+    "reloaded": true,
+    "before": "fnv1a32-97132bbc-7061",
+    "after": "fnv1a32-97132bbc-7061"
+  },
+  "terrainViewport": [
+    {
+      "scale": 1,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 2239484
+    },
+    {
+      "scale": 1,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 2239488
+    },
+    {
+      "scale": 1,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 2239488
+    },
+    {
+      "scale": 0.75,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 1259712
+    },
+    {
+      "scale": 0.75,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 1259712
+    },
+    {
+      "scale": 0.75,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 1259712
+    },
+    {
+      "scale": 0.5,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 559872
+    },
+    {
+      "scale": 0.5,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 559872
+    },
+    {
+      "scale": 0.5,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 559872
+    }
+  ],
+  "sourceSHA256": {
+    "js/render.js": "b3a439a75d7b43130f6d30a4f03a3be6cf99134a3bbd096666d0aafac3f8deeb",
+    "js/network-unit-map.js": "2496d8dd9b10a1a796a3eea9ae2018d8157d63dfc7225bb833f7f95ac8e4458c",
+    "sw.js": "39f9db67c5e77242cbbb96a68d6e3eeb22f7d6510686ee5eb12faff6385fafa5"
+  },
+  "limits": [
+    "Physical Xbox Edge performance unverified",
+    "Full directional unit animation, architecture and complete graphics overhaul remain unfinished",
+    "No new campaign victory acceptance from this rendering change"
+  ],
+  "capture": "artifacts/battlefield-art/terrain-transitions.png"
+}

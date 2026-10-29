@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { createApplication } from '../../server/app.mjs';
+import { checkTerrainBlending } from './terrain-blending.mjs';
 import { checkTerrainViewport } from './terrain-viewport.mjs';
 import { checkCampaignNavies } from './campaign-navies.mjs';
 
@@ -71,6 +72,7 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
+ const terrainBlending=await checkTerrainBlending(page,output);
  const terrainViewport=await checkTerrainViewport(page);
  const campaignNavies=await checkCampaignNavies(browser,origin,output);
  const diagnostics=await page.evaluate(()=>{
@@ -304,7 +306,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{

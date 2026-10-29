@@ -1,3 +1,13 @@
+## 29 October 2026 — Textured terrain transitions
+
+**CK-032 / CK-041 remain PARTIAL.** Original painted grass, soil, shore and water now blend across cardinal tile edges in the isometric battlefield and the team-relative multiplayer map. Narrow wet edges retain readable coastlines; wider soil blends soften the repeating tile diamonds. Tile interiors retain their original texture. The multiplayer view derives terrain and neighbors exclusively from that player's remembered terrain, leaving unknown neighbors unblended. No movement, water flags, fog rules, simulation state or controller behavior changes.
+
+Blends are native 64-pixel texture composites reused by the existing solo terrain chunks and viewport cache. The texture LRU holds at most 256 tiles (4 MiB RGBA, excluding temporary generation surfaces); new terrain-image identity invalidates it. Missing canvases fall back to the original unblended artwork. Shell v26 refreshes returning clients.
+
+**Local validation:** 208 existing standalone regression files plus the new two-case terrain test passed (209 files total). Source and all 21 atlases validated. The complete Chromium graphics suite passed, including synthetic raster samples for all four blend directions, unchanged tile centers/opposite edges, texture reuse/bounds/image replacement, unchanged world checkpoint and nine pixel-identical viewport-cache comparisons. The before/after contact sheet was visually inspected in both projections. [Machine-readable evidence](docs/verification/terrain-transitions-2026-10-29.json) records covered checks and source hashes. These checks do not establish physical Xbox frame budgets or completion of the graphics overhaul.
+
+Next graphics priorities: expand the remaining 28 units beyond base-pose motion, improve directional silhouettes and faction architecture, and review large land/naval scenes on Xbox Series S Edge. Prior campaign and hosted-CI limitations below remain open.
+
 ## 29 October 2026 — Connected campaign fleets and working primary-sea dock exits
 
 **Verified code: [`c2f68c46fbfcea08ee5e524aeb100436e54aff85`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/c2f68c46fbfcea08ee5e524aeb100436e54aff85).** The source fingerprints, 208-file regression run, focused checks, Chromium proof and 19 mission results below refer to this runtime.

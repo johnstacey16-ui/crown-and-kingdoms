@@ -8,6 +8,8 @@ A controller-first medieval real-time strategy game targeting Xbox Series X thro
 
 **Naval update — 29 October:** new coastal campaign fleets and scripted docks use the main navigable sea rather than nearby isolated ponds. Starting fleets in Golden Coast and The Strait’s Last Relic can now reach each other, with validated dock exits. Start a new coastal mission to see the corrected opening.
 
+**Graphics update — 29 October:** painted grass, soil, shores and water now have textured edge transitions in solo and the multiplayer battlefield. Original art and gameplay remain intact; the full graphics overhaul and Xbox visual/performance acceptance remain in progress.
+
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.

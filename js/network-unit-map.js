@@ -126,12 +126,18 @@
       const field=view.battlefield,visible=new Set(field.visible);
       // Only tiles previously seen by this player enter this local art cache.
       // It contains terrain/resources, never remembered enemy positions.
+      const rememberedKind=(x,y)=>{
+        const tile=terrainMemory.get(y*view.width+x);if(!tile)return -1;
+        if(tile.water)return tile.water===1?2:3;
+        const coastal=(x>0&&terrainMemory.get(tile.index-1)?.water===1)||(x<view.width-1&&terrainMemory.get(tile.index+1)?.water===1)||(y>0&&terrainMemory.get(tile.index-view.width)?.water===1)||(y<view.height-1&&terrainMemory.get(tile.index+view.width)?.water===1);
+        return coastal?3:hsh(x>>2,y>>2)<.1?1:0;
+      };
       for(const tile of terrainMemory.values()){
         const x=tile.index%view.width,y=Math.floor(tile.index/view.width),px=x*sx,py=y*sy;
         const grain=((tile.index*2654435761)>>>28)%3;
         context.fillStyle=tile.water===1?['#234f65','#28596b','#2b5c70'][grain]:
           tile.water===2?'#719b91':['#526b3d','#586f42','#5d7446'][grain];
-        if(!paintTerrain(context,tile.water===1?2:tile.water===2?3:0,x,y,px,py,sx+.3,sy+.3))context.fillRect(px,py,sx+.3,sy+.3);
+        if(!paintTerrain(context,rememberedKind(x,y),x,y,px,py,sx+.3,sy+.3,false,terrainNeighborKinds(x,y,rememberedKind,view.width,view.height)))context.fillRect(px,py,sx+.3,sy+.3);
         if(tile.water&&sx>=5){
           context.strokeStyle=tile.water===2?'rgba(230,226,177,.3)':'rgba(163,221,227,.22)';
           const ripple=tile.water===1?Math.sin(field.time*.8+x*.7+y)*sy*.08:0;
@@ -602,3 +608,4 @@
   }
   root.CK_UNIT_MAP=Object.freeze({project,create});
 })(typeof window!=='undefined'?window:globalThis);
+
