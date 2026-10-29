@@ -153,9 +153,9 @@
         }
         const n=tile.node;
         if(n&&sx>=3){
-          const environmentArt=typeof paintedEnvironmentFrame==='function'?paintedEnvironmentFrame({k:n.kind,x,y,an:n.animal,fi:n.fish,fm:n.farm,trap:n.trap}):null;
+          const environmentArt=typeof paintedEnvironmentFrame==='function'?paintedEnvironmentFrame({k:n.kind,x,y,an:n.animal,fi:n.fish,fm:n.farm,trap:n.trap},field.time):null;
           const resourceArt=environmentArt||(typeof paintedResourceFrame==='function'?paintedResourceFrame(n.kind,x,y,n.animal||n.fish||n.farm):null);
-          if(resourceArt){const f=resourceArt.f,width=Math.min(Math.max(10,sx*(n.kind==='w'?1.9:1.25)),(n.kind==='w'?Math.max(20,sy*3):Infinity)*f.w/f.h),sc=width/f.w,cached=paintedNodeTexture(resourceArt,54);
+          if(resourceArt){const f=resourceArt.f,width=Math.min(Math.max(10,sx*(n.kind==='w'?1.9:1.25)),(n.kind==='w'?Math.max(20,sy*3):Infinity)*f.w/f.h),sc=width/(resourceArt.referenceWidth||f.w),cached=paintedNodeTexture(resourceArt,54);
             if(cached)context.drawImage(cached,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
             else context.drawImage(resourceArt.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
           }else if(n.kind==='w'&&typeof ASSET!=='undefined'&&ASSET.n&&assetFrame('node_tree',0,0,0,0)){const art=assetFrame('node_tree',0,0,0,0),f=art.f,sc=Math.max(15,sx*2)/f.w;context.drawImage(art.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);}else if(n.kind==='w'){

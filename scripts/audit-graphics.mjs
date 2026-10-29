@@ -12,7 +12,7 @@ const checklist=[
  {category:'Unit animation',state:'partial',evidence:units.filter(u=>u.walkFrames>1&&u.attackFrames>1).length+' of '+units.length+' kinds have painted multi-frame movement/activity art',remaining:(units.some(u=>u.walkFrames<=1||u.attackFrames<=1)?units.filter(u=>u.walkFrames<=1||u.attackFrames<=1).length+' kinds, ':'')+'independent directions, work variants and dedicated death sheets'},
  {category:'Building artwork',state:'partial',evidence:buildings.length+' painted kinds including farm',remaining:'faction/age architecture and distinct construction/damage states'},
  {category:'Terrain and coasts',state:'partial',evidence:'painted materials and textured transitions',remaining:'biome-specific integration and repetition review'},
- {category:'Natural resources',state:'partial',evidence:'painted wood, stone, gold, berries, fish and deer',remaining:'depletion states and wildlife/fish animation'},
+ {category:'Natural resources',state:'partial',evidence:'painted wood, stone, gold and berries; eight-pose neutral deer/fish idles',remaining:'depletion states and physical Xbox wildlife readability'},
  {category:'Fish traps',state:'partial',evidence:'four neutral painted basket/net variants shared by solo and team-relative views',remaining:'waterline/readability review on Xbox'},
  {category:'Relics',state:'partial',evidence:'painted ground/carried reliquary in both renderers',remaining:'hardware readability and animated pickup/deposit presentation'},
  {category:'Combat and world effects',state:'partial',evidence:'procedural projectiles, particles, smoke, rubble and transformed corpses',remaining:'coherent upgraded effects and dedicated destruction art'},

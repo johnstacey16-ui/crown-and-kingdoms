@@ -8,7 +8,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Unit animation | partial | independent directions, work variants and dedicated death sheets |
 | Building artwork | partial | faction/age architecture and distinct construction/damage states |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
-| Natural resources | partial | depletion states and wildlife/fish animation |
+| Natural resources | partial | depletion states and physical Xbox wildlife readability |
 | Fish traps | partial | waterline/readability review on Xbox |
 | Relics | partial | hardware readability and animated pickup/deposit presentation |
 | Combat and world effects | partial | coherent upgraded effects and dedicated destruction art |

@@ -11,7 +11,7 @@ try {
     ['/index.html?release=test', 'text/html', '<canvas'],
     ['/js/network-session.js', 'text/javascript', 'CK_LIVE_SESSION'],
     ['/styles.css', 'text/css', 'canvas'],
-    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v15-fishtraps'],
+    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v16-wildlife-motion'],
     ['/sw.js', 'text/javascript', 'no-store']
   ]) {
     const response = await request(path);

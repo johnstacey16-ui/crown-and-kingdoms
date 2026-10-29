@@ -54,3 +54,26 @@ test('fish-trap variants are geographic, neutral, static and preserve resource s
  assert.equal(Object.keys(atlas.meta.anims).length,4);assert.equal(new Set(Object.values(atlas.meta.anims).map(a=>JSON.stringify(a.frames))).size,4);
  assert.match(read('scripts/build-painted-atlas.mjs'),/fishtrap-manifest\.json/);assert.match(read('scripts/build-motion-atlas.mjs'),/painted-fishtraps/);assert.match(read('sw.js'),/painted-fishtraps\.webp/);
 });
+
+
+test('wildlife idles use game time, constant reference width and neutral static fallbacks',()=>{
+ const pack=JSON.parse(read('assets/atlas-manifest.json')),source=read('js/render.js'),c=vm.createContext({hsh:()=>0});
+ vm.runInContext(read('js/assets.js')+'\n'+source.slice(source.indexOf('function paintedEnvironmentFrame('),source.indexOf('function drawPaintedRelic('))+';globalThis.run=s=>eval(s);',c);
+ for(const a of pack.atlases.filter(a=>a.meta.environmentMotion||a.id==='painted-environment'))c.run(`regAtlas('${a.id}',{},${JSON.stringify(a.meta)})`);
+ for(const kind of ['deer','fish']){
+  const a=pack.atlases.find(a=>a.id==='painted-wildlife-'+kind),an=a.meta.anims['env_'+kind+'/idle/0'];
+  c.run(`globalThis.node={k:'f',x:0,y:0,t:0,amt:100,${kind==='deer'?'an':'fi'}:1}`);
+  const before=c.run('JSON.stringify(node)'),frames=new Set();
+  for(let i=0;i<8;i++){
+   const t=i*an.dur+.001;frames.add(c.run(`JSON.stringify(paintedEnvironmentFrame(node,${t}).f)`));
+   assert.equal(c.run(`paintedEnvironmentFrame(node,${t}).referenceWidth`),an.referenceWidth);
+  }
+  assert.equal(frames.size,8);assert.equal(c.run('JSON.stringify(node)'),before);
+  const paused=c.run('JSON.stringify(paintedEnvironmentFrame(node,3).f)');c.run('node.t=3;node.amt=1');assert.equal(c.run('JSON.stringify(paintedEnvironmentFrame(node,3).f)'),paused);
+  c.run(`ASSET.atl['painted-wildlife-${kind}'].ok=false`);assert.equal(c.run('paintedEnvironmentFrame(node,3).animated'),false);c.run(`ASSET.atl['painted-wildlife-${kind}'].ok=true`);
+  for(const invalid of [0,-1,Infinity]){
+   const bad=JSON.parse(JSON.stringify(a.meta));bad.anims['env_'+kind+'/idle/0'].referenceWidth=invalid;
+   const code=JSON.stringify(bad).replace('"referenceWidth":null','"referenceWidth":Infinity');assert.equal(c.run(`validAtlasMeta(${code},${a.meta.width},${a.meta.height})`),false);
+  }
+ }
+});

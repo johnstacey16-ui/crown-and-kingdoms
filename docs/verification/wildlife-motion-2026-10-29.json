@@ -1,0 +1,296 @@
+{
+  "date": "2026-10-29",
+  "baseCommit": "d50e1199fe2d6fb2ef61470508acaec5d272e5be",
+  "scope": "Eight neutral idle poses each for deer and fish shoals; presentation only",
+  "manifest": {
+    "version": "painted-raster-v16-wildlife-motion",
+    "atlases": 54,
+    "animationEntries": 1762,
+    "frameReferences": 4492
+  },
+  "local": {
+    "regressions": {
+      "files": 211,
+      "passed": 211,
+      "failed": [],
+      "seconds": 75.3,
+      "initialFailed": [
+        {
+          "file": "tests/extended-atlas.test.mjs",
+          "exit": 1
+        }
+      ],
+      "rerun": "Updated former static-environment assumption for eight-frame neutral idle atlases; affected file rerun passed"
+    },
+    "browser": "complete battlefield suite passed",
+    "wildlife": {
+      "samples": [
+        {
+          "kind": "deer",
+          "frame": 0,
+          "hash": 2594115623,
+          "opaque": 3097,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 1,
+          "hash": 3116463018,
+          "opaque": 3103,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 2,
+          "hash": 1536591496,
+          "opaque": 3147,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 3,
+          "hash": 3017012465,
+          "opaque": 2959,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 4,
+          "hash": 2174394804,
+          "opaque": 3178,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 5,
+          "hash": 3956697670,
+          "opaque": 3218,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 6,
+          "hash": 1359715988,
+          "opaque": 3340,
+          "neutral": true
+        },
+        {
+          "kind": "deer",
+          "frame": 7,
+          "hash": 4203603700,
+          "opaque": 3286,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 0,
+          "hash": 3724905835,
+          "opaque": 3689,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 1,
+          "hash": 1150275346,
+          "opaque": 3819,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 2,
+          "hash": 4173539454,
+          "opaque": 3874,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 3,
+          "hash": 2053070534,
+          "opaque": 3661,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 4,
+          "hash": 2695747590,
+          "opaque": 3806,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 5,
+          "hash": 1137420112,
+          "opaque": 3857,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 6,
+          "hash": 2080583183,
+          "opaque": 3880,
+          "neutral": true
+        },
+        {
+          "kind": "fish",
+          "frame": 7,
+          "hash": 31331015,
+          "opaque": 3887,
+          "neutral": true
+        }
+      ],
+      "poses": [
+        {
+          "kind": "deer",
+          "paused": true,
+          "advances": true,
+          "referenceWidth": 342,
+          "expectedWidth": 342
+        },
+        {
+          "kind": "fish",
+          "paused": true,
+          "advances": true,
+          "referenceWidth": 355,
+          "expectedWidth": 355
+        }
+      ],
+      "clocks": [
+        {
+          "pass": "solo",
+          "kind": "deer",
+          "time": 0.05
+        },
+        {
+          "pass": "solo",
+          "kind": "fish",
+          "time": 0.05
+        },
+        {
+          "pass": "map",
+          "kind": "deer",
+          "time": 0.05
+        },
+        {
+          "pass": "map",
+          "kind": "fish",
+          "time": 0.05
+        }
+      ],
+      "time": 0.05,
+      "soloDraws": 2,
+      "mapDraws": 2,
+      "fallback": true,
+      "unchanged": true,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "fishtraps": {
+      "samples": [
+        {
+          "variant": 0,
+          "hash": 1044561338,
+          "opaque": 4121,
+          "transparent": 20808,
+          "neutral": true
+        },
+        {
+          "variant": 1,
+          "hash": 3053146914,
+          "opaque": 4118,
+          "transparent": 20825,
+          "neutral": true
+        },
+        {
+          "variant": 2,
+          "hash": 1373102266,
+          "opaque": 4139,
+          "transparent": 20660,
+          "neutral": true
+        },
+        {
+          "variant": 3,
+          "hash": 3888254212,
+          "opaque": 4309,
+          "transparent": 20705,
+          "neutral": true
+        }
+      ],
+      "soloDraws": 4,
+      "mapDraws": 1,
+      "projected": true,
+      "fallback": true,
+      "unchanged": true,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "resources": {
+      "samples": [
+        {
+          "kind": "stone",
+          "variant": 0,
+          "opaque": 7025,
+          "transparent": 8665,
+          "hash": 2677351163,
+          "neutral": true
+        },
+        {
+          "kind": "stone",
+          "variant": 1,
+          "opaque": 7003,
+          "transparent": 8668,
+          "hash": 769452323,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 0,
+          "opaque": 6813,
+          "transparent": 9021,
+          "hash": 1119022800,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 1,
+          "opaque": 6705,
+          "transparent": 9073,
+          "hash": 1067039506,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 0,
+          "opaque": 8717,
+          "transparent": 6457,
+          "hash": 1619077852,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 1,
+          "opaque": 8866,
+          "transparent": 6247,
+          "hash": 2997338425,
+          "neutral": true
+        }
+      ],
+      "stable": true,
+      "excluded": true,
+      "fallback": true,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "source": "passed",
+    "atlas": "passed",
+    "inventory": "passed",
+    "rebuild": "wildlife/fishtrap/base/motion rebuilds reproduce all assets and manifests byte-for-byte",
+    "previousWebps": "all previously committed WebP Git hashes unchanged",
+    "visualReview": "all sixteen poses at1x/2x reference scale inspected"
+  },
+  "deployment": "pending exact runtime/live comparison",
+  "hostedCI": "pending newcommit; earlier jobs failed before steps",
+  "remaining": [
+    "physical Xbox Series S Edge animal/fish readability and large-scene performance",
+    "broader graphics checklist"
+  ]
+}

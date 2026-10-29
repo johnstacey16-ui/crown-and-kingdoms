@@ -18,6 +18,6 @@ for(let i=0;i<4;i++){
 if(source||!clean.data.equals(data))writeFileSync(asset('painted-fishtraps.webp'),await sharp(clean.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer());
 const atlas={id:'painted-fishtraps',src:'./assets/painted-fishtraps.webp',meta:{painted:true,neutral:true,width:info.width,height:info.height,anims}};
 writeFileSync(asset('fishtrap-manifest.json'),JSON.stringify({atlases:[atlas]}));
-const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!==atlas.id);pack.atlases.push(atlas);pack.version='painted-raster-v15-fishtraps';
+const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!==atlas.id);pack.atlases.push(atlas);pack.version=pack.atlases.some(a=>a.meta.environmentMotion)?'painted-raster-v16-wildlife-motion':'painted-raster-v15-fishtraps';
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 console.log('Packed four neutral painted fish traps; no gameplay fields changed.');

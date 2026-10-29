@@ -548,10 +548,10 @@ function paintedNodeTexture(painted,width){
  const f=painted.f,img=painted.img;
  let frames=NODE_TEXTURE_CACHE.get(img);
  if(!frames){frames=new Map();NODE_TEXTURE_CACHE.set(img,frames)}
- const key=[f.x,f.y,f.w,f.h,width].join('/');
+ const key=[f.x,f.y,f.w,f.h,width,painted.referenceWidth||f.w].join('/');
  if(frames.has(key))return frames.get(key);
  try{
-  const canvas=document.createElement('canvas'),scale=2*width/f.w;
+  const canvas=document.createElement('canvas'),scale=2*width/(painted.referenceWidth||f.w);
   canvas.width=Math.max(1,Math.round(f.w*scale));
   canvas.height=Math.max(1,Math.round(f.h*scale));
   const g=canvas.getContext('2d');if(!g)return null;
@@ -569,11 +569,12 @@ function paintedResourceFrame(kind,x,y,excluded=false){
  const variant=hsh(x,y)<.5?0:1;
  return assetFrame('node_'+name+'_'+variant,0,0,0,0);
 }
-function paintedEnvironmentFrame(n){
+function paintedEnvironmentFrame(n,time=0){
  if(typeof ASSET==='undefined'||!ASSET.n||n.fm)return null;
  if(n.trap)return n.k==='f'&&n.fi?assetFrame('env_trap_'+Math.min(3,Math.floor(hsh(n.x,n.y)*4)),0,0,0,0):null;
  const kind=n.an?'deer':n.fi?'fish':n.k==='w'?['pine','oak','birch'][Math.min(2,Math.floor(hsh(n.x,n.y)*3))]:null;
- return kind?assetFrame('env_'+kind,0,0,0,0):null;
+ const clock=(n.an||n.fi)&&Number.isFinite(time)?Math.max(0,time)+hsh(n.x,n.y)*3.2:0;
+ return kind?assetFrame('env_'+kind,0,0,0,clock):null;
 }
 function paintedResourceWidth(n,art){
  const width=n.trap?38:n.fm?66:n.an?46:n.fi?40:n.k==='w'?62:n.k==='f'?50:54;
@@ -589,7 +590,7 @@ function drawPaintedRelic(g,x,y,width){
 }
 
 function drawNode(n){const P=w2s(n.x+.5,n.y+.5),v=hsh(n.x,n.y),i=n.y*W+n.x;X.globalAlpha=S.vs[i]?1:.65;
-const painted=paintedEnvironmentFrame(n)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm)||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/f.w*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
+const painted=paintedEnvironmentFrame(n,S.t)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm)||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/(painted.referenceWidth||f.w)*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
 if(cached)X.drawImage(cached,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 else X.drawImage(painted.img,f.x,f.y,f.w,f.h,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 X.restore();X.globalAlpha=1;return;}

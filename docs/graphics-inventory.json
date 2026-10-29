@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 52,
+  "atlases": 54,
   "units": [
     {
       "kind": "vil",
@@ -633,8 +633,8 @@
     {
       "category": "Natural resources",
       "state": "partial",
-      "evidence": "painted wood, stone, gold, berries, fish and deer",
-      "remaining": "depletion states and wildlife/fish animation"
+      "evidence": "painted wood, stone, gold and berries; eight-pose neutral deer/fish idles",
+      "remaining": "depletion states and physical Xbox wildlife readability"
     },
     {
       "category": "Fish traps",

@@ -1,3 +1,11 @@
+## 29 October 2026 — Neutral deer and fish idle motion
+
+**CK-032 / CK-041 remain PARTIAL.** Deer now have eight standing ear/head/grazing/tail poses, and fish shoals have eight fin/tail poses. Both actual draw paths use paused game time with stable geographic phase offsets. A fixed reference width keeps pose-bound changes from rescaling the animals, and small cached textures remain shared. Neutral colours, original static fallback, resource mechanics, fog, commands, controls and saves are preserved. Previously committed WebP hashes are unchanged.
+
+All 211 standalone files passed after updating and rerunning the former static-environment assumption. Source/54-atlas/inventory checks, byte-identical wildlife/fishtrap/base/motion rebuilds and the complete Chromium battlefield suite passed. Focused checks decode all 16 poses, confirm both draw paths receive the actual world clock, test pause/advance, neutral images, fixed scale and failed-image fallback, and preserve node/world checksums. The 1×/2× contact sheet was inspected. Stone, gold, berries and fish traps still pass their checks. Shell v37 includes the two new images. See [artwork and scope](docs/PAINTED_WILDLIFE_MOTION.md), [exact original/correction prompts](docs/painted-wildlife-motion-prompts.json) and [verification](docs/verification/wildlife-motion-2026-10-29.json).
+
+Physical Xbox acceptance, depletion art, dedicated directions/work/death states, architecture, effects and interface work remain in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Production and hosted CI require separate checks.
+
 ## 29 October 2026 — Painted fish traps
 
 **CK-032 / CK-041 remain PARTIAL.** Four original neutral wicker/net fish-trap variants now render in solo and team-relative multiplayer views. Variants depend only on position, retain natural colours and use small cached textures; missing images retain the procedural trap. Existing ownership, gathering, replenishment, fog, economy, commands and saves are unchanged. All previously committed WebP hashes remain unchanged.
