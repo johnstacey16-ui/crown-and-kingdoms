@@ -1,19 +1,69 @@
 const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(b=>b.t===t&&b.k===k&&b.done&&b.hp>0).length,cu=(k,t=0)=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&(!k||u.k===k)).length,cmil=t=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&U[u.k]&&u.k!=='vil'&&u.k!=='mon'&&u.k!=='king'&&u.k!=='cart'&&U[u.k].dmg>0&&!U[u.k].sh).length,aliveUnits=(t,k)=>S.us.filter(u=>u&&Number.isInteger(u.t)&&u.t===t&&u.hp>0&&U[u.k]&&(!k||u.k===k));
 const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:spawnPos(tc);if(!p)break;addU(t,k,p[0],p[1])}};
-function put(t,k,cx,cy){for(let r=0;r<16;r++)for(let a=0;a<12;a++){const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true)}return null}
+// Ship paths treat resources as obstacles and forbid diagonal corner cutting.
+// Rebuild this small placement-only graph on demand so harvested fish and changed
+// map cells never leave stale connectivity in a save or simulation entity.
+function campaignWaterRegions(){
+ const labels=new Int32Array(W*H).fill(-1),sizes=[],queue=new Int32Array(W*H);
+ let largest=-1;
+ const water=i=>!!S.wt[i]&&!S.nd[i];
+ for(let start=0;start<W*H;start++){
+  if(labels[start]>=0||!water(start))continue;
+  const id=sizes.length;let head=0,tail=1,deep=0;queue[0]=start;labels[start]=id;
+  while(head<tail){
+   const i=queue[head++],x=i%W,y=i/W|0;if(S.wt[i]===1)deep++;
+   for(const[dx,dy]of D8){
+    const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;
+    const next=ny*W+nx;if(labels[next]>=0||!water(next))continue;
+    if(dx&&dy&&(!water(y*W+nx)||!water(ny*W+x)))continue;
+    labels[next]=id;queue[tail++]=next;
+   }
+  }
+  sizes.push(tail);
+  if(deep&&(largest<0||tail>sizes[largest]))largest=id;
+ }
+ return {labels,sizes,largest};
+}
+function campaignDockAccess(x,y,size,regions,minimum=1){
+ if(regions.largest<0)return false;
+ let count=0;
+ for(let dy=-1;dy<=size;dy++)for(let dx=-1;dx<=size;dx++){
+  if(dx>=0&&dx<size&&dy>=0&&dy<size)continue;
+  const nx=x+dx,ny=y+dy;
+  if(nx>=0&&ny>=0&&nx<W&&ny<H&&regions.labels[ny*W+nx]===regions.largest&&++count>=minimum)return true;
+ }
+ return false;
+}
+function put(t,k,cx,cy){
+ if(k==='dock'){
+  const water=campaignWaterRegions(),sites=[];
+  for(let y=1;y<H-B[k].s;y++)for(let x=1;x<W-B[k].s;x++){
+   if(okPlace(t,k,x,y)&&campaignDockAccess(x,y,B[k].s,water))sites.push({x,y,d:(x-cx)**2+(y-cy)**2,wide:campaignDockAccess(x,y,B[k].s,water,4)});
+  }
+  sites.sort((a,b)=>Number(b.wide)-Number(a.wide)||a.d-b.d);
+  const site=sites[0];return site?addB(t,k,site.x,site.y,true):null;
+ }
+ for(let r=0;r<16;r++)for(let a=0;a<12;a++){
+  const x=Math.round(cx+Math.cos(a*.52)*r),y=Math.round(cy+Math.sin(a*.52)*r);
+  if(x>1&&y>1&&x<W-4&&y<H-4&&okPlace(t,k,x,y))return addB(t,k,x,y,true);
+ }
+ return null;
+}
 
 function raidShipPositions(e,count,t=1){
  if(!e||!Number.isInteger(count)||count<=0||!Number.isInteger(t)||!S||!Number.isInteger(W)||!Number.isInteger(H))return [];
+ const regions=campaignWaterRegions();if(regions.largest<0)return [];
  const docks=S.bs.filter(b=>b.t===t&&b.k==='dock'&&b.hp>0),anchors=docks.length?docks:[e],spots=[],occupied=new Set();
  for(const u of S.us)if(u&&u.hp>0&&!u.ld&&U[u.k]?.sh&&Number.isFinite(u.x)&&Number.isFinite(u.y))occupied.add((u.y|0)*W+(u.x|0));
  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
-  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||occupied.has(i))continue;
+  const i=y*W+x;if(S.wt[i]!==1||S.nd[i]||occupied.has(i)||regions.labels[i]!==regions.largest)continue;
   let d=Infinity;for(const a of anchors)d=Math.min(d,Math.hypot(x+.5-(a.x+a.s/2),y+.5-(a.y+a.s/2)));
-  if(d<=18)spots.push({x,y,d});
+  if(Number.isFinite(d))spots.push({x,y,d});
  }
  spots.sort((a,b)=>a.d-b.d);
  return spots.slice(0,count).map(p=>[p.x+.5,p.y+.5])
 }
+
 function raid(n,ks,msg){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const choices=[tg,...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
@@ -109,3 +159,4 @@ function nextCampaignMission(i){const arc=CAMP_ARCS.find(a=>a.ids.includes(i));i
 const campItems=()=>{const dn=campDone(),arc=CAMP_ARCS[ca]||CAMP_ARCS[0],ids=arc.ids.filter(i=>Number.isInteger(i)&&CAMP[i]&&typeof CAMP[i].t==='string');return[{n:'Campaign: '+arc.n,v:()=>((ca+1)+' / '+CAMP_ARCS.length),d:()=> 'Use Left/Right to switch campaign.',l:()=>{ca=(ca+CAMP_ARCS.length-1)%CAMP_ARCS.length;ci=0},r:()=>{ca=(ca+1)%CAMP_ARCS.length;ci=0}},...ids.map((i,j)=>{const m=CAMP[i],locked=j>0&&!dn[ids[j-1]];return{n:(j+1)+'. '+m.t+(dn[i]?'  (complete)':locked?'  (locked)':''),d:()=>String(m.b||'Mission briefing unavailable.').slice(0,100)+'...',a:()=>{if(!locked){bi=i;mode='brief'}}}}),{n:'Back',a:()=>{leaveCampaign()}}]};
 function campCtl(){const it=campItems(),n=it.length;ci=Number.isInteger(ci)&&ci>=0&&ci<n?ci:0;if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;const r=it[ci];if(E[14]&&r.l)r.l();if(E[15]&&r.r)r.r();if(E[0]&&r.a)r.a();if(E[1])leaveCampaign()}
 function briefCtl(){if(E[0]){const arc=Number.isInteger(bi)?CAMP_ARCS.find(a=>a.ids.includes(bi)):null;const pos=arc?arc.ids.indexOf(bi):-1;const done=campDone();if(arc&&(pos===0||pos>0&&done[arc.ids[pos-1]]))startScenario(bi);else mode='camp'}if(E[1])mode='camp'}
+

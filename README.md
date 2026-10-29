@@ -6,6 +6,8 @@
 
 A controller-first medieval real-time strategy game targeting Xbox Series X through Microsoft Edge with an Xbox controller. The delivery target is full functional AoE II: DE Xbox parity, including all Xbox-available gameplay DLC; current feature and hardware acceptance remain incomplete. See [the delivery plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) and [controller contract](XBOX_CONTROLLER_PARITY.md).
 
+**Naval update — 29 October:** new coastal campaign fleets and scripted docks use the main navigable sea rather than nearby isolated ponds. Starting fleets in Golden Coast and The Strait’s Last Relic can now reach each other, with validated dock exits. Start a new coastal mission to see the corrected opening.
+
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.
@@ -35,7 +37,7 @@ battlefield. Use the named battlefield preview for shared simulation.
 
 ## Checks
 
-**Campaign verification — 28 October:** isolated mission commands now execute real playthroughs. The current scripted-player results are 7 wins, 6 defeats and 6 timeouts, including 1 failing assertion (The Golden Coast). Earlier isolated CI green results did not execute missions. See [the current evidence](docs/verification/campaign-2026-10-28.json); full campaign acceptance remains open.
+**Campaign verification — 29 October:** all 19 selected missions now execute, with 7 victories, 7 defeats and 5 timeouts under the existing assertions. Zero failing assertions does not mean 19 wins. See [current campaign evidence](docs/verification/campaign-2026-10-29.json); full controller/human acceptance remains open.
 
 Requires Node.js 22 or a compatible current release. No package installation is required.
 

@@ -28,7 +28,7 @@ function fixture() {
   section(sim, 'function spawnPos(', '\nfunction research(') + '\n' +
   section(sim, 'function deployFishTrap(', '\nfunction killNode(') + '\n' +
   section(ai, 'function aiDockWaterReach(', '\nfunction aiDock(') + '\n' +
-  section(campaign, 'function raidShipPositions(', '\nfunction raid('), ctx);
+  section(campaign, 'function campaignWaterRegions(', '\nfunction raid('), ctx);
  return { S, ctx, run: code => vm.runInContext(code, ctx) };
 }
 
@@ -80,3 +80,4 @@ test('fish traps deploy on deep water, cost wood and block their occupied tile',
  assert.equal(f.S.nd[trap.y*24+trap.x],trap);
  assert.equal(f.run(`path({x:${trap.x+.5},y:${trap.y+.5},t:0,sh:1},gp(20.5,18.5,.6))`),null);
 });
+

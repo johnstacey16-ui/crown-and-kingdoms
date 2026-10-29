@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-29",
+  "runtimeCommit": null,
+  "runtimeBaseCommit": "09c9a5a99a7ce5d559ec3cc6c750a97025b89451",
+  "runtimeFileSha256": {
+    "js/campaign.js": "ca68e74b6599848266d6ad115dfd047524e6a4f1643b94b141d2474042497765",
+    "sw.js": "a34fb99dd4ed48b342d86f9e6ca09d0724d9d819d29a4866a6f1a9c23840f367"
+  },
+  "baselineEvidence": "golden-coast-naval-diagnostic-2026-10-28.json",
+  "scope": "Fresh production campaign openings, exact ship pathfinding and current save/load; separate Chromium Golden Coast proof. No physical Xbox or human campaign completion claim.",
+  "proofs": [
+    {
+      "missionIndex": 12,
+      "seed": 913,
+      "componentTiles": 1626,
+      "ships": [
+        {
+          "team": 0,
+          "x": 28.5,
+          "y": 63.5,
+          "region": 1
+        },
+        {
+          "team": 0,
+          "x": 27.5,
+          "y": 62.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 62.5,
+          "y": 29.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 62.5,
+          "y": 30.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 63.5,
+          "y": 31.5,
+          "region": 1
+        }
+      ],
+      "allInMainRegion": true,
+      "allReachable": true,
+      "enemyDocks": [
+        {
+          "x": 63,
+          "y": 29,
+          "primarySeaAccess": true,
+          "freeSpawn": [
+            62.5,
+            31.5
+          ]
+        }
+      ],
+      "saved": true,
+      "loaded": true,
+      "postLoadComponentTiles": 1626
+    },
+    {
+      "missionIndex": 13,
+      "seed": 914,
+      "componentTiles": 1640,
+      "ships": [
+        {
+          "team": 0,
+          "x": 28.5,
+          "y": 63.5,
+          "region": 1
+        },
+        {
+          "team": 0,
+          "x": 27.5,
+          "y": 62.5,
+          "region": 1
+        },
+        {
+          "team": 0,
+          "x": 26.5,
+          "y": 61.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 62.5,
+          "y": 29.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 62.5,
+          "y": 30.5,
+          "region": 1
+        },
+        {
+          "team": 1,
+          "x": 63.5,
+          "y": 31.5,
+          "region": 1
+        }
+      ],
+      "allInMainRegion": true,
+      "allReachable": true,
+      "enemyDocks": [
+        {
+          "x": 63,
+          "y": 29,
+          "primarySeaAccess": true,
+          "freeSpawn": [
+            62.5,
+            31.5
+          ]
+        }
+      ],
+      "saved": true,
+      "loaded": true,
+      "postLoadComponentTiles": 1640
+    }
+  ],
+  "browser": {
+    "player": 2,
+    "enemy": 3,
+    "componentTiles": 1626,
+    "allMain": true,
+    "allReachable": true,
+    "enemyDock": true,
+    "before": "fnv1a32-4f53a258-12e7c",
+    "after": "fnv1a32-4f53a258-12e7c"
+  }
+}
