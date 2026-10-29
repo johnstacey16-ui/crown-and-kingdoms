@@ -6,7 +6,7 @@ The owner authorizes continuous roadmap progress without routine confirmation. F
 
 Fish traps are live at runtime ce68cffdd3a8ce1b532ef7a13177381ce20640a3 with four source SHA-256 matches; the preceding 47-unit release was independently checked against 11 production blobs. All 211 standalone files/full Chromium passed for fish traps. Hosted GitHub jobs failed before steps; cause unverified.
 
-Neutral eight-pose deer/fish idles now use solo S.t and team-relative field.time. Fixed referenceWidth metadata avoids pose-bound rescaling; old artwork and static fallback remain. Manifest v16-wildlife-motion has 54 atlases, 1,762 entries/4,492 references; shell v37. All 211 files passed after correcting/rerunning the former static-environment assumption. Full Chromium, source/atlas/inventory and four-packer byte-identical rebuild passed. The 16 poses at 1×/2× were inspected. Release identity is tracked in verification/wildlife-motion-2026-10-29.json.
+Neutral eight-pose deer/fish idles now use solo S.t and team-relative field.time. Fixed referenceWidth metadata avoids pose-bound rescaling; old artwork and static fallback remain. Manifest v16-wildlife-motion has 54 atlases, 1,762 entries/4,492 references; shell v37. All 211 files passed after correcting/rerunning the former static-environment assumption. Full Chromium, source/atlas/inventory and four-packer byte-identical rebuild passed. The 16 poses at 1×/2× were inspected. Wildlife runtime `6b0298b07af8b8c24246bb1e5f375c9a727d179d` is verified live: all seven renderer/asset/manifest/shell SHA-256 values match source. Vercel reports success. Hosted GitHub jobs fail before any steps; this is not a hosted CI pass. See verification/wildlife-motion-2026-10-29.json.
 
 ## Next graphics item
 

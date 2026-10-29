@@ -4,7 +4,7 @@
 
 All 211 standalone files passed after updating and rerunning the former static-environment assumption. Source/54-atlas/inventory checks, byte-identical wildlife/fishtrap/base/motion rebuilds and the complete Chromium battlefield suite passed. Focused checks decode all 16 poses, confirm both draw paths receive the actual world clock, test pause/advance, neutral images, fixed scale and failed-image fallback, and preserve node/world checksums. The 1×/2× contact sheet was inspected. Stone, gold, berries and fish traps still pass their checks. Shell v37 includes the two new images. See [artwork and scope](docs/PAINTED_WILDLIFE_MOTION.md), [exact original/correction prompts](docs/painted-wildlife-motion-prompts.json) and [verification](docs/verification/wildlife-motion-2026-10-29.json).
 
-Physical Xbox acceptance, depletion art, dedicated directions/work/death states, architecture, effects and interface work remain in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Production and hosted CI require separate checks.
+Physical Xbox acceptance, depletion art, dedicated directions/work/death states, architecture, effects and interface work remain in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Wildlife runtime `6b0298b07af8b8c24246bb1e5f375c9a727d179d` is verified live: all seven renderer/asset/manifest/shell SHA-256 values match source. Vercel reports success. Hosted GitHub jobs fail before any steps; this is not a hosted CI pass.
 
 ## 29 October 2026 — Painted fish traps
 

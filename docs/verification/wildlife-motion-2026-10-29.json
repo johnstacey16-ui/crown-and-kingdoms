@@ -287,8 +287,96 @@
     "previousWebps": "all previously committed WebP Git hashes unchanged",
     "visualReview": "all sixteen poses at1x/2x reference scale inspected"
   },
-  "deployment": "pending exact runtime/live comparison",
-  "hostedCI": "pending newcommit; earlier jobs failed before steps",
+  "deployment": {
+    "runtimeCommit": "6b0298b07af8b8c24246bb1e5f375c9a727d179d",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "files": [
+      {
+        "path": "assets/atlas-manifest.json",
+        "local": "e0a5d06cbd48c33a8db7bf908a69875900c76f48868a14d1dfc7bf10970fe224",
+        "remote": "e0a5d06cbd48c33a8db7bf908a69875900c76f48868a14d1dfc7bf10970fe224",
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "local": "cb75c48aef83e50bf132b2c6a8ced12aa4ed2238b76c05b3fb85f8965cc80594",
+        "remote": "cb75c48aef83e50bf132b2c6a8ced12aa4ed2238b76c05b3fb85f8965cc80594",
+        "match": true
+      },
+      {
+        "path": "js/assets.js",
+        "local": "b1327120ff88167ae5713383bb3922fd3ce55ce351f9eabec5a5b5f7b9a54922",
+        "remote": "b1327120ff88167ae5713383bb3922fd3ce55ce351f9eabec5a5b5f7b9a54922",
+        "match": true
+      },
+      {
+        "path": "js/render.js",
+        "local": "ec8d7d09e33d08a46fd9cd4daa7542cc5c46eb7e9349a8b0acdfc03494cc8509",
+        "remote": "ec8d7d09e33d08a46fd9cd4daa7542cc5c46eb7e9349a8b0acdfc03494cc8509",
+        "match": true
+      },
+      {
+        "path": "js/network-unit-map.js",
+        "local": "3fcecba985e3a05df7728a9285217448a76d3a7c8bb855891f0b59d1d51a1790",
+        "remote": "3fcecba985e3a05df7728a9285217448a76d3a7c8bb855891f0b59d1d51a1790",
+        "match": true
+      },
+      {
+        "path": "assets/painted-wildlife-deer.webp",
+        "local": "7b0e9c520506239f564d87c13882df02646d419362122077916f39cd8d5c9453",
+        "remote": "7b0e9c520506239f564d87c13882df02646d419362122077916f39cd8d5c9453",
+        "match": true
+      },
+      {
+        "path": "assets/painted-wildlife-fish.webp",
+        "local": "e8ba3283a753ec6a93afd94db3b015c1da975c7510febee10813116960ed8621",
+        "remote": "e8ba3283a753ec6a93afd94db3b015c1da975c7510febee10813116960ed8621",
+        "match": true
+      }
+    ],
+    "allMatch": true,
+    "vercelStatus": "success"
+  },
+  "hostedCI": {
+    "state": "failed before any steps; not a hosted pass",
+    "jobs": [
+      {
+        "run": 40939972546,
+        "jobs": [
+          {
+            "name": "validate",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40939972851,
+        "jobs": [
+          {
+            "name": "Campaign mission suite (19 missions)",
+            "conclusion": "failure",
+            "steps": 0
+          },
+          {
+            "name": "node-checks",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40939972624,
+        "jobs": [
+          {
+            "name": "chromium",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      }
+    ]
+  },
   "remaining": [
     "physical Xbox Series S Edge animal/fish readability and large-scene performance",
     "broader graphics checklist"
