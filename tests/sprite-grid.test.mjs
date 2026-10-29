@@ -46,3 +46,14 @@ test('reflow rejects missing or ambiguous full figures rather than publishing a 
  assert.throws(()=>reflowSpriteGrid(data,80,80,1,1,1),/Ambiguous/);
  assert.throws(()=>reflowSpriteGrid(Buffer.alloc(80*80*4),80,80,1,1,1),/Missing/);
 });
+
+
+test('mounted spear extensions use explicit wider padding without cropping or changing default packing',()=>{
+ const width=400,height=32,data=Buffer.alloc(width*height*4);
+ for(const [left,right]of [[100,140],[320,345]])for(let y=4;y<24;y++)for(let x=left;x<right;x++)data[(y*width+x)*4+3]=255;
+ for(let x=140;x<=285;x++)data[(10*width+x)*4+3]=255;
+ assert.throws(()=>reflowSpriteGrid(data,width,height,2,1,2),/exceeds padding/);
+ const packed=reflowSpriteGrid(data,width,height,2,1,2,false,96);
+ assert.equal(packed.width,784);assert.equal(packed.data[((10+16)*packed.width+285+96)*4+3],255,'spear tip survives');
+ assert.throws(()=>reflowSpriteGrid(data,width,height,2,1,2,false,-1),/padding/);
+});

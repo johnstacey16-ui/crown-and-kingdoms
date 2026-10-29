@@ -18,6 +18,8 @@ A controller-first medieval real-time strategy game targeting Xbox Series X thro
 
 **Motion update — 29 October:** Plumed Archers and Gbetos gain painted walking and firing/throwing sequences. Motion coverage is 23/47 playable troops, with 24 remaining. See [the latest graphics increment](docs/PAINTED_LIGHT_MISSILE_MOTION.md).
 
+**Motion update — 29 October:** Chu Ko Nu, Hand Cannoneer, Camel Rider and Mameluke gain painted walking and weapon-action sequences. Coverage is 27/47 playable troops, with 20 remaining. See [the latest graphics increment](docs/PAINTED_RANGED_AND_CAMEL_MOTION.md).
+
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.

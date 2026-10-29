@@ -1,3 +1,5 @@
+Current motion coverage is **27/47** playable kinds, adding Chu Ko Nu, Hand Cannoneer, Camel Rider and Mameluke. See [the latest motion increment](PAINTED_RANGED_AND_CAMEL_MOTION.md). Earlier counts below record historical stages.
+
 Current motion coverage is **23/47** playable kinds, adding Plumed Archers and Gbetos. See [the latest motion increment](PAINTED_LIGHT_MISSILE_MOTION.md). Earlier counts below record historical stages.
 
 Current motion coverage is **21/47** playable kinds, adding Janissaries and Genoese Crossbowmen. See [the latest motion increment](PAINTED_RANGED_EXPANSION.md). Earlier counts below record historical stages.

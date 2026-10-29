@@ -2,9 +2,10 @@
 // weapons can cross nominal source-cell edges; padding must not crop them.
 // Optional environment mode retains multiple components (fish shoals) per cell
 // and adds vertical padding for tree crowns crossing the source row boundary.
-export function reflowSpriteGrid(data,width,height,columns,rows,count,allowMultiple=false){
+export function reflowSpriteGrid(data,width,height,columns,rows,count,allowMultiple=false,paddingX=64){
  if(data.length!==width*height*4||width%columns||height%rows||count>columns*rows)throw Error('Invalid RGBA sprite grid');
- const cw=width/columns,ch=height/rows,padX=64,padY=allowMultiple?64:16,nw=(cw+padX*2)*columns,nh=(ch+padY*2)*rows;
+ if(!Number.isInteger(paddingX)||paddingX<0||paddingX>1024)throw Error('Invalid horizontal sprite padding');
+ const cw=width/columns,ch=height/rows,padX=paddingX,padY=allowMultiple?64:16,nw=(cw+padX*2)*columns,nh=(ch+padY*2)*rows;
  const seen=new Uint8Array(width*height),queue=new Int32Array(width*height),figures=Array(count).fill(null);
  for(let first=0;first<seen.length;first++){
   if(seen[first]||data[first*4+3]<=32)continue;

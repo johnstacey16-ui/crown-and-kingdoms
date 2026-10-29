@@ -1,0 +1,305 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 211,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 31,
+    "entries": 1512,
+    "references": 3080
+  },
+  "motionCoverage": {
+    "painted": 27,
+    "playable": 47,
+    "remaining": 20,
+    "independentDirections": "unfinished"
+  },
+  "chromium": "complete battlefield-art suite passed locally",
+  "gunMotion": {
+    "poses": [
+      {
+        "kind": "chuko",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      },
+      {
+        "kind": "hcan",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      }
+    ],
+    "raster": [
+      {
+        "kind": "chuko",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1498
+      },
+      {
+        "kind": "chuko",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1623
+      },
+      {
+        "kind": "chuko",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1498
+      },
+      {
+        "kind": "chuko",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1623
+      },
+      {
+        "kind": "chuko",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1498
+      },
+      {
+        "kind": "chuko",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1623
+      },
+      {
+        "kind": "chuko",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1498
+      },
+      {
+        "kind": "chuko",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1623
+      },
+      {
+        "kind": "hcan",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1651
+      },
+      {
+        "kind": "hcan",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1687
+      },
+      {
+        "kind": "hcan",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1651
+      },
+      {
+        "kind": "hcan",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1687
+      },
+      {
+        "kind": "hcan",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1651
+      },
+      {
+        "kind": "hcan",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1687
+      },
+      {
+        "kind": "hcan",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1651
+      },
+      {
+        "kind": "hcan",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1687
+      }
+    ],
+    "before": "fnv1a32-50e337aa-8324",
+    "after": "fnv1a32-50e337aa-8324"
+  },
+  "camelMotion": {
+    "poses": [
+      {
+        "kind": "camel",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      },
+      {
+        "kind": "mamel",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      }
+    ],
+    "raster": [
+      {
+        "kind": "camel",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3314
+      },
+      {
+        "kind": "camel",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3277
+      },
+      {
+        "kind": "camel",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3314
+      },
+      {
+        "kind": "camel",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3277
+      },
+      {
+        "kind": "camel",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3314
+      },
+      {
+        "kind": "camel",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3277
+      },
+      {
+        "kind": "camel",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3314
+      },
+      {
+        "kind": "camel",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3277
+      },
+      {
+        "kind": "mamel",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3573
+      },
+      {
+        "kind": "mamel",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3615
+      },
+      {
+        "kind": "mamel",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3573
+      },
+      {
+        "kind": "mamel",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3615
+      },
+      {
+        "kind": "mamel",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3573
+      },
+      {
+        "kind": "mamel",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3615
+      },
+      {
+        "kind": "mamel",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 3573
+      },
+      {
+        "kind": "mamel",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 3615
+      }
+    ],
+    "before": "fnv1a32-50e337aa-8324",
+    "after": "fnv1a32-50e337aa-8324"
+  },
+  "motionLookups": 224,
+  "motionRasterSequences": 86,
+  "motionRebuild": "four new sheets and manifests byte-identical after no-argument rebuild",
+  "oldRasterArt": "all previously committed WebP Git object hashes unchanged",
+  "sourceSHA256": {
+    "scripts/build-motion-atlas.mjs": "cc3bd3baa4fa68c790e9d2f5fbf560a1320d83bcc158e67c80f48762440a4de2",
+    "scripts/build-painted-atlas.mjs": "2abf8337197adc2e84e023ed555af260c422000e23310dbadb784546f9ed29cf",
+    "scripts/sprite-grid.mjs": "e973aa2fdfdf6ac3eab007d7f516b6769341cc11ce5affaedb13858321c257c2",
+    "assets/painted-motion-chuko.webp": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
+    "assets/painted-motion-hcan.webp": "5c6aa3454019b21546df2b33b095a7ee38dbdeb8f976fd6c4a173c25b2874b1f",
+    "assets/painted-motion-camel.webp": "6ece18808cb70936b535ca1c949017a3fff11e42e7cc431107351575d798287a",
+    "assets/painted-motion-mamel.webp": "99d9309a864e3867422b6adda833560f9c96c4874f8357907ca72dbaf523da08",
+    "assets/atlas-manifest.json": "71d2c8c587c70d9c26bd7d49ef534fa80f4311f6afc7bd9fc5adf14e2a96d70d",
+    "assets/motion-manifest.json": "8419f9976f56d698883f9cac89cd99d32bd5d42554f6292ac60ec736cae57f18",
+    "sw.js": "af56c0d98e50233f7ebb87d37bbe0550be443a8cfa8160d97e0da442ca14d028"
+  },
+  "production": {
+    "status": "awaiting deployment verification for this increment"
+  },
+  "xboxHardware": "unverified"
+}
