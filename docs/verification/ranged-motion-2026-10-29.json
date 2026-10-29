@@ -163,5 +163,42 @@
     "assets/motion-manifest.json": "6a516a864ffaf87941679a484b96d54dbdee28202dfa1ac9b19b704308d9b1a2",
     "sw.js": "3be8d108117789712a2fe86f020a58cc2387497d4b9ae5e339cd94c059af2edd"
   },
-  "xboxHardware": "unverified"
+  "xboxHardware": "unverified",
+  "runtimeCommit": "572c80a5ec91c3e719be5268cce5c836cc9a0e43",
+  "production": {
+    "status": "NOT DEPLOYED: Vercel commit status failure with build-rate-limit target; previous release remains live",
+    "statusTarget": "https://vercel.com/acme-a675?upgradeToPro=build-rate-limit",
+    "files": [
+      {
+        "path": "js/render.js",
+        "matches": false
+      },
+      {
+        "path": "assets/painted-motion-jan.webp",
+        "error": "HTTP Error 404: Not Found"
+      },
+      {
+        "path": "assets/painted-motion-genoa.webp",
+        "error": "HTTP Error 404: Not Found"
+      },
+      {
+        "path": "assets/atlas-manifest.json",
+        "matches": false
+      },
+      {
+        "path": "sw.js",
+        "matches": false
+      }
+    ],
+    "resetTime": "unverified; deployment-list API returns 403; CLI unavailable",
+    "paidUpgrade": "not enabled"
+  },
+  "hostedCI": {
+    "status": "failure before executing job steps; cause unverified",
+    "runs": [
+      40838324098,
+      40838324176,
+      40838324106
+    ]
+  }
 }
