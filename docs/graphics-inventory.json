@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 56,
+  "atlases": 57,
   "units": [
     {
       "kind": "vil",
@@ -433,7 +433,7 @@
       "name": "Town Centre",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four original shared age designs",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared smoke overlay"
     },
@@ -442,7 +442,7 @@
       "name": "House",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "four original shared house-age designs",
+      "ageArt": "four original shared age designs",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared smoke overlay"
     },

@@ -1,0 +1,695 @@
+{
+  "date": "2026-10-29",
+  "scope": "Four original shared Town Centre age designs; original assets and game mechanics unchanged",
+  "sourceCommit": null,
+  "sourceRaster": {
+    "native": [
+      1254,
+      1254
+    ],
+    "padded": [
+      1510,
+      1510
+    ]
+  },
+  "manifest": {
+    "version": "painted-raster-v19-town-centre-ages",
+    "atlases": 57,
+    "entries": 1896,
+    "frameReferences": 4626,
+    "activeImages": 58
+  },
+  "local": {
+    "regressions": {
+      "files": 214,
+      "passed": 214,
+      "failed": [],
+      "seconds": 74.4
+    },
+    "fullChromiumGraphics": "passed",
+    "browser": {
+      "townCentreAges": {
+        "samples": [
+          {
+            "age": 0,
+            "team": 0,
+            "hash": 298255532,
+            "opaque": 30574,
+            "transparent": 57588,
+            "tag": 0
+          },
+          {
+            "age": 0,
+            "team": 1,
+            "hash": 1155359105,
+            "opaque": 30574,
+            "transparent": 57588,
+            "tag": 1
+          },
+          {
+            "age": 0,
+            "team": 2,
+            "hash": 1807426075,
+            "opaque": 30574,
+            "transparent": 57588,
+            "tag": 2
+          },
+          {
+            "age": 0,
+            "team": 3,
+            "hash": 2628885188,
+            "opaque": 30574,
+            "transparent": 57588,
+            "tag": 3
+          },
+          {
+            "age": 1,
+            "team": 0,
+            "hash": 3464903201,
+            "opaque": 36190,
+            "transparent": 51940,
+            "tag": 0
+          },
+          {
+            "age": 1,
+            "team": 1,
+            "hash": 91385204,
+            "opaque": 36190,
+            "transparent": 51940,
+            "tag": 1
+          },
+          {
+            "age": 1,
+            "team": 2,
+            "hash": 1097212567,
+            "opaque": 36190,
+            "transparent": 51940,
+            "tag": 2
+          },
+          {
+            "age": 1,
+            "team": 3,
+            "hash": 3055726788,
+            "opaque": 36190,
+            "transparent": 51940,
+            "tag": 3
+          },
+          {
+            "age": 2,
+            "team": 0,
+            "hash": 2664228281,
+            "opaque": 33874,
+            "transparent": 54469,
+            "tag": 0
+          },
+          {
+            "age": 2,
+            "team": 1,
+            "hash": 861270366,
+            "opaque": 33874,
+            "transparent": 54469,
+            "tag": 1
+          },
+          {
+            "age": 2,
+            "team": 2,
+            "hash": 2920419818,
+            "opaque": 33874,
+            "transparent": 54469,
+            "tag": 2
+          },
+          {
+            "age": 2,
+            "team": 3,
+            "hash": 1976492175,
+            "opaque": 33874,
+            "transparent": 54469,
+            "tag": 3
+          },
+          {
+            "age": 3,
+            "team": 0,
+            "hash": 2784471998,
+            "opaque": 39415,
+            "transparent": 48941,
+            "tag": 0
+          },
+          {
+            "age": 3,
+            "team": 1,
+            "hash": 3596203064,
+            "opaque": 39415,
+            "transparent": 48941,
+            "tag": 1
+          },
+          {
+            "age": 3,
+            "team": 2,
+            "hash": 37188982,
+            "opaque": 39415,
+            "transparent": 48941,
+            "tag": 2
+          },
+          {
+            "age": 3,
+            "team": 3,
+            "hash": 1477934127,
+            "opaque": 39415,
+            "transparent": 48941,
+            "tag": 3
+          }
+        ],
+        "solo": [
+          {
+            "phase": "0/0",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/1",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/2",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/3",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "1/0",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/1",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/2",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/3",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "2/0",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/1",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/2",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/3",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "3/0",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/1",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/2",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/3",
+            "x": 821,
+            "y": 781
+          }
+        ],
+        "map": [
+          {
+            "phase": "0/0",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/1",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/2",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "0/3",
+            "x": 102,
+            "y": 169
+          },
+          {
+            "phase": "1/0",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/1",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/2",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "1/3",
+            "x": 839,
+            "y": 135
+          },
+          {
+            "phase": "2/0",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/1",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/2",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "2/3",
+            "x": 95,
+            "y": 807
+          },
+          {
+            "phase": "3/0",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/1",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/2",
+            "x": 821,
+            "y": 781
+          },
+          {
+            "phase": "3/3",
+            "x": 821,
+            "y": 781
+          }
+        ],
+        "hiddenRetained": true,
+        "fallback": true,
+        "unknownFallback": true,
+        "before": "fnv1a32-54bcf2ae-90ca",
+        "after": "fnv1a32-54bcf2ae-90ca"
+      },
+      "houseAges": {
+        "samples": [
+          {
+            "age": 0,
+            "team": 0,
+            "hash": 1154523950,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 0
+          },
+          {
+            "age": 0,
+            "team": 1,
+            "hash": 38034193,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 1
+          },
+          {
+            "age": 0,
+            "team": 2,
+            "hash": 89291224,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 2
+          },
+          {
+            "age": 0,
+            "team": 3,
+            "hash": 1336447275,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 3
+          },
+          {
+            "age": 1,
+            "team": 0,
+            "hash": 586023062,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 0
+          },
+          {
+            "age": 1,
+            "team": 1,
+            "hash": 42722858,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 1
+          },
+          {
+            "age": 1,
+            "team": 2,
+            "hash": 3471267308,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 2
+          },
+          {
+            "age": 1,
+            "team": 3,
+            "hash": 3938258065,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 3
+          },
+          {
+            "age": 2,
+            "team": 0,
+            "hash": 4048707871,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 0
+          },
+          {
+            "age": 2,
+            "team": 1,
+            "hash": 2815050420,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 1
+          },
+          {
+            "age": 2,
+            "team": 2,
+            "hash": 2391887170,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 2
+          },
+          {
+            "age": 2,
+            "team": 3,
+            "hash": 2993091523,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 3
+          },
+          {
+            "age": 3,
+            "team": 0,
+            "hash": 2171318054,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 0
+          },
+          {
+            "age": 3,
+            "team": 1,
+            "hash": 3324536197,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 1
+          },
+          {
+            "age": 3,
+            "team": 2,
+            "hash": 1967788770,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 2
+          },
+          {
+            "age": 3,
+            "team": 3,
+            "hash": 3934912529,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 3
+          }
+        ],
+        "solo": [
+          {
+            "phase": "0/0",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/1",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/2",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/3",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "1/0",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/1",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/2",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/3",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "2/0",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/1",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/2",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/3",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "3/0",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/1",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/2",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/3",
+            "x": 841,
+            "y": 801
+          }
+        ],
+        "map": [
+          {
+            "phase": "0/0",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/1",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/2",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/3",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "1/0",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/1",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/2",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/3",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "2/0",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/1",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/2",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/3",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "3/0",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/1",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/2",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/3",
+            "x": 841,
+            "y": 801
+          }
+        ],
+        "hiddenRetained": true,
+        "fallback": true,
+        "unknownFallback": true,
+        "before": "fnv1a32-54bcf2ae-90ca",
+        "after": "fnv1a32-54bcf2ae-90ca"
+      },
+      "artCacheUpgrade": {
+        "baseline": {
+          "artRequests": 58,
+          "artBytes": 27624840
+        },
+        "warm": {
+          "artRequests": 2,
+          "artBytes": 768168,
+          "imagesVerified": 58,
+          "allValid": true,
+          "oldCacheRemoved": true,
+          "mutableCodeFresh": true
+        },
+        "failed": {
+          "state": "redundant",
+          "activeUnchanged": true,
+          "workingCachePresent": true,
+          "failedCacheAbsent": true
+        },
+        "codeOnly": {
+          "artRequests": 0,
+          "allValid": true,
+          "mutableCodeFresh": true
+        },
+        "recovered": {
+          "artRequests": 1,
+          "allValid": true,
+          "oldCacheRemoved": true
+        },
+        "offline": {
+          "shell": true,
+          "mutable": true,
+          "art": true,
+          "privateBypassed": true
+        }
+      }
+    },
+    "sourceAtlasInventory": "passed",
+    "ninePackerRebuild": {
+      "files": 74,
+      "byteIdentical": true
+    },
+    "earlierAssetWebPs": "unchanged",
+    "contactSheet": "Blue/red Town Centres at 1x/2x inspected"
+  },
+  "nominalMemoryAudit": {
+    "atlasRGBA_MiB": 574.15,
+    "oneCompleteTintSetRGBA_MiB": 520.65,
+    "measuredResidentMemory": false,
+    "xboxAcceptance": false
+  },
+  "production": {
+    "status": "pending"
+  },
+  "hostedCI": {
+    "status": "pending; previous jobs failed before steps, cause unverified"
+  },
+  "limits": [
+    "Shared original architecture only; faction sets and other building ages incomplete.",
+    "Visual observations are not persisted to saves; existing building fog/removal unchanged.",
+    "Nominal pixel totals and desktop checks do not establish actual memory use or Xbox FPS."
+  ]
+}

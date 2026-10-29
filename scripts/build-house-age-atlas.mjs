@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {reflowSpriteGrid,extractSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
-import {applyHouseAgeArt} from './house-age-art.mjs';
+import {applyBuildingAgeArt} from './building-age-art.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url),asset=n=>new URL('assets/'+n,root),source=process.argv[2];
 let {data,info}=await sharp(source||asset('painted-house-ages.webp').pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 if(info.width!==info.height||info.width%2||info.width<1024)throw Error('House ages require a square two-by-two source grid');
@@ -19,5 +19,5 @@ for(let age=0;age<4;age++){
 if(source||!clean.data.equals(data))writeFileSync(asset('painted-house-ages.webp'),await sharp(clean.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer());
 const atlas={id:'painted-house-ages',src:'./assets/painted-house-ages.webp',meta:{painted:true,houseAges:true,width:info.width,height:info.height,anims}};
 writeFileSync(asset('house-age-manifest.json'),JSON.stringify({atlases:[atlas]}));
-const pack=applyHouseAgeArt(JSON.parse(readFileSync(asset('atlas-manifest.json'))));writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
+const pack=applyBuildingAgeArt(JSON.parse(readFileSync(asset('atlas-manifest.json'))));writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 updateArtRevisions();console.log('Packed four original house-age designs; building mechanics are unchanged.');

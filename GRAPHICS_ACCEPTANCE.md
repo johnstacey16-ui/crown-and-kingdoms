@@ -1,3 +1,9 @@
+## 29 October 2026 — Four original Town Centre age designs
+
+**CK-032 / CK-041 remain PARTIAL.** Town Centres progress from a timber meeting hall to larger half-timber/stone civic halls, with open verandas/loggias and team cloth/flags. The shared age selector supports both houses and Town Centres, retains only observed non-player ages and falls back to original art. Visual observations are not saved; existing building fog/removal, controls, queues, training, research and attacks remain unchanged. This is shared architecture, not a complete faction set.
+
+All 214 standalone files and the full Chromium graphics suite passed. Tests cover all ages/palettes in both actual draw paths, observation/fallback and unchanged checkpoints. Blue/red 1×/2× views were inspected. Nine packers reproduce 74 files; earlier WebPs are unchanged. Source/57-atlas/inventory checks pass; shell v41 verifies 58 images. See [scope](docs/PAINTED_TOWN_CENTRE_AGES.md), [built-in prompt](docs/painted-town-centre-age-prompts.json) and [verification](docs/verification/town-centre-ages-2026-10-29.json). Native/padded house dimensions are corrected to measured 1254/1510; no image changed. A nominal atlas/tint pixel audit motivates actual allocation/padding work before many further sheets, and does not establish resident/GPU memory or Xbox FPS. Production verification is pending.
+
 ## 29 October 2026 — Four original house-age designs
 
 **CK-032 / CK-041 remain PARTIAL.** Houses now change from a simple thatched dwelling through half-timber/stone homes to a two-storey Imperial home. Both actual views use the same age selector, team palette and original-house fallback. Solo records enemy appearances only under current sight; team-relative projection includes age appearance only for owned/visible houses. Hidden advances do not select new art. A presentation WeakMap adds no save or simulation fields; original building fog/removal behavior remains unchanged.

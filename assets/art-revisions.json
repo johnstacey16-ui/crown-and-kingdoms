@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "aadbe33fa15dccda1c66268435694d176a23781705862db9c7497bf7648fd3d4",
+  "revision": "551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-environment.webp": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
@@ -56,6 +56,7 @@
     "./assets/painted-resources.webp": "00ce09a92f8ff6e01fc47b6ddd060538dbc2050c69fbaa0fa534dea9b0564b84",
     "./assets/painted-scarce-resources.webp": "903ed326549b0e09dbe6d1002d84071afeea5385192a03e5133f91a505336e27",
     "./assets/painted-terrain.webp": "ee513925c6cbfe55b7a7616f90441c30649d8571098eff89034895c01c8ee26a",
+    "./assets/painted-town-centre-ages.webp": "dd49d7b555347163277eee4b5fbd78876a691d749814dab49b6d51807418736e",
     "./assets/painted-units-v2.webp": "3ea44d8b2a3c4e2cbf4bab56daf8c96c6c830c383639bb590c895439721fdc77",
     "./assets/painted-wildlife-deer.webp": "7b0e9c520506239f564d87c13882df02646d419362122077916f39cd8d5c9453",
     "./assets/painted-wildlife-fish.webp": "e8ba3283a753ec6a93afd94db3b015c1da975c7510febee10813116960ed8621"

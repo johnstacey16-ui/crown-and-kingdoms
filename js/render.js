@@ -525,14 +525,14 @@ g.strokeStyle='rgba(15,10,6,.7)';g.lineWidth=1.2;for(let i=0;i<(dm>1?6:3);i++){l
 if(ap>0&&dm>1){g.fillStyle='rgba(10,6,4,.85)';for(let i=0;i<3;i++){const x=-u*.4+r(i,20)*u*.8,y=-v-h-ap*.4+r(i,21)*ap*.5;g.beginPath();g.moveTo(x,y);g.lineTo(x+9,y+3);g.lineTo(x+4,y+9);g.closePath();g.fill()}}g.restore()}
 // Building appearance is presentation-only; hidden age advances are not read.
 function buildingVisualAge(b){
- if(b.k!=='house')return undefined;
+ if(b.k!=='house'&&b.k!=='tc')return undefined;
  let visible=b.t===0;
  for(let y=Math.floor(b.y);!visible&&y<Math.ceil(b.y+b.s);y++)for(let x=Math.floor(b.x);!visible&&x<Math.ceil(b.x+b.s);x++)if(x>=0&&y>=0&&x<W&&y<H&&S.vs[y*W+x])visible=true;
  if(visible){const age=S.age?.[b.t];if(Number.isInteger(age)&&age>=0&&age<4)PAINT.buildingAges.set(b,age)}
  return PAINT.buildingAges.get(b);
 }
 function paintedBuildingFrame(kind,team,time,age){
- const staged=kind==='house'&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_house_age_'+age,team,3,0,time):null;
+ const staged=(kind==='house'||kind==='tc')&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_'+kind+'_age_'+age,team,3,0,time):null;
  return staged||assetFrame('bld_'+kind,team,3,0,time);
 }
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,

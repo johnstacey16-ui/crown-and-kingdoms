@@ -1,4 +1,4 @@
-import {applyHouseAgeArt} from './house-age-art.mjs';
+import {applyBuildingAgeArt} from './building-age-art.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 // Optional original-art authoring tool; no runtime sharp dependency.
 import {createRequire} from 'node:module';
@@ -24,7 +24,7 @@ for(const [kind,source]of [['deer',deerSource],['fish',fishSource]]){
 writeFileSync(asset('wildlife-manifest.json'),JSON.stringify({atlases}));
 const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));
 pack.atlases=[...pack.atlases.filter(a=>a.meta.motion),...atlases,...pack.atlases.filter(a=>!a.meta.motion&&!a.meta.environmentMotion)];pack.version=pack.atlases.some(a=>a.meta.scarceResources)?'painted-raster-v17-scarce-resources':'painted-raster-v16-wildlife-motion';
-applyHouseAgeArt(pack);
+applyBuildingAgeArt(pack);
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 updateArtRevisions();
 console.log('Packed eight neutral idle poses each for deer and fish shoals.');

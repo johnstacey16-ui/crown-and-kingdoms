@@ -781,5 +781,16 @@
     "Shared original house progression only; faction architecture and all other building age sets unfinished.",
     "Visual age observation is not persisted to saves; existing building fog/removal behavior unchanged.",
     "Desktop Chromium does not establish Xbox hardware readability/FPS or full game/DLC parity."
-  ]
+  ],
+  "sourceRaster": {
+    "native": [
+      1254,
+      1254
+    ],
+    "padded": [
+      1510,
+      1510
+    ],
+    "note": "Measured dimensions; the accompanying document corrects previously inferred 1280/1536 values."
+  }
 }
