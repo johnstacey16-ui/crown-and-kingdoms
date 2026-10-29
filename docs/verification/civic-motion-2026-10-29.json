@@ -516,6 +516,69 @@
     "faction buildings/effects/interface",
     "physical Xbox Series S Edge acceptance"
   ],
-  "deployment": "pending exact runtime commit and live asset verification",
-  "hostedCI": "pending current commit; previous jobs failed before steps"
+  "deployment": {
+    "runtimeCommit": "902b80ff96176af454a49c2ab56ccee6d678cadf",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "files": [
+      {
+        "path": "assets/atlas-manifest.json",
+        "local": "a65e268532ad7ba234a79d6b198b31e3792dc987a08262c9c87ab46f33caacc0",
+        "remote": "a65e268532ad7ba234a79d6b198b31e3792dc987a08262c9c87ab46f33caacc0",
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "local": "e2925a65d05def09451431becb54dff74df8cfc5bfbc2096dcb04220520afc6e",
+        "remote": "e2925a65d05def09451431becb54dff74df8cfc5bfbc2096dcb04220520afc6e",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-fish.webp",
+        "local": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+        "remote": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-gal.webp",
+        "local": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
+        "remote": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-trn.webp",
+        "local": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
+        "remote": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-cog.webp",
+        "local": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
+        "remote": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-cart.webp",
+        "local": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
+        "remote": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-king.webp",
+        "local": "d0fa4b34d8889843b78f6c2732caf2ce0b7deee565de51d9c58dd5144156369c",
+        "remote": "d0fa4b34d8889843b78f6c2732caf2ce0b7deee565de51d9c58dd5144156369c",
+        "match": true
+      }
+    ],
+    "allMatch": true,
+    "vercelStatus": "success"
+  },
+  "hostedCI": {
+    "state": "failed before any job steps; not a hosted pass",
+    "runs": [
+      40887066478,
+      40887066569,
+      40887066513
+    ],
+    "allJobsSteps": 0
+  }
 }

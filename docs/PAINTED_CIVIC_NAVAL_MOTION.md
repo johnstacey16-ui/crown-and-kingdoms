@@ -13,3 +13,5 @@ The effective manifest is `painted-raster-v13-motion`: 43 atlases, 1,660 animati
 The focused browser fixture checks 416 decoded frame samples across six kinds/four colours, including actual fishing work, all eight distinct frames in each sequence, pause determinism and unchanged actors/world checkpoints. Its 96-pose contact sheet includes movement and activity artwork; it does not establish automatic cargo/boarding event integration. The full battlefield suite retains stone, gold, berries, other resources, environment, fog, fallback, terrain-cache and controller coverage. Physical Xbox Series S Edge acceptance remains unverified.
 
 The [whole-game checklist](GRAPHICS_OVERHAUL_CHECKLIST.md) tracks the remaining elephant/siege sheets, directional/death art, architecture, effects, interface and hardware review.
+
+Production is verified live at runtime `902b80ff96176af454a49c2ab56ccee6d678cadf`: all six image SHA-256 values, the manifest and service worker match source. Vercel reports success. Hosted GitHub jobs fail before any steps; this is not a hosted CI pass.
