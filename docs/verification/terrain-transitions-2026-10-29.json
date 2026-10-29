@@ -224,5 +224,23 @@
     "Full directional unit animation, architecture and complete graphics overhaul remain unfinished",
     "No new campaign victory acceptance from this rendering change"
   ],
-  "capture": "artifacts/battlefield-art/terrain-transitions.png"
+  "capture": "artifacts/battlefield-art/terrain-transitions.png",
+  "runtimeCommit": "0973ace1fb3c149cf8480804a98efa8998535e2f",
+  "production": {
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "vercelStatus": "success",
+    "byteIdentical": [
+      "js/render.js",
+      "js/network-unit-map.js",
+      "sw.js"
+    ]
+  },
+  "hostedCI": {
+    "status": "failed before executing steps; cause unverified",
+    "runs": [
+      40833026179,
+      40833026222,
+      40833026147
+    ]
+  }
 }
