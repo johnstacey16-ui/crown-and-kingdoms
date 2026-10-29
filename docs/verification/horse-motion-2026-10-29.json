@@ -473,7 +473,59 @@
     "sw.js": "92e05348787795f868a67c4669c8c8f1363ba8c83731d620a877d647963d8399"
   },
   "production": {
-    "status": "awaiting deployment verification"
+    "status": "Vercel success; all ten fetched runtime/art files match source SHA-256",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "files": [
+      {
+        "path": "js/render.js",
+        "matches": true
+      },
+      {
+        "path": "js/network-unit-map.js",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-mgd.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-cata.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-conq.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-boyar.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-tarkan.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-motion-huszar.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/atlas-manifest.json",
+        "matches": true
+      },
+      {
+        "path": "sw.js",
+        "matches": true
+      }
+    ]
   },
-  "xboxHardware": "unverified"
+  "xboxHardware": "unverified",
+  "runtimeCommit": "811938e2e2fa4dfcfad1102cf0ed80c88abbbc63",
+  "hostedCI": {
+    "status": "failure before executing job steps; cause unverified",
+    "runs": [
+      40883600921,
+      40883601669,
+      40883600916
+    ]
+  }
 }
