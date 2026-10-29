@@ -4,13 +4,17 @@ The owner authorizes continuous roadmap progress without routine confirmation. F
 
 ## Latest work
 
-Fish traps are live at runtime ce68cffdd3a8ce1b532ef7a13177381ce20640a3 with four source SHA-256 matches; the preceding 47-unit release was independently checked against 11 production blobs. All 211 standalone files/full Chromium passed for fish traps. Hosted GitHub jobs failed before steps; cause unverified.
+Fish traps are live at runtime ce68cffdd3a8ce1b532ef7a13177381ce20640a3 (four source SHA-256 matches). Neutral deer/fish idles are live at 6b0298b07af8b8c24246bb1e5f375c9a727d179d (seven source SHA-256 matches). Their 211-file/full-browser checks passed. Hosted GitHub jobs failed before steps; cause unverified.
 
-Neutral eight-pose deer/fish idles now use solo S.t and team-relative field.time. Fixed referenceWidth metadata avoids pose-bound rescaling; old artwork and static fallback remain. Manifest v16-wildlife-motion has 54 atlases, 1,762 entries/4,492 references; shell v37. All 211 files passed after correcting/rerunning the former static-environment assumption. Full Chromium, source/atlas/inventory and four-packer byte-identical rebuild passed. The 16 poses at 1×/2× were inspected. Wildlife runtime `6b0298b07af8b8c24246bb1e5f375c9a727d179d` is verified live: all seven renderer/asset/manifest/shell SHA-256 values match source. Vercel reports success. Hosted GitHub jobs fail before any steps; this is not a hosted CI pass. See verification/wildlife-motion-2026-10-29.json.
+Low-supply stone/gold/berry art is integrated for positive remaining quantities 1–40, using current sight or cached observations in solo and projected/remembered amounts in the team-relative view. A presentation-only WeakMap never writes nodes or saves. Literal quantity is not percentage. Unknown hidden stages and failed new images retain full art. Existing depleted-node removal is unchanged; observation cache is not persisted to legacy saves.
 
-## Next graphics item
+Manifest v17-scarce-resources has 55 atlases, 1,768 entries/4,498 references; shell v38. All 211 standalone files, full Chromium, source/atlas/inventory and five-packer byte-identical rebuild passed. Full/scarce art comparisons at 1×/2× were inspected. Actual draw tests cover both views and hidden ongoing consumption, plus fallback and node/world checksum isolation. Release identity is tracked in verification/scarce-resources-2026-10-29.json.
 
-Continue reduced-resource artwork for stone, gold and berry bushes. Authoring has started from the original six neutral resource variants. Do not alter amounts, gathering, depleted-node removal or saves. Prefer a literal low-remaining-amount visual stage rather than claiming a percentage without saved original capacities. Keep full original images as failed-new-image fallback and exclude farms, hunted animals and fish/traps. Solo must use only current sight or a presentation-only cache of the last observed stage, so hidden enemy gathering does not reveal amounts through fog; multiplayer must use its already-projected/remembered quantity. Verify both actual draw paths, fog, image fallback and nonmutation, and retain updated fish traps/wildlife through all packers.
+## Next graphics work
+
+Continue the whole-game checklist. Consider improving offline artwork cache migration to avoid downloading unchanged WebPs on every shell version, while preserving fresh changed art and free-only hosting. Inspect current service-worker tests and require explicit content revisions or another verified integrity mechanism before reusing old images; do not assume unchanged filenames mean unchanged content. Preserve HTML/JS/JSON network-first refresh, manifest revalidation, old-cache cleanup and complete image-failure fallback. No paid hosting or account upgrades.
+
+Other large open categories include architecture/age/faction variants, dedicated work/death/effect art and the full interface/icon set. Directional animations are still mirrored single views. Physical Xbox Series S Edge 50/75/100 presets, readable HUD and large-scene performance require actual hardware acceptance.
 
 ## Remaining overhaul
 

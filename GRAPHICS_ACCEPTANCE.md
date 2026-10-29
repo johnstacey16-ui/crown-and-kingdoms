@@ -1,3 +1,11 @@
+## 29 October 2026 — Observed low-supply stone, gold and berries
+
+**CK-032 / CK-041 remain PARTIAL.** Stone/gold deposits now become lower piles, and berry bushes show fewer berries, for positive remaining quantities of 40 units or less. Two neutral geographic variants of each kind retain the original materials and smaller physical footprints. The threshold is literal quantity, not percentage. Solo uses only current sight or cached observations; the team-relative view uses projected/remembered amounts. Hidden ongoing consumption does not change these visual stages. Unknown observations and failed new images retain full original art. Quantities, gathering, removal, fog rules, controls and saves are unchanged.
+
+All 211 standalone files, source/55-atlas/inventory checks and the complete Chromium battlefield suite passed. New actual-render tests cover full/hidden-low/observed-low/hidden-lower stages for all three resources in both views, a no-sight projection, six distinct neutral images, full-art fallback and unchanged node/world checkpoints. Full/scarce 1×/2× comparisons were inspected. Five authoring packers rebuild byte-identically; all earlier WebP hashes are unchanged. Shell v38 includes the new image. See [artwork and limits](docs/PAINTED_SCARCE_RESOURCES.md), [exact prompt](docs/painted-scarce-resource-prompts.json) and [verification](docs/verification/scarce-resources-2026-10-29.json).
+
+The solo observation cache does not add persistent resource-memory fields to legacy saves, and existing depleted-node removal is unchanged. Physical Xbox review and broader directions/work/death, architecture, effects and interface work remain open in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Production and hosted CI require separate checks.
+
 ## 29 October 2026 — Neutral deer and fish idle motion
 
 **CK-032 / CK-041 remain PARTIAL.** Deer now have eight standing ear/head/grazing/tail poses, and fish shoals have eight fin/tail poses. Both actual draw paths use paused game time with stable geographic phase offsets. A fixed reference width keeps pose-bound changes from rescaling the animals, and small cached textures remain shared. Neutral colours, original static fallback, resource mechanics, fog, commands, controls and saves are preserved. Previously committed WebP hashes are unchanged.

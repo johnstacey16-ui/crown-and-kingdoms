@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-29",
+  "tool": "built-in image generation",
+  "transparentBackground": true,
+  "reference": "assets/painted-resources.webp",
+  "role": "Original two variants each of full stone, gold ore and berry bush preserve materials/style; separate new low-remaining-quantity art.",
+  "prompt": "Use case: stylized-concept. Create LOW-REMAINING-RESOURCE variants of this original Crown & Kingdoms painted resource atlas. Preserve each subject's material identity, natural grey stone, dark gold-veined ore, green shrub with red berries, upper-left daylight and isometric painted style. NEW transparent1536x1024 atlas, strict THREE columns by TWO rows, SIX COMPLETE isolated sprites. Column0 STONE, column1 GOLD ORE, column2 BERRY BUSH; row0variantA row1variantB. Stone: nearly mined-out LOW small pile of only three to five broken grey stones, few chips, NO tall central boulder. Gold: nearly mined-out LOW pile of three to five dark ore stones with modest GOLD VEINS, a few gold-flecked chips, NO tall central boulder, no coins/ingots. Berry bush: same healthy green branch/leaf mass as reference, but only five to ten scattered RED BERRIES, clear reduced fruit density, no large red bunches. NO dying/brown leaves or bare tree. Keep foliage around360px wide; scarce stone/ore piles around260-300px wide and under170pxhigh, to appear smaller than original full deposits at fixed scale. Center each subject in its512x512cell, maintain common ground baseline420pxdown eachcell, at least55px fullytransparent margin all sides. Tiny irregular ground/contact shadow only, no terrain square, backdrop, frame, labels or grid. True transparent background. No adjacent overlap. Original two full variants remain unchanged; output is a separate scarce-resource asset."
+}

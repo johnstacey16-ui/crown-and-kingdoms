@@ -3,7 +3,7 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
-const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap()};
+const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
@@ -561,12 +561,19 @@ function paintedNodeTexture(painted,width){
   frames.set(key,canvas);return canvas;
  }catch(_){return null}
 }
-// Stable geographic variants, independent of time, owner or remaining amount.
+// Stable geographic variants, independent of clock and owner.
+// Quantity is supplied from current sight or remembered visual knowledge only.
 // Farms, fish and hunted animals keep their own presentation.
-function paintedResourceFrame(kind,x,y,excluded=false){
+function resourceVisualAmount(n,visible){
+ if(!n||n.an||n.fi||n.fm||n.trap||!['s','g','f'].includes(n.k))return Infinity;
+ if(visible)PAINT.resourceAmounts.set(n,Number.isFinite(n.amt)?Math.max(0,n.amt):Infinity);
+ return PAINT.resourceAmounts.get(n)??Infinity;
+}
+function paintedResourceFrame(kind,x,y,excluded=false,amount=Infinity){
  if(excluded||typeof ASSET==='undefined'||!ASSET.n)return null;
  const name={s:'stone',g:'gold',f:'berry'}[kind];if(!name)return null;
  const variant=hsh(x,y)<.5?0:1;
+ if(Number.isFinite(amount)&&amount>0&&amount<=40){const low=assetFrame('node_'+name+'_low_'+variant,0,0,0,0);if(low)return low}
  return assetFrame('node_'+name+'_'+variant,0,0,0,0);
 }
 function paintedEnvironmentFrame(n,time=0){
@@ -590,7 +597,7 @@ function drawPaintedRelic(g,x,y,width){
 }
 
 function drawNode(n){const P=w2s(n.x+.5,n.y+.5),v=hsh(n.x,n.y),i=n.y*W+n.x;X.globalAlpha=S.vs[i]?1:.65;
-const painted=paintedEnvironmentFrame(n,S.t)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm)||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/(painted.referenceWidth||f.w)*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
+const painted=paintedEnvironmentFrame(n,S.t)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm||n.trap,resourceVisualAmount(n,!!S.vs[i]))||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/(painted.referenceWidth||f.w)*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
 if(cached)X.drawImage(cached,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 else X.drawImage(painted.img,f.x,f.y,f.w,f.h,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 X.restore();X.globalAlpha=1;return;}

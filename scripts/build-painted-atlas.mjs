@@ -55,6 +55,7 @@ const resourcePath=asset('resource-manifest.json');if(existsSync(resourcePath))p
 const environmentPath=asset('environment-manifest.json');if(existsSync(environmentPath))pack.atlases.push(...JSON.parse(readFileSync(environmentPath)).atlases);
 const fishtrapPath=asset('fishtrap-manifest.json');if(existsSync(fishtrapPath)){pack.atlases.push(...JSON.parse(readFileSync(fishtrapPath)).atlases);pack.version='painted-raster-v15-fishtraps'}
 const wildlifePath=asset('wildlife-manifest.json');if(existsSync(wildlifePath)){const wildlife=JSON.parse(readFileSync(wildlifePath));pack.atlases.splice(pack.atlases.filter(a=>a.meta.motion).length,0,...wildlife.atlases);pack.version='painted-raster-v16-wildlife-motion'}
+const scarcePath=asset('scarce-resource-manifest.json');if(existsSync(scarcePath)){pack.atlases.push(...JSON.parse(readFileSync(scarcePath)).atlases);pack.version='painted-raster-v17-scarce-resources'}
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 console.log('Packed 47 troop types, 22 buildings, 3 combat proxies and painted terrain.');
 
