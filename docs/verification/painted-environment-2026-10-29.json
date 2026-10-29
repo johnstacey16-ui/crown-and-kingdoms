@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 211,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 23,
+    "entries": 1416,
+    "references": 2536
+  },
+  "inventory": "47 playable troops, 22 buildings, eleven graphics categories; full overhaul incomplete",
+  "chromium": "complete battlefield-art suite passed locally",
+  "environment": {
+    "samples": [
+      {
+        "kind": "deer",
+        "opaque": 4417,
+        "transparent": 19790,
+        "hash": 3015558294,
+        "neutral": true
+      },
+      {
+        "kind": "fish",
+        "opaque": 6658,
+        "transparent": 16955,
+        "hash": 4278403949,
+        "neutral": true
+      },
+      {
+        "kind": "relic",
+        "opaque": 6065,
+        "transparent": 18432,
+        "hash": 1948083688,
+        "neutral": true
+      },
+      {
+        "kind": "pine",
+        "opaque": 5506,
+        "transparent": 18449,
+        "hash": 3635141210,
+        "neutral": true
+      },
+      {
+        "kind": "oak",
+        "opaque": 7994,
+        "transparent": 16089,
+        "hash": 83646050,
+        "neutral": true
+      },
+      {
+        "kind": "birch",
+        "opaque": 5570,
+        "transparent": 18579,
+        "hash": 2506154118,
+        "neutral": true
+      }
+    ],
+    "drawn": true,
+    "fallback": true,
+    "before": "fnv1a32-a1a616e0-715b",
+    "after": "fnv1a32-a1a616e0-715b"
+  },
+  "sourceSHA256": {
+    "js/render.js": "e4d122c8b3c68ca4d76b35810f7cd41aa7eca51e481ca30c584072411d267d8f",
+    "js/network-unit-map.js": "da84628bba389fe8cd3dabfe63c84521c666348511ac71b2517a069fce7ae814",
+    "scripts/sprite-grid.mjs": "e2c65a74cfed3a06ddd16ab3dc3dc872ffae5e37d6066e0171ef427ce305afb0",
+    "assets/painted-environment.webp": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
+    "assets/atlas-manifest.json": "cfe0b4bb50cd0e8ee7bcd579e0c3330e292c60510f6b821d4f1b48f1f538630d",
+    "sw.js": "a5afe2c5eeccd26e126e7566d3cacd2da986f770f50d64c6b8c6e56349bf1ead"
+  },
+  "xboxHardware": "unverified"
+}

@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { createApplication } from '../../server/app.mjs';
+import { checkPaintedEnvironment } from './painted-environment.mjs';
 import { checkPaintedResources } from './painted-resources.mjs';
 import { checkTerrainBlending } from './terrain-blending.mjs';
 import { checkTerrainViewport } from './terrain-viewport.mjs';
@@ -28,7 +29,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===22&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===23&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -46,7 +47,7 @@ async function scene(page,expectArt=true){
   }
   const hidden=addU(1,'scout',62.5,62.5);
   for(let x=17;x<23;x++)for(let y=29;y<32;y++)addN('w',x,y,100,0);
-  addN('g',26,29,100,0);addN('s',27,30,100,0);addN('f',25,30,100,0);
+  addN('g',26,29,100,0);addN('s',27,30,100,0);addN('f',25,30,100,0);addN('f',28,29,100,0).an=1;addN('f',28,36,100,0).fi=1;S.rel=[{x:29,y:28,rl:1}];
   for(let y=34;y<41;y++)for(let x=24;x<43;x++)S.wt[y*W+x]=1;
   addU(0,'trn',29.5,35.5);addU(0,'cog',31.5,35.5);addU(1,'gal',34.5,36.5);
   const host=document.createElement('main');
@@ -73,6 +74,7 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
+ const paintedEnvironment=await checkPaintedEnvironment(page,output);
  const paintedResources=await checkPaintedResources(page,output);
  const terrainBlending=await checkTerrainBlending(page,output);
  const terrainViewport=await checkTerrainViewport(page);
@@ -90,7 +92,7 @@ try{
  });
  console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.equal(diagnostics.atlases,22);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,23);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>100000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
@@ -144,7 +146,7 @@ try{
  assert.equal(initial.hash,initial.after);assert.equal(initial.enemyHidden,true);
  assert.equal(initial.foundation,.5);
  assert.ok(rendering.sprites>=8);assert.equal(rendering.changed,true);assert.equal(rendering.unchanged,true);
- assert.ok(rendering.painted>=8);assert.ok(rendering.teams.length>=2,'both kingdom palettes are present');
+ assert.ok(rendering.painted>=8);assert.ok(rendering.teams.includes(0)&&rendering.teams.includes(1),'both kingdom palettes are present');
  await page.locator('#battlefield-art').screenshot({path:output+'/team-zero.png'});
  const militaryMenu=await page.evaluate(()=>{
   const context=document.getElementById('battlefield-art').getContext('2d'),original=context.fillText.bind(context),labels=[];
@@ -292,7 +294,7 @@ try{
  const partial=await browser.newPage({viewport:{width:960,height:850}});
  partial.on('pageerror',error=>errors.push(error.message));
  await partial.route('**/assets/painted-motion-*.webp',route=>route.abort());
- await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===3&&PAINT.terrain);
+ await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===4&&PAINT.terrain);
  for(const kind of ['mil','huskarl','jaguar','kamayuk','shotel'])assert.equal(await partial.evaluate(k=>assetFrame(k,0,1,0,.3).animated,kind),false,'a failed motion sheet retains its painted base pose');
  await partial.close();
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
@@ -308,7 +310,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({paintedResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({paintedEnvironment,paintedResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{

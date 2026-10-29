@@ -12,6 +12,8 @@ A controller-first medieval real-time strategy game targeting Xbox Series X thro
 
 **Resource artwork — 29 October:** stone deposits, gold ore and berry bushes now use original painted artwork, with two variants each in solo and multiplayer. See [resource art and verification](docs/PAINTED_RESOURCES.md).
 
+**Environment artwork — 29 October:** painted deer, fishing shoals, relics and three tree types now join stone/gold/berries. The [whole-game graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md) tracks every remaining category; full animation and Xbox acceptance remain unfinished.
+
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.

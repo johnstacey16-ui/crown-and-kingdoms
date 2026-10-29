@@ -32,3 +32,6 @@ jobs:
       # Keep this independent lightweight check useful even while game tests fail.
       - name: Validate sprite atlas
         run: node tests/validate-atlas.mjs
+
+      - name: Validate whole-game graphics inventory
+        run: node scripts/audit-graphics.mjs --check

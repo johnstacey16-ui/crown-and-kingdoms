@@ -1,0 +1,676 @@
+{
+  "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
+  "complete": false,
+  "atlases": 23,
+  "units": [
+    {
+      "kind": "vil",
+      "name": "Villager",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "mil",
+      "name": "Militia",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "arc",
+      "name": "Archer",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "spear",
+      "name": "Spearman",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "scout",
+      "name": "Scout Cavalry",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "knight",
+      "name": "Knight",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "xbow",
+      "name": "Crossbowman",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "cart",
+      "name": "Trade Cart",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "fish",
+      "name": "Fishing Ship",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "gal",
+      "name": "War Galley",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "trn",
+      "name": "Transport Ship",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "cog",
+      "name": "Trade Cog",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "ram",
+      "name": "Battering Ram",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "mon",
+      "name": "Monk",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "woad",
+      "name": "Woad Raider",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "bers",
+      "name": "Berserk",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "mamel",
+      "name": "Mameluke",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "jan",
+      "name": "Janissary",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "chuko",
+      "name": "Chu Ko Nu",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "saml",
+      "name": "Samurai",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "eled",
+      "name": "Elephant Archer",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "hcan",
+      "name": "Hand Cannoneer",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "bomb",
+      "name": "Bombard Cannon",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "axe",
+      "name": "Throwing Axeman",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "lbow",
+      "name": "Longbowman",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "mgd",
+      "name": "Mangudai",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "cata",
+      "name": "Cataphract",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "ele",
+      "name": "War Elephant",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "tk",
+      "name": "Teutonic Knight",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "treb",
+      "name": "Trebuchet",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "camel",
+      "name": "Camel Rider",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "king",
+      "name": "King",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "skirm",
+      "name": "Skirmisher",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "mang",
+      "name": "Mangonel",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "scor",
+      "name": "Scorpion",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "conq",
+      "name": "Conquistador",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "genoa",
+      "name": "Genoese Crossbowman",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "boyar",
+      "name": "Boyar",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "tarkan",
+      "name": "Tarkan",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "huskarl",
+      "name": "Huskarl",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "jaguar",
+      "name": "Jaguar Warrior",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "plumed",
+      "name": "Plumed Archer",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "kamayuk",
+      "name": "Kamayuk",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "shotel",
+      "name": "Shotel Warrior",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "gbeto",
+      "name": "Gbeto",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "wagon",
+      "name": "War Wagon",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "huszar",
+      "name": "Magyar Huszar",
+      "paintedBase": true,
+      "walkFrames": 1,
+      "attackFrames": 1,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    }
+  ],
+  "buildings": [
+    {
+      "kind": "tc",
+      "name": "Town Centre",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "house",
+      "name": "House",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "lumber",
+      "name": "Lumber Camp",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "mine",
+      "name": "Mining Camp",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "mill",
+      "name": "Mill",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "farm",
+      "name": "Farm",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "bar",
+      "name": "Barracks",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "rng",
+      "name": "Archery Range",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "stable",
+      "name": "Stable",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "smith",
+      "name": "Blacksmith",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "market",
+      "name": "Market",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "palisade",
+      "name": "Palisade Wall",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "wall",
+      "name": "Stone Wall",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "dock",
+      "name": "Dock",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "siege",
+      "name": "Siege Workshop",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "univ",
+      "name": "University",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "gate",
+      "name": "Gate",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "outpost",
+      "name": "Outpost",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "wonder",
+      "name": "Wonder",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "monastery",
+      "name": "Monastery",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "tower",
+      "name": "Watch Tower",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    },
+    {
+      "kind": "castle",
+      "name": "Castle",
+      "paintedBase": true,
+      "factionArchitecture": "unfinished",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared smoke overlay"
+    }
+  ],
+  "checklist": [
+    {
+      "category": "Unit base artwork",
+      "state": "present",
+      "evidence": "47 playable kinds; see catalogue",
+      "remaining": "play-scale faction/direction review"
+    },
+    {
+      "category": "Unit animation",
+      "state": "partial",
+      "evidence": "19 of 47 kinds have painted multi-frame walk and attack",
+      "remaining": "28 kinds, independent directions, work variants and dedicated death sheets"
+    },
+    {
+      "category": "Building artwork",
+      "state": "partial",
+      "evidence": "22 painted kinds including farm",
+      "remaining": "faction/age architecture and distinct construction/damage states"
+    },
+    {
+      "category": "Terrain and coasts",
+      "state": "partial",
+      "evidence": "painted materials and textured transitions",
+      "remaining": "biome-specific integration and repetition review"
+    },
+    {
+      "category": "Natural resources",
+      "state": "partial",
+      "evidence": "painted wood, stone, gold, berries, fish and deer",
+      "remaining": "depletion states and wildlife/fish animation"
+    },
+    {
+      "category": "Fish traps",
+      "state": "partial",
+      "evidence": "procedural basket/water marker",
+      "remaining": "dedicated painted trap sprite"
+    },
+    {
+      "category": "Relics",
+      "state": "partial",
+      "evidence": "painted ground/carried reliquary in both renderers",
+      "remaining": "hardware readability and animated pickup/deposit presentation"
+    },
+    {
+      "category": "Combat and world effects",
+      "state": "partial",
+      "evidence": "procedural projectiles, particles, smoke, rubble and transformed corpses",
+      "remaining": "coherent upgraded effects and dedicated destruction art"
+    },
+    {
+      "category": "HUD, menus and command wheels",
+      "state": "partial",
+      "evidence": "navy/gold panels, text and command markers",
+      "remaining": "complete icon set, scene backgrounds and Xbox readability review"
+    },
+    {
+      "category": "Minimap and multiplayer presentation",
+      "state": "partial",
+      "evidence": "team-relative terrain and current-sight entities; responsive room panels",
+      "remaining": "full match and large scene acceptance"
+    },
+    {
+      "category": "Xbox Series S Edge image/performance",
+      "state": "unverified",
+      "evidence": "local desktop Chromium checks only",
+      "remaining": "physical Xbox 50/75/100 percent picture presets and large land/naval benchmarks"
+    }
+  ]
+}

@@ -24,13 +24,13 @@
       const details=e=>({id:e.netId,kind:e.k,team:e.t,x:e.x,y:e.y,size:e.s||0,...(e.s?construction(e):{pose:pose(e)}),
         hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0)),
         label:e.s?(B[e.k]?.n||e.k):(U[e.k]?.n||e.k),hostile:world.dip?.[team]?.[e.t]!=='neutral'&&world.dip?.[team]?.[e.t]!=='ally'});
-      view.battlefield={time:Number.isFinite(world.t)?world.t:0,visible:[],tiles:[],enemies:[],allies:[],health:{},attackers:[],builders:[],gatherers:{},construction:root.CK_GAME_COMMANDS.buildOptions(world,team),paths:{},projectiles:[]};
+      view.battlefield={time:Number.isFinite(world.t)?world.t:0,visible:[],tiles:[],enemies:[],allies:[],health:{},attackers:[],builders:[],gatherers:{},construction:root.CK_GAME_COMMANDS.buildOptions(world,team),paths:{},projectiles:[],relics:[]};
       const field=view.battlefield;
       for(let i=0;i<sight.length;i++)if(sight[i]){
         field.visible.push(i);
         const node=world.nd?.[i];
         field.tiles.push({index:i,water:world.wt?.[i]===1?1:world.wt?.[i]===2?2:0,
-          node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm,animal:!!node.an}:null});
+          node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm,animal:!!node.an,trap:!!node.trap}:null});
       }
       for(const e of [...world.us,...world.bs])if(e&&e.hp>0&&position(e)&&!e.ld){
         if(e.t===team){field.health[e.netId]={hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0))};
@@ -42,6 +42,10 @@
           (world.dip?.[team]?.[e.t]==='ally'?field.allies:field.enemies).push(details(e));
         }
       }
+    }
+    if(sight)for(const q of world.rel||[]){
+      const point=q.c||q;
+      if(!q.m&&position(point)&&(!q.c||(point.hp>0&&!point.ld))&&sight[Math.floor(point.y)*width+Math.floor(point.x)])view.battlefield.relics.push({x:point.x,y:point.y,carried:!!q.c});
     }
     if(sight)for(const p of world.pj||[])if(p&&position(p)&&sight[Math.floor(p.y)*width+Math.floor(p.x)])view.battlefield.projectiles.push({x:p.x,y:p.y});
     return view;
@@ -146,8 +150,9 @@
         }
         const n=tile.node;
         if(n&&sx>=3){
-          const resourceArt=typeof paintedResourceFrame==='function'?paintedResourceFrame(n.kind,x,y,n.animal||n.fish||n.farm):null;
-          if(resourceArt){const f=resourceArt.f,width=Math.max(10,sx*1.25),sc=width/f.w,cached=paintedNodeTexture(resourceArt,54);
+          const environmentArt=typeof paintedEnvironmentFrame==='function'?paintedEnvironmentFrame({k:n.kind,x,y,an:n.animal,fi:n.fish,fm:n.farm,trap:n.trap}):null;
+          const resourceArt=environmentArt||(typeof paintedResourceFrame==='function'?paintedResourceFrame(n.kind,x,y,n.animal||n.fish||n.farm):null);
+          if(resourceArt){const f=resourceArt.f,width=Math.min(Math.max(10,sx*(n.kind==='w'?1.9:1.25)),(n.kind==='w'?Math.max(20,sy*3):Infinity)*f.w/f.h),sc=width/f.w,cached=paintedNodeTexture(resourceArt,54);
             if(cached)context.drawImage(cached,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
             else context.drawImage(resourceArt.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
           }else if(n.kind==='w'&&typeof ASSET!=='undefined'&&ASSET.n&&assetFrame('node_tree',0,0,0,0)){const art=assetFrame('node_tree',0,0,0,0),f=art.f,sc=Math.max(15,sx*2)/f.w;context.drawImage(art.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);}else if(n.kind==='w'){
@@ -267,6 +272,11 @@
         entities.sort((a,b)=>(a.y+(a.size||0))-(b.y+(b.size||0))||a.x-b.x||
           (a.id<b.id?-1:a.id>b.id?1:0));
         for(const e of entities)drawEntity(e,sx,sy,e.color,chosen.has(e.id));
+        for(const relic of view.battlefield.relics||[]){
+          const x=relic.x*sx,y=relic.y*sy-(relic.carried?Math.max(12,sy*1.3):0),width=Math.max(9,Math.min(24,sx*1.2));
+          if(typeof drawPaintedRelic==='function'&&drawPaintedRelic(context,x,y,width))continue;
+          context.fillStyle='#f2d47a';context.beginPath();context.moveTo(x,y-5);context.lineTo(x+4,y);context.lineTo(x,y+5);context.lineTo(x-4,y);context.closePath();context.fill();
+        }
       }else{
         for(const b of view.buildings){context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);}
         for(const u of view.units){context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();}

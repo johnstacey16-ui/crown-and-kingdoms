@@ -52,6 +52,7 @@ for(const [proxy,kind]of [['tca','tc'],['tw','tower'],['cs','castle']])bind(arch
 bind(architecture,'node_tree',bf.frames[23],.4);
 const motionPath=asset('motion-manifest.json');if(existsSync(motionPath)){const motion=JSON.parse(readFileSync(motionPath));pack.version=motion.atlases.length>=19?'painted-raster-v7-motion':motion.atlases.length>=15?'painted-raster-v6-motion':motion.atlases.length>=11?'painted-raster-v5-motion':motion.atlases.length>=8?'painted-raster-v4-motion':motion.atlases.length>=6?'painted-raster-v3-motion':'painted-raster-v2-motion';pack.atlases.unshift(...motion.atlases)}
 const resourcePath=asset('resource-manifest.json');if(existsSync(resourcePath))pack.atlases.push(...JSON.parse(readFileSync(resourcePath)).atlases);
+const environmentPath=asset('environment-manifest.json');if(existsSync(environmentPath))pack.atlases.push(...JSON.parse(readFileSync(environmentPath)).atlases);
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 console.log('Packed 47 troop types, 22 buildings, 3 combat proxies and painted terrain.');
 

@@ -1,8 +1,10 @@
 // Repack complete connected figures before cell extraction. Generated long
 // weapons can cross nominal source-cell edges; padding must not crop them.
-export function reflowSpriteGrid(data,width,height,columns,rows,count){
+// Optional environment mode retains multiple components (fish shoals) per cell
+// and adds vertical padding for tree crowns crossing the source row boundary.
+export function reflowSpriteGrid(data,width,height,columns,rows,count,allowMultiple=false){
  if(data.length!==width*height*4||width%columns||height%rows||count>columns*rows)throw Error('Invalid RGBA sprite grid');
- const cw=width/columns,ch=height/rows,padX=64,padY=16,nw=(cw+padX*2)*columns,nh=(ch+padY*2)*rows;
+ const cw=width/columns,ch=height/rows,padX=64,padY=allowMultiple?64:16,nw=(cw+padX*2)*columns,nh=(ch+padY*2)*rows;
  const seen=new Uint8Array(width*height),queue=new Int32Array(width*height),figures=Array(count).fill(null);
  for(let first=0;first<seen.length;first++){
   if(seen[first]||data[first*4+3]<=32)continue;
@@ -16,8 +18,9 @@ export function reflowSpriteGrid(data,width,height,columns,rows,count){
   }
   if(tail<64)continue;
   const col=Math.floor((l+r)/2/cw),row=Math.floor((t+b)/2/ch),cell=row*columns+col;
-  if(cell>=count||figures[cell])throw Error('Ambiguous source figure '+cell);
-  figures[cell]={pixels:Array.from(queue.subarray(0,tail)),col,row};
+  if(cell>=count||(figures[cell]&&!allowMultiple))throw Error('Ambiguous source figure '+cell);
+  const pixels=Array.from(queue.subarray(0,tail));
+  if(figures[cell])figures[cell].pixels=figures[cell].pixels.concat(pixels);else figures[cell]={pixels,col,row};
  }
  const out=Buffer.alloc(nw*nh*4);
  figures.forEach((figure,cell)=>{
@@ -70,3 +73,4 @@ export function extractSpriteGrid(data,width,height,columns,rows,count,selection
  }
  return {data:clean,frames,coverage};
 }
+
