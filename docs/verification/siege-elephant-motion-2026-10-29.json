@@ -1,0 +1,624 @@
+{
+  "date": "2026-10-29",
+  "scope": "Eight elephant/siege motion sheets; current47unit art coverage, not completegraphics/game parity",
+  "baseCommit": "96f02e80a9660b7223ce4efba416844de6f5d407",
+  "manifest": {
+    "version": "painted-raster-v14-motion",
+    "atlases": 51,
+    "motionKinds": 47,
+    "animationEntries": 1756,
+    "frameReferences": 4472
+  },
+  "local": {
+    "regressions": {
+      "files": 211,
+      "passed": 211,
+      "failed": [],
+      "seconds": 117.8
+    },
+    "source": "passed",
+    "atlas": "passed",
+    "inventory": "passed",
+    "sourceSheets": "all eight passed explicit multipart vehicle authoring checks",
+    "noArgumentRebuild": "all motion WebPs and both manifests unchanged",
+    "previousWebps": "all previously committed WebP Git object hashes unchanged",
+    "browser": "complete battlefield suite passed",
+    "siege": {
+      "poses": [
+        {
+          "kind": "eled",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "ele",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 10,
+          "expectedCell": 10
+        },
+        {
+          "kind": "ram",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "bomb",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "treb",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "mang",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "scor",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        },
+        {
+          "kind": "wagon",
+          "paused": true,
+          "unchanged": true,
+          "phase": 0,
+          "sourceCell": 11,
+          "expectedCell": 11
+        }
+      ],
+      "raster": [
+        {
+          "kind": "eled",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5111
+        },
+        {
+          "kind": "eled",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5234
+        },
+        {
+          "kind": "eled",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5111
+        },
+        {
+          "kind": "eled",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5234
+        },
+        {
+          "kind": "eled",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5111
+        },
+        {
+          "kind": "eled",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5234
+        },
+        {
+          "kind": "eled",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5111
+        },
+        {
+          "kind": "eled",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5234
+        },
+        {
+          "kind": "ele",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5169
+        },
+        {
+          "kind": "ele",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5305
+        },
+        {
+          "kind": "ele",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5169
+        },
+        {
+          "kind": "ele",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5305
+        },
+        {
+          "kind": "ele",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5169
+        },
+        {
+          "kind": "ele",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5305
+        },
+        {
+          "kind": "ele",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5169
+        },
+        {
+          "kind": "ele",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5305
+        },
+        {
+          "kind": "ram",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6635
+        },
+        {
+          "kind": "ram",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6463
+        },
+        {
+          "kind": "ram",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6635
+        },
+        {
+          "kind": "ram",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6463
+        },
+        {
+          "kind": "ram",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6635
+        },
+        {
+          "kind": "ram",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6463
+        },
+        {
+          "kind": "ram",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6635
+        },
+        {
+          "kind": "ram",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6463
+        },
+        {
+          "kind": "bomb",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6332
+        },
+        {
+          "kind": "bomb",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6059
+        },
+        {
+          "kind": "bomb",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6332
+        },
+        {
+          "kind": "bomb",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6059
+        },
+        {
+          "kind": "bomb",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6332
+        },
+        {
+          "kind": "bomb",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6059
+        },
+        {
+          "kind": "bomb",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6332
+        },
+        {
+          "kind": "bomb",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6059
+        },
+        {
+          "kind": "treb",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 4707
+        },
+        {
+          "kind": "treb",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4225
+        },
+        {
+          "kind": "treb",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 4707
+        },
+        {
+          "kind": "treb",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4225
+        },
+        {
+          "kind": "treb",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 4707
+        },
+        {
+          "kind": "treb",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4225
+        },
+        {
+          "kind": "treb",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 4707
+        },
+        {
+          "kind": "treb",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4225
+        },
+        {
+          "kind": "mang",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5097
+        },
+        {
+          "kind": "mang",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4384
+        },
+        {
+          "kind": "mang",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5097
+        },
+        {
+          "kind": "mang",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4384
+        },
+        {
+          "kind": "mang",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5097
+        },
+        {
+          "kind": "mang",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4384
+        },
+        {
+          "kind": "mang",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5097
+        },
+        {
+          "kind": "mang",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 4384
+        },
+        {
+          "kind": "scor",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5917
+        },
+        {
+          "kind": "scor",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5747
+        },
+        {
+          "kind": "scor",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5917
+        },
+        {
+          "kind": "scor",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5747
+        },
+        {
+          "kind": "scor",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5917
+        },
+        {
+          "kind": "scor",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5747
+        },
+        {
+          "kind": "scor",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 5917
+        },
+        {
+          "kind": "scor",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 5747
+        },
+        {
+          "kind": "wagon",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 7102
+        },
+        {
+          "kind": "wagon",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 7192
+        },
+        {
+          "kind": "wagon",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 7102
+        },
+        {
+          "kind": "wagon",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 7192
+        },
+        {
+          "kind": "wagon",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 7102
+        },
+        {
+          "kind": "wagon",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 7192
+        },
+        {
+          "kind": "wagon",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 7102
+        },
+        {
+          "kind": "wagon",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 7192
+        }
+      ],
+      "cartSize": [
+        100,
+        90
+      ],
+      "wagonSize": [
+        100,
+        90
+      ],
+      "before": "fnv1a32-09ec641b-907b",
+      "after": "fnv1a32-09ec641b-907b"
+    },
+    "motionLookups": 388,
+    "decodedSequences": 168,
+    "resources": {
+      "samples": [
+        {
+          "kind": "stone",
+          "variant": 0,
+          "opaque": 7025,
+          "transparent": 8665,
+          "hash": 2677351163,
+          "neutral": true
+        },
+        {
+          "kind": "stone",
+          "variant": 1,
+          "opaque": 7003,
+          "transparent": 8668,
+          "hash": 769452323,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 0,
+          "opaque": 6813,
+          "transparent": 9021,
+          "hash": 1119022800,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 1,
+          "opaque": 6705,
+          "transparent": 9073,
+          "hash": 1067039506,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 0,
+          "opaque": 8717,
+          "transparent": 6457,
+          "hash": 1619077852,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 1,
+          "opaque": 8866,
+          "transparent": 6247,
+          "hash": 2997338425,
+          "neutral": true
+        }
+      ],
+      "stable": true,
+      "excluded": true,
+      "fallback": true,
+      "before": "fnv1a32-09ec641b-907b",
+      "after": "fnv1a32-09ec641b-907b"
+    },
+    "visualReview": "128-pose packed siege/elephant contact sheet inspected"
+  },
+  "remaining": [
+    "independent directional art",
+    "specialized work and death sheets",
+    "automatic boarding/trade/greeting activity triggers",
+    "faction buildings/effects/interface",
+    "physical Xbox Series S Edge acceptance"
+  ],
+  "deployment": "pending exact runtime/live verification",
+  "hostedCI": "pending newcommit; previous jobs failed before any steps"
+}

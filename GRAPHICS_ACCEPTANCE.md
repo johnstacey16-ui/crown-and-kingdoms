@@ -1,3 +1,11 @@
+## 29 October 2026 — Complete current-roster motion artwork
+
+**CK-032 / CK-041 remain PARTIAL; all 47 current playable kinds now have painted movement/activity sheets.** Elephant Archer, War Elephant, Battering Ram, Bombard Cannon, Trebuchet, Mangonel, Scorpion and War Wagon gain sixteen-pose sheets and matching ready poses. Reviewed strike/release cells start the cooldown-driven action cycle. Existing foot/cavalry/vehicle envelopes, four team colours, pause and original-art fallback remain; cart and war wagon overlays now use vehicle dimensions. Gameplay, commands, controller bindings and save fields are unchanged, as are all earlier WebP object hashes.
+
+All 211 standalone files, source/51-atlas/inventory checks and the complete Chromium battlefield suite passed locally. The new helper decodes 512 samples across eight kinds/four colours, verifies eight distinct poses per sequence, selected impact cells, pause and actor/world checksum isolation. The 128-pose packed sheet was inspected. Both manifests and every motion WebP reproduce byte-for-byte on a no-argument rebuild. Stone, gold and berry resource checks still pass. Shell v35 includes all eight assets. See [artwork and scope](docs/PAINTED_SIEGE_ELEPHANT_MOTION.md), [exact prompts](docs/painted-siege-elephant-prompts.json) and [verification](docs/verification/siege-elephant-motion-2026-10-29.json).
+
+47/47 is current-roster art coverage, not eight independent directions or a finished graphics overhaul. Work/death art, activity-event integration, faction/age architecture, effects, interface and physical Xbox Series S Edge acceptance remain in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). New gameplay/DLC entries need their own artwork. Production and hosted CI require separate verification.
+
 ## 29 October 2026 — Naval and civilian motion artwork
 
 **CK-032 / CK-041 remain PARTIAL; painted movement/activity art coverage is 39/47.** Fishing Ship, Galley, Transport, Trade Cog, Trade Cart and King gain sixteen-pose sheets and ready poses. Fishing work uses actual gathering state; boarding/cargo/greeting action art is prepared, with dedicated event triggers still open. Existing team colours, pause, vehicle scale and base-art fallback remain. Earlier WebP hashes are unchanged; simulation, economy, passengers, commands and controls are unchanged.

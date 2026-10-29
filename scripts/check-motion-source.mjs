@@ -9,7 +9,7 @@ import { extractSpriteGrid, reflowSpriteGrid } from './sprite-grid.mjs';
 const input=process.argv[2];
 // Dense, multi-part vessels and carts occupy more of each cell than infantry.
 // Opt in explicitly; the original character-sheet defaults remain unchanged.
-const vehicle=process.argv.slice(3).includes('--vehicle');
+const vehicle=process.argv.slice(3).some(flag=>flag==='--vehicle'||flag==='--multipart');
 if (!input) {console.error('Usage: node scripts/check-motion-source.mjs 4x4-poses.png');process.exit(2);}
 let sharp;
 try {sharp=createRequire(import.meta.url)('sharp')} catch (_) {

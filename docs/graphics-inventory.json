@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 43,
+  "atlases": 51,
   "units": [
     {
       "kind": "vil",
@@ -115,8 +115,8 @@
       "kind": "ram",
       "name": "Battering Ram",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -187,8 +187,8 @@
       "kind": "eled",
       "name": "Elephant Archer",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -205,8 +205,8 @@
       "kind": "bomb",
       "name": "Bombard Cannon",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -250,8 +250,8 @@
       "kind": "ele",
       "name": "War Elephant",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -268,8 +268,8 @@
       "kind": "treb",
       "name": "Trebuchet",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -304,8 +304,8 @@
       "kind": "mang",
       "name": "Mangonel",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -313,8 +313,8 @@
       "kind": "scor",
       "name": "Scorpion",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -412,8 +412,8 @@
       "kind": "wagon",
       "name": "War Wagon",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -615,8 +615,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "39 of 47 kinds have painted multi-frame movement/activity art",
-      "remaining": "8 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "47 of 47 kinds have painted multi-frame movement/activity art",
+      "remaining": "independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Building artwork",
