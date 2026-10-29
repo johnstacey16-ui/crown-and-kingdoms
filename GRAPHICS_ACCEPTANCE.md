@@ -1,3 +1,9 @@
+## 29 October 2026 — Four original house-age designs
+
+**CK-032 / CK-041 remain PARTIAL.** Houses now change from a simple thatched dwelling through half-timber/stone homes to a two-storey Imperial home. Both actual views use the same age selector, team palette and original-house fallback. Solo records enemy appearances only under current sight; team-relative projection includes age appearance only for owned/visible houses. Hidden advances do not select new art. A presentation WeakMap adds no save or simulation fields; original building fog/removal behavior remains unchanged.
+
+All 213 regression files passed after updating and rerunning two old selector/version assumptions. Full Chromium passed after correcting the partial-image-failure atlas count. The new fixture checks all ages/teams, both actual draw paths, hidden-age retention, fallback and unchanged checkpoints. Blue/red 1×/2× contact sheets were inspected. Eight packers reproduce 72 files byte-for-byte; earlier WebPs are unchanged. Source/56-atlas/inventory checks pass. Shell v40 has 57 content-verified images. These shared house designs do not complete faction architecture or other building ages, dedicated construction/damage states, Xbox hardware or the broader overhaul. See [scope](docs/PAINTED_HOUSE_AGES.md), [exact built-in prompt](docs/painted-house-age-prompts.json) and [verification](docs/verification/house-ages-2026-10-29.json). Production verification is pending.
+
 ## 29 October 2026 — Verified offline artwork cache reuse
 
 **CK-032 / CK-041 remain PARTIAL.** Shell v39 verifies content hashes before reusing the 56 active images from older shell caches. Changed or damaged art is fetched and verified; failed installation preserves the working cache. Code/metadata refresh, offline fallback and private-request exclusions are retained. All seven active art packers refresh the catalogue automatically, and source validation rejects stale hashes.

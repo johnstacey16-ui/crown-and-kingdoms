@@ -3,7 +3,7 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
-const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap()};
+const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap(),buildingAges:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
@@ -523,8 +523,20 @@ function dmgFx(g,u,v,h,ap,dm){const r=(a,b)=>{const x=Math.sin(a*12.9898+b*78.23
 for(let i=0;i<(dm>1?7:3);i++){const x=-u+r(i,1)*u*2,y=-v*.5+r(i,2)*v*.6,w=5+r(i,3)*10,hh=6+r(i,4)*h*.5;g.beginPath();g.ellipse(x,y-hh/2,w,hh,0,0,7);g.fill()}
 g.strokeStyle='rgba(15,10,6,.7)';g.lineWidth=1.2;for(let i=0;i<(dm>1?6:3);i++){let x=-u*.8+r(i,5)*u*1.6,y=-v*.4-r(i,6)*h*.7;g.beginPath();g.moveTo(x,y);for(let j=0;j<4;j++){x+=(r(i,7+j)-.5)*8;y+=3+r(i,11+j)*6;g.lineTo(x,y)}g.stroke()}
 if(ap>0&&dm>1){g.fillStyle='rgba(10,6,4,.85)';for(let i=0;i<3;i++){const x=-u*.4+r(i,20)*u*.8,y=-v-h-ap*.4+r(i,21)*ap*.5;g.beginPath();g.moveTo(x,y);g.lineTo(x+9,y+3);g.lineTo(x+4,y+9);g.closePath();g.fill()}}g.restore()}
+// Building appearance is presentation-only; hidden age advances are not read.
+function buildingVisualAge(b){
+ if(b.k!=='house')return undefined;
+ let visible=b.t===0;
+ for(let y=Math.floor(b.y);!visible&&y<Math.ceil(b.y+b.s);y++)for(let x=Math.floor(b.x);!visible&&x<Math.ceil(b.x+b.s);x++)if(x>=0&&y>=0&&x<W&&y<H&&S.vs[y*W+x])visible=true;
+ if(visible){const age=S.age?.[b.t];if(Number.isInteger(age)&&age>=0&&age<4)PAINT.buildingAges.set(b,age)}
+ return PAINT.buildingAges.get(b);
+}
+function paintedBuildingFrame(kind,team,time,age){
+ const staged=kind==='house'&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_house_age_'+age,team,3,0,time):null;
+ return staged||assetFrame('bld_'+kind,team,3,0,time);
+}
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,
-dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?assetFrame('bld_'+b.k,b.t,3,0,gt):null,
+dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b)):null,
 c=baf?null:spr('b|'+b.k+'|'+b.t+'|'+st+'|'+dm,w,hgt,g=>paintBld(g,b.k,s,teamColor(b.t),ff,dm)),Z=w2s(b.x+s,b.y+s),E=w2s(b.x+s,b.y),N=w2s(b.x,b.y),Wv=w2s(b.x,b.y+s);
 X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay;X.drawImage(baf.img,q.x,q.y,q.w,q.h,Z[0]-ax*sc,Z[1]-ay*sc,q.w*sc,q.h*sc)}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
 if(b.done){if(o.fl&&!baf?.painted){const by=topY-(o.cren?4:0)*z;X.strokeStyle='#3a2a1a';X.lineWidth=2*z;X.beginPath();X.moveTo(cx,by);X.lineTo(cx,by-22*z);X.stroke();X.fillStyle=teamColor(b.t);poly([[cx,by-22*z],[cx+14*z,by-17*z+Math.sin(gt*4)*2.5*z],[cx,by-10*z]]);X.fill();X.lineWidth=1}

@@ -29,7 +29,7 @@ async function verifyCache(page,catalog,generation=39){
  },{catalog,generation});
 }
 export async function checkArtCacheUpgrade(browser,output){
- const source=read('sw.js').toString(),core=coreAssets(source),base=JSON.parse(read('assets/art-revisions.json'));
+ const source=read('sw.js').toString().replace(/ck-shell-v[0-9]+-[a-z-]+(?=' \+ ART_REVISION)/,'ck-shell-v39-verified-art-'),core=coreAssets(source),base=JSON.parse(read('assets/art-revisions.json'));
  const application=createApplication(),overrides=new Map(),fail=new Set(),records=[];
  let catalog=base,marker='baseline',worker='';
  const imagePaths=new Set(Object.keys(base.files).map(p=>new URL(p,'https://fixture.invalid/').pathname));

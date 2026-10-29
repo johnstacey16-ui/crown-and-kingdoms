@@ -1,0 +1,390 @@
+{
+  "date": "2026-10-29",
+  "scope": "Four original shared house-age designs in both actual views",
+  "sourceCommit": null,
+  "manifest": {
+    "version": "painted-raster-v18-house-ages",
+    "atlases": 56,
+    "entries": 1832,
+    "frameReferences": 4562,
+    "activeImages": 57
+  },
+  "local": {
+    "regressions": {
+      "files": 213,
+      "passed": 213,
+      "failed": [],
+      "seconds": 82.1,
+      "correctedReruns": [
+        {
+          "file": "tests/map-generation-static.test.mjs",
+          "exit": 0,
+          "reason": "Updated former exact selector / manifest-version expectation; actual fallback behavior retained."
+        },
+        {
+          "file": "tests/server-app.test.mjs",
+          "exit": 0,
+          "reason": "Updated former exact selector / manifest-version expectation; actual fallback behavior retained."
+        }
+      ]
+    },
+    "fullChromiumGraphics": "passed after updating partial-failure atlas expectation from eight to nine",
+    "browser": {
+      "houseAges": {
+        "samples": [
+          {
+            "age": 0,
+            "team": 0,
+            "hash": 1154523950,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 0
+          },
+          {
+            "age": 0,
+            "team": 1,
+            "hash": 38034193,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 1
+          },
+          {
+            "age": 0,
+            "team": 2,
+            "hash": 89291224,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 2
+          },
+          {
+            "age": 0,
+            "team": 3,
+            "hash": 1336447275,
+            "opaque": 16446,
+            "transparent": 35565,
+            "tag": 3
+          },
+          {
+            "age": 1,
+            "team": 0,
+            "hash": 586023062,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 0
+          },
+          {
+            "age": 1,
+            "team": 1,
+            "hash": 42722858,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 1
+          },
+          {
+            "age": 1,
+            "team": 2,
+            "hash": 3471267308,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 2
+          },
+          {
+            "age": 1,
+            "team": 3,
+            "hash": 3938258065,
+            "opaque": 20548,
+            "transparent": 31456,
+            "tag": 3
+          },
+          {
+            "age": 2,
+            "team": 0,
+            "hash": 4048707871,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 0
+          },
+          {
+            "age": 2,
+            "team": 1,
+            "hash": 2815050420,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 1
+          },
+          {
+            "age": 2,
+            "team": 2,
+            "hash": 2391887170,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 2
+          },
+          {
+            "age": 2,
+            "team": 3,
+            "hash": 2993091523,
+            "opaque": 23591,
+            "transparent": 28545,
+            "tag": 3
+          },
+          {
+            "age": 3,
+            "team": 0,
+            "hash": 2171318054,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 0
+          },
+          {
+            "age": 3,
+            "team": 1,
+            "hash": 3324536197,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 1
+          },
+          {
+            "age": 3,
+            "team": 2,
+            "hash": 1967788770,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 2
+          },
+          {
+            "age": 3,
+            "team": 3,
+            "hash": 3934912529,
+            "opaque": 25703,
+            "transparent": 26387,
+            "tag": 3
+          }
+        ],
+        "solo": [
+          {
+            "phase": "0/0",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/1",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/2",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/3",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "1/0",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/1",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/2",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/3",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "2/0",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/1",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/2",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/3",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "3/0",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/1",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/2",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/3",
+            "x": 841,
+            "y": 801
+          }
+        ],
+        "map": [
+          {
+            "phase": "0/0",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/1",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/2",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "0/3",
+            "x": 131,
+            "y": 224
+          },
+          {
+            "phase": "1/0",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/1",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/2",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "1/3",
+            "x": 845,
+            "y": 153
+          },
+          {
+            "phase": "2/0",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/1",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/2",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "2/3",
+            "x": 117,
+            "y": 836
+          },
+          {
+            "phase": "3/0",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/1",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/2",
+            "x": 841,
+            "y": 801
+          },
+          {
+            "phase": "3/3",
+            "x": 841,
+            "y": 801
+          }
+        ],
+        "hiddenRetained": true,
+        "fallback": true,
+        "unknownFallback": true,
+        "before": "fnv1a32-54bcf2ae-90ca",
+        "after": "fnv1a32-54bcf2ae-90ca"
+      },
+      "artCacheUpgrade": {
+        "baseline": {
+          "artRequests": 57,
+          "artBytes": 27005162
+        },
+        "warm": {
+          "artRequests": 2,
+          "artBytes": 768168,
+          "imagesVerified": 57,
+          "allValid": true,
+          "oldCacheRemoved": true,
+          "mutableCodeFresh": true
+        },
+        "failed": {
+          "state": "redundant",
+          "activeUnchanged": true,
+          "workingCachePresent": true,
+          "failedCacheAbsent": true
+        },
+        "codeOnly": {
+          "artRequests": 0,
+          "allValid": true,
+          "mutableCodeFresh": true
+        },
+        "recovered": {
+          "artRequests": 1,
+          "allValid": true,
+          "oldCacheRemoved": true
+        },
+        "offline": {
+          "shell": true,
+          "mutable": true,
+          "art": true,
+          "privateBypassed": true
+        }
+      }
+    },
+    "sourceAtlasInventory": "passed",
+    "eightPackerRebuild": {
+      "files": 72,
+      "byteIdentical": true
+    },
+    "earlierAssetWebPs": "unchanged",
+    "contactSheet": "Blue/red age progression at 1x/2x visually inspected"
+  },
+  "production": {
+    "status": "pending"
+  },
+  "hostedCI": {
+    "status": "pending; earlier jobs failed before steps with cause unverified"
+  },
+  "limits": [
+    "Shared original house progression only; faction architecture and all other building age sets unfinished.",
+    "Visual age observation is not persisted to saves; existing building fog/removal behavior unchanged.",
+    "Desktop Chromium does not establish Xbox hardware readability/FPS or full game/DLC parity."
+  ]
+}

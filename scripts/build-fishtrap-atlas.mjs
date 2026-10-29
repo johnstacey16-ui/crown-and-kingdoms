@@ -1,3 +1,4 @@
+import {applyHouseAgeArt} from './house-age-art.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 // Optional authoring tool. Preserve the original source; runtime needs only WebP.
 import {createRequire} from 'node:module';
@@ -20,6 +21,7 @@ if(source||!clean.data.equals(data))writeFileSync(asset('painted-fishtraps.webp'
 const atlas={id:'painted-fishtraps',src:'./assets/painted-fishtraps.webp',meta:{painted:true,neutral:true,width:info.width,height:info.height,anims}};
 writeFileSync(asset('fishtrap-manifest.json'),JSON.stringify({atlases:[atlas]}));
 const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!==atlas.id);const scarceIndex=pack.atlases.findIndex(a=>a.meta.scarceResources);if(scarceIndex<0)pack.atlases.push(atlas);else pack.atlases.splice(scarceIndex,0,atlas);pack.version=pack.atlases.some(a=>a.meta.scarceResources)?'painted-raster-v17-scarce-resources':pack.atlases.some(a=>a.meta.environmentMotion)?'painted-raster-v16-wildlife-motion':'painted-raster-v15-fishtraps';
+applyHouseAgeArt(pack);
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 updateArtRevisions();
 console.log('Packed four neutral painted fish traps; no gameplay fields changed.');

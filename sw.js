@@ -4,8 +4,8 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = 'cd61f5ed0e970fa1ea03b34b04f23ffbfd9a659cd6d375e086dfbcdb5c13efcb';
-const CACHE_NAME = 'ck-shell-v39-verified-art-' + ART_REVISION;
+const ART_REVISION = 'aadbe33fa15dccda1c66268435694d176a23781705862db9c7497bf7648fd3d4';
+const CACHE_NAME = 'ck-shell-v40-house-ages-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const CORE_ASSETS = [
   './assets/art-revisions.json',
   './assets/painted-units-v2.webp',
   './assets/painted-buildings.webp',
+  './assets/painted-house-ages.webp',
   './assets/painted-terrain.webp',
   './assets/painted-resources.webp',
   './assets/painted-scarce-resources.webp',

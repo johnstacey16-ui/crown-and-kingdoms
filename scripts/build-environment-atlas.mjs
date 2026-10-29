@@ -1,3 +1,4 @@
+import {applyHouseAgeArt} from './house-age-art.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 // Packs the original generated environment sheet; no recolouring or sprite painting.
 import {createRequire} from 'node:module';
@@ -23,6 +24,7 @@ for(let row=0;row<2;row++)for(let col=0;col<3;col++){
 const atlas={id:'painted-environment',src:'./assets/painted-environment.webp',meta:{painted:true,neutral:true,width:info.width,height:info.height,anims}};
 writeFileSync(asset('environment-manifest.json'),JSON.stringify({atlases:[atlas]}));
 const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!=='painted-environment');pack.atlases.push(atlas);
+applyHouseAgeArt(pack);
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
 updateArtRevisions();
 console.log('Packed six neutral painted environment sprites.');

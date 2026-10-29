@@ -1,3 +1,4 @@
+import {checkHouseAges} from './house-ages.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
@@ -41,7 +42,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===55&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===56&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -94,6 +95,7 @@ try{
  const gunMotion=await checkGunMotion(page,output);
  const lightMotion=await checkLightMotion(page,output);
  const rangedMotion=await checkRangedMotion(page,output);
+ const houseAges=await checkHouseAges(page,output);
  const paintedWildlife=await checkPaintedWildlife(page,output);
  const paintedFishtraps=await checkPaintedFishtraps(page,output);
  const paintedEnvironment=await checkPaintedEnvironment(page,output);
@@ -117,7 +119,7 @@ try{
  });
  console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.equal(diagnostics.atlases,55);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,56);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>100000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
@@ -320,7 +322,7 @@ try{
  const partial=await browser.newPage({viewport:{width:960,height:850}});
  partial.on('pageerror',error=>errors.push(error.message));
  await partial.route('**/assets/painted-motion-*.webp',route=>route.abort());
- await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===8&&PAINT.terrain);
+ await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===9&&PAINT.terrain);
  for(const kind of ['mil','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'])assert.equal(await partial.evaluate(k=>assetFrame(k,0,1,0,.3).animated,kind),false,'a failed motion sheet retains its painted base pose');
  await partial.close();
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
@@ -336,7 +338,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({artCacheUpgrade,navalTerrainCache,mapTerrainCache,siegeMotion,civicMotion,horseMotion,camelMotion,gunMotion,lightMotion,rangedMotion,paintedEnvironment,paintedWildlife,paintedFishtraps,paintedResources,scarceResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({houseAges,artCacheUpgrade,navalTerrainCache,mapTerrainCache,siegeMotion,civicMotion,horseMotion,camelMotion,gunMotion,lightMotion,rangedMotion,paintedEnvironment,paintedWildlife,paintedFishtraps,paintedResources,scarceResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{
