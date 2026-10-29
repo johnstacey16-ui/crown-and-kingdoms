@@ -9,7 +9,7 @@ function fixture(){const {source,sandbox}=headlessGame();vm.createContext(sandbo
 test('all four kingdoms resolve eight distinct poses for core walking, attacks and villager work',()=>{
  const run=fixture();
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
- for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon'].includes(kind)?[3]:[])]){
+ for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
   const frames=new Set();
   for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).f)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
@@ -39,7 +39,7 @@ test('missing motion sheets fall through to the original painted poses',()=>{
  const run=fixture(),base=pack.atlases.find(a=>a.id==='painted-forces');run(`regAtlas('base',{},${JSON.stringify(base.meta)})`);
  assert.equal(run("assetFrame('knight',1,1,0,0).animated"),false);
  assert.equal(run("assetFrame('knight',1,1,0,0).painted"),true);
- for(const kind of ['jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar'])assert.equal(run(`assetFrame('${kind}',0,1,0,0).animated`),false);
+ for(const kind of ['jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king'])assert.equal(run(`assetFrame('${kind}',0,1,0,0).animated`),false);
 });
 
 test('stopping retains visual facing while solo rendering leaves the entity untouched',()=>{
@@ -50,7 +50,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion).length,kinds.length);
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){const idle=a.meta.anims[kind+'/idle/'+team],walk=a.meta.anims[kind+'/walk/'+team];assert.equal(idle.frames.length,1);assert.equal(idle.scale,walk.scale);assert.equal(idle.referenceHeight,walk.referenceHeight)}
@@ -82,5 +82,26 @@ test('camel and horse motion retain the shared cavalry body scale and one ready 
   const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);assert.ok(a);
   for(const state of ['idle','walk','attack']){const pose=a.meta.anims[kind+'/'+state+'/'+team];assert.ok(Math.abs(pose.scale*pose.referenceHeight-60)<.000001)}
   assert.equal(a.meta.anims[kind+'/idle/'+team].frames.length,1);
+ }
+});
+
+
+test('fishing uses actual gathering state and leaves orders, returning cargo and pause state intact',()=>{
+ const run=fixture();
+ run("globalThis.actor={k:'fish',netId:'fisher',x:12,y:15,p:[],o:'g',cd:0,ret:0,tg:{x:12.5,y:15,fi:1,amt:100,k:'f'}}");
+ const before=run('JSON.stringify(actor)'),pose=run('JSON.stringify(unitVisualPose(actor,4))');
+ assert.equal(run('unitVisualPose(actor,4).state'),3);
+ assert.equal(run('JSON.stringify(unitVisualPose(actor,4))'),pose);
+ assert.equal(run('JSON.stringify(actor)'),before);
+ run('actor.ret=1');assert.equal(run('unitVisualPose(actor,4).state'),0);
+ run('actor.ret=0;actor.tg.x=18;actor.p=[[13,15]]');assert.equal(run('unitVisualPose(actor,4).state'),1);
+});
+
+test('ship and trade cart sheets fit the existing vehicle envelopes without changing simulation scale',()=>{
+ for(const kind of ['fish','gal','trn','cog','cart']){
+  const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind).meta.anims[kind+'/walk/0'];
+  const width=kind==='cart'?86:104,height=kind==='cart'?60:48;
+  assert.ok(a.frames.every(f=>f.w*a.scale<=width+1e-8));
+  assert.ok(a.scale*a.referenceHeight<=height+1e-8);
  }
 });

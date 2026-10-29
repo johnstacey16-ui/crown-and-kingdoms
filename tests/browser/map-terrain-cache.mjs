@@ -29,7 +29,7 @@ export async function checkNavalTerrainCache(browser,origin,output){
  const page=await browser.newPage({viewport:{width:960,height:850}});
  try{
   await page.goto(origin,{waitUntil:'networkidle'});
-  await page.waitForFunction(()=>typeof startScenario==='function'&&ASSET.n===37&&PAINT.terrain);
+  await page.waitForFunction(()=>typeof startScenario==='function'&&ASSET.n===43&&PAINT.terrain);
   await page.evaluate(()=>{
    startScenario(12);mode='title';
    const commands=window.CK_GAME_COMMANDS;

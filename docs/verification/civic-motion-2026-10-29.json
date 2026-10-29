@@ -1,0 +1,521 @@
+{
+  "date": "2026-10-29",
+  "scope": "Six naval/civilian motion sheets; art coverage, not full event/hardware acceptance",
+  "baseCommit": "9854899e3015e18938295c64de6ee479b7f57dda",
+  "manifest": {
+    "version": "painted-raster-v13-motion",
+    "atlases": 43,
+    "motionKinds": 39,
+    "animationEntries": 1660,
+    "frameReferences": 3928
+  },
+  "local": {
+    "regressions": {
+      "files": 211,
+      "passed": 211,
+      "failed": [],
+      "seconds": 109.2,
+      "initialFailed": [
+        {
+          "file": "tests/painted-environment.test.mjs",
+          "exit": 1
+        },
+        {
+          "file": "tests/server-app.test.mjs",
+          "exit": 1
+        }
+      ],
+      "rerun": "Two stale atlas/count expectations updated and both affected files passed"
+    },
+    "source": "passed",
+    "atlas": "passed",
+    "inventory": "passed",
+    "sourceSheets": "all six passed; transport layout corrected first",
+    "noArgumentRebuild": "all motion WebPs and both manifests unchanged",
+    "previousWebps": "all original Git object hashes unchanged",
+    "browser": "complete battlefield suite passed",
+    "civic": {
+      "poses": [
+        {
+          "kind": "fish",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        },
+        {
+          "kind": "gal",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        },
+        {
+          "kind": "trn",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        },
+        {
+          "kind": "cog",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        },
+        {
+          "kind": "cart",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        },
+        {
+          "kind": "king",
+          "state": 1,
+          "paused": true,
+          "unchanged": true
+        }
+      ],
+      "raster": [
+        {
+          "kind": "fish",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3451
+        },
+        {
+          "kind": "fish",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 0,
+          "state": 3,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3451
+        },
+        {
+          "kind": "fish",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 1,
+          "state": 3,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3451
+        },
+        {
+          "kind": "fish",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 2,
+          "state": 3,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3451
+        },
+        {
+          "kind": "fish",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "fish",
+          "team": 3,
+          "state": 3,
+          "distinct": 8,
+          "minimum": 3381
+        },
+        {
+          "kind": "gal",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3787
+        },
+        {
+          "kind": "gal",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3962
+        },
+        {
+          "kind": "gal",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3787
+        },
+        {
+          "kind": "gal",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3962
+        },
+        {
+          "kind": "gal",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3787
+        },
+        {
+          "kind": "gal",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3962
+        },
+        {
+          "kind": "gal",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3787
+        },
+        {
+          "kind": "gal",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3962
+        },
+        {
+          "kind": "trn",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3632
+        },
+        {
+          "kind": "trn",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3696
+        },
+        {
+          "kind": "trn",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3632
+        },
+        {
+          "kind": "trn",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3696
+        },
+        {
+          "kind": "trn",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3632
+        },
+        {
+          "kind": "trn",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3696
+        },
+        {
+          "kind": "trn",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3632
+        },
+        {
+          "kind": "trn",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3696
+        },
+        {
+          "kind": "cog",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3775
+        },
+        {
+          "kind": "cog",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3765
+        },
+        {
+          "kind": "cog",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3775
+        },
+        {
+          "kind": "cog",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3765
+        },
+        {
+          "kind": "cog",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3775
+        },
+        {
+          "kind": "cog",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3765
+        },
+        {
+          "kind": "cog",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 3775
+        },
+        {
+          "kind": "cog",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 3765
+        },
+        {
+          "kind": "cart",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6109
+        },
+        {
+          "kind": "cart",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6223
+        },
+        {
+          "kind": "cart",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6109
+        },
+        {
+          "kind": "cart",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6223
+        },
+        {
+          "kind": "cart",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6109
+        },
+        {
+          "kind": "cart",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6223
+        },
+        {
+          "kind": "cart",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 6109
+        },
+        {
+          "kind": "cart",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 6223
+        },
+        {
+          "kind": "king",
+          "team": 0,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 1986
+        },
+        {
+          "kind": "king",
+          "team": 0,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 1979
+        },
+        {
+          "kind": "king",
+          "team": 1,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 1986
+        },
+        {
+          "kind": "king",
+          "team": 1,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 1979
+        },
+        {
+          "kind": "king",
+          "team": 2,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 1986
+        },
+        {
+          "kind": "king",
+          "team": 2,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 1979
+        },
+        {
+          "kind": "king",
+          "team": 3,
+          "state": 1,
+          "distinct": 8,
+          "minimum": 1986
+        },
+        {
+          "kind": "king",
+          "team": 3,
+          "state": 2,
+          "distinct": 8,
+          "minimum": 1979
+        }
+      ],
+      "work": {
+        "state": 3,
+        "paused": true,
+        "unchanged": true,
+        "returnState": 0
+      },
+      "before": "fnv1a32-09ec641b-907b",
+      "after": "fnv1a32-09ec641b-907b"
+    },
+    "motionLookups": 324,
+    "decodedSequences": 136,
+    "resources": {
+      "samples": [
+        {
+          "kind": "stone",
+          "variant": 0,
+          "opaque": 7025,
+          "transparent": 8665,
+          "hash": 2677351163,
+          "neutral": true
+        },
+        {
+          "kind": "stone",
+          "variant": 1,
+          "opaque": 7003,
+          "transparent": 8668,
+          "hash": 769452323,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 0,
+          "opaque": 6813,
+          "transparent": 9021,
+          "hash": 1119022800,
+          "neutral": true
+        },
+        {
+          "kind": "gold",
+          "variant": 1,
+          "opaque": 6705,
+          "transparent": 9073,
+          "hash": 1067039506,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 0,
+          "opaque": 8717,
+          "transparent": 6457,
+          "hash": 1619077852,
+          "neutral": true
+        },
+        {
+          "kind": "berry",
+          "variant": 1,
+          "opaque": 8866,
+          "transparent": 6247,
+          "hash": 2997338425,
+          "neutral": true
+        }
+      ],
+      "stable": true,
+      "excluded": true,
+      "fallback": true,
+      "before": "fnv1a32-09ec641b-907b",
+      "after": "fnv1a32-09ec641b-907b"
+    },
+    "visualReview": "96-pose packed civic sheet inspected"
+  },
+  "remaining": [
+    "8 playable motion art types",
+    "automatic boarding/trade/greeting activity triggers",
+    "directions/death art",
+    "faction buildings/effects/interface",
+    "physical Xbox Series S Edge acceptance"
+  ],
+  "deployment": "pending exact runtime commit and live asset verification",
+  "hostedCI": "pending current commit; previous jobs failed before steps"
+}

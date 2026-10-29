@@ -5,7 +5,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Category | Status | Remaining work |
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
-| Unit animation | partial | 14 kinds, independent directions, work variants and dedicated death sheets |
+| Unit animation | partial | 8 kinds, independent directions, work variants and dedicated death sheets |
 | Building artwork | partial | faction/age architecture and distinct construction/damage states |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | depletion states and wildlife/fish animation |
@@ -16,8 +16,8 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Minimap and multiplayer presentation | partial | full match and large scene acceptance |
 | Xbox Series S Edge image/performance | unverified | physical Xbox 50/75/100 percent picture presets and large land/naval benchmarks |
 
-## Troops still requiring painted walk/attack sequences
+## Troops still requiring painted movement/activity sequences
 
-Trade Cart, Fishing Ship, War Galley, Transport Ship, Trade Cog, Battering Ram, Elephant Archer, Bombard Cannon, War Elephant, Trebuchet, King, Mangonel, Scorpion, War Wagon.
+Battering Ram, Elephant Archer, Bombard Cannon, War Elephant, Trebuchet, Mangonel, Scorpion, War Wagon.
 
 All 47 playable troops have base artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.
