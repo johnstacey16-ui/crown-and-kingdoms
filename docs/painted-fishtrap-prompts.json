@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-29",
+  "tool": "built-in image generation",
+  "transparentBackground": true,
+  "prompt": "Use case: stylized-concept. Create an ORIGINAL transparent 1536x1024 sprite atlas for Crown & Kingdoms, a painted medieval isometric RTS. Strict TWO columns by TWO rows, FOUR separated complete variants of a medieval FISH TRAP. Each is a low floating woven willow/wicker basket funnel fish trap attached to a small square timber frame with netting, cork/wood floats and short tied rope, sitting at waterline. One or two tiny silvery fish barely visible inside the basket; no big loose fish. Variant0 light tan willow, variant1 darker wicker, variant2 angled timber frame, variant3 repaired lashing/net; same construction, scale and identity. Isometric three-quarter view from above, upper-left warm daylight, detailed realistic hand-painted tan/brown wood and beige rope, small natural transparent blue waterline glints immediately beside object. Neutral asset: NO blue or red team cloth, no flags, no people, no ships, no modern equipment, no terrain/ocean rectangle. Every complete trap fits INSIDE its own768x512cell with at least70 fully transparent pixels on all edges. Subject roughly450pixels wide,260high; full rope tails remain in cell. True zero-alpha transparent background between subjects, no gradients/background, no grid, labels or text. Ready-to-pack game sprites, not a scene.",
+  "source": "docs/art-sources/fishtraps-original.png",
+  "state": "Generated original authoring source, not packed or integrated; execution environment unavailable. Must validate alpha, components, per-cell margins and actual play-scale appearance before runtime use."
+}

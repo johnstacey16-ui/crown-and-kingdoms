@@ -619,6 +619,70 @@
     "faction buildings/effects/interface",
     "physical Xbox Series S Edge acceptance"
   ],
-  "deployment": "pending exact runtime/live verification",
-  "hostedCI": "pending newcommit; previous jobs failed before any steps"
+  "deployment": {
+    "runtimeCommit": "0af33396f6d42ca8319a939328b60337c793db4d",
+    "vercelStatus": "success",
+    "statusUrl": "https://vercel.com/acme-a675/crown-and-kingdoms/BP3BqvYpYNfhsYGH3GHdhN1AUbKw",
+    "liveFileHashComparison": "pending; execution environment became unavailable after commit"
+  },
+  "hostedCI": {
+    "state": "failed before job steps; not a hosted pass",
+    "runs": [
+      {
+        "id": 40889243633,
+        "name": "Game regression checks",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 40889243565,
+        "name": "Battlefield browser graphics",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 40889243684,
+        "name": "Game validation",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "jobs": [
+      {
+        "run": 40889243633,
+        "jobs": [
+          {
+            "name": "node-checks",
+            "conclusion": "failure",
+            "steps": 0
+          },
+          {
+            "name": "Campaign mission suite (19 missions)",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40889243565,
+        "jobs": [
+          {
+            "name": "chromium",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40889243684,
+        "jobs": [
+          {
+            "name": "validate",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      }
+    ]
+  }
 }
