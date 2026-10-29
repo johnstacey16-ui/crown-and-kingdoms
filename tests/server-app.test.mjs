@@ -20,7 +20,7 @@ try {
     assert.ok((await response.text()).includes(marker), path);
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   }
-  for(const name of ['painted-units','painted-units-v2','painted-buildings','painted-terrain','painted-motion-mil','painted-motion-knight','painted-motion-vil','painted-motion-arc','painted-motion-xbow','painted-motion-spear','painted-motion-scout','painted-motion-skirm','painted-motion-mon','painted-motion-axe','painted-motion-lbow','painted-motion-woad','painted-motion-bers','painted-motion-saml','painted-motion-tk','painted-motion-huskarl','painted-motion-jaguar','painted-motion-kamayuk','painted-motion-shotel']){
+  for(const name of ['painted-resources','painted-units','painted-units-v2','painted-buildings','painted-terrain','painted-motion-mil','painted-motion-knight','painted-motion-vil','painted-motion-arc','painted-motion-xbow','painted-motion-spear','painted-motion-scout','painted-motion-skirm','painted-motion-mon','painted-motion-axe','painted-motion-lbow','painted-motion-woad','painted-motion-bers','painted-motion-saml','painted-motion-tk','painted-motion-huskarl','painted-motion-jaguar','painted-motion-kamayuk','painted-motion-shotel']){
     const response=await request('/assets/'+name+'.webp');
     assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^image\/webp/);
     const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.toString('ascii',8,12),'WEBP');
@@ -78,3 +78,4 @@ try {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));
 }
+

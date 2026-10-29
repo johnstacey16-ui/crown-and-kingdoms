@@ -30,7 +30,7 @@
         field.visible.push(i);
         const node=world.nd?.[i];
         field.tiles.push({index:i,water:world.wt?.[i]===1?1:world.wt?.[i]===2?2:0,
-          node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm}:null});
+          node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm,animal:!!node.an}:null});
       }
       for(const e of [...world.us,...world.bs])if(e&&e.hp>0&&position(e)&&!e.ld){
         if(e.t===team){field.health[e.netId]={hp:e.hp,maxHp:e.mh||Math.max(e.hp,(U[e.k]?.hp||e.hp)+(world.tech?.[e.t]?.hpb?.[e.k]||0))};
@@ -146,7 +146,11 @@
         }
         const n=tile.node;
         if(n&&sx>=3){
-          if(n.kind==='w'&&typeof ASSET!=='undefined'&&ASSET.n&&assetFrame('node_tree',0,0,0,0)){const art=assetFrame('node_tree',0,0,0,0),f=art.f,sc=Math.max(15,sx*2)/f.w;context.drawImage(art.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);}else if(n.kind==='w'){
+          const resourceArt=typeof paintedResourceFrame==='function'?paintedResourceFrame(n.kind,x,y,n.animal||n.fish||n.farm):null;
+          if(resourceArt){const f=resourceArt.f,width=Math.max(10,sx*1.25),sc=width/f.w,cached=paintedNodeTexture(resourceArt,54);
+            if(cached)context.drawImage(cached,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
+            else context.drawImage(resourceArt.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);
+          }else if(n.kind==='w'&&typeof ASSET!=='undefined'&&ASSET.n&&assetFrame('node_tree',0,0,0,0)){const art=assetFrame('node_tree',0,0,0,0),f=art.f,sc=Math.max(15,sx*2)/f.w;context.drawImage(art.img,f.x,f.y,f.w,f.h,px+sx/2-f.ax*sc,py+sy-f.ay*sc,f.w*sc,f.h*sc);}else if(n.kind==='w'){
             context.fillStyle='#392f22';context.fillRect(px+sx*.45,py+sy*.4,Math.max(1,sx*.13),sy*.6);
             context.fillStyle=grain?'#254b32':'#31583a';context.beginPath();
             context.arc(px+sx*.5,py+sy*.3,Math.max(2,sx*.48),0,Math.PI*2);context.fill();

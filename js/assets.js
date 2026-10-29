@@ -7,7 +7,7 @@ const ASSET={atl:{},n:0,hits:0,miss:0},STN=['idle','walk','attack','work'];
 // Recolour only the painted blue cloth/heraldry, retaining its light and texture.
 // The neutral stone, skin, steel, timber and terrain pixels remain unchanged.
 function paintedTeamImage(atlas,team){
- if(!atlas.meta.painted)return atlas.img;
+ if(!atlas.meta.painted||atlas.meta.neutral)return atlas.img;
  atlas.teams=atlas.teams||{};if(atlas.teams[team])return atlas.teams[team];
  try{
   const canvas=document.createElement('canvas');canvas.width=atlas.img.naturalWidth||atlas.img.width||atlas.meta.width;canvas.height=atlas.img.naturalHeight||atlas.img.height||atlas.meta.height;
@@ -23,3 +23,4 @@ function validAtlasMeta(meta,w,h){if(!meta||!meta.anims||!Number.isFinite(w)||!N
 function loadAtlas(id,src,meta){const a={img:null,meta,ok:false};ASSET.atl[id]=a;try{const im=new Image();im.onload=()=>{if(!validAtlasMeta(meta,im.naturalWidth||im.width,im.naturalHeight||im.height)){a.ok=false;a.img=null}else{a.img=im;a.ok=true}ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length};im.onerror=()=>{a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length};im.src=src}catch(e){a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length}}
 function assetFrame(k,t,st,dir,time,heading,phase){for(const id in ASSET.atl){const a=ASSET.atl[id];if(!a.ok||!a.img||!a.meta||!a.meta.anims)continue;const an=a.meta.anims[k+'/'+STN[st]+'/'+t];if(!an)continue;const index=an.dirs&&Number.isFinite(heading)?((Math.round(heading/(Math.PI*2)*an.dirs.length)%an.dirs.length)+an.dirs.length)%an.dirs.length:an.dirs?((dir%an.dirs.length)+an.dirs.length)%an.dirs.length:0;const dl=an.dirs?an.dirs[index]:an.frames;if(!dl||!dl.length)continue;const frameIndex=Number.isFinite(phase)?Math.min(dl.length-1,Math.floor(Math.max(0,Math.min(1,phase))*dl.length)):Math.floor(Math.max(0,Number.isFinite(time)?time:0)/(an.dur>0?an.dur:.12))%dl.length;const f=dl[frameIndex];if(f&&f.w>0&&f.h>0){ASSET.hits++;return{img:paintedTeamImage(a,t),f,sc:an.scale>0?an.scale:1,painted:!!a.meta.painted,animated:dl.length>1,referenceHeight:an.referenceHeight||f.h}}}ASSET.miss++;return null}
 function loadAssetPack(p){try{if(!p||!Array.isArray(p.atlases))return;if(p.terrain?.src&&typeof loadPaintedTerrain==='function')loadPaintedTerrain(p.terrain.src);for(const a of p.atlases)if(a&&a.id&&a.src&&a.meta)loadAtlas(a.id,a.src,a.meta)}catch(e){}}
+

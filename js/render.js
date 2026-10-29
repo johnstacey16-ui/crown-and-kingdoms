@@ -550,8 +550,17 @@ function paintedNodeTexture(painted,width){
   frames.set(key,canvas);return canvas;
  }catch(_){return null}
 }
+// Stable geographic variants, independent of time, owner or remaining amount.
+// Farms, fish and hunted animals keep their own presentation.
+function paintedResourceFrame(kind,x,y,excluded=false){
+ if(excluded||typeof ASSET==='undefined'||!ASSET.n)return null;
+ const name={s:'stone',g:'gold',f:'berry'}[kind];if(!name)return null;
+ const variant=hsh(x,y)<.5?0:1;
+ return assetFrame('node_'+name+'_'+variant,0,0,0,0);
+}
+function paintedResourceWidth(n){return n.fm?66:n.k==='w'?72:n.k==='f'?50:54}
 function drawNode(n){const P=w2s(n.x+.5,n.y+.5),v=hsh(n.x,n.y),i=n.y*W+n.x;X.globalAlpha=S.vs[i]?1:.65;
-const painted=ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null;if(painted?.painted){const f=painted.f,sc=(n.fm?66:72)/f.w*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,n.fm?66:72);
+const painted=paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm)||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n)/f.w*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n));
 if(cached)X.drawImage(cached,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 else X.drawImage(painted.img,f.x,f.y,f.w,f.h,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
 X.restore();X.globalAlpha=1;return;}

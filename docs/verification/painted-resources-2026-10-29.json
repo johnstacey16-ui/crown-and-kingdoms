@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 210,
+  "sourceValidation": "passed",
+  "atlases": 22,
+  "animations": 1410,
+  "frameReferences": 2530,
+  "chromium": "complete battlefield-art suite passed locally",
+  "resources": {
+    "samples": [
+      {
+        "kind": "stone",
+        "variant": 0,
+        "opaque": 7025,
+        "transparent": 8665,
+        "hash": 2677351163,
+        "neutral": true
+      },
+      {
+        "kind": "stone",
+        "variant": 1,
+        "opaque": 7003,
+        "transparent": 8668,
+        "hash": 769452323,
+        "neutral": true
+      },
+      {
+        "kind": "gold",
+        "variant": 0,
+        "opaque": 6813,
+        "transparent": 9021,
+        "hash": 1119022800,
+        "neutral": true
+      },
+      {
+        "kind": "gold",
+        "variant": 1,
+        "opaque": 6705,
+        "transparent": 9073,
+        "hash": 1067039506,
+        "neutral": true
+      },
+      {
+        "kind": "berry",
+        "variant": 0,
+        "opaque": 8717,
+        "transparent": 6457,
+        "hash": 1619077852,
+        "neutral": true
+      },
+      {
+        "kind": "berry",
+        "variant": 1,
+        "opaque": 8866,
+        "transparent": 6247,
+        "hash": 2997338425,
+        "neutral": true
+      }
+    ],
+    "stable": true,
+    "excluded": true,
+    "fallback": true,
+    "before": "fnv1a32-324c475d-709e",
+    "after": "fnv1a32-324c475d-709e"
+  },
+  "sourceSHA256": {
+    "js/render.js": "bb85c96fa233c5b1c0cb001b52923f3f60a5b1e0aa22742c3c56bf00b8599609",
+    "js/network-unit-map.js": "9cebfb504afd8202dbe63430aa9e56f6fc2c50da76d9710c4309e7ed41b58cd9",
+    "js/assets.js": "60545b5cde2ce35e43a20e8b61e90ec3c6a5c207c980cc877434d38a50176a60",
+    "assets/painted-resources.webp": "00ce09a92f8ff6e01fc47b6ddd060538dbc2050c69fbaa0fa534dea9b0564b84",
+    "assets/atlas-manifest.json": "3c9808273b5f7d633ae4f9e1cc011ceb11a5e137859070bb393996148aa2de7b",
+    "sw.js": "4312b07abca116574b3ee812443e89f782b25f0545c9492e1028ae3594ee6aae"
+  },
+  "physicalXbox": "unverified",
+  "fullGraphicsOverhaul": "incomplete"
+}
