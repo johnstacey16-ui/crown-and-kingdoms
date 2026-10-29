@@ -623,7 +623,89 @@
     "runtimeCommit": "0af33396f6d42ca8319a939328b60337c793db4d",
     "vercelStatus": "success",
     "statusUrl": "https://vercel.com/acme-a675/crown-and-kingdoms/BP3BqvYpYNfhsYGH3GHdhN1AUbKw",
-    "liveFileHashComparison": "pending; execution environment became unavailable after commit"
+    "liveFileHashComparison": {
+      "runtimeCommit": "0af33396f6d42ca8319a939328b60337c793db4d",
+      "files": [
+        {
+          "path": "assets/atlas-manifest.json",
+          "sha": "8442084f060b5cd6a83cd27ebf0dd135da1f91d2",
+          "actual": "8442084f060b5cd6a83cd27ebf0dd135da1f91d2",
+          "match": true,
+          "sha256": "31877742a28941f91bcb7f3bca8e09178ed72d53ce367f9a9837abd49f5dcefc"
+        },
+        {
+          "path": "assets/painted-motion-bomb.webp",
+          "sha": "0726169031761e8039560ef4c35dddbc1caab967",
+          "actual": "0726169031761e8039560ef4c35dddbc1caab967",
+          "match": true,
+          "sha256": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc"
+        },
+        {
+          "path": "assets/painted-motion-ele.webp",
+          "sha": "2867cdd3637c2b5e143770f9ec2fa1829e19e356",
+          "actual": "2867cdd3637c2b5e143770f9ec2fa1829e19e356",
+          "match": true,
+          "sha256": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e"
+        },
+        {
+          "path": "assets/painted-motion-eled.webp",
+          "sha": "284cc7d8bf80304f860da974a7e2e019e1cba2a3",
+          "actual": "284cc7d8bf80304f860da974a7e2e019e1cba2a3",
+          "match": true,
+          "sha256": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b"
+        },
+        {
+          "path": "assets/painted-motion-mang.webp",
+          "sha": "8bd0370e3707fd1d240c688602ce9f3df7477a18",
+          "actual": "8bd0370e3707fd1d240c688602ce9f3df7477a18",
+          "match": true,
+          "sha256": "f24dce95b9b0c61422ebd972076a850f1bebfc84df1074818165b5a4da080738"
+        },
+        {
+          "path": "assets/painted-motion-ram.webp",
+          "sha": "69e9be1d4d6f99d733ab322f633f96a131e5ec63",
+          "actual": "69e9be1d4d6f99d733ab322f633f96a131e5ec63",
+          "match": true,
+          "sha256": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959"
+        },
+        {
+          "path": "assets/painted-motion-scor.webp",
+          "sha": "68c58c767464f3121b78b263dcb6099e78fffaa0",
+          "actual": "68c58c767464f3121b78b263dcb6099e78fffaa0",
+          "match": true,
+          "sha256": "969f26b2dce131bc51dc963ace6df6fa2d13783f02b7e8fb4d2aee81c9105191"
+        },
+        {
+          "path": "assets/painted-motion-treb.webp",
+          "sha": "c952a48e5c1ad0c39c574d112a3dabc65ea27665",
+          "actual": "c952a48e5c1ad0c39c574d112a3dabc65ea27665",
+          "match": true,
+          "sha256": "1029596c466705889deecae165c40886ecdb930618d796806478adcb71d4f351"
+        },
+        {
+          "path": "assets/painted-motion-wagon.webp",
+          "sha": "19062c3b49f181c2163c97e15d880923f7503916",
+          "actual": "19062c3b49f181c2163c97e15d880923f7503916",
+          "match": true,
+          "sha256": "8cbd2bf1624f87188be3aea4b835c6efd00ed8573bb86c60ec814afc76f8a333"
+        },
+        {
+          "path": "js/render.js",
+          "sha": "2dbe854a1434f5da7b39ef2e01f4f52e337df717",
+          "actual": "2dbe854a1434f5da7b39ef2e01f4f52e337df717",
+          "match": true,
+          "sha256": "2dfa4ede01eafa295236f1209d51a10bddfcd2cb5394cb66c59a09227e0efea5"
+        },
+        {
+          "path": "sw.js",
+          "sha": "0a8eab2dc6227a8dec9a6692ca5a7995a8661988",
+          "actual": "0a8eab2dc6227a8dec9a6692ca5a7995a8661988",
+          "match": true,
+          "sha256": "e2c2bfd2dc3da5e3b031f60906facc1ca853e5931d0e6afa9d074f081eb6c93a"
+        }
+      ],
+      "allMatch": true
+    }
   },
   "hostedCI": {
     "state": "failed before job steps; not a hosted pass",

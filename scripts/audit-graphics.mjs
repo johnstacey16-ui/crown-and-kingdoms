@@ -13,7 +13,7 @@ const checklist=[
  {category:'Building artwork',state:'partial',evidence:buildings.length+' painted kinds including farm',remaining:'faction/age architecture and distinct construction/damage states'},
  {category:'Terrain and coasts',state:'partial',evidence:'painted materials and textured transitions',remaining:'biome-specific integration and repetition review'},
  {category:'Natural resources',state:'partial',evidence:'painted wood, stone, gold, berries, fish and deer',remaining:'depletion states and wildlife/fish animation'},
- {category:'Fish traps',state:'partial',evidence:'procedural basket/water marker',remaining:'dedicated painted trap sprite'},
+ {category:'Fish traps',state:'partial',evidence:'four neutral painted basket/net variants shared by solo and team-relative views',remaining:'waterline/readability review on Xbox'},
  {category:'Relics',state:'partial',evidence:'painted ground/carried reliquary in both renderers',remaining:'hardware readability and animated pickup/deposit presentation'},
  {category:'Combat and world effects',state:'partial',evidence:'procedural projectiles, particles, smoke, rubble and transformed corpses',remaining:'coherent upgraded effects and dedicated destruction art'},
  {category:'HUD, menus and command wheels',state:'partial',evidence:'navy/gold panels, text and command markers',remaining:'complete icon set, scene backgrounds and Xbox readability review'},

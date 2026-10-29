@@ -570,12 +570,13 @@ function paintedResourceFrame(kind,x,y,excluded=false){
  return assetFrame('node_'+name+'_'+variant,0,0,0,0);
 }
 function paintedEnvironmentFrame(n){
- if(typeof ASSET==='undefined'||!ASSET.n||n.fm||n.trap)return null;
+ if(typeof ASSET==='undefined'||!ASSET.n||n.fm)return null;
+ if(n.trap)return n.k==='f'&&n.fi?assetFrame('env_trap_'+Math.min(3,Math.floor(hsh(n.x,n.y)*4)),0,0,0,0):null;
  const kind=n.an?'deer':n.fi?'fish':n.k==='w'?['pine','oak','birch'][Math.min(2,Math.floor(hsh(n.x,n.y)*3))]:null;
  return kind?assetFrame('env_'+kind,0,0,0,0):null;
 }
 function paintedResourceWidth(n,art){
- const width=n.fm?66:n.an?46:n.fi?40:n.k==='w'?62:n.k==='f'?50:54;
+ const width=n.trap?38:n.fm?66:n.an?46:n.fi?40:n.k==='w'?62:n.k==='f'?50:54;
  return n.k==='w'&&art?Math.min(width,86*art.f.w/art.f.h):width;
 }
 function drawPaintedRelic(g,x,y,width){

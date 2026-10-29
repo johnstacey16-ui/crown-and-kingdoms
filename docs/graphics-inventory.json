@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 51,
+  "atlases": 52,
   "units": [
     {
       "kind": "vil",
@@ -639,8 +639,8 @@
     {
       "category": "Fish traps",
       "state": "partial",
-      "evidence": "procedural basket/water marker",
-      "remaining": "dedicated painted trap sprite"
+      "evidence": "four neutral painted basket/net variants shared by solo and team-relative views",
+      "remaining": "waterline/readability review on Xbox"
     },
     {
       "category": "Relics",

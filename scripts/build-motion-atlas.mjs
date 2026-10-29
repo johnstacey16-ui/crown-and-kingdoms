@@ -46,7 +46,7 @@ for(const kind of kinds){
 }
 writeFileSync(new URL('assets/motion-manifest.json',root),JSON.stringify({version:1,atlases}));
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
-pack.version='painted-raster-v14-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
+pack.version=pack.atlases.some(a=>a.id==='painted-fishtraps')?'painted-raster-v15-fishtraps':'painted-raster-v14-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
 writeFileSync(manifest,JSON.stringify(pack));
 console.log('Packed 752 original motion poses for all forty-seven current playable unit types.');
 

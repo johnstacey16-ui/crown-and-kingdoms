@@ -1,3 +1,11 @@
+## 29 October 2026 — Painted fish traps
+
+**CK-032 / CK-041 remain PARTIAL.** Four original neutral wicker/net fish-trap variants now render in solo and team-relative multiplayer views. Variants depend only on position, retain natural colours and use small cached textures; missing images retain the procedural trap. Existing ownership, gathering, replenishment, fog, economy, commands and saves are unchanged. All previously committed WebP hashes remain unchanged.
+
+Source/52-atlas/inventory checks, all 211 standalone files and the complete Chromium battlefield suite passed locally. New browser checks confirm four distinct transparent variants, actual drawing in both renderers, missing-image fallback and unchanged node/world state. The 38/76/114-pixel comparison was inspected. Fish-trap, base and motion rebuilds are byte-identical. Stone, gold and berry checks still pass. Shell v36 includes the new image. See [artwork and scope](docs/PAINTED_FISHTRAPS.md), [exact prompt](docs/painted-fishtrap-prompts.json) and [verification](docs/verification/fishtraps-2026-10-29.json). Physical Xbox review and the broader overhaul remain open.
+
+After the environment returned, the prior 47-unit runtime was independently matched against its committed renderer, manifest, shell and all eight new elephant/siege images (11 exact Git blob comparisons). Current fish-trap production/hosted checks remain separate.
+
 ## 29 October 2026 — Complete current-roster motion artwork
 
 **CK-032 / CK-041 remain PARTIAL; all 47 current playable kinds now have painted movement/activity sheets.** Elephant Archer, War Elephant, Battering Ram, Bombard Cannon, Trebuchet, Mangonel, Scorpion and War Wagon gain sixteen-pose sheets and matching ready poses. Reviewed strike/release cells start the cooldown-driven action cycle. Existing foot/cavalry/vehicle envelopes, four team colours, pause and original-art fallback remain; cart and war wagon overlays now use vehicle dimensions. Gameplay, commands, controller bindings and save fields are unchanged, as are all earlier WebP object hashes.

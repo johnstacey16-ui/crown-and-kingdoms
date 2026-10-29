@@ -9,7 +9,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Building artwork | partial | faction/age architecture and distinct construction/damage states |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | depletion states and wildlife/fish animation |
-| Fish traps | partial | dedicated painted trap sprite |
+| Fish traps | partial | waterline/readability review on Xbox |
 | Relics | partial | hardware readability and animated pickup/deposit presentation |
 | Combat and world effects | partial | coherent upgraded effects and dedicated destruction art |
 | HUD, menus and command wheels | partial | complete icon set, scene backgrounds and Xbox readability review |
