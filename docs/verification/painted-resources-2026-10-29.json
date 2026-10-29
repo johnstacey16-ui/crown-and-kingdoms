@@ -72,5 +72,44 @@
     "sw.js": "4312b07abca116574b3ee812443e89f782b25f0545c9492e1028ae3594ee6aae"
   },
   "physicalXbox": "unverified",
-  "fullGraphicsOverhaul": "incomplete"
+  "fullGraphicsOverhaul": "incomplete",
+  "runtimeCommit": "f615035dab6ef121467dcdb836e1fed29e37c9f0",
+  "production": {
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "status": "Vercel success; all six runtime/art files byte-identical",
+    "files": [
+      {
+        "path": "js/render.js",
+        "matches": true
+      },
+      {
+        "path": "js/network-unit-map.js",
+        "matches": true
+      },
+      {
+        "path": "js/assets.js",
+        "matches": true
+      },
+      {
+        "path": "assets/painted-resources.webp",
+        "matches": true
+      },
+      {
+        "path": "assets/atlas-manifest.json",
+        "matches": true
+      },
+      {
+        "path": "sw.js",
+        "matches": true
+      }
+    ]
+  },
+  "hostedCI": {
+    "status": "failure before any job steps executed; cause unverified",
+    "runs": [
+      40835182789,
+      40835182975,
+      40835182911
+    ]
+  }
 }
