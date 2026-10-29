@@ -19,7 +19,7 @@ function evaluator(){
   vm.runInContext(source+'\n;globalThis.evaluateSecondary=code=>eval(code)',sandbox);
   return sandbox.evaluateSecondary;
 }
-test('secondary motion explicitly covers all 28 remaining painted unit kinds with six family tempos',()=>{
+test('secondary fallback covers 28 base portraits with six family tempos',()=>{
   const run=evaluator(),kindList=Object.values(groups).flat();
   assert.equal(kindList.length,28);
   assert.equal(new Set(kindList).size,28);
@@ -69,3 +69,4 @@ test('solo and multiplayer renderers share the same presentation-only pose and p
   assert.equal(run('JSON.stringify(a)'),before);
   assert.equal(run('JSON.stringify(unitVisualPose(a,S.t))'),checksum);
 });
+

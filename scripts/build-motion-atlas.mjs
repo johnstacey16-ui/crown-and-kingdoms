@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa'],args=process.argv.slice(2),sources={},atlases=[];
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!kinds.includes(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
@@ -13,7 +13,11 @@ for(const kind of kinds){
  if(info.width%4||info.height%4)throw Error('Invalid motion grid '+kind);
  let empty=0;for(let i=3;i<data.length;i+=4)if(data[i]===0)empty++;
  if(empty<info.width*info.height*.45)throw Error('Sprite sheet background is not transparent: '+kind);
- if(sources[kind]){const padded=reflowSpriteGrid(data,info.width,info.height,4,4,16);data=padded.data;info={...info,width:padded.width,height:padded.height};}
+ if(sources[kind]){
+  // These ranged sheets contain detached muzzle smoke/bolt artwork. Keep the
+  // complete in-cell character; production projectiles remain a separate layer.
+  if(['jan','genoa'].includes(kind))data=extractSpriteGrid(data,info.width,info.height,4,4,16).data;
+  const padded=reflowSpriteGrid(data,info.width,info.height,4,4,16);data=padded.data;info={...info,width:padded.width,height:padded.height};}
  const isolated=extractSpriteGrid(data,info.width,info.height,4,4,16),frames=isolated.frames;
  if(sources[kind]||!isolated.data.equals(data)){
   const bytes=await sharp(isolated.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer();writeFileSync(path,bytes);
@@ -33,6 +37,7 @@ for(const kind of kinds){
 }
 writeFileSync(new URL('assets/motion-manifest.json',root),JSON.stringify({version:1,atlases}));
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
-pack.version='painted-raster-v7-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
+pack.version='painted-raster-v8-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
 writeFileSync(manifest,JSON.stringify(pack));
-console.log('Packed 304 original motion poses for nineteen unit types.');
+console.log('Packed 336 original motion poses for twenty-one unit types.');
+

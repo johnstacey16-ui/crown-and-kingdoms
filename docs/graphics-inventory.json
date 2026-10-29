@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 23,
+  "atlases": 25,
   "units": [
     {
       "kind": "vil",
@@ -160,8 +160,8 @@
       "kind": "jan",
       "name": "Janissary",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -331,8 +331,8 @@
       "kind": "genoa",
       "name": "Genoese Crossbowman",
       "paintedBase": true,
-      "walkFrames": 1,
-      "attackFrames": 1,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -615,8 +615,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "19 of 47 kinds have painted multi-frame walk and attack",
-      "remaining": "28 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "21 of 47 kinds have painted multi-frame walk and attack",
+      "remaining": "26 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Building artwork",

@@ -1,3 +1,5 @@
+Current motion coverage is **21/47** playable kinds, adding Janissaries and Genoese Crossbowmen. See [the latest motion increment](PAINTED_RANGED_EXPANSION.md). Earlier counts below record historical stages.
+
 Current animation coverage is 19 playable kinds. See [the latest artwork increment](PAINTED_WARRIORS.md). Coverage below records this document's earlier stage.
 
 Current coverage: eight playable kinds, including scouts and skirmishers. See [the latest animation increment](PAINTED_RAIDERS.md). The increment-specific coverage below records its original stage.
@@ -31,3 +33,4 @@ to blue cloth/heraldry pixels and cached once per team and sheet.
 
 The preview is a real Canvas2D game rendering of a staged village, not an
 image-generation mockup. Simulation and controller bindings are unchanged.
+

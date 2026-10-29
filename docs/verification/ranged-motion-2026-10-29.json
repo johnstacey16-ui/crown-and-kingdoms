@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-29",
+  "standaloneFilesPassed": 211,
+  "sourceValidation": "passed",
+  "atlasValidation": {
+    "atlases": 25,
+    "entries": 1440,
+    "references": 2672
+  },
+  "motionCoverage": {
+    "painted": 21,
+    "playable": 47,
+    "remaining": 26,
+    "independentDirections": "unfinished"
+  },
+  "chromium": "complete battlefield-art suite passed locally",
+  "rangedMotion": {
+    "poses": [
+      {
+        "kind": "jan",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      },
+      {
+        "kind": "genoa",
+        "paused": true,
+        "unchanged": true,
+        "phase": 0,
+        "firstFire": true
+      }
+    ],
+    "raster": [
+      {
+        "kind": "jan",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1411
+      },
+      {
+        "kind": "jan",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1373
+      },
+      {
+        "kind": "jan",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1411
+      },
+      {
+        "kind": "jan",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1373
+      },
+      {
+        "kind": "jan",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1411
+      },
+      {
+        "kind": "jan",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1373
+      },
+      {
+        "kind": "jan",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1411
+      },
+      {
+        "kind": "jan",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1373
+      },
+      {
+        "kind": "genoa",
+        "team": 0,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1593
+      },
+      {
+        "kind": "genoa",
+        "team": 0,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1757
+      },
+      {
+        "kind": "genoa",
+        "team": 1,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1593
+      },
+      {
+        "kind": "genoa",
+        "team": 1,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1757
+      },
+      {
+        "kind": "genoa",
+        "team": 2,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1593
+      },
+      {
+        "kind": "genoa",
+        "team": 2,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1757
+      },
+      {
+        "kind": "genoa",
+        "team": 3,
+        "state": 1,
+        "distinct": 8,
+        "minimum": 1593
+      },
+      {
+        "kind": "genoa",
+        "team": 3,
+        "state": 2,
+        "distinct": 8,
+        "minimum": 1757
+      }
+    ],
+    "before": "fnv1a32-3121bb18-75ca",
+    "after": "fnv1a32-3121bb18-75ca"
+  },
+  "motionLookups": 176,
+  "motionRasterSequences": 62,
+  "motionRebuild": "no-argument rebuild byte-identical",
+  "oldRasterArt": "all previously committed WebP Git object hashes unchanged",
+  "sourceSHA256": {
+    "js/render.js": "e6a5917917f8efd83fd1086c8afda34507e4545983d3a9ac0257cb2fb6e22191",
+    "scripts/build-motion-atlas.mjs": "e5fe22972ca46dab3f3a12ed1c237884065a0479e3b6136ff7413ccec5eb9383",
+    "scripts/build-painted-atlas.mjs": "1b62a004a0bfbf6b4aa7d92719bf9fd1a8091218f034591b444429253fc6d69b",
+    "scripts/audit-graphics.mjs": "87238d9b49230677947ac74d5ddf02aa27e8f564b4016c20d02dc5998cdb5130",
+    "assets/painted-motion-jan.webp": "c005f15f9cf7a0f0add992b37ffbeae24fdf49635157edf13bef0ea898c55b20",
+    "assets/painted-motion-genoa.webp": "15c0b8811fb3f549abfb80bd6f636763192a9e32929f47c30ec588e35dbe5eee",
+    "assets/atlas-manifest.json": "ae11a67a0cd1f6e8eb507202ce8117a6691b25b73b31722c99a23184196cebc7",
+    "assets/motion-manifest.json": "6a516a864ffaf87941679a484b96d54dbdee28202dfa1ac9b19b704308d9b1a2",
+    "sw.js": "3be8d108117789712a2fe86f020a58cc2387497d4b9ae5e339cd94c059af2edd"
+  },
+  "xboxHardware": "unverified"
+}

@@ -14,6 +14,8 @@ A controller-first medieval real-time strategy game targeting Xbox Series X thro
 
 **Environment artwork — 29 October:** painted deer, fishing shoals, relics and three tree types now join stone/gold/berries. The [whole-game graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md) tracks every remaining category; full animation and Xbox acceptance remain unfinished.
 
+**Motion update — 29 October:** Janissaries and Genoese Crossbowmen now have painted walking and firing/loading sequences. Motion coverage is 21/47 playable troops; 26 remain. See [the latest artwork increment](docs/PAINTED_RANGED_EXPANSION.md).
+
 ## Run
 
 Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.

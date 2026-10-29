@@ -89,9 +89,9 @@ function unitVisualPose(u,time){
  return {state,heading,time:now+offset/997,
   phase:state===2?Math.max(0,Math.min(1,1-u.cd/duration)):undefined};
 }
-// The remaining 28 kinds use their EXISTING painted portraits for a light
-// presentation-only movement/recoil pass. This is not equivalent to the
-// sixteen individually painted frames available for the nineteen motion kinds.
+// Base portraits retain light fallback movement/recoil when motion is missing.
+// This includes Janissaries/Genoese Crossbowmen if their new sheets fail to load.
+// Fallback transforms are distinct from individually painted motion frames.
 const PAINT_SECONDARY=Object.freeze({
   cart:'siege',fish:'ship',gal:'ship',trn:'ship',cog:'ship',
   ram:'siege',mamel:'mounted',jan:'ranged',chuko:'ranged',

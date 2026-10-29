@@ -9,7 +9,7 @@ function fixture(){const {source,sandbox}=headlessGame();vm.createContext(sandbo
 test('all four kingdoms resolve eight distinct poses for core walking, attacks and villager work',()=>{
  const run=fixture();
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
- for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon'].includes(kind)?[3]:[])]){
+ for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon'].includes(kind)?[3]:[])]){
   const frames=new Set();
   for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).f)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
@@ -39,6 +39,7 @@ test('missing motion sheets fall through to the original painted poses',()=>{
  const run=fixture(),base=pack.atlases.find(a=>a.id==='painted-forces');run(`regAtlas('base',{},${JSON.stringify(base.meta)})`);
  assert.equal(run("assetFrame('knight',1,1,0,0).animated"),false);
  assert.equal(run("assetFrame('knight',1,1,0,0).painted"),true);
+ for(const kind of ['jan','genoa'])assert.equal(run(`assetFrame('${kind}',0,1,0,0).animated`),false);
 });
 
 test('stopping retains visual facing while solo rendering leaves the entity untouched',()=>{
@@ -49,7 +50,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion).length,kinds.length);
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){const idle=a.meta.anims[kind+'/idle/'+team],walk=a.meta.anims[kind+'/walk/'+team];assert.equal(idle.frames.length,1);assert.equal(idle.scale,walk.scale);assert.equal(idle.referenceHeight,walk.referenceHeight)}
@@ -74,3 +75,4 @@ test('monk conversion gestures follow active progress, yield to walking and neve
  assert.equal(run('CK_UNIT_MAP.project(S,0,W,H).units.find(u=>u.id===actor.netId).pose.state'),3);
  assert.equal(run('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),run('beforePose'),'multiplayer projection leaves conversion and simulation untouched');
 });
+

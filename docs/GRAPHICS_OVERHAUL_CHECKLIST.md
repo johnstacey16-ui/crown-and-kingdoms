@@ -5,7 +5,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Category | Status | Remaining work |
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
-| Unit animation | partial | 28 kinds, independent directions, work variants and dedicated death sheets |
+| Unit animation | partial | 26 kinds, independent directions, work variants and dedicated death sheets |
 | Building artwork | partial | faction/age architecture and distinct construction/damage states |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | depletion states and wildlife/fish animation |
@@ -18,6 +18,6 @@ Tracks every current visual category, including unfinished art. Source catalogue
 
 ## Troops still requiring painted walk/attack sequences
 
-Trade Cart, Fishing Ship, War Galley, Transport Ship, Trade Cog, Battering Ram, Mameluke, Janissary, Chu Ko Nu, Elephant Archer, Hand Cannoneer, Bombard Cannon, Mangudai, Cataphract, War Elephant, Trebuchet, Camel Rider, King, Mangonel, Scorpion, Conquistador, Genoese Crossbowman, Boyar, Tarkan, Plumed Archer, Gbeto, War Wagon, Magyar Huszar.
+Trade Cart, Fishing Ship, War Galley, Transport Ship, Trade Cog, Battering Ram, Mameluke, Chu Ko Nu, Elephant Archer, Hand Cannoneer, Bombard Cannon, Mangudai, Cataphract, War Elephant, Trebuchet, Camel Rider, King, Mangonel, Scorpion, Conquistador, Boyar, Tarkan, Plumed Archer, Gbeto, War Wagon, Magyar Huszar.
 
 All 47 playable troops have base artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.

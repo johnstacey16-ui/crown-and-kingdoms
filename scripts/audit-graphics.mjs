@@ -9,7 +9,7 @@ const units=Object.entries(ctx.catalog.U).filter(([k])=>!proxies.has(k)).map(([k
 const buildings=Object.entries(ctx.catalog.B).map(([kind,d])=>({kind,name:d.n,paintedBase:animations('bld_'+kind+'/idle/0').length>0,factionArchitecture:'unfinished',constructionArt:'shared scaffolding overlay',damageArt:'shared smoke overlay'}));
 const checklist=[
  {category:'Unit base artwork',state:'present',evidence:'47 playable kinds; see catalogue',remaining:'play-scale faction/direction review'},
- {category:'Unit animation',state:'partial',evidence:units.filter(u=>u.walkFrames>1&&u.attackFrames>1).length+' of '+units.length+' kinds have painted multi-frame walk and attack',remaining:'28 kinds, independent directions, work variants and dedicated death sheets'},
+ {category:'Unit animation',state:'partial',evidence:units.filter(u=>u.walkFrames>1&&u.attackFrames>1).length+' of '+units.length+' kinds have painted multi-frame walk and attack',remaining:(units.filter(u=>u.walkFrames<=1||u.attackFrames<=1).length)+' kinds, independent directions, work variants and dedicated death sheets'},
  {category:'Building artwork',state:'partial',evidence:buildings.length+' painted kinds including farm',remaining:'faction/age architecture and distinct construction/damage states'},
  {category:'Terrain and coasts',state:'partial',evidence:'painted materials and textured transitions',remaining:'biome-specific integration and repetition review'},
  {category:'Natural resources',state:'partial',evidence:'painted wood, stone, gold, berries, fish and deer',remaining:'depletion states and wildlife/fish animation'},
@@ -22,4 +22,8 @@ const checklist=[
 ];
 const inventory={scope:'All currently implemented graphics categories; future gameplay/DLC additions require new art coverage',complete:false,atlases:pack.atlases.length,units,buildings,checklist};
 const out=JSON.stringify(inventory,null,2)+'\n',path=new URL('docs/graphics-inventory.json',root);
-if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==out)throw Error('Graphics inventory is stale');console.log('Graphics inventory matches runtime catalogue.')}else{writeFileSync(path,out);console.log('Wrote graphics inventory; full overhaul remains unfinished.');}
+const table=checklist.map(x=>'| '+x.category+' | '+x.state+' | '+x.remaining+' |').join('\n');
+const missing=units.filter(x=>x.walkFrames<=1||x.attackFrames<=1).map(x=>x.name).join(', ');
+const human='# Complete graphics overhaul checklist\n\nTracks every current visual category, including unfinished art. Source catalogue: [graphics-inventory.json](graphics-inventory.json). Regenerate with `node scripts/audit-graphics.mjs`; verify with `--check`.\n\n| Category | Status | Remaining work |\n|---|---|---|\n'+table+'\n\n## Troops still requiring painted walk/attack sequences\n\n'+missing+'.\n\nAll 47 playable troops have base artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.\n';
+const humanPath=new URL('docs/GRAPHICS_OVERHAUL_CHECKLIST.md',root);
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==out||readFileSync(humanPath,'utf8')!==human)throw Error('Graphics inventory or checklist is stale');console.log('Graphics inventory and checklist match runtime catalogue.')}else{writeFileSync(path,out);writeFileSync(humanPath,human);console.log('Wrote graphics inventory and checklist; full overhaul remains unfinished.');}
