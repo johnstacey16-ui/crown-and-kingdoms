@@ -11,15 +11,15 @@ test('all four kingdoms resolve eight distinct poses for core walking, attacks a
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
  for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
   const frames=new Set();
-  for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).f)`));
+  for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).sourceFrame)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
  }
 });
 
 test('cooldown phase controls attack frames and clamps endpoints independently of render time',()=>{
  const run=fixture(),a=pack.atlases.find(a=>a.id==='painted-motion-mil');run(`regAtlas('motion',{},${JSON.stringify(a.meta)})`);
- assert.equal(run("assetFrame('mil',0,2,0,0,0,0).f.x"),run("assetFrame('mil',0,2,0,999,0,-1).f.x"));
- assert.equal(run("JSON.stringify(assetFrame('mil',0,2,0,0,0,1).f)"),JSON.stringify(a.meta.anims['mil/attack/0'].frames[7]));
+ assert.equal(run("assetFrame('mil',0,2,0,0,0,0).sourceFrame.x"),run("assetFrame('mil',0,2,0,999,0,-1).sourceFrame.x"));
+ assert.equal(run("JSON.stringify(assetFrame('mil',0,2,0,0,0,1).sourceFrame)"),JSON.stringify(a.meta.anims['mil/attack/0'].frames[7]));
  run("globalThis.actor={k:'mil',netId:'u:1',x:12,y:15,p:[],o:'a',cd:U.mil.cd,tg:{x:10,y:15}}");
  assert.equal(run('unitVisualPose(actor,1).phase'),0);
  run('actor.cd=U.mil.cd/2');assert.equal(run('unitVisualPose(actor,1).phase'),.5);

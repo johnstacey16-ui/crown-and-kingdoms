@@ -10,7 +10,7 @@ export async function checkSiegeMotion(page,output){
   for(const [row,kind] of kinds.entries()){
    const actor={k:kind,netId:'siege-'+kind,x:20,y:20,p:[],o:'a',cd:U[kind].cd,tg:{x:24,y:20}};
    const saved=JSON.stringify(actor),pose=unitVisualPose(actor,5),a=assetFrame(kind,0,2,0,999,0,pose.phase),atlas=ASSET.atl['painted-motion-'+kind];
-   const cell=Math.floor(a.f.x/(atlas.meta.width/4))+4*Math.floor(a.f.y/(atlas.meta.height/4));
+   const cell=Math.floor(a.sourceFrame.x/(atlas.meta.width/4))+4*Math.floor(a.sourceFrame.y/(atlas.meta.height/4));
    poses.push({kind,paused:JSON.stringify(pose)===JSON.stringify(unitVisualPose(actor,5)),unchanged:saved===JSON.stringify(actor),phase:pose.phase,sourceCell:cell,expectedCell:atlas.meta.sourceActionFrame});
    for(const state of [1,2])for(let frame=0;frame<8;frame++){
     const f=assetFrame(kind,0,state,0,0,0,frame/8);

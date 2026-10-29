@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-29",
+  "scope": "Bounded original-resolution tint cache for 47 motion atlases; established building/base sampling retained",
+  "sourceCommit": null,
+  "local": {
+    "regressions": {
+      "files": 215,
+      "passed": 215,
+      "failed": [],
+      "seconds": 68.6
+    },
+    "fullChromiumGraphics": "passed",
+    "pixelAndAllocationComparison": {
+      "atlases": 51,
+      "frames": 3320,
+      "components": 824729056,
+      "nativeDifferences": 0,
+      "scaledDifferences": 0,
+      "legacyTotalCanvasPixels": 545936672,
+      "retainedPixelLimit": 33554432,
+      "peakRetainedPixels": 33554429,
+      "retainedPixels": 33500229,
+      "newCanvases": 3024,
+      "evictions": 2540,
+      "warmAllocations": 0,
+      "legacyMotionCopiesRetained": 0,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "scaledComparisonCases": 1632,
+    "sourceAtlasInventory": "passed",
+    "artworkAndManifestBytes": "unchanged"
+  },
+  "nominalCanvasAudit": {
+    "motionAtlasMiB_perCompletePalette": 491.25,
+    "nonMotionTintableMiB_perCompletePalette": 29.4,
+    "retainedMotionCacheMiB_limit": 128,
+    "measuredProcessOrGPUUsage": false,
+    "xboxAcceptance": false
+  },
+  "production": {
+    "status": "pending"
+  },
+  "hostedCI": {
+    "status": "pending; prior jobs failed before steps, cause unverified"
+  },
+  "limits": [
+    "Pixel comparisons cover all native frame/palette crops and representative scaled/mirrored established draw paths, not every corpse/effect/filter path.",
+    "LRU limits retained motion canvas pixels; decoded sources, caller-held evicted canvases, other caches and temporary allocations are separate.",
+    "Exhaustive coverage triggers evictions; large-scene hit rates and Xbox memory/FPS need acceptance."
+  ]
+}

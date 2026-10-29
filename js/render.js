@@ -149,6 +149,8 @@ function troopFrameTexture(art){
  const img=art?.img,f=art?.f;
  if(!img||!f||typeof img!=='object')return null;
  const {x,y,w,h}=f;
+ // The bounded palette cache already supplies an exact native crop.
+ if(img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
  if(![x,y,w,h].every(Number.isFinite)||w<=0||h<=0||w*h>TROOP_TEXTURE_PIXEL_LIMIT)return null;
  let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
  const key=id+'/'+x+'/'+y+'/'+w+'/'+h;

@@ -92,3 +92,10 @@ test('production unit renderer remains atlas-first, with procedural fallback and
  run('const u=S.us[0];if(u){unitVisualPose(u,S.t);}');
  assert.equal(run('JSON.stringify({us:S.us.map(u=>[u.id,u.k,u.x,u.y,u.hp]),s:S.t})'),before);
 });
+
+
+test('an already prepared native tint frame draws directly without a redundant texture copy',()=>{
+ const s=scene(),img={width:230,height:246,paintedSourceFrame:{x:15,y:26,w:230,h:246}},f={x:0,y:0,w:230,h:246,ax:75,ay:240};
+ assert.equal(s.troopFrameTexture({img,f}),img);assert.equal(s.crops.length,0);assert.equal(s.TROOP_TEXTURE_LRU.size,0);
+ assert.notEqual(s.troopFrameTexture({img,f:{...f,w:229}}),img,'a different source rectangle still follows the ordinary crop path');
+});

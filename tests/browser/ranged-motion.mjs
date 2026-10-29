@@ -8,7 +8,7 @@ export async function checkRangedMotion(page,output){
    const actor={k:kind,x:20,y:20,netId:'preview-'+kind,p:[],o:'a',cd:U[kind].cd,tg:{x:24,y:20}},saved=JSON.stringify(actor);
    const pose=unitVisualPose(actor,5),paused=JSON.stringify(pose)===JSON.stringify(unitVisualPose(actor,5));
    const firing=assetFrame(kind,0,2,0,999,0,pose.phase),atlas=ASSET.atl['painted-motion-'+kind];
-   poses.push({kind,paused,unchanged:saved===JSON.stringify(actor),phase:pose.phase,firstFire:JSON.stringify(firing.f)===JSON.stringify(atlas.meta.anims[kind+'/attack/0'].frames[0])});
+   poses.push({kind,paused,unchanged:saved===JSON.stringify(actor),phase:pose.phase,firstFire:JSON.stringify(firing.sourceFrame)===JSON.stringify(atlas.meta.anims[kind+'/attack/0'].frames[0])});
    for(let state=1;state<=2;state++)for(let frame=0;frame<8;frame++){
     const a=assetFrame(kind,0,state,0,0,0,frame/8);drawPaintedTroop(g,a,frame*160+70,(unit*2+state)*128-5,a.sc*2,state,0,false,kind,frame/8);
    }
