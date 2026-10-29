@@ -4,7 +4,7 @@
 
 Source/52-atlas/inventory checks, all 211 standalone files and the complete Chromium battlefield suite passed locally. New browser checks confirm four distinct transparent variants, actual drawing in both renderers, missing-image fallback and unchanged node/world state. The 38/76/114-pixel comparison was inspected. Fish-trap, base and motion rebuilds are byte-identical. Stone, gold and berry checks still pass. Shell v36 includes the new image. See [artwork and scope](docs/PAINTED_FISHTRAPS.md), [exact prompt](docs/painted-fishtrap-prompts.json) and [verification](docs/verification/fishtraps-2026-10-29.json). Physical Xbox review and the broader overhaul remain open.
 
-After the environment returned, the prior 47-unit runtime was independently matched against its committed renderer, manifest, shell and all eight new elephant/siege images (11 exact Git blob comparisons). Current fish-trap production/hosted checks remain separate.
+After the environment returned, the prior 47-unit runtime was independently matched against its committed renderer, manifest, shell and all eight new elephant/siege images (11 exact Git blob comparisons). Fish-trap runtime `ce68cffdd3a8ce1b532ef7a13177381ce20640a3` is verified live: renderer, manifest, shell and image SHA-256 values match source. Vercel reports success. Hosted GitHub jobs again fail before any steps; this is not a hosted CI pass.
 
 ## 29 October 2026 — Complete current-roster motion artwork
 

@@ -202,8 +202,78 @@
     ],
     "allMatch": true
   },
-  "deployment": "pending currentcommit livefile comparison",
-  "hostedCI": "pending currentcommit; previous jobs failed before any steps",
+  "deployment": {
+    "runtimeCommit": "ce68cffdd3a8ce1b532ef7a13177381ce20640a3",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "files": [
+      {
+        "path": "assets/atlas-manifest.json",
+        "local": "508a203e107c1eed5ad1049ffbf672d26291bc2a3d560344e8b7c8de3e347b76",
+        "remote": "508a203e107c1eed5ad1049ffbf672d26291bc2a3d560344e8b7c8de3e347b76",
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "local": "eed421f8ecddec6dbc1761d03d4ea499f2f81b14376a8ea31413c4919187710a",
+        "remote": "eed421f8ecddec6dbc1761d03d4ea499f2f81b14376a8ea31413c4919187710a",
+        "match": true
+      },
+      {
+        "path": "js/render.js",
+        "local": "198cfcda3d5b525a8fe6956dc5fecdaf713c2bb9874f53fc9ad2124c3f28bc50",
+        "remote": "198cfcda3d5b525a8fe6956dc5fecdaf713c2bb9874f53fc9ad2124c3f28bc50",
+        "match": true
+      },
+      {
+        "path": "assets/painted-fishtraps.webp",
+        "local": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
+        "remote": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
+        "match": true
+      }
+    ],
+    "allMatch": true,
+    "vercelStatus": "success"
+  },
+  "hostedCI": {
+    "state": "failed before any steps; not a hosted pass",
+    "jobs": [
+      {
+        "run": 40936556929,
+        "jobs": [
+          {
+            "name": "chromium",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40936556618,
+        "jobs": [
+          {
+            "name": "validate",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40936556679,
+        "jobs": [
+          {
+            "name": "Campaign mission suite (19 missions)",
+            "conclusion": "failure",
+            "steps": 0
+          },
+          {
+            "name": "node-checks",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      }
+    ]
+  },
   "remaining": [
     "physical Xbox Series S Edge readability and waterline review",
     "broader graphics checklist work"
