@@ -499,8 +499,84 @@
     "previousWebps": "all previously committed WebP Git hashes unchanged",
     "visualReview": "full/scarce comparisons at1x/2x for both variants of all three kinds inspected"
   },
-  "deployment": "pending exact runtime/live comparison",
-  "hostedCI": "pending newcommit; previous jobs failed before any steps",
+  "deployment": {
+    "runtimeCommit": "f8d81c9af80831b12f54d0459433232a5b8eb446",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "files": [
+      {
+        "path": "assets/atlas-manifest.json",
+        "local": "1f1b6a2bc510b73de46ca613c6dac2b38c0be5f3b1d486ead6b33f982febfe64",
+        "remote": "1f1b6a2bc510b73de46ca613c6dac2b38c0be5f3b1d486ead6b33f982febfe64",
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "local": "b117a9db78f04425b2987d33784bfd0b1cec1aa4e84e836af3ee1c629c6328b0",
+        "remote": "b117a9db78f04425b2987d33784bfd0b1cec1aa4e84e836af3ee1c629c6328b0",
+        "match": true
+      },
+      {
+        "path": "js/render.js",
+        "local": "8709e26e3d187e557afda766e327eee9c9f890611f570137bf4e25851c9000ca",
+        "remote": "8709e26e3d187e557afda766e327eee9c9f890611f570137bf4e25851c9000ca",
+        "match": true
+      },
+      {
+        "path": "js/network-unit-map.js",
+        "local": "430cb2351231adf44da801c3540282fa921f728176d581403440f67c85220082",
+        "remote": "430cb2351231adf44da801c3540282fa921f728176d581403440f67c85220082",
+        "match": true
+      },
+      {
+        "path": "assets/painted-scarce-resources.webp",
+        "local": "903ed326549b0e09dbe6d1002d84071afeea5385192a03e5133f91a505336e27",
+        "remote": "903ed326549b0e09dbe6d1002d84071afeea5385192a03e5133f91a505336e27",
+        "match": true
+      }
+    ],
+    "allMatch": true,
+    "vercelStatus": "success"
+  },
+  "hostedCI": {
+    "state": "failed before any steps; not a hosted pass",
+    "jobs": [
+      {
+        "run": 40944566924,
+        "jobs": [
+          {
+            "name": "validate",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40944566861,
+        "jobs": [
+          {
+            "name": "chromium",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "run": 40944566788,
+        "jobs": [
+          {
+            "name": "node-checks",
+            "conclusion": "failure",
+            "steps": 0
+          },
+          {
+            "name": "Campaign mission suite (19 missions)",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      }
+    ]
+  },
   "limits": [
     "Threshold describes remaining units, not percent capacity",
     "Solo observation cache is presentation-only and resets with fresh objects/load; unknown hidden stages use full art",

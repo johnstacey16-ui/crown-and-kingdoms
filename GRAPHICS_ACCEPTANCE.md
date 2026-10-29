@@ -4,7 +4,7 @@
 
 All 211 standalone files, source/55-atlas/inventory checks and the complete Chromium battlefield suite passed. New actual-render tests cover full/hidden-low/observed-low/hidden-lower stages for all three resources in both views, a no-sight projection, six distinct neutral images, full-art fallback and unchanged node/world checkpoints. Full/scarce 1×/2× comparisons were inspected. Five authoring packers rebuild byte-identically; all earlier WebP hashes are unchanged. Shell v38 includes the new image. See [artwork and limits](docs/PAINTED_SCARCE_RESOURCES.md), [exact prompt](docs/painted-scarce-resource-prompts.json) and [verification](docs/verification/scarce-resources-2026-10-29.json).
 
-The solo observation cache does not add persistent resource-memory fields to legacy saves, and existing depleted-node removal is unchanged. Physical Xbox review and broader directions/work/death, architecture, effects and interface work remain open in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Production and hosted CI require separate checks.
+The solo observation cache does not add persistent resource-memory fields to legacy saves, and existing depleted-node removal is unchanged. Physical Xbox review and broader directions/work/death, architecture, effects and interface work remain open in the [whole-game checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md). Low-supply resource runtime `f8d81c9af80831b12f54d0459433232a5b8eb446` is verified live: all five renderer/manifest/shell/image SHA-256 values match source. Vercel reports success. Hosted GitHub jobs fail before any steps; local passes are not a hosted CI pass.
 
 ## 29 October 2026 — Neutral deer and fish idle motion
 

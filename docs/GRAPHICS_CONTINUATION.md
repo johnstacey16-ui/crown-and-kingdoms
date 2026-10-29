@@ -8,7 +8,7 @@ Fish traps are live at runtime ce68cffdd3a8ce1b532ef7a13177381ce20640a3 (four so
 
 Low-supply stone/gold/berry art is integrated for positive remaining quantities 1–40, using current sight or cached observations in solo and projected/remembered amounts in the team-relative view. A presentation-only WeakMap never writes nodes or saves. Literal quantity is not percentage. Unknown hidden stages and failed new images retain full art. Existing depleted-node removal is unchanged; observation cache is not persisted to legacy saves.
 
-Manifest v17-scarce-resources has 55 atlases, 1,768 entries/4,498 references; shell v38. All 211 standalone files, full Chromium, source/atlas/inventory and five-packer byte-identical rebuild passed. Full/scarce art comparisons at 1×/2× were inspected. Actual draw tests cover both views and hidden ongoing consumption, plus fallback and node/world checksum isolation. Release identity is tracked in verification/scarce-resources-2026-10-29.json.
+Manifest v17-scarce-resources has 55 atlases, 1,768 entries/4,498 references; shell v38. All 211 standalone files, full Chromium, source/atlas/inventory and five-packer byte-identical rebuild passed. Full/scarce art comparisons at 1×/2× were inspected. Actual draw tests cover both views and hidden ongoing consumption, plus fallback and node/world checksum isolation. Low-supply resource runtime `f8d81c9af80831b12f54d0459433232a5b8eb446` is verified live: all five renderer/manifest/shell/image SHA-256 values match source. Vercel reports success. Hosted GitHub jobs fail before any steps; local passes are not a hosted CI pass. See verification/scarce-resources-2026-10-29.json.
 
 ## Next graphics work
 
