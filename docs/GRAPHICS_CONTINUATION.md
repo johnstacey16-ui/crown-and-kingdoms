@@ -12,7 +12,9 @@ Manifest v17-scarce-resources has 55 atlases, 1,768 entries/4,498 references; sh
 
 ## Next graphics work
 
-Continue the whole-game checklist. Consider improving offline artwork cache migration to avoid downloading unchanged WebPs on every shell version, while preserving fresh changed art and free-only hosting. Inspect current service-worker tests and require explicit content revisions or another verified integrity mechanism before reusing old images; do not assume unchanged filenames mean unchanged content. Preserve HTML/JS/JSON network-first refresh, manifest revalidation, old-cache cleanup and complete image-failure fallback. No paid hosting or account upgrades.
+Verified cache migration is implemented: content-bound art revisions, automatic packer updates and source checks, 56-to-two request fixture, failed-install preservation, one-image recovery and zero-image code-only upgrade. All 212 regressions/full Chromium and seven byte-identical rebuilds passed locally. See VERIFIED_ART_CACHE.md and verification/art-cache-2026-10-29.json for production status. Keep advancing the shell generation for code/metadata releases; image hashes alone do not version mutable code.
+
+Continue the whole-game checklist. Inspect the existing architecture renderer, manifests and age/faction cues to choose the next original-asset increment. Preserve original graphics and avoid claiming building names establish architecture parity. Keep both solo and team-relative views, fallback, tinting, fog and unchanged simulation checkpoints under browser coverage.
 
 Other large open categories include architecture/age/faction variants, dedicated work/death/effect art and the full interface/icon set. Directional animations are still mirrored single views. Physical Xbox Series S Edge 50/75/100 presets, readable HUD and large-scene performance require actual hardware acceptance.
 

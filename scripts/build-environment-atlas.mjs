@@ -1,3 +1,4 @@
+import {updateArtRevisions} from './build-art-revisions.mjs';
 // Packs the original generated environment sheet; no recolouring or sprite painting.
 import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
@@ -23,4 +24,5 @@ const atlas={id:'painted-environment',src:'./assets/painted-environment.webp',me
 writeFileSync(asset('environment-manifest.json'),JSON.stringify({atlases:[atlas]}));
 const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!=='painted-environment');pack.atlases.push(atlas);
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
+updateArtRevisions();
 console.log('Packed six neutral painted environment sprites.');

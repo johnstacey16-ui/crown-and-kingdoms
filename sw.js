@@ -4,12 +4,14 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const CACHE_NAME = 'ck-shell-v38-scarce-resources';
+const ART_REVISION = 'cd61f5ed0e970fa1ea03b34b04f23ffbfd9a659cd6d375e086dfbcdb5c13efcb';
+const CACHE_NAME = 'ck-shell-v39-verified-art-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
   './styles.css',
   './assets/atlas-manifest.json',
+  './assets/art-revisions.json',
   './assets/painted-units-v2.webp',
   './assets/painted-buildings.webp',
   './assets/painted-terrain.webp',
@@ -91,12 +93,45 @@ const CORE_ASSETS = [
   './multiplayer.js',
 ];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(CORE_ASSETS))
-      .then(() => self.skipWaiting())
-  );
+const ART_CATALOG = './assets/art-revisions.json';
+const absolute = path => new URL(path,self.location.href).href;
+async function digestHex(bytes){
+ const digest=await crypto.subtle.digest('SHA-256',bytes);
+ return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyArtResponse(response,expected){
+ return !!response?.ok&&await digestHex(await response.clone().arrayBuffer())===expected;
+}
+async function installVerifiedShell(){
+ const existed=await caches.has(CACHE_NAME),cache=await caches.open(CACHE_NAME);
+ try{
+  const response=await fetch(new Request(absolute(ART_CATALOG),{cache:'reload'}));
+  if(!response.ok)throw Error('Artwork catalogue unavailable');
+  const catalog=await response.clone().json(),images=CORE_ASSETS.filter(p=>p.endsWith('.webp'));
+  if(catalog.version!==1||!catalog.files||Array.isArray(catalog.files)||Object.keys(catalog.files).length!==images.length||
+     images.some(p=>!Object.prototype.hasOwnProperty.call(catalog.files,p)||!/^[a-f0-9]{64}$/.test(catalog.files[p])))throw Error('Invalid artwork catalogue');
+  const files=Object.fromEntries(Object.entries(catalog.files).sort(([a],[b])=>a<b?-1:a>b?1:0));
+  if(catalog.revision!==ART_REVISION||await digestHex(new TextEncoder().encode(JSON.stringify({version:1,files})))!==ART_REVISION)throw Error('Artwork catalogue revision mismatch');
+  const previous=await Promise.all((await caches.keys()).filter(k=>k.startsWith('ck-shell-')&&k!==CACHE_NAME).map(k=>caches.open(k)));
+  // Code and metadata must refresh even when the artwork is identical.
+  const mutable=CORE_ASSETS.filter(p=>!p.endsWith('.webp')&&p!==ART_CATALOG);
+  await cache.addAll(mutable.map(p=>new Request(absolute(p),{cache:'reload'})));
+  let next=0;
+  const workers=Array.from({length:Math.min(4,images.length)},async()=>{
+   while(next<images.length){
+    const path=images[next++],request=new Request(absolute(path),{cache:'reload'}),expected=files[path];let image=null;
+    // Verify actual cached bytes; stale names or a damaged cache are not trusted.
+    for(const old of previous){const candidate=await old.match(request);if(await verifyArtResponse(candidate,expected)){image=candidate;break}}
+    if(!image){image=await fetch(request);if(!await verifyArtResponse(image,expected))throw Error('Artwork integrity failure: '+path)}
+    await cache.put(request,image);
+   }
+  });
+  const results=await Promise.allSettled(workers),failed=results.find(r=>r.status==='rejected');if(failed)throw failed.reason;
+  await cache.put(absolute(ART_CATALOG),response);
+ }catch(error){if(!existed)await caches.delete(CACHE_NAME);throw error}
+}
+self.addEventListener('install',event=>{
+ event.waitUntil(installVerifiedShell().then(()=>self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {

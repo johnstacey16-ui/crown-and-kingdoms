@@ -1,3 +1,4 @@
+import {updateArtRevisions} from './build-art-revisions.mjs';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
@@ -93,3 +94,7 @@ for (const [name, ok] of checks) {
 console.log('PASS: parsed external config.js, state.js, mapgen.js, audio.js, save.js, input.js, render.js, ui.js, simulation.js, engine.js, persistence.js, sw.js, network-commands.js, network-delivery.js, network-uplink.js and multiplayer.js');
 
 
+
+
+updateArtRevisions({check:true});
+console.log('PASS: offline artwork revisions match actual source bytes');

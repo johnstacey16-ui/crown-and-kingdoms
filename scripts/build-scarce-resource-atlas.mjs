@@ -1,3 +1,4 @@
+import {updateArtRevisions} from './build-art-revisions.mjs';
 // Optional original-art authoring tool for the last-40-units resource stage.
 import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
@@ -20,4 +21,5 @@ const atlas={id:'painted-scarce-resources',src:'./assets/painted-scarce-resource
 writeFileSync(asset('scarce-resource-manifest.json'),JSON.stringify({atlases:[atlas]}));
 const pack=JSON.parse(readFileSync(asset('atlas-manifest.json')));pack.atlases=pack.atlases.filter(a=>a.id!==atlas.id);pack.atlases.push(atlas);pack.version='painted-raster-v17-scarce-resources';
 writeFileSync(asset('atlas-manifest.json'),JSON.stringify(pack));
+updateArtRevisions();
 console.log('Packed six neutral low-remaining-resource variants; quantities and removal are unchanged.');

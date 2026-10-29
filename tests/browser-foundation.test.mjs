@@ -170,7 +170,7 @@ test('offline shell caching stays same-origin and keeps online code updates fres
   assert.match(serviceWorker, /request\.method !== 'GET'/);
   assert.match(serviceWorker, /url\.origin !== self\.location\.origin/);
   assert.match(serviceWorker, /const networkFirst = request\.mode === 'navigate'/);
-  assert.match(serviceWorker, /cache\.addAll\(CORE_ASSETS\)/);
+  assert.match(serviceWorker, /cache\.addAll\(mutable\.map/);
 });
 
 
@@ -207,3 +207,4 @@ test('game balance data is separated from runtime code and resize work is deboun
   assert.doesNotMatch(engineSource, /const U=\{|const B=\{|const AG=\[/);
   assert.match(engineSource, /clearTimeout\(resizeTimer\);resizeTimer=setTimeout\(rs,80\)/);
 });
+

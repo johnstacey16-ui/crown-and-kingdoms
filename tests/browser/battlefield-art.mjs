@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { createApplication } from '../../server/app.mjs';
+import { checkArtCacheUpgrade } from './art-cache-upgrade.mjs';
 import { checkMapTerrainCache, checkNavalTerrainCache } from './map-terrain-cache.mjs';
 import { checkSiegeMotion } from './siege-motion.mjs';
 import { checkCivicMotion } from './civic-motion.mjs';
@@ -101,6 +102,7 @@ try{
  const terrainBlending=await checkTerrainBlending(page,output);
  const terrainViewport=await checkTerrainViewport(page);
  const campaignNavies=await checkCampaignNavies(browser,origin,output);
+ const artCacheUpgrade=await checkArtCacheUpgrade(browser,output);
  const navalTerrainCache=await checkNavalTerrainCache(browser,origin,output);
  const diagnostics=await page.evaluate(()=>{
   const missingUnits=[],missingBuildings=[];
@@ -334,7 +336,7 @@ try{
  assert.ok(colours>20,'procedural fallback remains visible when painted image requests fail');
  await fallback.locator('#battlefield-art').screenshot({path:output+'/fallback.png'});
  assert.deepEqual(errors,[]);
- await writeFile(output+'/metrics.json',JSON.stringify({navalTerrainCache,mapTerrainCache,siegeMotion,civicMotion,horseMotion,camelMotion,gunMotion,lightMotion,rangedMotion,paintedEnvironment,paintedWildlife,paintedFishtraps,paintedResources,scarceResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
+ await writeFile(output+'/metrics.json',JSON.stringify({artCacheUpgrade,navalTerrainCache,mapTerrainCache,siegeMotion,civicMotion,horseMotion,camelMotion,gunMotion,lightMotion,rangedMotion,paintedEnvironment,paintedWildlife,paintedFishtraps,paintedResources,scarceResources,terrainBlending,campaignNavies,terrainViewport,initial,diagnostics,motion,motionPixels,weaponEdge,rendering,teamOne,contact,militaryMenu,militaryOrders,ballisticsMenu,monkResearch,monkMenu,conversionTargeting,groups,camera,cacheUpgrade,timing,fallbackColours:colours},null,2));
  console.log('Real Chromium: transparent painted WebP sprites, team heraldry, both teams, fog, checksum isolation, cache upgrades and external-asset failure passed');
  console.log(JSON.stringify(timing));
 }finally{

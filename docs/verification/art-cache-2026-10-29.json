@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-29",
+  "scope": "Verified offline artwork cache migration; no gameplay or pixel changes",
+  "sourceCommit": null,
+  "catalogueRevision": "cd61f5ed0e970fa1ea03b34b04f23ffbfd9a659cd6d375e086dfbcdb5c13efcb",
+  "local": {
+    "regressions": {
+      "files": 212,
+      "passed": 212,
+      "failed": [],
+      "seconds": 76.8
+    },
+    "fullChromiumGraphics": "passed",
+    "focusedCacheBrowser": {
+      "baseline": {
+        "artRequests": 56,
+        "artBytes": 26447040
+      },
+      "warm": {
+        "artRequests": 2,
+        "artBytes": 768168,
+        "imagesVerified": 56,
+        "allValid": true,
+        "oldCacheRemoved": true,
+        "mutableCodeFresh": true
+      },
+      "failed": {
+        "state": "redundant",
+        "activeUnchanged": true,
+        "workingCachePresent": true,
+        "failedCacheAbsent": true
+      },
+      "codeOnly": {
+        "artRequests": 0,
+        "allValid": true,
+        "mutableCodeFresh": true
+      },
+      "recovered": {
+        "artRequests": 1,
+        "allValid": true,
+        "oldCacheRemoved": true
+      },
+      "offline": {
+        "shell": true,
+        "mutable": true,
+        "art": true,
+        "privateBypassed": true
+      }
+    },
+    "sourceAtlasInventory": "passed",
+    "sevenPackerRebuild": {
+      "files": 70,
+      "byteIdentical": true
+    },
+    "previousAssetWebPs": "unchanged"
+  },
+  "production": {
+    "status": "pending"
+  },
+  "hostedCI": {
+    "status": "pending; previous jobs failed before steps, cause unverified"
+  },
+  "limits": [
+    "Local no-cache body-byte comparison is not production byte savings; production supports ETags.",
+    "No Xbox hardware/FPS, independent-network or full-game/DLC parity acceptance.",
+    "Advance shell generation for code/metadata releases; artwork digest does not version mutable code."
+  ]
+}

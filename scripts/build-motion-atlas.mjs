@@ -1,3 +1,4 @@
+import {updateArtRevisions} from './build-art-revisions.mjs';
 // Optional authoring tool; runtime and CI do not require sharp.
 import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
@@ -48,5 +49,6 @@ writeFileSync(new URL('assets/motion-manifest.json',root),JSON.stringify({versio
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
 pack.version=pack.atlases.some(a=>a.meta.scarceResources)?'painted-raster-v17-scarce-resources':pack.atlases.some(a=>a.meta.environmentMotion)?'painted-raster-v16-wildlife-motion':pack.atlases.some(a=>a.id==='painted-fishtraps')?'painted-raster-v15-fishtraps':'painted-raster-v14-motion';pack.atlases=[...atlases,...pack.atlases.filter(a=>!a.meta.motion)];
 writeFileSync(manifest,JSON.stringify(pack));
+updateArtRevisions();
 console.log('Packed 752 original motion poses for all forty-seven current playable unit types.');
 
