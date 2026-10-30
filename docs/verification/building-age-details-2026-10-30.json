@@ -36,6 +36,20 @@
     "physicalXbox": "not run",
     "actualOriginBrowser": "not run in this increment"
   },
+  "rollout": {
+    "runtimeCommit": "76143f03a06e6aae96b1a3c35c3c2e452bf18103",
+    "vercelDeployment": "dpl_7iPcDDYfmRABE3YCAWqene7vNTDg",
+    "vercelState": "READY",
+    "productionAlias": "https://crown-and-kingdoms.vercel.app/",
+    "productionSha256Matches": 64,
+    "productionSha256Mismatches": 0,
+    "githubRuns": {
+      "battlefieldGraphics": 40989563544,
+      "regressionsAndCampaigns": 40989563590,
+      "validation": 40989563672,
+      "result": "failed before steps; cause unverified"
+    }
+  },
   "limits": [
     "The other 20 building kinds use shared vector fittings rather than dedicated four-sheet age art.",
     "Faction architecture remains unfinished.",

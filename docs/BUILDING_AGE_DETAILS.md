@@ -15,3 +15,5 @@ The browser check renders 20 kinds × 4 ages × 4 palettes = 320 non-house/Town-
 The 219 standalone regression files and the full Chromium graphics suite passed locally. The full suite also retained the construction, damage, projectile, resource (stone, gold and berries), terrain, tint-cache, fog and external-art-failure checks.
 
 This is shared age readability, not dedicated four-sheet art for the other 20 buildings and not faction architecture. Those remain roadmap gaps, as do physical Xbox Series S Edge acceptance and actual-origin browser acceptance.
+
+Runtime `76143f03a06e6aae96b1a3c35c3c2e452bf18103` is live through the existing free Vercel Git integration at deployment `dpl_7iPcDDYfmRABE3YCAWqene7vNTDg`; all 64 production source/art SHA-256 comparisons match. Hosted GitHub runs 40989563544, 40989563590 and 40989563672 failed before exposing steps, so their cause remains unverified and local passes are not a hosted CI pass.
