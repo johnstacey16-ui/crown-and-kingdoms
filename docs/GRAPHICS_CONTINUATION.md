@@ -33,3 +33,5 @@ Other large open categories include architecture/age/faction variants, dedicated
 47/47 is current movement/activity ART coverage, not full game/DLC parity, independent directions or complete graphics. Dedicated work/death states, boarding/trade/greeting event hooks, faction/age architecture, resource depletion, wildlife/fish hardware review, effects/destruction, full interface/icon work and physical Xbox Series S Edge acceptance remain in GRAPHICS_OVERHAUL_CHECKLIST.md. Keep 50/75/100 picture presets and the sharp HUD.
 
 Measure decoded-atlas/team-tint memory before optimizing unused transparent padding; retain source quality and do not claim desktop timings establish Xbox performance. Continue recording actual tests and unresolved acceptance gaps.
+
+Construction runtime `f6ece0681357b5e69f8df7d1e60542b170c30e0a` is verified live: all 64 production SHA-256 comparisons match source, and Vercel reports READY. Hosted runs 40980875120 /40980875032 /40980875079 fail before any steps; cause remains unverified. Actual-origin browser installation and physical Xbox acceptance remain open.

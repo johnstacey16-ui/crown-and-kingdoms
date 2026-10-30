@@ -484,11 +484,519 @@
     "js/assets.js": "dbc5f712c78ec1a6b0ff0f5511dd851a4accabe3de07e9c15b4f8c7e9565fabe"
   },
   "production": {
-    "status": "pending verification"
+    "runtimeCommit": "f6ece0681357b5e69f8df7d1e60542b170c30e0a",
+    "url": "https://crown-and-kingdoms.vercel.app/",
+    "status": "READY",
+    "deploymentId": "dpl_GehZm3Q4zWmTMFZVzC15uHGqBDKr",
+    "projectId": "prj_N8KwgIrHAXefpAtb71LTs4hMcUok",
+    "hostedRuns": [
+      {
+        "id": 40980875120,
+        "name": "Game validation",
+        "conclusion": "failure",
+        "url": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40980875120",
+        "jobs": [
+          {
+            "id": 123820330323,
+            "name": "validate",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "id": 40980875032,
+        "name": "Battlefield browser graphics",
+        "conclusion": "failure",
+        "url": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40980875032",
+        "jobs": [
+          {
+            "id": 123820330319,
+            "name": "chromium",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "id": 40980875079,
+        "name": "Game regression checks",
+        "conclusion": "failure",
+        "url": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/40980875079",
+        "jobs": [
+          {
+            "id": 123820330423,
+            "name": "node-checks",
+            "conclusion": "failure",
+            "steps": 0
+          },
+          {
+            "id": 123820330586,
+            "name": "Campaign mission suite (19 missions)",
+            "conclusion": "failure",
+            "steps": 0
+          }
+        ]
+      }
+    ],
+    "hostedCause": "unverified; all jobs have zero steps; local passes are not a hosted CI pass",
+    "files": [
+      {
+        "path": "js/render.js",
+        "local": "6053a88179b8d11812380234f85b33c4a5b4192ac57f2c5e11252a14bf5cded4",
+        "remote": "6053a88179b8d11812380234f85b33c4a5b4192ac57f2c5e11252a14bf5cded4",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "js/network-unit-map.js",
+        "local": "bf07b19753ef0ec63a4b771bdc27055914fb9797977bd864bbff693ab10925e5",
+        "remote": "bf07b19753ef0ec63a4b771bdc27055914fb9797977bd864bbff693ab10925e5",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "js/assets.js",
+        "local": "dbc5f712c78ec1a6b0ff0f5511dd851a4accabe3de07e9c15b4f8c7e9565fabe",
+        "remote": "dbc5f712c78ec1a6b0ff0f5511dd851a4accabe3de07e9c15b4f8c7e9565fabe",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "local": "55c3e27fa610a4637c4f6c943de8e5d638b15238a7029c96bf5b58ba4c87081e",
+        "remote": "55c3e27fa610a4637c4f6c943de8e5d638b15238a7029c96bf5b58ba4c87081e",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/art-revisions.json",
+        "local": "e31bada0a373dae0bba30b31694b0e2045bfbd8670f252645d1e3a613a708dc4",
+        "remote": "e31bada0a373dae0bba30b31694b0e2045bfbd8670f252645d1e3a613a708dc4",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/atlas-manifest.json",
+        "local": "d3fcedd14fabdd20551cca6913f5f24804af4feac303e0654ce3789d3b9b12c3",
+        "remote": "d3fcedd14fabdd20551cca6913f5f24804af4feac303e0654ce3789d3b9b12c3",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-buildings.webp",
+        "local": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
+        "remote": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-environment.webp",
+        "local": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
+        "remote": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-fishtraps.webp",
+        "local": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
+        "remote": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-house-ages.webp",
+        "local": "28d8ef87cf1048d0f98af38f549cde70ae7e4aebea531ecb52d731f0afded985",
+        "remote": "28d8ef87cf1048d0f98af38f549cde70ae7e4aebea531ecb52d731f0afded985",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-arc.webp",
+        "local": "0c5fab9317ff58472c44e6c6155d697b3a0c660d424d53ab3afa9b4cccb15a32",
+        "remote": "0c5fab9317ff58472c44e6c6155d697b3a0c660d424d53ab3afa9b4cccb15a32",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-axe.webp",
+        "local": "e8118307281117d8cf204b6b5003a3737d2846bd5afb54aa062eff6b8384c27b",
+        "remote": "e8118307281117d8cf204b6b5003a3737d2846bd5afb54aa062eff6b8384c27b",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-bers.webp",
+        "local": "1c79626d4b8e90f2c261b538d301c60e9a22cf8b6255af3b06cff3bff79f28c4",
+        "remote": "1c79626d4b8e90f2c261b538d301c60e9a22cf8b6255af3b06cff3bff79f28c4",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-bomb.webp",
+        "local": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc",
+        "remote": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-boyar.webp",
+        "local": "8086796c0db32ee7336955db2564075354dbd8de8c87bf30847e088a3a551a8a",
+        "remote": "8086796c0db32ee7336955db2564075354dbd8de8c87bf30847e088a3a551a8a",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-camel.webp",
+        "local": "6ece18808cb70936b535ca1c949017a3fff11e42e7cc431107351575d798287a",
+        "remote": "6ece18808cb70936b535ca1c949017a3fff11e42e7cc431107351575d798287a",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-cart.webp",
+        "local": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
+        "remote": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-cata.webp",
+        "local": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
+        "remote": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-chuko.webp",
+        "local": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
+        "remote": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-cog.webp",
+        "local": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
+        "remote": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-conq.webp",
+        "local": "8b00ada2d9dc0b83da6cb9457946df9c5ead5156f1fbbcbddfc80d04bc2c5af2",
+        "remote": "8b00ada2d9dc0b83da6cb9457946df9c5ead5156f1fbbcbddfc80d04bc2c5af2",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-ele.webp",
+        "local": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
+        "remote": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-eled.webp",
+        "local": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b",
+        "remote": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-fish.webp",
+        "local": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+        "remote": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-gal.webp",
+        "local": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
+        "remote": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-gbeto.webp",
+        "local": "f20e9c334d7577743886840b4c338c0f844ecccf5ad2e94cb979e5f1427c8995",
+        "remote": "f20e9c334d7577743886840b4c338c0f844ecccf5ad2e94cb979e5f1427c8995",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-genoa.webp",
+        "local": "15c0b8811fb3f549abfb80bd6f636763192a9e32929f47c30ec588e35dbe5eee",
+        "remote": "15c0b8811fb3f549abfb80bd6f636763192a9e32929f47c30ec588e35dbe5eee",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-hcan.webp",
+        "local": "5c6aa3454019b21546df2b33b095a7ee38dbdeb8f976fd6c4a173c25b2874b1f",
+        "remote": "5c6aa3454019b21546df2b33b095a7ee38dbdeb8f976fd6c4a173c25b2874b1f",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-huskarl.webp",
+        "local": "d270b643ae801c74ac01f32fea00e518a51a89fa9bad7eaafeeb9afea1bf5672",
+        "remote": "d270b643ae801c74ac01f32fea00e518a51a89fa9bad7eaafeeb9afea1bf5672",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-huszar.webp",
+        "local": "68e3674ad88f0c716bf7536192289f1a8082231066fe5d963a2ef7e2809d5756",
+        "remote": "68e3674ad88f0c716bf7536192289f1a8082231066fe5d963a2ef7e2809d5756",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-jaguar.webp",
+        "local": "de1ec56b5e48207e00e46966bda9884deb14f7f8a6d9312a40e92fa2fd69da0d",
+        "remote": "de1ec56b5e48207e00e46966bda9884deb14f7f8a6d9312a40e92fa2fd69da0d",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-jan.webp",
+        "local": "c005f15f9cf7a0f0add992b37ffbeae24fdf49635157edf13bef0ea898c55b20",
+        "remote": "c005f15f9cf7a0f0add992b37ffbeae24fdf49635157edf13bef0ea898c55b20",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-kamayuk.webp",
+        "local": "2398e5398517148b5fa717368fd64625e2929400f893eb860d7bf528805e2d43",
+        "remote": "2398e5398517148b5fa717368fd64625e2929400f893eb860d7bf528805e2d43",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-king.webp",
+        "local": "d0fa4b34d8889843b78f6c2732caf2ce0b7deee565de51d9c58dd5144156369c",
+        "remote": "d0fa4b34d8889843b78f6c2732caf2ce0b7deee565de51d9c58dd5144156369c",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-knight.webp",
+        "local": "db80d09bdd8d842219da83509f00bfb6711424fd3744fe8131d739d080a7b699",
+        "remote": "db80d09bdd8d842219da83509f00bfb6711424fd3744fe8131d739d080a7b699",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-lbow.webp",
+        "local": "3a52b972aeefd014b51d24847ec15e6970215eb15798073b020ed40f55605f81",
+        "remote": "3a52b972aeefd014b51d24847ec15e6970215eb15798073b020ed40f55605f81",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-mamel.webp",
+        "local": "99d9309a864e3867422b6adda833560f9c96c4874f8357907ca72dbaf523da08",
+        "remote": "99d9309a864e3867422b6adda833560f9c96c4874f8357907ca72dbaf523da08",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-mang.webp",
+        "local": "f24dce95b9b0c61422ebd972076a850f1bebfc84df1074818165b5a4da080738",
+        "remote": "f24dce95b9b0c61422ebd972076a850f1bebfc84df1074818165b5a4da080738",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-mgd.webp",
+        "local": "b73b51712c2c7b37dabfa8865377aa613ce324d177ce7265184a4e4f221c02ac",
+        "remote": "b73b51712c2c7b37dabfa8865377aa613ce324d177ce7265184a4e4f221c02ac",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-mil.webp",
+        "local": "890a3f59dac29cb2cd4c97b8707132c4a4f6b27f22bb801c564442ff2b21ef05",
+        "remote": "890a3f59dac29cb2cd4c97b8707132c4a4f6b27f22bb801c564442ff2b21ef05",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-mon.webp",
+        "local": "09ef488f18af950191581be4b678c1eba7ef72a3619c4b855fee0bd36e4524e0",
+        "remote": "09ef488f18af950191581be4b678c1eba7ef72a3619c4b855fee0bd36e4524e0",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-plumed.webp",
+        "local": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
+        "remote": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-ram.webp",
+        "local": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959",
+        "remote": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-saml.webp",
+        "local": "56bb11a694ee47143558b2d472cf9921bda75c3edaadb8be7ba073ef1f163570",
+        "remote": "56bb11a694ee47143558b2d472cf9921bda75c3edaadb8be7ba073ef1f163570",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-scor.webp",
+        "local": "969f26b2dce131bc51dc963ace6df6fa2d13783f02b7e8fb4d2aee81c9105191",
+        "remote": "969f26b2dce131bc51dc963ace6df6fa2d13783f02b7e8fb4d2aee81c9105191",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-scout.webp",
+        "local": "ed856f6b387e93fe7b6686743b4cb4fdc7e892d0deb22d5b28596e7d12f7db84",
+        "remote": "ed856f6b387e93fe7b6686743b4cb4fdc7e892d0deb22d5b28596e7d12f7db84",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-shotel.webp",
+        "local": "4b5cb1d656a20009d071432f66b05f8fcf7471ae98b9fd653a04067868d9266b",
+        "remote": "4b5cb1d656a20009d071432f66b05f8fcf7471ae98b9fd653a04067868d9266b",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-skirm.webp",
+        "local": "a22740f3c39d726efb1063e00912a1ac42ed1ed16045f02020c48f0d86813ada",
+        "remote": "a22740f3c39d726efb1063e00912a1ac42ed1ed16045f02020c48f0d86813ada",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-spear.webp",
+        "local": "5bc0d263288d66c008de45b6d50f41bdf3c8104b6e5d5460869f741786eb2062",
+        "remote": "5bc0d263288d66c008de45b6d50f41bdf3c8104b6e5d5460869f741786eb2062",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-tarkan.webp",
+        "local": "dc3354e02382703293a3195b570f1e6da89bb2123081250473e5ed421a868756",
+        "remote": "dc3354e02382703293a3195b570f1e6da89bb2123081250473e5ed421a868756",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-tk.webp",
+        "local": "d4f167c73f1d3cc015ce01d959b9bc8dd8a9fb2cbcec6bc40def3223800ed1da",
+        "remote": "d4f167c73f1d3cc015ce01d959b9bc8dd8a9fb2cbcec6bc40def3223800ed1da",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-treb.webp",
+        "local": "1029596c466705889deecae165c40886ecdb930618d796806478adcb71d4f351",
+        "remote": "1029596c466705889deecae165c40886ecdb930618d796806478adcb71d4f351",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-trn.webp",
+        "local": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
+        "remote": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-vil.webp",
+        "local": "adea0f523ccee14276d76317b37a1efd26d9015b432ea98b46fc723a60d5c5f7",
+        "remote": "adea0f523ccee14276d76317b37a1efd26d9015b432ea98b46fc723a60d5c5f7",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-wagon.webp",
+        "local": "8cbd2bf1624f87188be3aea4b835c6efd00ed8573bb86c60ec814afc76f8a333",
+        "remote": "8cbd2bf1624f87188be3aea4b835c6efd00ed8573bb86c60ec814afc76f8a333",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-woad.webp",
+        "local": "ceafc3244c6b5da2b8105ac688576eb1357169969c22697951a65f742496a853",
+        "remote": "ceafc3244c6b5da2b8105ac688576eb1357169969c22697951a65f742496a853",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-motion-xbow.webp",
+        "local": "2e9370d8b64c11cd69053978e081c55cd2f6c2c2f72b25c693f1787b781463b1",
+        "remote": "2e9370d8b64c11cd69053978e081c55cd2f6c2c2f72b25c693f1787b781463b1",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-resources.webp",
+        "local": "00ce09a92f8ff6e01fc47b6ddd060538dbc2050c69fbaa0fa534dea9b0564b84",
+        "remote": "00ce09a92f8ff6e01fc47b6ddd060538dbc2050c69fbaa0fa534dea9b0564b84",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-scarce-resources.webp",
+        "local": "903ed326549b0e09dbe6d1002d84071afeea5385192a03e5133f91a505336e27",
+        "remote": "903ed326549b0e09dbe6d1002d84071afeea5385192a03e5133f91a505336e27",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-terrain.webp",
+        "local": "ee513925c6cbfe55b7a7616f90441c30649d8571098eff89034895c01c8ee26a",
+        "remote": "ee513925c6cbfe55b7a7616f90441c30649d8571098eff89034895c01c8ee26a",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-town-centre-ages.webp",
+        "local": "dd49d7b555347163277eee4b5fbd78876a691d749814dab49b6d51807418736e",
+        "remote": "dd49d7b555347163277eee4b5fbd78876a691d749814dab49b6d51807418736e",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-units-v2.webp",
+        "local": "3ea44d8b2a3c4e2cbf4bab56daf8c96c6c830c383639bb590c895439721fdc77",
+        "remote": "3ea44d8b2a3c4e2cbf4bab56daf8c96c6c830c383639bb590c895439721fdc77",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-wildlife-deer.webp",
+        "local": "7b0e9c520506239f564d87c13882df02646d419362122077916f39cd8d5c9453",
+        "remote": "7b0e9c520506239f564d87c13882df02646d419362122077916f39cd8d5c9453",
+        "status": 200,
+        "match": true
+      },
+      {
+        "path": "assets/painted-wildlife-fish.webp",
+        "local": "e8ba3283a753ec6a93afd94db3b015c1da975c7510febee10813116960ed8621",
+        "remote": "e8ba3283a753ec6a93afd94db3b015c1da975c7510febee10813116960ed8621",
+        "status": 200,
+        "match": true
+      }
+    ],
+    "matchCount": 64,
+    "browserAcceptance": "Local Chromium only; actual-origin browser and physical Xbox acceptance remain open."
   },
   "remainingAcceptance": [
     "Physical Xbox Series S Edge",
     "Actual-origin browser installation",
     "Distinct hand-painted construction/damage sheets, faction architecture, corpse/effects and interface overhaul"
-  ]
+  ],
+  "sourceCommit": "f6ece0681357b5e69f8df7d1e60542b170c30e0a"
 }
