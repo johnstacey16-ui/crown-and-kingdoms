@@ -435,7 +435,7 @@
       "factionArchitecture": "unfinished",
       "ageArt": "four original shared age designs",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "house",
@@ -444,187 +444,187 @@
       "factionArchitecture": "unfinished",
       "ageArt": "four original shared age designs",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "lumber",
       "name": "Lumber Camp",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "mine",
       "name": "Mining Camp",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "mill",
       "name": "Mill",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "farm",
       "name": "Farm",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "bar",
       "name": "Barracks",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "rng",
       "name": "Archery Range",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "stable",
       "name": "Stable",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "smith",
       "name": "Blacksmith",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "market",
       "name": "Market",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "palisade",
       "name": "Palisade Wall",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "wall",
       "name": "Stone Wall",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "dock",
       "name": "Dock",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "siege",
       "name": "Siege Workshop",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "univ",
       "name": "University",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "gate",
       "name": "Gate",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "outpost",
       "name": "Outpost",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "wonder",
       "name": "Wonder",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "monastery",
       "name": "Monastery",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "tower",
       "name": "Watch Tower",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     },
     {
       "kind": "castle",
       "name": "Castle",
       "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
-      "damageArt": "shared smoke overlay"
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
   "checklist": [
@@ -643,8 +643,8 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "22 painted kinds including farm",
-      "remaining": "faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds and native damage overlays now implemented)"
+      "evidence": "22 painted kinds including farm; all carry fog-safe age presentation",
+      "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {
       "category": "Terrain and coasts",

@@ -951,3 +951,11 @@ Nine shared original projectile families now replace universal arrows/dots. Both
 Next: architecture/age/faction variants, dedicated destruction/impact and work/death art, full interface/icons, diverse-army cache optimization and actual Xbox/actual-origin acceptance. The full graphics overhaul and full game/DLC/controller parity remain unfinished.
 
 Damage/effects runtime `18f9b202d336cc88cdce047ad801c1ff34252f0e` is verified live: all64 production SHA-256 comparisons match, and Vercel reports READY. Hosted runs40983612530 /40983613092 /40983613281 failed before any steps; cause remains unverified (check annotations are not accessible through the connector endpoint). Actual-origin Chromium returned ERR_EMPTY_RESPONSE with TLS verification enabled, so browser installation and physical Xbox acceptance remain open.
+
+## Shared building age details — 30 October 2026
+
+Status: PARTIAL architecture coverage. All22 painted building kinds now carry fog-safe observed age presentation in solo and team-relative views. Houses and Town Centres retain their four dedicated raster designs; the remaining20 preserve one native painted source frame and anchor while original vector fittings identify Dark, Feudal, Castle and Imperial presentation in the actual kingdom palette. Hidden opponents retain the last observed age and unknown hidden ages are not exposed. Construction, ghosts, controls, saves, simulation checksums, art catalogues and bounded texture caches are unchanged.
+
+Local acceptance: 20 kinds × four ages × four palettes =320 shared-detail pixel cases, four distinct hashes per kind/palette, zero native source-frame changes, actual callers for ages0–3, all219 standalone regression files and the full Chromium graphics suite. Stone, gold, berries, construction, damage, projectiles, terrain, fog, cache upgrades and external-art failure remain covered. See docs/BUILDING_AGE_DETAILS.md and docs/verification/building-age-details-2026-10-30.json.
+
+This is shared age readability, not dedicated age sheets for those20 kinds or faction architecture. Dedicated destruction/impact/work/death art, full interface/icons, diverse-army cache optimization, actual-origin browser acceptance and physical Xbox Series S Edge acceptance remain open. No paid hosting or infrastructure change was made.

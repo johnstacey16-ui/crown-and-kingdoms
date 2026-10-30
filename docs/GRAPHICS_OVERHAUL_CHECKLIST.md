@@ -6,7 +6,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
 | Unit animation | partial | independent directions, work variants and dedicated death sheets |
-| Building artwork | partial | faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds and native damage overlays now implemented) |
+| Building artwork | partial | faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | tree/death states and physical Xbox resource/wildlife readability |
 | Fish traps | partial | waterline/readability review on Xbox |

@@ -11,7 +11,7 @@
     // Pose is a copied visual description. Rendering must never write facing or
     // animation fields into deterministic simulation entities.
     const pose=e=>unitVisualPose(e,world.t);
-    const architecture=b=>(b.k==='house'||b.k==='tc')&&Number.isInteger(world.age?.[b.t])&&world.age[b.t]>=0&&world.age[b.t]<4?{architectureAge:world.age[b.t]}:{};
+    const architecture=b=>Number.isInteger(world.age?.[b.t])&&world.age[b.t]>=0&&world.age[b.t]<4?{architectureAge:world.age[b.t]}:{};
     const construction=b=>({...architecture(b),complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,

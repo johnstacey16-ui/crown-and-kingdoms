@@ -10,9 +10,12 @@ export async function checkBuildingConstruction(page,output){
   let completedDifferences=0;
   for(const kind of Object.keys(B))for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,3);if(!art?.painted)throw Error('Missing building '+kind);
+   // Construction acceptance isolates the native reveal. Age fittings have
+   // their own all-building test and are intentionally disabled here.
+   const constructionArt={...art,ageDetail:false};
    const f=art.f,scale=Math.min(240/f.w,220/f.h),hashes=[];
    for(const progress of [0,.3,.65,.95,1]){
-    g.clearRect(0,0,c.width,c.height);drawBuildingArtwork(g,art,140,246,scale,progress===1,progress);
+    g.clearRect(0,0,c.width,c.height);drawBuildingArtwork(g,constructionArt,140,246,scale,progress===1,progress);
     const pixels=bytes();let hash=2166136261,opaque=0;
     for(let i=0;i<pixels.length;i++){hash=Math.imul(hash^pixels[i],16777619);if(i%4===3&&pixels[i]>32)opaque++}
     hashes.push(hash>>>0);if(opaque<150)throw Error('Empty construction '+kind);

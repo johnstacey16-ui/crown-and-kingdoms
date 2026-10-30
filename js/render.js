@@ -567,13 +567,13 @@ function buildingInSight(b){
  return false;
 }
 function buildingVisualAge(b){
- if(b.k!=='house'&&b.k!=='tc')return undefined;
  if(buildingInSight(b)){const age=S.age?.[b.t];if(Number.isInteger(age)&&age>=0&&age<4)PAINT.buildingAges.set(b,age)}
  return PAINT.buildingAges.get(b);
 }
 function paintedBuildingFrame(kind,team,time,age){
  const staged=(kind==='house'||kind==='tc')&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_'+kind+'_age_'+age,team,3,0,time):null;
- return staged||assetFrame('bld_'+kind,team,3,0,time);
+ const art=staged||assetFrame('bld_'+kind,team,3,0,time);
+ return art&&Number.isInteger(age)&&age>=0&&age<4?{...art,architectureAge:age,architectureKind:kind,architectureTeam:team,ageDetail:!staged}:art;
 }
 // Construction reveals use current sight or the last observed visual stage.
 // Unknown hidden buildings keep the established complete-art fallback.
@@ -644,6 +644,40 @@ function drawBuildingDamageEffects(g,x,y,width,height,stage,time){
   }
  }finally{g.restore()}
 }
+// Camps, workshops and fortifications retain their native painted silhouettes,
+// while small original vector fittings make an observed kingdom age readable
+// in both views. Houses and Town Centres use dedicated four-sheet architecture.
+function drawBuildingAgeDetails(g,art,left,top,width,height){
+ const age=art?.architectureAge;if(!art?.ageDetail||!Number.isInteger(age)||age<0||age>3)return;
+ const kind=String(art.architectureKind||''),team=Number.isInteger(art.architectureTeam)?art.architectureTeam:0;
+ const cloth=['#2877c7','#c8453e','#4b9b58','#d0a52e'][team]||'#2877c7',edge='rgba(31,22,14,.82)',light='rgba(244,222,170,.9)';
+ let seed=0;for(const c of kind)seed=(seed*33+c.charCodeAt(0))>>>0;
+ const side=seed&1?-1:1,cx=left+width*(.5+side*.2),ground=top+height*.78,unit=Math.max(.75,Math.min(width,height)/125);
+ g.save();g.lineCap='round';g.lineJoin='round';
+ try{
+  if(age===0){
+   const x1=left+width*.23,x2=left+width*.38,y1=top+height*.78,y2=top+height*.54;
+   g.strokeStyle=edge;g.lineWidth=4.2*unit;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.moveTo(x2,y1);g.lineTo(x1,y2);g.stroke();
+   g.strokeStyle='#a97b45';g.lineWidth=2.2*unit;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.moveTo(x2,y1);g.lineTo(x1,y2);g.stroke();
+   g.strokeStyle='#dec18a';g.lineWidth=1.1*unit;for(const d of[-2,1,4]){g.beginPath();g.moveTo((x1+x2)/2+d*unit,(y1+y2)/2-4*unit);g.lineTo((x1+x2)/2+d*unit,(y1+y2)/2+4*unit);g.stroke()}
+  }else if(age===1){
+   g.strokeStyle=edge;g.lineWidth=3.4*unit;g.beginPath();g.moveTo(cx,ground);g.lineTo(cx,top+height*.36);g.stroke();
+   g.strokeStyle='#b98a4e';g.lineWidth=1.7*unit;g.beginPath();g.moveTo(cx,ground);g.lineTo(cx,top+height*.36);g.stroke();
+   const wave=side*width*.1;g.fillStyle=cloth;g.strokeStyle=edge;g.lineWidth=1.1*unit;g.beginPath();g.moveTo(cx,top+height*.39);g.lineTo(cx+wave,top+height*.42);g.lineTo(cx+wave*.72,top+height*.49);g.lineTo(cx,top+height*.46);g.closePath();g.fill();g.stroke();
+  }else if(age===2){
+   for(const q of[-1,1]){const x=left+width*(.5+q*.27),y=top+height*.67,r=7*unit;
+    g.fillStyle='#b7ad99';g.strokeStyle=edge;g.lineWidth=1.3*unit;g.beginPath();g.moveTo(x-r,y+r);g.lineTo(x-r*.78,y-r*.55);g.lineTo(x,y-r);g.lineTo(x+r*.78,y-r*.55);g.lineTo(x+r,y+r);g.closePath();g.fill();g.stroke();
+    g.fillStyle=cloth;g.beginPath();g.moveTo(x-r*.43,y-r*.35);g.lineTo(x+r*.43,y-r*.35);g.lineTo(x+r*.3,y+r*.38);g.lineTo(x,y+r*.72);g.lineTo(x-r*.3,y+r*.38);g.closePath();g.fill();
+   }
+  }else{
+   g.strokeStyle=edge;g.lineWidth=3.8*unit;g.beginPath();g.moveTo(cx,ground);g.lineTo(cx,top+height*.27);g.stroke();
+   g.strokeStyle='#d9b64b';g.lineWidth=2.1*unit;g.beginPath();g.moveTo(cx,ground);g.lineTo(cx,top+height*.27);g.stroke();
+   const wave=side*width*.12;g.fillStyle=cloth;g.strokeStyle='#6d5117';g.lineWidth=1.2*unit;g.beginPath();g.moveTo(cx,top+height*.31);g.lineTo(cx+wave,top+height*.34);g.lineTo(cx+wave*.74,top+height*.42);g.lineTo(cx,top+height*.39);g.closePath();g.fill();g.stroke();
+   g.fillStyle='#f1cf63';g.strokeStyle=edge;g.beginPath();g.arc(cx,top+height*.25,2.7*unit,0,Math.PI*2);g.fill();g.stroke();
+   g.strokeStyle=light;g.lineWidth=1.2*unit;g.beginPath();g.moveTo(left+width*.28,top+height*.52);g.quadraticCurveTo(left+width*.5,top+height*.47,left+width*.72,top+height*.52);g.stroke();
+  }
+ }finally{g.restore()}
+}
 // Shared original construction presentation. Native artwork is revealed from
 // its foundation upward; finished roofs no longer appear at the start of a build.
 // Geometry uses only supplied visual progress, never another world's entities.
@@ -652,6 +686,7 @@ function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=fals
  if(!art.painted||complete||ghost){
   const display=art.painted&&complete&&!ghost&&damage>0?damagedBuildingArtwork(art,damage):art,q=display.f;
   g.drawImage(display.img,q.x,q.y,q.w,q.h,left,top,width,height);
+  if(art.painted&&complete&&!ghost)drawBuildingAgeDetails(g,art,left,top,width,height);
   if(art.painted&&complete&&!ghost&&effects&&damage>0)drawBuildingDamageEffects(g,x,y,width,height,damage,time);
   return;
  }

@@ -45,3 +45,9 @@ Nine shared original projectile families now replace universal arrows/dots. Both
 Next: architecture/age/faction variants, dedicated destruction/impact and work/death art, full interface/icons, diverse-army cache optimization and actual Xbox/actual-origin acceptance. The full graphics overhaul and full game/DLC/controller parity remain unfinished.
 
 Damage/effects runtime `18f9b202d336cc88cdce047ad801c1ff34252f0e` is verified live: all64 production SHA-256 comparisons match, and Vercel reports READY. Hosted runs40983612530 /40983613092 /40983613281 failed before any steps; cause remains unverified (check annotations are not accessible through the connector endpoint). Actual-origin Chromium returned ERR_EMPTY_RESPONSE with TLS verification enabled, so browser installation and physical Xbox acceptance remain open.
+
+## Shared building age details — 30 October 2026
+
+All22 painted building kinds now carry fog-safe observed age presentation in both views. Houses and Town Centres retain their dedicated four-design sheets; the other20 retain their native painted frame/anchor and receive original vector Dark/Feudal/Castle/Imperial fittings with the kingdom palette. Construction, ghosts, controls, saves, simulation and both bounded texture caches are unchanged. The browser check covers320 kind/age/palette cases with four distinct hashes per kind/palette and zero native source-frame changes. All219 standalone regression files and the full Chromium graphics suite pass locally, including stone/gold/berry coverage. See BUILDING_AGE_DETAILS.md and verification/building-age-details-2026-10-30.json.
+
+Next: dedicated age/faction architecture sheets, destruction/impact and work/death art, full interface/icons, diverse-army cache optimization, actual-origin browser acceptance and physical Xbox Series S Edge acceptance. Shared fittings are not dedicated architecture sheets; the full overhaul remains unfinished.

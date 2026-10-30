@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-30",
+  "scope": "fog-safe shared age presentation for all painted buildings",
+  "runtime": {
+    "shell": "v45-building-ages",
+    "atlasVersion": "painted-raster-v19-town-centre-ages",
+    "atlases": 57,
+    "activeImages": 58,
+    "newImages": 0
+  },
+  "coverage": {
+    "paintedBuildingKinds": 22,
+    "dedicatedRasterAgeKinds": 2,
+    "sharedVectorAgeDetailKinds": 20,
+    "ages": 4,
+    "palettes": 4,
+    "sharedDetailPixelCases": 320,
+    "distinctHashesPerKindPalette": 4,
+    "nativeSourceFrameChangesAcrossSharedAges": 0,
+    "soloActualCallerAges": [0, 1, 2, 3],
+    "teamRelativeActualCallerAges": [0, 1, 2, 3]
+  },
+  "fog": {
+    "ownedUsesCurrentAge": true,
+    "visibleEnemyUpdates": true,
+    "hiddenEnemyRetainsLastObservedAge": true,
+    "unknownHiddenAgeExposed": false
+  },
+  "validation": {
+    "standaloneRegressionFiles": 219,
+    "standaloneFailures": 0,
+    "fullChromiumGraphicsSuite": "passed",
+    "worldCheckpointUnchanged": true,
+    "graphicsInventoryCheck": "passed",
+    "gameSourceCheck": "passed",
+    "physicalXbox": "not run",
+    "actualOriginBrowser": "not run in this increment"
+  },
+  "limits": [
+    "The other 20 building kinds use shared vector fittings rather than dedicated four-sheet age art.",
+    "Faction architecture remains unfinished.",
+    "Local desktop Chromium does not establish Xbox Series S Edge performance or readability."
+  ]
+}

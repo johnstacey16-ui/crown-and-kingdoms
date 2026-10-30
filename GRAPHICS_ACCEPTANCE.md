@@ -348,3 +348,11 @@ Two native damage overlays and shared animated fire/smoke now cover both views. 
 Nine shared original projectile families now replace universal arrows/dots. Both views follow fixed aim, and visible nonexpired projections copy only x/y/style/heading without target state.72 scaled/heading cases and real callers pass with unchanged checksums. All218 standalone regressions and source/inventory checks pass; full Chromium/rollout evidence is recorded in docs/verification/world-effects-2026-10-30.json and docs/WORLD_DAMAGE_AND_PROJECTILES.md. Shellv44, unchanged v19/57 atlases/58 images.
 
 Next: architecture/age/faction variants, dedicated destruction/impact and work/death art, full interface/icons, diverse-army cache optimization and actual Xbox/actual-origin acceptance. The full graphics overhaul and full game/DLC/controller parity remain unfinished.
+
+## Shared building age details — 30 October 2026
+
+All22 painted building kinds now receive fog-safe age presentation in both views. Houses and Town Centres retain dedicated four-design sheets. The other20 retain their exact native source frame and anchor, with shared original vector timber, standard, stone-shield and gilded-standard fittings for ages0–3 in the actual kingdom palette. Construction and placement ghosts omit completed fittings.
+
+Chromium verifies320 non-house/Town-Centre kind/age/palette cases, four distinct hashes per kind/palette, no native source-frame changes, both actual callers, fog retention and unchanged checkpoints. All219 standalone regression files and the full browser graphics suite pass locally, including stone, gold and berry checks. See docs/BUILDING_AGE_DETAILS.md and docs/verification/building-age-details-2026-10-30.json.
+
+Dedicated age sheets for the other20 buildings, faction architecture, physical Xbox Series S Edge review and actual-origin browser acceptance remain unfinished. This increment changes no controls, simulation, saves or hosting configuration.

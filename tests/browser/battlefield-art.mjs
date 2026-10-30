@@ -1,4 +1,5 @@
 import {checkProjectileArtwork} from './projectile-art.mjs';
+import {checkBuildingAgeDetails} from './building-age-details.mjs';
 import {checkBuildingDamage} from './building-damage-art.mjs';
 import {checkBuildingConstruction} from './building-construction-art.mjs';
 import {checkFrameTints} from './frame-tints.mjs';
@@ -94,6 +95,7 @@ try{
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
  const projectileArtwork=await checkProjectileArtwork(page,output);
+ const buildingAgeDetails=await checkBuildingAgeDetails(page,output);
  const buildingDamage=await checkBuildingDamage(page,output);
  const buildingConstruction=await checkBuildingConstruction(page,output);
  const frameTints=await checkFrameTints(page,output);
