@@ -6,12 +6,12 @@ Tracks every current visual category, including unfinished art. Source catalogue
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
 | Unit animation | partial | independent directions, work variants and dedicated death sheets |
-| Building artwork | partial | faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds now implemented) |
+| Building artwork | partial | faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | tree/death states and physical Xbox resource/wildlife readability |
 | Fish traps | partial | waterline/readability review on Xbox |
 | Relics | partial | hardware readability and animated pickup/deposit presentation |
-| Combat and world effects | partial | coherent upgraded effects and dedicated destruction art |
+| Combat and world effects | partial | dedicated destruction/impact art and full effects acceptance (shared projectile families and building fire/smoke now implemented) |
 | HUD, menus and command wheels | partial | complete icon set, scene backgrounds and Xbox readability review |
 | Minimap and multiplayer presentation | partial | full match and large scene acceptance |
 | Xbox Series S Edge image/performance | unverified | physical Xbox 50/75/100 percent picture presets and large land/naval benchmarks |

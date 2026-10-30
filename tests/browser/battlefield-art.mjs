@@ -1,3 +1,5 @@
+import {checkProjectileArtwork} from './projectile-art.mjs';
+import {checkBuildingDamage} from './building-damage-art.mjs';
 import {checkBuildingConstruction} from './building-construction-art.mjs';
 import {checkFrameTints} from './frame-tints.mjs';
 import {checkTownCentreAges} from './town-centre-ages.mjs';
@@ -91,6 +93,8 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
+ const projectileArtwork=await checkProjectileArtwork(page,output);
+ const buildingDamage=await checkBuildingDamage(page,output);
  const buildingConstruction=await checkBuildingConstruction(page,output);
  const frameTints=await checkFrameTints(page,output);
  const siegeMotion=await checkSiegeMotion(page,output);

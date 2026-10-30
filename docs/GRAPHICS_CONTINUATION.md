@@ -35,3 +35,11 @@ Other large open categories include architecture/age/faction variants, dedicated
 Measure decoded-atlas/team-tint memory before optimizing unused transparent padding; retain source quality and do not claim desktop timings establish Xbox performance. Continue recording actual tests and unresolved acceptance gaps.
 
 Construction runtime `f6ece0681357b5e69f8df7d1e60542b170c30e0a` is verified live: all 64 production SHA-256 comparisons match source, and Vercel reports READY. Hosted runs 40980875120 /40980875032 /40980875079 fail before any steps; cause remains unverified. Actual-origin browser installation and physical Xbox acceptance remain open.
+
+## Shared building damage and projectile effects — 30 October 2026
+
+Two native damage overlays and shared animated fire/smoke now cover both views. Healthy/repair art is unchanged; source-atop preserves native alpha/anchors. A separate16MiB retained damage-pixel LRU peaks at4,194,228 pixels/77 canvases across112 kind/age/palette cases. Hidden damage/repairs retain last observed art; ongoing effects require sight. Eight descriptors in a two-palette house/Town Centre roster allocate zero new warm canvases. Source art, controls, saves, simulation, hosting configuration and troop cache are unchanged. These are procedural overlays, not dedicated faction/damage sheets.
+
+Nine shared original projectile families now replace universal arrows/dots. Both views follow fixed aim, and visible nonexpired projections copy only x/y/style/heading without target state.72 scaled/heading cases and real callers pass with unchanged checksums. All218 standalone regressions and source/inventory checks pass; full Chromium/rollout evidence is recorded in docs/verification/world-effects-2026-10-30.json and docs/WORLD_DAMAGE_AND_PROJECTILES.md. Shellv44, unchanged v19/57 atlases/58 images.
+
+Next: architecture/age/faction variants, dedicated destruction/impact and work/death art, full interface/icons, diverse-army cache optimization and actual Xbox/actual-origin acceptance. The full graphics overhaul and full game/DLC/controller parity remain unfinished.

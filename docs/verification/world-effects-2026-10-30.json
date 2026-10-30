@@ -1,0 +1,1526 @@
+{
+  "date": "2026-10-30",
+  "sourceCheckpoint": "ad968bb2df2915315691dd73c9fa383eb671e77d",
+  "local": {
+    "regressions": {
+      "files": 218,
+      "passed": 218,
+      "failed": []
+    },
+    "fullChromiumGraphics": "passed",
+    "focusedChromiumNewEffects": "passed",
+    "buildingDamage": {
+      "samples": [
+        {
+          "kind": "tc",
+          "age": 0,
+          "team": 0,
+          "changedPixels": [
+            17234,
+            49675
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 0,
+          "team": 1,
+          "changedPixels": [
+            17234,
+            49637
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 0,
+          "team": 2,
+          "changedPixels": [
+            17234,
+            49670
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 0,
+          "team": 3,
+          "changedPixels": [
+            17234,
+            49660
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 1,
+          "team": 0,
+          "changedPixels": [
+            19794,
+            53816
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 1,
+          "team": 1,
+          "changedPixels": [
+            19794,
+            53804
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 1,
+          "team": 2,
+          "changedPixels": [
+            19794,
+            53814
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 1,
+          "team": 3,
+          "changedPixels": [
+            19794,
+            53812
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 2,
+          "team": 0,
+          "changedPixels": [
+            16086,
+            49146
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 2,
+          "team": 1,
+          "changedPixels": [
+            16084,
+            49138
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 2,
+          "team": 2,
+          "changedPixels": [
+            16085,
+            49145
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 2,
+          "team": 3,
+          "changedPixels": [
+            16085,
+            49143
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 3,
+          "team": 0,
+          "changedPixels": [
+            18954,
+            54581
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 3,
+          "team": 1,
+          "changedPixels": [
+            18954,
+            54566
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 3,
+          "team": 2,
+          "changedPixels": [
+            18954,
+            54576
+          ]
+        },
+        {
+          "kind": "tc",
+          "age": 3,
+          "team": 3,
+          "changedPixels": [
+            18954,
+            54576
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 0,
+          "team": 0,
+          "changedPixels": [
+            13939,
+            38545
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 0,
+          "team": 1,
+          "changedPixels": [
+            13935,
+            38535
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 0,
+          "team": 2,
+          "changedPixels": [
+            13939,
+            38543
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 0,
+          "team": 3,
+          "changedPixels": [
+            13938,
+            38542
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 1,
+          "team": 0,
+          "changedPixels": [
+            17716,
+            47064
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 1,
+          "team": 1,
+          "changedPixels": [
+            17716,
+            47025
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 1,
+          "team": 2,
+          "changedPixels": [
+            17716,
+            47059
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 1,
+          "team": 3,
+          "changedPixels": [
+            17716,
+            47042
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 2,
+          "team": 0,
+          "changedPixels": [
+            17939,
+            49748
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 2,
+          "team": 1,
+          "changedPixels": [
+            17939,
+            49732
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 2,
+          "team": 2,
+          "changedPixels": [
+            17939,
+            49744
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 2,
+          "team": 3,
+          "changedPixels": [
+            17939,
+            49739
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 3,
+          "team": 0,
+          "changedPixels": [
+            19413,
+            54695
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 3,
+          "team": 1,
+          "changedPixels": [
+            19411,
+            54663
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 3,
+          "team": 2,
+          "changedPixels": [
+            19413,
+            54687
+          ]
+        },
+        {
+          "kind": "house",
+          "age": 3,
+          "team": 3,
+          "changedPixels": [
+            19411,
+            54672
+          ]
+        },
+        {
+          "kind": "lumber",
+          "team": 0,
+          "changedPixels": [
+            2816,
+            8337
+          ]
+        },
+        {
+          "kind": "lumber",
+          "team": 1,
+          "changedPixels": [
+            2814,
+            8329
+          ]
+        },
+        {
+          "kind": "lumber",
+          "team": 2,
+          "changedPixels": [
+            2816,
+            8336
+          ]
+        },
+        {
+          "kind": "lumber",
+          "team": 3,
+          "changedPixels": [
+            2815,
+            8333
+          ]
+        },
+        {
+          "kind": "mine",
+          "team": 0,
+          "changedPixels": [
+            2588,
+            7685
+          ]
+        },
+        {
+          "kind": "mine",
+          "team": 1,
+          "changedPixels": [
+            2588,
+            7685
+          ]
+        },
+        {
+          "kind": "mine",
+          "team": 2,
+          "changedPixels": [
+            2588,
+            7685
+          ]
+        },
+        {
+          "kind": "mine",
+          "team": 3,
+          "changedPixels": [
+            2588,
+            7685
+          ]
+        },
+        {
+          "kind": "mill",
+          "team": 0,
+          "changedPixels": [
+            2394,
+            6596
+          ]
+        },
+        {
+          "kind": "mill",
+          "team": 1,
+          "changedPixels": [
+            2393,
+            6595
+          ]
+        },
+        {
+          "kind": "mill",
+          "team": 2,
+          "changedPixels": [
+            2393,
+            6595
+          ]
+        },
+        {
+          "kind": "mill",
+          "team": 3,
+          "changedPixels": [
+            2393,
+            6596
+          ]
+        },
+        {
+          "kind": "farm",
+          "team": 0,
+          "changedPixels": [
+            3451,
+            9245
+          ]
+        },
+        {
+          "kind": "farm",
+          "team": 1,
+          "changedPixels": [
+            3451,
+            9245
+          ]
+        },
+        {
+          "kind": "farm",
+          "team": 2,
+          "changedPixels": [
+            3451,
+            9245
+          ]
+        },
+        {
+          "kind": "farm",
+          "team": 3,
+          "changedPixels": [
+            3451,
+            9245
+          ]
+        },
+        {
+          "kind": "bar",
+          "team": 0,
+          "changedPixels": [
+            3407,
+            9250
+          ]
+        },
+        {
+          "kind": "bar",
+          "team": 1,
+          "changedPixels": [
+            3407,
+            9249
+          ]
+        },
+        {
+          "kind": "bar",
+          "team": 2,
+          "changedPixels": [
+            3407,
+            9249
+          ]
+        },
+        {
+          "kind": "bar",
+          "team": 3,
+          "changedPixels": [
+            3407,
+            9249
+          ]
+        },
+        {
+          "kind": "rng",
+          "team": 0,
+          "changedPixels": [
+            2613,
+            7791
+          ]
+        },
+        {
+          "kind": "rng",
+          "team": 1,
+          "changedPixels": [
+            2611,
+            7790
+          ]
+        },
+        {
+          "kind": "rng",
+          "team": 2,
+          "changedPixels": [
+            2613,
+            7790
+          ]
+        },
+        {
+          "kind": "rng",
+          "team": 3,
+          "changedPixels": [
+            2612,
+            7791
+          ]
+        },
+        {
+          "kind": "stable",
+          "team": 0,
+          "changedPixels": [
+            2674,
+            8503
+          ]
+        },
+        {
+          "kind": "stable",
+          "team": 1,
+          "changedPixels": [
+            2674,
+            8498
+          ]
+        },
+        {
+          "kind": "stable",
+          "team": 2,
+          "changedPixels": [
+            2674,
+            8503
+          ]
+        },
+        {
+          "kind": "stable",
+          "team": 3,
+          "changedPixels": [
+            2674,
+            8500
+          ]
+        },
+        {
+          "kind": "smith",
+          "team": 0,
+          "changedPixels": [
+            2777,
+            8270
+          ]
+        },
+        {
+          "kind": "smith",
+          "team": 1,
+          "changedPixels": [
+            2777,
+            8269
+          ]
+        },
+        {
+          "kind": "smith",
+          "team": 2,
+          "changedPixels": [
+            2777,
+            8269
+          ]
+        },
+        {
+          "kind": "smith",
+          "team": 3,
+          "changedPixels": [
+            2777,
+            8270
+          ]
+        },
+        {
+          "kind": "market",
+          "team": 0,
+          "changedPixels": [
+            2573,
+            7817
+          ]
+        },
+        {
+          "kind": "market",
+          "team": 1,
+          "changedPixels": [
+            2573,
+            7807
+          ]
+        },
+        {
+          "kind": "market",
+          "team": 2,
+          "changedPixels": [
+            2573,
+            7815
+          ]
+        },
+        {
+          "kind": "market",
+          "team": 3,
+          "changedPixels": [
+            2573,
+            7814
+          ]
+        },
+        {
+          "kind": "palisade",
+          "team": 0,
+          "changedPixels": [
+            2250,
+            7035
+          ]
+        },
+        {
+          "kind": "palisade",
+          "team": 1,
+          "changedPixels": [
+            2248,
+            7029
+          ]
+        },
+        {
+          "kind": "palisade",
+          "team": 2,
+          "changedPixels": [
+            2249,
+            7035
+          ]
+        },
+        {
+          "kind": "palisade",
+          "team": 3,
+          "changedPixels": [
+            2249,
+            7033
+          ]
+        },
+        {
+          "kind": "wall",
+          "team": 0,
+          "changedPixels": [
+            2823,
+            6986
+          ]
+        },
+        {
+          "kind": "wall",
+          "team": 1,
+          "changedPixels": [
+            2823,
+            6986
+          ]
+        },
+        {
+          "kind": "wall",
+          "team": 2,
+          "changedPixels": [
+            2823,
+            6986
+          ]
+        },
+        {
+          "kind": "wall",
+          "team": 3,
+          "changedPixels": [
+            2823,
+            6986
+          ]
+        },
+        {
+          "kind": "dock",
+          "team": 0,
+          "changedPixels": [
+            2557,
+            7399
+          ]
+        },
+        {
+          "kind": "dock",
+          "team": 1,
+          "changedPixels": [
+            2557,
+            7399
+          ]
+        },
+        {
+          "kind": "dock",
+          "team": 2,
+          "changedPixels": [
+            2557,
+            7399
+          ]
+        },
+        {
+          "kind": "dock",
+          "team": 3,
+          "changedPixels": [
+            2557,
+            7399
+          ]
+        },
+        {
+          "kind": "siege",
+          "team": 0,
+          "changedPixels": [
+            2573,
+            6723
+          ]
+        },
+        {
+          "kind": "siege",
+          "team": 1,
+          "changedPixels": [
+            2573,
+            6722
+          ]
+        },
+        {
+          "kind": "siege",
+          "team": 2,
+          "changedPixels": [
+            2573,
+            6722
+          ]
+        },
+        {
+          "kind": "siege",
+          "team": 3,
+          "changedPixels": [
+            2573,
+            6723
+          ]
+        },
+        {
+          "kind": "univ",
+          "team": 0,
+          "changedPixels": [
+            2799,
+            8574
+          ]
+        },
+        {
+          "kind": "univ",
+          "team": 1,
+          "changedPixels": [
+            2799,
+            8574
+          ]
+        },
+        {
+          "kind": "univ",
+          "team": 2,
+          "changedPixels": [
+            2799,
+            8574
+          ]
+        },
+        {
+          "kind": "univ",
+          "team": 3,
+          "changedPixels": [
+            2799,
+            8574
+          ]
+        },
+        {
+          "kind": "gate",
+          "team": 0,
+          "changedPixels": [
+            2633,
+            8398
+          ]
+        },
+        {
+          "kind": "gate",
+          "team": 1,
+          "changedPixels": [
+            2633,
+            8386
+          ]
+        },
+        {
+          "kind": "gate",
+          "team": 2,
+          "changedPixels": [
+            2633,
+            8395
+          ]
+        },
+        {
+          "kind": "gate",
+          "team": 3,
+          "changedPixels": [
+            2633,
+            8393
+          ]
+        },
+        {
+          "kind": "outpost",
+          "team": 0,
+          "changedPixels": [
+            1284,
+            4678
+          ]
+        },
+        {
+          "kind": "outpost",
+          "team": 1,
+          "changedPixels": [
+            1284,
+            4676
+          ]
+        },
+        {
+          "kind": "outpost",
+          "team": 2,
+          "changedPixels": [
+            1284,
+            4678
+          ]
+        },
+        {
+          "kind": "outpost",
+          "team": 3,
+          "changedPixels": [
+            1284,
+            4676
+          ]
+        },
+        {
+          "kind": "wonder",
+          "team": 0,
+          "changedPixels": [
+            3532,
+            9541
+          ]
+        },
+        {
+          "kind": "wonder",
+          "team": 1,
+          "changedPixels": [
+            3519,
+            9532
+          ]
+        },
+        {
+          "kind": "wonder",
+          "team": 2,
+          "changedPixels": [
+            3530,
+            9539
+          ]
+        },
+        {
+          "kind": "wonder",
+          "team": 3,
+          "changedPixels": [
+            3524,
+            9535
+          ]
+        },
+        {
+          "kind": "monastery",
+          "team": 0,
+          "changedPixels": [
+            2755,
+            8059
+          ]
+        },
+        {
+          "kind": "monastery",
+          "team": 1,
+          "changedPixels": [
+            2755,
+            8059
+          ]
+        },
+        {
+          "kind": "monastery",
+          "team": 2,
+          "changedPixels": [
+            2755,
+            8059
+          ]
+        },
+        {
+          "kind": "monastery",
+          "team": 3,
+          "changedPixels": [
+            2755,
+            8059
+          ]
+        },
+        {
+          "kind": "tower",
+          "team": 0,
+          "changedPixels": [
+            2350,
+            6834
+          ]
+        },
+        {
+          "kind": "tower",
+          "team": 1,
+          "changedPixels": [
+            2350,
+            6829
+          ]
+        },
+        {
+          "kind": "tower",
+          "team": 2,
+          "changedPixels": [
+            2350,
+            6833
+          ]
+        },
+        {
+          "kind": "tower",
+          "team": 3,
+          "changedPixels": [
+            2350,
+            6831
+          ]
+        },
+        {
+          "kind": "castle",
+          "team": 0,
+          "changedPixels": [
+            4012,
+            10770
+          ]
+        },
+        {
+          "kind": "castle",
+          "team": 1,
+          "changedPixels": [
+            4002,
+            10758
+          ]
+        },
+        {
+          "kind": "castle",
+          "team": 2,
+          "changedPixels": [
+            4011,
+            10767
+          ]
+        },
+        {
+          "kind": "castle",
+          "team": 3,
+          "changedPixels": [
+            4003,
+            10762
+          ]
+        }
+      ],
+      "alphaDifferences": 0,
+      "healthyDifferences": 0,
+      "peakPixels": 4194228,
+      "peakCanvases": 77,
+      "limit": 4194304,
+      "warmAllocations": 0,
+      "allocationFallback": true,
+      "hiddenRetained": true,
+      "hiddenRepairRetained": true,
+      "unknownFallback": true,
+      "soloStages": [
+        2,
+        0
+      ],
+      "mapStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectHashes": [
+        2398361253,
+        2986855962,
+        1346929923
+      ],
+      "before": "fnv1a32-9962c5db-56ea",
+      "after": "fnv1a32-9962c5db-56ea"
+    },
+    "projectiles": {
+      "samples": [
+        {
+          "style": "arrow",
+          "hashes": [
+            685764198,
+            2886964409,
+            3829956561,
+            3535097699,
+            3537296749,
+            3191950288,
+            2767429357,
+            2192193162
+          ]
+        },
+        {
+          "style": "bolt",
+          "hashes": [
+            1687147720,
+            194135460,
+            3969319153,
+            2642469809,
+            390337731,
+            799956630,
+            892290106,
+            773901821
+          ]
+        },
+        {
+          "style": "heavy-bolt",
+          "hashes": [
+            1865632264,
+            4149615045,
+            1596869049,
+            2939073977,
+            2034845699,
+            2121821717,
+            853571628,
+            3480926419
+          ]
+        },
+        {
+          "style": "javelin",
+          "hashes": [
+            465603026,
+            3254204099,
+            3882008486,
+            3757085661,
+            2516651808,
+            4070060911,
+            1453653256,
+            2941244634
+          ]
+        },
+        {
+          "style": "bullet",
+          "hashes": [
+            1286355764,
+            636323232,
+            2042688197,
+            1367312090,
+            4290715024,
+            3523639672,
+            2390034132,
+            2121513937
+          ]
+        },
+        {
+          "style": "cannon",
+          "hashes": [
+            2629897959,
+            3178031015,
+            3031393466,
+            202332782,
+            1614068240,
+            1102855406,
+            3882876668,
+            3326965175
+          ]
+        },
+        {
+          "style": "stone",
+          "hashes": [
+            2741497499,
+            979113970,
+            1506960034,
+            3081277565,
+            3006360881,
+            1355235752,
+            2047875606,
+            764695184
+          ]
+        },
+        {
+          "style": "axe",
+          "hashes": [
+            3988408462,
+            2454624271,
+            4044443326,
+            4269409551,
+            1638252648,
+            3624339580,
+            2923933918,
+            4204228611
+          ]
+        },
+        {
+          "style": "blade",
+          "hashes": [
+            3355366349,
+            2097792428,
+            3572601561,
+            1749704659,
+            1950946089,
+            1307969130,
+            1282606122,
+            944816398
+          ]
+        }
+      ],
+      "calls": [
+        {
+          "view": "solo",
+          "style": "cannon",
+          "heading": 0.4636476090008061
+        },
+        {
+          "view": "map",
+          "style": "cannon",
+          "heading": 0
+        }
+      ],
+      "fixedHeading": true,
+      "projectedKeys": [
+        "heading",
+        "style",
+        "x",
+        "y"
+      ],
+      "visibleCount": 1,
+      "isolated": true,
+      "before": "fnv1a32-9962c5db-56ea",
+      "after": "fnv1a32-9962c5db-56ea"
+    },
+    "sourceGameValidation": "passed",
+    "sourceAtlasInventory": "passed",
+    "artworkAndManifestBytes": "unchanged",
+    "finalCombinedBuildingCases": 112
+  },
+  "runtimeFiles": {
+    "js/render.js": "68e54c60ce35f84cdb52ef83bd2ffcef989a1990a86a97fe7219eb4179447fef",
+    "js/network-unit-map.js": "e065bc250fe48a3de87b2fa33635d4501758ea25680ec935cd52f5a2d64e9046",
+    "sw.js": "792b7e1e7db12c80034ef469213801158861639330a542018f3bebda76e0265e",
+    "js/assets.js": "dbc5f712c78ec1a6b0ff0f5511dd851a4accabe3de07e9c15b4f8c7e9565fabe"
+  },
+  "production": {
+    "status": "pending verification"
+  },
+  "limitations": [
+    "Retained damage-canvas pixels do not establish process/GPU memory or Xbox performance.",
+    "Generic damage overlays and vector effects do not complete faction architecture or dedicated destruction/work/death sheets.",
+    "Actual-origin browser installation and physical Xbox acceptance remain open."
+  ]
+}

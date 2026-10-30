@@ -48,7 +48,8 @@
       const point=q.c||q;
       if(!q.m&&position(point)&&(!q.c||(point.hp>0&&!point.ld))&&sight[Math.floor(point.y)*width+Math.floor(point.x)])view.battlefield.relics.push({x:point.x,y:point.y,carried:!!q.c});
     }
-    if(sight)for(const p of world.pj||[])if(p&&position(p)&&sight[Math.floor(p.y)*width+Math.floor(p.x)])view.battlefield.projectiles.push({x:p.x,y:p.y});
+    if(sight)for(const p of world.pj||[])if(p&&!p.dead&&position(p)&&sight[Math.floor(p.y)*width+Math.floor(p.x)])view.battlefield.projectiles.push({x:p.x,y:p.y,
+      style:typeof projectileVisualStyle==='function'?projectileVisualStyle(p.a?.k):'arrow',heading:typeof projectileVisualHeading==='function'?projectileVisualHeading(p):null});
     return view;
   }
   function create({canvas,description,submit,leave,stopButton,previousButton,nextButton,townButton,nameOf=()=> 'unit',now=()=>Date.now()}) {
@@ -179,7 +180,10 @@
         }
         if(!visible.has(tile.index)){context.fillStyle='rgba(5,12,15,.65)';context.fillRect(px,py,sx+.4,sy+.4);}
       }
-      for(const p of field.projectiles||[]){context.fillStyle='#ffe6a4';context.beginPath();context.arc(p.x*sx,p.y*sy,2,0,Math.PI*2);context.fill();}
+      for(const p of field.projectiles||[]){
+        if(typeof drawProjectileArtwork==='function'){const heading=p.heading??0;drawProjectileArtwork(context,p.x*sx,p.y*sy-5,Math.atan2(Math.sin(heading)*sy,Math.cos(heading)*sx),p.style,field.time,Math.max(.6,Math.min(1.25,sx/9)));}
+        else{context.fillStyle='#ffe6a4';context.beginPath();context.arc(p.x*sx,p.y*sy,2,0,Math.PI*2);context.fill();}
+      }
       for(const id of selection){
         const point=field.paths?.[id],u=view.units.find(u=>u.id===id);
         if(point&&u){context.strokeStyle='rgba(255,233,169,.55)';context.lineWidth=1;
@@ -197,9 +201,9 @@
       const scale=height/(sprite.referenceHeight||f.h)*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
       context.save();
       if(size&&e.complete===false&&!sprite.painted)context.globalAlpha=.4+.45*(e.progress||0);
-      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0,e.kind,e.pose?.phase);else if(size&&typeof drawBuildingArtwork==='function')drawBuildingArtwork(context,sprite,footX,footY,scale,e.complete!==false,e.progress);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0,e.kind,e.pose?.phase);else if(size&&typeof drawBuildingArtwork==='function')drawBuildingArtwork(context,sprite,footX,footY,scale,e.complete!==false,e.progress,false,typeof buildingDamageStage==='function'?buildingDamageStage(e.complete!==false,e.hp,e.maxHp):0,time);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
       catch(_){context.restore();return false;}
-      context.restore();return true;
+      context.restore();return size&&sprite.painted?'painted-building':true;
     }
     function drawEntity(e,sx,sy,color,chosen){
       const x=e.x*sx,y=e.y*sy,size=e.size||0,unitRadius=Math.max(2.5,Math.min(5,sx*.45));
@@ -234,7 +238,7 @@
         context.fillStyle='#302d27';context.fillRect(x,y+size*sy+5,w,3);
         context.fillStyle='#e5be77';context.fillRect(x,y+size*sy+5,w*progress,3);
       }
-      if(size&&e.complete!==false&&e.maxHp>0&&e.hp/e.maxHp<.5){
+      if(size&&atlas!=='painted-building'&&e.complete!==false&&e.maxHp>0&&e.hp/e.maxHp<.5){
         const phase=view.battlefield?.time||0;
         context.fillStyle='rgba(31,32,29,.5)';
         for(let i=0;i<2;i++){context.beginPath();context.arc(x+size*sx*.6+Math.sin(phase+i)*2,y-3-i*5-(phase%1)*3,2+i,0,Math.PI*2);context.fill();}

@@ -644,7 +644,7 @@
       "category": "Building artwork",
       "state": "partial",
       "evidence": "22 painted kinds including farm",
-      "remaining": "faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds now implemented)"
+      "remaining": "faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {
       "category": "Terrain and coasts",
@@ -674,7 +674,7 @@
       "category": "Combat and world effects",
       "state": "partial",
       "evidence": "procedural projectiles, particles, smoke, rubble and transformed corpses",
-      "remaining": "coherent upgraded effects and dedicated destruction art"
+      "remaining": "dedicated destruction/impact art and full effects acceptance (shared projectile families and building fire/smoke now implemented)"
     },
     {
       "category": "HUD, menus and command wheels",
