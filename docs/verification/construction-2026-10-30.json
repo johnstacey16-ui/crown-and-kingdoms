@@ -1,0 +1,494 @@
+{
+  "date": "2026-10-30",
+  "local": {
+    "regressions": {
+      "passed": 216,
+      "files": 216
+    },
+    "fullChromiumGraphics": "passed",
+    "buildingArtwork": {
+      "samples": [
+        {
+          "kind": "tc",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "tc",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "tc",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "tc",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "house",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "house",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "house",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "house",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "lumber",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "lumber",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "lumber",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "lumber",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "mine",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "mine",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "mine",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "mine",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "mill",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "mill",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "mill",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "mill",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "farm",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "farm",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "farm",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "farm",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "bar",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "bar",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "bar",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "bar",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "rng",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "rng",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "rng",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "rng",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "stable",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "stable",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "stable",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "stable",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "smith",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "smith",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "smith",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "smith",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "market",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "market",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "market",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "market",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "palisade",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "palisade",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "palisade",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "palisade",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "wall",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "wall",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "wall",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "wall",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "dock",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "dock",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "dock",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "dock",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "siege",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "siege",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "siege",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "siege",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "univ",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "univ",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "univ",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "univ",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "gate",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "gate",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "gate",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "gate",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "outpost",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "outpost",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "outpost",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "outpost",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "wonder",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "wonder",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "wonder",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "wonder",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "monastery",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "monastery",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "monastery",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "monastery",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "tower",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "tower",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "tower",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "tower",
+          "team": 3,
+          "distinct": 5
+        },
+        {
+          "kind": "castle",
+          "team": 0,
+          "distinct": 5
+        },
+        {
+          "kind": "castle",
+          "team": 1,
+          "distinct": 5
+        },
+        {
+          "kind": "castle",
+          "team": 2,
+          "distinct": 5
+        },
+        {
+          "kind": "castle",
+          "team": 3,
+          "distinct": 5
+        }
+      ],
+      "completedDifferences": 0,
+      "soloClips": 1,
+      "mapClips": 1,
+      "hiddenRetained": true,
+      "unknownFallback": true,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "tintPixelComparison": {
+      "atlases": 51,
+      "frames": 3320,
+      "components": 824729056,
+      "nativeDifferences": 0,
+      "scaledDifferences": 0,
+      "legacyTotalCanvasPixels": 545936672,
+      "retainedPixelLimit": 33554432,
+      "peakRetainedPixels": 33554429,
+      "retainedPixels": 33500229,
+      "newCanvases": 3024,
+      "evictions": 2540,
+      "warmAllocations": 0,
+      "legacyMotionCopiesRetained": 0,
+      "before": "fnv1a32-54bcf2ae-90ca",
+      "after": "fnv1a32-54bcf2ae-90ca"
+    },
+    "sourceAtlasInventory": "passed",
+    "artworkAndManifestBytes": "unchanged"
+  },
+  "runtimeFiles": {
+    "js/render.js": "6053a88179b8d11812380234f85b33c4a5b4192ac57f2c5e11252a14bf5cded4",
+    "js/network-unit-map.js": "bf07b19753ef0ec63a4b771bdc27055914fb9797977bd864bbff693ab10925e5",
+    "sw.js": "55c3e27fa610a4637c4f6c943de8e5d638b15238a7029c96bf5b58ba4c87081e",
+    "js/assets.js": "dbc5f712c78ec1a6b0ff0f5511dd851a4accabe3de07e9c15b4f8c7e9565fabe"
+  },
+  "production": {
+    "status": "pending verification"
+  },
+  "remainingAcceptance": [
+    "Physical Xbox Series S Edge",
+    "Actual-origin browser installation",
+    "Distinct hand-painted construction/damage sheets, faction architecture, corpse/effects and interface overhaul"
+  ]
+}

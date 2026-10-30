@@ -334,3 +334,9 @@ graphics requirements above remain open. The faster peer provider remains opt-in
 Vercel team access/Free-plan verification, production-origin and separate-network
 acceptance are still rollout gates. No Railway redeploy or paid feature was enabled.
 
+
+## 30 October 2026 — construction reveal and large-army measurements
+
+See docs/BUILDING_CONSTRUCTION.md and its verification files. All 22 building kinds/four palettes now share four construction reveals and original scaffold details in both views. The completed artwork is pixel-identical; hidden solo progress retains its last observation. All 216 standalone tests and complete Chromium graphics pass locally. Stone/gold/berries, artwork fallbacks and checkpoint isolation remain covered. No new texture memory is introduced.
+
+Real-view 200/800-unit normal scenes reach 100% warm tint hits; the 800-unit all-roster stress case reaches 65.61% solo /49.29% team, peaking at 548/553 retained motion canvases within 128MiB nominal RGBA storage. An admission experiment regressed and is not shipped. These are synthetic desktop canvas-count/retained-pixel measurements, not Xbox performance or process/GPU memory. Dedicated construction/damage sheets, faction architecture, effects/interface work, diverse-scene cache optimization and physical Xbox acceptance remain open.

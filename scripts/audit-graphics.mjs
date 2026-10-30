@@ -10,7 +10,7 @@ const buildings=Object.entries(ctx.catalog.B).map(([kind,d])=>({kind,name:d.n,pa
 const checklist=[
  {category:'Unit base artwork',state:'present',evidence:'47 playable kinds; see catalogue',remaining:'play-scale faction/direction review'},
  {category:'Unit animation',state:'partial',evidence:units.filter(u=>u.walkFrames>1&&u.attackFrames>1).length+' of '+units.length+' kinds have painted multi-frame movement/activity art',remaining:(units.some(u=>u.walkFrames<=1||u.attackFrames<=1)?units.filter(u=>u.walkFrames<=1||u.attackFrames<=1).length+' kinds, ':'')+'independent directions, work variants and dedicated death sheets'},
- {category:'Building artwork',state:'partial',evidence:buildings.length+' painted kinds including farm',remaining:'faction architecture, other building age variants and distinct construction/damage states'},
+ {category:'Building artwork',state:'partial',evidence:buildings.length+' painted kinds including farm',remaining:'faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds now implemented)'},
  {category:'Terrain and coasts',state:'partial',evidence:'painted materials and textured transitions',remaining:'biome-specific integration and repetition review'},
  {category:'Natural resources',state:'partial',evidence:'painted resources with last-40-units stone/gold/berry art; eight-pose neutral deer/fish idles',remaining:'tree/death states and physical Xbox resource/wildlife readability'},
  {category:'Fish traps',state:'partial',evidence:'four neutral painted basket/net variants shared by solo and team-relative views',remaining:'waterline/readability review on Xbox'},

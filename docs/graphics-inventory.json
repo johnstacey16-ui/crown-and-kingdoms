@@ -644,7 +644,7 @@
       "category": "Building artwork",
       "state": "partial",
       "evidence": "22 painted kinds including farm",
-      "remaining": "faction architecture, other building age variants and distinct construction/damage states"
+      "remaining": "faction architecture, other building age variants and dedicated construction/damage sheets (shared staged reveals/scaffolds now implemented)"
     },
     {
       "category": "Terrain and coasts",

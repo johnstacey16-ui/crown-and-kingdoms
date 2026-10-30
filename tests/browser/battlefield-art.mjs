@@ -1,3 +1,4 @@
+import {checkBuildingConstruction} from './building-construction-art.mjs';
 import {checkFrameTints} from './frame-tints.mjs';
 import {checkTownCentreAges} from './town-centre-ages.mjs';
 import {checkHouseAges} from './house-ages.mjs';
@@ -39,7 +40,7 @@ const server=createServer((req,res)=>{
 });
 server.listen(0,'127.0.0.1');await once(server,'listening');
 const origin='http://127.0.0.1:'+server.address().port;
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,...(process.env.CK_BROWSER_EXECUTABLE?{executablePath:process.env.CK_BROWSER_EXECUTABLE,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader']}:{} )});
 const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
@@ -90,6 +91,7 @@ try{
  const page=await browser.newPage({viewport:{width:960,height:850}});
  page.on('pageerror',error=>errors.push(error.message));
  const initial=await scene(page);
+ const buildingConstruction=await checkBuildingConstruction(page,output);
  const frameTints=await checkFrameTints(page,output);
  const siegeMotion=await checkSiegeMotion(page,output);
  const civicMotion=await checkCivicMotion(page,output);

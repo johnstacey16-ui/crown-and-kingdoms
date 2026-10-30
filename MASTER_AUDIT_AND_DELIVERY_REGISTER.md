@@ -931,3 +931,11 @@ Status: PARTIAL live-game acceptance; targeted implementation and automated cove
 - CI: [Game validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994776), [Chromium battlefield](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994819), [regression suite and 19 campaign missions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39732994982). These are code/Chromium checks, not a claim of physical Xbox Edge or owner's live-save visual acceptance.
 - The active skirmish regression separately accepts a scripted win before an AI coordinated raid; passive skirmishes still independently require an AI raid. This does not waive production AI behaviour in the passive skirmish.
 
+
+## Shared construction stages and large-army tint measurements — 30 October 2026
+
+Status: PARTIAL graphics overhaul. Main receives four shared native-art construction reveals and original timber scaffolds for all 22 building kinds/four palettes, with unchanged completed pixels and no additional textures. Both views use the same painter; visible-only solo observations retain hidden progress. This is not dedicated construction/damage sheets or faction architecture. See docs/BUILDING_CONSTRUCTION.md and docs/verification/construction-2026-10-30.json for the runtime commit and rollout evidence.
+
+Local acceptance: 216 standalone regression files, complete Chromium graphics, source validation and inventory check pass. Chromium verifies 88 kind/palette combinations, distinct stages, zero completed-image differences, real caller integration, fog observation and unchanged checkpoints. Stone, gold and berries remain covered.
+
+Large-army measurements cover both renderers at 200/800 normal units and 800 all-roster/four-palette units. Normal warm hit rates reach 100%; diverse warm rates remain 65.61% solo /49.29% team within the unchanged 128MiB retained motion pixel cap. The tested frequency-admission alternative regressed solo stress hits and was discarded. Retained counts/pixels are not process/GPU memory or Xbox FPS. Dedicated damage/effects/interface art, architecture variants, diverse cache churn, actual-origin browser installation and physical Xbox acceptance remain open. No controls, paid resources, hosting settings or simulation fields change.

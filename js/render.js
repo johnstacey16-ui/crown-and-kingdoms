@@ -3,7 +3,7 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
-const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap(),buildingAges:new WeakMap()};
+const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap(),buildingAges:new WeakMap(),buildingConstruction:new WeakMap()};
 function loadPaintedTerrain(src){
  try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
@@ -537,10 +537,59 @@ function paintedBuildingFrame(kind,team,time,age){
  const staged=(kind==='house'||kind==='tc')&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_'+kind+'_age_'+age,team,3,0,time):null;
  return staged||assetFrame('bld_'+kind,team,3,0,time);
 }
+// Construction reveals use current sight or the last observed visual stage.
+// Unknown hidden buildings keep the established complete-art fallback.
+function buildingVisualConstruction(b){
+ let visible=b.t===0;
+ for(let y=Math.floor(b.y);!visible&&y<Math.ceil(b.y+b.s);y++)for(let x=Math.floor(b.x);!visible&&x<Math.ceil(b.x+b.s);x++)if(x>=0&&y>=0&&x<W&&y<H&&S.vs[y*W+x])visible=true;
+ if(visible)PAINT.buildingConstruction.set(b,{complete:!!b.done,progress:b.done?1:Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
+ return PAINT.buildingConstruction.get(b)||{complete:true,progress:1};
+}
+// Shared original construction presentation. Native artwork is revealed from
+// its foundation upward; finished roofs no longer appear at the start of a build.
+// Geometry uses only supplied visual progress, never another world's entities.
+function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=false){
+ const f=art.f,left=x-f.ax*scale,top=y-f.ay*scale,width=f.w*scale,height=f.h*scale;
+ if(!art.painted||complete||ghost){g.drawImage(art.img,f.x,f.y,f.w,f.h,left,top,width,height);return}
+ const p=Number.isFinite(progress)?Math.max(0,Math.min(1,progress)):0;
+ const stage=p<.25?0:p<.6?1:p<.9?2:3,reveal=[.18,.5,.8,1][stage];
+ g.save();
+ try{
+  g.beginPath();g.rect(left-1,top+height*(1-reveal),width+2,height*reveal+1);g.clip();
+  g.drawImage(art.img,f.x,f.y,f.w,f.h,left,top,width,height);
+ }finally{g.restore()}
+ // Two timber scaffold faces, braced posts, plank decks, lashings and a ladder.
+ // The scaffold disappears atomically when construction completes.
+ const ground=y-height*.04,deck=ground-height*(.23+stage*.16),half=width*.42;
+ g.save();
+ try{
+  g.lineCap='round';g.lineJoin='round';
+  const beam=(ax,ay,bx,by)=>{
+   g.strokeStyle='#46321f';g.lineWidth=Math.max(1.5,width*.018);g.beginPath();g.moveTo(ax,ay);g.lineTo(bx,by);g.stroke();
+   g.strokeStyle='#bc935e';g.lineWidth=Math.max(.7,width*.008);g.beginPath();g.moveTo(ax-.4,ay);g.lineTo(bx-.4,by);g.stroke();
+  };
+  const points=[[-half,ground-height*.11],[0,ground],[half,ground-height*.11]];
+  for(const [px,py] of points)beam(x+px,py,x+px,deck-height*.04);
+  for(let side=0;side<2;side++){
+   const [a,b]=[points[side],points[side+1]];
+   beam(x+a[0],deck,x+b[0],deck);
+   beam(x+a[0],a[1]-height*.03,x+b[0],deck+height*.03);
+   beam(x+a[0],deck+height*.03,x+b[0],b[1]-height*.03);
+   g.strokeStyle='#dec18a';g.lineWidth=Math.max(1,width*.012);
+   g.beginPath();g.moveTo(x+a[0],deck-height*.015);g.lineTo(x+b[0],deck-height*.015);g.stroke();
+  }
+  for(const [px] of points){g.strokeStyle='#d7bb88';g.lineWidth=Math.max(.8,width*.007);for(let j=0;j<3;j++){g.beginPath();g.moveTo(x+px-width*.014,deck+j*height*.012);g.lineTo(x+px+width*.014,deck+j*height*.012);g.stroke()}}
+  if(stage>0){
+   const lx=x+half*.55,base=ground-height*.045,high=deck-height*.05,lean=width*.08,gap=width*.065;
+   beam(lx,base,lx+lean,high);beam(lx+gap,base,lx+gap+lean,high);
+   for(let j=1;j<7;j++){const t=j/7;beam(lx+lean*t,base+(high-base)*t,lx+gap+lean*t,base+(high-base)*t)}
+  }
+ }finally{g.restore()}
+}
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,
 dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b)):null,
 c=baf?null:spr('b|'+b.k+'|'+b.t+'|'+st+'|'+dm,w,hgt,g=>paintBld(g,b.k,s,teamColor(b.t),ff,dm)),Z=w2s(b.x+s,b.y+s),E=w2s(b.x+s,b.y),N=w2s(b.x,b.y),Wv=w2s(b.x,b.y+s);
-X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay;X.drawImage(baf.img,q.x,q.y,q.w,q.h,Z[0]-ax*sc,Z[1]-ay*sc,q.w*sc,q.h*sc)}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
+X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay,construction=buildingVisualConstruction(b);drawBuildingArtwork(X,{...baf,f:{...q,ax,ay}},Z[0],Z[1],sc,construction.complete,construction.progress,!!ghost)}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost&&!baf?.painted){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
 if(b.done){if(o.fl&&!baf?.painted){const by=topY-(o.cren?4:0)*z;X.strokeStyle='#3a2a1a';X.lineWidth=2*z;X.beginPath();X.moveTo(cx,by);X.lineTo(cx,by-22*z);X.stroke();X.fillStyle=teamColor(b.t);poly([[cx,by-22*z],[cx+14*z,by-17*z+Math.sin(gt*4)*2.5*z],[cx,by-10*z]]);X.fill();X.lineWidth=1}
 if(o.chim){for(let i=0;i<3;i++){const t=(gt*.6+i/3)%1;X.fillStyle='rgba(205,205,205,'+(.5-t*.5)+')';X.beginPath();X.arc(cx+s*8*z+Math.sin(t*6+i)*3*z,topY+10*z-t*30*z,(3+t*5)*z,0,7);X.fill()}}
 if(o.blades&&!baf?.painted){const hx=cx+2*z,hy=Z[1]-(s*16+o.h*.85)*z;X.strokeStyle='#5a3a1a';X.lineWidth=2.4*z;for(let i=0;i<4;i++){const a=gt*.9+i*1.5708;X.beginPath();X.moveTo(hx,hy);X.lineTo(hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z);X.stroke();X.fillStyle='rgba(240,230,200,.9)';poly([[hx+Math.cos(a)*8*z,hy+Math.sin(a)*8*z],[hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z],[hx+Math.cos(a)*24*z-Math.sin(a)*7*z,hy+Math.sin(a)*24*z+Math.cos(a)*7*z],[hx+Math.cos(a)*8*z-Math.sin(a)*7*z,hy+Math.sin(a)*8*z+Math.cos(a)*7*z]]);X.fill()}X.lineWidth=1}
