@@ -18,6 +18,11 @@ test('hosted expensive workflows remain manually dispatchable and weekly, not tr
  assert.match(read('battlefield-browser'),/node scripts\/run-checks\.mjs --browser/);
  assert.doesNotMatch(regression,/for mission in|for test_file in|tests=\(/);
 });
+test('fast hosted validation uses one shared focused plan',()=>{
+ const source=read('game-validation');
+ assert.match(source,/node scripts\/run-checks\.mjs --focused/);
+ assert.doesNotMatch(source,/node --test \\/);
+});
 test('trusted manual Windows self-hosted workflow offers full Node, AI and Chromium acceptance',()=>{
  const source=read('free-self-hosted-acceptance');
  assert.match(source,/workflow_dispatch:/);

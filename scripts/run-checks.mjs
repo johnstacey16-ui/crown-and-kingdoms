@@ -1,7 +1,7 @@
 /* Single cross-platform acceptance plan for local and GitHub-hosted checks.
  * Keep each regression and campaign in its own process to isolate global game state.
  * Full suites run on request or weekly: never on every hosted push.
- * Usage: node scripts/run-checks.mjs [--regressions | --regression-files |
+ * Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files |
  *   --skirmishes | --campaigns | --browser | --xbox-contracts | --full]
  */
 import {readdirSync,appendFileSync} from 'node:fs';
@@ -16,6 +16,42 @@ const QUICK=[
  ['Civilizations','scripts/check-civilization-catalogue.mjs',[]],
  ['Atlas manifest','tests/validate-atlas.mjs',[]],
  ['Graphics inventory','scripts/audit-graphics.mjs',['--check']]
+];
+// Centralizes the fast hosted selection; all files run under node --test.
+const FOCUSED=[
+ "tests/simulation-victory-ownership.test.mjs",
+ "tests/simulation-logistics-ownership.test.mjs",
+ "tests/score-time-limit.test.mjs",
+ "tests/sudden-death.test.mjs",
+ "tests/king-of-the-hill.test.mjs",
+ "tests/diplomacy.test.mjs",
+ "tests/browser-foundation.test.mjs",
+ "tests/runtime-script-order.test.mjs",
+ "tests/procedural-unit-art-module.test.mjs",
+ "tests/technology-catalogue.test.mjs",
+ "tests/local-check-runner.test.mjs",
+ "tests/ci-free-runner-policy.test.mjs",
+ "tests/tribute.test.mjs",
+ "tests/map-layout-content.test.mjs",
+ "tests/guard-follow.test.mjs",
+ "tests/villager-priority.test.mjs",
+ "tests/population-limits.test.mjs",
+ "tests/no-attack-stance.test.mjs",
+ "tests/fish-traps.test.mjs",
+ "tests/art-revisions.test.mjs",
+ "tests/engine-graphics-benchmark-ownership.test.mjs",
+ "tests/series-s-auto-pixel-benchmark.test.mjs",
+ "tests/series-s-auto-layer-benchmark.test.mjs",
+ "tests/series-s-benchmark-controller-isolation.test.mjs",
+ "tests/series-s-sharp-hud-canvas.test.mjs",
+ "tests/series-s-xbox-picture-presets.test.mjs",
+ "tests/ai-policy-ownership.test.mjs",
+ "tests/ai-module-ownership.test.mjs",
+ "tests/ai-defence-priority.test.mjs",
+ "tests/ai-siege-target-runtime.test.mjs",
+ "tests/ai-queued-unit-limits.test.mjs",
+ "tests/ai-economy-difficulty.test.mjs",
+ "tests/ai-rebuild-destroyed-buildings.test.mjs"
 ];
 const SKIRMISHES=[
  {label:'Seeded AI skirmish',file:'scripts/run-skirmish.mjs',args:[]},
@@ -42,7 +78,7 @@ const XBOX=[
  'tests/series-s-resource-sprite-cache.test.mjs',
  'tests/series-s-painted-troop-frame-cache.test.mjs'
 ];
-const MODES=['quick','regressions','regression-files','skirmishes','campaigns',
+const MODES=['quick','focused','regressions','regression-files','skirmishes','campaigns',
  'browser','xbox-contracts','full'];
 
 export function checkPlan(mode='quick',testFiles=[]){
@@ -58,6 +94,8 @@ export function checkPlan(mode='quick',testFiles=[]){
    jobs.push({label:file,file,args:[],env:{CK_SKIP_CAMPAIGN:'1'}});
   }
  }
+ if(mode==='focused')jobs.push({label:'Focused game, controller and graphics contracts',
+  file:'--test',args:[...FOCUSED]});
  if(mode==='skirmishes'||mode==='full')jobs.push(...SKIRMISHES);
  if(mode==='campaigns'||mode==='full')jobs.push(...CAMPAIGNS);
  if(mode==='browser')jobs.push(...BROWSER);
@@ -106,7 +144,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   ?args[0].slice(2):null;
  const mode=MODES.includes(requested)?requested:null;
  if(!mode){
-  console.error('Usage: node scripts/run-checks.mjs [--regressions | --regression-files | --skirmishes | --campaigns | --browser | --xbox-contracts | --full]');
+  console.error('Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files | --skirmishes | --campaigns | --browser | --xbox-contracts | --full]');
   process.exitCode=2;
  }else{
   try{const result=runChecks({mode});if(result.failed.length)process.exitCode=1}

@@ -100,3 +100,17 @@ test('browser and Xbox software contracts never present themselves as hardware a
  assert.ok(xbox.every(x=>x.file.startsWith('tests/')&&x.file.endsWith('.test.mjs')));
  assert.equal(checkPlan('campaigns').length,19);
 });
+
+test('fast hosted contract selection is one explicit reproducible Node test plan',()=>{
+ const focused=checkPlan('focused');
+ assert.equal(focused.length,1);
+ assert.equal(focused[0].file,'--test');
+ const files=focused[0].args;
+ assert.equal(files.length,new Set(files).size,'focused files must not be duplicated');
+ assert.ok(files.length>=30);
+ for(const file of files)assert.match(file,/^tests\/[a-z0-9-]+\.test\.mjs$/);
+ for(const file of ['tests/local-check-runner.test.mjs',
+  'tests/ci-free-runner-policy.test.mjs','tests/runtime-script-order.test.mjs',
+  'tests/ai-siege-target-runtime.test.mjs','tests/technology-catalogue.test.mjs'])
+  assert.ok(files.includes(file),'critical focused contract absent: '+file);
+});
