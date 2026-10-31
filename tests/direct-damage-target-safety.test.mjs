@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 const a = simulation.indexOf('function dmgT(a,t){');
 const b = simulation.indexOf('\nconst hit=', a);
 assert.ok(a >= 0 && b > a);
@@ -18,10 +19,9 @@ const context = {
 };
 vm.createContext(context);
 // Keep the isolated combat function's production attack-tier helper available.
-const bonusStart=simulation.indexOf('function meleeResearchAttackBonus(');
-const bonusEnd=simulation.indexOf('function dmgT(a,t){',bonusStart);
-assert.ok(bonusStart>=0&&bonusEnd>bonusStart);
-vm.runInContext(simulation.slice(bonusStart,bonusEnd),context);
+const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
+assert.ok(bonusStart>=0);
+vm.runInContext(bonuses.slice(bonusStart),context);
 vm.runInContext(simulation.slice(a, b), context);
 const dmgT = vm.runInContext('dmgT', context);
 const attacker = { k: 'mil', t: 0 };

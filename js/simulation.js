@@ -14,51 +14,7 @@ function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lca
 function walk(u,dt){const p=u.p;if(!p.length)return true;if(!Number.isFinite(dt)||dt<=0)return false;if(!Array.isArray(p[0])||p[0].length!==2){u.p=[];u.rp=0;return true}const[tx,ty]=p[0];if(!Number.isFinite(tx)||!Number.isFinite(ty)||tx<0||ty<0||tx>=W||ty>=H){u.p=[];u.rp=0;return true}if((u.sh?!(S.wt[(ty|0)*W+(tx|0)]&&!S.nd[(ty|0)*W+(tx|0)]):(S.wt[(ty|0)*W+(tx|0)]===1||S.g[(ty|0)*W+(tx|0)]&&S.gt[(ty|0)*W+(tx|0)]!==u.t+1))&&p.length>1){u.p=[];u.rp=0;return true}
 const dx=tx-u.x,dy=ty-u.y,d=Math.hypot(dx,dy),st=Math.max(0,unitSpeed(u)*dt),tl=p.length>1?.45:u.o==='m'?.6:0;if(d<=st){const ox=u.x,oy=u.y;mv(u,dx,dy);if(u.x===ox&&u.y===oy&&d>0){u.p=[];u.rp=0;return true}p.shift()}else if(d<=tl)p.shift();else{const ox=u.x,oy=u.y;mv(u,dx/d*st,dy/d*st);if(u.x===ox&&u.y===oy){u.p=[];u.rp=0;return true}}return!p.length}
 /* ===== COMBAT ===== */
-// The spear-line's cavalry/camel/elephant bonuses increase at each upgrade.
-// These are armor-class approximations for the currently modelled unit kinds.
-// Other class interactions (ships, shock infantry and regional bonuses) stay
-// tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon']);
-const SPEAR_CAMELS=new Set(['camel','mamel']);
-const SPEAR_ELEPHANTS=new Set(['ele','eled']);
-function spearLineBonus(a,t){
- const key=t.k,alias=U[key]?.lk,tech=S.tech[a.t]||{};
- const tier=tech.halb?2:tech.pike?1:0;
- if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return [15,25,28][tier];
- if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return [12,18,26][tier];
- if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias))return [15,22,32][tier];
- return U.spear.bn?.[key]||U.spear.bn?.[alias]||0;
-}
-// Counter bonuses are attached to AoE2 armour classes, not broadly to
-// villagers, siege and all ranged units. The compact roster still needs a
-// complete class table (especially regional unique units) in a later audit.
-const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko']);
-const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon']);
-// Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
-const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled']);
-const CAMEL_CLASS=new Set(['camel','mamel']);
-function camelLineBonus(a,t){
- const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
- if(CAMEL_CLASS.has(key)||CAMEL_CLASS.has(alias))return heavy?9:5;
- if(CAMEL_CAVALRY.has(key)||CAMEL_CAVALRY.has(alias))return heavy?18:9;
- return U.camel.bn?.[key]||U.camel.bn?.[alias]||0;
-}
-function scoutLineBonus(a,t){
- return t.k==='mon'?(S.tech[a.t]?.lcav?10:6):0;
-}
-function skirmisherBonus(a,t){
- const tech=S.tech[a.t]||{},elite=!!tech.elsk,k=t.k;
- if(k==='spear')return elite?4:3;
- if(SKIRM_ARCHER_KINDS.has(k))return elite?4:3;
- if(SKIRM_CAV_ARCHER_KINDS.has(k))return elite?2:0;
- if(k==='mamel')return 2;
- return 0;
-}
-// Source-backed Blacksmith melee bonuses: Forging +1, Iron Casting +1,
-// Blast Furnace +2. Saved games from the current rules keep these flags.
-function meleeResearchAttackBonus(tech){
- return (tech.forging?1:0)+(tech.ironCasting?1:0)+(tech.blastFurnace?2:0);
-}
+// Damage bonus definitions belong to simulation-combat-bonuses.js.
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],ta=S.tech[t.t]||{},bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(tk.gf?4:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ib=(INFARM.has(t.k)?((ta.armI?1:0)+(ta.armI2?1:0)+(ta.armI3?(cls==='p'?2:1):0)):0)+(ARCHARM.has(t.k)?((ta.armR?1:0)+(ta.armR2?1:0)+(ta.armR3?(cls==='p'?2:1):0)):0)+(CAVARM.has(t.k)?((ta.armC?1:0)+(ta.armC2?1:0)+(ta.armC3?(cls==='p'?2:1):0)):0),ar=t.s?(cls==='p'?8:2):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='skirm'&&ta.elsk?1:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0);t.hp-=Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);fx.push({x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,l:.2,k:'h'});if(!t.s)t.hit=gt;emit('spark',t.x+(t.s||0)/2,t.y+(t.s||0)/2,t.s?3:5,{s:2.2,vz:2.6,l:.35,c:ak.rng>2?'#e8d8a0':'#ffb050',r:1.6});
 hitSnd(a,t);
 if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.al=S.t;note('Under attack! L3 with nothing selected jumps there');sfx('horn');rumble(260,.6,.3)}}

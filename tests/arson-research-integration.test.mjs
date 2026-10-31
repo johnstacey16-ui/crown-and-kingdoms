@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
 const bar = { k: 'bar', t: 0, hp: B.bar.hp, done: true, rs: null, q: [] };
 const S = { age: [2, 2], tech: [{}, {}], bs: [bar], us: [],
@@ -26,7 +27,9 @@ function load(start, end) {
 }
 load('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
 load('function upB(b,dt){', '\nfunction train(b,k){');
-load('function meleeResearchAttackBonus(', 'function dmgT(a,t){');
+const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
+assert.ok(bonusStart>=0,'source melee bonus must exist in its dedicated owner');
+vm.runInContext(bonuses.slice(bonusStart),context);
 load('function dmgT(a,t){', 'const hit=(a,t)=>');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);

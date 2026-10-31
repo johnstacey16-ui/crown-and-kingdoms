@@ -21,6 +21,11 @@ const QUICK=[
 const FOCUSED=[
  "tests/simulation-victory-ownership.test.mjs",
  "tests/simulation-logistics-ownership.test.mjs",
+ "tests/simulation-combat-bonuses-ownership.test.mjs",
+ "tests/arson-combat.test.mjs",
+ "tests/arson-research-integration.test.mjs",
+ "tests/direct-damage-target-safety.test.mjs",
+ "tests/technology-effects.test.mjs",
  "tests/score-time-limit.test.mjs",
  "tests/sudden-death.test.mjs",
  "tests/king-of-the-hill.test.mjs",
