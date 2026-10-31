@@ -29,7 +29,7 @@ test('benchmark is loaded exactly once after assets, before engine, and precache
   assert.equal(paths.filter(p=>p==='./js/engine-graphics-benchmark.js').length,1);
  }
  assert.match(sw,/['"]\.\/js\/engine-graphics-benchmark\.js['"]/);
- assert.equal(browser.length,37);assert.equal(core.length,24);
+ assert.equal(browser.length,38);assert.equal(core.length,25);
 });
 test('median diagnostic is pure and startup does not begin a benchmark',()=>{
  const ctx={};vm.createContext(ctx);
