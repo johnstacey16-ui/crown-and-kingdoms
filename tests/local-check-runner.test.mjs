@@ -113,6 +113,7 @@ test('fast hosted contract selection is one explicit reproducible Node test plan
   'tests/ci-free-runner-policy.test.mjs','tests/runtime-script-order.test.mjs',
   'tests/ai-siege-target-runtime.test.mjs','tests/technology-catalogue.test.mjs',
   'tests/town-bell.test.mjs','tests/map-generation-static.test.mjs',
-  'tests/ai-enemy-composition-guards.test.mjs'])
+  'tests/ai-enemy-composition-guards.test.mjs',
+  'tests/training-cap-drop.test.mjs'])
   assert.ok(files.includes(file),'critical focused contract absent: '+file);
 });
