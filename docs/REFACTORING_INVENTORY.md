@@ -15,6 +15,8 @@ This is a live cleanup register, **not an assertion that every item is ready for
 | Old multiplayer adapters | `multiplayer.js` and `js/network-*.js` may still be transitively active, even when named legacy; authenticated WebRTC and signaling must remain secure | **UNCERTAIN** — do not delete without a complete reachability and transport audit |
 | Save-version migrations | Older development saves need not migrate; `js/save.js` still validates/loading current saves | **MIGRATION DEFERRED**, not save-system deletion |
 
+**Local offline verification:** `scripts/run-checks.mjs` provides one cross-platform command for the same five source checks and optional complete regression/AI/campaign suite, without Bash-only loops. This does not fix or replace the externally failing hosted runners.
+
 ## Refactor queue (before adding features)
 
 | Priority | Workstream | Exit criteria |

@@ -30,18 +30,15 @@ For multiplayer, choose **Multiplayer → Two-player battlefield preview**; the 
 
 Serve the repository root using a static HTTP server and open `index.html` with a connected gamepad. The browser uses classic scripts in a deliberate load order: changing source paths requires coordinated `index.html`, `sw.js`, cache/asset manifest and regression updates.
 
-Use Node.js 22 for the documented checks:
+Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run locally and do not require GitHub Actions or paid infrastructure:
 
 ```sh
-node scripts/check-game.mjs
-node tests/validate-atlas.mjs
-node scripts/audit-graphics.mjs --check
-for t in tests/*.test.mjs; do CK_SKIP_CAMPAIGN=1 node "$t" || exit 1; done
-node scripts/run-skirmish.mjs
-CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
-CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 CK_MAX_SECONDS=2700 node scripts/run-skirmish.mjs
-for mission in $(seq 0 18); do CK_MISSION="$mission" node tests/simulation-smoke.test.mjs || exit 1; done
+node scripts/run-checks.mjs                 # Five quick source/asset validation gates
+node scripts/run-checks.mjs --regressions   # Quick gates + every standalone test file
+node scripts/run-checks.mjs --full          # All above + seeded skirmishes + 19 missions
 ```
+
+The runner reports each failure and a final summary. The third command can take substantially longer. These checks do not replace live Xbox Series S or independent-network multiplayer acceptance.
 
 **Dated test evidence:** for source commit `337974492df1ddfd5f9adb339b79855f005bd532` (30 October 2026), Claude reported 219 local standalone regression files passing; hosted Actions were reported failing **before job steps**, cause unverified. Those results do not certify this documentation change, the deployed site, live peer matches, human campaign playthroughs or physical Series S performance. Check actual CI logs and always cite the exact tested SHA.
 
