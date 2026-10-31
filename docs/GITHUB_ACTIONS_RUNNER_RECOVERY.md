@@ -2,7 +2,7 @@
 
 **31 October 2026 update: Hosted source validation has recovered; the original runner-allocation cause remains unconfirmed. Full regression and Chromium acceptance still require independent green runs.**
 
-[Validation run 41202652720](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41202652720) successfully started a hosted runner and completed the current `f7610b3` source/graphics checks plus **23/23** focused module and victory-mode tests. The original zero-step failures below remain unexplained; the successful validation alone does not certify the more expensive weekly/manual Node, campaign or Chromium workflows.
+[Validation run 41202652720](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41202652720) successfully started a hosted runner and completed the current `f7610b3` source/graphics checks plus **23/23** focused module and victory-mode tests. The original zero-step failures below remain unexplained. More recently, [validation 41203700936](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41203700936) passed 79/79 focused checks alongside source/graphics validation on `0b7d0e1`. Neither green validation certifies the more expensive weekly/manual full Node, campaign or Chromium workflows.
 
 ## What the repository actually shows
 

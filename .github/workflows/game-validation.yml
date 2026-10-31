@@ -29,8 +29,8 @@ jobs:
       - name: Validate game source
         run: node scripts/check-game.mjs
       # Run focused source/behavior contracts on every push; leave the expensive
-      # 236-file, seeded AI, campaign and Chromium suites weekly or manual.
-      - name: Check simulation module and victory-mode regression contracts
+      # full standalone, seeded AI, campaign and Chromium suites weekly or manual.
+      - name: Check focused gameplay, controller and graphics regression contracts
         run: |
           node --test \
             tests/simulation-victory-ownership.test.mjs \

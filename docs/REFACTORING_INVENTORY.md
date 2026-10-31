@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active repository refactoring inventory
 
-**Status: PARTIAL · source/tooling `addbce0` · graphics `aaeaf7e` · logistics `862d877` · victory `f7610b3` · 31 October 2026**
+**Status: PARTIAL · logistics `862d877` · victory `f7610b3` · benchmark `fd1cdb3` · AI policy `0b7d0e1` · 31 October 2026**
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
@@ -12,7 +12,7 @@ This is a live cleanup register, **not an assertion that every item is ready for
 |---|---|---|
 | Browser entrypoint | 38 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
 | Art and resources | `assets/atlas-manifest.json` and original WebP source/painted atlases; stone, gold, berry, terrain and fallback rendering require coverage | **ACTIVE** — no art removal; source-generator dependencies also count |
-| Headless/CI | 236 standalone `tests/*.test.mjs` files at previous checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
+| Headless/CI | 238 standalone `tests/*.test.mjs` files at current checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
 | Historical docs | Older checkpoints moved from active ROADMAP into `docs/audits/2026-10-31-gameplay-checkpoints.md`; delivery register/git history retained | **ARCHIVED** — retain for audit, not the active prioritization |
 | Old multiplayer adapters | `multiplayer.js` and `js/network-*.js` may still be transitively active, even when named legacy; authenticated WebRTC and signaling must remain secure | **UNCERTAIN** — do not delete without a complete reachability and transport audit |
 | Save-version migrations | Older development saves need not migrate; `js/save.js` still validates/loading current saves | **MIGRATION DEFERRED**, not save-system deletion |
@@ -80,4 +80,6 @@ The original canvas layer/pixel benchmark constants, state and five functions ha
 
 ## AI policy extraction — 31 October 2026
 
-Seven previously global threat, age-saving, queue-counting, siege and builder-selection helpers (3,848 unchanged original source bytes) moved from `js/ai.js` to `js/ai-policy.js` in the same classic-script runtime order, immediately after simulation and before the AI loop. Offline shell v59 and source order validation follow the move. **38 browser / 25 core / 23 headless scripts, 238 standalone regression files.** Nine existing AI-source fixtures now include both source modules (including a previously stale absolute script-offset assertion), and a new isolated ownership/queue/saving-policy test covers the boundary. Relevant AI tests are in the lightweight hosted CI suite. This is not a new AI strategy: controller defaults, resource art, save/load, multiplayer authority and gameplay semantics are intended to remain unchanged. Full 238-test, campaign, AI, Chromium and physical Xbox acceptance remain separate gates.
+Seven previously global threat, age-saving, queue-counting, siege and builder-selection helpers (3,929 unchanged original source bytes) moved from `js/ai.js` to `js/ai-policy.js` in the same classic-script runtime order, immediately after simulation and before the AI loop. Offline shell v59 and source order validation follow the move. **38 browser / 25 core / 23 headless scripts, 238 standalone regression files.** Nine existing AI-source fixtures now include both source modules (including a previously stale absolute script-offset assertion), and a new isolated ownership/queue/saving-policy test covers the boundary. Relevant AI tests are in the lightweight hosted CI suite. This is not a new AI strategy: controller defaults, resource art, save/load, multiplayer authority and gameplay semantics are intended to remain unchanged. Full 238-test, campaign, AI, Chromium and physical Xbox acceptance remain separate gates.
+
+**Latest source and focused CI verification — `0b7d0e1`:** [run 41203700936](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41203700936) passed all **79 focused checks**, plus production syntax, browser/offline graph, civilization, atlas and graphics inventory validations. Full 238 standalone regression files, all 19 campaign runs, seeded AI, Chromium and physical Xbox acceptance are **not yet confirmed on this head**. Do not infer a complete game or hardware certification from green focused tests.
