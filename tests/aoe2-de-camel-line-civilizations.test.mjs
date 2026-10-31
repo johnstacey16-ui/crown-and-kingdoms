@@ -106,7 +106,8 @@ test('multiplayer host rejects illegal Camel orders without charging Franks whil
   roster:CK_SIM_SYNC.lockRoster('host','guest',2),mapSize:W,
   lookupEntity:CK_GAME_COMMANDS.lookup,execute:CK_GAME_COMMANDS.execute
  });`);
- const packet=(sid,team,seq,entity,type,value)=>({v:1,sid,team,seq,frame:6,order:{type,entities:[entity],value}});
+ const version=c('CK_SIM_SYNC.VERSION');
+ const packet=(sid,team,seq,entity,type,value)=>({v:version,sid,team,seq,frame:6,order:{type,entities:[entity],value}});
  const hostStable=c('our.netId'),guestStable=c('enemyStable.netId');
  const before=JSON.parse(c('JSON.stringify(S.res)'));
  const receipts=[];
