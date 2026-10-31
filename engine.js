@@ -510,7 +510,10 @@ const rsOf=(b,civs=S?.civ)=>{
  const barded=cavalry==null?armoredArchers:armoredArchers.filter(k=>!CAVALRY_ARMOR_RESEARCH_KEYS[k]||cavalry.includes(CAVALRY_ARMOR_RESEARCH_KEYS[k]));
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
- return b.k==='castle'&&c?[...new Set([...finalList,c.ut.k])]:finalList;
+ // Use the same regional unit catalogue as Stable training and authenticated orders.
+ const regional=finalList.filter(k=>k!=='hcamel'||REGIONAL_UNIT_ACCESS.some(rule=>
+  rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
+ return b.k==='castle'&&c?[...new Set([...regional,c.ut.k])]:regional;
 };
 const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},{v:1,g:1.3,n:1.1,r:1.2,tw:4,wl:80,rg:1},{v:1.3,g:1.5,n:1.2,r:1.4,tw:2,wl:56},{v:.8,g:.45,n:.55,r:1,tw:1,wl:0},{v:1.1,g:1.8,n:1.4,r:1.6,tw:6,wl:110,rg:1},{v:1,g:1.1,n:.9,r:.35,tw:2,wl:12,cv:1}];
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
