@@ -4,7 +4,7 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
+**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). The procedural fallback renderer was separated into `js/render-procedural-units.js`; the full recent hosted suite is still blocked before steps. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists
 

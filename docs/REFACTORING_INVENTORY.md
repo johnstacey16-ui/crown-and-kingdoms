@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active repository refactoring inventory
 
-**Status: PARTIAL · baseline `a2f50e4` · current tooling commit `addbce0` · 31 October 2026**
+**Status: PARTIAL · tooling `addbce0` · procedural module extraction `aaeaf7e` · 31 October 2026**
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
@@ -8,9 +8,9 @@ This is a live cleanup register, **not an assertion that every item is ready for
 
 | Area | Evidence | Decision |
 |---|---|---|
-| Browser entrypoint | 33 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
+| Browser entrypoint | 34 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
 | Art and resources | `assets/atlas-manifest.json` and original WebP source/painted atlases; stone, gold, berry, terrain and fallback rendering require coverage | **ACTIVE** — no art removal; source-generator dependencies also count |
-| Headless/CI | 232 standalone `tests/*.test.mjs` files at checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
+| Headless/CI | 234 standalone `tests/*.test.mjs` files at checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
 | Historical docs | Older checkpoints moved from active ROADMAP into `docs/audits/2026-10-31-gameplay-checkpoints.md`; delivery register/git history retained | **ARCHIVED** — retain for audit, not the active prioritization |
 | Old multiplayer adapters | `multiplayer.js` and `js/network-*.js` may still be transitively active, even when named legacy; authenticated WebRTC and signaling must remain secure | **UNCERTAIN** — do not delete without a complete reachability and transport audit |
 | Save-version migrations | Older development saves need not migrate; `js/save.js` still validates/loading current saves | **MIGRATION DEFERRED**, not save-system deletion |
@@ -21,11 +21,11 @@ This is a live cleanup register, **not an assertion that every item is ready for
 
 | Priority | Workstream | Exit criteria |
 |---|---|---|
-| 1 — in progress | **Single source for browser script ownership:** `index.html` -> runtime script loader -> game validation, headless and browser foundation | 33/20/18 entries agree, all referenced files present, dependency ordering tests and full standalone Node validation |
+| 1 — in progress | **Single source for browser script ownership:** `index.html` -> runtime script loader -> game validation, headless and browser foundation | 34/21/19 entries agree, all referenced files present, dependency ordering tests and full standalone Node validation |
 | 2 — next | **Separate overly dense runtime modules:** `js/render.js` (~104 KB), `engine.js` (~61 KB), `js/simulation.js` (~59 KB), `multiplayer.js` (~56 KB), `js/network-unit-map.js` (~51 KB), `js/ai.js` (~48 KB) | Each extracted responsibility has one owner; production script ordering, offline cache and headless tests updated; no gameplay/output changes |
 | 3 — next | **Deduplicate repeated economy/placement/controller helpers, global state mutations and content tables** | Explicit dependency/behavior proof; no new Xbox shortcuts or resource changes; repeated source checks replaced by focused behavior tests |
 | 4 — pending | **Unused/legacy file proof:** mark modules/doc/asset inputs as truly unused only after search across browser, offline cache, generator, tests and network/security paths | Evidence for each deletion; preserve historical `CK-###` and 48 `AUD-###` IDs |
-| 5 — pending | **Verification and release hygiene:** stabilize GitHub Actions and audit actual Xbox Edge behavior | Recent commit passes all 232+ standalone files, seeded AI/campaigns and Chromium; performance and network gates separately recorded |
+| 5 — pending | **Verification and release hygiene:** stabilize GitHub Actions and audit actual Xbox Edge behavior | Recent commit passes all 234+ standalone files, seeded AI/campaigns and Chromium; performance and network gates separately recorded |
 
 The earlier `check-game.mjs` compiled some modules from a handwritten roster while the browser had **33** scripts; that could skip syntax failures in WebRTC/Supabase integrations. The new checker discovers and parses all actual browser entries instead. The test harness keeps only the deliberately headless subset, in production order. This is an observable maintainability improvement, not an accepted whole-game refactor.
 
@@ -36,6 +36,14 @@ The live manifest lists **58 active painted WebP image references**, and all 58 
 The local test runner at `scripts/run-checks.mjs` supports `quick`, `--regressions` and `--full`. It mirrors the existing five hosted source/graphics gates and optionally executes **233 standalone tests**, three seeded AI matches and 19 isolated mission playthroughs without a Bash dependency. Its **plan/ordering/error aggregation fixture passed**, but a full run in a checkout is still required. All 33 individual production browser scripts and the concatenated 18-script headless source passed independent JavaScript syntax compilation. The current Actions jobs at `addbce0` stopped before any job step; the reason remains unverified.
 
 **Next refactor priorities** are split ownership of oversized rendering/simulation/input modules and auditing genuinely obsolete files with full dependency proof. These have NOT yet been completed.
+
+## Completed module extraction: procedural fallback graphics (`aaeaf7e`)
+
+The production browser now loads **34 scripts**, with a dedicated `js/render-procedural-units.js` **immediately after `js/render.js`**. All original procedure art source bytes (`MP` palette definitions, infantry/mounted/siege/naval draw functions and `USZ` sizing) were moved verbatim. Shared sprite-cache, canvas shape primitives, terrain/world/building/resource rendering and painted atlas logic remain in `js/render.js`, which shrank from **103,961 to 86,867 bytes**. The extracted code is ~17 KB. Offline shell v55 includes the new script, without modifying artwork, map resources or original atlases.
+
+Ownership and load order now have focused tests; the production/source/headless inventories are **34/21/19**. There are **234 standalone test files** at this commit. Independent module syntax/palette preflight passed; the three hosted Actions workflows failed **before any job step** at code commit `aaeaf7e`. Therefore neither the browser graphics nor the full simulation suite has passed on this refactor. Do not treat these as verified rendering-equivalence tests or Xbox hardware acceptance.
+
+**Next:** identify a low-coupling subdomain in `engine.js` or `js/simulation.js`, and extend behavioral tests before a further move. Avoid moving the procedural pixel/canvas primitives until module ownership and actual pixel equivalence can be checked.
 
 ## Constraints during cleanup
 
