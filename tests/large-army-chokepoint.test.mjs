@@ -25,7 +25,8 @@ test('extended 200-unit corridor run reports clearance without using Xbox FPS cl
  assert.equal(r.validRoutes,200);
  assert.equal(r.blockedCellUnits,0);
  assert.equal(r.invalidCoordinates,0);
- assert.ok(r.crossed>0);
+ assert.equal(r.crossed,200,'all 200 must actually clear the wall before claiming completion');
+ assert.equal(r.completed,200,'none of the soldiers may be abandoned with a false completion');
 });
 
 test('stress harness rejects misleading unit counts and invalid horizons',()=>{

@@ -5,14 +5,15 @@ import vm from 'node:vm';
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const mvStart = source.indexOf('const mv=(u,dx,dy)=>');
 const mvEnd = source.indexOf('\n/* Local spatial grid', mvStart);
+const axisStart = source.indexOf('function walkAxisSlide(');
 const walkStart = source.indexOf('function walk(u,dt){');
 const walkEnd = source.indexOf('\n/* ===== COMBAT ===== */', walkStart);
-assert.ok(mvStart >= 0 && mvEnd > mvStart && walkStart >= 0 && walkEnd > walkStart);
+assert.ok(mvStart >= 0 && mvEnd > mvStart && axisStart >= 0 && walkStart > axisStart && walkEnd > walkStart);
 const W = 12, H = 12;
 const S = { g: new Uint8Array(W*H), gt: new Uint8Array(W*H), wt: new Uint8Array(W*H), nd: new Array(W*H).fill(null) };
 const context = { W, H, S, unitSpeed: () => 2 };
 vm.createContext(context);
-vm.runInContext(source.slice(mvStart, mvEnd) + '\n' + source.slice(walkStart, walkEnd), context);
+vm.runInContext(source.slice(mvStart, mvEnd) + '\n' + source.slice(axisStart, walkEnd), context);
 const walk = vm.runInContext('walk', context);
 const unit = (x=2.5, y=2.5) => ({ x, y, t: 0, sh: false, p: [], o: 'm', rp: 1 });
 let u = unit();
@@ -69,4 +70,20 @@ u = unit();
 u.p = [[3.5,2.5]];
 walk(u, 1);
 assert.equal(u.x, 2.5, 'enemy gate blocks waypoint traversal');
+// A path planned through the valid southeast gateway must not disappear when
+// spatial separation nudges the unit into a diagonal approach beside a wall.
+S.g.fill(0);S.gt.fill(0);S.wt.fill(0);
+S.g[4*W+5]=1;
+u=unit(4.92,4.59);u.p=[[5.5,5.5]];u.o='m';
+let advanced=false;
+for(let tick=0;tick<100;tick++){
+ const beforeY=u.y;
+ const arrived=walk(u,1/30);
+ if(u.y>beforeY)advanced=true;
+ assert.equal(S.g[(u.y|0)*W+(u.x|0)],0,'axis recovery must never enter the blocked corner');
+ if(arrived)break;
+}
+assert.equal(advanced,true,'the soldier must slide toward the gateway');
+assert.ok(u.x>=5&&u.y>=5,'the diagonal near-wall route must reach the safe tile');
+assert.equal(u.p.length,0,'route is completed only after moving through the gateway');
 console.log('waypoint-collision-safety: passed');

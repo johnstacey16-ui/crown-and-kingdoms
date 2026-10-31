@@ -45,6 +45,7 @@ const FOCUSED=[
  "tests/seeded-world-continuation.test.mjs",
  "tests/economy-invariants.test.mjs",
  "tests/large-army-chokepoint.test.mjs",
+ "tests/waypoint-collision-safety.test.mjs",
  "tests/network-command-uplink.test.mjs",
  "tests/network-sync-authority.test.mjs",
  "tests/tribute.test.mjs",
