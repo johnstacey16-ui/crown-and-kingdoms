@@ -42,6 +42,20 @@ function prepareHillMap(starts){
 
 function applyMapLayout(){const p=[null,{mt:0,seed:202611},{mt:7,seed:202612},{mt:1,seed:202613},{mt:6,seed:202614},{mt:1,seed:202615},{mt:5,seed:202616},{mt:8,seed:202617},{mt:9,seed:202618},{mt:4,seed:202619},{mt:7,seed:202620},{mt:8,seed:202621},{mt:7,seed:202622},{mt:7,seed:202623}][mapLayout];if(p){mt=p.mt;seedOv=p.seed}else seedOv=null}
 
+
+/* The map must finish spawning before civ selection consumes RNG, so keep that
+ * seeded order unchanged. Bonuses registered by each civilization apply to
+ * future addU/addB calls; reconcile the initial full-health units/buildings
+ * exactly once after fx(t) so starting villagers and Town Centres match. */
+function applyStartingCivilizationBonuses(team){
+ const tech=S.tech[team]||{},hp=tech.hpb||{};
+ for(const u of S.us)if(u.t===team&&u.hp>0)u.hp+=hp[u.k]||0;
+ if(tech.bz)for(const b of S.bs)if(b.t===team&&b.hp>0){
+  const previous=b.mh,next=Math.round(previous*1.15);
+  b.mh=next;b.hp=Math.min(next,b.hp+next-previous);
+ }
+}
+
 /* Map construction, game-state initialisation and starting-world seeding. */
 function newGame(tries){'use strict';if(tries===undefined)tries=0;setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:(Date.now()+tries*104729)&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
 S={t:0,teamN,r,netNext:1,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
@@ -95,5 +109,5 @@ if(vm===5)prepareHillMap(bs);bs.forEach(([bx,by],t)=>{const sx=bx<W/2?1:-1,sy=by
 Q('f',6,-3,7,120);Q('w',-7,-2,18,100);Q('w',3,-8,14,100);Q('g',9,3,7,300);Q('s',4,8,7,300);
 const tc=addB(t,'tc',bx-1,by-1,true),villagers=cmp?5:[3,5,10,15][startVillagers]||5;for(let i=0;i<Math.min(5,villagers);i++)addU(t,'vil',bx+(i-2)*.8,by+2.5);for(let i=5;i<villagers;i++){const p=spawnPos(tc);if(p)addU(t,'vil',p[0],p[1])}});
 {const p=S.bs.find(b=>b.t===0&&b.k==='tc');if(tries<8&&p&&S.us.some(u=>u.t>0&&u.k==='vil'&&!path(u,goalNear(p,1))))return newGame(tries+1)}
-S.civ=Array(S.teamN);S.civ[0]=civ;const usedCivs=new Set([civ]);for(let t=1;t<S.teamN;t++){let c=t===1&&aiCiv>=0?aiCiv:(civ+1+((S.r()*(CIV.length-1))|0))%CIV.length,guard=0;while(usedCivs.has(c)&&guard++<CIV.length)c=(c+1)%CIV.length;S.civ[t]=c;usedCivs.add(c)}for(let t=0;t<S.teamN;t++)CIV[S.civ[t]].fx(t);
+S.civ=Array(S.teamN);S.civ[0]=civ;const usedCivs=new Set([civ]);for(let t=1;t<S.teamN;t++){let c=t===1&&aiCiv>=0?aiCiv:(civ+1+((S.r()*(CIV.length-1))|0))%CIV.length,guard=0;while(usedCivs.has(c)&&guard++<CIV.length)c=(c+1)%CIV.length;S.civ[t]=c;usedCivs.add(c)}for(let t=0;t<S.teamN;t++){CIV[S.civ[t]].fx(t);applyStartingCivilizationBonuses(t)}
 S.mapAudit={...S.mapAudit,attempts:tries+1};ctr(10.5,H-9.5);cur={x:CW/2,y:CH/2};fog();mmUp()}
