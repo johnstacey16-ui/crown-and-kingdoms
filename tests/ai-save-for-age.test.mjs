@@ -4,13 +4,14 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const start=ai.indexOf('function aiSavingAgeFood(t,villagers){');
-const end=ai.indexOf('function aiTownTechReady(',start);
+const policySource=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const start=policySource.indexOf('function aiSavingAgeFood(t,villagers){');
+const end=policySource.indexOf('function aiTownTechReady(',start);
 assert.ok(start>=0&&end>start,'AI age-up food reservation helper is present');
 function policy({villagers,age=0,ready=true}){
  const S={age:[age]};const AG=[{}, {cost:{f:500}},{cost:{f:800,g:200}},{cost:{f:1000,g:800}}];
  const ageRequirements=()=>({ready});
- return vm.runInNewContext(ai.slice(start,end)+'\n;aiSavingAgeFood(0,'+villagers+');',{S,AG,ageRequirements});
+ return vm.runInNewContext(policySource.slice(start,end)+'\n;aiSavingAgeFood(0,'+villagers+');',{S,AG,ageRequirements});
 }
 test('AI saves food after reaching a productive village and meeting age requirements',()=>{
  assert.equal(policy({villagers:16}),true);

@@ -9,7 +9,8 @@ const policy=read('js/ai-policy.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
-  'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder']){
+  'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
+  'aiSavingAgeFood','aiTownTechReady']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }

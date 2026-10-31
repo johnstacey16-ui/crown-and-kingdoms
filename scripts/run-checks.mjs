@@ -52,6 +52,7 @@ const FOCUSED=[
  "tests/ai-policy-ownership.test.mjs",
  "tests/ai-module-ownership.test.mjs",
  "tests/ai-defence-priority.test.mjs",
+ "tests/ai-save-for-age.test.mjs",
  "tests/ai-siege-target-runtime.test.mjs",
  "tests/ai-queued-unit-limits.test.mjs",
  "tests/ai-economy-difficulty.test.mjs",
