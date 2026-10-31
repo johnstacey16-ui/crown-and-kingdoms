@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const choose = vm.runInNewContext(ai + '\n;aiBaseDefenceThreat;');
 
 test('base defence prioritises reachable-range siege threats over slightly nearer ordinary raiders', () => {

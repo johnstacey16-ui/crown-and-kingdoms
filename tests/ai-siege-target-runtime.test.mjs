@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-const source=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const code=source.slice(source.indexOf('function aiSiegeTarget('),source.indexOf('function aiAvailableBuilder('));
 const building=(k,x,extra={})=>({k,x,y:5,s:2,t:1,done:true,hp:100,...extra});
 const leader={x:5,y:5,t:0};

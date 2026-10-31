@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const ai=fs.readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 
 test('AI production filters unaffordable units before selecting counters',()=>{
  assert.match(ai,/trOf\(b\)\.filter\(k=>U\[k\]&&can\(t,U\[k\]\.cost\)/);

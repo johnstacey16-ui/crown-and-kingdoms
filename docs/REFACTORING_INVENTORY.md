@@ -10,7 +10,7 @@ This is a live cleanup register, **not an assertion that every item is ready for
 
 | Area | Evidence | Decision |
 |---|---|---|
-| Browser entrypoint | 37 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
+| Browser entrypoint | 38 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
 | Art and resources | `assets/atlas-manifest.json` and original WebP source/painted atlases; stone, gold, berry, terrain and fallback rendering require coverage | **ACTIVE** — no art removal; source-generator dependencies also count |
 | Headless/CI | 236 standalone `tests/*.test.mjs` files at previous checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
 | Historical docs | Older checkpoints moved from active ROADMAP into `docs/audits/2026-10-31-gameplay-checkpoints.md`; delivery register/git history retained | **ARCHIVED** — retain for audit, not the active prioritization |
@@ -77,3 +77,7 @@ Eight more source-level regression files (tribute, map layout selection/content,
 ## Xbox graphics diagnostic module extraction — 31 October 2026
 
 The original canvas layer/pixel benchmark constants, state and five functions have been moved byte-for-byte out of `engine.js` into `js/engine-graphics-benchmark.js`, a classic script loaded after the assets module and before `engine.js`. Runtime, offline shell v58, checker ordering and core/headless inventories are synchronized: **37 production / 24 core / 22 headless scripts, 237 standalone regression files**. Representative Series S benchmark/controller/HUD tests and a new ownership/median test are added to lightweight hosted CI; 10+ existing preview/controller/color tests are unchanged. The original renderer, canvas scale presets, graphics, resources, current-build saves, multiplayer and game simulation are not intentionally modified. Full source and browser acceptance require test evidence after this commit; no Xbox hardware FPS claim follows from this extraction.
+
+## AI policy extraction — 31 October 2026
+
+Seven previously global threat, age-saving, queue-counting, siege and builder-selection helpers (3,848 unchanged original source bytes) moved from `js/ai.js` to `js/ai-policy.js` in the same classic-script runtime order, immediately after simulation and before the AI loop. Offline shell v59 and source order validation follow the move. **38 browser / 25 core / 23 headless scripts, 238 standalone regression files.** Nine existing AI-source fixtures now include both source modules (including a previously stale absolute script-offset assertion), and a new isolated ownership/queue/saving-policy test covers the boundary. Relevant AI tests are in the lightweight hosted CI suite. This is not a new AI strategy: controller defaults, resource art, save/load, multiplayer authority and gameplay semantics are intended to remain unchanged. Full 238-test, campaign, AI, Chromium and physical Xbox acceptance remain separate gates.
