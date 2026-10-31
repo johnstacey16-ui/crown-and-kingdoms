@@ -33,6 +33,14 @@ Keep this checkpoint separate from the 30 October audit baseline and record the 
 
 **Next:** exact R3 reference capture and scaling tests, View/X/LT controller gaps, Xbox Series S FPS and suspend/focus acceptance, and independent-network full-match multiplayer. Continue keeping DLC/rulesets and regional-unit work PARTIAL until actually playable.
 
+## R3 ratio and UI continuation — 31 October 2026
+
+**Latest code/test commit:** [`469a654`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/469a65452045ce060822a5d4c7d3f5d5e7ee09f5) with **229 standalone test files**. `f0bc48c` corrects absolute-count villager priorities to population-scaled **resource ratios** using largest-remainder allocation and deterministic ties. This implements the official Xbox property that `1:1:1:1` is equivalent to `20:20:20:20` for any workforce size, without new save schemas or affecting manually assigned workers. `da4f155` adds a live production rebalancing regression for 12 workers, while `d4bb814` and `469a654` display and test calculated target headcounts directly in the R3 wheel. Source-level fixture checks passed for ten population sizes, 12-worker reassignment, and R3 rendering. **The new full Node and Chromium tests are not verified.**
+
+**Hosted CI blocking status:** workflows on `2ca5e90`, `d8b0401`, `f0bc48c`, and subsequent code/test commits have failed within seconds **before any job steps**. The failure cause is unknown; no test log is available. The last complete hosted passing source + 226-file + seeded AI/campaign + Chromium baseline remains [`d181720`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/d181720a74446bc1723c1d21581bb70b66f6f44f). Do not mistake pre-step Actions failures for test failures or count the latest 229 files as verified.
+
+**AUD-010 remains PARTIAL:** Xbox R3 is present for solo/campaign, and scaled ratios now affect worker reassignment and display. Official preset names/values, automatic farm construction/toggle, manual-mode edge cases, multiplayer R3, real Xbox Series S Edge/controller performance and independent-network 1v1 must still be completed. Reference: https://www.ageofempires.com/learn-to-play/military-economy-xbox/.
+
 ## Non-negotiable end goal
 
 Original browser RTS with **full functional-category parity** for Age of Empires II: Definitive Edition on Xbox Series X, including **all 11 Xbox gameplay DLC families in the 31 October 2026 baseline**; every default Xbox controller action must function on **Xbox Series S Edge** in solo, campaigns, menus and multiplayer. Preserve the existing engine, art and security safeguards. No copied commercial assets, music or protected scenarios. Only confirmed free hosting, no paid upgrades, credits, overages or Railway reactivation; fail closed on quotas.
