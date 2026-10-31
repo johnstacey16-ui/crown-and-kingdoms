@@ -4,7 +4,7 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**CI recovery:** GitHub-hosted jobs currently fail *before runner assignment* (zero steps), so no recent full suite passed. [Free-only diagnostics and Windows self-hosted workflow](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md) are available; expensive hosted workflows are weekly/manual, with no paid usage enabled.
+**CI status:** [GitHub Actions 41208907950](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41208907950) passed **113/113 focused tests** plus five quick checks at source commit `207d01f`. Earlier pre-step hosted-runner failures remain unexplained. Full regression, AI, campaigns, Chromium and physical Xbox are **not verified** on the current code. See [runner recovery notes](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md).
 
 **Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art and trade/transport logistics now have distinct modules (`js/render-procedural-units.js` and `js/simulation-logistics.js`); the full recent hosted suite is still blocked before steps. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
@@ -37,7 +37,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 232 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 229 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
