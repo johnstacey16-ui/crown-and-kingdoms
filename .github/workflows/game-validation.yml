@@ -30,6 +30,8 @@ jobs:
         run: node scripts/check-game.mjs
       # Full standalone tests and isolated mission playthroughs belong to game-regression.yml.
       # Keep this independent lightweight check useful even while game tests fail.
+      - name: Validate browser/offline runtime file graph
+        run: node scripts/audit-runtime-graph.mjs
       - name: Validate sprite atlas
         run: node tests/validate-atlas.mjs
 
