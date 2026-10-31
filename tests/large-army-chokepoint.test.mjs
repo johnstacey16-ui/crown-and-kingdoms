@@ -4,6 +4,7 @@ import {runChokepoint} from '../scripts/stress-200.mjs';
 
 test('200 formation-ordered units plan A* routes through a two-tile chokepoint',()=>{
  const r=runChokepoint({ticks:360});
+ console.log('200-unit short probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs}));
  assert.equal(r.unitCount,200);
  assert.equal(r.closedRoute,true,'closing both passage tiles must disconnect the map');
  assert.equal(r.ordered,true);
@@ -16,6 +17,15 @@ test('200 formation-ordered units plan A* routes through a two-tile chokepoint',
  assert.equal(r.blockedCellUnits,0,'unit collision must not cross blocked wall cells');
  assert.ok(r.moved>100,'most soldiers should make measurable progress');
  assert.ok(r.crossed>0,'the choke must permit actual movement into the far side');
+});
+
+test('extended 200-unit corridor run reports clearance without using Xbox FPS claims',()=>{
+ const r=runChokepoint({ticks:1800});
+ console.log('200-unit extended probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs}));
+ assert.equal(r.validRoutes,200);
+ assert.equal(r.blockedCellUnits,0);
+ assert.equal(r.invalidCoordinates,0);
+ assert.ok(r.crossed>0);
 });
 
 test('stress harness rejects misleading unit counts and invalid horizons',()=>{
