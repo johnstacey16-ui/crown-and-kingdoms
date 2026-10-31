@@ -41,13 +41,13 @@ jobs:
             tests/diplomacy.test.mjs \
             tests/browser-foundation.test.mjs \
             tests/tribute.test.mjs \
-            tests/map-layouts.test.mjs \
             tests/map-layout-content.test.mjs \
             tests/guard-follow.test.mjs \
             tests/villager-priority.test.mjs \
-            tests/population-limit-controls.test.mjs \
+            tests/population-limits.test.mjs \
             tests/no-attack-stance.test.mjs \
             tests/fish-traps.test.mjs \
+            tests/art-revisions.test.mjs \
             tests/engine-graphics-benchmark-ownership.test.mjs \
             tests/series-s-auto-pixel-benchmark.test.mjs \
             tests/series-s-auto-layer-benchmark.test.mjs \

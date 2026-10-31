@@ -7,7 +7,7 @@ kinds; all 47 retain base painted art. Original painted references, blue team
 cloth, complete weapon silhouettes and the existing reflow packer are retained.
 Gameplay, controller mappings and camera controls are unchanged. Full directions,
 remaining units and physical Xbox performance remain open.
-See docs/PAINTED_WARRIORS.md for prompts and verification.
+See docs/PAINTED_ART.md#archived-checkpoint-painted-warriors for prompts and verification.
 Code commit: 3e2bac3a88a706e2ef6d618fc62226eed3aeb7a3.
 Local: 118 targeted checks, 256 decoded raster samples and reproducible packing passed.
 [Source/atlas validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39721487499)
@@ -21,7 +21,7 @@ kinds; all 47 retain base painted art. Existing cooldown/game-time playback,
 team colours and shared solo/multiplayer rendering are preserved. Gameplay,
 controller bindings and camera controls are unchanged. Full directions,
 remaining units and physical Xbox performance remain open.
-See docs/PAINTED_INFANTRY.md.
+See docs/PAINTED_ART.md#archived-checkpoint-painted-infantry.
 
 <!-- Support and ranged artwork increment: 22 October 2026 -->
 CK-032/041: added monk walking/conversion gestures, longbowman walking/firing
@@ -29,7 +29,7 @@ and throwing-axeman walking/throwing sequences, each with a matching ready pose.
 Animation coverage is 11/47 playable kinds. Monk casting reads existing
 conversion progress and shares paused game-time playback across renderers.
 Gameplay and controller rules are unchanged. Original art remains preserved.
-See docs/PAINTED_SUPPORT.md; full directions, remaining units and hardware
+See docs/PAINTED_ART.md#archived-checkpoint-painted-support; full directions, remaining units and hardware
 performance acceptance remain open.
 
 <!-- Castle production increment: 22 October 2026 -->
@@ -46,7 +46,7 @@ have walking and javelin-throw frames. Both have matching ready poses. Current
 coverage is 8/47 playable kinds, with mirrored facing. Other troops, full
 directions, specialised work/death sheets and physical Xbox acceptance remain
 open. Gameplay, controller bindings and original assets are unchanged.
-See docs/PAINTED_RAIDERS.md.
+See docs/PAINTED_ART.md#archived-checkpoint-painted-raiders.
 
 <!-- Ranged animation increment: 21 October 2026 -->
 CK-032: added walking, firing and thrust frames for archers, crossbowmen and
@@ -55,7 +55,7 @@ playable kinds; full directions, other troops and specialised work/death art
 remain open. A shared extraction helper removes neighbouring fragments, with
 selective cleanup of three fallback cells and the original sheet preserved.
 Long weapons retain visibility at close-zoom viewport edges. Game rules and
-Xbox bindings are unchanged. See docs/PAINTED_RANGED.md.
+Xbox bindings are unchanged. See docs/PAINTED_ART.md#archived-checkpoint-painted-ranged.
 
 <!-- Core animation increment: 21 October 2026 -->
 CK-032: added 48 original painted movement/attack poses for infantry, knights

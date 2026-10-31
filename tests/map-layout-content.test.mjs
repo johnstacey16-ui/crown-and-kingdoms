@@ -1,3 +1,4 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
@@ -24,3 +25,12 @@ assert.match(html, /else if\(mapLayout===13\)\{const r1=W\*\.30\+y\*\.12\+Math\.
 assert.match(html, /if\(mapLayout===13\)\{for\(let y=1;y<H-1;y\+\+\)\{const r1=W\*\.30\+y\*\.12\+Math\.sin\(y\*\.07\)\*1\.6,r2=W\*\.70-y\*\.12\+Math\.cos\(y\*\.06\)\*1\.6,fordY=/,
   'Broken Isles channels must include shallow crossings');
 console.log('map-layout-content: Causeway and Broken Isles assertions passed');
+
+// Former standalone map-layouts fixture, retained with the other map shape contracts.
+test('Broken Isles is a selectable repeatable coastal map layout', () => {
+  assert.ok(html.includes("'Broken Isles (fixed)'"));
+  assert.ok(html.includes("'Repeatable coastal seed for mixed naval and land battles.'"));
+  assert.ok(html.includes("{mt:7,seed:202623}"));
+  assert.ok(html.includes("mapLayout=(mapLayout+13)%14"));
+  assert.ok(html.includes("mapLayout=(mapLayout+1)%14"));
+});

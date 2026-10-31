@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 
 // Both left/right controller actions in the setup menu must offer the same limits.
 const choices = '[50,100,150,200,250,300,400,500]';
@@ -16,3 +16,10 @@ assert.equal(
 assert.ok(html.includes('Math.min(popLimit,10+5*'), 'configured population limit remains an upper cap');
 assert.match(html, /if\(b\.q\.length>=5\)return false/, 'production queue limit remains intact');
 console.log('population-limits: setup limits and queue size passed');
+
+// Population settings offer 50, 100, 150, 200, 250, 300, 400 and 500.
+// Both controller directions must wrap over the entire list, not just its first four values.
+assert.match(html, /const a=\[50,100,150,200,250,300,400,500\];popLimit=a\[\(a\.indexOf\(popLimit\)\+a\.length-1\)%a\.length\]/,
+  'Left should cycle backwards through every supported population limit');
+assert.match(html, /const a=\[50,100,150,200,250,300,400,500\];popLimit=a\[\(a\.indexOf\(popLimit\)\+1\)%a\.length\]/,
+  'Right should cycle forwards through every supported population limit');
