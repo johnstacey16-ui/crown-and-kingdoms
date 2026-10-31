@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active repository refactoring inventory
 
-**Status: PARTIAL · source/tooling `addbce0` · graphics `aaeaf7e` · logistics `862d877` · 31 October 2026**
+**Status: PARTIAL · source/tooling `addbce0` · graphics `aaeaf7e` · logistics `862d877` · victory `f7610b3` · 31 October 2026**
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
@@ -67,3 +67,5 @@ The six original trade-routing and four transport-landing tests, plus the naval 
 The existing seven victory, elimination, score and hill functions were moved without changing their bodies from `js/simulation.js` into `js/simulation-victory.js`. Classic script declarations remain global and load before logistics and simulation. The service-worker shell moves to v57; source-order validation and a new isolated behavior/ownership regression guard results precedence, Sudden Death elimination and scoring. Four older score/diplomacy/hill tests now use the canonical HTML-ordered runtime source instead of maintaining their own manually concatenated file lists. The resulting inventory is **36 production / 23 core / 21 headless scripts, 236 standalone regression files**. All existing art, controller, network, current-build saves and simulation rules remain unchanged by design. Full hosted regression, Chromium, actual Xbox and gameplay acceptance must be independently verified.
 
 **GitHub Actions update:** retried source-validation run [41199152874](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41199152874) successfully acquired a hosted runner and completed all source/art steps on the earlier `862d877` revision. This confirms recovery for that retried job, not the root cause of the preceding allocation failures nor the new victory refactor's acceptance. Avoid claiming hosted full-suite green until those suites execute.
+
+**Final hosted evidence for victory extraction:** [Actions 41202652720](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41202652720) passed 23/23 focused tests (new victory ownership, old logistics, score, Sudden Death, hill, diplomacy and browser foundation), with successful source, offline graph, civilization, atlas and graphics checks. This is a lightweight validation pass only; full 236-file regression, 19 campaigns, seeded AI, Chromium and console acceptance remain open at `f7610b3`.

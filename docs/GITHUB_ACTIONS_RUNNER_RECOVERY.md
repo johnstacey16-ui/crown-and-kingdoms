@@ -1,6 +1,8 @@
 # GitHub Actions startup failure: free-only recovery
 
-**31 October 2026. Hosted job allocation is not fixed; account diagnosis is required.**
+**31 October 2026 update: Hosted source validation has recovered; the original runner-allocation cause remains unconfirmed. Full regression and Chromium acceptance still require independent green runs.**
+
+[Validation run 41202652720](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41202652720) successfully started a hosted runner and completed the current `f7610b3` source/graphics checks plus **23/23** focused module and victory-mode tests. The original zero-step failures below remain unexplained; the successful validation alone does not certify the more expensive weekly/manual Node, campaign or Chromium workflows.
 
 ## What the repository actually shows
 
