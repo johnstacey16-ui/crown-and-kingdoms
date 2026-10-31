@@ -1,31 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import {loadCoreGameSource,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
+import {loadCoreGameSource,coreGameScriptPaths,readBrowserRuntime} from '../scripts/runtime-sources.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
-const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const state = readFileSync(new URL('../js/state.js', import.meta.url), 'utf8');
-const mapgen = readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8');
-const audio = readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8');
-const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
-const engineSource = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
-const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
-const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
-const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
-const pathfinding = readFileSync(new URL('../js/pathfinding.js', import.meta.url), 'utf8');
-const kingdom = readFileSync(new URL('../js/kingdom.js', import.meta.url), 'utf8');
-const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8');
-const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8');
-const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
-const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
-const minimap = readFileSync(new URL('../js/minimap.js', import.meta.url), 'utf8');
+const browserSources=new Map(readBrowserRuntime({html}).map(({path,source})=>[path,source]));
+const script=name=>{
+ const found=browserSources.get('./'+name);
+ if(typeof found!=='string')throw Error('Missing browser script in index.html: '+name);
+ return found;
+};
+
+const config = script('js/config.js');
+const state = script('js/state.js');
+const mapgen = script('js/mapgen.js');
+const audio = script('js/audio.js');
+const save = script('js/save.js');
+const engineSource = script('engine.js');
+const input = script('js/input.js');
+const render = script('js/render.js');
+const ui = script('js/ui.js');
+const simulation = script('js/simulation.js');
+const ai = script('js/ai.js');
+const pathfinding = script('js/pathfinding.js');
+const kingdom = script('js/kingdom.js');
+const campaign = script('js/campaign.js');
+const economy = script('js/economy.js');
+const formations = script('js/formations.js');
+const menus = script('js/menus.js');
+const minimap = script('js/minimap.js');
 const engine = loadCoreGameSource({includeUI:true,includeAssets:true});
-const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
-const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
+const multiplayer = script('multiplayer.js');
+const persistence = script('persistence.js');
 
 test('the game loads its shared stylesheet from the same-origin root', () => {
   assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css">/);
