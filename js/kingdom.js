@@ -144,6 +144,61 @@ function findReachableAutoNode(u,k,r=18){
  }
  return null;
 }
+/* Optional, solo-only Xbox-style assisted farm creation. Never executes in
+ * authenticated peer simulation. This reuses normal placement/path checks and
+ * charges only after addN succeeds, so a failed attempt is free. */
+function automaticFarmAllowed(){
+ return !!(S?.vp?.enabled&&S.vp.autoFarms)&&
+  !(typeof window!=='undefined'&&window.CK_NET?.isRunning?.());
+}
+function tryAutomaticFarm(u){
+ if(!automaticFarmAllowed()||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld||u.retreating)return false;
+ const centres=(S.bs||[]).filter(b=>b&&b.t===0&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='mill')&&
+  Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)<=24)
+  .sort((a,b)=>Math.hypot(a.x+a.s/2-u.x,a.y+a.s/2-u.y)-
+   Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)||a.x-b.x||a.y-b.y);
+ if(!centres.length)return false;
+ if(!can(0,B.farm.cost)){
+  let wood=findReachableAutoNode(u,'w',18);
+  if(!wood)wood=findReachableAutoNode(u,'w',30);
+  if(!wood)return false;
+  u.o='g';u.tg=wood.n;u.ct='w';u.p=wood.route;u.pt=null;u.rp=1;u.ret=0;
+  u.autoWorker=1;u.autoFarmWaiting=1;return true;
+ }
+ for(const b of centres){
+  const cx=Math.floor(b.x+b.s/2),cy=Math.floor(b.y+b.s/2);
+  // Fixed nearest-ring order: deterministic without consuming simulation RNG.
+  for(let d=2;d<=6;d++)for(let dy=-d;dy<=d;dy++)for(let dx=-d;dx<=d;dx++){
+   if(Math.max(Math.abs(dx),Math.abs(dy))!==d)continue;
+   const x=cx+dx,y=cy+dy;
+   if(!okPlace(0,'farm',x,y))continue;
+   const route=path(u,gp(x+.5,y+.5,1.5));
+   if(!route||!route.length)continue;
+   const farm=addN('f',x,y,farmFood(0),1);
+   if(!farm)continue;
+   farm.t=0;pay(0,B.farm.cost);
+   u.o='g';u.tg=farm;u.ct='f';u.p=route;u.pt=null;u.rp=1;u.ret=0;
+   u.autoWorker=1;u.autoFarmWaiting=0;
+   note('Automatic farm built (-'+B.farm.cost.w+' wood)');
+   return true;
+  }
+ }
+ return false;
+}
+function retryAutomaticFarmWorkers(){
+ if(!automaticFarmAllowed()||!S.res?.[0]||!can(0,B.farm.cost))return false;
+ for(const u of S.us)if(u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating&&
+  u.autoFarmWaiting&&u.autoWorker&&u.o==='g'&&u.ct==='w'&&!(u.car>0)){
+  u.autoFarmWaiting=0;
+  // Keep the existing assignment unless a fresh farm placement actually works.
+  const order=u.o,target=u.tg,route=u.p;
+  if(tryAutomaticFarm(u))return true;
+  u.o=order;u.tg=target;u.p=route;u.autoFarmWaiting=1;
+  return false;
+ }
+ return false;
+}
+
 function assignAutoVillager(u,force=false){
  if(!S||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld)return false;
  const p=S.vp||(S.vp=createVillagerPriority());
@@ -157,8 +212,9 @@ function assignAutoVillager(u,force=false){
  for(const k of needs.concat(rest)){
   let found=findReachableAutoNode(u,k,18);
   if(!found)found=findReachableAutoNode(u,k,30);
+  if(!found&&k==='f'&&tryAutomaticFarm(u))return true;
   if(!found)continue;
-  u.o='g';u.tg=found.n;u.ct=k;u.p=found.route;u.pt=null;u.ret=0;u.rp=1;u.autoWorker=1;return true;
+  u.o='g';u.tg=found.n;u.ct=k;u.p=found.route;u.pt=null;u.ret=0;u.rp=1;u.autoWorker=1;u.autoFarmWaiting=0;return true;
  }
  return false;
 }
