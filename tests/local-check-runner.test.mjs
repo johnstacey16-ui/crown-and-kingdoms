@@ -117,6 +117,7 @@ test('fast hosted contract selection is one explicit reproducible Node test plan
   'tests/training-cap-drop.test.mjs','tests/ai-save-for-age.test.mjs',
   'tests/repository-evidence-inventory.test.mjs','tests/network-sync-protocol.test.mjs',
   'tests/network-frame-replay.test.mjs','tests/seeded-world-continuation.test.mjs',
+  'tests/economy-invariants.test.mjs',
   'tests/network-command-uplink.test.mjs',
   'tests/network-sync-authority.test.mjs'])
   assert.ok(files.includes(file),'critical focused contract absent: '+file);

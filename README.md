@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions 41214202628](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41214202628) passed **194/194 focused tests**, five quick validation gates and source syntax checks for **39** production browser scripts at `9a7442c`. Current branch ancestry checks preserve the dated audit baseline and the 14:30 Kimi/Gemini audit SHA. The **full 233-file standalone suite**, three seeded AI runs, 19 campaigns, Chromium and physical Xbox Series S Edge / WAN multiplayer remain **unverified** on this code. Earlier runner-allocation failures are unexplained, but current lightweight GitHub Actions does run; see [review reconciliation](docs/audits/2026-10-31-external-review-reconciliation.md).
 
-**Current tree inventory:** 234 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 235 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.
 
@@ -41,7 +41,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 234 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 235 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
