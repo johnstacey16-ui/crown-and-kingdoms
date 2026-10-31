@@ -4,6 +4,12 @@
 
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
+## Pre-release save-game policy — 31 October 2026
+
+**Decision:** Saves from unfinished development builds are **not guaranteed to load after subsequent updates**. Do not maintain historical save migrations or retain obsolete data structures solely for old test saves. Focus on completing game systems first; establish the stable, versioned save compatibility contract and required migration tests at the release/final acceptance phase. Continue to test creating, loading and validating saves made by the **same current game version**, and handle an obsolete/incompatible payload safely rather than corrupting the match or silently deleting the original save. Do not change authenticated multiplayer/network compatibility requirements under this exception.
+
+This supersedes any earlier instructions saying to preserve *all old saves* across refactors. A clean new game or regenerated test save is acceptable after a schema change. Do not delete save functionality or compromise existing save validation.
+
 ## Xbox economy continuation — 31 October 2026 (current)
 
 **Latest game code commit:** [`083864a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/083864a7f542f549141c7387ef958da9a6d0d076), with **231 standalone test files**. `f3519cc` replaced the seven provisional R3 presets with the reference-listed console ratios (Food and Wood, Basic, Militia Rush, Balanced, Economic, Defensive, Naval), added an **Auto Farms** eighth R3 sector, and saved `autoFarms` in the existing `S.vp` object with backward-compatible false default. The reference is a [community-reported table](https://ageofempires.fandom.com/wiki/Villager_Priority); sector and UI confirmation on physical Xbox are still required.
@@ -143,7 +149,7 @@ IDs `AUD-###` are suggestions for the existing master register; **do not overwri
 
 1. Inventory *actual* runtime entries: `index.html` scripts, `sw.js` cache dependencies, art manifests/generator inputs, browser and Node tests, GitHub Actions, Supabase/Node transports and Vercel deployment. Mark each file **active**, **historical**, **unused proven** or **uncertain**.
 2. Audit suspected redundant code such as `CIV0` and legacy lobby/transport adapters by searching all runtime/test references and reproducing behavior. `multiplayer.js` is still part of the game shell; do not delete it merely because it includes older room code.
-3. Refactor in **small, testable patches**, starting with schema-validated civ/unit/tech definitions, stable module responsibilities, better-structured controller gestures and explicit network adapters. Preserve saves, Xbox button defaults, simulation correctness, original assets and free quotas.
+3. Refactor in **small, testable patches**, starting with schema-validated civ/unit/tech definitions, stable module responsibilities, better-structured controller gestures and explicit network adapters. Preserve **current-build** save/load correctness and safe rejection of incompatible older saves, Xbox button defaults, simulation correctness, original assets and free quotas; historical pre-release save migration is not required.
 4. Remove old files, script paths or art **only after** dependency proof, replacement/compatibility checks, and updated `index.html`, service worker, generator manifests and tests. Never weaken a test simply to make cleanup pass.
 5. Record exact commit and local/hosted CI evidence for every change. Physical Xbox acceptance and complete network matches remain independent gates; pre-step CI failures cannot be called successful runs.
 
