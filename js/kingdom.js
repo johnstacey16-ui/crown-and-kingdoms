@@ -56,24 +56,33 @@ function tributeMenuItems(){
 }
 
 function createVillagerPriority(source=null){
- const p={enabled:true,f:2,w:2,g:1,s:0};
+ const p={enabled:true,autoFarms:false,f:2,w:2,g:1,s:0};
  if(source&&typeof source==='object'){
   if(typeof source.enabled==='boolean')p.enabled=source.enabled;
+  if(typeof source.autoFarms==='boolean')p.autoFarms=source.autoFarms;
   for(const k of['f','w','g','s']){if(source[k]===null||source[k]===undefined||source[k]==='')continue;const n=Number(source[k]);if(Number.isFinite(n))p[k]=Math.max(0,Math.min(40,Math.round(n)))}
  }
  return p;
 }
 const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
-// Provisional seven strategy presets; final Xbox values require physical comparison.
+// Seven Xbox console preset ratios as transcribed from Age of Empires Series Wiki;
+// hardware labels/sector order remain subject to in-console verification.
 const VILLAGER_PRIORITY_PRESETS=Object.freeze([
- Object.freeze({name:'Balanced',weights:Object.freeze([3,3,2,1])}),
- Object.freeze({name:'Food focus',weights:Object.freeze([5,3,1,0])}),
- Object.freeze({name:'Wood focus',weights:Object.freeze([2,5,1,0])}),
- Object.freeze({name:'Gold focus',weights:Object.freeze([2,2,5,0])}),
- Object.freeze({name:'Stone focus',weights:Object.freeze([2,2,1,5])}),
- Object.freeze({name:'Expansion',weights:Object.freeze([4,3,2,1])}),
- Object.freeze({name:'Military',weights:Object.freeze([3,2,4,1])}),
+ Object.freeze({name:'Food and Wood',weights:Object.freeze([3,1,0,0])}),
+ Object.freeze({name:'Basic',weights:Object.freeze([4,3,2,1])}),
+ Object.freeze({name:'Militia Rush',weights:Object.freeze([6,3,1,0])}),
+ Object.freeze({name:'Balanced',weights:Object.freeze([4,4,1,1])}),
+ Object.freeze({name:'Economic',weights:Object.freeze([13,4,2,1])}),
+ Object.freeze({name:'Defensive',weights:Object.freeze([3,6,3,8])}),
+ Object.freeze({name:'Naval',weights:Object.freeze([2,4,3,1])}),
 ]);
+/* Explicit opt-in to automated farm plots; safe default for all old saves. */
+function toggleAutomaticFarms(){
+ if(!S)return false;
+ const p=S.vp||(S.vp=createVillagerPriority());
+ p.autoFarms=!p.autoFarms;note('Automatic farms '+(p.autoFarms?'enabled':'disabled'));
+ return p.autoFarms;
+}
 function applyVillagerPriorityPreset(index){
  if(!S||!Number.isInteger(index)||index<0||index>=VILLAGER_PRIORITY_PRESETS.length)return false;
  const preset=VILLAGER_PRIORITY_PRESETS[index],p=S.vp||(S.vp=createVillagerPriority());

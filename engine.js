@@ -674,7 +674,7 @@ function operateVillagerPriorityWheel(){
  if(E[11]){vpWheel=null;return true}
  if(E[3]){w.manual=!w.manual;w.sel=0;return true}
  if(E[2]){toggleVillagerAutomation();return true}
- const n=w.manual?4:VILLAGER_PRIORITY_PRESETS.length,sx=ax(0),sy=ax(1);
+ const n=w.manual?4:VILLAGER_PRIORITY_PRESETS.length+1,sx=ax(0),sy=ax(1);
  if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;w.sel=Math.floor(a/6.2832*n+.5)%n}
  if(w.manual){
   const resource=WORKER_TARGETS[w.sel];
@@ -682,7 +682,7 @@ function operateVillagerPriorityWheel(){
   if(E[1])changeVillagerTarget(resource.k,-1);
  }else{
   if(E[1]){vpWheel=null;return true}
-  if(E[0]){applyVillagerPriorityPreset(w.sel);vpWheel=null}
+  if(E[0]){if(w.sel===VILLAGER_PRIORITY_PRESETS.length)toggleAutomaticFarms();else applyVillagerPriorityPreset(w.sel);vpWheel=null}
  }
  return true;
 }

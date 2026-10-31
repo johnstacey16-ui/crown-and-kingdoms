@@ -181,7 +181,7 @@ const sit=m.items[m.i];if(sit)tx(DS[sit.l]||'',cx,cy+R*.26,15,'#cbd5e1','center'
 
 function drawVillagerPriorityWheel(){
  const p=S.vp||(S.vp=createVillagerPriority()),manual=vpWheel.manual;
- const n=manual?4:VILLAGER_PRIORITY_PRESETS.length,cx=CW/2,cy=CH/2-12,R=Math.min(CW,CH)*.3;
+ const n=manual?4:VILLAGER_PRIORITY_PRESETS.length+1,cx=CW/2,cy=CH/2-12,R=Math.min(CW,CH)*.3;
  X.fillStyle='rgba(0,0,0,.65)';X.fillRect(0,0,CW,CH);
  X.fillStyle='rgba(30,22,12,.95)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();
  X.strokeStyle='#d8ad55';X.lineWidth=3;X.stroke();
@@ -195,14 +195,14 @@ function drawVillagerPriorityWheel(){
   const a=i/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,selected=vpWheel.sel===i;
   X.fillStyle=selected?'#2f63c4':'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
   X.strokeStyle=selected?'#fff':'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
-  const name=manual?WORKER_TARGETS[i].n:VILLAGER_PRIORITY_PRESETS[i].name;
-  const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
+  const name=manual?WORKER_TARGETS[i].n:i===VILLAGER_PRIORITY_PRESETS.length?'Auto Farms':VILLAGER_PRIORITY_PRESETS[i].name;
+  const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):i===VILLAGER_PRIORITY_PRESETS.length?(p.autoFarms?'ON':'OFF'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
   tx(name,x,y-3,15,'#fff','center');tx(detail,x,y+17,13,'#e5d5ad','center');
  }
  tx(manual?'Left stick: resource   A: add   B: remove   Y: presets   R3: close':
     'Left stick: preset   A: apply   Y: manual   X: automation   B/R3: close',
     cx,CH-110,16,'#e2e8f0','center');
- tx('Preset values provisional; automatic farm construction is not available.',cx,CH-82,13,'#f3c58b','center');
+ tx('Auto Farms toggles farm construction; preset ratios from console reference.',cx,CH-82,13,'#f3c58b','center');
 }
 
 function drawCg(){const cx=CW/2,cy=CH/2,R=Math.min(CW,CH)*.26;X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+55,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();
