@@ -19,7 +19,8 @@ assert.match(ai, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
   'AI must value naval attack research against any confirmed enemy combat-ship class');
 assert.match(ai, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');
-assert.match(ai, /\{threat:humanCav,minimum:2,units:\['halb','pike','spear','camel'\]/);
+// Pikeman/Halberdier are researched Spearman upgrades (TE keys), not trainable U keys.
+assert.match(ai, /\{threat:humanCav,minimum:2,units:\['spear','camel'\],own:\['spear','camel'\]/);
 assert.match(ai, /\{threat:humanRanged,minimum:3,units:\['skirm','knight','cata'\]/);
 assert.match(ai, /\{threat:humanSiege,minimum:1,units:\['knight','mil','scout'\]/);
 assert.match(ai, /\{threat:humanInf,minimum:4,units:\['mang','scor','arc'\]/);
