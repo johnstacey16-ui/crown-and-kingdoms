@@ -119,7 +119,7 @@ test('multiplayer host rejects illegal Camel orders without charging Franks whil
  const result=JSON.parse(c('JSON.stringify(host.applyFrame(6))'));
  // The current protocol may reject before queueing or during authoritative execution.
  assert.ok(receipts.some(r=>r.ok)||result.some(r=>r.ok),'Mongol command reaches an authenticated host');
- assert.equal(c('our.rs===null'),true,'forbidden Heavy Camel research cannot start');
+ assert.equal(c('our.rs==null'),true,'forbidden Heavy Camel research cannot start');
  assert.deepEqual(JSON.parse(c('JSON.stringify(S.res[0])')),before[0],'Franks pay nothing for forbidden commands');
  assert.notDeepEqual(JSON.parse(c('JSON.stringify(S.res[1])')),before[1],'Mongols pay for legal Camel');
  assert.equal(c('our.q.length'),0);
