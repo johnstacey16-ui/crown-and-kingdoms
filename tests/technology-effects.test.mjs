@@ -105,7 +105,7 @@ assert.match(html, /T\.halb\?'halb':T\.pike\?'pike'/,
   'Battlefield sprites must use the highest researched spear-line rank');
 assert.match(html, /rank==='pike'\|\|rank==='halb'/,
   'Halberdiers must receive the upgraded polearm rendering path');
-assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight'],rs:['lcav','cavl','blood','husb'],req:'bar',age:1}"),
+assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight'],rs:['lcav','cavl','hcamel','blood','husb'],req:'bar',age:1}"),
   'Husbandry must be researchable at the Stable');
 assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
   'Husbandry must have explicit cost, duration and Castle Age availability');
