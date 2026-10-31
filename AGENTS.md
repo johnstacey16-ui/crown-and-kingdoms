@@ -46,8 +46,11 @@ credits, enable paid overages/add-ons, provision trial-dependent replacements or
 restart/redeploy Railway without explicit owner approval. Verify the existing
 Supabase project's Free plan before rollout. Reaching a free quota must restrict
 service rather than enable billing. Preserve authenticated ownership and replay
-guards when adapting the transport. The Supabase relay schema is installed; the game UI is not yet switched to it.
-Read FREE_HOSTING.md for the verified state and remaining Auth/browser gates.
+guards when adapting the transport. The Supabase relay schema is installed, but the authenticated two-player
+battlefield currently uses Supabase admission/signalling and direct WebRTC.
+The SQL relay is not confirmed as the active gameplay fallback; reconnect and
+independent-network match acceptance remain open. Read FREE_HOSTING.md for
+the previously verified Free plan and remaining live transport/Auth gates.
 
 
 # Product delivery target
