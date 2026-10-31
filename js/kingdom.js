@@ -84,6 +84,26 @@ function applyVillagerPriorityPreset(index){
 
 function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating&&u.o==='g'&&u.ct===k&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).length:0}
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
+
+/* Xbox priorities are resource ratios, not absolute worker counts. Largest
+ * remainders fill the workforce; ties use fixed resource order, never RNG. */
+function villagerRatioTargets(priority,total){
+ const weights=WORKER_TARGETS.map(r=>Math.max(0,Math.min(40,Number(priority?.[r.k])||0)));
+ const result=Object.fromEntries(WORKER_TARGETS.map(r=>[r.k,0]));
+ const sum=weights.reduce((a,b)=>a+b,0),n=Math.max(0,Math.floor(Number.isFinite(total)?total:0));
+ if(!sum||!n)return result;
+ const raw=weights.map(w=>w*n/sum),parts=raw.map(v=>Math.floor(v));
+ const left=n-parts.reduce((a,b)=>a+b,0);
+ const order=parts.map((_,i)=>i).sort((a,b)=>(raw[b]-parts[b])-(raw[a]-parts[a])||a-b);
+ for(let i=0;i<left;i++)parts[order[i]]++;
+ WORKER_TARGETS.forEach((r,i)=>{result[r.k]=parts[i]});
+ return result;
+}
+function villagerPriorityTargets(team=0,priority=S?.vp){
+ const count=Array.isArray(S?.us)?S.us.filter(u=>u&&u.t===team&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating).length:1;
+ return villagerRatioTargets(priority,count);
+}
+
 // Temporarily avoid unreachable nodes, but retry after terrain or buildings change.
 function skipAutoNode(u,n){
  if(!u||!n)return;
@@ -122,7 +142,8 @@ function assignAutoVillager(u,force=false){
  const keys=WORKER_TARGETS.filter(r=>p[r.k]>0).map(r=>r.k);
  if(!keys.length)return false;
  const counts=Object.fromEntries(keys.map(k=>[k,villagerAssignedCount(u.t,k)]));
- const needs=keys.filter(k=>counts[k]<p[k]).sort((a,b)=>(p[b]-counts[b])-(p[a]-counts[a]));
+ const targets=villagerPriorityTargets(u.t,p);
+ const needs=keys.filter(k=>counts[k]<targets[k]).sort((a,b)=>(targets[b]-counts[b])-(targets[a]-counts[a]));
  const rest=keys.filter(k=>!needs.includes(k)).sort((a,b)=>(counts[a]/p[a])-(counts[b]/p[b])||counts[a]-counts[b]);
  for(const k of needs.concat(rest)){
   let found=findReachableAutoNode(u,k,18);
@@ -143,8 +164,9 @@ function rebalanceVillagerPriorities(t=0){
  if(!S)return 0;
  const p=S.vp||(S.vp=createVillagerPriority());
  if(!p.enabled)return 0;
+ const targets=villagerPriorityTargets(t,p);
  for(const {k} of WORKER_TARGETS){
-  let excess=villagerAssignedCount(t,k)-(p[k]||0);
+  let excess=villagerAssignedCount(t,k)-(targets[k]||0);
   if(excess<=0)continue;
   const auto=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&u.autoWorker&&u.o==='g'&&u.ct===k).reverse();
   for(const u of auto){if(excess<=0)break;u.o='i';u.tg=null;u.p=[];u.pt=null;u.autoTry=0;u.autoWorker=0;excess--}
@@ -158,7 +180,7 @@ function changeVillagerTarget(k,dir){
  p[k]=Math.max(0,Math.min(40,Math.round(current+step)));
  if(p.enabled)rebalanceVillagerPriorities(0);
  const name=WORKER_TARGETS.find(r=>r.k===k).n;
- note(name+' target: '+p[k]);
+ note(name+' priority weight: '+p[k]);
  return true;
 }
 function toggleVillagerAutomation(){
@@ -174,6 +196,6 @@ function villagerPriorityMenuItems(){
  const p=S.vp||(S.vp=createVillagerPriority());
  return [
   {n:'Villager automation',v:()=>p.enabled?'On':'Off',l:toggleVillagerAutomation,r:toggleVillagerAutomation,a:toggleVillagerAutomation},
-  ...WORKER_TARGETS.map(r=>({n:'Worker target: '+r.n,v:()=>p[r.k]+' target / '+villagerAssignedCount(0,r.k)+' assigned',l:()=>changeVillagerTarget(r.k,-1),r:()=>changeVillagerTarget(r.k,1),a:()=>applyVillagerPriorities(0)}))
+  ...WORKER_TARGETS.map(r=>({n:'Worker target: '+r.n,v:()=>p[r.k]+' weight / '+villagerPriorityTargets(0,p)[r.k]+' target / '+villagerAssignedCount(0,r.k)+' assigned',l:()=>changeVillagerTarget(r.k,-1),r:()=>changeVillagerTarget(r.k,1),a:()=>applyVillagerPriorities(0)}))
  ];
 }

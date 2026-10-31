@@ -9,7 +9,9 @@ assert.match(html, /f:2,w:2,g:1,s:0/,
   'New games need a sensible starting villager distribution');
 assert.match(html, /function assignAutoVillager\(u,force=false\)\{/,
   'Auto assignment must use one central worker-assignment function');
-assert.match(html, /const needs=keys\.filter\(k=>counts\[k\]<p\[k\]\)/,
+assert.match(html, /const targets=villagerPriorityTargets\(u\.t,p\)/,
+  'Auto assignments must scale resource weights to the living workforce');
+assert.match(html, /const needs=keys\.filter\(k=>counts\[k\]<targets\[k\]\)/,
   'Priority targets must fill unmet resource targets before balancing extra workers');
 assert.match(html, /let found=findReachableAutoNode\(u,k,18\);[\s\S]{0,90}if\(!found\)found=findReachableAutoNode\(u,k,30\);[\s\S]{0,100}u\.o='g';u\.tg=found\.n;u\.ct=k;u\.p=found\.route/,
   'Assigned villagers must first try nearby resources, then farther reachable nodes, and keep the verified movement route');
