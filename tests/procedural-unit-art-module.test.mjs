@@ -10,7 +10,8 @@ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 
 test('fallback art has a single new source owner and is still offline',()=>{
  const paths=browserScriptPaths(html);
- assert.equal(paths.length,34);
+ assert.equal(paths.filter(p=>p==='./js/render-procedural-units.js').length,1,
+  'procedural fallback must have exactly one runtime script owner');
  assert.equal(paths.indexOf('./js/render-procedural-units.js'),paths.indexOf('./js/render.js')+1);
  assert.ok(coreGameScriptPaths(html).includes('./js/render-procedural-units.js'));
  assert.ok(sw.includes("'./js/render-procedural-units.js'"));

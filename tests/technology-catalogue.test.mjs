@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const { U, B, TE } = vm.runInNewContext(source + '\n;({U,B,TE})');
+const { U, B, TE, AG } = vm.runInNewContext(source + '\n;({U,B,TE,AG})');
 const offered = new Set();
 
 for (const [buildingId, building] of Object.entries(B)) {
@@ -12,11 +12,14 @@ for (const [buildingId, building] of Object.entries(B)) {
     assert.ok(TE[techId], `${buildingId} offers undefined technology ${techId}`);
     offered.add(techId);
   }
+  for (const unitId of building.tr || []) {
+    assert.ok(U[unitId], `${buildingId} trains undefined unit ${unitId}`);
+  }
 }
 for (const [id, tech] of Object.entries(TE)) {
   assert.ok(offered.has(id), `technology ${id} cannot be researched at any building`);
   assert.ok(Number.isFinite(tech.t) && tech.t > 0, `technology ${id} has invalid research time`);
-  assert.ok(Number.isInteger(tech.age) && tech.age >= 0 && tech.age <= 3,
+  assert.ok(Number.isInteger(tech.age) && tech.age >= 0 && tech.age < AG.length,
     `technology ${id} has invalid age`);
   for (const [resource, amount] of Object.entries(tech.cost || {})) {
     assert.ok(['f', 'w', 'g', 's'].includes(resource) && Number.isFinite(amount) && amount >= 0,
