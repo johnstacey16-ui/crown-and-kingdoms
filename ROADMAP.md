@@ -5,6 +5,12 @@
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
 
+## Latest cleanup acceptance — 31 October 2026 (`c85efc9`)
+
+**Current source state:** 38 production browser scripts, 25 core and 23 headless; **29 Markdown documents and 233 standalone regression files**. Merged overlapping siege and technology-catalogue fixtures without removing their unique assertions, and eliminated obsolete fixed script totals from runtime-order, procedural-art and ownership tests. The canonical runtime graph tests are now included in the fast hosted checks.
+
+[GitHub Actions validation 41206485365](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41206485365) **passed all 88 focused assertions**, syntax validation and browser/offline, civilization, sprite-atlas and graphics inventory checks on source commit `c85efc9`. The active roadmap is shorter because obsolete checkpoint narratives moved to the archived audit log, with no historical evidence deleted. **The full 233-file regression suite, seeded AI, all 19 campaigns, Chromium and physical Series S/network acceptance remain outstanding.** Full hosted workflows stay weekly/manual to preserve free-only hosting.
+
 ## Current cleanup and validation status — 31 October 2026
 
 **Cleanup before new gameplay remains the owner's priority.** The current browser/offline/headless script inventory is **38 / 25 / 23**, with **29 Markdown documents and 235 standalone regression files** at [`b35466a`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/b35466a4773fb7773668f7f470724dbfe6468964). Key changes include canonical script loading, extracted simulation victory/logistics helpers, separated Xbox graphics benchmarking and AI decision policies, plus consolidated art checkpoints and overlapping tests. The original stone, gold and berry artwork, Xbox Series S Edge input behavior, current-build saves, multiplayer authority and free-only hosting policy remain required.
