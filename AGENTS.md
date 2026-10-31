@@ -1,5 +1,12 @@
 # Repository workflow
 
+## Active completion roadmap — 31 October 2026
+
+**Read [ROADMAP.md](ROADMAP.md) first** for the complete 48 `AUD-###` task index and current development priorities. Then consult the [six-source consolidated audit](docs/audits/2026-10-31-consolidated-audit.md), [Xbox controller contract](XBOX_CONTROLLER_PARITY.md), [full Xbox DLC/product scope](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), and [free-only hosting policy](FREE_HOSTING.md). The older `AOE2_PARITY_ROADMAP.md` is a historical journal; `MASTER_AUDIT_AND_DELIVERY_REGISTER.md` retains dated implementation checkpoints and existing `CK-###` identifiers. **Do not silently rename or erase CK tasks.**
+
+Immediate sequence: AUD-001 verify hosted CI failure cause; AUD-002 correct First Hearth X/A instruction; AUD-003 ensure starting civilization HP modifiers apply; AUD-004 test gamepad focus press edges; AUD-005 physical Xbox baseline; AUD-006/007 accurate current status and pinned reference requirements. Continue controller/1v1 acceptance and scalable content after these. Preserve verified gameplay/art/saves/network code; refute suspected defects with actual tests. Local tests are not current hosted CI or physical Xbox sign-off.
+
+
 The owner requires all work directly on `main` (21 October 2026).
 Do not create feature branches or pull requests unless the owner explicitly asks.
 Run relevant checks before committing, preserve unrelated work and never force-push `main`.
