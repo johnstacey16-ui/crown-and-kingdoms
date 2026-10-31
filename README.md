@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions run 41217765163](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41217765163) passed **200/200 focused tests**, all five source/offline/civilization/atlas/graphics gates and syntax checks for **39** production scripts on `0c8e9be`. The latest focused tests include reproducible seeded-world hashes, save/load continuation and economic resource invariants. All original 26 historical non-main branches remain ancestors of `main`. **The full 235-file standalone suite, three seeded AI skirmishes, 19 campaigns, Chromium, independent WAN and real Xbox Series S Edge acceptance remain unverified.** Older pre-step CI allocation failures remain unexplained; lightweight hosted validation currently works.
 
-**Current tree inventory:** 235 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 236 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.
 
@@ -41,7 +41,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 235 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 236 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
