@@ -1,3 +1,5 @@
+> **31 October 2026 roadmap integration:** [ROADMAP.md](ROADMAP.md) is the active 48-task `AUD-###` priority/acceptance ledger. The [dated six-source audit](docs/audits/2026-10-31-consolidated-audit.md) distinguishes verified defects from hypotheses. This register is preserved as the **historical implementation/evidence journal** with all existing `CK-###` IDs unchanged; old local/CI status does not establish current Xbox/DLC release readiness.
+
 ## 29 October 2026 — Bounded native troop palettes
 
 **CK-032 / CK-041 remain PARTIAL.** Animated troop tinting now retains only requested native frames in a global 128 MiB nominal RGBA pixel budget. Image/palette identity and LRU eviction prevent stale or unbounded retained troop copies, and prepared crops draw without a second texture copy. Buildings/base fallbacks keep their established sampling; neutral resources are unchanged. Canonical source rectangles remain available as `sourceFrame`, with original dimensions/anchors/scale intact. No art/manifest bytes, gameplay, controls, saves or protocol changed; shell v42 refreshes code.
