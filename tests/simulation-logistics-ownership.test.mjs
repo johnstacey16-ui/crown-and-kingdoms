@@ -20,11 +20,10 @@ test('transport and trader functionality is owned only by the new module',()=>{
 });
 test('logistics is ordered directly before simulation in browser, core and offline lists',()=>{
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
- for(const list of [browser,core]){
+ const headless=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
+ for(const list of [browser,core,headless])
   assert.equal(list.indexOf('./js/simulation-logistics.js')+1,list.indexOf('./js/simulation.js'));
- }
- assert.equal(browser.length,38);assert.equal(core.length,25);
- assert.equal(coreGameScriptPaths(html,{includeUI:false,includeAssets:false}).length,23);
+ assert.deepEqual(headless,core.filter(p=>p!=='./js/ui.js'&&p!=='./js/assets.js'));
  assert.ok(sw.includes("'./js/simulation-logistics.js'"));
 });
 test('unsafe transport requests and missing player trade depots retain safe behavior',()=>{

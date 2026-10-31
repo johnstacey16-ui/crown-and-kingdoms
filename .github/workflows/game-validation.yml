@@ -40,6 +40,7 @@ jobs:
             tests/king-of-the-hill.test.mjs \
             tests/diplomacy.test.mjs \
             tests/browser-foundation.test.mjs \
+            tests/runtime-script-order.test.mjs \
             tests/tribute.test.mjs \
             tests/map-layout-content.test.mjs \
             tests/guard-follow.test.mjs \

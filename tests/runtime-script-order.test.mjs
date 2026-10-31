@@ -7,7 +7,11 @@ import {browserScriptPaths,coreGameScriptPaths,readBrowserRuntime,readBrowserSub
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 test('browser script references are unique, safely rooted and in declared order',()=>{
  const scripts=browserScriptPaths(html);
- assert.equal(scripts.length,35);
+ const core=coreGameScriptPaths(html);
+ assert.ok(scripts.length>core.length,'browser bootstrap and transports must surround the core game');
+ for(const path of ['./js/simulation-victory.js','./js/simulation-logistics.js',
+  './js/ai-policy.js','./js/engine-graphics-benchmark.js'])
+  assert.ok(scripts.includes(path),'required split runtime module '+path);
  assert.equal(scripts[0],'./persistence.js');
  assert.equal(scripts.at(-1),'./multiplayer.js');
  assert.ok(scripts.includes('./js/network-webrtc.js'));
@@ -25,12 +29,14 @@ test('headless production source order excludes only canvas UI and atlas manager
  assert.ok(paths.indexOf('./js/ai.js')<paths.indexOf('./js/pathfinding.js'));
  assert.ok(paths.indexOf('./js/kingdom.js')<paths.indexOf('./js/entities.js'));
  assert.ok(paths.includes('./js/render-procedural-units.js'));
- assert.equal(paths.length,20);
+ assert.ok(production.includes('./js/ui.js')&&production.includes('./js/assets.js'));
+ assert.equal(paths.length,production.length-2,'headless excludes exactly UI and atlas manager');
  assert.equal(loadCoreGameSource(),paths.map(p=>readFileSync(new URL('../'+p.slice(2),import.meta.url),'utf8')).join('\n'));
 });
 test('source validator sees every browser script, including both network transport implementations',()=>{
  const scripts=readBrowserRuntime({html});
- assert.equal(scripts.length,35);
+ assert.deepEqual(scripts.map(x=>x.path),browserScriptPaths(html),
+  'source syntax scanner must load every production browser script');
  for(const {path,source} of scripts)assert.doesNotThrow(()=>new vm.Script(source,{filename:path}));
 });
 test('broken production script ranges are rejected rather than silently omitted',()=>{

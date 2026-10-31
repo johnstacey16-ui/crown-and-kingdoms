@@ -27,8 +27,9 @@ test('AI policy precedes AI loop after simulation across production and offline 
   assert.deepEqual(scripts.slice(i,i+3),['./js/simulation.js','./js/ai-policy.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
- assert.equal(browserScriptPaths(html).length,38);
- assert.equal(coreGameScriptPaths(html).length,25);
+ const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
+ assert.deepEqual(core,browser.slice(browser.indexOf('./js/config.js'),browser.indexOf('./engine.js')+1),
+  'AI must participate in the same ordered browser/core script span');
 });
 test('AI queue and age-saving helpers execute without game state',()=>{
  const ctx={};vm.createContext(ctx);
