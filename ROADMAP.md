@@ -17,6 +17,14 @@
 
 Keep this checkpoint separate from the 30 October audit baseline and record the **exact SHA** of each automated result. Documentation-only commits do not prove gameplay or production deployment.
 
+## Current continuation checkpoint — 31 October 2026
+
+**Most recent gameplay/UI commit:** [`2ca5e90`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/2ca5e9097151499dac93afe3d4e7ae472cf0dc66). **227 standalone regression files** exist at that commit, including the new civilization-accurate technology-tree test. The last fully green code SHA is [`d181720`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/d181720a74446bc1723c1d21581bb70b66f6f44f): hosted Game validation, all 226 standalone files, seeded AI/campaign workflow and Chromium graphics succeeded.
+
+**CI BLOCKER — do not describe latest code as green.** On `2ca5e90`, all three workflows failed within seconds before running any steps; the logs were not generated. A retry of all failed workflows had the same pre-step outcome. The cause of this platform/runner-account failure is **unverified**. A source-level JavaScript fixture confirmed that the new `treeLines()` invokes the training and research selectors and produces correct Camel visibility under mocked selectors; that is **not** a Node/Chromium or Xbox verification. Inspect GitHub Actions and account/runner annotations without guessing, and rerun real hosted tests once workflows can execute. Do not weaken tests or roll back legitimate source work to mask pre-step failures.
+
+**AUD-019 remains PARTIAL.** The regional Camel Rider line is genuinely restricted across production, AI and authenticated multiplayer for the eight eligible *existing* civilizations; `data/civilizations.json` and frozen runtime rules agree, and old save queues survive. The technology-tree UI now uses `trOf()/rsOf()` to reflect that and other civilian tech restrictions. Still missing: full regional-unit catalogue, technologies, expansion civs, runtime JSON-authoritative ruleset loading, physical Series S validation and end-to-end WAN multiplayer.
+
 ## Non-negotiable end goal
 
 Original browser RTS with **full functional-category parity** for Age of Empires II: Definitive Edition on Xbox Series X, including **all 11 Xbox gameplay DLC families in the 31 October 2026 baseline**; every default Xbox controller action must function on **Xbox Series S Edge** in solo, campaigns, menus and multiplayer. Preserve the existing engine, art and security safeguards. No copied commercial assets, music or protected scenarios. Only confirmed free hosting, no paid upgrades, credits, overages or Railway reactivation; fail closed on quotas.
