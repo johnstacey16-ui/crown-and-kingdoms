@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active repository refactoring inventory
 
-**Status: PARTIAL · baseline source commit `a2f50e4` · 31 October 2026**
+**Status: PARTIAL · baseline `a2f50e4` · current tooling commit `addbce0` · 31 October 2026**
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
@@ -28,6 +28,14 @@ This is a live cleanup register, **not an assertion that every item is ready for
 | 5 — pending | **Verification and release hygiene:** stabilize GitHub Actions and audit actual Xbox Edge behavior | Recent commit passes all 232+ standalone files, seeded AI/campaigns and Chromium; performance and network gates separately recorded |
 
 The earlier `check-game.mjs` compiled some modules from a handwritten roster while the browser had **33** scripts; that could skip syntax failures in WebRTC/Supabase integrations. The new checker discovers and parses all actual browser entries instead. The test harness keeps only the deliberately headless subset, in production order. This is an observable maintainability improvement, not an accepted whole-game refactor.
+
+## Verified no-delete art inventory and current test tooling
+
+The live manifest lists **58 active painted WebP image references**, and all 58 are present in the repository and cached by `sw.js`. A whole-repository `.webp` scan found **66 image files**: those 58 active assets plus one earlier `assets/painted-units.webp` still referenced by `scripts/build-painted-atlas.mjs`, and seven documentation preview images (several referenced by acceptance docs). **None of these eight extra files has been proven safely removable**, so no graphics were deleted. Stone, gold, berries, terrain and troop images remain in place.
+
+The local test runner at `scripts/run-checks.mjs` supports `quick`, `--regressions` and `--full`. It mirrors the existing five hosted source/graphics gates and optionally executes **233 standalone tests**, three seeded AI matches and 19 isolated mission playthroughs without a Bash dependency. Its **plan/ordering/error aggregation fixture passed**, but a full run in a checkout is still required. All 33 individual production browser scripts and the concatenated 18-script headless source passed independent JavaScript syntax compilation. The current Actions jobs at `addbce0` stopped before any job step; the reason remains unverified.
+
+**Next refactor priorities** are split ownership of oversized rendering/simulation/input modules and auditing genuinely obsolete files with full dependency proof. These have NOT yet been completed.
 
 ## Constraints during cleanup
 
