@@ -188,14 +188,15 @@ function drawVillagerPriorityWheel(){
  X.fillStyle='#21180f';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();
  tx(manual?'MANUAL PRIORITIES':'VILLAGER PRIORITIES',cx,cy-R*.16,Math.min(23,R/10),'#f2c14e','center');
  tx(p.enabled?'AUTOMATION ON':'AUTOMATION OFF',cx,cy+R*.05,14,p.enabled?'#9ae6b4':'#ffb0b0','center');
- tx('Weights: '+WORKER_TARGETS.map(r=>r.k.toUpperCase()+' '+p[r.k]).join(' / '),cx,cy+R*.20,13,'#e8dabb','center');
+ const targets=villagerPriorityTargets(0,p);
+ tx('Targets: '+WORKER_TARGETS.map(r=>r.k.toUpperCase()+' '+targets[r.k]).join(' / '),cx,cy+R*.20,13,'#e8dabb','center');
  const w=Math.min(manual?156:140,2*R*Math.sin(Math.PI/n)*.9),h=manual?66:54;
  for(let i=0;i<n;i++){
   const a=i/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,selected=vpWheel.sel===i;
   X.fillStyle=selected?'#2f63c4':'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
   X.strokeStyle=selected?'#fff':'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
   const name=manual?WORKER_TARGETS[i].n:VILLAGER_PRIORITY_PRESETS[i].name;
-  const detail=manual?(p[WORKER_TARGETS[i].k]+' weight'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
+  const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
   tx(name,x,y-3,15,'#fff','center');tx(detail,x,y+17,13,'#e5d5ad','center');
  }
  tx(manual?'Left stick: resource   A: add   B: remove   Y: presets   R3: close':
