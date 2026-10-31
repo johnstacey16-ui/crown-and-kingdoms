@@ -11,9 +11,12 @@ test('hosted expensive workflows remain manually dispatchable and weekly, not tr
   assert.match(triggers,/cron: '0 7 \* \* 0'/);
   assert.doesNotMatch(triggers,/\n  push:|\n  pull_request:/);
  }
- assert.match(read('game-regression'),/Run every standalone regression test/);
- assert.match(read('game-regression'),/Run all isolated campaign playthroughs/);
- assert.match(read('battlefield-browser'),/Render original multiplayer art in Chromium/);
+ const regression=read('game-regression');
+ assert.match(regression,/node scripts\/run-checks\.mjs --regression-files/);
+ assert.match(regression,/node scripts\/run-checks\.mjs --skirmishes/);
+ assert.match(regression,/node scripts\/run-checks\.mjs --campaigns/);
+ assert.match(read('battlefield-browser'),/node scripts\/run-checks\.mjs --browser/);
+ assert.doesNotMatch(regression,/for mission in|for test_file in|tests=\(/);
 });
 test('trusted manual Windows self-hosted workflow offers full Node, AI and Chromium acceptance',()=>{
  const source=read('free-self-hosted-acceptance');
@@ -21,7 +24,6 @@ test('trusted manual Windows self-hosted workflow offers full Node, AI and Chrom
  assert.match(source,/runs-on: \[self-hosted, Windows, X64\]/);
  assert.match(source,/github\.ref == 'refs\/heads\/main'/);
  assert.match(source,/node scripts\/run-checks\.mjs --full/);
- assert.match(source,/node tests\/browser\/battlefield-art\.mjs/);
- assert.match(source,/node tests\/browser\/room-layout\.mjs/);
+ assert.match(source,/node scripts\/run-checks\.mjs --browser/);
  assert.doesNotMatch(source,/\n  push:|\n  pull_request:/);
 });

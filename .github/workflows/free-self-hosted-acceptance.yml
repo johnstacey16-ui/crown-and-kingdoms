@@ -45,9 +45,6 @@ jobs:
       - name: Install local Chromium
         if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
         run: npx playwright install chromium
-      - name: Test battlefield art in Chromium
+      - name: Validate Chromium battlefield and room
         if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
-        run: node tests/browser/battlefield-art.mjs
-      - name: Test responsive multiplayer room
-        if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
-        run: node tests/browser/room-layout.mjs
+        run: node scripts/run-checks.mjs --browser

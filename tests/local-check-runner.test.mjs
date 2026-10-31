@@ -41,3 +41,62 @@ test('unsafe or unsupported test references fail before running subprocesses',()
  assert.throws(()=>checkPlan('regressions',['tests/../escape.test.mjs']),/Unsafe regression/);
  assert.throws(()=>checkPlan('unknown',[]),/Unknown check mode/);
 });
+
+test('standalone hosted acceptance modes share one plan without repeating expensive checks',()=>{
+ const files=['tests/z.test.mjs','tests/a.test.mjs'];
+ const standalone=checkPlan('regression-files',files);
+ assert.deepEqual(standalone.map(x=>x.file),['tests/a.test.mjs','tests/z.test.mjs']);
+ assert.ok(standalone.every(x=>x.env.CK_SKIP_CAMPAIGN==='1'));
+ const skirmishes=checkPlan('skirmishes');
+ assert.equal(skirmishes.length,3);
+ assert.ok(skirmishes.every(x=>x.file==='scripts/run-skirmish.mjs'));
+ assert.deepEqual(skirmishes.map(x=>x.env||{}),[
+  {},{CK_DIFFICULTY:'3',CK_RELOAD_AT:'600'},
+  {CK_PLAYER:'active',CK_DIFFICULTY:'3',CK_RELOAD_AT:'900',CK_MAX_SECONDS:'2700'}
+ ]);
+ const campaigns=checkPlan('campaigns');
+ assert.equal(campaigns.length,19);
+ assert.deepEqual(campaigns.map(x=>x.env.CK_MISSION),
+  Array.from({length:19},(_,i)=>String(i)));
+ assert.ok(campaigns.every(x=>x.file==='tests/simulation-smoke.test.mjs'));
+ assert.deepEqual(checkPlan('browser').map(x=>x.file),[
+  'tests/browser/battlefield-art.mjs','tests/browser/room-layout.mjs'
+ ]);
+ const xbox=checkPlan('xbox-contracts');
+ assert.ok(xbox.length>=8);
+ assert.ok(xbox.some(x=>x.file==='tests/xbox-controller-contract.test.mjs'));
+ assert.ok(xbox.some(x=>x.file==='tests/gamepad-focus-edges.test.mjs'));
+ assert.equal(checkPlan('full',files).length,
+  checkPlan('quick').length+standalone.length+skirmishes.length+campaigns.length);
+});
+test('hosted jobs group failures and write an accurate summary without aborting later checks',()=>{
+ const messages=[],writes=[],calls=[];
+ const result=runChecks({mode:'campaigns',root:'/tmp/game',
+  spawn:(_exe,args,options)=>{
+   calls.push({args,options});
+   return {status:calls.length===7?1:0};
+  },
+  log:{log:x=>messages.push(x),error:x=>messages.push(x)},
+  grouped:true,summaryPath:'/tmp/summary',
+  appendSummary:(path,body,encoding)=>writes.push({path,body,encoding})
+ });
+ assert.equal(calls.length,19);
+ assert.deepEqual(result.failed,['Campaign 6']);
+ assert.equal(messages.filter(x=>x.startsWith('::group::')).length,19);
+ assert.equal(messages.filter(x=>x==='::endgroup::').length,19);
+ assert.ok(messages.some(x=>x.includes('Completed 18/19')));
+ assert.equal(writes.length,1);
+ assert.equal(writes[0].encoding,'utf8');
+ assert.match(writes[0].body,/Passed: 18 \/ 19/);
+ assert.match(writes[0].body,/Failed: 1/);
+ assert.match(writes[0].body,/- Campaign 6/);
+ assert.deepEqual(calls[6].options.env.CK_MISSION,'6');
+});
+test('browser and Xbox software contracts never present themselves as hardware acceptance',()=>{
+ const browser=checkPlan('browser');
+ assert.equal(browser.length,2);
+ assert.ok(browser.every(x=>x.file.startsWith('tests/browser/')));
+ const xbox=checkPlan('xbox-contracts');
+ assert.ok(xbox.every(x=>x.file.startsWith('tests/')&&x.file.endsWith('.test.mjs')));
+ assert.equal(checkPlan('campaigns').length,19);
+});

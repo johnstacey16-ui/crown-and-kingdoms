@@ -23,10 +23,8 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.56.1
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Render original multiplayer art in Chromium
-        run: node tests/browser/battlefield-art.mjs
-      - name: Check responsive multiplayer room layout
-        run: node tests/browser/room-layout.mjs
+      - name: Validate Chromium battlefield art and responsive multiplayer room
+        run: node scripts/run-checks.mjs --browser
       - name: Save rendered evidence
         if: always()
         uses: actions/upload-artifact@v4

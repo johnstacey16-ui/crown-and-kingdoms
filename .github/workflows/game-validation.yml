@@ -43,6 +43,8 @@ jobs:
             tests/runtime-script-order.test.mjs \
             tests/procedural-unit-art-module.test.mjs \
             tests/technology-catalogue.test.mjs \
+            tests/local-check-runner.test.mjs \
+            tests/ci-free-runner-policy.test.mjs \
             tests/tribute.test.mjs \
             tests/map-layout-content.test.mjs \
             tests/guard-follow.test.mjs \

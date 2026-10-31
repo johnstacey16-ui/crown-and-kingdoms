@@ -1,10 +1,9 @@
 name: Game regression checks
 on:
-  # Conserve the free monthly allowance of this private repository.
-  # Full suites remain manual and run once weekly, never on every code commit.
-  workflow_dispatch:
+  # The expensive full suites are weekly or manually requested; never on every push.
   schedule:
     - cron: '0 7 * * 0'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -12,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   campaign-playthroughs:
-    name: Campaign mission suite (19 missions)
+    name: Campaign mission suite (19 isolated missions)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,14 +19,7 @@ jobs:
         with:
           node-version: 22
       - name: Run all isolated campaign playthroughs
-        shell: bash
-        run: |
-          set -euo pipefail
-          for mission in {0..18}; do
-            echo "::group::Campaign mission ${mission}"
-            CK_MISSION="${mission}" node tests/simulation-smoke.test.mjs
-            echo "::endgroup::"
-          done
+        run: node scripts/run-checks.mjs --campaigns
   node-checks:
     runs-on: ubuntu-latest
     steps:
@@ -36,52 +28,6 @@ jobs:
         with:
           node-version: 22
       - name: Run every standalone regression test
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          tests=(tests/*.test.mjs)
-          if (( ${#tests[@]} == 0 )); then
-            echo "::error::No regression tests found in tests/"
-            exit 1
-          fi
-          # Report every failure, not only the first test in alphabetical order.
-          passed=0
-          failed=0
-          failures=()
-          for test_file in "${tests[@]}"; do
-            echo "::group::${test_file}"
-            if CK_SKIP_CAMPAIGN=1 node "${test_file}"; then
-              ((passed+=1))
-            else
-              ((failed+=1))
-              failures+=("${test_file}")
-            fi
-            echo "::endgroup::"
-          done
-          {
-            echo "## Standalone regression tests"
-            echo "Passed: ${passed} / ${#tests[@]}"
-            echo "Failed: ${failed}"
-            if (( failed > 0 )); then
-              echo ""
-              echo "### Failed test files"
-              for test_file in "${failures[@]}"; do
-                echo "- \`${test_file}\`"
-              done
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          if (( failed > 0 )); then
-            echo "::error::${failed} of ${#tests[@]} standalone regression files failed; see job summary and grouped output."
-            exit 1
-          fi
+        run: node scripts/run-checks.mjs --regression-files
       - name: Complete seeded land skirmishes with production AI
-        shell: bash
-        run: |
-          set -euo pipefail
-          node scripts/run-skirmish.mjs
-          CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
-          # Source-correct slower soldier training/movement extends contested battles.
-          # Still require an actual natural win/loss and Town Centre destruction.
-          # Passive AI tests retain the strict original 1800-second window.
-          CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 CK_MAX_SECONDS=2700 node scripts/run-skirmish.mjs
+        run: node scripts/run-checks.mjs --skirmishes
