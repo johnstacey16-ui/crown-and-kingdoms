@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 
 // Population settings offer 50, 100, 150, 200, 250, 300, 400 and 500.
 // Both controller directions must wrap over the entire list, not just its first four values.

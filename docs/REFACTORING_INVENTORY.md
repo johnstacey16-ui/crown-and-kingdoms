@@ -4,15 +4,15 @@
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
-**Hosted CI:** GitHub reports runner ID `0`, zero steps and missing job logs across validation, regression and Chromium. Account/quota/runner provisioning is suspected, not proven. See [free-only recovery](GITHUB_ACTIONS_RUNNER_RECOVERY.md). Full hosted suites now run weekly/on request; an owner-registered private Windows self-hosted runner can execute the same checks without GitHub-hosted minutes. Until a real run completes, full acceptance is blocked.
+**Hosted CI:** Earlier validation, regression and Chromium jobs failed before step allocation (runner ID `0`); the original cause is unknown. Later hosted source validation and 23 focused tests passed at `f7610b3`, but full regressions, campaigns and Chromium remain unverified on the current source. See [free-only recovery](GITHUB_ACTIONS_RUNNER_RECOVERY.md). Full hosted suites now run weekly/on request; an owner-registered private Windows self-hosted runner can execute the same checks without GitHub-hosted minutes. Until a real run completes, full acceptance is blocked.
 
 ## Established dependency footprint
 
 | Area | Evidence | Decision |
 |---|---|---|
-| Browser entrypoint | 35 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
+| Browser entrypoint | 36 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
 | Art and resources | `assets/atlas-manifest.json` and original WebP source/painted atlases; stone, gold, berry, terrain and fallback rendering require coverage | **ACTIVE** — no art removal; source-generator dependencies also count |
-| Headless/CI | 235 standalone `tests/*.test.mjs` files at checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
+| Headless/CI | 236 standalone `tests/*.test.mjs` files at previous checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
 | Historical docs | Older checkpoints moved from active ROADMAP into `docs/audits/2026-10-31-gameplay-checkpoints.md`; delivery register/git history retained | **ARCHIVED** — retain for audit, not the active prioritization |
 | Old multiplayer adapters | `multiplayer.js` and `js/network-*.js` may still be transitively active, even when named legacy; authenticated WebRTC and signaling must remain secure | **UNCERTAIN** — do not delete without a complete reachability and transport audit |
 | Save-version migrations | Older development saves need not migrate; `js/save.js` still validates/loading current saves | **MIGRATION DEFERRED**, not save-system deletion |
@@ -69,3 +69,7 @@ The existing seven victory, elimination, score and hill functions were moved wit
 **GitHub Actions update:** retried source-validation run [41199152874](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41199152874) successfully acquired a hosted runner and completed all source/art steps on the earlier `862d877` revision. This confirms recovery for that retried job, not the root cause of the preceding allocation failures nor the new victory refactor's acceptance. Avoid claiming hosted full-suite green until those suites execute.
 
 **Final hosted evidence for victory extraction:** [Actions 41202652720](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41202652720) passed 23/23 focused tests (new victory ownership, old logistics, score, Sudden Death, hill, diplomacy and browser foundation), with successful source, offline graph, civilization, atlas and graphics checks. This is a lightweight validation pass only; full 236-file regression, 19 campaigns, seeded AI, Chromium and console acceptance remain open at `f7610b3`.
+
+## Canonical source-loader cleanup — 31 October 2026
+
+Eight more source-level regression files (tribute, map layout selection/content, guard/follow, villager priority, population controls, No Attack stance and fish traps) now use `loadCoreGameSource({includeUI:true,includeAssets:true})` instead of maintaining different ordered concatenations of the same classic game scripts. Their positive assertions and coverage are preserved; individual behavior-fixture tests that intentionally compile source fragments are untouched. The lightweight CI validation invokes these eight contracts as a focused check. This is **test harness refactoring, not a gameplay alteration**. Full regression/Chromium/AI/campaign acceptance still requires separate evidence. Do not blindly rewrite partial VM fixtures, source-boundary probes or negative source assertions into whole-runtime checks.

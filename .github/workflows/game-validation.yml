@@ -39,7 +39,15 @@ jobs:
             tests/sudden-death.test.mjs \
             tests/king-of-the-hill.test.mjs \
             tests/diplomacy.test.mjs \
-            tests/browser-foundation.test.mjs
+            tests/browser-foundation.test.mjs \
+            tests/tribute.test.mjs \
+            tests/map-layouts.test.mjs \
+            tests/map-layout-content.test.mjs \
+            tests/guard-follow.test.mjs \
+            tests/villager-priority.test.mjs \
+            tests/population-limit-controls.test.mjs \
+            tests/no-attack-stance.test.mjs \
+            tests/fish-traps.test.mjs
       # Full standalone tests and isolated mission playthroughs belong to game-regression.yml.
       # Keep this independent lightweight check useful even while game tests fail.
       - name: Validate browser/offline runtime file graph

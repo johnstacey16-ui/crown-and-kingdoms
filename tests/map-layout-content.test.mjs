@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 
 assert.match(html, /if\(M\.cs\|\|M\.sea\|\|M\.arch\|\|M\.lake\|\|mapLayout===11\|\|mapLayout===12\|\|mapLayout===13\)/,
   'the generator must apply special terrain shaping for the Causeway preset');
