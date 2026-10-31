@@ -13,7 +13,11 @@ contains("mk(selected.length?'Send selected villagers to gather ('+selected.leng
   'The resource menu must label group gather orders distinctly from single-villager orders');
 contains("if(selected.length)give(selected,()=>orderSel(t,wx,wy));else{const v=nearV(wx,wy);",
   'Confirmation must order every selected villager to the exact hovered node and preserve the single-villager fallback');
-const radialSource=html.slice(html.indexOf('function openRadial(wx,wy)'),html.indexOf('function playCtl(dt)'));
+const radialStart=html.indexOf('function openRadial(wx,wy)');
+const radialEnd=html.indexOf('\nfunction ',radialStart+1);
+assert.ok(radialStart>=0&&radialEnd>radialStart,
+ 'the standalone controller radial handler must be present before its next function');
+const radialSource=html.slice(radialStart,radialEnd);
 assert.ok(radialSource.startsWith('function openRadial'),'Controller radial handler must exist');
 for(const eligible of [true,false]){
   let cancelled=0,siteCalls=0,normalCalls=0;
