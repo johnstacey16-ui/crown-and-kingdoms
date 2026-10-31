@@ -19,6 +19,7 @@ const scriptPaths=browserScriptPaths(html);
 for(const [a,b] of [
  ['./persistence.js','./js/config.js'],
  ['./js/config.js','./js/state.js'],
+ ['./js/simulation-logistics.js','./js/simulation.js'],
  ['./js/simulation.js','./js/ai.js'],
  ['./js/ai.js','./js/pathfinding.js'],
  ['./js/pathfinding.js','./js/kingdom.js'],

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
-const start = simulation.indexOf('function transportLandingRoute(');
-const end = simulation.indexOf('\nfunction tickTrader(', start);
+const logistics = readFileSync(new URL('../js/simulation-logistics.js', import.meta.url), 'utf8');
+const start = logistics.indexOf('function transportLandingRoute(');
+const end = logistics.indexOf('\nfunction tickTrader(', start);
 assert.ok(start >= 0 && end > start);
 const state = readFileSync(new URL('../js/state.js', import.meta.url), 'utf8');
 const directions = state.slice(state.indexOf('const D8='), state.indexOf(';', state.indexOf('const D8=')) + 1);
@@ -22,7 +22,7 @@ function fixture(beaches, water, endpoint = water[0]) {
   calls.push(goal);
   return endpoint && goal(...endpoint) ? [[u.x, u.y], endpoint.map(n => n + .5)] : null;
  } };
- const landing = vm.runInNewContext(directions + '\n' + simulation.slice(start, end) + ';transportLandingRoute', context);
+ const landing = vm.runInNewContext(directions + '\n' + logistics.slice(start, end) + ';transportLandingRoute', context);
  return { S, calls, context, run: (x = 10.5, y = 10.5) => landing({ k: 'trn', x: 2.5, y: 2.5 }, x, y) };
 }
 const beachOf = result => result && Array.from(result.beach);

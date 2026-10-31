@@ -5,11 +5,12 @@ import vm from 'node:vm';
 
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const logistics=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
-const start=simulation.indexOf('function tickTrader(u,dt){');
-const end=simulation.indexOf('\nfunction ',start+1);
+const start=logistics.indexOf('function tickTrader(u,dt){');
+const end=logistics.length;
 assert.ok(start>=0&&end>start,'Trade carts and cogs must retain their route simulator');
-const traderSource=simulation.slice(start,end);
+const traderSource=logistics.slice(start,end);
 
 function setup(kind='cart'){
  const origin={t:0,k:kind==='cart'?'market':'dock',x:0,y:0,s:2,hp:100,done:true};
