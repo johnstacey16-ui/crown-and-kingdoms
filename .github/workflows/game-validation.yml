@@ -32,6 +32,8 @@ jobs:
       # Keep this independent lightweight check useful even while game tests fail.
       - name: Validate browser/offline runtime file graph
         run: node scripts/audit-runtime-graph.mjs
+      - name: Validate versioned civilization catalogue
+        run: node scripts/check-civilization-catalogue.mjs
       - name: Validate sprite atlas
         run: node tests/validate-atlas.mjs
 

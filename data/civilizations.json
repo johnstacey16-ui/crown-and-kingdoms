@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "inventoryVersion": "ck-current-medieval-roster-26-v1",
+  "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
+  "rulesets": [
+    {
+      "id": "medieval",
+      "implementation": "partial"
+    },
+    {
+      "id": "return-of-rome",
+      "implementation": "missing"
+    },
+    {
+      "id": "chronicles",
+      "implementation": "missing"
+    }
+  ],
+  "regionalUnitAccess": {
+    "implementation": "missing",
+    "entries": []
+  },
+  "civilizations": [
+    {
+      "id": 0,
+      "name": "Franks",
+      "uniqueUnit": "axe",
+      "uniqueTechnology": "ut0",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 1,
+      "name": "Britons",
+      "uniqueUnit": "lbow",
+      "uniqueTechnology": "ut1",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 2,
+      "name": "Mongols",
+      "uniqueUnit": "mgd",
+      "uniqueTechnology": "ut2",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 3,
+      "name": "Byzantines",
+      "uniqueUnit": "cata",
+      "uniqueTechnology": "ut3",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 4,
+      "name": "Persians",
+      "uniqueUnit": "ele",
+      "uniqueTechnology": "ut4",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 5,
+      "name": "Teutons",
+      "uniqueUnit": "tk",
+      "uniqueTechnology": "ut5",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 6,
+      "name": "Celts",
+      "uniqueUnit": "woad",
+      "uniqueTechnology": "ut6",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 7,
+      "name": "Vikings",
+      "uniqueUnit": "bers",
+      "uniqueTechnology": "ut7",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 8,
+      "name": "Saracens",
+      "uniqueUnit": "mamel",
+      "uniqueTechnology": "ut8",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 9,
+      "name": "Turks",
+      "uniqueUnit": "jan",
+      "uniqueTechnology": "ut9",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 10,
+      "name": "Chinese",
+      "uniqueUnit": "chuko",
+      "uniqueTechnology": "ut10",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 11,
+      "name": "Japanese",
+      "uniqueUnit": "saml",
+      "uniqueTechnology": "ut11",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 12,
+      "name": "Khmer",
+      "uniqueUnit": "ele",
+      "uniqueTechnology": "ut12",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 13,
+      "name": "Indians",
+      "uniqueUnit": "eled",
+      "uniqueTechnology": "ut13",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 14,
+      "name": "Spanish",
+      "uniqueUnit": "conq",
+      "uniqueTechnology": "ut14",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 15,
+      "name": "Italians",
+      "uniqueUnit": "genoa",
+      "uniqueTechnology": "ut15",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 16,
+      "name": "Slavs",
+      "uniqueUnit": "boyar",
+      "uniqueTechnology": "ut16",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 17,
+      "name": "Huns",
+      "uniqueUnit": "tarkan",
+      "uniqueTechnology": "ut17",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 18,
+      "name": "Goths",
+      "uniqueUnit": "huskarl",
+      "uniqueTechnology": "ut18",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 19,
+      "name": "Aztecs",
+      "uniqueUnit": "jaguar",
+      "uniqueTechnology": "ut19",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 20,
+      "name": "Mayans",
+      "uniqueUnit": "plumed",
+      "uniqueTechnology": "ut20",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 21,
+      "name": "Incas",
+      "uniqueUnit": "kamayuk",
+      "uniqueTechnology": "ut21",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 22,
+      "name": "Ethiopians",
+      "uniqueUnit": "shotel",
+      "uniqueTechnology": "ut22",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 23,
+      "name": "Malians",
+      "uniqueUnit": "gbeto",
+      "uniqueTechnology": "ut23",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 24,
+      "name": "Koreans",
+      "uniqueUnit": "wagon",
+      "uniqueTechnology": "ut24",
+      "rulepack": "medieval",
+      "status": "partial"
+    },
+    {
+      "id": 25,
+      "name": "Magyars",
+      "uniqueUnit": "huszar",
+      "uniqueTechnology": "ut25",
+      "rulepack": "medieval",
+      "status": "partial"
+    }
+  ]
+}
