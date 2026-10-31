@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v54-auto-farm-construction-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v55-procedural-renderer-module-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -77,6 +77,7 @@ const CORE_ASSETS = [
   './js/save.js',
   './js/input.js',
   './js/render.js',
+  './js/render-procedural-units.js',
   './js/ui.js',
   './js/simulation.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js','./js/entities.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js', './js/assets.js',
   './engine.js',

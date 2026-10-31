@@ -7,11 +7,12 @@ import {browserScriptPaths,coreGameScriptPaths,readBrowserRuntime,readBrowserSub
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 test('browser script references are unique, safely rooted and in declared order',()=>{
  const scripts=browserScriptPaths(html);
- assert.equal(scripts.length,33);
+ assert.equal(scripts.length,34);
  assert.equal(scripts[0],'./persistence.js');
  assert.equal(scripts.at(-1),'./multiplayer.js');
  assert.ok(scripts.includes('./js/network-webrtc.js'));
  assert.ok(scripts.includes('./js/network-supabase.js'));
+ assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render.js')+1);
  assert.throws(()=>browserScriptPaths('<script src="../secret.js"></script>'),/Unsafe browser script path/);
  assert.throws(()=>browserScriptPaths('<script src="./engine.js"></script><script src="./engine.js"></script>'),/Duplicate browser script reference/);
 });
@@ -22,11 +23,13 @@ test('headless production source order excludes only canvas UI and atlas manager
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.indexOf('./js/ai.js')<paths.indexOf('./js/pathfinding.js'));
  assert.ok(paths.indexOf('./js/kingdom.js')<paths.indexOf('./js/entities.js'));
+ assert.ok(paths.includes('./js/render-procedural-units.js'));
+ assert.equal(paths.length,19);
  assert.equal(loadCoreGameSource(),paths.map(p=>readFileSync(new URL('../'+p.slice(2),import.meta.url),'utf8')).join('\n'));
 });
 test('source validator sees every browser script, including both network transport implementations',()=>{
  const scripts=readBrowserRuntime({html});
- assert.equal(scripts.length,33);
+ assert.equal(scripts.length,34);
  for(const {path,source} of scripts)assert.doesNotThrow(()=>new vm.Script(source,{filename:path}));
 });
 test('broken production script ranges are rejected rather than silently omitted',()=>{

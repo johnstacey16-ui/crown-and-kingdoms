@@ -30,7 +30,7 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(worker.includes("'./js/ai.js'"), 'The offline service-worker cache must contain ai.js');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(8,12),
+  assert.deepEqual(coreGameScriptPaths(html).slice(9,13),
     ['./js/simulation.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });
