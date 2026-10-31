@@ -42,6 +42,7 @@ const FOCUSED=[
  "tests/repository-evidence-inventory.test.mjs",
  "tests/network-sync-protocol.test.mjs",
  "tests/network-frame-replay.test.mjs",
+ "tests/seeded-world-continuation.test.mjs",
  "tests/network-command-uplink.test.mjs",
  "tests/network-sync-authority.test.mjs",
  "tests/tribute.test.mjs",
