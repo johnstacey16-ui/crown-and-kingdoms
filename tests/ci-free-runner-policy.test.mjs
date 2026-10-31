@@ -21,6 +21,8 @@ test('hosted expensive workflows remain manually dispatchable and weekly, not tr
 test('fast hosted validation uses one shared focused plan',()=>{
  const source=read('game-validation');
  assert.match(source,/node scripts\/run-checks\.mjs --focused/);
+ assert.match(source,/node scripts\/run-checks\.mjs --quick/);
+ assert.doesNotMatch(source,/run: node scripts\/check-game\.mjs/);
  assert.doesNotMatch(source,/node --test \\/);
 });
 test('trusted manual Windows self-hosted workflow offers full Node, AI and Chromium acceptance',()=>{

@@ -26,20 +26,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate game source
-        run: node scripts/check-game.mjs
-      # Run focused source/behavior contracts on every push; leave the expensive
-      # full standalone, seeded AI, campaign and Chromium suites weekly or manual.
+      # Both selections are owned by scripts/run-checks.mjs, not duplicated here.
+      # Full standalone, AI, campaign and Chromium suites remain weekly/manual.
+      - name: Validate source, offline graph, civilizations, atlas and graphics
+        run: node scripts/run-checks.mjs --quick
       - name: Check focused gameplay, controller and graphics regression contracts
         run: node scripts/run-checks.mjs --focused
-      # Full standalone tests and isolated mission playthroughs belong to game-regression.yml.
-      # Keep this independent lightweight check useful even while game tests fail.
-      - name: Validate browser/offline runtime file graph
-        run: node scripts/audit-runtime-graph.mjs
-      - name: Validate versioned civilization catalogue
-        run: node scripts/check-civilization-catalogue.mjs
-      - name: Validate sprite atlas
-        run: node tests/validate-atlas.mjs
-
-      - name: Validate whole-game graphics inventory
-        run: node scripts/audit-graphics.mjs --check
