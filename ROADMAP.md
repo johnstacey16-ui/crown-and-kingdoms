@@ -4,6 +4,19 @@
 
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
+## Source checkpoint — 31 October 2026
+
+**Latest code commit:** [`48e77a3`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/48e77a3e9b47cca64b253b5e13a66e325d8bb826). **225 standalone test files** exist at that SHA. Hosted source/atlas/catalogue validation and Chromium graphics completed successfully; the entire regression + 19-campaign + AI suite was still in progress when this checkpoint was written. Do **not** claim a 225-file full pass without checking its hosted run.
+
+- **AUD-001**: GitHub Actions now starts jobs normally and has hosted passing source and browser workflows on recent commits. Cause of the old pre-step failures remains unverified.
+- **AUD-002 / AUD-003**: First Hearth A instruction and starting civilization HP reconciliation landed in `6fe8f20`. All three hosted workflow categories subsequently passed at `50d86f2`.
+- **AUD-004**: Suppression of spurious controller button edges after browser refocus landed in `50d86f2`, with passing hosted regressions and Chromium at that SHA. Actual Xbox focus/suspend acceptance remains open.
+- **AUD-006**: Outdated Railway play link and historic test totals removed from README; other historic docs still need inspection.
+- **AUD-019 PARTIAL**: `data/civilizations.json` tracks the 26 existing civilization IDs, current unique units and technologies, while explicitly recording missing Return of Rome/Chronicles rulepacks and regional-unit access. All **50 current troop definitions** are now in `js/config.js`; the data validator and graphics inventory have been updated. **Actual runtime loading from JSON, regional-unit eligibility/training and complete DLC mechanics are still missing.**
+- **AUD-005 / AUD-007 / AUD-008–018**: Real Series S performance and controller tests, official reference-version matrix, final Xbox bindings, and independent-network 1v1 acceptance remain open.
+
+Keep this checkpoint separate from the 30 October audit baseline and record the **exact SHA** of each automated result. Documentation-only commits do not prove gameplay or production deployment.
+
 ## Non-negotiable end goal
 
 Original browser RTS with **full functional-category parity** for Age of Empires II: Definitive Edition on Xbox Series X, including **all 11 Xbox gameplay DLC families in the 31 October 2026 baseline**; every default Xbox controller action must function on **Xbox Series S Edge** in solo, campaigns, menus and multiplayer. Preserve the existing engine, art and security safeguards. No copied commercial assets, music or protected scenarios. Only confirmed free hosting, no paid upgrades, credits, overages or Railway reactivation; fail closed on quotas.
