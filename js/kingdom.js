@@ -64,6 +64,24 @@ function createVillagerPriority(source=null){
  return p;
 }
 const WORKER_TARGETS=[{k:'f',n:'Food'},{k:'w',n:'Wood'},{k:'g',n:'Gold'},{k:'s',n:'Stone'}];
+// Provisional seven strategy presets; final Xbox values require physical comparison.
+const VILLAGER_PRIORITY_PRESETS=Object.freeze([
+ Object.freeze({name:'Balanced',weights:Object.freeze([3,3,2,1])}),
+ Object.freeze({name:'Food focus',weights:Object.freeze([5,3,1,0])}),
+ Object.freeze({name:'Wood focus',weights:Object.freeze([2,5,1,0])}),
+ Object.freeze({name:'Gold focus',weights:Object.freeze([2,2,5,0])}),
+ Object.freeze({name:'Stone focus',weights:Object.freeze([2,2,1,5])}),
+ Object.freeze({name:'Expansion',weights:Object.freeze([4,3,2,1])}),
+ Object.freeze({name:'Military',weights:Object.freeze([3,2,4,1])}),
+]);
+function applyVillagerPriorityPreset(index){
+ if(!S||!Number.isInteger(index)||index<0||index>=VILLAGER_PRIORITY_PRESETS.length)return false;
+ const preset=VILLAGER_PRIORITY_PRESETS[index],p=S.vp||(S.vp=createVillagerPriority());
+ for(let i=0;i<WORKER_TARGETS.length;i++)p[WORKER_TARGETS[i].k]=preset.weights[i];
+ p.enabled=true;rebalanceVillagerPriorities(0);
+ note('Villager priorities: '+preset.name);return true;
+}
+
 function villagerAssignedCount(t,k){return S?S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating&&u.o==='g'&&u.ct===k&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).length:0}
 function autoNodeKey(n){return n.k+':'+n.x+':'+n.y}
 // Temporarily avoid unreachable nodes, but retry after terrain or buildings change.

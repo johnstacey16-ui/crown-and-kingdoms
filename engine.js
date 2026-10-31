@@ -623,10 +623,10 @@ function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;overwriteSlotTarge
 function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==null){if(E[1]){overwriteSlotTarget=null;return}if(E[0]){slot=overwriteSlotTarget;overwriteSlotTarget=null;if(saveG()){refreshSlots();mode=sb}}return}if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots();ci=Math.min(ci,slotItems().length-1)}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:it[ci].deleteTarget;if(target!==undefined&&target!==null&&(target==='auto'||SI[target]))deleteSlotTarget=target}if(E[1])mode=sb}
 
 
-let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,yc=0,yDown=false,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
+let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,vpWheel=null,yc=0,yDown=false,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
 function cancelSelectionGesture(){aDown=boxR=null;lastTap=0;lastTapK=null}
 function cancelShortcutGesture(){yDown=false;yc=0}
-function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture();window.CK_AUTH_LOBBY?.suspend?.()}
+function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture();vpWheel=null;window.CK_AUTH_LOBBY?.suspend?.()}
 const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost'];
 const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
@@ -665,7 +665,30 @@ else if(t&&t.amt>0){const selected=S.sel.filter(u=>u.t===0&&u.k==='vil'&&u.hp>0&
 else{if(t&&t.t===0&&t.sh&&t.hp<U[t.k].hp)mk('Repair damaged ship',()=>{const vs=S.sel.filter(u=>u.k==='vil');if(vs.length)give(vs,()=>orderSel(t,wx,wy));else note('Select villagers to repair the ship')});mk('Build...',()=>{const v=nearV(wx,wy);if(!v)return note('No villagers');S.sel=[v];openMenu();if(menu){menu.rad=1;menu.pg=0}});mk('Send military here',()=>give(mil(),()=>orderSel(null,wx,wy)));mk('Attack-move military here',()=>give(mil(),()=>patrol(wx,wy,true)));mk('Attack-move siege here',()=>give(sg(),()=>patrol(wx,wy,true)));mk('Attack-move navy here',()=>give(nv(),()=>patrol(wx,wy,true)));mk('Send navy here',()=>give(nv(),()=>orderSel(null,wx,wy)));mk('Send siege here',()=>give(sg(),()=>orderSel(null,wx,wy)));mk('Send Villager here',()=>{const v=nearV(wx,wy);if(v)give([v],()=>orderSel(null,wx,wy))})}
 return{title:t&&t.t>0?'Target':t&&t.amt>0?'Resource':'Command',i:0,items:it}}
 function openRadial(wx,wy){cancelGameplayGestures();const target=pick(wx,wy),hasVillagers=S.sel.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);if(target&&target.amt>0&&!target.fi&&hasVillagers){menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}else if(S.sel.length){openMenu();if(menu){menu.rad=1;menu.pg=0}}else{menu=siteMenu(wx,wy);menu.rad=1;menu.pg=0}}
-function playCtl(dt){if(ov||cgo||menu||pat||place)cancelGameplayGestures();const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=650*cspd*(lt?.55:1);
+function openVillagerPriorityWheel(){
+ if(!S||!S.vp)return false;
+ cancelGameplayGestures();vpWheel={manual:false,sel:0};return true;
+}
+function operateVillagerPriorityWheel(){
+ const w=vpWheel;if(!w)return false;
+ if(E[11]){vpWheel=null;return true}
+ if(E[3]){w.manual=!w.manual;w.sel=0;return true}
+ if(E[2]){toggleVillagerAutomation();return true}
+ const n=w.manual?4:VILLAGER_PRIORITY_PRESETS.length,sx=ax(0),sy=ax(1);
+ if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;w.sel=Math.floor(a/6.2832*n+.5)%n}
+ if(w.manual){
+  const resource=WORKER_TARGETS[w.sel];
+  if(E[0])changeVillagerTarget(resource.k,1);
+  if(E[1])changeVillagerTarget(resource.k,-1);
+ }else{
+  if(E[1]){vpWheel=null;return true}
+  if(E[0]){applyVillagerPriorityPreset(w.sel);vpWheel=null}
+ }
+ return true;
+}
+function playCtl(dt){if(ov||cgo||menu||pat||place)cancelGameplayGestures();
+if(vpWheel){operateVillagerPriorityWheel();return}
+if(E[11]&&!P[6]&&!P[7]&&!P[4]&&!P[5]){openVillagerPriorityWheel();return}const lt=P[6],pa=0,py=3,rad=!!(menu&&menu.rad)||!!cgo,sp=650*cspd*(lt?.55:1);
 if(ov){cur.x=cl(cur.x+ax(0)*sp*dt,0,CW);cur.y=cl(cur.y+ax(1)*sp*dt,0,CH)}
 else if(!menu&&!cgo){
  const lx=ax(0),ly=ax(1);
@@ -700,7 +723,7 @@ if(E[1]&&!lt){cancelGameplayGestures();S.sel=[];return}
 if(E[8]){cancelGameplayGestures();omr='play';mode='obj';return}
 if(E[3]){yc=0;yDown=true}if(yDown&&P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){const executeShortcut=yDown&&!yc;yDown=false;if(executeShortcut)yShort(false);yc=0}
 // LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
-// Villager priorities must use the documented R3 wheel once that UI is ready.
+// The dedicated R3 villager priorities wheel handles those bindings above.
 if(!lt&&!P[7]&&!P[4]&&!P[py]){if(E[12])qsel('idle');if(E[15])qsel('support');if(E[13])qsel('tc');if(E[14])qsel('mil')}
 if(E[0]){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y,wx,wy}}
 if(aDown&&P[pa]&&Math.hypot(cur.x-aDown.x,cur.y-aDown.y)>14)boxR={x0:aDown.x,y0:aDown.y,x1:cur.x,y1:cur.y};
