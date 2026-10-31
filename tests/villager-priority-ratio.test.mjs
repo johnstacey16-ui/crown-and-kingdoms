@@ -87,3 +87,22 @@ test('rebalancing real worker orders honors ratios without disturbing manual com
  assert.equal(manual.ct,'f');
  assert.equal(manual.autoWorker,0);
 });
+
+test('R3 wheel previews scaled headcounts instead of misleading fixed counts',()=>{
+ const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const begin=source.indexOf('function drawVillagerPriorityWheel()');
+ const end=source.indexOf('function drawCg()',begin);
+ assert.ok(begin>=0&&end>begin,'R3 wheel renderer must be present');
+ const workers=Array.from({length:11},()=>({t:0,k:'vil',hp:40,ld:false,retreating:false}));
+ const drawn=[];
+ const context={
+  S:{vp:{enabled:true,f:1,w:1,g:1,s:1},us:workers},
+  CW:1280,CH:720,vpWheel:{manual:true,sel:0},
+  X:new Proxy({}, {get:()=>()=>{},set:()=>true}),
+  tx:(label)=>drawn.push(String(label))
+ };
+ vm.runInNewContext(kingdom.slice(start,finish)+
+  '\n'+source.slice(begin,end)+'\n;drawVillagerPriorityWheel()',context);
+ assert.ok(drawn.some(s=>s.includes('Targets: F 3 / W 3 / G 3 / S 2')));
+ assert.ok(drawn.some(s=>s.includes('1 weight / 3 target')));
+});
