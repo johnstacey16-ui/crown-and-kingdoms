@@ -5,6 +5,12 @@
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
 
+## Unified acceptance runner checkpoint — 31 October 2026 (`1c46735`)
+
+The owner-approved cleanup replaced duplicated shell loops for regression tests, three AI matches and 19 isolated campaign runs with a shared cross-platform `scripts/run-checks.mjs` plan. Chromium art/layout fixtures and the opt-in Windows workflow now reuse it. Fast hosted validation uses `--focused`, whose 33-file roster lives in the runner rather than 33 separately maintained workflow YAML entries. The runner also has `--regression-files`, `--skirmishes`, `--campaigns`, `--browser`, `--xbox-contracts`, `--regressions` and `--full` modes, grouped logs, failure aggregation and GitHub job summaries. The number of distinct tests and mission coverage was deliberately **not** cut just to improve a metric.
+
+[Hosted validation 41207392451](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41207392451) passed **100/100 focused assertions**, plus syntax/offline/civilization/atlas/graphics checks, at source commit `1c46735`. The current inventory remains **233 standalone regression files and 19 separate campaign simulations**. **Full regression, seeded AI, all campaigns, Chromium, physical Series S performance/controller acceptance and independent multiplayer are unverified on the current tree.** Heavy hosted workflows remain manual or weekly, with free-only hosting unchanged.
+
 ## Latest cleanup acceptance — 31 October 2026 (`c85efc9`)
 
 **Current source state:** 38 production browser scripts, 25 core and 23 headless; **29 Markdown documents and 233 standalone regression files**. Merged overlapping siege and technology-catalogue fixtures without removing their unique assertions, and eliminated obsolete fixed script totals from runtime-order, procedural-art and ownership tests. The canonical runtime graph tests are now included in the fast hosted checks.

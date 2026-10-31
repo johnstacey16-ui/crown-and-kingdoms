@@ -35,12 +35,17 @@ Serve the repository root using a static HTTP server and open `index.html` with 
 Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run locally and do not require GitHub Actions or paid infrastructure:
 
 ```sh
-node scripts/run-checks.mjs                 # Five quick source/asset validation gates
-node scripts/run-checks.mjs --regressions   # Quick gates + every standalone test file
-node scripts/run-checks.mjs --full          # All above + seeded skirmishes + 19 missions
+node scripts/run-checks.mjs                    # Five quick source/asset gates
+node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
+node scripts/run-checks.mjs --regression-files # All 233 standalone regression files
+node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
+node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
+node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
+node scripts/run-checks.mjs --regressions      # Quick gates + every standalone test
+node scripts/run-checks.mjs --full             # Quick + all regressions + AI + campaigns
 ```
 
-The runner reports each failure and a final summary. The third command can take substantially longer. These checks do not replace live Xbox Series S or independent-network multiplayer acceptance.
+The single runner continues after individual failures, preserves isolated scenario processes, and writes grouped logs and a GitHub Actions summary. The full suite can take substantially longer. Chromium requires the workflow's pinned Playwright installation (`playwright@1.56.1` and Chromium); after installing it, use `node scripts/run-checks.mjs --browser` for both art and multiplayer-layout checks. The optional private Windows runner uses the same commands. **Xbox software contracts are not a physical Xbox Series S Edge FPS/controller test**, and these commands do not establish independent-network multiplayer acceptance.
 
 **Dated test evidence:** for source commit `337974492df1ddfd5f9adb339b79855f005bd532` (30 October 2026), Claude reported 219 local standalone regression files passing; hosted Actions were reported failing **before job steps**, cause unverified. Those results do not certify this documentation change, the deployed site, live peer matches, human campaign playthroughs or physical Series S performance. Check actual CI logs and always cite the exact tested SHA.
 
