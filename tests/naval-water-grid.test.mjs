@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const read = name => readFileSync(new URL('../js/' + name + '.js', import.meta.url), 'utf8');
-const sim = read('simulation'), logistics = read('simulation-logistics'), ai = read('ai'), campaign = read('campaign');
+const sim = read('simulation'), logistics = read('simulation-logistics'), policy = read('ai-policy'), campaign = read('campaign');
 function section(source, from, to) {
  const start = source.indexOf(from), end = source.indexOf(to, start);
  assert.ok(start >= 0 && end > start);
@@ -27,7 +27,7 @@ function fixture() {
   section(logistics, 'function transportLandingRoute(', '\nfunction tickTrader(') + '\n' +
   section(sim, 'function spawnPos(', '\nfunction research(') + '\n' +
   section(sim, 'function deployFishTrap(', '\nfunction killNode(') + '\n' +
-  section(ai, 'function aiDockWaterReach(', '\nfunction aiDock(') + '\n' +
+  section(policy, 'function aiDockWaterReach(', '\n// The first Feudal push') + '\n' +
   section(campaign, 'function campaignWaterRegions(', '\nfunction raid('), ctx);
  return { S, ctx, run: code => vm.runInContext(code, ctx) };
 }

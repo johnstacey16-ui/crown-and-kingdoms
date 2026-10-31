@@ -10,7 +10,7 @@ const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url),
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 
 test('enemy strategy has one cohesive owner in js/ai.js', () => {
-  for (const name of ['aiBuild','aiWall','aiDock','aiRebal','aiNear','aiRetreat','ai','aiTeam']) {
+  for (const name of ['aiBuild','aiWall','aiDock','aiNear','aiRetreat','ai','aiTeam']) {
     assert.equal((ai.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 1,
       name + ' must be declared exactly once in js/ai.js');
     assert.equal((simulation.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 0,

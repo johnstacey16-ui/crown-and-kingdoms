@@ -3,10 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const start=ai.indexOf('function aiRebal(vil,R,t=1){');
-const end=ai.indexOf('function aiNear(',start);
-assert.ok(start>=0&&end>start,'production AI rebalancing can be evaluated');
+const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const start=policy.indexOf('function aiRebal(vil,R,t=1){');
+assert.ok(start>=0,'production AI rebalancing can be evaluated');
 
 function scenario({age=0,ready=true,food=100,wood=400,foragers=6,workers=16}={}){
  const S={age:[age,age],nodes:[{k:'f',x:12,y:12,amt:200,an:0,fi:0},{k:'w',x:12,y:13,amt:100,an:0,fi:0}],
@@ -16,7 +15,7 @@ function scenario({age=0,ready=true,food=100,wood=400,foragers=6,workers=16}={})
   car:0,ret:0,ld:false,aiEvac:false,retreating:false
  }));
  let attempted=0;
- const h=vm.runInNewContext(ai.slice(start,end)+'\n;aiRebal;',{
+ const h=vm.runInNewContext(policy.slice(start)+'\n;aiRebal;',{
   S,AG:[{}, {cost:{f:500}},{cost:{f:800,g:200}}],W:40,H:40,
   PERS:[{tw:0,wl:0}],aip:0,
   ageRequirements:()=>({ready}),

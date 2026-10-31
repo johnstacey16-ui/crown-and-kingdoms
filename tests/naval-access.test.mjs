@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const policy=fs.readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const mapgen=fs.readFileSync(new URL('../js/mapgen.js',import.meta.url),'utf8');
 
 test('AI dock placement rejects isolated ponds and accepts navigable sea',()=>{
- const source=ai.slice(ai.indexOf('function aiDockWaterReach('),ai.indexOf('function aiDock(vs,'));
+ const source=policy.slice(policy.indexOf('function aiDockWaterReach('),policy.indexOf('// The first Feudal push',policy.indexOf('function aiDockWaterReach(')));
  const W=24,H=24,wt=new Uint8Array(W*H);
  for(let y=5;y<7;y++)for(let x=5;x<7;x++)wt[y*W+x]=1;
  for(let y=10;y<20;y++)for(let x=10;x<20;x++)wt[y*W+x]=1;

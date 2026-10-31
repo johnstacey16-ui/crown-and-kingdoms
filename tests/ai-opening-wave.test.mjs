@@ -4,10 +4,11 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const start=ai.indexOf('function aiOpeningWaveNeed(base,age,wave){');
-const end=ai.indexOf('const waveReady=arm.filter(',start);
+const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const start=policy.indexOf('function aiOpeningWaveNeed(base,age,wave){');
+const end=policy.indexOf('function aiRebal(',start);
 assert.ok(start>=0&&end>start,'opening-wave logic must remain executable');
-const openingNeed=vm.runInNewContext(ai.slice(start,end)+'\n;aiOpeningWaveNeed;');
+const openingNeed=vm.runInNewContext(policy.slice(start,end)+'\n;aiOpeningWaveNeed;');
 test('a first Feudal push may launch with a smaller but viable army',()=>{
  assert.equal(openingNeed(14,1,0),10,'normal 14-soldier wave becomes a ten-soldier first push');
  assert.equal(openingNeed(12,1,0),9,'lower difficulty retains its relative sizing');

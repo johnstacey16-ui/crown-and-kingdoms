@@ -5,72 +5,7 @@ for(let i=0;i<60;i++){const sp=26+Math.min(60,S.bs.length),x=(tc.x+1+(S.r()-.5)*
 if(okPlace(t,k,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const b=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=b;builder.p=route;return}}}
 const cor=(tc,x,y)=>Math.abs(x-(tc.x+1))<=3||Math.abs(y-(tc.y+1))<=3;
 function aiWall(vs,tc,t=1){if(!can(t,B.wall.cost))return;const cx=tc.x+1,cy=tc.y+1;let n=0;for(let a=-8;a<=8&&n<3;a++)for(const[x,y]of[[cx+a,cy-8],[cx+a,cy+8],[cx-8,cy+a],[cx+8,cy+a]]){if(n>=3)break;if(Math.abs(x-cx)<=2||Math.abs(y-cy)<=2)continue;if(S.bs.some(b=>b.t===t&&b.k==='wall'&&b.hp>0&&b.x===x&&b.y===y))continue;if(!vs.some(aiAvailableBuilder)||!can(t,B.wall.cost))return;if(okPlace(t,'wall',x,y)){const target={x,y,s:B.wall.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const w=addB(t,'wall',x,y,false);pay(t,B.wall.cost);builder.o='b';builder.tg=w;builder.p=route;n++}}}
-function aiDockWaterReach(x,y,minCells=32){
- // A dock needs one usable connected water body, not the sum of isolated ponds.
- const checked=new Set();
- for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){
-  const xx=x+dx,yy=y+dy;
-  if(xx<0||yy<0||xx>=W||yy>=H)continue;
-  const start=yy*W+xx;
-  if(checked.has(start)||S.wt[start]!==1||S.nd[start])continue;
-  const queue=[start];checked.add(start);
-  for(let n=0;n<queue.length&&queue.length<minCells;n++){
-   const i=queue[n],cx=i%W,cy=i/W|0;
-   for(const j of [cx>0?i-1:-1,cx<W-1?i+1:-1,cy>0?i-W:-1,cy<H-1?i+W:-1]){
-    if(j<0||S.wt[j]!==1||S.nd[j]||checked.has(j))continue;
-    checked.add(j);queue.push(j);
-   }
-  }
-  if(queue.length>=minCells)return true;
- }
- return false;
-}
 function aiDock(vs,tc,t=1){const d=B.dock;if(!vs.some(aiAvailableBuilder)||!can(t,d.cost))return;const sites=[];for(let y=Math.max(1,tc.y-20);y<Math.min(H-3,tc.y+20);y++)for(let x=Math.max(1,tc.x-20);x<Math.min(W-3,tc.x+20);x++){const dd=Math.hypot(x-tc.x,y-tc.y);if(dd>5&&!cor(tc,x,y)&&okPlace(t,'dock',x,y))sites.push({x,y,dd})}sites.sort((a,b)=>a.dd-b.dd);let checked=0;for(const site of sites){let shore=false;for(let dy=-1;dy<=2&&!shore;dy++)for(let dx=-1;dx<=2;dx++){const xx=site.x+dx,yy=site.y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&S.wt[yy*W+xx]===1&&!S.nd[yy*W+xx]){shore=true;break}}if(!shore||!aiDockWaterReach(site.x,site.y))continue;if(++checked>64)break;const target={x:site.x,y:site.y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const dock=addB(t,'dock',site.x,site.y,false);pay(t,d.cost);builder.o='b';builder.tg=dock;builder.p=route;return}}
-function aiRebal(vil,R,t=1){
- const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
- const nv=active.length;
- const assigned={f:0,w:0,g:0,s:0};
- for(const u of active)if(u.o==='g'&&Object.prototype.hasOwnProperty.call(assigned,u.ct))assigned[u.ct]++;
- const move=(kind,sources)=>{
-  const workers=active.filter(u=>u.o==='g'&&sources.includes(u.ct)&&!u.car&&!u.ret&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).sort((a,b)=>sources.indexOf(a.ct)-sources.indexOf(b.ct));
-  if(!workers.length)return false;
-  const nodes=S.nodes.filter(n=>n&&n.k===kind&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&!S.wt[n.y*W+n.x]);
-  if(!nodes.length)return false;
-  for(const w of workers){
-   const near=nodes.filter(n=>farmAvailableTo(w,n)&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
-    .sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y));
-   for(const n of near.slice(0,12)){
-    const route=path(w,goalNear(n,1));
-    if(!route||!route.length)continue;
-    const old=w.ct;
-    w.o='g';w.tg=n;w.ct=kind;w.p=route;w.pt=null;w.rp=1;w.ret=0;
-    assigned[old]--;assigned[kind]++;
-    return true;
-   }
-  }
-  return false;
- };
- // Rebuild a timber economy after aging: Feudal military buildings cost
- // wood even when the food/gold stockpiles were spent on advancement.
- if(R.w<150&&assigned.w<nv*.4&&(Math.max(R.f,R.g)>250||S.age[t]>=1))move('w',R.f>R.g?['f','g']:['g','f']);
- else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
- // As the Dark Age closes, redirect excess loggers/miners into food
- // instead of spending the Feudal-age budget on additional villagers.
- // Keep enough workers on other resources to maintain construction.
- if(S.age[t]===0&&nv>=12&&ageRequirements(t).ready&&R.f<AG[1].cost.f&&assigned.f<Math.ceil(nv*.7)){
-  if(move('f',['g','w']))return;
- }
- // Sustain a Castle Age saving phase with sufficient food gatherers; only
- // one reachable, empty-handed worker changes jobs per AI decision tick.
- if(S.age[t]===1&&nv>=22&&ageRequirements(t).ready&&R.f<AG[2].cost.f&&assigned.f<Math.ceil(nv*.55)){
-  if(move('f',['g','w']))return;
- }
- if(R.w>800){
-  if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300&&assigned.s<Math.max(3,nv*.12|0))move('s',['w'])}
-  else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300&&assigned.g<nv*.3)move('g',['w'])}
-  else if(R.g<300&&assigned.g<nv*.3)move('g',['w']);
- }
-}
 function aiNear(vs,k,nk,t=1){const d=B[k],available=vs.some(aiAvailableBuilder),tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!available||!tc||!can(t,d.cost))return;
 const ns=S.nodes.filter(n=>nk.includes(n.k)&&n.amt>0&&!n.an&&!n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<45&&!S.bs.some(q=>q.t===t&&q.k===k&&q.hp>0&&Math.hypot(q.x-n.x,q.y-n.y)<7)).sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y));
 for(const n of ns.slice(0,32))for(const[dx,dy]of[[-2,0],[1,0],[0,-2],[0,1],[-2,-2],[1,1]]){const x=n.x+dx,y=n.y+dy;if(okPlace(t,k,x,y)&&!cor(tc,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const building=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=building;builder.p=route;return}}}
@@ -362,10 +297,6 @@ aiResumeIdleWave(t,A);
 if(A.rd){A.rd.u=A.rd.u.filter(u=>u.hp>0&&!u.ld&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if(A.rd.u.length<2||S.t-A.rd.t>150||!A.rd.u.some(u=>u.tg&&u.tg.hp>0&&isHostile(t,u.tg.t))){for(const u of A.rd.u){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.rp=1;u.tg=null}}A.rd=null}}
 else if(!A.on&&!A.stg&&S.t>Math.max(A.rn||420*PERS[aip].r,[780,570,420,330,260,210][diff])&&S.age[t]>=1){const pt=arm.filter(u=>u.o==='i'&&u.hp>0&&!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&['knight','camel','mgd','cata','arc','xbow','skirm','lbow','spear','ram','mang','scor','treb','bomb','ele','tk','jan','hcan'].includes(u.k)).slice(0,10),tg2=[...A.kn].filter(b=>b.hp>0&&isHostile(t,b.t)&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y))[0];if(pt.length>=4&&tg2){let raidTarget=tg2,reachable=pt.filter(u=>path(u,goalNear(tg2,2)));if(reachable.length<4){for(const candidate of [...A.kn].filter(b=>b!==tg2&&b.hp>0&&isHostile(t,b.t)&&['lumber','mine','mill','house','market','dock'].includes(b.k)).slice(0,6)){const group=pt.filter(u=>path(u,goalNear(candidate,2)));if(group.length>=4){raidTarget=candidate;reachable=group;break}}}if(reachable.length<4){A.rn=S.t+45}else{A.rd={u:reachable,t:S.t};A.rn=S.t+[450,330,260,210,170,140][diff]*PERS[aip].r;for(const u of reachable){u.o='a';u.tg=raidTarget;u.p=[]}}}}}
 const enemyBs=S.bs.filter(b=>isHostile(t,b.t)&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y)),need=Math.min(60,Math.round(([12,14,18,22,26,30][diff]+Math.min(A.wave,8)*[2,3,3,4,5,5][diff])*PERS[aip].n));
-// The first Feudal push can be a smaller skirmish. Using the full
-// late-game difficulty wave size before the first raid stalls real AI games
-// when villagers gather at DE reference speeds. Later waves are unchanged.
-function aiOpeningWaveNeed(base,age,wave){return age===1&&wave===0?Math.max(6,Math.ceil(base*.7)):base}
 const waveReady=arm.filter(u=>u.hp>0&&!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&u.o!=='b'&&u.o!=='B'&&u.o!=='G'&&u.o!=='F'&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&(!A.rd||!A.rd.u.includes(u)));const launchReady=!A.on&&!A.stg&&waveReady.length>=aiOpeningWaveNeed(need,S.age[t],A.wave)&&waveReady.filter(u=>u.k!=='mon').length>=4&&S.t>=[720,540,360,260,190,150][diff]&&S.t>=(A.nx||0)&&S.t>=(A.targetRetryAt||0);let tgt=null;if(launchReady){if(vm===5)tgt={x:W/2,y:H/2,t:-1,k:'hill',hp:1};else{const preferred=vm===1?enemyBs.filter(b=>b.k==='wonder'&&b.done):[];const candidates=[...preferred,...enemyBs.filter(b=>b.k==='tc'),...enemyBs.filter(b=>b.done),...enemyBs];const leader=waveReady.find(u=>u.k!=='mon'&&!u.sh)||waveReady.find(u=>u.k!=='mon')||waveReady[0];const checked=new Set();for(const candidate of candidates){if(checked.has(candidate))continue;checked.add(candidate);if(path(leader,goalNear(candidate,2))){tgt=candidate;break}if(checked.size>=16)break}}if(!tgt)A.targetRetryAt=S.t+15}if(launchReady&&tgt){A.wave++;A.nx=S.t+(vm===5?[240,200,170,145,125,105][diff]:[420,340,280,230,190,155][diff])*PERS[aip].g;A.wu=waveReady;A.ws=A.wu.length;A.on=1;const sx=vm===5?W/2:tc.x+(tgt.x-tc.x)*.35,sy=vm===5?H/2:tc.y+(tgt.y-tc.y)*.35,sol=A.wu.filter(u=>u.k!=='mon'),slots=formationSlots(sol,sx,sy,1+((S.r()*3)|0)%3);sol.forEach((u,i)=>{const fo=vm===5?[(i%5-2),((Math.floor(i/5)%5)-2)]:slots(i),p=path(u,gp(sx+fo[0],sy+fo[1],1.2));if(p){u.o='m';u.p=p;u.rp=1}else{u.o='a';u.tg=tgt;u.p=[]}});const siegeLeader=sol.find(u=>['ram','mang','scor','treb','bomb'].includes(u.k));const siegeT=aiSiegeTarget(siegeLeader,enemyBs,tgt);A.stg={t:S.t,tg:tgt,siegeT};for(const u of A.wu)if(u.k==='mon'){const p=path(u,goalNear(tgt,7));if(p){u.o='m';u.p=p}}}}
 
 

@@ -73,3 +73,75 @@ function aiSavingAgeFood(t,villagers){
  return !!(next&&villagers>=16&&ageRequirements(t).ready);
 }
 function aiTownTechReady(t,tc,villagers){if(villagers<8||!tc.done||tc.hp<=0||tc.rs||!Array.isArray(tc.q)||!S.tech[t])return false;for(const k of ['loom','wheel','handcart']){const e=TE[k];if(e&&B.tc.rs&&B.tc.rs.includes(k)&&!S.tech[t][k]&&!S.bs.some(other=>other!==tc&&other.t===t&&other.hp>0&&other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost))return true}return false}
+
+/* AI strategy selectors are shared by solo and host-authoritative simulations.
+ * Code below was relocated verbatim from ai.js; preserve its dependencies. */
+function aiDockWaterReach(x,y,minCells=32){
+ // A dock needs one usable connected water body, not the sum of isolated ponds.
+ const checked=new Set();
+ for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){
+  const xx=x+dx,yy=y+dy;
+  if(xx<0||yy<0||xx>=W||yy>=H)continue;
+  const start=yy*W+xx;
+  if(checked.has(start)||S.wt[start]!==1||S.nd[start])continue;
+  const queue=[start];checked.add(start);
+  for(let n=0;n<queue.length&&queue.length<minCells;n++){
+   const i=queue[n],cx=i%W,cy=i/W|0;
+   for(const j of [cx>0?i-1:-1,cx<W-1?i+1:-1,cy>0?i-W:-1,cy<H-1?i+W:-1]){
+    if(j<0||S.wt[j]!==1||S.nd[j]||checked.has(j))continue;
+    checked.add(j);queue.push(j);
+   }
+  }
+  if(queue.length>=minCells)return true;
+ }
+ return false;
+}
+// The first Feudal push can be a smaller skirmish. Using the full
+// late-game difficulty wave size before the first raid stalls real AI games
+// when villagers gather at DE reference speeds. Later waves are unchanged.
+function aiOpeningWaveNeed(base,age,wave){return age===1&&wave===0?Math.max(6,Math.ceil(base*.7)):base}
+function aiRebal(vil,R,t=1){
+ const active=vil.filter(u=>u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);
+ const nv=active.length;
+ const assigned={f:0,w:0,g:0,s:0};
+ for(const u of active)if(u.o==='g'&&Object.prototype.hasOwnProperty.call(assigned,u.ct))assigned[u.ct]++;
+ const move=(kind,sources)=>{
+  const workers=active.filter(u=>u.o==='g'&&sources.includes(u.ct)&&!u.car&&!u.ret&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).sort((a,b)=>sources.indexOf(a.ct)-sources.indexOf(b.ct));
+  if(!workers.length)return false;
+  const nodes=S.nodes.filter(n=>n&&n.k===kind&&n.amt>0&&!n.an&&!n.fi&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&!S.wt[n.y*W+n.x]);
+  if(!nodes.length)return false;
+  for(const w of workers){
+   const near=nodes.filter(n=>farmAvailableTo(w,n)&&Math.hypot(n.x-w.x,n.y-w.y)<=36)
+    .sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y));
+   for(const n of near.slice(0,12)){
+    const route=path(w,goalNear(n,1));
+    if(!route||!route.length)continue;
+    const old=w.ct;
+    w.o='g';w.tg=n;w.ct=kind;w.p=route;w.pt=null;w.rp=1;w.ret=0;
+    assigned[old]--;assigned[kind]++;
+    return true;
+   }
+  }
+  return false;
+ };
+ // Rebuild a timber economy after aging: Feudal military buildings cost
+ // wood even when the food/gold stockpiles were spent on advancement.
+ if(R.w<150&&assigned.w<nv*.4&&(Math.max(R.f,R.g)>250||S.age[t]>=1))move('w',R.f>R.g?['f','g']:['g','f']);
+ else if(S.age[t]>=1&&R.s<150&&assigned.s<Math.max(2,nv*.1|0)&&(PERS[aip].tw>0||PERS[aip].wl>0)&&R.f>200&&R.g>100)move('s',R.f>R.g?['f','g']:['g','f']);
+ // As the Dark Age closes, redirect excess loggers/miners into food
+ // instead of spending the Feudal-age budget on additional villagers.
+ // Keep enough workers on other resources to maintain construction.
+ if(S.age[t]===0&&nv>=12&&ageRequirements(t).ready&&R.f<AG[1].cost.f&&assigned.f<Math.ceil(nv*.7)){
+  if(move('f',['g','w']))return;
+ }
+ // Sustain a Castle Age saving phase with sufficient food gatherers; only
+ // one reachable, empty-handed worker changes jobs per AI decision tick.
+ if(S.age[t]===1&&nv>=22&&ageRequirements(t).ready&&R.f<AG[2].cost.f&&assigned.f<Math.ceil(nv*.55)){
+  if(move('f',['g','w']))return;
+ }
+ if(R.w>800){
+  if(R.f<400&&assigned.f<nv*.45){if(!move('f',['w','g'])&&S.age[t]>=1&&R.s<300&&assigned.s<Math.max(3,nv*.12|0))move('s',['w'])}
+  else if(R.s<300&&S.age[t]>=1&&assigned.s<Math.max(3,nv*.12|0)){if(!move('s',['w'])&&R.g<300&&assigned.g<nv*.3)move('g',['w'])}
+  else if(R.g<300&&assigned.g<nv*.3)move('g',['w']);
+ }
+}
