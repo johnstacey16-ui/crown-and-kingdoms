@@ -28,6 +28,18 @@ jobs:
           node-version: '22'
       - name: Validate game source
         run: node scripts/check-game.mjs
+      # Run focused source/behavior contracts on every push; leave the expensive
+      # 236-file, seeded AI, campaign and Chromium suites weekly or manual.
+      - name: Check simulation module and victory-mode regression contracts
+        run: |
+          node --test \
+            tests/simulation-victory-ownership.test.mjs \
+            tests/simulation-logistics-ownership.test.mjs \
+            tests/score-time-limit.test.mjs \
+            tests/sudden-death.test.mjs \
+            tests/king-of-the-hill.test.mjs \
+            tests/diplomacy.test.mjs \
+            tests/browser-foundation.test.mjs
       # Full standalone tests and isolated mission playthroughs belong to game-regression.yml.
       # Keep this independent lightweight check useful even while game tests fail.
       - name: Validate browser/offline runtime file graph
