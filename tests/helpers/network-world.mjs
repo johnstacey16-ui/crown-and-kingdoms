@@ -1,11 +1,11 @@
 import vm from 'node:vm';
-import { readFileSync } from 'node:fs';
+import {readBrowserSubset} from '../../scripts/runtime-sources.mjs';
 import { headlessGame } from './headless-game.mjs';
 
-const protocol=readFileSync(new URL('../../js/network-sync.js',import.meta.url),'utf8');
-const commands=readFileSync(new URL('../../js/network-commands.js',import.meta.url),'utf8');
-const delivery=readFileSync(new URL('../../js/network-delivery.js',import.meta.url),'utf8');
-const uplink=readFileSync(new URL('../../js/network-uplink.js',import.meta.url),'utf8');
+const networkSource=readBrowserSubset([
+ './js/network-sync.js','./js/network-commands.js',
+ './js/network-delivery.js','./js/network-uplink.js'
+]).map(({source})=>source).join('\n');
 
 export function networkWorld({hostSid='host-session',guestSid='guest-session',matchId='production_world_match_nonce_v2'}={}){
   const {source,sandbox}=headlessGame();
@@ -43,8 +43,7 @@ export function networkWorld({hostSid='host-session',guestSid='guest-session',ma
       steps:()=>steps
     };
   `;
-  vm.runInNewContext(source+'\n'+protocol+'\n'+commands+'\n'+delivery+
-    '\n'+uplink+'\n'+harness,sandbox,{filename:'network-full-command-trip.js'});
+  vm.runInNewContext(source+'\n'+networkSource+'\n'+harness,sandbox,{filename:'network-full-command-trip.js'});
   return sandbox.TEST_LINK;
 }
 

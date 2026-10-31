@@ -20,6 +20,19 @@ export function coreGameScriptPaths(html,{includeUI=true,includeAssets=true}={})
 export function readBrowserRuntime({html=readFileSync(new URL('index.html',ROOT),'utf8'),root=ROOT}={}){
  return browserScriptPaths(html).map(path=>({path,source:readFileSync(new URL(path,root),'utf8')}));
 }
+/* Load a selected browser subset in the same order that production executes it.
+ * Used by focused network harnesses without reading every unrelated module. */
+export function readBrowserSubset(paths,{html=readFileSync(new URL('index.html',ROOT),'utf8'),root=ROOT}={}){
+ const browser=browserScriptPaths(html);
+ if(!Array.isArray(paths)||!paths.length)throw Error('Empty browser script subset');
+ let previous=-1;
+ return paths.map(path=>{
+  const position=browser.indexOf(path);
+  if(position<=previous)throw Error('Missing, duplicate or out-of-order browser subset script: '+path);
+  previous=position;
+  return {path,source:readFileSync(new URL(path,root),'utf8')};
+ });
+}
 export function loadCoreGameSource({html=readFileSync(new URL('index.html',ROOT),'utf8'),
  root=ROOT,includeUI=false,includeAssets=false}={}){
  return coreGameScriptPaths(html,{includeUI,includeAssets})

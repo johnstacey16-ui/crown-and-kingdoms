@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-import {browserScriptPaths,coreGameScriptPaths,readBrowserRuntime,loadCoreGameSource} from '../scripts/runtime-sources.mjs';
+import {browserScriptPaths,coreGameScriptPaths,readBrowserRuntime,readBrowserSubset,loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 test('browser script references are unique, safely rooted and in declared order',()=>{
@@ -32,4 +32,17 @@ test('source validator sees every browser script, including both network transpo
 test('broken production script ranges are rejected rather than silently omitted',()=>{
  assert.throws(()=>coreGameScriptPaths('<script src="./engine.js"></script><script src="./js/config.js"></script>'),/missing or misordered/);
  assert.throws(()=>coreGameScriptPaths('<script src="./engine.js"></script>'),/missing or misordered/);
+});
+
+test('focused multiplayer test harness loads its authenticated command stack in live order',()=>{
+ const subset=['./js/network-sync.js','./js/network-commands.js',
+  './js/network-delivery.js','./js/network-uplink.js'];
+ const loaded=readBrowserSubset(subset,{html});
+ assert.deepEqual(loaded.map(x=>x.path),subset);
+ for(const {path,source} of loaded)assert.doesNotThrow(()=>new vm.Script(source,{filename:path}));
+ assert.throws(()=>readBrowserSubset([...subset].reverse(),{html}),/out-of-order/);
+ assert.throws(()=>readBrowserSubset(['./js/not-a-script.js'],{html}),/Missing, duplicate or out-of-order/);
+ const networkFixture=readFileSync(new URL('./helpers/network-world.mjs',import.meta.url),'utf8');
+ assert.match(networkFixture,/const networkSource=readBrowserSubset\(/);
+ assert.doesNotMatch(networkFixture,/new URL\('\.\.\/\.\.\/js\/network-(?:sync|commands|delivery|uplink)\.js'/);
 });
