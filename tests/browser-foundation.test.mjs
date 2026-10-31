@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {loadCoreGameSource,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
@@ -22,7 +23,7 @@ const economy = readFileSync(new URL('../js/economy.js', import.meta.url), 'utf8
 const formations = readFileSync(new URL('../js/formations.js', import.meta.url), 'utf8');
 const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 const minimap = readFileSync(new URL('../js/minimap.js', import.meta.url), 'utf8');
-const engine = config + '\n' + state + '\n' + mapgen + '\n' + audio + '\n' + save + '\n' + input + '\n' + render + '\n' + ui + '\n' + simulation + '\n' + ai + '\n' + kingdom + '\n' + campaign + '\n' + economy + '\n' + formations + '\n' + menus + '\n' + minimap + '\n' + engineSource;
+const engine = loadCoreGameSource({includeUI:true,includeAssets:true});
 const multiplayer = readFileSync(new URL('../multiplayer.js', import.meta.url), 'utf8');
 const persistence = readFileSync(new URL('../persistence.js', import.meta.url), 'utf8');
 
@@ -208,3 +209,13 @@ test('game balance data is separated from runtime code and resize work is deboun
   assert.match(engineSource, /clearTimeout\(resizeTimer\);resizeTimer=setTimeout\(rs,80\)/);
 });
 
+
+test('browser foundation source comes from index.html in actual classic-script order',()=>{
+ const paths=coreGameScriptPaths(html);
+ assert.equal(paths.length,20);
+ assert.equal(paths[0],'./js/config.js');
+ assert.equal(paths.at(-1),'./engine.js');
+ assert.ok(paths.includes('./js/assets.js')&&paths.includes('./js/ui.js'));
+ assert.ok(paths.indexOf('./js/pathfinding.js')<paths.indexOf('./js/kingdom.js'));
+ assert.equal(engine,paths.map(p=>readFileSync(new URL('../'+p.slice(2),import.meta.url),'utf8')).join('\n'));
+});
