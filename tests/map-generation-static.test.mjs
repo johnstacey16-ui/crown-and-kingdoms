@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
+const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 assert.match(html, /function auditGeneratedMap\(starts\)/, 'real map generator must contain the terrain audit');
 assert.match(html, /S\.mapAudit=mapAudit/, 'generated audit result must be attached to the game state');
 assert.match(html, /startReach\[i\]===1/, 'starting positions must be tested against the same reachable component');
@@ -18,5 +19,19 @@ assert.match(html, /baf=ASSET\.n\?paintedBuildingFrame\(b\.k,b\.t,gt,buildingVis
 assert.match(html, /dockableStarts/, 'map audit must report starts with a legal Dock site nearby');
 assert.match(html, /partialNavalAccess:dockableStarts>0/, 'map audit must expose whether any valid dock site exists');
 console.log('map-generation-static: graphics and map assertions passed');
+
+
+
+// Retry behaviour formerly verified in the separate map-retry-seed test.
+assert.match(
+  html,
+  /mk\(seedOv!=null\?\(seedOv\+tries\)&0xffffff:\(Date\.now\(\)\+tries\*104729\)&0xffffff\)/,
+  'Each retry of an unseeded generated map must use a different seed even when retries happen in the same millisecond'
+);
+assert.match(
+  html,
+  /if\(!mapAudit\.ok&&tries<12\)return newGame\(tries\+1\)/,
+  'Disconnected starting regions must continue to trigger bounded map regeneration'
+);
 
 

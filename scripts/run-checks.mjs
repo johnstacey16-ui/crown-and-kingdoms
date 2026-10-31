@@ -33,6 +33,8 @@ const FOCUSED=[
  "tests/ci-free-runner-policy.test.mjs",
  "tests/tribute.test.mjs",
  "tests/map-layout-content.test.mjs",
+ "tests/map-generation-static.test.mjs",
+ "tests/ai-enemy-composition-guards.test.mjs",
  "tests/guard-follow.test.mjs",
  "tests/villager-priority.test.mjs",
  "tests/population-limits.test.mjs",
