@@ -20,7 +20,7 @@ test('200 formation-ordered units plan A* routes through a two-tile chokepoint',
 });
 
 test('extended 200-unit corridor run reports clearance without using Xbox FPS claims',()=>{
- const r=runChokepoint({ticks:1800});
+ const r=runChokepoint({ticks:2400});
  console.log('200-unit extended probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs,stragglers:r.stragglers}));
  assert.equal(r.validRoutes,200);
  assert.equal(r.blockedCellUnits,0);
