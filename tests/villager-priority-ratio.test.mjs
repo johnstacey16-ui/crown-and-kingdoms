@@ -56,3 +56,34 @@ test('both worker assignment and rebalance consume scaled targets without moving
  assert.match(kingdom,/for\(const u of auto\)/);
  assert.match(kingdom,/p\[r\.k\]\+' weight/);
 });
+
+test('rebalancing real worker orders honors ratios without disturbing manual commands',()=>{
+ const workers=Array.from({length:12},(_,i)=>({
+  t:0,k:'vil',hp:40,ld:false,retreating:false,o:i<9?'g':'i',
+  ct:i===8?'f':i<8?'w':null,autoWorker:i<8?1:0,
+  x:10,y:10,p:[],ret:0,rp:0,autoSkipNodes:[]
+ }));
+ const manual=workers[8];
+ const world={vp:{enabled:true,f:1,w:1,g:0,s:0},t:30,us:workers,
+  wt:new Uint8Array(32*32),nodes:[
+   {k:'f',x:12,y:11,amt:100},{k:'w',x:12,y:12,amt:100}
+  ]};
+ const from=kingdom.indexOf('const WORKER_TARGETS=');
+ const to=kingdom.indexOf('function changeVillagerTarget(',from);
+ const context={S:world,W:32,H:32,note:()=>{},
+  path:(_unit,goal)=>[[goal.x,goal.y]],goalNear:node=>({x:node.x,y:node.y}),
+  farmAvailableTo:()=>true,createVillagerPriority:()=>({enabled:true,f:2,w:2,g:1,s:0})};
+ const api=vm.runInNewContext(kingdom.slice(from,to)+
+  '\n;({rebalanceVillagerPriorities,villagerAssignedCount})',context);
+ const counts=()=>[api.villagerAssignedCount(0,'f'),api.villagerAssignedCount(0,'w')];
+ api.rebalanceVillagerPriorities(0);
+ assert.deepEqual(counts(),[6,6]);
+ world.vp={enabled:true,f:20,w:20,g:0,s:0};
+ api.rebalanceVillagerPriorities(0);
+ assert.deepEqual(counts(),[6,6]);
+ world.vp={enabled:true,f:3,w:1,g:0,s:0};
+ api.rebalanceVillagerPriorities(0);
+ assert.deepEqual(counts(),[9,3]);
+ assert.equal(manual.ct,'f');
+ assert.equal(manual.autoWorker,0);
+});
