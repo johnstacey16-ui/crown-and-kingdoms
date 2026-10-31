@@ -4,6 +4,8 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
+**CI recovery:** GitHub-hosted jobs currently fail *before runner assignment* (zero steps), so no recent full suite passed. [Free-only diagnostics and Windows self-hosted workflow](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md) are available; expensive hosted workflows are weekly/manual, with no paid usage enabled.
+
 **Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art and trade/transport logistics now have distinct modules (`js/render-procedural-units.js` and `js/simulation-logistics.js`); the full recent hosted suite is still blocked before steps. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists

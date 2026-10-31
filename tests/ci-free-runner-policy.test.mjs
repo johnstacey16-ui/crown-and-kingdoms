@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=name=>readFileSync(new URL('../.github/workflows/'+name+'.yml',import.meta.url),'utf8');
+test('hosted expensive workflows remain manually dispatchable and weekly, not triggered by every commit',()=>{
+ for(const name of ['game-regression','battlefield-browser']){
+  const source=read(name);
+  const triggers=source.slice(source.indexOf('\non:')+1,source.indexOf('\npermissions:'));
+  assert.match(triggers,/workflow_dispatch:/);
+  assert.match(triggers,/schedule:/);
+  assert.match(triggers,/cron: '0 7 \* \* 0'/);
+  assert.doesNotMatch(triggers,/\n  push:|\n  pull_request:/);
+ }
+ assert.match(read('game-regression'),/Run every standalone regression test/);
+ assert.match(read('game-regression'),/Run all isolated campaign playthroughs/);
+ assert.match(read('battlefield-browser'),/Render original multiplayer art in Chromium/);
+});
+test('trusted manual Windows self-hosted workflow offers full Node, AI and Chromium acceptance',()=>{
+ const source=read('free-self-hosted-acceptance');
+ assert.match(source,/workflow_dispatch:/);
+ assert.match(source,/runs-on: \[self-hosted, Windows, X64\]/);
+ assert.match(source,/github\.ref == 'refs\/heads\/main'/);
+ assert.match(source,/node scripts\/run-checks\.mjs --full/);
+ assert.match(source,/node tests\/browser\/battlefield-art\.mjs/);
+ assert.match(source,/node tests\/browser\/room-layout\.mjs/);
+ assert.doesNotMatch(source,/\n  push:|\n  pull_request:/);
+});

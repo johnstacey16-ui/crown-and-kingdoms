@@ -1,0 +1,53 @@
+name: Free self-hosted game acceptance
+# Opt-in: owner's private Windows x64 runner, no GitHub-hosted compute.
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Test scope (full also runs Chromium)
+        required: true
+        type: choice
+        default: quick
+        options:
+          - quick
+          - regressions
+          - graphics
+          - full
+permissions:
+  contents: read
+concurrency:
+  group: free-self-hosted-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  acceptance:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - name: Check out private game code
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Quick source and asset checks
+        if: ${{ inputs.scope == 'quick' }}
+        run: node scripts/run-checks.mjs
+      - name: Source and standalone regression checks
+        if: ${{ inputs.scope == 'regressions' }}
+        run: node scripts/run-checks.mjs --regressions
+      - name: Full source, AI, 19 missions and regression checks
+        if: ${{ inputs.scope == 'full' }}
+        run: node scripts/run-checks.mjs --full
+      - name: Install Playwright 1.56.1
+        if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install local Chromium
+        if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
+        run: npx playwright install chromium
+      - name: Test battlefield art in Chromium
+        if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
+        run: node tests/browser/battlefield-art.mjs
+      - name: Test responsive multiplayer room
+        if: ${{ inputs.scope == 'graphics' || inputs.scope == 'full' }}
+        run: node tests/browser/room-layout.mjs

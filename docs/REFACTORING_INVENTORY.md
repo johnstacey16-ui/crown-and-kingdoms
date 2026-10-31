@@ -4,6 +4,8 @@
 
 This is a live cleanup register, **not an assertion that every item is ready for deletion**. The owner requested architecture/code tidiness before further features. Do not mix old save migration with this: prerelease saved games may be invalidated, but current-build save/load, malformed-input rejection, multiplayer security and replay tests must remain.
 
+**Hosted CI:** GitHub reports runner ID `0`, zero steps and missing job logs across validation, regression and Chromium. Account/quota/runner provisioning is suspected, not proven. See [free-only recovery](GITHUB_ACTIONS_RUNNER_RECOVERY.md). Full hosted suites now run weekly/on request; an owner-registered private Windows self-hosted runner can execute the same checks without GitHub-hosted minutes. Until a real run completes, full acceptance is blocked.
+
 ## Established dependency footprint
 
 | Area | Evidence | Decision |
