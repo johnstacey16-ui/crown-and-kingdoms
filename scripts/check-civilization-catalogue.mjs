@@ -9,14 +9,10 @@ const readHere=relative=>readFileSync(new URL(relative,import.meta.url),'utf8');
 export function currentCivilizationRuntime(engine=readHere('../engine.js'),config=readHere('../js/config.js')){
  const from=engine.indexOf('const CIV=['),to=engine.indexOf('];\nCIV.forEach(',from);
  if(from<0||to<from)throw Error('Active CIV roster was moved without updating the catalogue checker');
- const initial=engine.indexOf('Object.assign(U,{',to);
- const final=engine.indexOf('});\nObject.assign(MA',initial);
- if(initial<0||final<initial)throw Error('Appended unique-unit definitions were moved without updating the catalogue checker');
  const civScript=engine.slice(from,to+2);
- const extension=engine.slice(initial,final+3);
  const civilians=vm.runInNewContext('const hpbF=()=>{},atkbF=()=>{};\n'+civScript+
   '\nCIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut}))');
- const definitions=vm.runInNewContext(config+'\n'+extension+'\n({U,B,TE})');
+ const definitions=vm.runInNewContext(config+'\n({U,B,TE})');
  return {civilizations:civilians,units:definitions.U,buildings:definitions.B,technologies:definitions.TE};
 }
 

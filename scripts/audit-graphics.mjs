@@ -2,7 +2,7 @@
 import {readFileSync,writeFileSync} from 'node:fs';
 import vm from 'node:vm';
 const root=new URL('../',import.meta.url),read=p=>readFileSync(new URL(p,root),'utf8');
-const pack=JSON.parse(read('assets/atlas-manifest.json')),ctx={};vm.createContext(ctx);vm.runInContext(read('js/config.js')+'\n'+read('engine.js').split('\n').filter(line=>line.startsWith('Object.assign(U,')).join('\n')+';globalThis.catalog={U,B}',ctx);
+const pack=JSON.parse(read('assets/atlas-manifest.json')),ctx={};vm.createContext(ctx);vm.runInContext(read('js/config.js')+'\n;globalThis.catalog={U,B}',ctx);
 const proxies=new Set(['tca','tw','cs']);
 const animations=key=>pack.atlases.map(a=>a.meta.anims[key]).filter(Boolean);
 const units=Object.entries(ctx.catalog.U).filter(([k])=>!proxies.has(k)).map(([kind,d])=>({kind,name:d.n,paintedBase:animations(kind+'/idle/0').length>0,walkFrames:Math.max(0,...animations(kind+'/walk/0').map(a=>a.frames?.length||0)),attackFrames:Math.max(0,...animations(kind+'/attack/0').map(a=>a.frames?.length||0)),directionalArt:'unfinished',deathArt:'base-art fall transform'}));
