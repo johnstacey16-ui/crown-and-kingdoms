@@ -25,6 +25,14 @@ Keep this checkpoint separate from the 30 October audit baseline and record the 
 
 **AUD-019 remains PARTIAL.** The regional Camel Rider line is genuinely restricted across production, AI and authenticated multiplayer for the eight eligible *existing* civilizations; `data/civilizations.json` and frozen runtime rules agree, and old save queues survive. The technology-tree UI now uses `trOf()/rsOf()` to reflect that and other civilian tech restrictions. Still missing: full regional-unit catalogue, technologies, expansion civs, runtime JSON-authoritative ruleset loading, physical Series S validation and end-to-end WAN multiplayer.
 
+## Xbox controller continuation — 31 October 2026
+
+**Last code commit:** [`d8b0401`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/d8b0401ba450816c010f265edcb9c805c90ef0e4). **228 standalone regression files** now exist. A new R3 Villager Priorities preset/manual wheel is integrated into solo and campaigns with a dedicated overlay, seven provisional presets, A select, Y manual, A/B per-resource adjustment, X automation toggle and R3 close, reusing persisted worker automation. The in-process source-control fixture passed five interaction checks. **Not Xbox-approved:** exact official preset weights/sector geometry, population-normalized ratios, automatic farm construction, multiplayer R3, physical controller acceptance.
+
+**Hosted CI is currently BLOCKED before steps.** All three workflows on `2ca5e90` failed pre-step twice (including reruns), and all three on `d8b0401` also failed with **zero job steps**. Do not attribute the pre-step failure to game tests, and do not claim the new 228-file suite or Chromium check passed. Last full green SHA remains `d181720` (226 files + seeded skirmishes/campaigns + browser graphics + source checks). For `2ca5e90`, a source-level mocked selector fixture passed for the eligibility-aware technology tree, but actual hosted tests still need to execute. Investigate GitHub account/runner/Actions diagnostics before accepting latest code.
+
+**Next:** exact R3 reference capture and scaling tests, View/X/LT controller gaps, Xbox Series S FPS and suspend/focus acceptance, and independent-network full-match multiplayer. Continue keeping DLC/rulesets and regional-unit work PARTIAL until actually playable.
+
 ## Non-negotiable end goal
 
 Original browser RTS with **full functional-category parity** for Age of Empires II: Definitive Edition on Xbox Series X, including **all 11 Xbox gameplay DLC families in the 31 October 2026 baseline**; every default Xbox controller action must function on **Xbox Series S Edge** in solo, campaigns, menus and multiplayer. Preserve the existing engine, art and security safeguards. No copied commercial assets, music or protected scenarios. Only confirmed free hosting, no paid upgrades, credits, overages or Railway reactivation; fail closed on quotas.
