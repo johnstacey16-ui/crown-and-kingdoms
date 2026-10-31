@@ -47,7 +47,13 @@ jobs:
             tests/villager-priority.test.mjs \
             tests/population-limit-controls.test.mjs \
             tests/no-attack-stance.test.mjs \
-            tests/fish-traps.test.mjs
+            tests/fish-traps.test.mjs \
+            tests/engine-graphics-benchmark-ownership.test.mjs \
+            tests/series-s-auto-pixel-benchmark.test.mjs \
+            tests/series-s-auto-layer-benchmark.test.mjs \
+            tests/series-s-benchmark-controller-isolation.test.mjs \
+            tests/series-s-sharp-hud-canvas.test.mjs \
+            tests/series-s-xbox-picture-presets.test.mjs
       # Full standalone tests and isolated mission playthroughs belong to game-regression.yml.
       # Keep this independent lightweight check useful even while game tests fail.
       - name: Validate browser/offline runtime file graph

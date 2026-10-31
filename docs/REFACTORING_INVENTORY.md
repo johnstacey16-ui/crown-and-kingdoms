@@ -10,7 +10,7 @@ This is a live cleanup register, **not an assertion that every item is ready for
 
 | Area | Evidence | Decision |
 |---|---|---|
-| Browser entrypoint | 36 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
+| Browser entrypoint | 37 ordered classic scripts in `index.html`; `sw.js` precaches those paths; `scripts/audit-runtime-graph.mjs` checks offline/asset references | **ACTIVE** — never delete or reorder without tests/cache updates |
 | Art and resources | `assets/atlas-manifest.json` and original WebP source/painted atlases; stone, gold, berry, terrain and fallback rendering require coverage | **ACTIVE** — no art removal; source-generator dependencies also count |
 | Headless/CI | 236 standalone `tests/*.test.mjs` files at previous checkpoint; test helper intentionally omits canvas `js/ui.js` and atlas `js/assets.js` | **ACTIVE** — source loader consolidated in `scripts/runtime-sources.mjs` |
 | Historical docs | Older checkpoints moved from active ROADMAP into `docs/audits/2026-10-31-gameplay-checkpoints.md`; delivery register/git history retained | **ARCHIVED** — retain for audit, not the active prioritization |
@@ -73,3 +73,7 @@ The existing seven victory, elimination, score and hill functions were moved wit
 ## Canonical source-loader cleanup — 31 October 2026
 
 Eight more source-level regression files (tribute, map layout selection/content, guard/follow, villager priority, population controls, No Attack stance and fish traps) now use `loadCoreGameSource({includeUI:true,includeAssets:true})` instead of maintaining different ordered concatenations of the same classic game scripts. Their positive assertions and coverage are preserved; individual behavior-fixture tests that intentionally compile source fragments are untouched. The lightweight CI validation invokes these eight contracts as a focused check. This is **test harness refactoring, not a gameplay alteration**. Full regression/Chromium/AI/campaign acceptance still requires separate evidence. Do not blindly rewrite partial VM fixtures, source-boundary probes or negative source assertions into whole-runtime checks.
+
+## Xbox graphics diagnostic module extraction — 31 October 2026
+
+The original canvas layer/pixel benchmark constants, state and five functions have been moved byte-for-byte out of `engine.js` into `js/engine-graphics-benchmark.js`, a classic script loaded after the assets module and before `engine.js`. Runtime, offline shell v58, checker ordering and core/headless inventories are synchronized: **37 production / 24 core / 22 headless scripts, 237 standalone regression files**. Representative Series S benchmark/controller/HUD tests and a new ownership/median test are added to lightweight hosted CI; 10+ existing preview/controller/color tests are unchanged. The original renderer, canvas scale presets, graphics, resources, current-build saves, multiplayer and game simulation are not intentionally modified. Full source and browser acceptance require test evidence after this commit; no Xbox hardware FPS claim follows from this extraction.

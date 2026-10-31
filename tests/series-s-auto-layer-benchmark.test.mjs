@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
-const source=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../engine.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 
 function game(){
