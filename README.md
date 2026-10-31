@@ -1,135 +1,58 @@
 # Crown & Kingdoms
 
-## Current completion roadmap — 31 October 2026
+**[Play the game](https://crown-and-kingdoms.vercel.app/)** · **[Current roadmap](ROADMAP.md)** · **[Xbox controls](XBOX_CONTROLLER_PARITY.md)** · **[Independent audit](docs/audits/2026-10-31-consolidated-audit.md)**
 
-**[Current 48-task roadmap](ROADMAP.md)** and [six-source consolidated audit](docs/audits/2026-10-31-consolidated-audit.md) are the starting points for all continuing development. They preserve the full Xbox Series X AoE II: DE gameplay + all 11 DLC families target, controller parity on Series S Edge, and free-only hosting. The audited source snapshot has 26 civilizations, 19 scripted campaigns, and 47/47 *current-roster movement/activity artwork*, **not completed Xbox or DLC parity**. At that audited SHA, Claude reported 219 local standalone regression files passing; hosted Actions reportedly failed before steps, cause unverified. No new code or Xbox hardware was tested for this documentation update.
+An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**Play:** https://crown-and-kingdoms.vercel.app/ (existing free-only Vercel deployment). Older Railway play instructions and older test-count banners further below are historical, not current deployment or CI evidence; never restart Railway or enable paid overages.
+## What exists
 
-**Hosting policy: free-only.** See [FREE_HOSTING.md](FREE_HOSTING.md). Earlier Railway deployment instructions are superseded. The Railway shutdown and authenticated Supabase migration are **not complete**; do not restart Railway or enable paid plans/overages.
+- **Solo RTS:** resource gathering, ages, buildings, troops, combat, AI skirmishes, naval units, monks/relics, formations, diplomacy, victory modes, manual saves and autosaves. Numeric and feature parity are incomplete.
+- **Civilizations:** 26 playable entries with partial bonuses, tech trees and unique-unit systems; the full base roster, regional units and DLC rulesets remain unfinished.
+- **Campaigns:** 19 original missions. A 29 October scripted run had **7 wins, 7 losses and 5 timeouts**; execution is not proof that every mission is human-completable.
+- **Graphics:** original painted terrain, resources (including **stone, gold and berries**), buildings, construction/damage/fire/projectiles and movement/activity art for **47/47 current playable troops**. Independent directional/death/work frames, regional architecture and DLC art remain open. See [graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md).
+- **Audio:** original procedural Web Audio sound/music with spatial effects. Complete audio quality and event coverage have not been accepted.
+- **Controller:** existing A/RT/LB commands, left-stick pan and right-stick zoom; remaining R3, View, contextual X, LT waypoints, multiplayer context and exact Xbox layout gaps are tracked in the [controller contract](XBOX_CONTROLLER_PARITY.md).
+- **Multiplayer:** authenticated **two-human battlefield preview** with direct WebRTC and guarded commands. It is not a complete 1v1 product: independent-network full-match acceptance, reconnect, larger player counts, hidden-state security and fallback transport remain open.
 
-**Deployment note — 21 October 2026:** the current game is deployed from main on the existing Vercel Hobby project at https://crown-and-kingdoms.vercel.app/. The controller-accessible two-player battlefield preview now uses authenticated Supabase admission and a direct peer channel. Earlier Railway deployment notes are historical; do not reconnect or redeploy Railway under the free-only policy.
+These are status descriptions, **not release claims**. [ROADMAP.md](ROADMAP.md) is the active 48-task completion ledger. Earlier dated implementation milestones belong in the [delivery register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), not the current project status.
 
-A controller-first medieval real-time strategy game targeting Xbox Series X through Microsoft Edge with an Xbox controller. The delivery target is full functional AoE II: DE Xbox parity, including all Xbox-available gameplay DLC; current feature and hardware acceptance remain incomplete. See [the delivery plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) and [controller contract](XBOX_CONTROLLER_PARITY.md).
+## Play and multiplayer preview
 
-**Naval update — 29 October:** new coastal campaign fleets and scripted docks use the main navigable sea rather than nearby isolated ponds. Starting fleets in Golden Coast and The Strait’s Last Relic can now reach each other, with validated dock exits. Start a new coastal mission to see the corrected opening.
+The existing public game is hosted on **Vercel under the free-only policy**, at the link above. Do not restart or redeploy the historical Railway service, or incur paid credits or overages. Read [FREE_HOSTING.md](FREE_HOSTING.md) before infrastructure changes.
 
-**Graphics update — 29 October:** painted grass, soil, shores and water now have textured edge transitions in solo and the multiplayer battlefield. Original art and gameplay remain intact; the full graphics overhaul and Xbox visual/performance acceptance remain in progress.
+For multiplayer, choose **Multiplayer → Two-player battlefield preview**; the host creates a private invitation, the guest pastes it to join, and the host verifies the map before starting. Menu opens local options without pausing the online game. LB gives eight local control-group slots and RB opens the expanded minimap. Invitation text entry still needs controller-only UX work. Not all networks can establish direct connections.
 
-**Resource artwork — 29 October:** stone deposits, gold ore and berry bushes now use original painted artwork, with two variants each in solo and multiplayer. See [resource art and verification](docs/PAINTED_RESOURCES.md).
+## Local development and checks
 
-**Environment artwork — 29 October:** painted deer, fishing shoals, relics and three tree types now join stone/gold/berries. The [whole-game graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md) tracks every remaining category; full animation and Xbox acceptance remain unfinished.
+Serve the repository root using a static HTTP server and open `index.html` with a connected gamepad. The browser uses classic scripts in a deliberate load order: changing source paths requires coordinated `index.html`, `sw.js`, cache/asset manifest and regression updates.
 
-**Motion update — 29 October:** Janissaries and Genoese Crossbowmen now have painted walking and firing/loading sequences. Motion coverage is 21/47 playable troops; 26 remain. See [the latest artwork increment](docs/PAINTED_RANGED_EXPANSION.md).
-
-**Motion update — 29 October:** Plumed Archers and Gbetos gain painted walking and firing/throwing sequences. Motion coverage is 23/47 playable troops, with 24 remaining. See [the latest graphics increment](docs/PAINTED_LIGHT_MISSILE_MOTION.md).
-
-**Motion update — 29 October:** Chu Ko Nu, Hand Cannoneer, Camel Rider and Mameluke gain painted walking and weapon-action sequences. Coverage is 27/47 playable troops, with 20 remaining. See [the latest graphics increment](docs/PAINTED_RANGED_AND_CAMEL_MOTION.md).
-
-**Cavalry graphics — 29 October:** six more mounted types gain painted motion, bringing coverage to 33/47. The multiplayer terrain cache also avoids repeated coastal blend allocations within its existing pixel budget. See [the latest graphics increment](docs/PAINTED_HORSE_MOTION.md).
-
-## Run
-
-Serve `index.html` from a static web server and play with a connected controller. The game uses classic browser scripts in a deliberate load order. Preserve working controller behaviour and correct saves for the current game version when editing it; compatibility with old pre-completion saves is not a release requirement.
-
-## Two-player battlefield preview
-
-**28 October construction update:** buildings and farms reject ground occupied by living units, preventing new foundations from trapping them. Both players must refresh for protocol `ck-live-preview-13` before creating a new room.
-
-1. Open **Multiplayer** from the title screen, then select **Two-player battlefield preview**.
-2. The host chooses **Create private room** and shares the private invitation.
-3. The guest pastes the invitation and chooses **Join room**.
-4. The host chooses **Verify shared map**, then **Run live preview**.
-5. Use your own kingdom's units and buildings. The Menu button opens the local menu;
-   **Objectives** shows the shared victory rule and game clock while play continues.
-   B returns from Objectives to the menu, and Menu resumes the battlefield.
-6. **Leave setup** or **Leave match** closes the room. A new match requires a fresh invitation.
-
-Opening the screen makes no network connection or guest account. Create/Join
-starts a temporary guest Auth lease; its credentials remain in memory. Admission
-and signaling use the existing Free Supabase project; gameplay packets use the
-authenticated direct channel. No paid relay or automatic upgrade is configured.
-Some routers and restricted/mobile networks cannot establish a direct connection.
-If a fresh room fails, try another network. Reconnect, more than two human players,
-independent-network coverage and physical Xbox Edge acceptance are not complete.
-Legacy marker-room controls are an earlier prototype and do not synchronize a
-battlefield. Use the named battlefield preview for shared simulation.
-
-## Checks
-
-**Campaign verification — 29 October:** all 19 selected missions now execute, with 7 victories, 7 defeats and 5 timeouts under the existing assertions. Zero failing assertions does not mean 19 wins. See [current campaign evidence](docs/verification/campaign-2026-10-29.json); full controller/human acceptance remains open.
-
-Requires Node.js 22 or a compatible current release. No package installation is required.
+Use Node.js 22 for the documented checks:
 
 ```sh
 node scripts/check-game.mjs
-for t in tests/*.test.mjs; do CK_SKIP_CAMPAIGN=1 node "$t" || exit 1; done
 node tests/validate-atlas.mjs
-# Full seeded simulation: production AI versus a passive starting kingdom
+node scripts/audit-graphics.mjs --check
+for t in tests/*.test.mjs; do CK_SKIP_CAMPAIGN=1 node "$t" || exit 1; done
 node scripts/run-skirmish.mjs
 CK_DIFFICULTY=3 CK_RELOAD_AT=600 node scripts/run-skirmish.mjs
-# Scripted economy, paid production and normal combat orders against Hard AI
-CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 node scripts/run-skirmish.mjs
-# The isolated 19-mission suite (also exercised by GitHub Actions):
+CK_PLAYER=active CK_DIFFICULTY=3 CK_RELOAD_AT=900 CK_MAX_SECONDS=2700 node scripts/run-skirmish.mjs
 for mission in $(seq 0 18); do CK_MISSION="$mission" node tests/simulation-smoke.test.mjs || exit 1; done
 ```
 
-GitHub Actions splits responsibilities between `game-validation.yml` (quick script/asset checks) and `game-regression.yml` (the independent standalone tests and 19 isolated campaign simulations). The longer workflow does not rerun the quick validators. A separate `battlefield-browser.yml` job renders actual local atlases in Chromium and saves screenshot evidence. Documentation-only pushes skip automated checks, while pull requests are always checked; newer pushes cancel superseded runs. All checks can be started manually in GitHub Actions.
+**Dated test evidence:** for source commit `337974492df1ddfd5f9adb339b79855f005bd532` (30 October 2026), Claude reported 219 local standalone regression files passing; hosted Actions were reported failing **before job steps**, cause unverified. Those results do not certify this documentation change, the deployed site, live peer matches, human campaign playthroughs or physical Series S performance. Check actual CI logs and always cite the exact tested SHA.
 
-**Current battlefield milestone:** code `f8eee4dae8d725dafaf9965289b4919e8333912e` passed [validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514666040) and [regressions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665643), including real loopback HTTP economic/military, garrison/unload, repairs, transport landings and terminal combat replay scenarios. Original trade, unique-troop and palisade atlases now cover the remaining runtime keys, with reproducible generation and stale-cache migration checks. [Chromium rendering checks](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/39514665634) also passed, with screenshot evidence. Independent human browser matches, full Xbox controls, reconnect and the complete original graphics/audio overhaul remain open.
+## Where to work
 
-**Testing policy:** The `tests/` directory is development-only; its Node scripts are **not loaded by `index.html` or shipped as part of the browser game**. At verified code commit `f8eee4d` there are **156/156 passing standalone test files**, including the synchronized multiplayer command protocol and stable entity ID/save round-trip tests, following earlier test consolidation. Keep end-to-end smoke tests and bug-prevention checks, consolidate duplicated launch overhead or brittle source-pattern tests as they become relevant, and never delete a behavioural safeguard just to reduce the file count. The skirmish runner logs seed, difficulty, per-minute economy/population/AI/path diagnostics and a natural defeat; its optional checkpoint compares persisted gameplay fields before and after loading. The active variant uses a bounded scripted player (with knowledge of the opposing capital location), rather than human/controller input; it does not render the browser UI. All variants fail if their configured time limit expires without a natural result.
+| Files | Purpose |
+|---|---|
+| `index.html`, `styles.css`, `engine.js`, `js/` | Browser startup, gameplay, input, simulation, AI and rendering |
+| `assets/` | Original art atlases, sources, manifests and revisions |
+| `sw.js`, `persistence.js`, `js/save.js` | Offline shell/cache and save integrity |
+| `multiplayer.js`, `js/network-*.js`, `server/` | Existing preview, compatibility paths, transport and verification — **not automatically obsolete** |
+| `scripts/`, `tests/`, `.github/workflows/` | Generation, validation, game and browser tests |
+| [AGENTS.md](AGENTS.md) | Development rules: work on `main`, preserve Xbox controls, safeguards and free hosting |
+| [ROADMAP.md](ROADMAP.md) | **Current** tasks and acceptance criteria |
+| [XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) | Complete Xbox gameplay, DLC and multiplayer requirements |
+| [MASTER_AUDIT_AND_DELIVERY_REGISTER.md](MASTER_AUDIT_AND_DELIVERY_REGISTER.md) | Dated implementation evidence and historic `CK-###` items |
 
-The success of automated tests does not prove full controller-driven matches, live multiplayer, real browser/Xbox playthroughs or acceptable console performance.
-
-## Architecture constraints
-
-The required controller target is the whole default button system and functions
-of **Age of Empires II: Definitive Edition on Xbox Series X**. Follow
-[XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md), which records official
-references and remaining gaps. Do not invent alternative gameplay shortcuts.
-
-- Preserve classic browser-script load order, controller behaviour, simulation correctness and current-version save/load integrity.
-- When adding or renaming runtime files, update `index.html`, the service-worker cache in `sw.js`, source checks and regression tests together.
-- Keep system ownership clear: simulation updates in `js/simulation.js`, AI decisions in `js/ai.js`, campaign objectives/events in `js/campaign.js`, rendering/UI in `js/render.js` and `js/ui.js`, and controller input in `js/input.js`.
-
-## Verification policy
-
-- Report the exact commit tested. A passing CI run proves only the automated checks that actually ran on that commit.
-- Browser gameplay, all 19 campaign playthroughs, live multiplayer resilience and physical Xbox Series S / Edge performance require separate direct verification.
-- Keep status concise and evidence-based; do not copy old workflow results forward or mark untested roadmap items complete.
-
-## Project structure
-
-- `index.html`, `styles.css`: browser entry point and presentation.
-- `js/`, `engine.js`: game systems and runtime.
-- `multiplayer.js`: legacy lobby/presence and player markers. The opt-in authenticated battlefield is separate; run/deploy `server/transport.mjs` behind the same-origin HTTPS API described in [server/README.md](server/README.md).
-- `js/network-sync.js`, `js/network-commands.js`, `js/network-session.js`: authenticated frame/replay and ownership guards wired to gathering, paid construction/production/research, movement/combat, Line/Split formations, garrison/unload, repairs, naval landings and a final acknowledged result. `js/network-unit-map.js` provides team-relative fog, terrain/resource art, original animated sprites, stable depth ordering, construction/damage indicators and contextual controls. The public relay is deployed; reconnect/resume and full human-match acceptance remain open.
-- `js/entities.js` and `js/save.js`: persistent IDs for units, buildings and resource targets, with duplicate/counter validation and save round trips. Authenticated commands separately enforce current ownership, sight and resource identity.
-- `assets/`: original local atlases and metadata, with procedural fallbacks. [GRAPHICS_ACCEPTANCE.md](GRAPHICS_ACCEPTANCE.md) records complete runtime atlas coverage, remaining quality work and Chromium evidence.
-- `tests/`, `scripts/`, `.github/workflows/`: automated verification.
-
-## Roadmap and scope
-
-Use [MASTER_AUDIT_AND_DELIVERY_REGISTER.md](MASTER_AUDIT_AND_DELIVERY_REGISTER.md) as the **current, authoritative audit and expanded 46-task delivery checklist**. [AOE2_PARITY_ROADMAP.md](AOE2_PARITY_ROADMAP.md) is the historical engineering change log; earlier figures and reported failures are not current evidence. Work is not considered complete until the relevant gameplay checks have actually been performed and recorded. See the [Xbox Series X full-content and synchronized multiplayer plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) for all current Xbox gameplay DLC, original graphics/audio/music overhauls and official Xbox-style controller mapping. Native Xbox achievements, cloud saves, platform matchmaking and cross-play services still require separate platform capabilities.
-
-## Public game and multiplayer
-
-[Play Crown & Kingdoms](https://crown-and-kingdoms-production.up.railway.app). The combined game/relay service runs from **main** with automatic Railway deployments. Deployment `18a93b9c-8b96-4714-aab3-e9f1443a33c8` reached SUCCESS on 21 October 2026 at code `d3952c28e994c2dc11e877d7d84b8eb4c61a62fa`. Public HTTPS game/health checks and a two-session private room join passed. A full independent human match and Xbox acceptance remain open.
-
-Active authenticated requests now renew each player's 30-minute idle lease, allowing longer matches. Safe reads and transport receipts retry HTTP 502/503/504 at most twice within their original request deadline. Gameplay submissions are never automatically retried. This does not restore rooms after a page reload, disconnect or server restart. See [server/README.md](server/README.md) for the service contract and remaining gates.
-
-## Multiplayer military formations
-
-Select at least two owned military units, then press and release **Y** to switch between Line and Split. The request executes on the shared host frame; it never moves units optimistically. Land and naval groups reform around separate centres with the existing formation/pathfinding planners. Civilian, loaded, dead, foreign, duplicate and unreachable selections are rejected without partial changes. The live handshake is now `ck-live-preview-13`; both players must refresh after updating. Remaining Y build/train shortcuts, full formation wheels, reconnect and physical Xbox acceptance are open.
-
-## Multiplayer control groups
-
-Hold **LB**, choose one of eight slots with the left stick, then press **X** to assign the current selection. Hold LB, choose a stored slot and release LB to recall it. **B** cancels. The wheel shows each group's currently available count. Assignment/recall are local; gameplay still uses authenticated host commands. Dead, foreign and garrisoned members are unavailable, and garrisoned members return to availability after unloading. Empty X assignment clears a slot. Groups last for this room UI session and are separate from solo save groups.
-
-In the LB wheel, **Y** focuses an available group's first member in the local battlefield camera. **RB** opens the expanded minimap; move its cursor and press **Y** to focus that location. B or RB cancels the minimap. Ordinary military Y remains Line/Split outside these contexts. Exact wheel geometry, Xbox hardware, multi-building addition and persistent multiplayer groups remain unfinished.
-
-## Focused battlefield camera
-
-Camera focus provides a 2× local battlefield view with fixed-size command/group menus. The cursor pans the camera near its edges; pointer selection and commands use the inverse viewport transform, and double A groups only eligible entities visible in the current view. RB's expanded minimap shows team-relative observed terrain and a viewport outline. A and D-pad do not issue gameplay commands there; Y alone focuses its cursor. Cancel restores the previous camera and cursor. Focus never changes sight, simulation state or checkpoints. The initial whole-map view is retained until focus is requested. The zoom ratio, edge speed, full minimap tools, isometric presentation and Xbox hardware acceptance remain open to refinement.
-
+The [older AoE II journal](AOE2_PARITY_ROADMAP.md), graphics history and prior CI/deployment notes are historical evidence, **not active instructions**. Git history retains superseded prose. Do not bulk-delete legacy-looking runtime, artwork, save, security, network or test files without proving them unused and running the relevant regression checks.
