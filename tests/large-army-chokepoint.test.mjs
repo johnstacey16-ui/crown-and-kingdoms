@@ -4,7 +4,7 @@ import {runChokepoint} from '../scripts/stress-200.mjs';
 
 test('200 formation-ordered units plan A* routes through a two-tile chokepoint',()=>{
  const r=runChokepoint({ticks:360});
- console.log('200-unit short probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs,stragglers:r.stragglers}));
+ console.log('200-unit short probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs,stragglers:r.stragglers,pending:r.pending}));
  assert.equal(r.unitCount,200);
  assert.equal(r.closedRoute,true,'closing both passage tiles must disconnect the map');
  assert.equal(r.ordered,true);
@@ -21,7 +21,7 @@ test('200 formation-ordered units plan A* routes through a two-tile chokepoint',
 
 test('extended 200-unit corridor run reports clearance without using Xbox FPS claims',()=>{
  const r=runChokepoint({ticks:2400});
- console.log('200-unit extended probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs,stragglers:r.stragglers}));
+ console.log('200-unit extended probe:',JSON.stringify({ticks:r.ticks,crossed:r.crossed,completed:r.completed,moved:r.moved,routes:r.validRoutes,expanded:r.planned.expanded,ms:r.elapsedMs,stragglers:r.stragglers,pending:r.pending}));
  assert.equal(r.validRoutes,200);
  assert.equal(r.blockedCellUnits,0);
  assert.equal(r.invalidCoordinates,0);
