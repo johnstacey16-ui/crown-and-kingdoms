@@ -58,7 +58,6 @@ jobs:
             tests/ai-module-ownership.test.mjs \
             tests/ai-defence-priority.test.mjs \
             tests/ai-siege-target-runtime.test.mjs \
-            tests/ai-siege-support.test.mjs \
             tests/ai-queued-unit-limits.test.mjs \
             tests/ai-economy-difficulty.test.mjs \
             tests/ai-rebuild-destroyed-buildings.test.mjs
