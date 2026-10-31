@@ -4,9 +4,9 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**CI status:** [Hosted validation 41212115930](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41212115930) passed **138/138 focused tests** and all five source/offline/civilization/atlas/graphics checks at code commit `27b0bbf`. All 26 original non-main branch histories are now integrated into `main`, and PR #37 was merged. The **full 231-file regression**, seeded AI, campaigns, Chromium and physical Xbox acceptance remain **unverified** at this SHA. Earlier pre-step runner failures remain unexplained; see [runner recovery notes](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md).
+**CI status:** [GitHub Actions run 41213199014](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41213199014) passed **162/162 focused tests**, five source/offline/civilization/atlas/graphics gates and syntax checks for **39** production scripts on `2e4f819`. The original 26 non-main branch histories remain merged on `main`. **All 232 standalone regression files together, three seeded AI runs, 19 campaign simulations, Chromium and physical Xbox Series S Edge / WAN multiplayer remain unverified** at this revision. Earlier pre-step runner allocation failures are still unexplained; see [recovery notes](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md).
 
-**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js` and `js/ai-policy.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
+**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js` and `js/simulation-combat-bonuses.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists
 
@@ -37,7 +37,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 231 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 232 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
