@@ -6,6 +6,8 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions run 41213199014](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41213199014) passed **162/162 focused tests**, five source/offline/civilization/atlas/graphics gates and syntax checks for **39** production scripts on `2e4f819`. The original 26 non-main branch histories remain merged on `main`. **All 232 standalone regression files together, three seeded AI runs, 19 campaign simulations, Chromium and physical Xbox Series S Edge / WAN multiplayer remain unverified** at this revision. Earlier pre-step runner allocation failures are still unexplained; see [recovery notes](docs/GITHUB_ACTIONS_RUNNER_RECOVERY.md).
 
+**Current tree inventory:** 233 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 29 Markdown documents.
+
 **Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js` and `js/simulation-combat-bonuses.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists
