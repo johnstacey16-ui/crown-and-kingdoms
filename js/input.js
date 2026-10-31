@@ -57,7 +57,7 @@ if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}
 else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){
   // Group-clicking one farm never makes every selected villager work it.
-  if(tg.fm&&!farmAvailableTo(u,tg)){
+  if(!resourceHasWorksite(u,tg)){
    const alternative=findReachableAutoNode(u,'f',36);
    if(alternative){if(u.ct!==alternative.n.k)u.car=0;u.o='g';u.tg=alternative.n;u.ct=alternative.n.k;u.ret=0;u.p=alternative.route;u.rp=1}
    else{u.o='i';u.tg=null;u.p=[];u.rp=0}

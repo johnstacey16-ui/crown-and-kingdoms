@@ -54,6 +54,7 @@ const FOCUSED=[
  "tests/ai-defence-priority.test.mjs",
  "tests/ai-save-for-age.test.mjs",
  "tests/aoe2-de-camel-line-civilizations.test.mjs",
+ "tests/aoe-villager-resource-parity.test.mjs",
  "tests/ai-siege-target-runtime.test.mjs",
  "tests/ai-queued-unit-limits.test.mjs",
  "tests/ai-economy-difficulty.test.mjs",

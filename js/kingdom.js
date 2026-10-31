@@ -130,7 +130,7 @@ function findReachableAutoNode(u,k,r=18){
   if(!n||n.amt<=0||n.an||n.fi||!Number.isInteger(n.x)||!Number.isInteger(n.y)||n.x<0||n.y<0||n.x>=W||n.y>=H||S.wt[n.y*W+n.x]===1)continue;
   if(!WORKER_TARGETS.some(target=>target.k===n.k))continue;
   live.add(autoNodeKey(n));
-  if(n.k===k&&farmAvailableTo(u,n))all.push(n);
+  if(n.k===k&&knownResource(u,n)&&resourceHasWorksite(u,n))all.push(n);
  }
  u.autoSkipNodes=(Array.isArray(u.autoSkipNodes)?u.autoSkipNodes:[]).filter(e=>e&&typeof e==='object'&&typeof e.key==='string'&&Number.isFinite(e.until)&&e.until>now&&live.has(e.key)).slice(-64);
  const skipped=new Set(u.autoSkipNodes.map(e=>e.key));

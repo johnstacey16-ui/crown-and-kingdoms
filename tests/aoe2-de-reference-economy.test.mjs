@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const {U,TE,GR,CAP}=vm.runInNewContext(config+'\n;({U,TE,GR,CAP})');
-const start=sim.indexOf('function baseGatherRate(u,n){');
+const start=sim.indexOf('function resourceGatherRate(n){');
 const end=sim.indexOf('function walk(u,dt){',start);
 assert.ok(start>=0&&end>start);
 const S={tech:[{},{wheel:1},{wheel:1,handcart:1}]};
@@ -25,7 +25,7 @@ test('AoE2 DE villager land resource gather rates',()=>{
   ['w',{},.39],['g',{},.38],['s',{},.36],
   ['f',{},.31],['f',{fm:1},.32],['f',{an:1},.41]
  ])assert.equal(api.baseGatherRate(villager,{k,...flags}),rate);
- assert.equal(api.baseGatherRate({k:'fish',t:0},{k:'f',fi:1}),GR,'ship rates await the naval audit');
+ assert.equal(api.baseGatherRate({k:'fish',t:0},{k:'f',fi:1}),.43,'ship fishing has the source-pinned sea gathering rate');
 });
 test('DE villager Wheelbarrow and Hand Cart carrying progression stays 10, 13, 20',()=>{
  assert.equal(api.gatherCapacity(villager),10);

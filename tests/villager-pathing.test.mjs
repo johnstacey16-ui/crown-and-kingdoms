@@ -17,6 +17,7 @@ function harness(nodes,route){
   path:(u,n)=>{attempts++;return route(u,n)},
   goalNear:n=>n,
   villagerAssignedCount:()=>0,farmAvailableTo:()=>true,
+  knownResource:()=>true,resourceHasWorksite:()=>true,
   createVillagerPriority:()=>({enabled:true,w:1})};
  const api=vm.runInNewContext(logic+'\n;({autoNodeKey,skipAutoNode,findReachableAutoNode,assignAutoVillager})',context);
  return {S,api,get attempts(){return attempts}};

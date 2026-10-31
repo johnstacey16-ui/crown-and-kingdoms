@@ -12,7 +12,7 @@ const end=sim.indexOf('\nfunction dropoffKey(',begin);
 assert.ok(begin>=0&&end>begin,'resource selection logic must remain executable');
 
 function selector(nodes){
- const S={nodes,wt:new Uint8Array(32*32)};
+ const S={nodes,wt:new Uint8Array(32*32),g:new Uint8Array(32*32),ex:new Uint8Array(32*32).fill(1),us:[]};
  const fn=vm.runInNewContext(sim.slice(begin,end)+'\n;findNode;',{S,W:32,H:32});
  return {S,findNode:fn};
 }

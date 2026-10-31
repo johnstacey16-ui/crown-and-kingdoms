@@ -23,7 +23,7 @@ assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
   'Double-bit Axe and Bow Saw must affect wood gathering');
 assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\.15\*!!t\.smine/,
   'Gold Mining and Stone Mining must affect the matching resource gathering rates');
-assert.match(html, /function gatherCapacity\(u\)\{const tech=S\.tech\[u\.t\]\|\|\{\};return CAP\+\(tech\.carry\?5:0\)\+\(u\.k==='vil'&&tech\.wheel\?3:0\)\+\(u\.k==='vil'&&tech\.handcart\?7:0\)\}/,
+assert.match(html, /function gatherCapacity\(u\).*\bhunt=.*\?35:CAP\).*tech\.handcart\?\(hunt\?22:7\)/,
   'Carrying capacity must use the actual researched upgrades for current workers');
 assert.match(html, /u\.car>=gatherCapacity\(u\)/,
   'Gatherers must query current capacity when deciding to return with resources');

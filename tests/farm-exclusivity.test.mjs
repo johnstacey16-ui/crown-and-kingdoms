@@ -24,7 +24,7 @@ function harness(){
  const u2={k:'vil',t:0,hp:25,x:9,y:11,o:'g',tg:farm,ct:'f'};
  const u3={k:'vil',t:0,hp:25,x:11,y:10,o:'i',tg:null};
  const S={t:100,nodes:[farm,farFarm,berry,tree],us:[u1,u2,u3],
-  wt:new Uint8Array(W*H),vp:{enabled:true,f:2,w:1,g:0,s:0}};
+  wt:new Uint8Array(W*H),g:new Uint8Array(W*H),ex:new Uint8Array(W*H).fill(1),vp:{enabled:true,f:2,w:1,g:0,s:0}};
  const context={S,W,H,WORKER_TARGETS:[{k:'f'},{k:'w'},{k:'g'},{k:'s'}],
   path:(_u,goal)=>[[goal.x+.5,goal.y+.5]],goalNear:n=>n};
  vm.createContext(context);
