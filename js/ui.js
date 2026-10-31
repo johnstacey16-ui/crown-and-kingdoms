@@ -40,7 +40,18 @@ const ovr=()=>{const w=Math.min(CW-80,(CH-190)*2)|0;return{x:(CW-w)/2,y:(CH-w/2)
 function drawOv(){const o=ovr();X.fillStyle='rgba(0,0,0,.85)';X.fillRect(0,0,CW,CH);minimapDraw(o,2);tx('STRATEGIC OVERVIEW'+(S.teamN>2?'    Blue: You  Red/Purple/Gold: rivals':'')+'    Y: jump camera    B or View: close',CW/2,o.y-16,S.teamN>2?17:22,'#f2c14e','center')}
 
 /* Technology tree, objectives and controller help screens. Shared engine state is read when called. */
-function treeLines(){const c=S.civ?S.civ[0]:civ,L=[['Civilization: '+CIV[c].n,CIV[c].d]];for(const k in B){const d=B[k],tr=(d.tr||[]).concat(k==='castle'?[CIV[c].uu]:[]).map(x=>U[x].n),rs=(d.rs||[]).concat(k==='castle'?[CIV[c].ut.k]:[]).map(x=>TE[x].n);L.push([d.n+(d.age?' ('+AG[d.age].n+')':' (Founding Age)'),(tr.length?'Units: '+tr.join(', ')+'. ':'')+(rs.length?'Tech: '+rs.join(', '):'')])}return L}
+/* Display the real civilization-eligible lines, not raw generic building data.
+ * The same trOf / rsOf gates protect solo and authenticated multiplayer. */
+function treeLines(){
+ const id=S?.civ?.[0]??civ,c=CIV[id],rows=[['Civilization: '+c.n,c.d]],b={k:'',t:0};
+ for(const k in B){
+  b.k=k;const d=B[k],tr=trOf(b).filter(key=>!!U[key]).map(key=>unitName(key,0));
+  const research=rsOf(b).filter(key=>!!TE[key]).map(key=>TE[key].n);
+  rows.push([d.n+(d.age?' ('+AG[d.age].n+')':' (Founding Age)'),
+   (tr.length?'Units: '+tr.join(', ')+'. ':'')+(research.length?'Tech: '+research.join(', '):'')]);
+ }
+ return rows;
+}
 function drawTree(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(40,40,CW-80,CH-80);tx('TECHNOLOGY TREE',CW/2,100,38,'#f2c14e','center');const TL=treeLines();for(let i=0;i<12;i++){const e=TL[tsc+i];if(!e)break;const y=160+i*Math.min(56,(CH-300)/12);tx(e[0],70,y,20,'#fde68a');tx(e[1].slice(0,Math.floor((CW-340)/9)),330,y,17,'#e2e8f0')}tx('D-pad Up/Down: scroll    A or B: back',CW/2,CH-70,18,'#9ae6b4','center')}
 function drawObj(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(CW/2-440,70,880,CH-140);tx('OBJECTIVES',CW/2,140,40,'#f2c14e','center');const vmx=[S.teamN>2?'Destroy every rival Town Centre.':'Destroy the enemy Town Centre.','Build a Wonder and hold it for 5 minutes. Any rival kingdom can win the same way.','Hold every relic in your Monasteries for 4 minutes. Any rival kingdom can win the same way.',S.teamN>2?'Keep your King alive and defeat every rival King.':'Keep your King alive and kill the enemy King.'][vm],p=S.pl;
 tx('Primary: '+vmx,CW/2-400,220,21);tx('You: '+CIV[S.civ[0]].n+'     '+(S.teamN>2?((S.teamN-1)+' rival kingdoms'):('Enemy: '+CIV[S.civ[1]].n))+'     Difficulty: '+difficultyName(diff),CW/2-400,270,20,'#cbd5e1');tx('Time '+(S.t/60|0)+' min     Units trained '+p.tr+'     Enemies defeated '+p.kills+'     Resources gathered '+(p.gath|0),CW/2-400,312,20,'#cbd5e1');tx('Age: '+AG[S.age[0]].n+'     Population '+popOf(0)+'/'+capOf(0)+(S.teamN>2?'     Kingdoms alive: '+(new Set([...S.us.map(u=>u.t),...S.bs.map(b=>b.t)]).size):''),CW/2-400,354,20,'#cbd5e1');if(cmp)cmpObj();tx('A, B or View: back',CW/2,CH-110,20,'#9ae6b4','center')}
