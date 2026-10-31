@@ -23,13 +23,18 @@ test('typos in unique units or unique technologies are caught against both confi
  assert.ok(altered(c=>{c.civilizations[8].uniqueTechnology='invalid-tech'}).some(e=>/unique technology/.test(e)));
 });
 
-test('regional-unit definitions cannot falsely appear playable while runtime access is missing',()=>{
- assert.equal(catalogue.regionalUnitAccess.implementation,'missing');
- assert.equal(catalogue.regionalUnitAccess.entries.length,0);
+test('Camel Rider regional availability and indexed source/running rules match',()=>{
+ assert.equal(catalogue.regionalUnitAccess.implementation,'partial');
+ assert.equal(catalogue.regionalUnitAccess.entries.length,1);
+ assert.deepEqual(catalogue.regionalUnitAccess.entries[0].civilizations,[2,3,4,8,9,13,22,23]);
+ assert.ok(altered(c=>{c.regionalUnitAccess.entries[0].civilizations=[0,1]})
+  .some(e=>/Regional production runtime differs/.test(e)));
  assert.ok(altered(c=>{c.regionalUnitAccess.entries.push({unit:'spear',civilizations:[0,1],buildings:['bar']})})
-  .some(e=>/Unimplemented regional-unit/.test(e)));
- assert.ok(altered(c=>{c.regionalUnitAccess.implementation='partial';c.regionalUnitAccess.entries.push({
-  unit:'not-a-unit',civilizations:[0],buildings:['bar']})}).some(e=>/regional unit/.test(e)));
+  .some(e=>/Regional production runtime differs/.test(e)));
+ assert.ok(altered(c=>{c.regionalUnitAccess.entries[0].unit='not-a-unit'})
+  .some(e=>/Invalid\/duplicate regional unit/.test(e)));
+ assert.ok(altered(c=>{c.regionalUnitAccess.entries[0].civilizations=[2,2]})
+  .some(e=>/Invalid regional civilization eligibility/.test(e)));
 });
 
 test('reference rulesets are explicit and cannot be marked verified by adding names',()=>{

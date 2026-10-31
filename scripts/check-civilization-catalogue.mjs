@@ -12,8 +12,8 @@ export function currentCivilizationRuntime(engine=readHere('../engine.js'),confi
  const civScript=engine.slice(from,to+2);
  const civilians=vm.runInNewContext('const hpbF=()=>{},atkbF=()=>{};\n'+civScript+
   '\nCIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut}))');
- const definitions=vm.runInNewContext(config+'\n({U,B,TE})');
- return {civilizations:civilians,units:definitions.U,buildings:definitions.B,technologies:definitions.TE};
+ const definitions=vm.runInNewContext(config+'\n({U,B,TE,REGIONAL_UNIT_ACCESS})');
+ return {civilizations:civilians,units:definitions.U,buildings:definitions.B,technologies:definitions.TE,regionalUnitAccess:definitions.REGIONAL_UNIT_ACCESS};
 }
 
 export function inspectCivilizationCatalogue(catalogue,runtime){
@@ -58,6 +58,12 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
   errors.push('Invalid regional-unit access registry');
  }else{
   if(regional.implementation==='missing'&&regional.entries.length)errors.push('Unimplemented regional-unit access has playable entries');
+  const compiled=runtime.regionalUnitAccess;
+  const listed=regional.entries.map(e=>({unit:e?.unit,civilizations:e?.civilizations,buildings:e?.buildings}));
+  const running=Array.isArray(compiled)?Array.from(compiled,e=>({
+   unit:e.unit,civilizations:Array.from(e.civilizations),buildings:Array.from(e.buildings)
+  })):[];
+  if(JSON.stringify(listed)!==JSON.stringify(running))errors.push('Regional production runtime differs from versioned JSON catalogue');
   const seen=new Set();
   for(const e of regional.entries){
    if(!e||typeof e.unit!=='string'||seen.has(e.unit)||!units[e.unit]){errors.push('Invalid/duplicate regional unit: '+e?.unit);continue}
