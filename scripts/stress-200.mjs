@@ -43,6 +43,7 @@ export function runChokepoint({ticks=360,seed=123456,count=200}={}){
     moved:S.us.filter((u,i)=>Math.hypot(u.x-original[i].x,u.y-original[i].y)>.25).length,
     crossed:S.us.filter(u=>u.x>35.5).length,
     completed:S.us.filter(u=>u.o==='i').length,
+    stragglers:S.us.filter(u=>u.x<=35.5).slice(0,8).map(u=>({id:u.netId,x:u.x,y:u.y,order:u.o,remaining:u.p.length})),
     blockedCellUnits:S.us.filter(u=>!!S.g[(u.y|0)*W+(u.x|0)]).length,
     invalidCoordinates:S.us.filter(u=>!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.x>=W||u.y<0||u.y>=H).length
    })
