@@ -62,3 +62,14 @@ test('full farm retargeting prefers next known free farm rather than waiting',()
  run("upU(b,1/30)");
  assert.equal(run("b.tg===two"),true);
 });
+
+test('gold deposits reserve only actual open approach spaces, never arbitrary per-resource caps',()=>{
+ const run=fixture();
+ run("seedOv=123456;start();mode='title';globalThis.a=addU(0,'vil',30,30);globalThis.b=addU(0,'vil',29,30);globalThis.gold={k:'g',x:30,y:30,amt:200};S.g.fill(1);S.wt.fill(0);S.g[30*W+31]=0;S.ex[30*W+30]=1");
+ assert.equal(run('resourceApproachCapacity(gold,a)'),1,'one free adjacent tile creates one work slot');
+ assert.equal(run('resourceHasWorksite(a,gold)'),true);
+ run("a.o='g';a.tg=gold;a.ct='g'");
+ assert.equal(run('resourceHasWorksite(b,gold)'),false,'the one approach is reserved by its current worker');
+ run("a.o='i';a.tg=null");
+ assert.equal(run('resourceHasWorksite(b,gold)'),true,'worker leaving frees the deposit approach');
+});
