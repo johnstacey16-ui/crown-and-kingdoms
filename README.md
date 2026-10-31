@@ -1,5 +1,11 @@
 # Crown & Kingdoms
 
+## Current completion roadmap — 31 October 2026
+
+**[Current 48-task roadmap](ROADMAP.md)** and [six-source consolidated audit](docs/audits/2026-10-31-consolidated-audit.md) are the starting points for all continuing development. They preserve the full Xbox Series X AoE II: DE gameplay + all 11 DLC families target, controller parity on Series S Edge, and free-only hosting. The audited source snapshot has 26 civilizations, 19 scripted campaigns, and 47/47 *current-roster movement/activity artwork*, **not completed Xbox or DLC parity**. At that audited SHA, Claude reported 219 local standalone regression files passing; hosted Actions reportedly failed before steps, cause unverified. No new code or Xbox hardware was tested for this documentation update.
+
+**Play:** https://crown-and-kingdoms.vercel.app/ (existing free-only Vercel deployment). Older Railway play instructions and older test-count banners further below are historical, not current deployment or CI evidence; never restart Railway or enable paid overages.
+
 **Hosting policy: free-only.** See [FREE_HOSTING.md](FREE_HOSTING.md). Earlier Railway deployment instructions are superseded. The Railway shutdown and authenticated Supabase migration are **not complete**; do not restart Railway or enable paid plans/overages.
 
 **Deployment note — 21 October 2026:** the current game is deployed from main on the existing Vercel Hobby project at https://crown-and-kingdoms.vercel.app/. The controller-accessible two-player battlefield preview now uses authenticated Supabase admission and a direct peer channel. Earlier Railway deployment notes are historical; do not reconnect or redeploy Railway under the free-only policy.
