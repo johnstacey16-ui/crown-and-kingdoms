@@ -4,9 +4,11 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**CI status:** [GitHub Actions run 41217765163](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41217765163) passed **200/200 focused tests**, all five source/offline/civilization/atlas/graphics gates and syntax checks for **39** production scripts on `0c8e9be`. The latest focused tests include reproducible seeded-world hashes, save/load continuation and economic resource invariants. All original 26 historical non-main branches remain ancestors of `main`. **The full 235-file standalone suite, three seeded AI skirmishes, 19 campaigns, Chromium, independent WAN and real Xbox Series S Edge acceptance remain unverified.** Older pre-step CI allocation failures remain unexplained; lightweight hosted validation currently works.
+**CI status:** [Hosted GitHub Actions 41246664294](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41246664294) passed **204/204 focused tests**, five quick source/offline/civilization/atlas/graphics gates and syntax checks for **39** production browser scripts on `081f2d3`. A reproducible 200-unit artificial chokepoint scenario now finishes with **200 crossing / 200 orders completed** in 2,400 fixed ticks after repairing diagonal-corner and obsolete-waypoint movement errors. This is Node headless movement verification, **not** hardware FPS or a full live match. **All 236 standalone regression files together**, three seeded AI skirmishes, 19 missions, Chromium, real Xbox Series S Edge and WAN multiplayer remain **unverified** on this code.
 
 **Current tree inventory:** 236 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
+
+**Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.
 
