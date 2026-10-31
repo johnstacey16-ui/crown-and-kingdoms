@@ -219,7 +219,7 @@ test('game balance data is separated from runtime code and resize work is deboun
 
 test('browser foundation source comes from index.html in actual classic-script order',()=>{
  const paths=coreGameScriptPaths(html);
- assert.equal(paths.length,22);
+ assert.equal(paths.length,23);
  assert.equal(paths[0],'./js/config.js');
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.includes('./js/assets.js')&&paths.includes('./js/ui.js')&&paths.includes('./js/render-procedural-units.js'));
