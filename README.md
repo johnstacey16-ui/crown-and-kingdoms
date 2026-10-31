@@ -37,7 +37,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 233 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 232 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks

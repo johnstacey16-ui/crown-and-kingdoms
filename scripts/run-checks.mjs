@@ -37,6 +37,7 @@ const FOCUSED=[
  "tests/villager-priority.test.mjs",
  "tests/population-limits.test.mjs",
  "tests/no-attack-stance.test.mjs",
+ "tests/town-bell.test.mjs",
  "tests/fish-traps.test.mjs",
  "tests/art-revisions.test.mjs",
  "tests/engine-graphics-benchmark-ownership.test.mjs",

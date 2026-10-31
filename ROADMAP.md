@@ -5,6 +5,10 @@
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
 
+## Town Bell fixture consolidation — 31 October 2026
+
+The earlier `tests/town-bell.test.mjs` and `tests/town-bell-garrison-capacity.test.mjs` use the same simulation helper; the duplicate fixture was replaced by one shared setup, while all **seven** named Town Bell controller/routing/capacity assertions remain present. The active standalone suite drops from **233 to 232** test files. The merged suite now participates in fast GitHub validation. No garrison/gameplay rules were modified. This cleanup remains subject to hosted focused and complete-suite verification.
+
 ## Unified acceptance runner checkpoint — 31 October 2026 (`1c46735`)
 
 The owner-approved cleanup replaced duplicated shell loops for regression tests, three AI matches and 19 isolated campaign runs with a shared cross-platform `scripts/run-checks.mjs` plan. Chromium art/layout fixtures and the opt-in Windows workflow now reuse it. Fast hosted validation uses `--focused`, whose 33-file roster lives in the runner rather than 33 separately maintained workflow YAML entries. The runner also has `--regression-files`, `--skirmishes`, `--campaigns`, `--browser`, `--xbox-contracts`, `--regressions` and `--full` modes, grouped logs, failure aggregation and GitHub job summaries. The number of distinct tests and mission coverage was deliberately **not** cut just to improve a metric.
