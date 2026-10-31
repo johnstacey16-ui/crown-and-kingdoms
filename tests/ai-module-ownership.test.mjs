@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const worker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
@@ -27,8 +28,9 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(simAt >= 0 && aiAt > simAt && pathAt > aiAt,
     'AI must load after core simulation declarations and before engine startup');
   assert.ok(worker.includes("'./js/ai.js'"), 'The offline service-worker cache must contain ai.js');
-  assert.ok(checker.includes("new vm.Script(ai, { filename: 'js/ai.js' })"),
-    'The source checker must syntax-parse ai.js');
-  assert.ok(checker.includes("simulation + '\\n' + ai"),
-    'The combined source-invariant bundle must contain simulation followed by AI code');
+  assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
+    'Source validation must syntax-parse the production script list');
+  assert.deepEqual(coreGameScriptPaths(html).slice(8,12),
+    ['./js/simulation.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+
 });

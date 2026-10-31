@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs';
+import {loadCoreGameSource} from '../../scripts/runtime-sources.mjs';
 
 // Browser surface mocks only; simulation and AI below are the production scripts.
 export function headlessGame() {
 
-const source = readFileSync(new URL('../../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/mapgen.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/pathfinding.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/kingdom.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/entities.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/campaign.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/economy.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/formations.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/menus.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../js/minimap.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../../engine.js', import.meta.url), 'utf8');
-
+const source = loadCoreGameSource();
 
 const listeners = new Map();
 const context2d = new Proxy({

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
@@ -33,11 +34,15 @@ test('entity module dependency order and offline cache are maintained', () => {
   assert.ok(kingdom >= 0 && entitiesAt > kingdom && campaign > entitiesAt && engineAt > campaign,
     'entities must load after kingdom helpers and before campaign/game startup');
   assert.ok(sw.includes("'./js/entities.js'"), 'offline cache must include entities.js');
-  assert.ok(checker.includes("new vm.Script(entities, { filename: 'js/entities.js' })"),
-    'syntax checker must parse entities.js');
-  assert.ok(checker.includes(" + '\\n' + entities + '\\n' + campaign"),
-    'static source harness must include the entity module');
-  assert.ok(simulationSmoke.includes("from './helpers/headless-game.mjs'") && simulationSmoke.includes('headlessGame()') &&
-    readFileSync(new URL('./helpers/headless-game.mjs', import.meta.url), 'utf8').includes("new URL('../../js/entities.js', import.meta.url)"),
-    'runtime smoke harness must load the entity module before calling newGame');
+  assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
+    'Syntax checker must parse the actual browser script list');
+  const production=coreGameScriptPaths(html);
+  assert.ok(production.indexOf('./js/kingdom.js')<production.indexOf('./js/entities.js') &&
+    production.indexOf('./js/entities.js')<production.indexOf('./js/campaign.js'),
+    'Entity factories must retain their production dependency order');
+  assert.ok(simulationSmoke.includes("from './helpers/headless-game.mjs'") &&
+    simulationSmoke.includes('headlessGame()') &&
+    readFileSync(new URL('./helpers/headless-game.mjs',import.meta.url),'utf8').includes('loadCoreGameSource()'),
+    'Simulation smoke tests must use the actual browser game-script roster');
+
 });
