@@ -1,3 +1,5 @@
+> **Historical roadmap journal.** The current 48-task priority index is [ROADMAP.md](ROADMAP.md), with the [31 October audited requirements](docs/audits/2026-10-31-consolidated-audit.md). Prior dated green runs, Vercel versions and task checkmarks apply only to their original SHAs and do not establish current hosted CI, Xbox Series S acceptance or full DLC parity.
+
 ## 25 October 2026 — Large-battle rendering performance, terrain cache (PR #56)
 
 - [x] Inspect seven user gameplay recordings and screenshot showing approx **4 FPS**, 78 units, 94 buildings. Captured performance overlay reports a **612.8 ms draw** while simulation measured **15.7 ms**, so prioritize rendering bottlenecks without changing combat.
