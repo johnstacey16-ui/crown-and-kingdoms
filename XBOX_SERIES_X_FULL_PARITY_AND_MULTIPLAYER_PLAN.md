@@ -1,3 +1,5 @@
+> **Live priorities:** [ROADMAP.md](ROADMAP.md) and the [31 October consolidated audit](docs/audits/2026-10-31-consolidated-audit.md) now track the 48 audited tasks and evidence gates. This long-form plan continues to define the **full Xbox game/controller/multiplayer/DLC target**, not a completed-feature claim.
+
 <!-- Warrior artwork increment: 22 October 2026 -->
 CK-032/041: added Huskarl, Jaguar Warrior, Kamayuk and Shotel Warrior walking,
 melee attack and matching ready poses. Animation coverage is 19/47 playable
