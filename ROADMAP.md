@@ -7,7 +7,7 @@
 
 ## Town Bell fixture consolidation — 31 October 2026
 
-The earlier `tests/town-bell.test.mjs` and `tests/town-bell-garrison-capacity.test.mjs` use the same simulation helper; the duplicate fixture was replaced by one shared setup, while all **seven** named Town Bell controller/routing/capacity assertions remain present. The active standalone suite drops from **233 to 232** test files. The merged suite now participates in fast GitHub validation. No garrison/gameplay rules were modified. This cleanup remains subject to hosted focused and complete-suite verification.
+The earlier `tests/town-bell.test.mjs` and `tests/town-bell-garrison-capacity.test.mjs` use the same simulation helper; the duplicate fixture was replaced by one shared setup, while all **seven** named Town Bell controller/routing/capacity assertions remain present. The active standalone suite drops from **233 to 232** test files. The merged suite now participates in fast GitHub validation. No garrison/gameplay rules were modified. [Hosted GitHub Actions run 41207740686](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41207740686) passed **107/107 focused assertions**, including all seven merged Town Bell cases, and all five source/offline/civilization/atlas/graphics checks. The complete 232-file regression suite, three seeded AI runs, 19 campaign missions, Chromium and physical Xbox remain **unverified** on this code revision.
 
 ## Unified acceptance runner checkpoint — 31 October 2026 (`1c46735`)
 
