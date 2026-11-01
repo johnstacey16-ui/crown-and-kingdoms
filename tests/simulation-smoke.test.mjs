@@ -765,15 +765,21 @@ globalThis.__CK_TEST__ = {
     const srcSite = findMarketSite(playerTc, 0);
     const dstSite = findMarketSite(enemyTc, enemyTc.t);
     if (!srcSite || !dstSite) throw new Error('Could not find legal market sites for the trade-route test');
+    // Non-hostile trade is explicit: rival markets are not valid player trade targets.
+    if (!setDiplomacy(0, enemyTc.t, 'neutral')) throw new Error('Could not establish a neutral trade partner');
     const src = addB(0, 'market', srcSite[0], srcSite[1], true);
     const dst = addB(enemyTc.t, 'market', dstSite[0], dstSite[1], true);
     const p = spawnPos(src);
     if (!p) throw new Error('Could not find a legal trade-cart spawn tile');
     const cart = addU(0, 'cart', p[0], p[1]);
-    cart.tradeFromKey = [0, 'market', src.x, src.y].join(':');
+    S.sel = [cart];
+    orderSel(dst, dst.x + dst.s / 2, dst.y + dst.s / 2);
+    const destKey = [dst.t, dst.k, dst.x, dst.y].join(':');
+    if (cart.tradeDestKey !== destKey || cart.tradePaused || !cart.p?.length)
+      throw new Error('The normal player trade command did not establish a traversable route');
     const distance = Math.hypot((src.x + src.s / 2) - (dst.x + dst.s / 2), (src.y + src.s / 2) - (dst.y + dst.s / 2));
     if (distance < 10) throw new Error('Trade route is too short to provide a meaningful gold-delivery test');
-    return { gold: S.res[0].g, distance };
+    return { gold: S.res[0].g, distance, cart };
   },
   beginHouseConstruction() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
@@ -1396,11 +1402,25 @@ console.log(`construction-smoke: house at ${plannedHouse.x},${plannedHouse.y} co
 
 game.start(123456, 1);
 const tradeBefore = game.beginTradeRoute();
-for (let tick = 0; tick < 1800; tick += 1) game.tick(1 / 30);
+let tradeTicks = 0, collectedCargo = false, deliveredTrade = false;
+for (; tradeTicks < 5400; tradeTicks += 1) {
+  game.tick(1 / 30);
+  collectedCargo ||= tradeBefore.cart.tradeReturning && tradeBefore.cart.tradeCargo > 0;
+  // A passing gold-ledger check alone could hide mining: require an actual loaded
+  // merchant to finish its return journey, with its assigned route still intact.
+  if (collectedCargo && !tradeBefore.cart.tradeReturning && tradeBefore.cart.tradeCargo === 0 &&
+      tradeBefore.cart.tradeDestKey && !tradeBefore.cart.tradePaused &&
+      game.state().playerGold > tradeBefore.gold) { deliveredTrade = true; break; }
+}
 const tradeAfter = game.state();
-assert.ok(tradeAfter.playerGold > tradeBefore.gold,
-  'A real trade cart travelling between completed allied/enemy markets should deliver gold');
-console.log(`trade-smoke: cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over 60 simulated seconds`);
+assert.ok(collectedCargo, 'The trade cart must reach its explicitly assigned neutral-market destination');
+assert.ok(deliveredTrade,
+  'A loaded trade cart must return to its home market and deliver gold: ' +
+  JSON.stringify({ time:tradeTicks / 30, distance:tradeBefore.distance,
+    cargo:tradeBefore.cart.tradeCargo, paused:tradeBefore.cart.tradePaused,
+    returning:tradeBefore.cart.tradeReturning, destKey:tradeBefore.cart.tradeDestKey,
+    playerGold:tradeAfter.playerGold, before:tradeBefore.gold }));
+console.log(`trade-smoke: neutral-market cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over ${(tradeTicks / 30).toFixed(1)} simulated seconds`);
 
 game.start(123456);
 const navalBefore = game.beginNavalMove();
