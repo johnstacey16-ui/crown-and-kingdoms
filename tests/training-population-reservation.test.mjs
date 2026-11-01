@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const { U, B, AG } = vm.runInNewContext(config + '\n;({U,B,AG})');
 const first = { k: 'tc', t: 0, hp: B.tc.hp, done: true, q: [] };
 const second = { k: 'tc', t: 0, hp: B.tc.hp, done: true, q: [] };
@@ -20,7 +20,7 @@ const context = {
 context.trOf=b=>context.B[b.k]?.tr||[];
 vm.createContext(context);
 const begin = simulation.indexOf('function queuedPopulation(t){');
-const end = simulation.indexOf('\nfunction okPlace(', begin);
+const end = simulation.length;
 assert.ok(begin >= 0 && end > begin);
 vm.runInContext(simulation.slice(begin, end), context);
 const train = vm.runInContext('train', context);

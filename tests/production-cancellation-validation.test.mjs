@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const start = simulation.indexOf('function cancelQ(b){');
-const end = simulation.indexOf('\nfunction okPlace(', start);
+const end = simulation.length;
 assert.ok(start >= 0 && end > start, 'Queue cancellation must remain isolated');
 const cancel = simulation.slice(start, end);
 

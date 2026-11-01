@@ -29,7 +29,7 @@ function extract(begin, end) {
 }
 extract('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
 extract('function gatherCapacity(u){', 'function walk(u,dt){');
-extract('function upB(b,dt){', '\nfunction train(b,k){');
+extract('function upB(b,dt){', '\nfunction okPlace(');
 const research = vm.runInContext('research', context);
 const speed = vm.runInContext('unitSpeed', context);
 const upB = vm.runInContext('upB', context);

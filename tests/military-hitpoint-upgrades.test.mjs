@@ -32,7 +32,7 @@ function load(start, end) {
   vm.runInContext(simulation.slice(a, b), context);
 }
 load('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
-load('function upB(b,dt){', '\nfunction train(b,k){');
+load('function upB(b,dt){', '\nfunction okPlace(');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);
 assert.equal(research(stable, 'blood'), true);

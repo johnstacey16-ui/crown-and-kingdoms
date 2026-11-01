@@ -26,7 +26,7 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(extract('function gatherCapacity(u){', 'function walk(u,dt){'), context);
-vm.runInContext(extract('function upB(b,dt){', '\nfunction train(b,k){'), context);
+vm.runInContext(extract('function upB(b,dt){', '\nfunction okPlace('), context);
 const capacity = vm.runInContext('gatherCapacity', context);
 const speed = vm.runInContext('unitSpeed', context);
 const upB = vm.runInContext('upB', context);

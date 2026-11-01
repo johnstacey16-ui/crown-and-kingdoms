@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const queueSource = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const { B, U, TE, AG } = vm.runInNewContext(config + '\n;({B,U,TE,AG})');
 const a = source.indexOf('function research(b,k){');
 const b = source.indexOf('\nconst MILITARY_PRODUCTION_BUILDINGS=', a);
-const c = source.indexOf('function train(b,k){');
-const d = source.indexOf('\nfunction cancelQ(', c);
-assert.ok(a >= 0 && b > a && c > b && d > c);
+const c = queueSource.indexOf('function train(b,k){');
+const d = queueSource.indexOf('\nfunction cancelQ(', c);
+assert.ok(a >= 0 && b > a && c >= 0 && d > c);
 const S = { tech: [{}, {}], age: [0,0], bs: [], res: [{f:1000,w:1000,g:1000,s:1000},{f:1000,w:1000,g:1000,s:1000}] };
 let payments = 0;
 const context = { B, U, TE, AG, S, note: () => {}, can: () => true,
@@ -17,7 +18,7 @@ const context = { B, U, TE, AG, S, note: () => {}, can: () => true,
 context.rsOf=b=>context.B[b.k]?.rs||[];
 context.trOf=b=>context.B[b.k]?.tr||[];
 vm.createContext(context);
-vm.runInContext(source.slice(a, b) + '\n' + source.slice(c, d), context);
+vm.runInContext(source.slice(a, b) + '\n' + queueSource.slice(c, d), context);
 const research = vm.runInContext('research', context);
 const train = vm.runInContext('train', context);
 const tc = { k: 'tc', t: 0, hp: 100, done: true, q: [{ k: 'vil', t: 10 }], rs: null };

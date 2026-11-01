@@ -26,7 +26,7 @@ function load(start, end) {
   vm.runInContext(sim.slice(a, b), context);
 }
 load('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
-load('function upB(b,dt){', '\nfunction train(b,k){');
+load('function upB(b,dt){', '\nfunction okPlace(');
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0,'source melee bonus must exist in its dedicated owner');
 vm.runInContext(bonuses.slice(bonusStart),context);

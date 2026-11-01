@@ -23,7 +23,8 @@ test('logistics is ordered directly before simulation in browser, core and offli
  const headless=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
  for(const list of [browser,core,headless]){
   assert.equal(list.indexOf('./js/simulation-logistics.js')+1,list.indexOf('./js/simulation-resource-routing.js'));
-  assert.equal(list.indexOf('./js/simulation-resource-routing.js')+1,list.indexOf('./js/simulation.js'));
+  assert.equal(list.indexOf('./js/simulation-resource-routing.js')+1,list.indexOf('./js/simulation-production-queues.js'));
+  assert.equal(list.indexOf('./js/simulation-production-queues.js')+1,list.indexOf('./js/simulation.js'));
  }
  assert.deepEqual(headless,core.filter(p=>p!=='./js/ui.js'&&p!=='./js/assets.js'));
  assert.ok(sw.includes("'./js/simulation-logistics.js'"));

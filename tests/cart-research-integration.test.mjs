@@ -35,7 +35,7 @@ assert.equal(player.rs.k, 'wheel');
 assert.equal(S.res[0].f, before.f - TE.wheel.cost.f);
 assert.equal(research(player, 'handcart'), false, 'busy Town Centre rejects new research');
 const buildingStart = simulation.indexOf('function upB(b,dt){');
-const buildingEnd = simulation.indexOf('\nfunction train(b,k){', buildingStart);
+const buildingEnd = simulation.indexOf('\nfunction okPlace(', buildingStart);
 assert.ok(buildingStart >= 0 && buildingEnd > buildingStart);
 context.U = U;
 context.sfx = () => {};

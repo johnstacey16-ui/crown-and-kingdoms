@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [Hosted GitHub Actions 41255906326](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41255906326) passed **217/217 focused tests**, all five quick gates and parsing of **40** production browser scripts on `1fa7571`. Farm selection, fishing, depot routing and module ownership now run in the focused suite. The reproducible 200-unit two-tile chokepoint scenario from the prior code checkpoint completed **200/200 crossings and orders** in 2,400 fixed simulation ticks; this is **Node headless evidence, not Series S FPS**. **All 237 standalone files together**, three AI skirmishes, 19 missions, Chromium, real Xbox Series S Edge and independent-network multiplayer remain **unverified** at this revision.
 
-**Current tree inventory:** 237 standalone regression files, 40 production browser scripts, 27 core scripts, 25 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 238 standalone regression files, 41 production browser scripts, 28 core scripts, 26 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
@@ -43,7 +43,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 237 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 238 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks

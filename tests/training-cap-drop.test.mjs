@@ -9,7 +9,7 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const {U,B,TE}=vm.runInNewContext(config+'\n;({U,B,TE})');
 const start=simulation.indexOf('function upB(b,dt){');
-const end=simulation.indexOf('\nfunction queuedPopulation(t){',start);
+const end=simulation.indexOf('\nfunction okPlace(',start);
 assert.ok(start>=0&&end>start,'live building training helper must exist');
 const trainingSource=simulation.slice(start,end);
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const start = simulation.indexOf('function train(b,k){');
 const end = simulation.indexOf('\nfunction cancelQ(', start);
 assert.ok(start >= 0 && end > start, 'Training command must remain isolated');

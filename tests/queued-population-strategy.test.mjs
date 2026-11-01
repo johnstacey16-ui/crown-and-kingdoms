@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const begin = simulation.indexOf('function queuedPopulation(t){');
 const end = simulation.indexOf('\nfunction train(b,k){', begin);
