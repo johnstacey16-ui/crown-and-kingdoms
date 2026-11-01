@@ -20,7 +20,7 @@ test('map audit distinguishes partial from full naval access',()=>{
  assert.match(mapgen,/partialNavalAccess:dockableStarts>0/);
 });
 test('transport unload reports successful disembarkation and retained passengers',()=>{
- const sim=fs.readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+ const sim=fs.readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
   assert.match(sim,/u\.cg=cg\.filter\(c=>c\.ld===u&&c\.hp>0\)/,
     'Only living passengers still aboard this transport remain in its manifest');
   assert.match(sim,/note\(unloaded\?\(u\.cg\.length\?/,

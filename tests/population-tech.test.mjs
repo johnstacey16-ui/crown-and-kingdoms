@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const sim=fs.readFileSync(new URL('../js/simulation-production-queues.js',import.meta.url),'utf8');
-const runtime=fs.readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const runtime=fs.readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const engine=fs.readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 

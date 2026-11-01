@@ -5,6 +5,7 @@ import vm from 'node:vm';
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const routing = readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8');
+const unit = readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 assert.ok(B.tc.rs.includes('handcart'), 'Town Centre offers Hand Cart');
 assert.equal(TE.handcart.age, 2, 'Hand Cart unlocks in Castle Age');
@@ -35,5 +36,5 @@ assert.equal(capacity({ k: 'vil', t: 1 }), 10, 'enemy villagers are unaffected')
 S.tech[0].carry = 1;
 assert.equal(capacity({ k: 'vil', t: 0 }), 25, 'carry and cart bonuses stack');
 assert.equal(capacity({ k: 'mil', t: 0 }), 15, 'generic carrying upgrade still applies');
-assert.ok(simulation.includes('u.car>=gatherCapacity(u)'), 'gathering uses capacity helper');
+assert.ok(unit.includes('u.car>=gatherCapacity(u)'), 'gathering uses capacity helper');
 console.log('handcart-economy: passed');

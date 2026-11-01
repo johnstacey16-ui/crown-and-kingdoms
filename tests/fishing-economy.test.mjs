@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
-const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const sim=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');

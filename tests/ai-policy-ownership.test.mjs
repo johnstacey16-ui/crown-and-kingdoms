@@ -29,7 +29,7 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+4),['./js/simulation.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+5),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);

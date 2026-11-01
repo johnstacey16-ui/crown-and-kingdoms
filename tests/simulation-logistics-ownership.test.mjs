@@ -7,13 +7,14 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const logistics=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
 
 test('transport and trader functionality is owned only by the new module',()=>{
  for(const fn of ['transportLandingRoute','tickTrader']){
   assert.match(logistics,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(simulation,new RegExp('function '+fn+'\\('));
-  assert.match(simulation,new RegExp(fn+'\\('),'main simulation still calls the helper');
+  assert.match(unit,new RegExp(fn+'\\('),'unit order simulation still calls the helper');
  }
  for(const name of ['healGarrison','unload','townBell']){
   assert.match(logistics,new RegExp('function '+name+'\\('),'garrison logistics owns '+name);

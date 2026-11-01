@@ -19,7 +19,7 @@ assert.ok(html.indexOf('src="./js/simulation-separation.js"') < html.indexOf('sr
 for(const paths of [browserScriptPaths(html),coreGameScriptPaths(html),coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
  const i=paths.indexOf('./js/simulation-separation.js');
  assert.ok(i>0);
- assert.equal(paths[i-1],'./js/simulation.js');
+ assert.equal(paths[i-1],'./js/simulation-unit-behaviour.js');
  assert.equal(paths[i+1],'./js/ai-policy.js');
  assert.equal(paths.filter(x=>x==='./js/simulation-separation.js').length,1);
 }

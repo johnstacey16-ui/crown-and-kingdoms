@@ -6,6 +6,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 
 const source=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
@@ -18,10 +19,10 @@ test('resource and dropoff helper declarations have one canonical owner',()=>{
   assert.match(source,new RegExp('function '+fn+'\\('),'module owns '+fn);
   assert.doesNotMatch(sim,new RegExp('function '+fn+'\\('),'core simulation must not duplicate '+fn);
  }
- assert.match(sim,/resourceHasWorksite\(/);
- assert.match(sim,/findDropoffRoute\(/);
+ assert.match(unit,/resourceHasWorksite\(/);
+ assert.match(unit,/findDropoffRoute\(/);
  assert.match(input,/deployFishTrap\(/,'Fishing Ship menu must still call fish trap helper');
- assert.match(sim,/killNode\(/);
+ assert.match(unit,/killNode\(/);
  assert.doesNotThrow(()=>new vm.Script(source,{filename:'js/simulation-resource-routing.js'}));
 });
 

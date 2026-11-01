@@ -7,6 +7,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const bonuses=read('js/simulation-combat-bonuses.js');
 const simulation=read('js/simulation.js');
+const unit=read('js/simulation-unit-behaviour.js');
 const html=read('index.html'),sw=read('sw.js');
 const helpers=['spearLineBonus','camelLineBonus','scoutLineBonus','skirmisherBonus','meleeResearchAttackBonus'];
 
@@ -43,7 +44,7 @@ test('unchanged monk conversion helpers have one classic-script owner',()=>{
  // specific source file; full executable monk tests cover faith, resistance
  // and authenticated command behaviour.
  for(const name of ['resetConversion','canConvert','beginConversion','tickConversion'])
-  assert.match(simulation,new RegExp(name+'\\('));
+  assert.match(unit,new RegExp(name+'\\('));
  const ctx={S:{tech:[{},{}],us:[],bs:[]},U:{mon:{},mil:{}},
   isHostile:(a,b)=>a!==b,arrowSightBonus:()=>0};
  vm.createContext(ctx);
@@ -89,7 +90,7 @@ test('ranged attack, projectile flight and impact belong to combat owner once',(
  assert.match(bonuses,/const hit=\(a,t\)=>/);
  assert.doesNotMatch(simulation,/const hit=\(a,t\)=>/);
  assert.match(simulation,/pjs\(dt\)/,'simulation step still advances projectiles');
- assert.match(simulation,/hit\(u,tg\)/,'unit attack still uses live impact dispatch');
+ assert.match(unit,/hit\(u,tg\)/,'unit attack still uses live impact dispatch');
 });
 
 test('all browser/offline/headless scripts load bonus rules once before damage',()=>{

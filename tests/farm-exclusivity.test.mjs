@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
@@ -85,5 +85,5 @@ test('all command surfaces preserve the one-farmer rule',()=>{
  assert.match(network,/farmAvailableTo\(u,entity\)/);
  assert.match(network,/!!node\.fm&&!farmAvailableTo\(u,node\)/);
  assert.match(policy,/farmAvailableTo\(w,n\)/);
- assert.match(simulation,/!resourceHasWorksite\(u,tg\)/);
+ assert.match(unit,/!resourceHasWorksite\(u,tg\)/);
 });
