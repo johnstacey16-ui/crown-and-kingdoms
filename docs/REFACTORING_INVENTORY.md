@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green revision:** `2a71b4f` · [GitHub Actions 41360040612](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41360040612) · **913/913 focused**, **5/5 quick**, **0 failures** · live Vercel READY on the same SHA (1 November 2026).
+**Last green code revision:** `2a0f567` · [GitHub Actions 41361293820](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41361293820) · **916/916 focused**, **5/5 quick**, **0 failures** · live Vercel READY at the same SHA (1 November 2026). Controller focus/blur/visibility edge quarantine now has executable checks; hardware proof remains open.
 
 ## Current footprint and ownership
 
@@ -19,6 +19,7 @@
 - `609a9c5`: moved the unchanged AI wounded-unit retreat policy to `ai-policy.js`, with safe-shelter and unreachable-route tests (**903/903 focused**).
 - `43c8688`: made the three seeded skirmishes a weekly/manual CI **job independent** of the all-file regression job, keeping free-only runner limits.
 - `ed85ad9`: extracted four AI construction actions verbatim into `ai-construction.js`; five placement, spending, reachable-builder and Dock tests (**908/908 focused**).
+- `2a0f567`: normalized gamepad edge quarantine across window focus/blur and document tab-visibility changes; two live polling tests cover immediate stale-edge clearing and neutral-until-release; 916/916 focused, offline cache v86.
 - `2a71b4f`: extracted **1,055 unchanged characters** of AI allied resource-sharing from `aiTeam` into `ai-policy.js`, preserving the 90-second cooldown, ally/alive gates, numeric checks and resource thresholds. Added five executable tests; **913/913 focused** passed and shell v85 deployed.
 
 ## Validation evidence and remaining blockers

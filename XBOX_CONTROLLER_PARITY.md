@@ -1,5 +1,10 @@
 # Xbox controller parity contract
 
+## Gamepad focus and visibility acceptance — 1 November 2026
+
+Source fix [`2a0f567`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/2a0f5673a06904bd91edbc7393dcb4a7dd69bbf7) clears pending Gamepad API presses, holds, releases and gestures on **focus, blur and tab visibility changes**. It requires a fully released controller before accepting another command after these transitions, including when Xbox Edge restores a hidden tab without firing a window focus event. The original button mapping and game commands are unchanged. [Hosted CI 41361293820](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41361293820) passed **916/916 focused assertions**, including two new executable blur/visibility cases. **Physical Series S Edge** transition testing, placement/menu continuation and exact reference-console parity are not yet accepted.
+
+
 User requirement: the whole button system and its functions must mimic
 **Age of Empires II: Definitive Edition on Xbox Series X**. This is a required
 default, not an optional inspiration. No new project-specific gameplay bindings.
