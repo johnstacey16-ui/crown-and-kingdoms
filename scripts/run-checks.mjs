@@ -24,6 +24,7 @@ const FOCUSED=[
  "tests/simulation-resource-routing-ownership.test.mjs",
  "tests/simulation-production-queues-ownership.test.mjs",
  "tests/simulation-research-ownership.test.mjs",
+  "tests/simulation-building-production-ownership.test.mjs",
  "tests/research-duplicate-guard.test.mjs",
  "tests/production-spawn-terrain.test.mjs",
  "tests/cart-research-integration.test.mjs",

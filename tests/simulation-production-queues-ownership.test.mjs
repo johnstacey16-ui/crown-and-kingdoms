@@ -32,7 +32,8 @@ test('training queue module loads once between resource routing and simulation o
   assert.ok(i>=0,'production module included');
   assert.equal(scripts[i-1],'./js/simulation-resource-routing.js');
   assert.equal(scripts[i+1],'./js/simulation-research.js');
-  assert.equal(scripts[i+2],'./js/simulation.js');
+  assert.equal(scripts[i+2],'./js/simulation-building-production.js');
+  assert.equal(scripts[i+3],'./js/simulation.js');
   assert.equal(scripts.filter(s=>s==='./js/simulation-production-queues.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-production-queues.js'"));
