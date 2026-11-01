@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
@@ -27,7 +28,7 @@ function load(start, end) {
   vm.runInContext(sim.slice(a, b), context);
 }
 vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
-load('function upB(b,dt){', '\nfunction okPlace(');
+vm.runInContext(buildingUpdates, context);
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0,'source melee bonus must exist in its dedicated owner');
 vm.runInContext(bonuses.slice(bonusStart),context);

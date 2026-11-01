@@ -6,6 +6,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 
 const production=readFileSync(new URL('../js/simulation-building-production.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const buildingUpdates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 
@@ -16,7 +17,7 @@ test('building spawn and training rate policy have a single production owner',()
  }
  assert.ok(production.includes('const MILITARY_PRODUCTION_BUILDINGS='));
  assert.ok(!simulation.includes('const MILITARY_PRODUCTION_BUILDINGS='));
- assert.ok(simulation.includes('spawnPos(b)')&&simulation.includes('trainRate(b,q.k)'));
+ assert.ok(buildingUpdates.includes('spawnPos(b)')&&buildingUpdates.includes('trainRate(b,q.k)'));
  assert.doesNotThrow(()=>new vm.Script(production,{filename:'js/simulation-building-production.js'}));
  const S={tech:[{cons:true}]};
  const {trainRate}=vm.runInNewContext(production+'\n;({trainRate})',{S});

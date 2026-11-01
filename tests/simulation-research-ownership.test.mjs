@@ -6,6 +6,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 
 const research=readFileSync(new URL('../js/simulation-research.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const buildingUpdates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 const functions=['ageRequirements','researchCost','research'];
@@ -15,7 +16,8 @@ test('age gates, civilization-specific costs and research orders have one owner'
   assert.ok(research.includes('function '+fn+'('),'research module owns '+fn);
   assert.ok(!simulation.includes('function '+fn+'('),'simulation does not duplicate '+fn);
  }
- assert.ok(simulation.includes('function upB('),'building completion/tech application still uses core simulation');
+ assert.ok(buildingUpdates.includes('function upB('),'building completion/tech application keeps the extracted tick');
+ assert.ok(!simulation.includes('function upB('),'main simulation must not duplicate building tick');
  assert.doesNotThrow(()=>new vm.Script(research,{filename:'js/simulation-research.js'}));
  const ctx={TE:{forging:{cost:{f:150,g:40}}},CIV:[{n:'Spanish'},{n:'Britons'}],S:{civ:[0,1]}};
  const f=vm.runInNewContext(research+'\n;({researchCost,research})',ctx);

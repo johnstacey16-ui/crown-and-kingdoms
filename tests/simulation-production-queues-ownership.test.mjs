@@ -6,6 +6,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 
 const queues=readFileSync(new URL('../js/simulation-production-queues.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const buildingUpdates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 const names=['queuedPopulation','train','cancelQ'];
@@ -15,9 +16,9 @@ test('production queue commands have one source owner and stay callable by the m
   assert.ok(queues.includes('function '+name+'('),'production module must own '+name);
   assert.ok(!simulation.includes('function '+name+'('),'main simulation must not duplicate '+name);
  }
- assert.ok(simulation.includes('function upB('),'building completion remains in the main simulation until extracted separately');
+ assert.ok(buildingUpdates.includes('function upB('),'building completion remains in its dedicated module');
  assert.ok(queues.includes('popOf('),'training must still reserve population through the canonical cap check');
- assert.ok(simulation.includes('livePopulation('),'building completion must still enforce live population');
+ assert.ok(buildingUpdates.includes('livePopulation('),'building completion must still enforce live population');
  assert.doesNotThrow(()=>new vm.Script(queues,{filename:'js/simulation-production-queues.js'}));
  const fn=vm.runInNewContext(queues+'\n;({train,cancelQ})',{S:null});
  assert.equal(fn.train(null,'vil'),false,'invalid production must safely refuse');

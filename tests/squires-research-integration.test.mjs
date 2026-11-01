@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
 const bar = { k: 'bar', t: 0, hp: B.bar.hp, done: true, rs: null, q: [] };
@@ -30,7 +31,7 @@ function extract(begin, end) {
 }
 vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
 extract('function gatherCapacity(u){', 'function walk(u,dt){');
-extract('function upB(b,dt){', '\nfunction okPlace(');
+vm.runInContext(buildingUpdates, context);
 const research = vm.runInContext('research', context);
 const speed = vm.runInContext('unitSpeed', context);
 const upB = vm.runInContext('upB', context);

@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 
 function extract(start, end) {
@@ -26,7 +27,7 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(extract('function gatherCapacity(u){', 'function walk(u,dt){'), context);
-vm.runInContext(extract('function upB(b,dt){', '\nfunction okPlace('), context);
+vm.runInContext(buildingUpdates, context);
 const capacity = vm.runInContext('gatherCapacity', context);
 const speed = vm.runInContext('unitSpeed', context);
 const upB = vm.runInContext('upB', context);
