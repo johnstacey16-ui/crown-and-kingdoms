@@ -82,7 +82,7 @@ test('one combat owner maintains the live spatial-index and siege target helpers
  assert.match(bonuses,/const FOE_CELL=8,FOE_BUCKETS=new Map\(\),FOE_BUCKET_POOL=\[\]/);
  assert.doesNotMatch(simulation,/const FOE_CELL=/);
  assert.match(bonuses,/let foeGridDirty=true;/);
- assert.match(simulation,/function step\(dt\)\{foeGridDirty=true;S\.t\+=dt;/);
+ assert.match(simulation,/function step\(dt\)\{\s*foeGridDirty=true;\s*S\.t\+=dt;/);
  assert.match(bonuses,/b=nearestFoeUnit\(u,r\);if\(b\)return b/);
  assert.match(bonuses,/for\(const bin of FOE_BUCKETS\.values\(\)\)\{bin\.length=0;FOE_BUCKET_POOL\.push\(bin\)\}/);
 });

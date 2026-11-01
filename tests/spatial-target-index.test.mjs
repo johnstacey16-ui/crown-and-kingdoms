@@ -16,7 +16,7 @@ test('hostile-unit target search uses a per-step spatial index rather than scann
   const foe = simulation.slice(start, end);
   assert.match(foe, /b=nearestFoeUnit\(u,r\);if\(b\)return b/);
   assert.doesNotMatch(foe, /for\(const e of S\.us\)/);
-  assert.match(unitTick, /function step\(dt\)\{foeGridDirty=true;S\.t\+=dt;/);
+  assert.match(unitTick, /function step\(dt\)\{\s*foeGridDirty=true;\s*S\.t\+=dt;/);
 });
 
 test('indexed targeting preserves hostility, death/load filters, strict range and stable ties', () => {
