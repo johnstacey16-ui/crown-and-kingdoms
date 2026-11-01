@@ -779,7 +779,7 @@ globalThis.__CK_TEST__ = {
       throw new Error('The normal player trade command did not establish a traversable route');
     const distance = Math.hypot((src.x + src.s / 2) - (dst.x + dst.s / 2), (src.y + src.s / 2) - (dst.y + dst.s / 2));
     if (distance < 10) throw new Error('Trade route is too short to provide a meaningful gold-delivery test');
-    return { gold: S.res[0].g, distance, cart };
+    return { gold: S.res[0].g, distance, speed: U.cart.sp, cart };
   },
   beginHouseConstruction() {
     const u = S.us.find((u) => u.t === 0 && u.k === 'vil' && !u.ld);
@@ -1402,8 +1402,10 @@ console.log(`construction-smoke: house at ${plannedHouse.x},${plannedHouse.y} co
 
 game.start(123456, 1);
 const tradeBefore = game.beginTradeRoute();
+const maxTradeSeconds = Math.min(600, Math.max(120,
+  Math.ceil(tradeBefore.distance * 2 / tradeBefore.speed * 2.25 + 40)));
 let tradeTicks = 0, collectedCargo = false, deliveredTrade = false;
-for (; tradeTicks < 5400; tradeTicks += 1) {
+for (; tradeTicks < maxTradeSeconds * 30; tradeTicks += 1) {
   game.tick(1 / 30);
   collectedCargo ||= tradeBefore.cart.tradeReturning && tradeBefore.cart.tradeCargo > 0;
   // A passing gold-ledger check alone could hide mining: require an actual loaded
@@ -1417,7 +1419,8 @@ assert.ok(collectedCargo, 'The trade cart must reach its explicitly assigned neu
 assert.ok(deliveredTrade,
   'A loaded trade cart must return to its home market and deliver gold: ' +
   JSON.stringify({ time:tradeTicks / 30, distance:tradeBefore.distance,
-    cargo:tradeBefore.cart.tradeCargo, paused:tradeBefore.cart.tradePaused,
+    maxTradeSeconds, cargo:tradeBefore.cart.tradeCargo, paused:tradeBefore.cart.tradePaused,
+    cartPosition:[tradeBefore.cart.x,tradeBefore.cart.y], pendingRoute:tradeBefore.cart.p?.length,
     returning:tradeBefore.cart.tradeReturning, destKey:tradeBefore.cart.tradeDestKey,
     playerGold:tradeAfter.playerGold, before:tradeBefore.gold }));
 console.log(`trade-smoke: neutral-market cart route distance=${tradeBefore.distance.toFixed(1)} tiles, player gold ${tradeBefore.gold}->${tradeAfter.playerGold} over ${(tradeTicks / 30).toFixed(1)} simulated seconds`);
