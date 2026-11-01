@@ -87,7 +87,7 @@ test('trade-cart escort policy assigns one nearby healthy infantry guard and rel
  f.assign(A,[cart,soldier],[soldier],[],[],[]);
  assert.equal(soldier.o,'i');
  assert.equal(soldier.tg,null);
- assert.deepEqual(soldier.p,[]);
+ assert.equal(soldier.p.length,0,'released guard clears its route');
  assert.equal(soldier.tradeEscortUntil,0);
 });
 
