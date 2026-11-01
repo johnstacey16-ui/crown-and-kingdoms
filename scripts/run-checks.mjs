@@ -19,6 +19,17 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Save recovery, multiplayer projection/checkpoints and unit-formation invariants.
+ "tests/save-management.test.mjs",
+ "tests/save-discovery-ui.test.mjs",
+ "tests/save-slot-ui-extraction.test.mjs",
+ "tests/autosave-recovery-ui.test.mjs",
+ "tests/network-live-checkpoint.test.mjs",
+ "tests/network-unit-map.test.mjs",
+ "tests/network-startup.test.mjs",
+ "tests/network-http-transport.test.mjs",
+ "tests/formation-planning.test.mjs",
+ "tests/civilization-starting-bonuses.test.mjs",
  // Architecture owners and Xbox formation/resource-wheel controls: keep these in regular fast CI.
  "tests/runtime-graph-inventory.test.mjs",
  "tests/unit-definitions-centralized.test.mjs",
