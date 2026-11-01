@@ -4,7 +4,8 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**CI status:** [GitHub Actions 41267717364](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41267717364) completed successfully on code `15cc449`, with **247/247 focused assertions**, all five source/offline/civilization/atlas/graphics gates and **45 production scripts** parsed. The new garrison logistics owner preserves existing healing, safe unloading and Town Bell shelter reservations, with service-worker shell **v70**. **The complete 241-file standalone suite, three seeded AI skirmishes, 19 campaigns, Chromium, physical Xbox Series S Edge and independent WAN multiplayer remain unverified.** The previously demonstrated headless 200-unit chokepoint success is not an Xbox hardware benchmark.
+**CI status:** [GitHub Actions 41272223608](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41272223608) completed successfully on `15d91d4`: **264/264 focused assertions**, all five source/offline/civilization/atlas/graphics gates and syntax parsing of **45 production scripts**. Nine additional source-isolated economy/movement files are now focused, and the former stale villager source fixture tests real gathering/worksite ownership. **The complete 241-file standalone suite, three seeded AI skirmishes, 19 campaigns, Chromium, physical Xbox Series S Edge and independent WAN multiplayer remain unverified.** Offline shell remains v70; no production game rules or assets changed.
+
 
 **Current tree inventory:** 241 standalone regression files, 45 production browser scripts, 32 core scripts, 30 headless scripts and 30 Markdown documents.
 
