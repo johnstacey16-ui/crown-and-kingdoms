@@ -28,6 +28,37 @@ test('one damage-bonus module owns every armoured-unit bonus helper',()=>{
  assert.doesNotThrow(()=>new vm.Script(simulation));
 });
 
+test('unchanged monk conversion helpers have one classic-script owner',()=>{
+ const functions=['resetConversion','conversionRange','unitSight','canConvert',
+  'beginConversion','conversionWindow','completeConversion','tickConversion'];
+ for(const name of functions){
+  const pattern=new RegExp('function '+name+'\\\\(');
+  assert.match(bonuses,pattern,'combat owner must define '+name);
+  assert.doesNotMatch(simulation,pattern,'main simulation must not duplicate '+name);
+ }
+ assert.match(bonuses,/const CONVERSION_SIEGE=new Set\(/);
+ assert.doesNotMatch(simulation,/const CONVERSION_SIEGE=new Set\(/);
+ // The unit tick retains its existing conversion path without coupling to a
+ // specific source file; full executable monk tests cover faith, resistance
+ // and authenticated command behaviour.
+ for(const name of ['resetConversion','canConvert','beginConversion','tickConversion'])
+  assert.match(simulation,new RegExp(name+'\\\\('));
+ const ctx={S:{tech:[{},{}],us:[],bs:[]},U:{mon:{},mil:{}},
+  isHostile:(a,b)=>a!==b,arrowSightBonus:()=>0};
+ vm.createContext(ctx);
+ vm.runInContext(bonuses+'\n;globalThis.monkHelpers={conversionRange,unitSight,canConvert,resetConversion};',ctx);
+ const monk={k:'mon',t:0,hp:25,st:0},enemy={k:'mil',t:1,hp:40,x:2,y:2};
+ ctx.S.us.push(monk,enemy);
+ assert.equal(ctx.monkHelpers.canConvert(monk,enemy),true);
+ monk.cv=8;monk.cvNext=9;monk.cvTargetId='old';monk.cvTeam=1;
+ ctx.monkHelpers.resetConversion(monk);
+ assert.deepEqual([monk.cv,monk.cvNext,monk.cvTargetId,monk.cvTeam],[0,0,null,null]);
+ assert.equal(ctx.monkHelpers.conversionRange(monk,enemy),9);
+ ctx.S.tech[0].blockPrinting=1;
+ assert.equal(ctx.monkHelpers.conversionRange(monk,enemy),12);
+ assert.equal(ctx.monkHelpers.unitSight(monk),14);
+});
+
 test('all browser/offline/headless scripts load bonus rules once before damage',()=>{
  for(const paths of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
