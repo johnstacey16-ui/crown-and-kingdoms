@@ -2,10 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
-const a = simulation.indexOf('function dmgT(a,t){');
-const b = simulation.indexOf('/* ===== ECONOMY / UNIT BEHAVIOUR ===== */', a);
+const a = bonuses.indexOf('function dmgT(a,t){');
+const b = bonuses.indexOf('// Conversion helpers shared by solo input, AI and authenticated orders.', a);
 assert.ok(a >= 0 && b > a);
 const U = {
   mil: { rng: 0.9, dmg: 8, cd: 1.2 },
@@ -22,7 +21,6 @@ vm.createContext(context);
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0);
 vm.runInContext(bonuses.slice(bonusStart),context);
-vm.runInContext(simulation.slice(a, b), context);
 const dmgT = vm.runInContext('dmgT', context);
 const attacker = { k: 'mil', t: 0 };
 const make = () => ({ k: 'vil', t: 1, x: 2, y: 2, hp: 25 });

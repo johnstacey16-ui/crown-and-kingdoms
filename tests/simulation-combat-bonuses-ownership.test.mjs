@@ -21,9 +21,10 @@ test('one damage-bonus module owns every armoured-unit bonus helper',()=>{
   assert.match(bonuses,new RegExp('const '+name+'='));
   assert.doesNotMatch(simulation,new RegExp('const '+name+'='));
  }
- assert.match(simulation,/function dmgT\(a,t\)/);
- assert.match(simulation,/spearLineBonus\(a,t\)/);
- assert.match(simulation,/camelLineBonus\(a,t\)/);
+ assert.match(bonuses,/function dmgT\(a,t\)/);
+ assert.doesNotMatch(simulation,/function dmgT\(a,t\)/);
+ assert.match(bonuses,/spearLineBonus\(a,t\)/);
+ assert.match(bonuses,/camelLineBonus\(a,t\)/);
  assert.doesNotThrow(()=>new vm.Script(bonuses));
  assert.doesNotThrow(()=>new vm.Script(simulation));
 });

@@ -30,11 +30,11 @@ assert.match(html, /function diplomacyMenuItems\(\)\{[\s\S]{0,500}l:\(\)=>rotate
 assert.match(html, /function dmgT\(a,t\)\{if\(!a\|\|!t\|\|!U\[a\.k\]\|\|\(!t\.s&&!U\[t\.k\]\)\|\|!Number\.isFinite\(t\.hp\)\|\|t\.hp<=0\|\|t\.ld\|\|!S\.tech\[a\.t\]\|\|!isHostile\(a\.t,t\.t\)\)return;/,
   'Damage must guard missing, dead and non-hostile targets before applying any combat effects');
 
-const begin=simulation.indexOf('function dmgT(');
-const finish=simulation.indexOf('/* ===== ECONOMY / UNIT BEHAVIOUR ===== */',begin);
+const begin=targeting.indexOf('function dmgT(');
+const finish=targeting.indexOf('// Conversion helpers shared by solo input, AI and authenticated orders.',begin);
 assert.ok(begin>=0&&finish>begin,'direct damage simulation must remain available');
 const context={U:{mil:{rng:1,sp:1,dmg:5},spear:{rng:1,sp:1,dmg:4}},S:{tech:[{},{}]},isHostile:()=>false};
-const dmgT=vm.runInNewContext(simulation.slice(begin,finish)+'\n;dmgT;',context);
+const dmgT=vm.runInNewContext(targeting.slice(begin,finish)+'\n;dmgT;',context);
 const attacker={k:'mil',t:0,x:1,y:1,hp:100},target={k:'spear',t:1,x:2,y:2,hp:100};
 assert.doesNotThrow(()=>dmgT(attacker,target),'combat must reject allied/neutral damage before reading other combat dependencies');
 assert.equal(target.hp,100,'allied or neutral targets take no damage');

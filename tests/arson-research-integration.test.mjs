@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
@@ -22,17 +21,11 @@ const context = {
 };
 context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
-function load(start, end) {
-  const a = sim.indexOf(start), b = sim.indexOf(end, a + start.length);
-  assert.ok(a >= 0 && b > a, `missing section ${start}`);
-  vm.runInContext(sim.slice(a, b), context);
-}
 vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
 vm.runInContext(buildingUpdates, context);
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0,'source melee bonus must exist in its dedicated owner');
 vm.runInContext(bonuses.slice(bonusStart),context);
-load('function dmgT(a,t){', '/* ===== ECONOMY / UNIT BEHAVIOUR ===== */');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);
 const damage = vm.runInContext('dmgT', context);

@@ -3,15 +3,12 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const sim = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 const { B, TE, U } = vm.runInNewContext(config + '\n;({B,TE,U})');
 assert.ok(B.bar.rs.includes('arson'), 'Barracks offers Arson');
 assert.equal(TE.arson.age, 2, 'Arson requires Castle Age');
 
-const start = sim.indexOf('function dmgT(a,t){');
-const end = sim.indexOf('function ', start + 10);
-assert.ok(start >= 0 && end > start, 'combat function must be discoverable');
+assert.ok(bonuses.includes('function dmgT(a,t){'), 'combat owner must retain direct damage');
 const S = { tech: [{ arson: 1 }, {}], ping: null, t: 0, al: 0 };
 const context = {
   U, S, INFARM: new Set(['mil']), ARCHARM: new Set(['arc']),
@@ -25,7 +22,6 @@ vm.createContext(context);
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0,'melee attack helper is part of combat bonuses');
 vm.runInContext(bonuses.slice(bonusStart),context);
-vm.runInContext(sim.slice(start, end), context);
 const dmgT = vm.runInContext('dmgT', context);
 function damage(attacker, building, arson) {
   S.tech[0].arson = arson;
