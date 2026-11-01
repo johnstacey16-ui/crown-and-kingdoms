@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const start = source.indexOf('function spawnPos(b){');
-const end = source.indexOf('\nfunction research(b,k){', start);
+const end = source.indexOf('\nconst MILITARY_PRODUCTION_BUILDINGS=', start);
 assert.ok(start >= 0 && end > start);
 const W = 12, H = 12;
 const S = { us: [], g: new Uint8Array(W * H), wt: new Uint8Array(W * H), nd: new Array(W * H).fill(null) };

@@ -9,7 +9,7 @@ test('browser script references are unique, safely rooted and in declared order'
  const scripts=browserScriptPaths(html);
  const core=coreGameScriptPaths(html);
  assert.ok(scripts.length>core.length,'browser bootstrap and transports must surround the core game');
- for(const path of ['./js/simulation-combat-bonuses.js','./js/simulation-victory.js','./js/simulation-logistics.js','./js/simulation-resource-routing.js','./js/simulation-production-queues.js',
+ for(const path of ['./js/simulation-combat-bonuses.js','./js/simulation-victory.js','./js/simulation-logistics.js','./js/simulation-resource-routing.js','./js/simulation-production-queues.js','./js/simulation-research.js',
   './js/ai-policy.js','./js/engine-graphics-benchmark.js'])
   assert.ok(scripts.includes(path),'required split runtime module '+path);
  assert.equal(scripts[0],'./persistence.js');
@@ -19,7 +19,8 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render.js')+1);
  assert.equal(scripts.indexOf('./js/simulation-logistics.js')+1,scripts.indexOf('./js/simulation-resource-routing.js'));
  assert.equal(scripts.indexOf('./js/simulation-resource-routing.js')+1,scripts.indexOf('./js/simulation-production-queues.js'));
- assert.equal(scripts.indexOf('./js/simulation-production-queues.js')+1,scripts.indexOf('./js/simulation.js'));
+ assert.equal(scripts.indexOf('./js/simulation-production-queues.js')+1,scripts.indexOf('./js/simulation-research.js'));
+ assert.equal(scripts.indexOf('./js/simulation-research.js')+1,scripts.indexOf('./js/simulation.js'));
  assert.equal(scripts.indexOf('./js/simulation-combat-bonuses.js'),scripts.indexOf('./js/simulation-victory.js')-1);
  assert.throws(()=>browserScriptPaths('<script src="../secret.js"></script>'),/Unsafe browser script path/);
  assert.throws(()=>browserScriptPaths('<script src="./engine.js"></script><script src="./engine.js"></script>'),/Duplicate browser script reference/);

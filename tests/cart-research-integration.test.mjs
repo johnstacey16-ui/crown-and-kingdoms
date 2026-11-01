@@ -4,8 +4,9 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { B, TE, AG, U } = vm.runInNewContext(config + '\n;({B,TE,AG,U})');
-const source = simulation.slice(simulation.indexOf('function research(b,k){'), simulation.indexOf('const MILITARY_PRODUCTION_BUILDINGS='));
+const source = researchSource.slice(researchSource.indexOf('function research(b,k){'));
 assert.ok(source.startsWith('function research('));
 const player = { k: 'tc', t: 0, hp: 900, done: true, rs: null };
 const opponent = { k: 'tc', t: 1, hp: 900, done: true, rs: null };

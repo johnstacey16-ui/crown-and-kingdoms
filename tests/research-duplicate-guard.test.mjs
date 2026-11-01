@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const start = source.indexOf('function ageRequirements(t,world=S){');
-const end = source.indexOf('const MILITARY_PRODUCTION_BUILDINGS=', start);
+const end = source.length;
 assert.ok(start >= 0 && end > start, 'research implementation must be discoverable');
 const buildings = [
   { k: 'bar', t: 0, hp: 500, done: true, rs: null },

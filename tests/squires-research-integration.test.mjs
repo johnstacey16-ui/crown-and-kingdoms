@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
 const bar = { k: 'bar', t: 0, hp: B.bar.hp, done: true, rs: null, q: [] };
 const otherBar = { k: 'bar', t: 0, hp: B.bar.hp, done: true, rs: null, q: [] };
@@ -27,7 +28,7 @@ function extract(begin, end) {
   assert.ok(start >= 0 && stop > start, `missing source section: ${begin}`);
   vm.runInContext(simulation.slice(start, stop), context);
 }
-extract('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
+vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
 extract('function gatherCapacity(u){', 'function walk(u,dt){');
 extract('function upB(b,dt){', '\nfunction okPlace(');
 const research = vm.runInContext('research', context);

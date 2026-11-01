@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const queueSource = readFileSync(new URL('../js/simulation-production-queues.js', import.meta.url), 'utf8');
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const { B, U, TE, AG } = vm.runInNewContext(config + '\n;({B,U,TE,AG})');
 const a = source.indexOf('function research(b,k){');
-const b = source.indexOf('\nconst MILITARY_PRODUCTION_BUILDINGS=', a);
+const b = source.length;
 const c = queueSource.indexOf('function train(b,k){');
 const d = queueSource.indexOf('\nfunction cancelQ(', c);
 assert.ok(a >= 0 && b > a && c >= 0 && d > c);

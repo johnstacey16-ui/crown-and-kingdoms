@@ -350,26 +350,6 @@ if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;if(tg.done)tg.hp=Math.min(tg.mh,tg.hp+tg.m
 if(tg.pr>=B[tg.k].bt){tg.done=true;tg.hp=tg.mh;sfx('built',tg.x+tg.s/2,tg.y+tg.s/2);if(tg.t===0){S.pl.bl++;note(B[tg.k].n+' complete')}}}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt)}}}
 function spawnPos(b){const occupied=new Set();for(const u of S.us)if(u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)){const x=Math.floor(u.x),y=Math.floor(u.y);if(Math.abs(u.x-(x+.5))<.35&&Math.abs(u.y-(y+.5))<.35)occupied.add(y*W+x)}for(let i=-1;i<=b.s;i++)for(const[x,y]of[[b.x+i,b.y-1],[b.x+i,b.y+b.s],[b.x-1,b.y+i],[b.x+b.s,b.y+i]]){if(x<0||y<0||x>=W||y>=H)continue;const ix=y*W+x;if(!(b.k==='dock'?(S.wt[ix]===1||S.wt[ix]===2)&&!S.nd[ix]:!S.g[ix]&&S.wt[ix]!==1&&!S.nd[ix]))continue;if(occupied.has(ix))continue;return[x+.5,y+.5]}return null}
-function ageRequirements(t,world=S){
- const g=AG[world.age[t]+1];if(!g)return {ready:false,count:0};
- const completed=world.bs.filter(b=>b.t===t&&b.done&&b.hp>0);
- const count=new Set(completed.filter(b=>g.needs.includes(b.k)).map(b=>b.k)).size;
- return {ready:count>=2||!!(g.single&&completed.some(b=>b.k===g.single)),count};
-}
-/* Spanish civilization bonus (DE): Blacksmith technologies cost no gold.
- * Keep the base TE catalogue immutable and calculate costs separately for each
- * owning team, so player, AI, synchronized command menus and payment agree.
- */
-function researchCost(b,k,civs=S?.civ){
- const cost=TE[k]?.cost||{},index=civs?.[b?.t];
- return b?.k==='smith'&&Number.isInteger(index)&&CIV[index]?.n==='Spanish'&&cost.g
-  ?{...cost,g:0}:cost;
-}
-function research(b,k){if(!b||b.hp<=0||!b.done||!S||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k])return false;const t=b.t;if(b.q&&b.q.length){if(!t)note('Finish or cancel training before researching');return false}if(b.rs){if(!t)note('Already researching here');return false}if(S.bs.some(x=>x!==b&&x.t===t&&x.hp>0&&x.rs&&x.rs.k===k)){if(!t)note(k==='age'?'Age advance already in progress':'Technology already being researched');return false}let d;
-if(k==='age'){if(b.k!=='tc'){if(!t)note('Advance Age requires a Town Centre');return false}const g=AG[S.age[t]+1];if(!g){if(!t)note('Already Imperial Age');return false}const gate=ageRequirements(t);if(!gate.ready){if(!t)note('Needs 2 different current-age buildings ('+gate.count+'/2)'+(g.single?' or a completed Castle':''));return false}d=g}
-else{d=TE[k];if(!d||!Array.isArray(B[b.k].rs)||!rsOf(b).includes(k)){if(!t)note('Research unavailable at this building');return false}if(S.tech[t][k]||d.age>S.age[t]||(d.pre&&!S.tech[t][d.pre])){if(!t)note('Locked');return false}}
-if(k!=='age'&&b.k==='smith')d={...d,cost:researchCost(b,k)};
-if(!can(t,d.cost)){if(!t)note('Not enough resources');return false}pay(t,d.cost);b.rs={k,t:d.t};return true}
 const MILITARY_PRODUCTION_BUILDINGS=new Set(['bar','rng','stable','siege','castle','monastery','dock']);
 function trainRate(b,k){return S.tech[b.t]&&S.tech[b.t].cons&&MILITARY_PRODUCTION_BUILDINGS.has(b.k)&&!['vil','cart','fish','trn','cog'].includes(k)?4/3:1}
 function upB(b,dt){if(!b||!b.done||b.hp<=0||!Number.isFinite(dt)||dt<=0)return;

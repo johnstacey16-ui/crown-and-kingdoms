@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
 const stable = { k: 'stable', t: 0, hp: B.stable.hp, done: true, rs: null, q: [] };
 const other = { ...stable, rs: null, q: [] };
@@ -31,7 +32,7 @@ function load(start, end) {
   assert.ok(a >= 0 && b > a, 'missing source segment: ' + start);
   vm.runInContext(simulation.slice(a, b), context);
 }
-load('function research(b,k){', 'const MILITARY_PRODUCTION_BUILDINGS=');
+vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
 load('function upB(b,dt){', '\nfunction okPlace(');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);
