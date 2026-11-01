@@ -19,6 +19,8 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Combat min-range regression follows its canonical extracted simulation owner.
+ "tests/audit-critical-balance.test.mjs",
  // Server security, relay limits, Supabase identity and direct-transport lifecycle.
  "tests/server-app.test.mjs",
  "tests/server-transport.test.mjs",
