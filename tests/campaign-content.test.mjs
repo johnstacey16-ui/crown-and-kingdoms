@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
+import vm from 'node:vm';
+import {headlessGame} from './helpers/headless-game.mjs';
 
 // Assert against the same HTML-ordered browser module graph used by production.
 const html=loadCoreGameSource({includeUI:true});
@@ -72,4 +74,30 @@ test('final Causeway campaign mission requires forward Castles and a decisive To
   assert.ok(mission.includes("t:'Destroy the enemy Town Centre'"), 'The mission must require a decisive assault');
   assert.ok(mission.includes("at:260,do:()=>raid(9,['ram','ram','bomb'"), 'The mission must include a timed heavy-siege counterattack');
   assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The final mission must be reachable in campaign progression');
+});
+
+test('First Hearth live tutorial A/RT instructions agree with controller release semantics',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source,sandbox);
+ const guidance=Array.from(vm.runInContext(
+  "CAMP[0].ev.slice(0,3).map(event=>{notes.length=0;event.do();return notes.at(-1)?.s})",
+  sandbox));
+ assert.match(guidance[0],/press A on a villager to select it/);
+ assert.match(guidance[1],/aim at a tree and press A to send them chopping/);
+ assert.match(guidance[2],/Hold RT for the command menu/);
+ assert.doesNotMatch(guidance.join(' '),/press X to (chop|gather)/i);
+ vm.runInContext(`
+   mode='play';S={us:[],bs:[],sel:[],vp:createVillagerPriority()};
+   pad={axes:[0,0,0,0],buttons:[]};clampCam=()=>{};
+   cur={x:100,y:100};globalThis.tapCount=0;tapA=()=>{globalThis.tapCount++};
+   E=[];P=[];RE=[];E[0]=P[0]=true;playCtl(0);
+   E=[];P=[];RE=[];RE[0]=true;playCtl(0);
+ `,sandbox);
+ assert.equal(sandbox.tapCount,1,'the world A press and release invokes the contextual action');
+ vm.runInContext(`
+   E=[];P=[];RE=[];E[2]=P[2]=true;playCtl(0);
+   E=[];P=[];RE=[];RE[2]=true;playCtl(0);
+ `,sandbox);
+ assert.equal(sandbox.tapCount,1,'X alone does not substitute for the A gathering gesture');
 });
