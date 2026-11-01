@@ -9,7 +9,7 @@ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const network=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
-const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const from=resource.indexOf('function farmAvailableTo(u,n){');
 const end=resource.indexOf('function dropoffKey(',from);
 assert.ok(from>=0&&end>from,'production farm occupancy and node selection functions present');
@@ -80,10 +80,10 @@ test('Xbox-style automatic worker assignment chooses a reachable unclaimed food 
 });
 
 test('all command surfaces preserve the one-farmer rule',()=>{
- assert.match(input,/tg\.fm&&!farmAvailableTo\(u,tg\)/);
+ assert.match(input,/!resourceHasWorksite\(u,tg\)/);
  assert.match(engine,/farmAvailableTo\(u,n\)/);
  assert.match(network,/farmAvailableTo\(u,entity\)/);
- assert.match(network,/node\.fm&&!farmAvailableTo\(u,node\)/);
- assert.match(ai,/farmAvailableTo\(w,n\)/);
- assert.match(simulation,/tg\.fm&&!farmAvailableTo\(u,tg\)/);
+ assert.match(network,/!!node\.fm&&!farmAvailableTo\(u,node\)/);
+ assert.match(policy,/farmAvailableTo\(w,n\)/);
+ assert.match(simulation,/!resourceHasWorksite\(u,tg\)/);
 });

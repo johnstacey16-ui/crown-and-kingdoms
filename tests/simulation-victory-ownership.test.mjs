@@ -26,7 +26,8 @@ test('victory loads before logistics and simulation in browser, headless and off
   const victoryAt=scripts.indexOf('./js/simulation-victory.js');
   assert.ok(victoryAt>=0);
   assert.equal(scripts[victoryAt+1],'./js/simulation-logistics.js');
-  assert.equal(scripts[victoryAt+2],'./js/simulation.js');
+  assert.equal(scripts[victoryAt+2],'./js/simulation-resource-routing.js');
+  assert.equal(scripts[victoryAt+3],'./js/simulation.js');
  }
  assert.match(sw,/['"]\.\/js\/simulation-victory\.js['"]/);
  assert.match(loadCoreGameSource(),/function kingHillControl\(dt\)/);
