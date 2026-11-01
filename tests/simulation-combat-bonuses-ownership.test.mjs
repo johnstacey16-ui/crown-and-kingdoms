@@ -33,10 +33,10 @@ test('all browser/offline/headless scripts load bonus rules once before damage',
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=paths.indexOf('./js/simulation-combat-bonuses.js');
   assert.ok(i>=0,'combat bonus script must be included');
-  assert.deepEqual(paths.slice(i,i+8),[
+  assert.deepEqual(paths.slice(i,i+9),[
    './js/simulation-combat-bonuses.js','./js/simulation-victory.js',
    './js/simulation-logistics.js','./js/simulation-resource-routing.js','./js/simulation-production-queues.js','./js/simulation-research.js',
-   './js/simulation-building-production.js','./js/simulation.js']);
+   './js/simulation-building-production.js','./js/simulation-building-updates.js','./js/simulation.js']);
   assert.equal(paths.filter(p=>p==='./js/simulation-combat-bonuses.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-combat-bonuses.js'"));

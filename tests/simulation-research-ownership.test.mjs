@@ -33,7 +33,8 @@ test('research script loads exactly once before building completion in all produ
   assert.ok(i>0,'research script exists');
   assert.equal(paths[i-1],'./js/simulation-production-queues.js');
   assert.equal(paths[i+1],'./js/simulation-building-production.js');
-  assert.equal(paths[i+2],'./js/simulation.js');
+  assert.equal(paths[i+2],'./js/simulation-building-updates.js');
+  assert.equal(paths[i+3],'./js/simulation.js');
   assert.equal(paths.filter(p=>p==='./js/simulation-research.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-research.js'"));

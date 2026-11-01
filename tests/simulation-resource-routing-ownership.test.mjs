@@ -34,7 +34,8 @@ test('offline, browser, core and headless loading retain exact resource ordering
   assert.equal(paths[i-1],'./js/simulation-logistics.js');
   assert.equal(paths.indexOf('./js/simulation-production-queues.js')+1,paths.indexOf('./js/simulation-research.js'));
   assert.equal(paths.indexOf('./js/simulation-research.js')+1,paths.indexOf('./js/simulation-building-production.js'));
-  assert.equal(paths.indexOf('./js/simulation-building-production.js')+1,paths.indexOf('./js/simulation.js'));
+  assert.equal(paths.indexOf('./js/simulation-building-production.js')+1,paths.indexOf('./js/simulation-building-updates.js'));
+  assert.equal(paths.indexOf('./js/simulation-building-updates.js')+1,paths.indexOf('./js/simulation.js'));
   assert.equal(paths.filter(p=>p==='./js/simulation-resource-routing.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-resource-routing.js'"));

@@ -36,7 +36,8 @@ test('building spawn policy loads once before core simulation in browser, headle
   const i=paths.indexOf('./js/simulation-building-production.js');
   assert.ok(i>0);
   assert.equal(paths[i-1],'./js/simulation-research.js');
-  assert.equal(paths[i+1],'./js/simulation.js');
+  assert.equal(paths[i+1],'./js/simulation-building-updates.js');
+  assert.equal(paths[i+2],'./js/simulation.js');
   assert.equal(paths.filter(path=>path==='./js/simulation-building-production.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-building-production.js'"));
