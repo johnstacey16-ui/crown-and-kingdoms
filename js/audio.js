@@ -60,7 +60,7 @@ function aRequestResume(){
  if(now-AUD.resumeAt<500)return;
  AUD.resumeAt=now;
  try{
-  const p=AC.resume();
+  const p=AC.resume().catch(()=>{});
   if(p&&typeof p.then==='function')p.then(aFlushPendingCue).catch(()=>{});
  }catch(e){}
 }
