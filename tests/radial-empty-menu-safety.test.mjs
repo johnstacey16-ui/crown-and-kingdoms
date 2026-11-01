@@ -69,3 +69,34 @@ test('controller A executes a valid action and safely ignores stale selection in
  ctx.menu.i=999;ctx.control();assert.equal(called,2,'stale cursor is normalized to a valid item');
  ctx.menu.i=NaN;ctx.control();assert.equal(called,3,'noninteger cursor is normalized to a valid item');
 });
+
+test('stale and malformed radial commands render inert placeholders without crashing',()=>{
+ const {ctx,labels}=fixture();let calls=0;
+ const invalid=[null,undefined,42,'broken',{l:1,fn:()=>calls++},{l:'',fn:()=>calls++},{l:'No cost',c:null,lk:null,fn:()=>calls++}];
+ ctx.menu={title:null,items:[...invalid,choice('Working')],i:0,rad:1,pg:0};
+ assert.doesNotThrow(()=>ctx.draw(),'renderer must not trust stale command labels or costs');
+ assert.ok(labels.includes('Commands'),'missing title receives a safe caption');
+ assert.equal(labels.filter(x=>x==='Unavailable').length,6,'broken entries remain visible but disabled');
+ assert.equal(ctx.page(ctx.menu).items.length,8,'positions must remain stable for A selection');
+ ctx.E=[true];ctx.control();
+ assert.equal(calls,0,'invalid menu entries cannot execute a command');
+ assert.equal(ctx.menu.i,0);
+ ctx.menu.i=7;assert.doesNotThrow(()=>ctx.control());
+ assert.equal(calls,0,'a valid command must not invoke an invalid entry');
+});
+
+test('malformed choices preserve custom page indices and never become executable',()=>{
+ const {ctx}=fixture();
+ const choices=[choice('Real'),undefined,{l:'Broken action',fn:'not callable'},null];
+ ctx.menu={title:'Build',items:choices,i:0,rad:1,pr:[[0,2],[2,4]],pg:1};
+ const page=ctx.page(ctx.menu);
+ assert.equal(page.pg,1);
+ assert.equal(page.a0,2);
+ assert.equal(page.n,2);
+ assert.equal(page.items[2].l,'Broken action');
+ assert.equal(page.items[3].l,'Unavailable');
+ assert.doesNotThrow(()=>ctx.draw());
+ ctx.menu.i=3;ctx.E[0]=true;
+ assert.doesNotThrow(()=>ctx.control(),'A on an unusable entry is harmless');
+ ctx.E=[];ctx.E[1]=true;ctx.control();assert.equal(ctx.menu,null,'B still closes stale menus');
+});
