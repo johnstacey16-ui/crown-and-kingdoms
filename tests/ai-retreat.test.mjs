@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const unitBehaviour=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const start=ai.indexOf('function aiRetreat(');
 const end=ai.indexOf('\nfunction ai(',start);
 assert.ok(start>=0&&end>start,'AI retreat policy must exist');
@@ -62,10 +62,10 @@ test('retreat ends after recovery to 65 percent HP or after shelter destruction'
 });
 
 test('shelter proximity no longer grants free hit-point healing',()=>{
- assert.match(sim,/Shelter proximity alone does not heal military units/);
- assert.match(sim,/u\.hp>=mhp\(u\)\*\.65\|\|S\.t>=\(u\.retreatRestUntil\|\|\(u\.retreatRestUntil=S\.t\+8\)\)/,
+ assert.match(unitBehaviour,/Shelter proximity alone does not heal military units/);
+ assert.match(unitBehaviour,/u\.hp>=mhp\(u\)\*\.65\|\|S\.t>=\(u\.retreatRestUntil\|\|\(u\.retreatRestUntil=S\.t\+8\)\)/,
   'retreat rest ends through recovered health or an eight-second timeout');
- assert.doesNotMatch(sim,/u\.hp=Math\.min\(mhp\(u\),u\.hp\+Math\.max\(1\.5,mhp\(u\)\*\.035\)\*dt\)/,
+ assert.doesNotMatch(unitBehaviour,/u\.hp=Math\.min\(mhp\(u\),u\.hp\+Math\.max\(1\.5,mhp\(u\)\*\.035\)\*dt\)/,
   'obsolete automatic healing must not silently return');
 });
 
