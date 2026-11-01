@@ -19,7 +19,9 @@ function fixture(initial=[]){
   {addEventListener:(event,fn)=>listeners.set(event,fn)},
   {addEventListener:(event,fn)=>listeners.set('document:'+event,fn)},()=>{cancelled++});
  const press=(indices=[])=>controller.buttons.forEach((b,i)=>{b.pressed=indices.includes(i);b.value=b.pressed?1:0});
- return {...polling,press,focus:()=>listeners.get('focus')(),
+ return {...polling,press,setConnected:connected=>{controller.connected=connected},
+  disconnect:()=>listeners.get('gamepaddisconnected')({gamepad:controller}),
+  focus:()=>listeners.get('focus')(),
   blur:()=>listeners.get('blur')(),visibility:()=>listeners.get('document:visibilitychange')(),
   cancelled:()=>cancelled};
 }
@@ -84,4 +86,38 @@ test('visibility suspension/resumption quarantines held RT/Y without requiring a
  pad.readPad();assert.equal(pad.state().E.some(Boolean),false);
  pad.press([]);pad.readPad();
  pad.press([3]);pad.readPad();assert.equal(pad.state().E[3],true);
+});
+
+test('silent loss of a held Xbox controller never invents A, LB or RT release commands',()=>{
+ const pad=fixture();pad.readPad();
+ pad.press([0,4,7]);pad.readPad();
+ assert.equal(pad.state().P[0],true);
+ pad.setConnected(false);pad.readPad();
+ assert.equal(pad.pending(),true);
+ for(const key of ['P','E','ER','RE'])assert.equal(pad.state()[key].some(Boolean),false,
+  key+' must not carry a synthetic edge after silent disconnect');
+ pad.readPad();assert.equal(pad.state().RE.some(Boolean),false);
+ pad.setConnected(true);pad.press([0,4,7]);pad.readPad();
+ assert.equal(pad.state().P.some(Boolean),false);
+ assert.equal(pad.state().E.some(Boolean),false);
+ pad.press([4,7]);pad.readPad();assert.equal(pad.state().RE.some(Boolean),false);
+ pad.press([]);pad.readPad();assert.equal(pad.pending(),false);
+ pad.press([0]);pad.readPad();
+ assert.equal(pad.state().E[0],true,'a genuinely fresh press works after neutral');
+ assert.ok(pad.cancelled()>=3,'disconnection and reconnection cancel stale gestures');
+});
+
+test('explicit gamepaddisconnected immediately clears pending held-button state',()=>{
+ const pad=fixture();pad.readPad();
+ pad.press([7]);pad.readPad();
+ assert.equal(pad.state().P[7],true);
+ pad.disconnect();
+ assert.equal(pad.pending(),true);
+ for(const key of ['P','E','ER','RE'])assert.equal(pad.state()[key].some(Boolean),false);
+ pad.setConnected(false);pad.readPad();
+ assert.equal(pad.state().RE.some(Boolean),false);
+ pad.setConnected(true);pad.readPad();
+ assert.equal(pad.state().P.some(Boolean),false);
+ pad.press([]);pad.readPad();
+ assert.equal(pad.pending(),false);
 });
