@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions 41277186653](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41277186653) passed on code `69c100c` with **455/455 focused assertions**, all five quick source/offline/civilization/atlas/graphics gates and 45 production browser scripts parsed. The unchanged terrain-safe movement, waypoint repair and collision primitive now live together in the existing separation module, shrinking the main simulation by **2,337 source characters** to **14,176**; offline shell revision is **v76**. Fast hosted CI covers **132 of 241 standalone regression files**. **The complete 241-file isolated regression suite, three seeded AI skirmishes, 19 campaign missions, Chromium, real Xbox Series S Edge and independent WAN multiplayer remain unverified.** The game's inputs, movement rules and free-only hosting policy are unchanged.
 
-**Current tree inventory:** 241 standalone regression files, 45 production browser scripts, 32 core scripts, 30 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 242 standalone regression files, 45 production browser scripts, 32 core scripts, 30 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
