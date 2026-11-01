@@ -89,6 +89,7 @@ const FOCUSED=[
  "tests/economy-invariants.test.mjs",
  "tests/large-army-chokepoint.test.mjs",
  "tests/waypoint-collision-safety.test.mjs",
+ "tests/patrol-order-validation.test.mjs",
  "tests/construction-unit-occupancy.test.mjs",
  "tests/palisade-construction.test.mjs",
  "tests/foe-grid-live-units.test.mjs",

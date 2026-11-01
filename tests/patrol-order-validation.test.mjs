@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-logistics.js', import.meta.url), 'utf8');
 const start = simulation.indexOf('function patrol(wx,wy,once){');
 const end = simulation.indexOf('\nfunction subg(', start);
 assert.ok(start >= 0 && end > start, 'Patrol command must remain isolated');

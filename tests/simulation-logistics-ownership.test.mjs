@@ -24,6 +24,23 @@ test('transport and trader functionality is owned only by the new module',()=>{
  assert.doesNotThrow(()=>new vm.Script(logistics,{filename:'js/simulation-logistics.js'}));
  assert.doesNotThrow(()=>new vm.Script(simulation,{filename:'js/simulation.js'}));
 });
+test('player controller unit orders have a single logistics owner',()=>{
+ const names=['stopSel','regroup','orderGuardFollow','patrol','subg','setStance'];
+ for(const name of names){
+  const fn=new RegExp('function '+name+'\\(');
+  assert.match(logistics,fn,'logistics must own '+name);
+  assert.doesNotMatch(simulation,fn,'main simulation must not duplicate '+name);
+ }
+ const source=logistics.slice(logistics.indexOf('function stopSel(){'));
+ const orders=vm.runInNewContext(source+'\n;({stopSel,patrol,setStance})',{
+  S:{sel:[{k:'mil',hp:40,o:'a',t:0,p:[[5,5]],tg:{},guardTarget:{}}]},
+  U:{mil:{n:'Militia'}},note:()=>{},menu:null
+ });
+ assert.equal(orders.patrol(12,12,false),true);
+ assert.equal(orders.stopSel(),undefined);
+ assert.equal(orders.setStance(4),undefined);
+});
+
 test('garrison healing is team-safe and Herbal Medicine accelerates only valid passengers',()=>{
  const S={us:[],tech:[{},{}]};
  const b={t:0,cg:[]},healthy={hp:5,t:0,ld:b};
