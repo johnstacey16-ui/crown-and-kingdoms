@@ -19,6 +19,8 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Browser audio unlock, hidden-tab suspension and queued first UI cue.
+ 'tests/audio-suspension.test.mjs',
  // Standalone AI ally tribute policy, reserves and cooldown regression.
  "tests/ai-ally-resource-policy.test.mjs",
  // AI building placement, reachable builders and resource-site ownership.

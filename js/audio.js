@@ -1,6 +1,6 @@
 /* Crown & Kingdoms — procedural audio synthesis, spatial sound and adaptive music. */
 /* ===== AUDIO ENGINE: every sound is synthesised (no assets). Buses: master > music / effects / ambient / interface / voice ===== */
-const AUD={ok:0,cd:{},vc:0,lc:-99,lv:{pad:0,bass:0,arp:0,drum:0,drone:0},nt:0,sp:0};let aT=0;
+const AUD={ok:0,cd:{},vc:0,lc:-99,lv:{pad:0,bass:0,arp:0,drum:0,drone:0},nt:0,sp:0,resumeAt:-Infinity,pendingCue:null};let aT=0;
 const R1=(a,b)=>a+Math.random()*(b-a);
 function aInit(){if(AUD.ok)return AUD.ok>0;try{const C=window.AudioContext||window.webkitAudioContext;if(!C){AUD.ok=-1;return false}AC=AC||new C();const m=AC.createGain(),cp=AC.createDynamicsCompressor();cp.threshold.value=-16;cp.ratio.value=5;m.connect(cp);cp.connect(AC.destination);AUD.m=m;AUD.b={};for(const k of['mu','sf','am','ui','vo']){const g=AC.createGain();g.connect(m);AUD.b[k]=g}
 const n=AC.sampleRate*2|0,bf=AC.createBuffer(1,n,AC.sampleRate),d=bf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;AUD.nb=bf;
@@ -44,7 +44,35 @@ bird:{cd:300,d:.5,b:'am',f:(o,t)=>{const n=2+(Math.random()*3|0);for(let i=0;i<n
 cmd:{cd:60,d:.1,b:'ui',f:(o,t)=>tn(o,t,.07,'triangle',440,0,.1)},select:{cd:40,d:.1,b:'ui',f:(o,t)=>tn(o,t,.04,'square',700,0,.05)},
 u_move:{cd:30,d:.1,b:'ui',f:(o,t)=>tn(o,t,.04,'square',R1(520,540),0,.06)},u_ok:{cd:60,d:.2,b:'ui',f:(o,t)=>{tn(o,t,.08,'triangle',880,0,.1);tn(o,t+.05,.1,'triangle',1320,0,.08)}},
 u_back:{cd:60,d:.2,b:'ui',f:(o,t)=>tn(o,t,.1,'triangle',330,220,.1)},u_note:{cd:80,d:.1,b:'ui',f:(o,t)=>tn(o,t,.06,'sine',520,0,.07)}};
-function sfx(id,x,y,a){if(!snd||AUD.ok<0)return;try{if(!aInit())return;if(AC.state!=='running'){AC.resume().catch(()=>{});return}const def=SFX[id],nm=performance.now();if(!def||(AUD.cd[id]!==undefined&&nm-AUD.cd[id]<def.cd)||AUD.vc>=26)return;const base=AUD.b[def.b||'sf'];let d=base,spatial=false;if(x!==undefined){d=sOut(x,y,base);if(!d)return;spatial=true}AUD.cd[id]=nm;AUD.vc++;setTimeout(()=>{AUD.vc=Math.max(0,AUD.vc-1);if(spatial){try{if(d._ckPan)d._ckPan.disconnect();d.disconnect()}catch(e){}}},(def.d*1000|0)+150);def.f(d,AC.currentTime+.005,a||{})}catch(e){}}
+// Never call AudioContext.resume() continuously from the 12ms music/ambient tick.
+// Browser autoplay unlock is triggered by a sound request (normally a controller
+// gesture), with a bounded retry window if an earlier promise remains pending.
+function aFlushPendingCue(){
+ if(!AC||AC.state!=='running')return;
+ const cue=AUD.pendingCue;AUD.pendingCue=null;
+ if(!cue)return;
+ AUD.nt=0;
+ if(snd&&performance.now()-cue.at<=2000)sfx(cue.id,cue.x,cue.y,cue.a);
+}
+function aRequestResume(){
+ if(!AC||AC.state!=='suspended'||(typeof document!=='undefined'&&document.hidden))return;
+ const now=performance.now();
+ if(now-AUD.resumeAt<500)return;
+ AUD.resumeAt=now;
+ try{
+  const p=AC.resume();
+  if(p&&typeof p.then==='function')p.then(aFlushPendingCue).catch(()=>{});
+ }catch(e){}
+}
+function sfx(id,x,y,a){if(!snd||AUD.ok<0)return;try{if(!aInit())return;if(AC.state!=='running'){
+ if(AC.state==='suspended'&&!(typeof document!=='undefined'&&document.hidden)){
+  const now=performance.now(),def=SFX[id];
+  if(def&&def.b==='ui'&&(!AUD.pendingCue||now-AUD.pendingCue.at>2000))
+   AUD.pendingCue={id,x,y,a,at:now};
+  aRequestResume();
+ }
+ return;
+}const def=SFX[id],nm=performance.now();if(!def||(AUD.cd[id]!==undefined&&nm-AUD.cd[id]<def.cd)||AUD.vc>=26)return;const base=AUD.b[def.b||'sf'];let d=base,spatial=false;if(x!==undefined){d=sOut(x,y,base);if(!d)return;spatial=true}AUD.cd[id]=nm;AUD.vc++;setTimeout(()=>{AUD.vc=Math.max(0,AUD.vc-1);if(spatial){try{if(d._ckPan)d._ckPan.disconnect();d.disconnect()}catch(e){}}},(def.d*1000|0)+150);def.f(d,AC.currentTime+.005,a||{})}catch(e){}}
 const uis=id=>sfx('u_'+id);
 function hitSnd(a,t){AUD.lc=gt;const d=U[a.k]||{},bx=(t.s||0)/2;let id;if(t.s)id=d.sg||d.bb?'boom':(Math.random()<.35?'woodhit':'blunt');else if(d.sg)id='boom';else if(d.rng>2)id=Math.random()<.28?'arrowhit':'arrow';else if(a.k==='spear'||a.k==='skirm')id='stab';else if(a.k==='ele'||a.k==='ram')id=Math.random()<.4?'woodhit':'blunt';else id=Math.random()<.32?'metal':'blade';sfx(id,t.x+bx,t.y+bx)}
 function ack(u){if(!u)return;if(u.q){sfx('bsel',u.x+u.s/2,u.y+u.s/2);return}sfx('select');const d=U[u.k]||{};sfx(d.sh||d.sg?'creak':'vox',u.x,u.y,{k:vk(u.k)})}
@@ -62,4 +90,4 @@ if(q===0){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=
 if(lv.bass>.03&&q%4===0)tn(B,t,sd*3.6,'sine',fq(deg)/2,0,.16*lv.bass,.01);
 if(lv.arp>.03&&Math.random()<.55)tn(B,t,sd*2.2,'triangle',fq(deg+[0,2,4,2,5,4,2,1][sp%8])*2,0,.06*lv.arp,.005);
 if(lv.drum>.03){if(q===0||q===8||(st==='combat'&&q===6))tn(B,t,.2,'sine',130,45,.4*lv.drum,.003);if(st==='combat'){if(q===4||q===12){nz(B,t,.12,'bandpass',1700,1,.18*lv.drum);tn(B,t,.08,'triangle',190,130,.1*lv.drum)}if(q===2||q===10)tn(B,t,.22,'sine',170,80,.22*lv.drum,.004)}}}
-function aTick(){if(!snd||!aInit())return;if(AC.state==='suspended')AC.resume().catch(()=>{});aT++;if(aT%2===0){aVol();aAmb()}aMus()}
+function aTick(){if(!snd||!aInit()||AC.state!=='running')return;if(AUD.pendingCue)aFlushPendingCue();aT++;if(aT%2===0){aVol();aAmb()}aMus()}
