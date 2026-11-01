@@ -32,7 +32,7 @@ test('unchanged monk conversion helpers have one classic-script owner',()=>{
  const functions=['resetConversion','conversionRange','unitSight','canConvert',
   'beginConversion','conversionWindow','completeConversion','tickConversion'];
  for(const name of functions){
-  const pattern=new RegExp('function '+name+'\\\\(');
+  const pattern=new RegExp('function '+name+'\\(');
   assert.match(bonuses,pattern,'combat owner must define '+name);
   assert.doesNotMatch(simulation,pattern,'main simulation must not duplicate '+name);
  }
@@ -42,7 +42,7 @@ test('unchanged monk conversion helpers have one classic-script owner',()=>{
  // specific source file; full executable monk tests cover faith, resistance
  // and authenticated command behaviour.
  for(const name of ['resetConversion','canConvert','beginConversion','tickConversion'])
-  assert.match(simulation,new RegExp(name+'\\\\('));
+  assert.match(simulation,new RegExp(name+'\\('));
  const ctx={S:{tech:[{},{}],us:[],bs:[]},U:{mon:{},mil:{}},
   isHostile:(a,b)=>a!==b,arrowSightBonus:()=>0};
  vm.createContext(ctx);
