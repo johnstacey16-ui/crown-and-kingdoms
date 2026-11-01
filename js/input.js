@@ -11,7 +11,12 @@ function readPad(){let g=null;try{const list=navigator.getGamepads?navigator.get
 if(padNeedsNeutral){prev=n.slice();RE=n.map(()=>false);ER=n.map(()=>false);E=n.map(()=>false);P=n.map(()=>false);if(!n.some(Boolean))padNeedsNeutral=false;return}
 const mp=i=>Number.isInteger(BM[i])&&BM[i]>=0&&BM[i]<n.length?BM[i]:i;RE=prev.map((_,i)=>{const j=mp(i);return!!(prev[j]&&!n[j])});ER=n.map((v,i)=>v&&!prev[i]);E=ER.map((_,i)=>ER[mp(i)]);P=n.map((_,i)=>!!n[mp(i)]);prev=n}
 const ax=i=>{const raw=pad&&pad.axes?pad.axes[i]:0,v=Number.isFinite(raw)?Math.max(-1,Math.min(1,raw)):0,rawZone=i<2?dz:dzr,z=Number.isFinite(rawZone)?Math.max(0,Math.min(.95,rawZone)):.2;return Math.abs(v)<=z?0:Math.sign(v)*(Math.abs(v)-z)/(1-z)},tv=i=>{const v=pad&&pad.buttons[i]?pad.buttons[i].value:0;return Number.isFinite(v)?Math.max(0,Math.min(1,v)):0};
-window.addEventListener('gamepadconnected',()=>{prev=[];pad=null;gpErr='';});window.addEventListener('gamepaddisconnected',e=>{if(!pad||e.gamepad.index===pad.index){pad=null;prev=[];P=[];E=[];ER=[];RE=[];if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();}});window.addEventListener('focus',()=>{prev=[];padNeedsNeutral=true;if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();});
+window.addEventListener('gamepadconnected',()=>{prev=[];pad=null;gpErr='';});window.addEventListener('gamepaddisconnected',e=>{if(!pad||e.gamepad.index===pad.index){pad=null;prev=[];P=[];E=[];ER=[];RE=[];if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();}});function quarantineGamepadInput(){prev=[];P=[];E=[];ER=[];RE=[];padNeedsNeutral=true;if(typeof cancelGameplayGestures==='function')cancelGameplayGestures();}
+// Edge may hide/show an Xbox tab without a corresponding window focus event.
+// Clear old edges immediately, then require every button to be released.
+window.addEventListener('focus',quarantineGamepadInput);
+window.addEventListener('blur',quarantineGamepadInput);
+document.addEventListener('visibilitychange',quarantineGamepadInput);
 function pick(wx,wy){if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return null;let b=null,bd=.9;for(const u of S.us)if(u&&u.hp>0&&vis(u)&&!u.ld){const d=Math.hypot(u.x-wx,u.y-wy);if(d<bd){bd=d;b=u}}if(b)return b;
 for(const q of S.bs)if(q&&q.hp>0&&(q.t===0||S.ex[q.y*W+q.x])&&wx>=q.x-.3&&wx<=q.x+q.s+.3&&wy>=q.y-.3&&wy<=q.y+q.s+.3)return q;
 const i=(wy|0)*W+(wx|0),n=S.nd[i];if(n&&S.ex[i]&&n.amt>0)return n;return S.rel.find(q=>!q.m&&!q.c&&S.ex[(q.y|0)*W+(q.x|0)]&&Math.hypot(q.x-wx,q.y-wy)<.9)||null}
