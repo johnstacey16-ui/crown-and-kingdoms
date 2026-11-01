@@ -79,6 +79,7 @@ const FOCUSED=[
  "tests/population-limits.test.mjs",
  "tests/no-attack-stance.test.mjs",
  "tests/town-bell.test.mjs",
+ "tests/garrison-unload-validation.test.mjs",
  "tests/training-cap-drop.test.mjs",
  "tests/fish-traps.test.mjs",
  "tests/art-revisions.test.mjs",

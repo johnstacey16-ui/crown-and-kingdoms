@@ -15,9 +15,33 @@ test('transport and trader functionality is owned only by the new module',()=>{
   assert.doesNotMatch(simulation,new RegExp('function '+fn+'\\('));
   assert.match(simulation,new RegExp(fn+'\\('),'main simulation still calls the helper');
  }
+ for(const name of ['healGarrison','unload','townBell']){
+  assert.match(logistics,new RegExp('function '+name+'\\('),'garrison logistics owns '+name);
+  assert.doesNotMatch(simulation,new RegExp('function '+name+'\\('),'main simulation no longer duplicates '+name);
+ }
+ assert.match(simulation,/healGarrison\(/,'garrison building updates should invoke healing');
  assert.doesNotThrow(()=>new vm.Script(logistics,{filename:'js/simulation-logistics.js'}));
  assert.doesNotThrow(()=>new vm.Script(simulation,{filename:'js/simulation.js'}));
 });
+test('garrison healing is team-safe and Herbal Medicine accelerates only valid passengers',()=>{
+ const S={us:[],tech:[{},{}]};
+ const b={t:0,cg:[]},healthy={hp:5,t:0,ld:b};
+ const foe={hp:5,t:1,ld:b},unloaded={hp:5,t:0,ld:null};
+ const dead={hp:0,t:0,ld:b},ghost={hp:5,t:0,ld:b};
+ S.us=[healthy,foe,unloaded,dead];b.cg=[healthy,foe,unloaded,dead,ghost];
+ const ctx=vm.createContext({S,mhp:()=>10});
+ vm.runInContext(logistics+'\n;globalThis.healGarrisonTest=healGarrison;',ctx);
+ ctx.healGarrisonTest(b,2);
+ assert.ok(Math.abs(healthy.hp-5.2)<1e-10,'ordinary garrison healing is 0.1 HP per second');
+ for(const u of [foe,unloaded,ghost])assert.equal(u.hp,5,'foreign, unloaded or unregistered passengers do not heal');
+ assert.equal(dead.hp,0,'dead units stay dead');
+ S.tech[0].herbalMedicine=1;
+ ctx.healGarrisonTest(b,2);
+ assert.ok(Math.abs(healthy.hp-6.4)<1e-10,'Herbal Medicine heals at 0.6 HP per second');
+ ctx.healGarrisonTest(b,20);
+ assert.equal(healthy.hp,10,'healing never exceeds the current upgrade-aware maximum');
+});
+
 test('logistics is ordered directly before simulation in browser, core and offline lists',()=>{
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
  const headless=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
