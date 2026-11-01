@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const source=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const start=source.indexOf('function aiResumeIdleWave(t,A){');
-const end=source.indexOf('function aiTeam(t,dt){',start);
+const end=source.length;
 assert.ok(start>=0&&end>start,'production idle-wave recovery helper is present');
 
 function harness({on=1,stg=null,route=true}={}){

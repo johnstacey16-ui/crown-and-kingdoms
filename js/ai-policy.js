@@ -145,3 +145,23 @@ function aiRebal(vil,R,t=1){
   else if(R.g<300&&assigned.g<nv*.3)move('g',['w']);
  }
 }
+
+// After an opening attack breaks off to fight enemy villagers, survivors must
+// resume attacking a live objective rather than idling with A.on still true.
+// One bounded route check per reachable objective and soldier every ten seconds.
+function aiResumeIdleWave(t,A){
+ if(!A?.on||A.stg||!Array.isArray(A.wu)||S.t<(A.nextWaveObjectiveAt||0))return 0;
+ A.nextWaveObjectiveAt=S.t+10;
+ const candidates=S.bs.filter(b=>b&&b.hp>0&&isHostile(t,b.t)).sort((a,b)=>Number(b.k==='tc')-Number(a.k==='tc'));
+ if(!candidates.length)return 0;
+ let retasked=0;
+ for(const u of A.wu){
+  if(!u||u.hp<=0||u.ld||u.retreating||u.o!=='i'||!U[u.k]||U[u.k].dmg<=0)continue;
+  for(const target of candidates.slice(0,3)){
+   const route=path(u,goalNear(target,1));
+   if(!route||!route.length)continue;
+   u.o='a';u.tg=target;u.p=route;u.rp=1;retasked++;break;
+  }
+ }
+ return retasked;
+}
