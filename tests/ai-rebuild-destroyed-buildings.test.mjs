@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const ai = readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+
+ readFileSync(new URL('../js/ai-construction.js',import.meta.url),'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const start = ai.indexOf('function aiTeam(');
 const end = ai.indexOf('\n', ai.indexOf('const cnt=', start));
 assert.ok(start >= 0 && end > start, 'AI team planning must expose its building-count rule');

@@ -9,14 +9,20 @@ const checker = readFileSync(new URL('../scripts/check-game.mjs', import.meta.ur
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
+const construction = readFileSync(new URL('../js/ai-construction.js', import.meta.url), 'utf8');
 
 test('enemy strategy has one cohesive owner in js/ai.js', () => {
-  for (const name of ['aiBuild','aiWall','aiDock','aiNear','ai','aiTeam']) {
+  for (const name of ['ai','aiTeam']) {
     assert.equal((ai.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 1,
       name + ' must be declared exactly once in js/ai.js');
-    assert.equal((simulation.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 0,
-      name + ' must not stay in the simulation module');
   }
+  for (const name of ['aiBuild','aiWall','aiDock','aiNear']) {
+    assert.equal((construction.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 1,
+      name + ' must belong to js/ai-construction.js');
+    assert.equal((ai.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 0,
+      name + ' must not be duplicated in js/ai.js');
+  }
+  assert.doesNotMatch(simulation,/function ai(?:Build|Wall|Dock|Near|Team)?\\(/);
   assert.equal((policy.match(/function aiRetreat\s*\(/g)||[]).length,1,'retreat decisions belong to one policy owner');
   assert.doesNotMatch(ai,/function aiRetreat\s*\(/,'main AI loop does not define retreat policy');
   assert.match(ai,/aiRetreat\(/,'main AI loop still executes defensive retreats');
@@ -32,9 +38,10 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(simAt >= 0 && aiAt > simAt && pathAt > aiAt,
     'AI must load after core simulation declarations and before engine startup');
   assert.ok(worker.includes("'./js/ai.js'"), 'The offline service-worker cache must contain ai.js');
+  assert.ok(worker.includes("'./js/ai-construction.js'"),'The offline shell must contain the AI construction module');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+7),
-    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+8),
+    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });

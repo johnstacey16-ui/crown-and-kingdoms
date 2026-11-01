@@ -19,6 +19,8 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // AI building placement, reachable builders and resource-site ownership.
+ "tests/ai-construction-ownership.test.mjs",
  // Fixed-step simulation update ordering and cadence.
  "tests/simulation-step-cadence.test.mjs",
  // Combat min-range regression follows its canonical extracted simulation owner.
