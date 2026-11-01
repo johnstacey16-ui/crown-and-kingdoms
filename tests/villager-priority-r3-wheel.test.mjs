@@ -29,10 +29,10 @@ test('R3 opens priorities wheel; B cancels without affecting units or resources'
  c.press(button(1));assert.equal(c.wheel(),null);
  assert.equal(c.snapshot(),before);
 });
-test('seven preset choices update existing persisted worker priorities',()=>{
+test('A selects the production Food and Wood (3:1:0:0) worker preset',()=>{
  const c=game();c.press(button(11));c.press(button(0));
  assert.equal(c.wheel(),null);
- assert.deepEqual(JSON.parse(JSON.stringify(c.priority())),{enabled:true,f:3,w:3,g:2,s:1});
+ assert.deepEqual(JSON.parse(JSON.stringify(c.priority())),{enabled:true,f:3,w:1,g:0,s:0});
  assert.equal(vm.runInContext("villagerPriorityMenuItems()[1].v().includes('3 target')",c),true);
 });
 test('Y enters manual resource menu; A adds and B subtracts',()=>{
