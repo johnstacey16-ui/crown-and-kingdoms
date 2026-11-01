@@ -34,3 +34,18 @@ test('focused hosted selection runs real network authenticity and replay fixture
   assert.ok(focused.has(path),'missing authenticated network regression in fast CI: '+path);
  }
 });
+
+test('active working documents keep one compact status and preserve the 48-task roadmap',()=>{
+ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+ const agents=read('AGENTS.md'),roadmap=read('ROADMAP.md');
+ const inventory=read('docs/REFACTORING_INVENTORY.md');
+ assert.ok(agents.length<16000,'AGENTS is operating instructions, not a duplicated release journal');
+ assert.ok(roadmap.length<40000,'ROADMAP keeps the active task register, not repeated dated logs');
+ assert.ok(inventory.length<20000,'The refactoring inventory must stay a concise current register');
+ const ids=[...roadmap.matchAll(/^\\|\\s*(AUD-\\d{3})\\s*\\|/gm)].map(m=>m[1]);
+ assert.deepEqual(ids,Array.from({length:48},(_,i)=>'AUD-'+String(i+1).padStart(3,'0')),
+  'Historical prose may be consolidated, but none of the audited 48 tasks may disappear or change order');
+ for(const text of [agents,roadmap,inventory])
+  assert.match(text,/ef2a6356692626bd60900a60c9d3e42db94da694/,
+   'Preserve a navigable revision containing the unabridged historical checkpoint log');
+});
