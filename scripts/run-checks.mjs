@@ -19,6 +19,17 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Architecture owners and Xbox formation/resource-wheel controls: keep these in regular fast CI.
+ "tests/runtime-graph-inventory.test.mjs",
+ "tests/unit-definitions-centralized.test.mjs",
+ "tests/minimap-module-ownership.test.mjs",
+ "tests/campaign-module-ownership.test.mjs",
+ "tests/entity-factory-ownership.test.mjs",
+ "tests/new-game-mapgen-ownership.test.mjs",
+ "tests/canvas-primitives-ownership.test.mjs",
+ "tests/core-ui-primitives-extraction.test.mjs",
+ "tests/villager-priority-r3-wheel.test.mjs",
+ "tests/formation-shortcut-cycling.test.mjs",
  "tests/simulation-victory-ownership.test.mjs",
  "tests/simulation-logistics-ownership.test.mjs",
  "tests/simulation-resource-routing-ownership.test.mjs",
