@@ -31,7 +31,7 @@ assert.match(html, /function dmgT\(a,t\)\{if\(!a\|\|!t\|\|!U\[a\.k\]\|\|\(!t\.s&
   'Damage must guard missing, dead and non-hostile targets before applying any combat effects');
 
 const begin=simulation.indexOf('function dmgT(');
-const finish=simulation.indexOf('\nconst hit=',begin);
+const finish=simulation.indexOf('/* ===== ECONOMY / UNIT BEHAVIOUR ===== */',begin);
 assert.ok(begin>=0&&finish>begin,'direct damage simulation must remain available');
 const context={U:{mil:{rng:1,sp:1,dmg:5},spear:{rng:1,sp:1,dmg:4}},S:{tech:[{},{}]},isHostile:()=>false};
 const dmgT=vm.runInNewContext(simulation.slice(begin,finish)+'\n;dmgT;',context);

@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const bonuses = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 const a = simulation.indexOf('function dmgT(a,t){');
-const b = simulation.indexOf('\nconst hit=', a);
+const b = simulation.indexOf('/* ===== ECONOMY / UNIT BEHAVIOUR ===== */', a);
 assert.ok(a >= 0 && b > a);
 const U = {
   mil: { rng: 0.9, dmg: 8, cd: 1.2 },
