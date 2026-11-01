@@ -14,7 +14,7 @@ function section(source,from,to){
 }
 const snippets=[
  section(routing,'function farmAvailableTo(u,n){','\nfunction dropoffKey('),
- section(sim,'function baseGatherRate(u,n){','/* ===== COMBAT ===== */'),
+ section(sim,'function resourceGatherRate(n){','/* ===== COMBAT ===== */'),
  section(sim,'function upU(u,dt){','const mv=(u,dx,dy)=>'),
  section(sim,'const mv=(u,dx,dy)=>','function WL(dt){'),
  section(finding,'function d2(px,py,t){','const goalNear='),
