@@ -14,6 +14,15 @@ test('hosted expensive workflows remain manually dispatchable and weekly, not tr
  const regression=read('game-regression');
  assert.match(regression,/node scripts\/run-checks\.mjs --regression-files/);
  assert.match(regression,/node scripts\/run-checks\.mjs --skirmishes/);
+ // The three AI simulations must execute even when any standalone regression fails.
+ const regressionJob=regression.match(/\n  node-checks:\n([\s\S]*?)(?=\n  [a-z][a-z-]*:\n|$)/)?.[1];
+ const aiJob=regression.match(/\n  seeded-skirmishes:\n([\s\S]*?)(?=\n  [a-z][a-z-]*:\n|$)/)?.[1];
+ assert.ok(regressionJob&&aiJob,'standalone regressions and AI skirmishes require separate jobs');
+ assert.match(regressionJob,/run: node scripts\/run-checks\.mjs --regression-files/);
+ assert.doesNotMatch(regressionJob,/--skirmishes/);
+ assert.match(aiJob,/run: node scripts\/run-checks\.mjs --skirmishes/);
+ assert.doesNotMatch(aiJob,/--regression-files|\n    needs:/);
+ assert.match(aiJob,/timeout-minutes: 45/);
  assert.match(regression,/node scripts\/run-checks\.mjs --campaigns/);
  assert.match(read('battlefield-browser'),/node scripts\/run-checks\.mjs --browser/);
  assert.doesNotMatch(regression,/for mission in|for test_file in|tests=\(/);

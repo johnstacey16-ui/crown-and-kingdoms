@@ -29,5 +29,15 @@ jobs:
           node-version: 22
       - name: Run every standalone regression test
         run: node scripts/run-checks.mjs --regression-files
+  seeded-skirmishes:
+    name: Seeded AI skirmishes (3 production simulations)
+    runs-on: ubuntu-latest
+    # Prevent a long-running AI simulation consuming unlimited free runner minutes.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Complete seeded land skirmishes with production AI
         run: node scripts/run-checks.mjs --skirmishes
