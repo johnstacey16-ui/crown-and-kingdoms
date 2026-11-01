@@ -22,6 +22,10 @@ hardware-verified parity from these pages or Node tests.
 - [Control groups, Y shortcuts and site-based commands](https://www.ageofempires.com/learn-to-play/match-goals-advanced-controls-xbox/)
 - [Villager priorities](https://www.ageofempires.com/learn-to-play/military-economy-xbox/)
 
+## Runtime radial and First Hearth guidance — 1 November 2026
+
+[Code `69cc36d`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/69cc36d4f6803f4152aac3d9b6b5a536cff76046) preserves radial menu page indices while representing malformed commands as non-executable entries. [Code `039221d`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/039221d5c51b2a766b189890d23246008ec87174) adds a runtime VM check showing First Hearth says **A** (not X) to select and gather, matching the production A-release handler. [Hosted 928/928](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41363920325) confirms the software checks; the previously reported radial crash still requires a physical Xbox Series S Edge retest.
+
 ## Verified reference and implementation audit
 
 | Context | Xbox reference behaviour | Current implementation / remaining gap |

@@ -1,19 +1,22 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `2a304b5` · [GitHub Actions 41362879377](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41362879377) · **925/925 focused**, **5/5 quick**, **0 failures** · Vercel READY on the same SHA. Starting health bonus idempotence and silent controller disconnect protection passed four new runtime tests; physical Xbox acceptance remains open.
+**Last green code revision:** `039221d` · [GitHub Actions 41363920325](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41363920325) · **928/928 focused**, **5/5 quick**, **0 failures** · Vercel READY on the same SHA. Stale radial-command entries and the First Hearth A-button guidance have new executable regressions. Xbox hardware acceptance remains open.
 
 ## Current footprint and ownership
 
 | Area | Current live owner and decision |
 |---|---|
 | Browser and headless runtime | `index.html` defines **47** production browser scripts, **34** core and **32** headless scripts. `scripts/runtime-sources.mjs` is the canonical ordered loader; `scripts/check-game.mjs` and `scripts/audit-runtime-graph.mjs` check all source/offline dependencies. |
-| Offline/versioned artwork | `sw.js` shell **v89**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
+| Offline/versioned artwork | `sw.js` shell **v90**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
 | Simulation and AI | `js/simulation*.js` own tick, combat, victory, logistics, production, research, unit state and separation. `js/ai.js` is strategic orchestration; `js/ai-policy.js` owns threat, retreat, builder, wave and **ally resource-sharing** policies; `js/ai-construction.js` owns placement, walls, docks and resource-site building orders. |
 | Acceptance | **247 standalone `tests/*.test.mjs` files**, **243** selected for the fast hosted plan. Four network/simulation integration files remain weekly/manual. Campaign simulations (19), three seeded skirmishes, two Chromium checks and software Xbox contracts use the same check-runner plan. |
 | Multiplayer | Authenticated two-human WebRTC preview and network adapter modules are ACTIVE; reconnect, fallback transport, party scale, WAN and hidden-state/security acceptance remain open. |
 | Docs | `ROADMAP.md` retains the audited 48-task backlog, `AGENTS.md` the operating constraints, this file the current refactoring inventory. Existing audited snapshots, delivery register and Git history preserve dated evidence; avoid re-copying the same checkpoint prose across these files. |
 
 ## Latest verified incremental work
+
+- `69cc36d`: command-wheel page helper normalizes corrupt/stale item labels/costs into inert entries without changing menu indices; two runtime tests protect rendering and A/B handling.
+- `039221d`: First Hearth scripted prompts checked against production controller A-release semantics, explicitly not X-only gathering; 928/928 hosted focused green.
 
 - `2a304b5`: controller polling clears held A/LB/RT and release edges when an Xbox gamepad disappears silently or fires a real disconnect; reconnect requires neutral buttons; two runtime tests, no layout changes. **925/925 hosted focused**.
 - `0db7e2b`: starting-civ HP reconciliation tracks each newly generated game/team outside serialised game state, so retries never double HP on initial villagers/Town Centres or later entities; two seeded tests. **923/923 hosted focused**.
