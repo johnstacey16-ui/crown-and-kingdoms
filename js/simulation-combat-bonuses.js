@@ -117,3 +117,69 @@ function tickConversion(u,dt){
  u.cvNext=interval+1;
  if(interval>=window.max||S.r()<.4)completeConversion(u,target);
 }
+
+/* Combat target index and defensive/siege targeting. Original classic-script
+ * bodies extracted from simulation.js; step() still invalidates this index. */
+const FOE_CELL=8,FOE_BUCKETS=new Map(),FOE_BUCKET_POOL=[];
+let foeGridDirty=true;
+function rebuildFoeGrid(){
+ for(const bin of FOE_BUCKETS.values()){bin.length=0;FOE_BUCKET_POOL.push(bin)}
+ FOE_BUCKETS.clear();
+ for(let i=0;i<S.us.length;i++){
+  const e=S.us[i];if(!e||e.hp<=0||e.ld||!Number.isFinite(e.x)||!Number.isFinite(e.y))continue;
+  const key=Math.floor(e.x/FOE_CELL)+','+Math.floor(e.y/FOE_CELL);
+  let bin=FOE_BUCKETS.get(key);
+  if(!bin){bin=FOE_BUCKET_POOL.pop()||[];FOE_BUCKETS.set(key,bin)}
+  bin.push(i)
+ }
+ foeGridDirty=false
+}
+// Defensive fire and combat-target selection shared by buildings, AI and simulation.
+function defenceTarget(building,shooter,range){
+ const minimum=['tower','castle'].includes(building.k)&&!S.tech[building.t]?.murderHoles?1:0;
+ let best=null,distance=range*range;
+ for(const e of S.us){if(!e||e.hp<=0||e.ld||!isHostile(building.t,e.t))continue;
+  const edgeX=Math.max(building.x-e.x,0,e.x-building.x-building.s),edgeY=Math.max(building.y-e.y,0,e.y-building.y-building.s);
+  if(minimum&&edgeX*edgeX+edgeY*edgeY<minimum*minimum)continue;
+  const dx=e.x-shooter.x,dy=e.y-shooter.y,d=dx*dx+dy*dy;
+  if(d<distance){best=e;distance=d;}
+ }return best;
+}
+function nearestFoeUnit(u,r){
+ if(!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;
+ if(foeGridDirty)rebuildFoeGrid();
+ let b=null,bd2=r*r,bestIndex=Infinity;
+ /* Compare squared distances: thousands of nearby combat checks need no square roots. */
+ const minX=Math.floor((u.x-r)/FOE_CELL),maxX=Math.floor((u.x+r)/FOE_CELL);
+ const minY=Math.floor((u.y-r)/FOE_CELL),maxY=Math.floor((u.y+r)/FOE_CELL);
+ /* Empty or wholly out-of-map search bounds cannot contain indexed units. */
+ if(maxX<0||maxY<0||minX>=Math.ceil(W/FOE_CELL)||minY>=Math.ceil(H/FOE_CELL))return null;
+ for(let cy=minY;cy<=maxY;cy++)for(let cx=minX;cx<=maxX;cx++){
+  const bin=FOE_BUCKETS.get(cx+','+cy);if(!bin)continue;
+  for(const i of bin){
+   const e=S.us[i];
+   if(!e||!isHostile(u.t,e.t)||e.hp<=0||e.ld)continue;
+   const dx=e.x-u.x,dy=e.y-u.y,d2=dx*dx+dy*dy;
+   if(d2<bd2||(b&&d2===bd2&&i<bestIndex)){bd2=d2;b=e;bestIndex=i}
+  }
+ }
+ return b
+}
+function foe(u,r,building){
+ if(building)return defenceTarget(building,u,r);
+ let b=null,bd2=r*r;
+ /* Siege still prioritises hostile buildings before searching for units. */
+ if(U[u.k]?.sg){
+  for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){
+   const sz=q.s||0,dx=Math.max(q.x-u.x,0,u.x-(q.x+sz)),dy=Math.max(q.y-u.y,0,u.y-(q.y+sz)),d=dx*dx+dy*dy;
+   if(d<bd2){bd2=d;b=q}
+  }
+  if(b)return b
+ }
+ b=nearestFoeUnit(u,r);if(b)return b;
+ for(const q of S.bs)if(isHostile(u.t,q.t)&&q.hp>0){
+  const sz=q.s||0,dx=Math.max(q.x-u.x,0,u.x-(q.x+sz)),dy=Math.max(q.y-u.y,0,u.y-(q.y+sz)),d=dx*dx+dy*dy;
+  if(d<bd2){bd2=d;b=q}
+ }
+ return b
+}

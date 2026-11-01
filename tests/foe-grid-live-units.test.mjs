@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8');
 
 const start = simulation.indexOf('function rebuildFoeGrid(){');
 const end = simulation.indexOf('\nfunction nearestFoeUnit', start);

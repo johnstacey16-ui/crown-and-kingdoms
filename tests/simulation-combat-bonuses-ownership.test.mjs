@@ -59,6 +59,20 @@ test('unchanged monk conversion helpers have one classic-script owner',()=>{
  assert.equal(ctx.monkHelpers.unitSight(monk),14);
 });
 
+test('one combat owner maintains the live spatial-index and siege target helpers',()=>{
+ for(const name of ['rebuildFoeGrid','defenceTarget','nearestFoeUnit','foe']){
+  const pattern=new RegExp('function '+name+'\\(');
+  assert.match(bonuses,pattern,'combat target helper must live in combat owner');
+  assert.doesNotMatch(simulation,pattern,'combat target helper must not be duplicated');
+ }
+ assert.match(bonuses,/const FOE_CELL=8,FOE_BUCKETS=new Map\(\),FOE_BUCKET_POOL=\[\]/);
+ assert.doesNotMatch(simulation,/const FOE_CELL=/);
+ assert.match(bonuses,/let foeGridDirty=true;/);
+ assert.match(simulation,/function step\(dt\)\{foeGridDirty=true;S\.t\+=dt;/);
+ assert.match(bonuses,/b=nearestFoeUnit\(u,r\);if\(b\)return b/);
+ assert.match(bonuses,/for\(const bin of FOE_BUCKETS\.values\(\)\)\{bin\.length=0;FOE_BUCKET_POOL\.push\(bin\)\}/);
+});
+
 test('all browser/offline/headless scripts load bonus rules once before damage',()=>{
  for(const paths of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){

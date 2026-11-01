@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const src = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const a = src.indexOf('function pjs(dt){');
-const b = src.indexOf('\nconst FOE_CELL=', a);
+const b = src.indexOf('\n/* ===== ECONOMY / UNIT BEHAVIOUR ===== */', a);
 assert.ok(a >= 0 && b > a);
 const S = { pj: [], us: [], bs: [] };
 const U = { arc: { rng: 5, spl: 0 } };

@@ -3,6 +3,7 @@ import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const targeting=readFileSync(new URL('../js/simulation-combat-bonuses.js',import.meta.url),'utf8');
 
 const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 
@@ -46,8 +47,8 @@ assert.match(html, /function foe\(u,r,building\)\{[\s\S]{0,500}isHostile\(u\.t,q
 assert.match(html, /if\(!e\|\|!isHostile\(u\.t,e\.t\)\|\|e\.hp<=0\|\|e\.ld\)continue/,
   'Indexed combat target acquisition must exclude non-hostile, dead, and garrisoned targets');
 
-const start=simulation.indexOf('function nearestFoeUnit(u,r){');
-const finishFoe=simulation.indexOf('\nfunction foe(',start);
+const start=targeting.indexOf('function nearestFoeUnit(u,r){');
+const finishFoe=targeting.indexOf('\nfunction foe(',start);
 assert.ok(start>=0&&finishFoe>start,'spatial target selection must exist');
 const candidates=[
   {t:1,x:2,y:2,hp:100},
@@ -58,7 +59,7 @@ const candidates=[
 const BUCKETS=new Map([['0,0',[0,1,2,3]]]);
 const foeContext={S:{us:candidates},W:64,H:64,FOE_CELL:16,FOE_BUCKETS:BUCKETS,
   foeGridDirty:false,isHostile:(a,b)=>a!==b&&b===2};
-const select=vm.runInNewContext(simulation.slice(start,finishFoe)+'\n;nearestFoeUnit;',foeContext);
+const select=vm.runInNewContext(targeting.slice(start,finishFoe)+'\n;nearestFoeUnit;',foeContext);
 assert.equal(select({t:0,x:0,y:0},12),candidates[3],
   'only an actual living ungarrisoned hostile unit may be returned');
 assert.match(html, /const enemyBs=S\.bs\.filter\(b=>isHostile\(t,b\.t\)&&b\.hp>0\)/,
