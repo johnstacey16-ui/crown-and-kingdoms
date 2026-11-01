@@ -178,7 +178,7 @@ function radialMenuPage(m){
  const items=Array.isArray(m?.items)?m.items:[],N=items.length;
  const custom=Array.isArray(m?.pr)?m.pr.filter(p=>Array.isArray(p)&&p.length===2&&Number.isInteger(p[0])&&Number.isInteger(p[1])&&p[0]>=0&&p[0]<N&&p[1]>p[0]&&p[1]<=N):[];
  const pr=custom.length?custom:N?Array.from({length:Math.ceil(N/12)},(_,i)=>[i*12,Math.min(N,i*12+12)]):[[0,0]];
- const requested=Number.isInteger(m?.pg)?m.pg:0,pg=Math.max(0,Math.min(requested,pr.length-1));
+ const requested=Number.isInteger(m?.pg)&&(!Array.isArray(m?.pr)||custom.length)?m.pg:0,pg=Math.max(0,Math.min(requested,pr.length-1));
  return {items,pr,pg,a0:pr[pg][0],n:pr[pg][1]-pr[pg][0]};
 }
 
