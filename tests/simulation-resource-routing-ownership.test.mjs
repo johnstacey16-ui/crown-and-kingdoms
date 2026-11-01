@@ -9,7 +9,7 @@ const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
-const functions=['farmAvailableTo','resourceApproachCapacity','resourceClaimCount',
+const functions=['resourceGatherRate','baseGatherRate','gatherCapacity','farmAvailableTo','resourceApproachCapacity','resourceClaimCount',
  'resourceHasWorksite','knownResource','findNode','dropoffKey','dropoffCompatible',
  'skipDropoff','findDropoffRoute','deployFishTrap','killNode','gm','farmFood'];
 
@@ -39,6 +39,21 @@ test('offline, browser, core and headless loading retain exact resource ordering
   assert.equal(paths.filter(p=>p==='./js/simulation-resource-routing.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-resource-routing.js'"));
+});
+
+test('baseline gathering rate and carrying tech helpers belong to resource routing',()=>{
+ assert.match(sim,/function unitSpeed\(u\)/,'core simulation still owns movement speed');
+ const f=vm.runInNewContext(source+'\n;({resourceGatherRate,baseGatherRate,gatherCapacity})',{
+  S:{tech:[{wheel:1,handcart:1,carry:1},{}]},GR:1,CAP:10
+ });
+ assert.equal(f.resourceGatherRate({k:'w'}),.39);
+ assert.equal(f.resourceGatherRate({k:'g'}),.38);
+ assert.equal(f.resourceGatherRate({k:'s'}),.36);
+ assert.equal(f.resourceGatherRate({k:'f',fi:1}),.43);
+ assert.equal(f.baseGatherRate({k:'vil'},{k:'f',an:1}),.41);
+ assert.equal(f.gatherCapacity({k:'vil',t:0}),25);
+ assert.equal(f.gatherCapacity({k:'vil',t:1}),10);
+ assert.equal(f.gatherCapacity({k:'vil',t:0,tg:{an:1}}),71);
 });
 
 test('gathering multipliers and farm capacity preserve every resource-specific upgrade',()=>{

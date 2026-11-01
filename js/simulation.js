@@ -1,15 +1,5 @@
 /* Crown & Kingdoms — economy, combat, unit behaviour, AI, commands and fixed-step simulation. */
 // Economy rates are continuous units/second; sea fishing has its own rate.
-function resourceGatherRate(n){
- if(n.fi)return .43;
- if(n.k==='w')return .39;
- if(n.k==='g')return .38;
- if(n.k==='s')return .36;
- if(n.k==='f')return n.fm?.32:n.an?.41:.31;
- return GR;
-}
-function baseGatherRate(u,n){return u.k==='vil'||n.fi?resourceGatherRate(n):GR}
-function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)}
 function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lcav?1.5:U[u.k].sp)*((tech.husb&&CAVARM.has(u.k))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)*((u.k==='mil'&&tech.man)?(.96/.9):1)*(u.k==='vil'?1+(tech.wheel?.1:0)+(tech.handcart?.1:0):1)*((tech.fervor&&u.k==='mon')?1.15:1)}
 /* ===== COMBAT ===== */
 // Direct damage and its bonuses now belong to simulation-combat-bonuses.js.

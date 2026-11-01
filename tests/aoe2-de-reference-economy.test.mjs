@@ -4,12 +4,15 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const {U,TE,GR,CAP}=vm.runInNewContext(config+'\n;({U,TE,GR,CAP})');
-const start=sim.indexOf('function resourceGatherRate(n){');
-const end=sim.indexOf('/* ===== COMBAT ===== */',start);
-assert.ok(start>=0&&end>start);
+const start=routing.indexOf('function resourceGatherRate(n){');
+const end=routing.indexOf('function farmAvailableTo(u,n){',start);
+const speedStart=sim.indexOf('function unitSpeed(u){');
+const speedEnd=sim.indexOf('/* ===== COMBAT ===== */',speedStart);
+assert.ok(start>=0&&end>start&&speedStart>=0&&speedEnd>speedStart);
 const S={tech:[{},{wheel:1},{wheel:1,handcart:1}]};
-const api=vm.runInNewContext(sim.slice(start,end)+'\n;({baseGatherRate,unitSpeed,gatherCapacity})',{
+const api=vm.runInNewContext(routing.slice(start,end)+'\n'+sim.slice(speedStart,speedEnd)+'\n;({baseGatherRate,unitSpeed,gatherCapacity})',{
  U,TE,GR,CAP,S,CAVARM:new Set(),INFARM:new Set()
 });
 const villager={k:'vil',t:0};

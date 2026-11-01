@@ -30,7 +30,7 @@ function extract(begin, end) {
   vm.runInContext(simulation.slice(start, stop), context);
 }
 vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
-extract('function gatherCapacity(u){', '/* ===== COMBAT ===== */');
+extract('function unitSpeed(u){', '/* ===== COMBAT ===== */');
 vm.runInContext(buildingUpdates, context);
 const research = vm.runInContext('research', context);
 const speed = vm.runInContext('unitSpeed', context);

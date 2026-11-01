@@ -28,11 +28,12 @@ assert.match(html, /function gatherCapacity\(u\).*\bhunt=.*\?35:CAP\).*tech\.han
 assert.match(html, /u\.car>=gatherCapacity\(u\)/,
   'Gatherers must query current capacity when deciding to return with resources');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
-const begin=sim.indexOf('function gatherCapacity(u){');
-const finish=sim.indexOf('\nfunction unitSpeed(',begin);
+const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
+const begin=routing.indexOf('function gatherCapacity(u){');
+const finish=routing.indexOf('\nfunction farmAvailableTo(',begin);
 assert.ok(begin>=0&&finish>begin,'carry calculation must remain available');
 const context={CAP:10,S:{tech:[{}]}};
-const gatherCapacity=vm.runInNewContext(sim.slice(begin,finish)+'\n;gatherCapacity;',context);
+const gatherCapacity=vm.runInNewContext(routing.slice(begin,finish)+'\n;gatherCapacity;',context);
 const workingVillager={t:0,k:'vil'};
 assert.equal(gatherCapacity(workingVillager),10);
 context.S.tech[0].carry=1;

@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const routing = readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 assert.ok(B.tc.rs.includes('wheel'), 'Town Centre offers Wheelbarrow');
 assert.equal(TE.wheel.age, 1, 'Wheelbarrow requires Feudal Age');
@@ -20,11 +21,11 @@ assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.1) < 1e-9);
 assert.equal(speed({ k: 'vil', t: 1 }), U.vil.sp, 'other kingdoms unaffected');
 assert.equal(speed({ k: 'mil', t: 0 }), U.mil.sp, 'soldiers unaffected');
 
-const capStart = simulation.indexOf('function gatherCapacity(u){');
-const capEnd = simulation.indexOf('function unitSpeed(u){', capStart);
+const capStart = routing.indexOf('function gatherCapacity(u){');
+const capEnd = routing.indexOf('function farmAvailableTo(u,n){', capStart);
 assert.ok(capStart >= 0 && capEnd > capStart, 'gathering capacity helper exists');
 context.CAP = 10;
-vm.runInContext(simulation.slice(capStart, capEnd), context);
+vm.runInContext(routing.slice(capStart, capEnd), context);
 const capacity = vm.runInContext('gatherCapacity', context);
 assert.equal(capacity({ k: 'vil', t: 0 }), 13, 'villagers receive cart upgrades');
 assert.equal(capacity({ k: 'mil', t: 0 }), 10, 'military units do not receive cart capacity');

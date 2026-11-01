@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const routing = readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 
@@ -26,7 +27,7 @@ const context = {
   foe: () => null, sfx: () => {}, note: () => {},
 };
 vm.createContext(context);
-vm.runInContext(extract('function gatherCapacity(u){', '/* ===== COMBAT ===== */'), context);
+vm.runInContext(routing.slice(routing.indexOf('function gatherCapacity(u){'),routing.indexOf('function farmAvailableTo(u,n){'))+'\n'+extract('function unitSpeed(u){', '/* ===== COMBAT ===== */'), context);
 vm.runInContext(buildingUpdates, context);
 const capacity = vm.runInContext('gatherCapacity', context);
 const speed = vm.runInContext('unitSpeed', context);

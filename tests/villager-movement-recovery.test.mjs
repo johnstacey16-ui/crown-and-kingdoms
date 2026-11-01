@@ -15,7 +15,8 @@ function section(source,from,to){
 }
 const snippets=[
  section(routing,'function farmAvailableTo(u,n){','\nfunction dropoffKey('),
- section(sim,'function resourceGatherRate(n){','/* ===== COMBAT ===== */'),
+ section(routing,'function resourceGatherRate(n){','function farmAvailableTo(u,n){'),
+ section(sim,'function unitSpeed(u){','/* ===== COMBAT ===== */'),
  section(sim,'function upU(u,dt){','/* ===== SIMULATION STEP ===== */'),
  section(movement,'const mv=(u,dx,dy)=>','/* Local spatial grid for unit separation.'),
  section(finding,'function d2(px,py,t){','const goalNear='),
