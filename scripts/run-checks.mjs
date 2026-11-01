@@ -19,6 +19,19 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Native artwork, fallback rendering, terrain, villager-pathing and menu contracts.
+ "tests/building-age-details.test.mjs",
+ "tests/building-construction-art.test.mjs",
+ "tests/extended-atlas.test.mjs",
+ "tests/lazy-procedural-sprite.test.mjs",
+ "tests/painted-environment.test.mjs",
+ "tests/painted-motion.test.mjs",
+ "tests/painted-secondary-motion.test.mjs",
+ "tests/projectile-art.test.mjs",
+ "tests/sprite-grid.test.mjs",
+ "tests/terrain-blending.test.mjs",
+ "tests/villager-pathing.test.mjs",
+ "tests/menu-screen-ui-extraction.test.mjs",
  // Civilization technology eligibility, 26-civ identity and regional production.
  "tests/aoe2-de-archer-armor-tiers.test.mjs",
  "tests/aoe2-de-archer-upgrade-line.test.mjs",
