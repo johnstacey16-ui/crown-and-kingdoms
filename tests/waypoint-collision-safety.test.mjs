@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const mvStart = source.indexOf('const mv=(u,dx,dy)=>');
-const mvEnd = source.indexOf('\n/* Local spatial grid', mvStart);
+const mvEnd = source.indexOf('\nfunction WL(dt){', mvStart);
 const axisStart = source.indexOf('function walkAxisSlide(');
 const walkStart = source.indexOf('function walk(u,dt){');
 const walkEnd = source.indexOf('\n/* ===== COMBAT ===== */', walkStart);

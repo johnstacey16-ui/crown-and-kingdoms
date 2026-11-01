@@ -28,7 +28,7 @@ assert.doesNotThrow(()=>new vm.Script(separation));
 const W=24,H=24,n=W*H;
 const S={us:Array.from({length:70},(_,i)=>({x:8.5+(i%7)*.08,y:8.5+Math.floor(i/7)*.07,hp:25,ld:null,sh:false,t:0})),g:new Uint8Array(n),gt:new Uint8Array(n),wt:new Uint8Array(n),nd:Array(n).fill(null)};
 const context=vm.createContext({S,W,H});
-const move=simulation.slice(simulation.indexOf('const mv=(u,dx,dy)=>'),simulation.indexOf('/* Local spatial grid'));
+const move=simulation.slice(simulation.indexOf('const mv=(u,dx,dy)=>'),simulation.indexOf('function WL(dt){'));
 // The original movement primitive stays in the main simulation.
 assert.ok(move.startsWith('const mv='));
 vm.runInContext(move+'\n'+separation+'\nsep();',context);

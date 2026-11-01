@@ -14,7 +14,7 @@ function section(source,from,to){
 const snippets=[
  section(sim,'function baseGatherRate(u,n){','/* ===== COMBAT ===== */'),
  section(sim,'function upU(u,dt){','function okPlace(t,k,x,y)'),
- section(sim,'const mv=(u,dx,dy)=>','/* Local spatial grid'),
+ section(sim,'const mv=(u,dx,dy)=>','function WL(dt){'),
  section(finding,'function d2(px,py,t){','const goalNear='),
  section(render,'const PAINT=','function loadPaintedTerrain('),
  section(render,'function unitVisualPose(u,time){','function drawPaintedTroop(')

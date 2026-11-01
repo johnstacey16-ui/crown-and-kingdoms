@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const a = source.indexOf('const mv=(u,dx,dy)=>');
-const b = source.indexOf('\n/* Local spatial grid', a);
+const b = source.indexOf('\nfunction WL(dt){', a);
 assert.ok(a >= 0 && b > a, 'movement primitive exists');
 const W = 10, H = 10;
 const S = { wt: new Uint8Array(W * H), nd: new Array(W * H).fill(null), g: new Uint8Array(W * H) };
