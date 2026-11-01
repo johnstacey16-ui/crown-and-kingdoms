@@ -73,6 +73,24 @@ test('one combat owner maintains the live spatial-index and siege target helpers
  assert.match(bonuses,/for\(const bin of FOE_BUCKETS\.values\(\)\)\{bin\.length=0;FOE_BUCKET_POOL\.push\(bin\)\}/);
 });
 
+test('ranged attack, projectile flight and impact belong to combat owner once',()=>{
+ const functions=['rangedAccuracy','attackReload','arrowBonus','arrowSightBonus',
+  'attackRange','projectileSpeed','projectileAim','launchProjectile','pjs'];
+ for(const name of functions){
+  const pattern=new RegExp('function '+name+'\\(');
+  assert.match(bonuses,pattern,'combat owner must contain '+name);
+  assert.doesNotMatch(simulation,pattern,'main simulation must not redefine '+name);
+ }
+ for(const key of ['ARROW_WEAPONS','THUMB_FOOT_ARCHERS','THUMB_MOUNTED_ARCHERS']){
+  assert.match(bonuses,new RegExp('const '+key+'='));
+  assert.doesNotMatch(simulation,new RegExp('const '+key+'='));
+ }
+ assert.match(bonuses,/const hit=\(a,t\)=>/);
+ assert.doesNotMatch(simulation,/const hit=\(a,t\)=>/);
+ assert.match(simulation,/pjs\(dt\)/,'simulation step still advances projectiles');
+ assert.match(simulation,/hit\(u,tg\)/,'unit attack still uses live impact dispatch');
+});
+
 test('all browser/offline/headless scripts load bonus rules once before damage',()=>{
  for(const paths of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){

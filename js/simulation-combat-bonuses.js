@@ -118,6 +118,85 @@ function tickConversion(u,dt){
  if(interval>=window.max||S.r()<.4)completeConversion(u,target);
 }
 
+/* Classic combat projectiles, ranged upgrades and deterministic hit resolution.
+ * Function bodies are relocated unchanged from simulation.js. */
+const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','gal','tw','cs','tca']);
+// AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
+// Skirmishers gain accuracy but no faster reload; mounted archers gain a
+// smaller firing-speed increase; Chu Ko Nu gains a larger one.
+const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled']);
+const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon']);
+function rangedAccuracy(a){
+ const d=U[a.k];if(!d)return 1;
+ if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm'].includes(a.k)))return 1;
+ return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
+}
+function attackReload(u){
+ const base=U[u.k]?.cd||2;
+ if(!S.tech[u.t]?.thumb)return base;
+ if(u.k==='chuko')return base*.8;
+ if(THUMB_MOUNTED_ARCHERS.has(u.k))return base*.9;
+ if(THUMB_FOOT_ARCHERS.has(u.k))return base*.85;
+ return base;
+}
+function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.atkR2?3:t.bodkin?2:t.atkR?1:0):0}
+function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
+function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)}
+// A shot records a fixed impact point at launch. Ballistics predicts constant
+// movement along the current path segment; later turns can still dodge it.
+function projectileSpeed(a){return U[a.k]?.ps||14}
+function projectileAim(a,t){
+ let x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
+ const next=t.p?.[0],predict=S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor');
+ if(predict&&!t.s&&!t.ld&&next&&U[t.k]){
+  const dx=next[0]-t.x,dy=next[1]-t.y,length=Math.hypot(dx,dy);
+  if(length>0&&Number.isFinite(length)){
+   const speed=unitSpeed(t),vx=dx/length*speed,vy=dy/length*speed,rx=x-a.x,ry=y-a.y;
+   const arrowSpeed=projectileSpeed(a),aa=vx*vx+vy*vy-arrowSpeed*arrowSpeed,bb=2*(rx*vx+ry*vy),cc=rx*rx+ry*ry,disc=bb*bb-4*aa*cc;
+   const time=Math.abs(aa)<1e-9?(bb<0?-cc/bb:0):disc>=0?(-bb-Math.sqrt(disc))/(2*aa):0;
+   if(Number.isFinite(time)&&time>0){x+=vx*time;y+=vy*time;}
+  }
+ }
+ return {tx:Math.max(0,Math.min(W-.001,x)),ty:Math.max(0,Math.min(H-.001,y))};
+}
+function launchProjectile(a,t){
+ const aim=projectileAim(a,t);
+ // Fixed inaccurate aim is sampled at launch from the saved/replicated RNG.
+ // A miss never magically homes back towards its original target.
+ // Building targets are fully accurate; projectile collision is still checked
+ // at arrival, so Ballistics and target movement remain distinct mechanics.
+ if(!t.s&&rangedAccuracy(a)<1&&S.r()>=rangedAccuracy(a)){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,distance=Math.hypot(dx,dy)||1;
+  const deviation=(.8+S.r()*.6)*(S.r()<.5?-1:1);
+  aim.tx=Math.max(0,Math.min(W-.001,aim.tx-dy/distance*deviation));
+  aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
+ }
+ S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+}
+const hit=(a,t)=>{if(U[a.k].rng>2){sfx(U[a.k].sg?'launch':'bow',a.x,a.y);launchProjectile(a,t)}else dmgT(a,t)};
+function pjs(dt){
+ if(!Number.isFinite(dt)||dt<=0)return;
+ for(const p of S.pj){
+  if(!p||!p.t||!p.a||!U[p.a.k]||!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.t.x)||!Number.isFinite(p.t.y)||!Number.isFinite(p.t.hp)){if(p)p.dead=1;continue;}
+  // Old saves lack an aim: migrate once, then retain the same fixed trajectory.
+  if(p.tx===undefined&&p.ty===undefined){p.tx=p.t.x+(p.t.s||0)/2;p.ty=p.t.y+(p.t.s||0)/2;}
+  if(!Number.isFinite(p.tx)||!Number.isFinite(p.ty)||p.tx<0||p.ty<0||p.tx>=W||p.ty>=H||p.t.hp<=0||p.t.ld||!isHostile(p.a.t,p.t.t)){p.dead=1;continue;}
+  const dx=p.tx-p.x,dy=p.ty-p.y,dist=Math.hypot(dx,dy),travel=(U[p.a.k].ps||14)*dt;
+  if(dist>travel){p.x+=dx/dist*travel;p.y+=dy/dist*travel;continue;}
+  p.x=p.tx;p.y=p.ty;
+  const size=p.t.s||0,gapX=Math.max(p.t.x-p.tx,0,p.tx-p.t.x-size),gapY=Math.max(p.t.y-p.ty,0,p.ty-p.t.y-size);
+  const direct=gapX*gapX+gapY*gapY<=.35*.35;
+  if(direct)dmgT(p.a,p.t);
+  const sp=U[p.a.k].spl;
+  if(sp){const splash2=sp*sp,ix=p.tx,iy=p.ty;
+   for(const e of S.us)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2)dmgT(p.a,e);
+   for(const e of S.bs)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e);
+  }
+  p.dead=1;
+ }
+ compactNotFlag(S.pj,'dead');
+}
+
 /* Combat target index and defensive/siege targeting. Original classic-script
  * bodies extracted from simulation.js; step() still invalidates this index. */
 const FOE_CELL=8,FOE_BUCKETS=new Map(),FOE_BUCKET_POOL=[];

@@ -32,7 +32,7 @@ vm.runInContext(buildingUpdates, context);
 const bonusStart=bonuses.indexOf('function meleeResearchAttackBonus(');
 assert.ok(bonusStart>=0,'source melee bonus must exist in its dedicated owner');
 vm.runInContext(bonuses.slice(bonusStart),context);
-load('function dmgT(a,t){', 'const hit=(a,t)=>');
+load('function dmgT(a,t){', '/* ===== ECONOMY / UNIT BEHAVIOUR ===== */');
 const research = vm.runInContext('research', context);
 const upB = vm.runInContext('upB', context);
 const damage = vm.runInContext('dmgT', context);
