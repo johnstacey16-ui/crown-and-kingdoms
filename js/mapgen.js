@@ -47,13 +47,21 @@ function applyMapLayout(){const p=[null,{mt:0,seed:202611},{mt:7,seed:202612},{m
  * seeded order unchanged. Bonuses registered by each civilization apply to
  * future addU/addB calls; reconcile the initial full-health units/buildings
  * exactly once after fx(t) so starting villagers and Town Centres match. */
+// No markers on entities or save data: each newly generated world is tracked
+// externally, and each team's reconciliation can run only once for that world.
+const appliedStartingCivilizationBonuses=new WeakMap();
 function applyStartingCivilizationBonuses(team){
+ if(!S||!Number.isInteger(team)||team<0||team>=S.teamN)return;
+ let applied=appliedStartingCivilizationBonuses.get(S);
+ if(!applied){applied=new Set();appliedStartingCivilizationBonuses.set(S,applied)}
+ if(applied.has(team))return;
  const tech=S.tech[team]||{},hp=tech.hpb||{};
  for(const u of S.us)if(u.t===team&&u.hp>0)u.hp+=hp[u.k]||0;
  if(tech.bz)for(const b of S.bs)if(b.t===team&&b.hp>0){
   const previous=b.mh,next=Math.round(previous*1.15);
   b.mh=next;b.hp=Math.min(next,b.hp+next-previous);
  }
+ applied.add(team);
 }
 
 /* Map construction, game-state initialisation and starting-world seeding. */

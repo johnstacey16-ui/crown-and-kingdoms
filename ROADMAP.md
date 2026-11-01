@@ -47,7 +47,7 @@ IDs `AUD-###` are suggestions for the existing master register; **do not overwri
 |---|---|---|---|
 | AUD-001 | P0 | Diagnose GitHub Actions pre-step failures: `.github/workflows/` and owner Actions settings | Exact failure cause and successful **hosted** validation/regression/browser runs; if service issue, record blocker |
 | AUD-002 | P0 | Fix First Hearth X-versus-A tutorial: `js/campaign.js`; controller help tests | Scenario guidance matches actual contextual order; campaign regression + controller VM |
-| AUD-003 | P0 | Fix starting civ HP bonuses: `js/mapgen.js`, `js/entities.js`, `engine.js` | Starting villagers/TC have appropriate civ-modified HP without double application on future spawns; seeded save/regressions |
+| AUD-003 | P0 · PARTIAL | Starting civilisation HP reconciliation: `js/mapgen.js`, `js/entities.js` | Existing seeded Indian villager and Byzantine TC tests plus repeat-application/world-reset tests enforce single initial bonus; full civilisation matrix, current save stress and Xbox game acceptance remain OPEN |
 | AUD-004 | P0 · PARTIAL | Harden gamepad focus/blur/tab visibility: `js/input.js`, `engine.js` | `2a0f567` + 916/916 focused tests verify neutral-until-release and immediate edge clearing; physical Xbox Edge focus/overlay testing and menu/placement continuity still OPEN |
 | AUD-005 | P0 | Establish physical Series S baseline, capture saved reproducible scene and HUD | Preset 50/75/100, measured FPS/draw/sim, Xbox build/Edge version/controller video, no invented performance claims |
 | AUD-006 | P0 | Publish current status and replace obsolete Railway links in README/server README | Current browser URL/transport/code SHA/test count and superseded docs unmistakable |

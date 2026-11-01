@@ -41,3 +41,27 @@ test('civilizations without starting HP modifiers keep baseline health and seede
  assert.equal(first("S.r.state()"),second("S.r.state()"));
  assert.equal(first("S.us.map(u=>[u.netId,u.t,u.k,u.hp]).join(';')"),second("S.us.map(u=>[u.netId,u.t,u.k,u.hp]).join(';')"));
 });
+
+test('starting reconciliation is idempotent per team and does not alter subsequent production',()=>{
+ const run=match(13,3);
+ const before=run("JSON.stringify({units:S.us.map(u=>[u.netId,u.t,u.k,u.hp]),buildings:S.bs.map(b=>[b.netId,b.t,b.k,b.hp,b.mh]),rng:S.r.state(),next:S.netNext})");
+ run('applyStartingCivilizationBonuses(0);applyStartingCivilizationBonuses(1);applyStartingCivilizationBonuses(0)');
+ const after=run("JSON.stringify({units:S.us.map(u=>[u.netId,u.t,u.k,u.hp]),buildings:S.bs.map(b=>[b.netId,b.t,b.k,b.hp,b.mh]),rng:S.r.state(),next:S.netNext})");
+ assert.equal(after,before,'retrying startup reconciliation must not double HP or change seeded creation');
+ assert.equal(run("addU(0,'vil',14,14).hp"),run("U.vil.hp+10"));
+ assert.equal(run("addB(1,'house',30,30,true).hp"),Math.round(run('B.house.hp')*1.15));
+ const afterSpawn=run("JSON.stringify({units:S.us.map(u=>u.hp),buildings:S.bs.map(b=>[b.hp,b.mh])})");
+ run("applyStartingCivilizationBonuses(0);applyStartingCivilizationBonuses(1)");
+ assert.equal(run("JSON.stringify({units:S.us.map(u=>u.hp),buildings:S.bs.map(b=>[b.hp,b.mh])})"),afterSpawn,
+  'later-produced entities must not get a second starting modifier');
+});
+
+test('starting reconciliation is independently tracked for successive new worlds',()=>{
+ const run=match(13,3,9871);
+ const before=run("JSON.stringify({hp:S.us.filter(u=>u.t===0&&u.k==='vil').map(u=>u.hp),tc:S.bs.find(b=>b.t===1&&b.k==='tc').hp})");
+ run("start()");
+ const after=run("JSON.stringify({hp:S.us.filter(u=>u.t===0&&u.k==='vil').map(u=>u.hp),tc:S.bs.find(b=>b.t===1&&b.k==='tc').hp})");
+ assert.equal(after,before);
+ assert.equal(run("S.us.filter(u=>u.t===0&&u.k==='vil').every(u=>u.hp===U.vil.hp+10)"),true);
+ assert.equal(run("S.bs.find(b=>b.t===1&&b.k==='tc').hp"),Math.round(run("B.tc.hp")*1.15));
+});
