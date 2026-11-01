@@ -172,11 +172,22 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 
 function stt(a){if(a.q)return '';if(a.k==='mon')return 'Conversion '+conversionRange(a,null)+'  Faith '+Math.floor(a.faith??100)+'%';const d=U[a.k],t=S.tech[a.t],ml=d.rng<2,b=(ml?(t.atkM2?5:t.atkM?2:0):arrowBonus(a))+(t.atkb&&t.atkb[a.k]||0),ib=((a.k==='mil'||a.k==='spear'||a.k==='skirm')&&t.armI?1:0)+((a.k==='arc'||a.k==='xbow')&&t.armR?1:0);return 'Atk '+d.dmg+(b?'+'+b:'')+'  Armor '+(MA[a.k]||0)+(ib?'+'+ib:'')+'/'+(PRA[a.k]||0)+(ib?'+'+ib:'')+(d.rng>2?'  Rng '+attackRange(a):'')}
 
-function drawRadial(){const m=menu,N=m.items.length,pr=m.pr||Array.from({length:Math.ceil(N/12)},(_,i)=>[i*12,Math.min(N,i*12+12)]),pg=Math.min(m.pg||0,pr.length-1),vis=m.items.slice(pr[pg][0],pr[pg][1]),n=vis.length,cx=CW/2,cy=CH/2-10,R=Math.min(CW,CH)*.33;
+// The radial renderer and gamepad handler must agree on empty, stale and
+// paginated command lists. An empty list is one safe, zero-choice page.
+function radialMenuPage(m){
+ const items=Array.isArray(m?.items)?m.items:[],N=items.length;
+ const custom=Array.isArray(m?.pr)?m.pr.filter(p=>Array.isArray(p)&&p.length===2&&Number.isInteger(p[0])&&Number.isInteger(p[1])&&p[0]>=0&&p[0]<N&&p[1]>p[0]&&p[1]<=N):[];
+ const pr=custom.length?custom:N?Array.from({length:Math.ceil(N/12)},(_,i)=>[i*12,Math.min(N,i*12+12)]):[[0,0]];
+ const requested=Number.isInteger(m?.pg)?m.pg:0,pg=Math.max(0,Math.min(requested,pr.length-1));
+ return {items,pr,pg,a0:pr[pg][0],n:pr[pg][1]-pr[pg][0]};
+}
+
+function drawRadial(){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m),vis=items.slice(a0,a0+n),cx=CW/2,cy=CH/2-10,R=Math.min(CW,CH)*.33;
 X.fillStyle='rgba(0,0,0,.55)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();X.fillStyle='#241709';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();X.stroke();
 const ttl=m.title==='Build'?(pg===0?'Economic buildings':'Military buildings'):m.title;tx(ttl,cx,cy-R*.18,Math.min(24,R/10),'#f2c14e','center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),'#cbd5e1','center');
-const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=42;vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=pr[pg][0]+j===m.i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-w/2,y-h/2,w,h);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);tx(it.l.slice(0,24),x,y-3,15,it.lk?'#aaa':'#fff','center');tx(it.lk||cs(it.c),x,y+13,12,it.lk?'#ffb0b0':'#f0dca6','center')});
-const sit=m.items[m.i];if(sit)tx(DS[sit.l]||'',cx,cy+R*.26,15,'#cbd5e1','center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,'#cbd5e1','center')}
+if(!n)tx('No commands available — A or B to close',cx,cy+R*.26,17,'#cbd5e1','center');
+ const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=42;vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=a0+j===m.i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-w/2,y-h/2,w,h);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);tx(it.l.slice(0,24),x,y-3,15,it.lk?'#aaa':'#fff','center');tx(it.lk||cs(it.c),x,y+13,12,it.lk?'#ffb0b0':'#f0dca6','center')});
+const sit=items[Number.isInteger(m.i)?m.i:0];if(sit)tx(DS[sit.l]||'',cx,cy+R*.26,15,'#cbd5e1','center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,'#cbd5e1','center')}
 
 
 function drawVillagerPriorityWheel(){

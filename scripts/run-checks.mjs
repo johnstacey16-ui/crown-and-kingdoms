@@ -78,6 +78,7 @@ const FOCUSED=[
  "tests/control-group-save.test.mjs",
  "tests/gamepad-focus-edges.test.mjs",
  "tests/xbox-controller-contract.test.mjs",
+ "tests/radial-empty-menu-safety.test.mjs",
  "tests/xbox-flat-field-isolation.test.mjs",
  "tests/villager-auto-farm-construction.test.mjs",
  "tests/series-s-resource-sprite-cache.test.mjs",
