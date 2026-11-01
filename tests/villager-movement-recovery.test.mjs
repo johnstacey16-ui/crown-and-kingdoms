@@ -13,7 +13,7 @@ function section(source,from,to){
 }
 const snippets=[
  section(sim,'function baseGatherRate(u,n){','/* ===== COMBAT ===== */'),
- section(sim,'function upU(u,dt){','function upB(b,dt)'),
+ section(sim,'function upU(u,dt){','function okPlace(t,k,x,y)'),
  section(sim,'const mv=(u,dx,dy)=>','/* Local spatial grid'),
  section(finding,'function d2(px,py,t){','const goalNear='),
  section(render,'const PAINT=','function loadPaintedTerrain('),

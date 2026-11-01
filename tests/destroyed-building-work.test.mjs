@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const start = simulation.indexOf('function upB(b,dt)');
-const end = simulation.indexOf('\nfunction ', start + 1);
+const end = simulation.length;
 assert.ok(start >= 0 && end > start, 'Building update function must remain isolated');
 const update = simulation.slice(start, end);
 

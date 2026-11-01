@@ -3,10 +3,10 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 const start = simulation.indexOf('function upB(b,dt){');
-const end = simulation.indexOf('\nfunction ', start + 15);
+const end = simulation.length;
 assert.ok(start >= 0 && end > start, 'building update must be available');
 
 const villager = { k: 'vil', t: 0, hp: U.vil.hp };

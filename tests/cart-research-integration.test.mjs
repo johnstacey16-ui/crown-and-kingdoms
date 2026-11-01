@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { B, TE, AG, U } = vm.runInNewContext(config + '\n;({B,TE,AG,U})');
 const source = researchSource.slice(researchSource.indexOf('function research(b,k){'));
@@ -36,7 +36,7 @@ assert.equal(player.rs.k, 'wheel');
 assert.equal(S.res[0].f, before.f - TE.wheel.cost.f);
 assert.equal(research(player, 'handcart'), false, 'busy Town Centre rejects new research');
 const buildingStart = simulation.indexOf('function upB(b,dt){');
-const buildingEnd = simulation.indexOf('\nfunction okPlace(', buildingStart);
+const buildingEnd = simulation.length;
 assert.ok(buildingStart >= 0 && buildingEnd > buildingStart);
 context.U = U;
 context.sfx = () => {};
