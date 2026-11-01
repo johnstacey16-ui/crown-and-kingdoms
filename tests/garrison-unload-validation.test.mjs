@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const sim=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
 const begin=sim.indexOf('function unload(b){');
 const finish=sim.indexOf('\nfunction townBell(',begin);
 assert.ok(begin>=0&&finish>begin,'unload routine must remain independently executable');

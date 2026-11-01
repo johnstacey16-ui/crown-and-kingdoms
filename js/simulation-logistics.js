@@ -88,3 +88,68 @@ function tickTrader(u,dt){
  }
  u.o='m';walk(u,dt)
 }
+
+/* Garrison healing, safe unloading and Town Bell shelter reservations:
+ * original function bodies relocated unchanged from simulation.js. */
+function healGarrison(b,dt){if(!b.cg?.length)return;const rate=S.tech[b.t]?.herbalMedicine ? .6 : .1;
+ for(const u of b.cg)if(u&&S.us.includes(u)&&u.hp>0&&u.ld===b&&u.t===b.t)u.hp=Math.min(mhp(u),u.hp+rate*dt);
+}
+function unload(b){
+ if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]){note('Select a living, completed garrison with units inside');return false}
+ const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
+ if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
+ const size=Number.isInteger(b.s)&&b.s>0?b.s:1,spots=[];
+ /* Only units near the garrison can occupy one of its possible unload tiles. */
+ const occupied=new Set(),left=b.x-6,right=b.x+size+6,top=b.y-6,bottom=b.y+size+6;
+ for(const u of S.us)if(u&&u.hp>0&&!u.ld&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=left&&u.x<right&&u.y>=top&&u.y<bottom)occupied.add((u.y|0)*W+(u.x|0));
+ for(let r=1;r<=6;r++){
+  for(let dy=-r;dy<size+r;dy++)for(let dx=-r;dx<size+r;dx++){
+   if(dx>=0&&dy>=0&&dx<size&&dy<size)continue;
+   if(dx!==-r&&dy!==-r&&dx!==size+r-1&&dy!==size+r-1)continue;
+   const x=b.x+dx,y=b.y+dy;
+   if(x<=0||y<=0||x>=W-1||y>=H-1)continue;
+   const idx=y*W+x;
+   if(S.g[idx]||S.wt[idx]===1||S.nd[idx]||occupied.has(idx))continue;
+   const gapX=Math.max(0,-dx,dx-size+1),gapY=Math.max(0,-dy,dy-size+1);
+   spots.push({x,y,idx,score:gapX*gapX+gapY*gapY});
+  }
+  if(spots.length>=cg.length)break;
+ }
+ spots.sort((a,b)=>a.score-b.score);
+ let released=0;
+ for(const c of cg){
+  const sp=spots[released];if(!sp)break;
+  c.x=sp.x+.5;c.y=sp.y+.5;c.ld=null;c.o='i';c.tg=null;c.ut=null;c.pt=null;c.as=0;c.p=[];c.rp=0;released++;
+ }
+ b.cg=cg.filter(c=>c.ld===b);
+ note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
+ return released>0;
+}
+function townBell(t){
+ const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
+ const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]);
+ const occupancy=new Map(),living=new Set(S.us);
+ for(const b of shelters){
+  const residents=new Set();
+  for(const passenger of (Array.isArray(b.cg)?b.cg:[]))
+   if(passenger&&living.has(passenger)&&passenger.hp>0&&passenger.t===t&&passenger.ld===b)residents.add(passenger);
+  occupancy.set(b,residents.size);
+ }
+ for(const v of S.us)if(v.hp>0&&v.t===t&&v.o==='B'&&occupancy.has(v.tg))occupancy.set(v.tg,occupancy.get(v.tg)+1);
+ let sent=0;
+ for(const u of workers){
+  let shelter=null,best=Infinity;
+  for(const b of shelters){
+   const ownReservation=u.o==='B'&&u.tg===b?1:0;
+   if((occupancy.get(b)||0)-ownReservation>=GAR[b.k])continue;
+   const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-(b.x+sz)),dy=Math.max(b.y-u.y,0,u.y-(b.y+sz)),distanceSq=dx*dx+dy*dy;
+   if(distanceSq<best){best=distanceSq;shelter=b}
+  }
+  if(!shelter)continue;
+  if(u.o==='B'&&occupancy.has(u.tg))occupancy.set(u.tg,Math.max(0,occupancy.get(u.tg)-1));
+  u.p=[];u.pt=null;u.as=0;u.o='B';u.tg=shelter;u.ut=null;
+  occupancy.set(shelter,(occupancy.get(shelter)||0)+1);sent++;
+ }
+ if(t===0)note(sent?'Town Bell: '+sent+' villagers sent to shelter':'No available shelter space for villagers');
+ return sent;
+}
