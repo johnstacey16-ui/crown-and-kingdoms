@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }

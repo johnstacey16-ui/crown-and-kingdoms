@@ -4,13 +4,14 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const aiPolicy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const unitBehaviour=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
-const start=ai.indexOf('function aiRetreat(');
-const end=ai.indexOf('\nfunction ai(',start);
-assert.ok(start>=0&&end>start,'AI retreat policy must exist');
-const retreatSource=ai.slice(start,end);
+const start=aiPolicy.indexOf('function aiRetreat(');
+assert.ok(start>=0,'AI retreat policy must exist in the dedicated policy module');
+assert.doesNotMatch(ai,/function aiRetreat\(/,'AI orchestrator must not duplicate the retreat policy');
+const retreatSource=aiPolicy.slice(start);
 
-function setup(){
+function setup({reachable=true}={}){
  const shelter={k:'tc',done:true,hp:500,x:5,y:5,s:3,t:1};
  const S={t:100,us:[]};
  const U={knight:{dmg:10,sh:false},mil:{dmg:5,sh:false}};
@@ -18,7 +19,7 @@ function setup(){
  const context={
   S,U,W:96,H:96,
   mhp:()=>100,
-  path:()=>{pathCalls++;return [[6.5,6.5]]},
+  path:()=>{pathCalls++;return reachable?[[6.5,6.5]]:null},
   goalNear:b=>b,
   isHostile:(a,b)=>a!==b,
   d2:(x,y,b)=>Math.hypot(Math.max(b.x-x,0,x-b.x-b.s),Math.max(b.y-y,0,y-b.y-b.s))
@@ -72,4 +73,28 @@ test('shelter proximity no longer grants free hit-point healing',()=>{
 test('retreating units are excluded from coordinated AI attack waves',()=>{
  assert.match(ai,/else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)arm\.push\(u\)/);
  assert.match(ai,/\(A\.wu\|\|\[\]\)\.filter\(u=>u\.hp>0&&!u\.ld&&u\.k!=='mon'&&!u\.retreating/);
+});
+
+test('threat-weighted retreat picks a safer shelter even when the nearer shelter is reachable',()=>{
+ const h=setup(),u=soldier();
+ const exposed={...h.shelter,x:19,y:22};
+ const safer={...h.shelter,x:12,y:16,k:'castle'};
+ h.S.us=[
+  {t:0,k:'mil',hp:100,x:23,y:24},
+  {t:0,k:'mil',hp:100,x:22,y:25}
+ ];
+ h.retreat(1,[u],exposed,[exposed,safer]);
+ assert.equal(u.retreating,true);
+ assert.equal(u.retreatTarget,safer);
+ assert.equal(h.pathCalls,1,'selecting the safer reachable shelter uses one route');
+});
+
+test('unreachable shelters do not produce a false retreat order',()=>{
+ const h=setup({reachable:false}),u=soldier();
+ h.retreat(1,[u],h.shelter,[h.shelter]);
+ assert.equal(!!u.retreating,false);
+ assert.equal(u.o,'i');
+ assert.equal(u.tg,undefined);
+ assert.equal(h.pathCalls,1);
+ assert.equal(u.retreatRepathAt,108,'failed route retries remain bounded');
 });
