@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const logistics=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
+const buildingUpdates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
 const start=logistics.indexOf('function tickTrader(u,dt){');
 const end=logistics.length;
@@ -35,7 +36,7 @@ test('trade markets/docks and their traders remain present in the unit catalogue
  assert.ok(B.market.tr.includes('cart'),'markets produce carts');
  assert.ok(B.dock.tr.includes('cog'),'docks produce trade cogs');
  assert.ok(U.cart&&U.cog,'trade units have definitions');
- assert.match(simulation, /if\(q\.k==='cart'\|\|q\.k==='cog'\)nu\.tradeFromKey=/,
+ assert.match(buildingUpdates, /if\(q\.k==='cart'\|\|q\.k==='cog'\)nu\.tradeFromKey=/,
   'trained merchants remember their producing depot');
 });
 
