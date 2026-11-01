@@ -1,10 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
+
+const uiSource=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const radialStart=uiSource.indexOf('function radialMenuPage(m){');
+const radialEnd=uiSource.indexOf('\nfunction drawRadial(){',radialStart);
+assert.ok(radialStart>=0&&radialEnd>radialStart,'production radial page helper exists');
+const radialHelper=uiSource.slice(radialStart,radialEnd);
 
 function fixture(){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source,sandbox);
+ // The headless engine excludes rendering-only UI; controller wheel input still
+ // calls this real, shared production page helper.
+ vm.runInContext(radialHelper,sandbox);
  vm.runInContext(`
   mode='play';popLimit=200;pad={axes:[0,0,0,0],buttons:[]};clampCam=()=>{};
   S={us:[],bs:[],sel:[],age:[3,3],tech:[{},{}],civ:[0,0],
