@@ -19,6 +19,22 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Visual frame pacing, Xbox terrain/HUD fidelity and canonical rendering ownership.
+ "tests/raf-gap-performance.test.mjs",
+ "tests/fog-batch-rendering.test.mjs",
+ "tests/terrain-chunk-visible-cache.test.mjs",
+ "tests/terrain-viewport-cache.test.mjs",
+ "tests/team-frame-cache.test.mjs",
+ "tests/painted-resources.test.mjs",
+ "tests/building-damage-art.test.mjs",
+ "tests/house-ages.test.mjs",
+ "tests/town-centre-ages.test.mjs",
+ "tests/terrain-palette-renderer.test.mjs",
+ "tests/hud-ui-extraction.test.mjs",
+ "tests/front-end-screen-routing-ui-extraction.test.mjs",
+ "tests/unit-label-ownership.test.mjs",
+ "tests/particle-renderer-extraction.test.mjs",
+ "tests/world-object-renderer-extraction.test.mjs",
  // Save recovery, multiplayer projection/checkpoints and unit-formation invariants.
  "tests/save-management.test.mjs",
  "tests/save-discovery-ui.test.mjs",
