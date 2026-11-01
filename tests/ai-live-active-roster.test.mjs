@@ -18,7 +18,7 @@ assert.match(roster, /if\(u\.k==='gal'&&!u\.ld\)galleys\.push\(u\)/,
 
 console.log('ai-live-active-roster: dead and garrisoned units do not inflate AI planning counts');
 
-const threatScan = ai.slice(ai.indexOf('const hostileFleet=[]'), ai.indexOf('\naiShareResources(t,A,R);');
+const threatScan = ai.slice(ai.indexOf('const hostileFleet=[]'), ai.indexOf('\naiShareResources(t,A,R);'));
 assert.match(threatScan, /for\(const e of S\.us\)/,
   'AI naval threat rosters should be built in a single pass over the unit list');
 assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
