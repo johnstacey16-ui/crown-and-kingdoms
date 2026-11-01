@@ -27,7 +27,7 @@ Use the central `scripts/run-checks.mjs` rather than new handwritten workflow te
 
 Per-push [game-validation](.github/workflows/game-validation.yml) runs quick and focused only. [game-regression](.github/workflows/game-regression.yml) and [battlefield-browser](.github/workflows/battlefield-browser.yml) remain weekly/manual **to preserve free GitHub Actions minutes**. Separate game-regression jobs let skirmishes run even if other tests fail.
 
-**Last green hosted code revision:** `c444bdd`, [Actions 41362026600](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41362026600), **921/921 focused assertions, five quick gates, zero failures**. Vercel production was confirmed READY at the same SHA. The older scheduled Sunday run reached 243/244 then-existing regression files and 19 isolated campaign checks; its one stale trade fixture was repaired and independently passed. A fresh full 247-file pass, three seeded skirmishes, human campaign wins, independent WAN multiplayer and physical Xbox Series S Edge acceptance are still **OPEN**. Do not invent acceptance metrics or conflate Node/Chromium checks with Xbox hardware.
+**Last green hosted code revision:** `2a304b5`, [Actions 41362879377](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41362879377), **925/925 focused assertions, five quick gates, zero failures**. Vercel was confirmed READY at the same SHA. The older Sunday run covered 243/244 then-existing files, 19 isolated campaign simulations and 2 Chromium tests at earlier revisions; the trade fixture was independently repaired. A current complete **247-file suite**, three seeded AI skirmishes, human campaign wins, WAN and physical Xbox remain OPEN.
 
 ## Controller, hosting, security and save policy
 
