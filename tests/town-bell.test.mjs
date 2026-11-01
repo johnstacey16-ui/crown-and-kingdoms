@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const start=simulation.indexOf('function townBell(t){');
-const end=simulation.indexOf('\nfunction gm(',start);
+const end=simulation.indexOf('\nconst mhp=',start);
 assert.ok(start>=0&&end>start,'Town Bell simulation helper must be available');
 const source=simulation.slice(start,end);
 
