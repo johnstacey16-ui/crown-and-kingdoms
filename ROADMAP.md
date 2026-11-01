@@ -5,6 +5,14 @@
 **Audited baseline:** `337974492df1ddfd5f9adb339b79855f005bd532`. This is a dated audit baseline, not a claim that the current tip or deployed build has passed tests. Read the [complete six-source audit](docs/audits/2026-10-31-consolidated-audit.md), [dated implementation register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), [historic roadmap journal](AOE2_PARITY_ROADMAP.md), [Xbox parity contract](XBOX_CONTROLLER_PARITY.md), [full product plan](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [free-only hosting policy](FREE_HOSTING.md) and [contributor workflow](AGENTS.md).
 
 
+## Resource-selection and depot-routing source extraction — 1 November 2026 (`1fa7571`)
+
+The cleanup-first roadmap continues: `js/simulation-resource-routing.js` now owns the **unchanged 4,222 source bytes** of farm-exclusive site selection, resource worker approach capacity, fog-aware known-resource targeting, bounded dropoff routing and skips, Fishing Ship trap placement and node removal. `js/simulation.js` remains the gameplay-tick owner and keeps its existing callers unchanged. Browser/headless/offline load the new module between logistics and simulation; service-worker cache revision is now **v63**. No save migration, gameplay balance, art, inputs or network protocol was changed.
+
+Retargeted historical source-slicer tests to the canonical module, updated ownership/order checks and added `tests/simulation-resource-routing-ownership.test.mjs`. Newly focused farm/fishing/depot suites check that solo, AI-policy and authenticated host command paths still enforce the one-worker farm rule. [Hosted GitHub Actions 41255906326](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41255906326) passed **217/217 focused tests**, five quick gates and **40 production script** syntax parses on `1fa7571`. Live inventory: **237 standalone regression files, 40 production / 27 core / 25 headless scripts, 30 Markdown documents**.
+
+**Still open:** full 237-file isolated regression pass, all three AI skirmishes, 19 missions, browser graphics/room validation, repeated Xbox Series S Edge controller/FPS observations and independent WAN multiplayer. Keep high-cost workflows manual/weekly and free-only.
+
 ## Large-army chokepoint stress and corner-recovery fix — 31 October 2026 (`081f2d3`)
 
 Implemented a reproducible `node scripts/stress-200.mjs --ticks=2400` stress command and `tests/large-army-chokepoint.test.mjs` against the canonical real browser-ordered production source. The 72×72 artificial grid has an edge-to-edge wall with only **two passable tiles**. It first verifies that sealing the gap makes A* return no route; then issues a formation move order for **200 soldiers**, reusing existing A* path and shared-formation diagnostics. The measured order planned 200/200 paths with 26,951 A* expansions. The simulation loop uses the production `walk` and `sep` primitives for 2,400 fixed ticks (80 simulated seconds).

@@ -4,7 +4,7 @@
 
 An original, controller-first medieval real-time strategy game built for **Microsoft Edge on Xbox Series S**. Its end goal is complete functional-category parity with *Age of Empires II: Definitive Edition* on Xbox Series X, including all Xbox-available gameplay DLC. **The full game is not finished or accepted on Xbox hardware.**
 
-**CI status:** [Hosted GitHub Actions 41246664294](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41246664294) passed **204/204 focused tests**, five quick source/offline/civilization/atlas/graphics gates and syntax checks for **39** production browser scripts on `081f2d3`. A reproducible 200-unit artificial chokepoint scenario now finishes with **200 crossing / 200 orders completed** in 2,400 fixed ticks after repairing diagonal-corner and obsolete-waypoint movement errors. This is Node headless movement verification, **not** hardware FPS or a full live match. **All 236 standalone regression files together**, three seeded AI skirmishes, 19 missions, Chromium, real Xbox Series S Edge and WAN multiplayer remain **unverified** on this code.
+**CI status:** [Hosted GitHub Actions 41255906326](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41255906326) passed **217/217 focused tests**, all five quick gates and parsing of **40** production browser scripts on `1fa7571`. Farm selection, fishing, depot routing and module ownership now run in the focused suite. The reproducible 200-unit two-tile chokepoint scenario from the prior code checkpoint completed **200/200 crossings and orders** in 2,400 fixed simulation ticks; this is **Node headless evidence, not Series S FPS**. **All 237 standalone files together**, three AI skirmishes, 19 missions, Chromium, real Xbox Series S Edge and independent-network multiplayer remain **unverified** at this revision.
 
 **Current tree inventory:** 237 standalone regression files, 40 production browser scripts, 27 core scripts, 25 headless scripts and 30 Markdown documents.
 
@@ -12,7 +12,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.
 
-**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js` and `js/simulation-combat-bonuses.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
+**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js` and `js/simulation-resource-routing.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists
 
