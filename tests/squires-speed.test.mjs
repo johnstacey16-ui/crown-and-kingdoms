@@ -9,7 +9,7 @@ assert.ok(B.bar.rs.includes('squires'), 'Barracks must offer Squires');
 assert.equal(TE.squires.age, 2, 'Squires must unlock in Castle Age');
 
 const start = simulation.indexOf('function unitSpeed(u){');
-const end = simulation.indexOf('function walk(u,dt){', start);
+const end = simulation.indexOf('/* ===== COMBAT ===== */', start);
 assert.ok(start >= 0 && end > start, 'unitSpeed implementation must exist');
 const S = { tech: [{}, {}] };
 const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };

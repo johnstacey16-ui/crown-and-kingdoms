@@ -9,7 +9,7 @@ assert.ok(B.tc.rs.includes('wheel'), 'Town Centre offers Wheelbarrow');
 assert.equal(TE.wheel.age, 1, 'Wheelbarrow requires Feudal Age');
 
 const start = simulation.indexOf('function unitSpeed(u){');
-const end = simulation.indexOf('function walk(u,dt){', start);
+const end = simulation.indexOf('/* ===== COMBAT ===== */', start);
 assert.ok(start >= 0 && end > start);
 const S = { tech: [{ wheel: 1 }, {}] };
 const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };

@@ -10,7 +10,7 @@ assert.equal(TE.handcart.age, 2, 'Hand Cart unlocks in Castle Age');
 assert.equal(TE.handcart.pre, 'wheel', 'Hand Cart requires Wheelbarrow');
 
 const start = simulation.indexOf('function unitSpeed(u){');
-const end = simulation.indexOf('function walk(u,dt){', start);
+const end = simulation.indexOf('/* ===== COMBAT ===== */', start);
 assert.ok(start >= 0 && end > start);
 const S = { tech: [{ wheel: 1, handcart: 1 }, {}] };
 const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };

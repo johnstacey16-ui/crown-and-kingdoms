@@ -26,7 +26,7 @@ const context = {
   foe: () => null, sfx: () => {}, note: () => {},
 };
 vm.createContext(context);
-vm.runInContext(extract('function gatherCapacity(u){', 'function walk(u,dt){'), context);
+vm.runInContext(extract('function gatherCapacity(u){', '/* ===== COMBAT ===== */'), context);
 vm.runInContext(buildingUpdates, context);
 const capacity = vm.runInContext('gatherCapacity', context);
 const speed = vm.runInContext('unitSpeed', context);

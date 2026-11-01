@@ -6,7 +6,7 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const {U,TE,GR,CAP}=vm.runInNewContext(config+'\n;({U,TE,GR,CAP})');
 const start=sim.indexOf('function resourceGatherRate(n){');
-const end=sim.indexOf('function walk(u,dt){',start);
+const end=sim.indexOf('/* ===== COMBAT ===== */',start);
 assert.ok(start>=0&&end>start);
 const S={tech:[{},{wheel:1},{wheel:1,handcart:1}]};
 const api=vm.runInNewContext(sim.slice(start,end)+'\n;({baseGatherRate,unitSpeed,gatherCapacity})',{

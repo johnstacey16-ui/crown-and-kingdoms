@@ -11,30 +11,6 @@ function resourceGatherRate(n){
 function baseGatherRate(u,n){return u.k==='vil'||n.fi?resourceGatherRate(n):GR}
 function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)}
 function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lcav?1.5:U[u.k].sp)*((tech.husb&&CAVARM.has(u.k))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)*((u.k==='mil'&&tech.man)?(.96/.9):1)*(u.k==='vil'?1+(tech.wheel?.1:0)+(tech.handcart?.1:0):1)*((tech.fervor&&u.k==='mon')?1.15:1)}
-/* A* waypoints are tile-centred, but separation can nudge a soldier off the
- * centreline beside a wall. Prefer a terrain-checked axis slide to falsely
- * completing a move just because the direct diagonal crosses a solid corner. */
-function walkAxisSlide(u,dx,dy){
- // Tiny floating-point noise is not genuine motion; otherwise soldiers can
- // remain forever on a blocked waypoint without triggering route repair.
- if(Math.abs(dx)<1e-5||Math.abs(dy)<1e-5)return false;
- const ox=u.x,oy=u.y;mv(u,0,dy);
- if(Math.abs(u.y-oy)>1e-5)return true;
- mv(u,dx,0);return Math.abs(u.x-ox)>1e-5;
-}
-function recoverMoveRoute(u,p){
- // Formation separation may push a soldier across a choke while its next
- // saved waypoint remains behind the wall. Replan only normal move orders
- // toward their original final destination, never arbitrary gather/attack paths.
- if(u.o!=='m'||p.length<2)return false;
- const destination=p[p.length-1],route=path(u,gp(destination[0],destination[1],.8));
- if(!route?.length)return false;
- if(route.length===p.length&&route.every((q,i)=>q[0]===p[i][0]&&q[1]===p[i][1]))return false;
- u.p=route;
- return true;
-}
-function walk(u,dt){const p=u.p;if(!p.length)return true;if(!Number.isFinite(dt)||dt<=0)return false;if(!Array.isArray(p[0])||p[0].length!==2){u.p=[];u.rp=0;return true}const[tx,ty]=p[0];if(!Number.isFinite(tx)||!Number.isFinite(ty)||tx<0||ty<0||tx>=W||ty>=H){u.p=[];u.rp=0;return true}if((u.sh?!(S.wt[(ty|0)*W+(tx|0)]&&!S.nd[(ty|0)*W+(tx|0)]):(S.wt[(ty|0)*W+(tx|0)]===1||S.g[(ty|0)*W+(tx|0)]&&S.gt[(ty|0)*W+(tx|0)]!==u.t+1))&&p.length>1){u.p=[];u.rp=0;return true}
-const dx=tx-u.x,dy=ty-u.y,d=Math.hypot(dx,dy),st=Math.max(0,unitSpeed(u)*dt),tl=p.length>1?.45:u.o==='m'?.6:0;if(d<=st){const ox=u.x,oy=u.y;mv(u,dx,dy);if(u.x===ox&&u.y===oy&&d>0){if(walkAxisSlide(u,dx,dy))return false;if(recoverMoveRoute(u,p))return false;u.p=[];u.rp=0;return true}p.shift()}else if(d<=tl)p.shift();else{const ox=u.x,oy=u.y;mv(u,dx/d*st,dy/d*st);if(u.x===ox&&u.y===oy){if(walkAxisSlide(u,dx/d*st,dy/d*st))return false;if(recoverMoveRoute(u,p))return false;u.p=[];u.rp=0;return true}}return!p.length}
 /* ===== COMBAT ===== */
 // Direct damage and its bonuses now belong to simulation-combat-bonuses.js.
 /* ===== ECONOMY / UNIT BEHAVIOUR ===== */
@@ -138,7 +114,6 @@ if(tg.pr>=B[tg.k].bt){tg.done=true;tg.hp=tg.mh;sfx('built',tg.x+tg.s/2,tg.y+tg.s
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt)}}}
 /* Enemy strategy and composition-aware decisions are implemented in js/ai.js. */
 /* ===== SIMULATION STEP ===== */
-const mv=(u,dx,dy)=>{const x=u.x+dx,y=u.y+dy;if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return;const i=(y|0)*W+(x|0);if(u.sh?S.wt[i]&&!S.nd[i]:(!S.g[i]||S.gt[i]===u.t+1)&&S.wt[i]!==1){u.x=x;u.y=y}};
 function WL(dt){for(const n of S.nodes)if(n.an&&(n.w=(n.w||0)-dt)<=0){n.w=3+S.r()*4;const[dx,dy]=D8[(S.r()*4)|0],x=n.x+dx,y=n.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;n.x=x;n.y=y;S.g[y*W+x]=1;S.nd[y*W+x]=n}}}
 const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 function step(dt){foeGridDirty=true;S.t+=dt;if(S.vt%30===0)retryAutomaticFarmWorkers();for(const n of S.nodes)if(n&&n.fm&&n.amt<=0&&Number.isInteger(n.t)&&S.res[n.t]&&S.res[n.t].w>=60){S.res[n.t].w-=60;n.amt=farmFood(n.t);if(n.t===0)note('Farm reseeded (-60 wood)')}for(const u of S.us)upU(u,dt);sep();WL(dt);if(cmp)cmpTick(dt);if(vm)vict(dt);if(!cmp&&S.vt%30===0)elim();if(S.vt%150===0){for(const q of S.px)for(const k in q)q[k]+=q[k]<100?1:q[k]>100?-1:0;if(menu&&menu.items)for(const r of menu.items)if(r.up)r.up()}for(const q of S.rel){if(q.c){if(q.c.hp<=0)q.c=null;else{q.x=q.c.x;q.y=q.c.y}}if(q.m&&q.m.hp<=0){q.x=q.m.x+1;q.y=q.m.y+1;q.m=null}}

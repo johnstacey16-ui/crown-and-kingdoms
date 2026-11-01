@@ -110,7 +110,7 @@ assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['s
 assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
   'Husbandry must have explicit cost, duration and Castle Age availability');
 const speedStart=sim.indexOf('function unitSpeed(u){');
-const speedEnd=sim.indexOf('\nfunction walk(',speedStart);
+const speedEnd=sim.indexOf('\n/* ===== COMBAT ===== */',speedStart);
 assert.ok(speedStart>=0&&speedEnd>speedStart,'shared unit speed calculation must be present');
 const speedContext={S:{tech:[{husb:1}]},U:{knight:{sp:1},mil:{sp:1},vil:{sp:1}},
   CAVARM:new Set(['knight']),INFARM:new Set(['mil'])};

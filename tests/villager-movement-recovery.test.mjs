@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const movement=readFileSync(new URL('../js/simulation-separation.js',import.meta.url),'utf8');
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const finding=readFileSync(new URL('../js/pathfinding.js',import.meta.url),'utf8');
 const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
@@ -15,8 +16,8 @@ function section(source,from,to){
 const snippets=[
  section(routing,'function farmAvailableTo(u,n){','\nfunction dropoffKey('),
  section(sim,'function resourceGatherRate(n){','/* ===== COMBAT ===== */'),
- section(sim,'function upU(u,dt){','const mv=(u,dx,dy)=>'),
- section(sim,'const mv=(u,dx,dy)=>','function WL(dt){'),
+ section(sim,'function upU(u,dt){','/* ===== SIMULATION STEP ===== */'),
+ section(movement,'const mv=(u,dx,dy)=>','/* Local spatial grid for unit separation.'),
  section(finding,'function d2(px,py,t){','const goalNear='),
  section(render,'const PAINT=','function loadPaintedTerrain('),
  section(render,'function unitVisualPose(u,time){','function drawPaintedTroop(')
