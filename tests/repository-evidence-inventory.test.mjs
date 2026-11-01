@@ -42,7 +42,7 @@ test('active working documents keep one compact status and preserve the 48-task 
  assert.ok(agents.length<16000,'AGENTS is operating instructions, not a duplicated release journal');
  assert.ok(roadmap.length<40000,'ROADMAP keeps the active task register, not repeated dated logs');
  assert.ok(inventory.length<20000,'The refactoring inventory must stay a concise current register');
- const ids=[...roadmap.matchAll(/^\\|\\s*(AUD-\\d{3})\\s*\\|/gm)].map(m=>m[1]);
+ const ids=[...roadmap.matchAll(/^\|\s*(AUD-\d{3})\s*\|/gm)].map(m=>m[1]);
  assert.deepEqual(ids,Array.from({length:48},(_,i)=>'AUD-'+String(i+1).padStart(3,'0')),
   'Historical prose may be consolidated, but none of the audited 48 tasks may disappear or change order');
  for(const text of [agents,roadmap,inventory])
