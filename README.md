@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions run 41278598745](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41278598745) passed on `08864c9` with **459/459 focused assertions**, all five quick source/offline/civilization/atlas/graphics gates and 45 production browser scripts parsed. Base gather rates and carrying-capacity calculations are now in the canonical resource-routing module, shrinking the main simulation by 473 characters to **13,703**; the offline shell is **v79**. Regular hosted coverage remains **133/242 standalone files**. **The Xbox radial-menu crash fix is committed and regression-tested but is NOT yet live:** the Vercel Hobby production build remains rate-limited and the existing alias was last verified at old commit `a4cfa5a`. The full 242-file isolated suite, three seeded skirmishes, 19 campaigns, Chromium, real Xbox Series S Edge and independent WAN multiplayer remain unverified.
 
-**Current tree inventory:** 242 standalone regression files, 45 production browser scripts, 32 core scripts, 30 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 243 standalone regression files, 46 production browser scripts, 33 core scripts, 31 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
