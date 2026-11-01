@@ -228,7 +228,8 @@ test('browser foundation source comes from index.html in actual classic-script o
  assert.equal(paths.indexOf('./js/simulation-logistics.js')+1,paths.indexOf('./js/simulation-resource-routing.js'));
  assert.equal(paths.indexOf('./js/simulation-resource-routing.js')+1,paths.indexOf('./js/simulation-production-queues.js'));
  assert.equal(paths.indexOf('./js/simulation-production-queues.js')+1,paths.indexOf('./js/simulation-research.js'));
- assert.equal(paths.indexOf('./js/simulation-research.js')+1,paths.indexOf('./js/simulation.js'));
+ assert.equal(paths.indexOf('./js/simulation-research.js')+1,paths.indexOf('./js/simulation-building-production.js'));
+ assert.equal(paths.indexOf('./js/simulation-building-production.js')+1,paths.indexOf('./js/simulation.js'));
  assert.ok(paths.indexOf('./js/pathfinding.js')<paths.indexOf('./js/kingdom.js'));
  assert.equal(engine,paths.map(p=>readFileSync(new URL('../'+p.slice(2),import.meta.url),'utf8')).join('\n'));
 });
