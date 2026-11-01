@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const simulation = readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 test('large-army separation recycles spatial bucket arrays instead of allocating each tick', () => {
   assert.match(simulation, /const SEP_GRID=new Map\(\),SEP_BUCKET_POOL=\[\]/);
-  assert.doesNotMatch(engine, /SEP_GRID|function sep\(\)/, 'Separation ownership must stay in simulation.js');
+  assert.doesNotMatch(engine, /SEP_GRID|function sep\(\)/, 'separation must remain outside engine orchestration');
   const start = simulation.indexOf('function sep(){');
   const end = simulation.length;
   assert.ok(start >= 0 && end > start, 'Separation function must remain isolated');

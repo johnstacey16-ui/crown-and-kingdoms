@@ -26,6 +26,8 @@ const FOCUSED=[
  "tests/simulation-research-ownership.test.mjs",
   "tests/simulation-building-production-ownership.test.mjs",
   "tests/simulation-building-updates-ownership.test.mjs",
+  "tests/simulation-separation-ownership.test.mjs",
+  "tests/large-army-separation-pool.test.mjs",
  "tests/research-duplicate-guard.test.mjs",
  "tests/production-spawn-terrain.test.mjs",
  "tests/cart-research-integration.test.mjs",

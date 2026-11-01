@@ -6,13 +6,13 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [GitHub Actions 41266720123](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41266720123) **completed successfully** on code revision `5ef5b20`, passing **239/239 focused assertions**, all five source/offline/civilization/atlas/graphics gates and parsing **44 production browser scripts**. The new building tick owner preserves original gameplay behaviour. **The full 241-file regression suite, three AI skirmishes, 19 campaigns, Chromium, actual Xbox Series S Edge and independent WAN multiplayer remain unverified.** The earlier headless 200-unit chokepoint completed 200/200 crossings and orders; that is not hardware FPS acceptance.
 
-**Current tree inventory:** 241 standalone regression files, 44 production browser scripts, 31 core scripts, 29 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 241 standalone regression files, 45 production browser scripts, 32 core scripts, 30 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.
 
-**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js`, `js/simulation-resource-routing.js`, `js/simulation-production-queues.js` and `js/simulation-research.js` and `js/simulation-building-production.js` and `js/simulation-building-updates.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
+**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js`, `js/simulation-resource-routing.js`, `js/simulation-production-queues.js` and `js/simulation-research.js` and `js/simulation-building-production.js` and `js/simulation-building-updates.js` and `js/simulation-separation.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
 
 ## What exists
 
