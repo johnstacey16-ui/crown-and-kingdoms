@@ -19,6 +19,21 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Civilization technology eligibility, 26-civ identity and regional production.
+ "tests/aoe2-de-archer-armor-tiers.test.mjs",
+ "tests/aoe2-de-archer-upgrade-line.test.mjs",
+ "tests/aoe2-de-cavalry-armor-tiers.test.mjs",
+ "tests/aoe2-de-cavalry-skirmisher-parity.test.mjs",
+ "tests/aoe2-de-civ-core-military-tech.test.mjs",
+ "tests/aoe2-de-civilization-archery-tech.test.mjs",
+ "tests/aoe2-de-civilization-blacksmith-research.test.mjs",
+ "tests/aoe2-de-civilization-field-research.test.mjs",
+ "tests/aoe2-de-civilization-monastery-research.test.mjs",
+ "tests/aoe2-de-civilization-university-research.test.mjs",
+ "tests/aoe2-de-infantry-armor-tiers.test.mjs",
+ "tests/civilization-catalogue-validation.test.mjs",
+ "tests/castle-civilization-production.test.mjs",
+ "tests/regional-camel-production.test.mjs",
  // Visual frame pacing, Xbox terrain/HUD fidelity and canonical rendering ownership.
  "tests/raf-gap-performance.test.mjs",
  "tests/fog-batch-rendering.test.mjs",
