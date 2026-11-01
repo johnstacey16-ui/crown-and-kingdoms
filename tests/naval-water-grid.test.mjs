@@ -25,7 +25,7 @@ function fixture() {
  });
  vm.runInContext(read('pathfinding') + '\n' +
   section(logistics, 'function transportLandingRoute(', '\nfunction tickTrader(') + '\n' +
-  section(sim, 'function spawnPos(', '\nconst MILITARY_PRODUCTION_BUILDINGS=' + '\n' +
+  section(sim, 'function spawnPos(', '\nconst MILITARY_PRODUCTION_BUILDINGS=') + '\n' +
   section(resource, 'function deployFishTrap(', '\nfunction killNode(') + '\n' +
   section(policy, 'function aiDockWaterReach(', '\n// The first Feudal push') + '\n' +
   section(campaign, 'function campaignWaterRegions(', '\nfunction raid('), ctx);
