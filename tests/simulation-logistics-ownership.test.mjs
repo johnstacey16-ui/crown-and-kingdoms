@@ -19,7 +19,8 @@ test('transport and trader functionality is owned only by the new module',()=>{
   assert.match(logistics,new RegExp('function '+name+'\\('),'garrison logistics owns '+name);
   assert.doesNotMatch(simulation,new RegExp('function '+name+'\\('),'main simulation no longer duplicates '+name);
  }
- assert.match(simulation,/healGarrison\(/,'garrison building updates should invoke healing');
+ const updates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
+ assert.match(updates,/healGarrison\(/,'building updates still invoke garrison healing');
  assert.doesNotThrow(()=>new vm.Script(logistics,{filename:'js/simulation-logistics.js'}));
  assert.doesNotThrow(()=>new vm.Script(simulation,{filename:'js/simulation.js'}));
 });
