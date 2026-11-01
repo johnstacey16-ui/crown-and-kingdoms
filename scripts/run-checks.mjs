@@ -19,6 +19,11 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Server security, relay limits, Supabase identity and direct-transport lifecycle.
+ "tests/server-app.test.mjs",
+ "tests/server-transport.test.mjs",
+ "tests/supabase-auth.test.mjs",
+ "tests/webrtc-transport.test.mjs",
  // Campaign progression, shoreline layout and map/naval AI contracts.
  "tests/campaign-arc-coverage.test.mjs",
  "tests/campaign-content.test.mjs",
