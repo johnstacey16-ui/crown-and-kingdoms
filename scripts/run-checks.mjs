@@ -30,6 +30,7 @@ const FOCUSED=[
   "tests/large-army-separation-pool.test.mjs",
  "tests/research-duplicate-guard.test.mjs",
  "tests/production-spawn-terrain.test.mjs",
+ "tests/building-placement-input-validation.test.mjs",
  "tests/cart-research-integration.test.mjs",
  "tests/military-hitpoint-upgrades.test.mjs",
  "tests/squires-research-integration.test.mjs",
