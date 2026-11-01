@@ -5,25 +5,7 @@ function aiTeam(t,dt){if(!S||!Number.isInteger(t)||t<=0||t>=S.teamN||!Number.isF
 const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;if(!e.ld&&!U[e.k].sh)humanArmy.push(e);if(U[e.k].sh){if(!e.ld&&e.k!=='fish')hostileShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4){navalThreatCount++;hostileFleet.push(e)}}}
 aiShareResources(t,A,R);
 aiRetreat(t,my,tc,bl);
-// Return merchant escorts to the army after danger has passed.
-for(const guard of my.filter(u=>u.o==='G'&&u.tg&&(u.tg.k==='cart'||u.tg.k==='cog'))){
- const merchant=guard.tg,hostiles=merchant.k==='cog'?hostileFleet:humanArmy;
- if(guard.hp<=0||guard.ld||guard.retreating||merchant.hp<=0||merchant.ld||(S.t>=(guard.tradeEscortUntil||0)&&!hostiles.some(e=>e.hp>0&&!e.ld&&U[e.k]?.dmg>0&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<18))){guard.o='i';guard.tg=null;guard.p=[];guard.rp=0;guard.tradeEscortUntil=0}
-}
-// Protect exposed trade carts with available infantry or cavalry.
-for(const merchant of my.filter(u=>u.k==='cart'&&!u.ld&&u.hp>0)){
- if(!humanArmy.some(e=>e.hp>0&&!e.ld&&U[e.k]?.dmg>0&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<11))continue;
- if(arm.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0&&!g.ld&&!g.retreating))continue;
- const guards=arm.filter(g=>g.hp>mhp(g)*.5&&!g.ld&&!g.retreating&&!(A.wu||[]).includes(g)&&g.k!=='mon'&&!['ram','mang','scor','treb','bomb'].includes(g.k)&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<15).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
- for(const guard of guards.slice(0,5)){const route=path(guard,goalNear(merchant,2));if(!route)continue;guard.o='G';guard.tg=merchant;guard.p=route;guard.rp=1;guard.tradeEscortUntil=S.t+20;break}
-}
-// Assign nearby idle warships to protect merchant cogs threatened by enemy fleets.
-for(const merchant of my.filter(u=>u.k==='cog'&&!u.ld&&u.hp>0)){
- if(!hostileFleet.some(e=>e.hp>0&&!e.ld&&Math.hypot(e.x-merchant.x,e.y-merchant.y)<13))continue;
- if(galleys.some(g=>g.o==='G'&&g.tg===merchant&&g.hp>0&&!g.ld&&!g.retreating))continue;
- const escorts=galleys.filter(g=>g.hp>mhp(g)*.45&&!g.ld&&!g.retreating&&!(A.wu||[]).includes(g)&&(g.o==='i'||g.o==='m'&&!g.tg)&&Math.hypot(g.x-merchant.x,g.y-merchant.y)<20).sort((a,b)=>Math.hypot(a.x-merchant.x,a.y-merchant.y)-Math.hypot(b.x-merchant.x,b.y-merchant.y));
- for(const escort of escorts.slice(0,3)){const route=path(escort,goalNear(merchant,2));if(!route)continue;escort.o='G';escort.tg=merchant;escort.p=route;escort.rp=1;escort.tradeEscortUntil=S.t+20;break}
-}
+aiTradeEscorts(A,my,arm,galleys,hostileFleet,humanArmy);
 const damagedFleet=my.filter(u=>u.sh&&!u.ld&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>(['fish','cog','trn'].includes(a.k)?1:0)-(['fish','cog','trn'].includes(b.k)?1:0)||a.hp/mhp(a)-b.hp/mhp(b));
 if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
  const target=damagedFleet[0],underFire=S.us.some(e=>e&&Number.isInteger(e.t)&&isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
