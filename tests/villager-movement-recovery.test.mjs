@@ -6,12 +6,14 @@ import vm from 'node:vm';
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const finding=readFileSync(new URL('../js/pathfinding.js',import.meta.url),'utf8');
+const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 function section(source,from,to){
  const a=source.indexOf(from),b=source.indexOf(to,a+from.length);
  assert.ok(a>=0&&b>a,'required production section is present: '+from);
  return source.slice(a,b);
 }
 const snippets=[
+ section(routing,'function farmAvailableTo(u,n){','\nfunction dropoffKey('),
  section(sim,'function baseGatherRate(u,n){','/* ===== COMBAT ===== */'),
  section(sim,'function upU(u,dt){','const mv=(u,dx,dy)=>'),
  section(sim,'const mv=(u,dx,dy)=>','function WL(dt){'),
