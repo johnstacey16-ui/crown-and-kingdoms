@@ -19,6 +19,15 @@ const QUICK=[
 ];
 // Centralizes the fast hosted selection; all files run under node --test.
 const FOCUSED=[
+ // Campaign progression, shoreline layout and map/naval AI contracts.
+ "tests/campaign-arc-coverage.test.mjs",
+ "tests/campaign-content.test.mjs",
+ "tests/campaign-progression.test.mjs",
+ "tests/campaign-scripted-economy.test.mjs",
+ "tests/campaign-ui-extraction.test.mjs",
+ "tests/causeway-map.test.mjs",
+ "tests/map-connectivity.test.mjs",
+ "tests/naval-ai-priority.test.mjs",
  // Native artwork, fallback rendering, terrain, villager-pathing and menu contracts.
  "tests/building-age-details.test.mjs",
  "tests/building-construction-art.test.mjs",
