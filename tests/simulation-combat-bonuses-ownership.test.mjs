@@ -30,6 +30,18 @@ test('one damage-bonus module owns every armoured-unit bonus helper',()=>{
  assert.doesNotThrow(()=>new vm.Script(simulation));
 });
 
+test('maximum unit health belongs to combat and preserves Loom team isolation',()=>{
+ assert.match(bonuses,/const mhp=u=>/);
+ assert.doesNotMatch(simulation,/const mhp=u=>/);
+ const S={tech:[{hpb:{vil:15}},{}]};
+ const health=vm.runInNewContext(bonuses+'\n;mhp',{
+  S,U:{vil:{hp:25},mil:{hp:40}}
+ });
+ assert.equal(health({k:'vil',t:0}),40);
+ assert.equal(health({k:'vil',t:1}),25);
+ assert.equal(health({k:'mil',t:0}),40);
+});
+
 test('unchanged monk conversion helpers have one classic-script owner',()=>{
  const functions=['resetConversion','conversionRange','unitSight','canConvert',
   'beginConversion','conversionWindow','completeConversion','tickConversion'];

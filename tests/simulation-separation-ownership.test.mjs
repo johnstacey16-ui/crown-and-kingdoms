@@ -34,6 +34,19 @@ for(const fn of ['walkAxisSlide','recoverMoveRoute','walk']){
  assert.doesNotMatch(simulation,new RegExp('function '+fn+'\\('));
 }
 assert.doesNotMatch(simulation,/const mv=\(u,dx,dy\)=>/);
+assert.match(separation,/function unitSpeed\(u\)/,'movement owner defines upgrade-aware speed');
+assert.doesNotMatch(simulation,/function unitSpeed\(u\)/,'coordinator does not duplicate unit speed');
+const teamSpeed=vm.runInNewContext(separation+'\n;unitSpeed',{
+ S:{tech:[{squires:1,husb:1,wheel:1,handcart:1,fervor:1},{},]},
+ U:{mil:{sp:1},knight:{sp:1},vil:{sp:.8},mon:{sp:1}},
+ CAVARM:new Set(['knight']),INFARM:new Set(['mil'])
+});
+assert.ok(Math.abs(teamSpeed({k:'vil',t:0})-.96)<1e-9,'Wheelbarrow + Hand Cart apply to villagers');
+assert.ok(Math.abs(teamSpeed({k:'mil',t:0})-1.1)<1e-9,'Squires applies to infantry');
+assert.ok(Math.abs(teamSpeed({k:'knight',t:0})-1.1)<1e-9,'Husbandry applies to cavalry');
+assert.ok(Math.abs(teamSpeed({k:'mon',t:0})-1.15)<1e-9,'Fervor applies to monks');
+assert.equal(teamSpeed({k:'mil',t:1}),1,'enemy upgrades remain separate');
+
 vm.runInContext(separation+'\nsep();',context);
 assert.equal(S.us.length,70);
 assert.ok(S.us.every(u=>Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H));

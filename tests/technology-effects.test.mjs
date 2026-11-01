@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/entities.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-production.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/entities.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-production.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 // Source-level guards for technology effects on current and future game objects.
 assert.match(html, /function farmFood\(t\)\{const q=S\.tech\[t\]\|\|\{\};return 175\+\(q\.coll\?75:0\)\+\(q\.plow\?125:0\)\+\(q\.crop\?175:0\)\}/, 'farm capacity must reflect researched Horse Collar, Heavy Plow and Crop Rotation');
@@ -110,12 +110,13 @@ assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['s
   'Husbandry must be researchable at the Stable');
 assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
   'Husbandry must have explicit cost, duration and Castle Age availability');
-const speedStart=sim.indexOf('function unitSpeed(u){');
-const speedEnd=sim.indexOf('\n/* ===== COMBAT ===== */',speedStart);
+const movement=readFileSync(new URL('../js/simulation-separation.js',import.meta.url),'utf8');
+const speedStart=movement.indexOf('function unitSpeed(u){');
+const speedEnd=movement.indexOf('const mv=(u,dx,dy)=>',speedStart);
 assert.ok(speedStart>=0&&speedEnd>speedStart,'shared unit speed calculation must be present');
 const speedContext={S:{tech:[{husb:1}]},U:{knight:{sp:1},mil:{sp:1},vil:{sp:1}},
   CAVARM:new Set(['knight']),INFARM:new Set(['mil'])};
-const speed=vm.runInNewContext(sim.slice(speedStart,speedEnd)+'\n;unitSpeed;',speedContext);
+const speed=vm.runInNewContext(movement.slice(speedStart,speedEnd)+'\n;unitSpeed;',speedContext);
 assert.equal(speed({t:0,k:'knight'}),1.1,'Husbandry grants ten percent speed to mounted units');
 assert.equal(speed({t:0,k:'mil'}),1,'Husbandry alone cannot accelerate infantry');
 assert.equal(speed({t:0,k:'vil'}),1,'Husbandry alone cannot accelerate villagers');

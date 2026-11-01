@@ -3,18 +3,18 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const movement = readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 assert.ok(B.bar.rs.includes('squires'), 'Barracks must offer Squires');
 assert.equal(TE.squires.age, 2, 'Squires must unlock in Castle Age');
 
-const start = simulation.indexOf('function unitSpeed(u){');
-const end = simulation.indexOf('/* ===== COMBAT ===== */', start);
+const start = movement.indexOf('function unitSpeed(u){');
+const end = movement.indexOf('const mv=(u,dx,dy)=>', start);
 assert.ok(start >= 0 && end > start, 'unitSpeed implementation must exist');
 const S = { tech: [{}, {}] };
 const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };
 vm.createContext(context);
-vm.runInContext(simulation.slice(start, end), context);
+vm.runInContext(movement.slice(start, end), context);
 const speed = vm.runInContext('unitSpeed', context);
 const infantry = { k: 'mil', t: 0 };
 const cavalry = { k: 'knight', t: 0 };

@@ -2,6 +2,9 @@
  * Invoked by simulation.step after both classic scripts have loaded. */
 /* Unified movement and collision owner. Original bodies retained verbatim;
  * classic runtime loads the module before its first simulation tick. */
+/* Unit speed upgrades and terrain-safe movement share one owner. */
+function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lcav?1.5:U[u.k].sp)*((tech.husb&&CAVARM.has(u.k))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)*((u.k==='mil'&&tech.man)?(.96/.9):1)*(u.k==='vil'?1+(tech.wheel?.1:0)+(tech.handcart?.1:0):1)*((tech.fervor&&u.k==='mon')?1.15:1)}
+
 const mv=(u,dx,dy)=>{const x=u.x+dx,y=u.y+dy;if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return;const i=(y|0)*W+(x|0);if(u.sh?S.wt[i]&&!S.nd[i]:(!S.g[i]||S.gt[i]===u.t+1)&&S.wt[i]!==1){u.x=x;u.y=y}};
 /* A* waypoints are tile-centred, but separation can nudge a soldier off the
  * centreline beside a wall. Prefer a terrain-checked axis slide to falsely

@@ -43,7 +43,7 @@ test('offline, browser, core and headless loading retain exact resource ordering
 });
 
 test('baseline gathering rate and carrying tech helpers belong to resource routing',()=>{
- assert.match(sim,/function unitSpeed\(u\)/,'core simulation still owns movement speed');
+ assert.doesNotMatch(sim,/function unitSpeed\(u\)/,'core simulation delegates speed to movement');
  const f=vm.runInNewContext(source+'\n;({resourceGatherRate,baseGatherRate,gatherCapacity})',{
   S:{tech:[{wheel:1,handcart:1,carry:1},{}]},GR:1,CAP:10
  });
@@ -55,6 +55,22 @@ test('baseline gathering rate and carrying tech helpers belong to resource routi
  assert.equal(f.gatherCapacity({k:'vil',t:0}),25);
  assert.equal(f.gatherCapacity({k:'vil',t:1}),10);
  assert.equal(f.gatherCapacity({k:'vil',t:0,tg:{an:1}}),71);
+});
+
+test('wildlife node migration is owned by resource routing and preserves occupancy',()=>{
+ assert.match(source,/function WL\(dt\)/);
+ assert.doesNotMatch(sim,/function WL\(dt\)/);
+ const W=8,H=8,n={k:'f',an:1,x:2,y:3,w:0,amt:50};
+ const S={nodes:[n],g:new Uint8Array(W*H),nd:Array(W*H).fill(null),r:()=>0};
+ S.g[n.y*W+n.x]=1;S.nd[n.y*W+n.x]=n;
+ const tick=vm.runInNewContext(source+'\n;WL',{S,W,H,D8:[[1,0]]});
+ tick(0.1);
+ assert.deepEqual([n.x,n.y],[3,3],'wildlife moves into free adjacent tile');
+ assert.equal(S.nd[3*W+2],null);
+ assert.equal(S.nd[3*W+3],n);
+ assert.equal(S.g[3*W+2],0);
+ assert.equal(S.g[3*W+3],1);
+ assert.equal(n.w,3,'wildlife movement cool-down uses the original seeded RNG');
 });
 
 test('gathering multipliers and farm capacity preserve every resource-specific upgrade',()=>{

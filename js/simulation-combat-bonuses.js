@@ -3,6 +3,9 @@
  * original declarations remain global to preserve classic script semantics.
  */
 
+/* Shared max-unit-health lookup, relocated unchanged from simulation.js. */
+const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
+
 // The spear-line's cavalry/camel/elephant bonuses increase at each upgrade.
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay

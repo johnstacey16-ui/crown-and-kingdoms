@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const movement = readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const researchSource = readFileSync(new URL('../js/simulation-research.js', import.meta.url), 'utf8');
 const { U, B, TE, AG } = vm.runInNewContext(config + '\n;({U,B,TE,AG})');
@@ -24,13 +24,13 @@ const context = {
 context.rsOf=b=>context.B[b.k]?.rs||[];
 vm.createContext(context);
 function extract(begin, end) {
-  const start = simulation.indexOf(begin);
-  const stop = simulation.indexOf(end, start + begin.length);
+  const start = movement.indexOf(begin);
+  const stop = movement.indexOf(end, start + begin.length);
   assert.ok(start >= 0 && stop > start, `missing source section: ${begin}`);
-  vm.runInContext(simulation.slice(start, stop), context);
+  vm.runInContext(movement.slice(start, stop), context);
 }
 vm.runInContext(researchSource.slice(researchSource.indexOf('function research(b,k){')), context);
-extract('function unitSpeed(u){', '/* ===== COMBAT ===== */');
+extract('function unitSpeed(u){', 'const mv=(u,dx,dy)=>');
 vm.runInContext(buildingUpdates, context);
 const research = vm.runInContext('research', context);
 const speed = vm.runInContext('unitSpeed', context);

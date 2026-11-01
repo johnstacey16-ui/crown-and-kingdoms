@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const movement=readFileSync(new URL('../js/simulation-separation.js',import.meta.url),'utf8');
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
@@ -17,7 +16,7 @@ function section(source,from,to){
 const snippets=[
  section(routing,'function farmAvailableTo(u,n){','\nfunction dropoffKey('),
  section(routing,'function resourceGatherRate(n){','function farmAvailableTo(u,n){'),
- section(sim,'function unitSpeed(u){','/* ===== COMBAT ===== */'),
+ section(movement,'function unitSpeed(u){','const mv=(u,dx,dy)=>'),
  unit.slice(unit.indexOf('function upU(u,dt){')),
  section(movement,'const mv=(u,dx,dy)=>','/* Local spatial grid for unit separation.'),
  section(finding,'function d2(px,py,t){','const goalNear='),

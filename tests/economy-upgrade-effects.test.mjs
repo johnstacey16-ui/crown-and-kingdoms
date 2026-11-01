@@ -3,16 +3,16 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const movement = readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8');
 const routing = readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
 
 function extract(start, end) {
-  const a = simulation.indexOf(start);
-  const b = simulation.indexOf(end, a + start.length);
+  const a = movement.indexOf(start);
+  const b = movement.indexOf(end, a + start.length);
   assert.ok(a >= 0 && b > a, `cannot isolate ${start}`);
-  return simulation.slice(a, b);
+  return movement.slice(a, b);
 }
 const worker = { k: 'vil', t: 0, hp: U.vil.hp };
 const enemy = { k: 'vil', t: 1, hp: U.vil.hp };
@@ -27,7 +27,7 @@ const context = {
   foe: () => null, sfx: () => {}, note: () => {},
 };
 vm.createContext(context);
-vm.runInContext(routing.slice(routing.indexOf('function gatherCapacity(u){'),routing.indexOf('function farmAvailableTo(u,n){'))+'\n'+extract('function unitSpeed(u){', '/* ===== COMBAT ===== */'), context);
+vm.runInContext(routing.slice(routing.indexOf('function gatherCapacity(u){'),routing.indexOf('function farmAvailableTo(u,n){'))+'\n'+extract('function unitSpeed(u){', 'const mv=(u,dx,dy)=>'), context);
 vm.runInContext(buildingUpdates, context);
 const capacity = vm.runInContext('gatherCapacity', context);
 const speed = vm.runInContext('unitSpeed', context);

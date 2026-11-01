@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
-const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
+const movement = readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8');
 const routing = readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8');
 const unit = readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8');
 const { U, B, TE } = vm.runInNewContext(config + '\n;({U,B,TE})');
@@ -11,13 +11,13 @@ assert.ok(B.tc.rs.includes('handcart'), 'Town Centre offers Hand Cart');
 assert.equal(TE.handcart.age, 2, 'Hand Cart unlocks in Castle Age');
 assert.equal(TE.handcart.pre, 'wheel', 'Hand Cart requires Wheelbarrow');
 
-const start = simulation.indexOf('function unitSpeed(u){');
-const end = simulation.indexOf('/* ===== COMBAT ===== */', start);
+const start = movement.indexOf('function unitSpeed(u){');
+const end = movement.indexOf('const mv=(u,dx,dy)=>', start);
 assert.ok(start >= 0 && end > start);
 const S = { tech: [{ wheel: 1, handcart: 1 }, {}] };
 const context = { U, S, CAVARM: new Set(['knight']), INFARM: new Set(['mil']) };
 vm.createContext(context);
-vm.runInContext(simulation.slice(start, end), context);
+vm.runInContext(movement.slice(start, end), context);
 const speed = vm.runInContext('unitSpeed', context);
 assert.ok(Math.abs(speed({ k: 'vil', t: 0 }) - U.vil.sp * 1.2) < 1e-9,
   'Hand Cart and Wheelbarrow stack for villagers');
