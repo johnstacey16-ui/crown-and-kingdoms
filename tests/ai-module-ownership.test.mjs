@@ -22,7 +22,7 @@ test('enemy strategy has one cohesive owner in js/ai.js', () => {
     assert.equal((ai.match(new RegExp('function ' + name + '\\s*\\(', 'g')) || []).length, 0,
       name + ' must not be duplicated in js/ai.js');
   }
-  assert.doesNotMatch(simulation,/function ai(?:Build|Wall|Dock|Near|Team)?\\(/);
+  assert.doesNotMatch(simulation,/function ai(?:Build|Wall|Dock|Near|Team)?\s*\(/);
   assert.equal((policy.match(/function aiRetreat\s*\(/g)||[]).length,1,'retreat decisions belong to one policy owner');
   assert.doesNotMatch(ai,/function aiRetreat\s*\(/,'main AI loop does not define retreat policy');
   assert.match(ai,/aiRetreat\(/,'main AI loop still executes defensive retreats');

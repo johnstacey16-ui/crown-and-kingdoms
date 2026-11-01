@@ -18,7 +18,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(construction,/function aiBuild\(/);
  assert.match(ai,/aiCanResearchWhileSaving\(/);
  assert.match(ai,/aiQueuedUnits\(/);
- assert.match(ai,/aiDockWaterReach\(/);
+ assert.match(construction,/aiDockWaterReach\(/);
  assert.match(ai,/aiRebal\(/);
  assert.match(ai,/aiOpeningWaveNeed\(/);
  assert.match(ai,/aiResumeIdleWave\(/);
