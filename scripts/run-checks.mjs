@@ -21,6 +21,10 @@ const QUICK=[
 const FOCUSED=[
  "tests/simulation-victory-ownership.test.mjs",
  "tests/simulation-logistics-ownership.test.mjs",
+ "tests/simulation-resource-routing-ownership.test.mjs",
+ "tests/farm-exclusivity.test.mjs",
+ "tests/fishing-economy.test.mjs",
+ "tests/villager-dropoff.test.mjs",
  "tests/simulation-combat-bonuses-ownership.test.mjs",
  "tests/aoe2-de-infantry-archer-parity.test.mjs",
  "tests/aoe2-de-melee-attack-tiers.test.mjs",

@@ -4,15 +4,16 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const network=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const from=simulation.indexOf('function farmAvailableTo(u,n){');
-const end=simulation.indexOf('function dropoffKey(',from);
+const from=resource.indexOf('function farmAvailableTo(u,n){');
+const end=resource.indexOf('function dropoffKey(',from);
 assert.ok(from>=0&&end>from,'production farm occupancy and node selection functions present');
-const farmCode=simulation.slice(from,end);
+const farmCode=resource.slice(from,end);
 
 function harness(){
  const W=50,H=50;

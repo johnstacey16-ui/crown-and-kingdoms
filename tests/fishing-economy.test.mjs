@@ -5,15 +5,16 @@ import vm from 'node:vm';
 
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
-const begin=sim.indexOf('function farmAvailableTo(u,n){');
-const end=sim.indexOf('\nfunction dropoffKey(',begin);
+const begin=resource.indexOf('function farmAvailableTo(u,n){');
+const end=resource.indexOf('\nfunction dropoffKey(',begin);
 assert.ok(begin>=0&&end>begin,'resource selection logic must remain executable');
 
 function selector(nodes){
  const S={nodes,wt:new Uint8Array(32*32),g:new Uint8Array(32*32),ex:new Uint8Array(32*32).fill(1),us:[]};
- const fn=vm.runInNewContext(sim.slice(begin,end)+'\n;findNode;',{S,W:32,H:32});
+ const fn=vm.runInNewContext(resource.slice(begin,end)+'\n;findNode;',{S,W:32,H:32});
  return {S,findNode:fn};
 }
 test('fish ships are naval units made at docks, not land villagers',()=>{
@@ -44,7 +45,7 @@ test('boats cannot collect from other kingdoms fish traps',()=>{
 test('fishing delivery, carrying upgrades and AI idle orders retain their gameplay paths',()=>{
  assert.match(sim,/u\.car>=gatherCapacity\(u\)/,'resource gathering must use researched carry capacity');
  assert.match(sim,/S\.res\[u\.t\]\[u\.ct\]\+=u\.car/,'delivered resources belong to the correct player');
- assert.match(sim,/u\.sh\?q\.k==='dock':q\.k==='tc'/,'ships use Docks rather than land resource depots');
+ assert.match(resource,/u\.sh\?q\.k==='dock':q\.k==='tc'/,'ships use Docks rather than land resource depots');
  assert.match(ai,/queuedUnits\('fish'\)/,'AI fishing cap must account for ships in training');
  assert.match(ai,/for\(const s of fish\.filter\(u=>u\.o==='i'&&S\.t>=Math\.max\(u\.fleeUntil\|\|0,u\.nextFishingRoute\|\|0\)\)\)/,
   'idle AI fishing ships may retry after flee and routing cooldowns');

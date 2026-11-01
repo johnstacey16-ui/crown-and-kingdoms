@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status:** [Hosted GitHub Actions 41246664294](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41246664294) passed **204/204 focused tests**, five quick source/offline/civilization/atlas/graphics gates and syntax checks for **39** production browser scripts on `081f2d3`. A reproducible 200-unit artificial chokepoint scenario now finishes with **200 crossing / 200 orders completed** in 2,400 fixed ticks after repairing diagonal-corner and obsolete-waypoint movement errors. This is Node headless movement verification, **not** hardware FPS or a full live match. **All 236 standalone regression files together**, three seeded AI skirmishes, 19 missions, Chromium, real Xbox Series S Edge and WAN multiplayer remain **unverified** on this code.
 
-**Current tree inventory:** 236 standalone regression files, 39 production browser scripts, 26 core scripts, 24 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 237 standalone regression files, 40 production browser scripts, 27 core scripts, 25 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
@@ -43,7 +43,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 236 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 237 standalone regression files
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
