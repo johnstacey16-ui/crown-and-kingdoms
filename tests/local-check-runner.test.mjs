@@ -105,6 +105,8 @@ test('fast hosted contract selection is one explicit reproducible Node test plan
  const focused=checkPlan('focused');
  assert.equal(focused.length,1);
  assert.equal(focused[0].file,'--test');
+ assert.equal(focused[0].env.CK_SKIP_CAMPAIGN,'1',
+  'fast CI must not accidentally run full campaign playthroughs');
  const files=focused[0].args;
  assert.equal(files.length,new Set(files).size,'focused files must not be duplicated');
  assert.ok(files.length>=30);

@@ -315,7 +315,7 @@ export function checkPlan(mode='quick',testFiles=[]){
   }
  }
  if(mode==='focused')jobs.push({label:'Focused game, controller and graphics contracts',
-  file:'--test',args:[...FOCUSED]});
+  file:'--test',args:[...FOCUSED],env:{CK_SKIP_CAMPAIGN:'1'}});
  if(mode==='skirmishes'||mode==='full')jobs.push(...SKIRMISHES);
  if(mode==='campaigns'||mode==='full')jobs.push(...CAMPAIGNS);
  if(mode==='browser')jobs.push(...BROWSER);
