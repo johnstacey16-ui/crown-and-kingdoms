@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { coreGameScriptPaths } from '../scripts/runtime-sources.mjs';
+import { headlessGame } from './helpers/headless-game.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const mapgen = readFileSync(new URL('../js/mapgen.js', import.meta.url), 'utf8');
@@ -23,7 +25,10 @@ test('map regeneration, connectivity validation and runtime startup wiring are r
   const engineAt = html.indexOf('./engine.js');
   assert.ok(generator >= 0 && engineAt > generator,
     'Map creation must load before engine start/campaign actions can invoke it');
+  const headlessPaths = coreGameScriptPaths(html, {includeUI:false, includeAssets:false});
   assert.ok(smoke.includes("from './helpers/headless-game.mjs'") && smoke.includes('headlessGame()') &&
-    readFileSync(new URL('./helpers/headless-game.mjs', import.meta.url), 'utf8').includes("new URL('../../js/mapgen.js', import.meta.url)"),
-    'Simulation smoke test must include the real map generator');
+    headlessPaths.includes('./js/mapgen.js') &&
+    headlessPaths.indexOf('./js/mapgen.js') < headlessPaths.indexOf('./engine.js') &&
+    headlessGame().source.includes('function newGame(tries)'),
+    'Simulation smoke test must load the real map generator through the canonical browser script roster');
 });
