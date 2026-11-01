@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -22,6 +22,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiRebal\(/);
  assert.match(ai,/aiOpeningWaveNeed\(/);
  assert.match(ai,/aiResumeIdleWave\(/);
+ assert.match(ai,/aiShareResources\(t,A,R\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));

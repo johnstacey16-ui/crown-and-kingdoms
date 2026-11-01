@@ -169,3 +169,20 @@ function aiResumeIdleWave(t,A){
 // Defensive retreat decision and shelter/path selection, shared by all AI teams.
 function aiRetreat(t,my,tc,bl){if(!tc||!tc.done)return;const shelters=bl.filter(b=>b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle'));for(const u of my){if(u.k==='vil'||u.k==='mon'||u.k==='king'||u.k==='cart'||u.k==='cog'||u.sh||u.hp<=0||u.ld)continue;const ratio=u.hp/Math.max(1,mhp(u));if(u.retreating){const safe=u.retreatTarget;if(ratio>=.65||!safe||safe.hp<=0||!safe.done){u.retreating=false;u.retreatTarget=null;if(u.tg===safe){u.o='i';u.tg=null;u.p=[];u.rp=0}}else{if(d2(u.x,u.y,safe)<=1.3){continue}if((u.o!=='m'||!u.p||!u.p.length)&&d2(u.x,u.y,safe)>1.3&&S.t>=(u.retreatRepathAt||0)){u.retreatRepathAt=S.t+4;const route=path(u,goalNear(safe,1));if(route){u.o='m';u.tg=safe;u.p=route;u.rp=1}else{u.retreating=false;u.retreatTarget=null;u.o='i';u.tg=null;u.retreatRepathAt=S.t+8}}continue}}if(ratio<=.22&&S.t>=(u.retreatRepathAt||0)&&S.t>=(u.retreatCooldownUntil||0)){u.retreatRepathAt=S.t+8;const threats=S.us.filter(enemy=>enemy&&enemy.hp>0&&!enemy.ld&&isHostile(u.t,enemy.t)&&U[enemy.k]?.dmg>0&&!U[enemy.k].sh);const rankedShelters=shelters.map(safe=>{const sz=safe.s||0,dx=Math.max(safe.x-u.x,0,u.x-(safe.x+sz)),dy=Math.max(safe.y-u.y,0,u.y-(safe.y+sz));let danger=0;const cx=safe.x+sz/2,cy=safe.y+sz/2;for(const enemy of threats){const ex=enemy.x-cx,ey=enemy.y-cy;if(ex*ex+ey*ey<100)danger++}return {safe,score:dx*dx+dy*dy+danger*64}}).sort((a,b)=>a.score-b.score);
 for(const {safe} of rankedShelters){const p=path(u,goalNear(safe,1));if(!p)continue;u.retreating=true;u.retreatTarget=safe;u.retreatRestUntil=0;u.retreatCooldownUntil=S.t+30;u.o='m';u.tg=safe;u.p=p;u.rp=1;break}}}}
+
+// Allied-resource transfer policy. Preserve its original reserve and cooldown rules.
+function aiShareResources(t,A,R){
+if(S.t-(A.lastTributeAt??-90)>=90){
+ const allies=[];
+ for(let ally=0;ally<S.teamN;ally++)if(ally!==t&&diplomacyRelation(t,ally)==='ally'&&(S.bs.some(b=>b.t===ally&&b.hp>0)||S.us.some(u=>u.t===ally&&u.hp>0)))allies.push(ally);
+ const reserves={f:900,w:800,g:650,s:500};
+ const needs={f:250,w:250,g:200,s:150};
+ let transfer=null;
+ for(const ally of allies){
+  const shortage=['f','w','g','s'].map(k=>({k,deficit:needs[k]-(S.res[ally]?.[k]||0)})).filter(q=>q.deficit>0).sort((a,b)=>b.deficit-a.deficit);
+  for(const q of shortage){const amount=Math.min(250,Math.floor(q.deficit/100)*100);if(amount>=100&&R[q.k]>=reserves[q.k]+amount){transfer={ally,k:q.k,amount};break}}
+  if(transfer)break;
+ }
+ if(transfer&&Number.isSafeInteger(R[transfer.k])&&Number.isSafeInteger(S.res[transfer.ally]?.[transfer.k])&&Number.isSafeInteger(S.res[transfer.ally][transfer.k]+transfer.amount)&&R[transfer.k]>=transfer.amount&&diplomacyRelation(t,transfer.ally)==='ally'){R[transfer.k]-=transfer.amount;S.res[transfer.ally][transfer.k]+=transfer.amount;A.lastTributeAt=S.t}
+}
+}
