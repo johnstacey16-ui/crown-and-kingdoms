@@ -23,7 +23,7 @@ assert.equal(queuedUnits('mil'), 0, 'unknown unit type has zero queue count');
 bl[0].q.push({ k: 'cog', t: 2 });
 assert.equal(queuedUnits('cog'), 1, 'queue changes are reflected immediately');
 test('AI production queues are object records and skirmish upgrade durations remain intact',()=>{
- const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
+ const sim=readFileSync(new URL('../js/simulation-production-queues.js',import.meta.url),'utf8');
  assert.match(sim,/b\.q\.push\(\{k,t:/,'training queues store objects with a unit key and duration');
  assert.match(sim,/k==='skirm'&&S\.tech\[t\]\?\.elsk\?22:d\.t/,'Elite Skirmisher retains its upgraded training time');
 });
