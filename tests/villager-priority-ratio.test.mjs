@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const start=kingdom.indexOf('const WORKER_TARGETS=');
 const finish=kingdom.indexOf('function skipAutoNode(',start);
 assert.ok(start>=0&&finish>start,'production ratios must remain in the kingdom module');
@@ -65,15 +66,17 @@ test('rebalancing real worker orders honors ratios without disturbing manual com
  }));
  const manual=workers[8];
  const world={vp:{enabled:true,f:1,w:1,g:0,s:0},t:30,us:workers,
-  wt:new Uint8Array(32*32),nodes:[
+  wt:new Uint8Array(32*32),ex:new Uint8Array(32*32).fill(1),nodes:[
    {k:'f',x:12,y:11,amt:100},{k:'w',x:12,y:12,amt:100}
   ]};
  const from=kingdom.indexOf('const WORKER_TARGETS=');
  const to=kingdom.indexOf('function changeVillagerTarget(',from);
  const context={S:world,W:32,H:32,note:()=>{},
   path:(_unit,goal)=>[[goal.x,goal.y]],goalNear:node=>({x:node.x,y:node.y}),
-  farmAvailableTo:()=>true,createVillagerPriority:()=>({enabled:true,f:2,w:2,g:1,s:0})};
- const api=vm.runInNewContext(kingdom.slice(from,to)+
+  createVillagerPriority:()=>({enabled:true,f:2,w:2,g:1,s:0})};
+ const helpers=routing.slice(routing.indexOf('function farmAvailableTo(u,n){'),routing.indexOf('\nfunction dropoffKey('));
+ assert.ok(helpers.includes('function knownResource('),'real resource visibility helper must be loaded');
+ const api=vm.runInNewContext(helpers+'\n'+kingdom.slice(from,to)+
   '\n;({rebalanceVillagerPriorities,villagerAssignedCount})',context);
  const counts=()=>[api.villagerAssignedCount(0,'f'),api.villagerAssignedCount(0,'w')];
  api.rebalanceVillagerPriorities(0);

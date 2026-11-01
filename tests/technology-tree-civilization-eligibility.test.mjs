@@ -2,9 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
 function fixture(){
- const {source,sandbox}=headlessGame();
+ const {sandbox}=headlessGame();
+ // Technology tree lives in the UI owner; retain the canonical browser order.
+ const source=loadCoreGameSource({includeUI:true});
  vm.createContext(sandbox);
  vm.runInContext(source+"\n"+
   "seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;startAge=3;startRes=3;start();snd=0;"+
