@@ -11,7 +11,7 @@ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 const functions=['farmAvailableTo','resourceApproachCapacity','resourceClaimCount',
  'resourceHasWorksite','knownResource','findNode','dropoffKey','dropoffCompatible',
- 'skipDropoff','findDropoffRoute','deployFishTrap','killNode'];
+ 'skipDropoff','findDropoffRoute','deployFishTrap','killNode','gm','farmFood'];
 
 test('resource and dropoff helper declarations have one canonical owner',()=>{
  for(const fn of functions){
@@ -39,6 +39,23 @@ test('offline, browser, core and headless loading retain exact resource ordering
   assert.equal(paths.filter(p=>p==='./js/simulation-resource-routing.js').length,1);
  }
  assert.ok(sw.includes("'./js/simulation-resource-routing.js'"));
+});
+
+test('gathering multipliers and farm capacity preserve every resource-specific upgrade',()=>{
+ const S={tech:[{gath:1,axe:1,saw:1,wd:1,gmine:1,mn:1,smine:1,fa:1,coll:1,plow:1,crop:1},{}]};
+ const f=vm.runInNewContext(source+'\n;({gm,farmFood})',{S});
+ const u={t:0};
+ const close=(value,expected)=>assert.ok(Math.abs(value-expected)<1e-10,value+' differs from '+expected);
+ close(f.gm(u,{k:'w'}),1.25*1.4*1.15);
+ close(f.gm(u,{k:'g'}),1.25*1.3);
+ close(f.gm(u,{k:'s'}),1.25*1.3);
+ close(f.gm(u,{k:'f',fm:true}),1.25*1.15);
+ close(f.gm(u,{k:'f'}),1.25);
+ assert.equal(f.farmFood(0),550,'all three farm capacity technologies stack');
+ assert.equal(f.farmFood(1),175,'other teams retain their own unresearched farm capacity');
+ S.tech[0]={};
+ close(f.gm(u,{k:'w'}),1);
+ assert.equal(f.farmFood(0),175);
 });
 
 test('resource helper rejects invalid workers and depleted deposits safely',()=>{
