@@ -1,19 +1,21 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `2a0f567` · [GitHub Actions 41361293820](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41361293820) · **916/916 focused**, **5/5 quick**, **0 failures** · live Vercel READY at the same SHA (1 November 2026). Controller focus/blur/visibility edge quarantine now has executable checks; hardware proof remains open.
+**Last green code revision:** `c444bdd` · [GitHub Actions 41362026600](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41362026600) · **921/921 focused**, **5/5 quick**, **0 failures** · Vercel READY at the same SHA. Audio suspend/resume no longer attempts WebAudio unlock every 12ms and has five executable tests; hardware audio acceptance remains open.
 
 ## Current footprint and ownership
 
 | Area | Current live owner and decision |
 |---|---|
 | Browser and headless runtime | `index.html` defines **47** production browser scripts, **34** core and **32** headless scripts. `scripts/runtime-sources.mjs` is the canonical ordered loader; `scripts/check-game.mjs` and `scripts/audit-runtime-graph.mjs` check all source/offline dependencies. |
-| Offline/versioned artwork | `sw.js` shell **v85**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
+| Offline/versioned artwork | `sw.js` shell **v87**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
 | Simulation and AI | `js/simulation*.js` own tick, combat, victory, logistics, production, research, unit state and separation. `js/ai.js` is strategic orchestration; `js/ai-policy.js` owns threat, retreat, builder, wave and **ally resource-sharing** policies; `js/ai-construction.js` owns placement, walls, docks and resource-site building orders. |
-| Acceptance | **246 standalone `tests/*.test.mjs` files**, **242** selected for the fast hosted plan. Four network/simulation integration files remain weekly/manual. Campaign simulations (19), three seeded skirmishes, two Chromium checks and software Xbox contracts use the same check-runner plan. |
+| Acceptance | **247 standalone `tests/*.test.mjs` files**, **243** selected for the fast hosted plan. Four network/simulation integration files remain weekly/manual. Campaign simulations (19), three seeded skirmishes, two Chromium checks and software Xbox contracts use the same check-runner plan. |
 | Multiplayer | Authenticated two-human WebRTC preview and network adapter modules are ACTIVE; reconnect, fallback transport, party scale, WAN and hidden-state/security acceptance remain open. |
 | Docs | `ROADMAP.md` retains the audited 48-task backlog, `AGENTS.md` the operating constraints, this file the current refactoring inventory. Existing audited snapshots, delivery register and Git history preserve dated evidence; avoid re-copying the same checkpoint prose across these files. |
 
 ## Latest verified incremental work
+
+- `c444bdd`: WebAudio resume attempts moved off the periodic audio tick; throttled resume and a short-lived first UI sound queue, with immediate `.catch()` rejection safety and five executable audio cases. [Hosted focused CI 41362026600](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41362026600) passed **921/921**; offline cache v87. Physical Xbox audio still unverified.
 
 - `5e31b85` / `b1db1ce`: extracted idle-wave recovery policy and stopped two campaign tests building handwritten runtime-script lists. 
 - `609a9c5`: moved the unchanged AI wounded-unit retreat policy to `ai-policy.js`, with safe-shelter and unreachable-route tests (**903/903 focused**).
@@ -26,7 +28,7 @@
 
 - [Weekly Chromium 41286089497](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41286089497): **2/2 browser checks** on older `3841ec8`. Not Xbox hardware.
 - [Weekly game suite 41286233568](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41286233568): **19 isolated missions passed**, **243/244 then-existing regressions**; the remaining trade smoke fixture was outdated. Its actual neutral-market cart order was repaired and separately confirmed delivering **54 gold** after **408.7 simulated seconds**, in [hosted 902/902 trial 41297863948](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41297863948). These were not 19 human wins.
-- **OPEN:** full **246/246** latest isolated test run; the three independently scheduled seeded AI games; full human campaign wins; free-tier independent WAN multiplayer acceptance; physical Xbox Series S Edge behaviour, the reported radial crash retest, and 50/100/200-unit graphics/frame-time measurements.
+- **OPEN:** full **247/247** latest isolated test run; the three independently scheduled seeded AI games; full human campaign wins; free-tier independent WAN multiplayer acceptance; physical Xbox Series S Edge behaviour, the reported radial crash retest, and 50/100/200-unit graphics/frame-time measurements.
 - **Do not claim:** old local test counts, Chrome success, a readiness URL, or unchanged source extraction proves complete DLC, controller or Xbox parity.
 
 ## Refactoring queue, before broad new features
