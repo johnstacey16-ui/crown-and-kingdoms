@@ -79,8 +79,28 @@ function drawRelic(q){const point=q.c||q,P=w2s(point.x,point.y),sx=P[0],y=P[1]-(
 /* Building rendering lives in js/render-buildings.js. */
 /* Resource-node art, original resource crop cache and fallback: js/render-resources.js. */
 /* Procedural character, siege, naval and sprite-cache drawing. */
-const SPC=new Map();
-function spr(key,w,h,fn){let c=SPC.get(key);if(!c){c=document.createElement('canvas');c.width=w*2;c.height=h*2;const g=c.getContext('2d');g.scale(2,2);g.translate(w/2,h-8);g.lineJoin='round';g.lineCap='round';fn(g);SPC.set(key,c)}return c}
+// The procedural fallback is rare with complete atlases, but must remain
+// bounded when assets are missing or many team/pose variants are requested.
+const SPC=new Map(),SPC_PIXEL_LIMIT=2*1024*1024; // 8 MiB RGBA
+let SPC_PIXELS=0;
+function clearProceduralSpriteCache(){SPC.clear();SPC_PIXELS=0}
+function spr(key,w,h,fn){
+ let c=SPC.get(key);
+ if(c){SPC.delete(key);SPC.set(key,c);return c}
+ c=document.createElement('canvas');c.width=w*2;c.height=h*2;
+ const g=c.getContext('2d');g.scale(2,2);g.translate(w/2,h-8);
+ g.lineJoin='round';g.lineCap='round';fn(g);
+ const pixels=c.width*c.height;
+ // A single oversized asset still renders, but is never cached.
+ if(pixels<=SPC_PIXEL_LIMIT){
+  while(SPC.size&&SPC_PIXELS+pixels>SPC_PIXEL_LIMIT){
+   const oldest=SPC.keys().next().value,prior=SPC.get(oldest);
+   SPC_PIXELS-=prior.width*prior.height;SPC.delete(oldest);
+  }
+  SPC.set(key,c);SPC_PIXELS+=pixels;
+ }
+ return c;
+}
 function blit(c,sx,sy,w,h,flip){X.save();X.translate(sx,sy);if(flip)X.scale(-1,1);X.drawImage(c,-w/2*zm,-(h-8)*zm,w*zm,h*zm);X.restore()}
 function pg(g,a,fill,stroke,lw){g.beginPath();g.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)g.lineTo(a[i][0],a[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.lineWidth=lw||1;g.stroke()}}
 function lin(g,x0,y0,x1,y1,c0,c1){const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,c0);q.addColorStop(1,c1);return q}

@@ -2,7 +2,7 @@
  * Source extracted unchanged from js/render.js; presentation-only. 
  * The world viewport/chunk caches stay in js/render.js. */
 function loadPaintedTerrain(src){
- try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();SPC.clear()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
+ try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();clearProceduralSpriteCache()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
 }
 // Solo keeps native 64px blends. The unit map oversamples its actual tile
 // display size by at least 3x (up to the original 64px source), retaining more

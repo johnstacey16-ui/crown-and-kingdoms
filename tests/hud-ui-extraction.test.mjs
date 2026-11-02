@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
@@ -28,4 +29,17 @@ test('victory-mode status remains part of the extracted HUD', () => {
   assert.match(ui, /KING OF THE HILL · HOLD THE CENTRAL HILL FOR 5 MIN/);
   assert.match(ui, /SUDDEN DEATH · DEFEND YOUR TOWN CENTRE/);
   assert.match(ui, /minimapDraw\(mm,0\)/);
+});
+
+test('research status label safely handles absent or stale technology definitions',()=> {
+  const begin=ui.indexOf('function researchNameForHud('),end=ui.indexOf('\nfunction hud(){',begin);
+  assert.ok(begin>=0&&end>begin,'the HUD owns its research label formatter');
+  const research=vm.runInNewContext(ui.slice(begin,end)+';researchNameForHud;',{
+    TE:{known:{n:'Steelwork'}}
+  });
+  assert.equal(research({k:'age',t:20}),'next age');
+  assert.equal(research({k:'known',t:10}),'Steelwork');
+  for(const stale of [null,{}, {k:'deleted',t:5}, {k:'__proto__',t:3}])
+    assert.equal(research(stale),'unknown technology');
+  assert.match(ui,/researchNameForHud\(s\[0\]\.rs\)/,'live selected-building HUD uses the guard');
 });
