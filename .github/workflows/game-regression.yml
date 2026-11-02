@@ -1,5 +1,9 @@
 name: Game regression checks
 on:
+  # One-off nonproduction acceptance branch. Do not add pushes to this branch.
+  push:
+    branches:
+      - acceptance-2026-11-02-full-suite
   # The expensive full suites are weekly or manually requested; never on every push.
   schedule:
     - cron: '0 7 * * 0'
