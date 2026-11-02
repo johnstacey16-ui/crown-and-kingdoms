@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
-assert.match(policy, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,
+const maritime = readFileSync(new URL('../js/ai-maritime.js', import.meta.url), 'utf8');
+assert.match(maritime, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,
   'the extracted fleet-repair policy must skip null or malformed hostile unit records');
 assert.match(ai, /aiManageFleetRepairs\(t,my\)/,
   'the main AI orchestration must call the dedicated fleet-repair policy');
@@ -12,15 +13,15 @@ assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
 assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(policy, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
-assert.match(policy, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,
+assert.match(maritime, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,
   'the extracted escape policy must cover every combat warship, not only galleys');
 assert.match(ai, /aiDisengageDamagedWarships\(my,hostileFleet\)/,
   'AI calls the shared damaged-warship escape policy');
 assert.match(ai, /aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/,
   'the orchestration invokes the dedicated target selection policy');
-assert.match(policy, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
+assert.match(maritime, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\);for\(const ship of galleys\.filter\(u=>\(u\.o==='i'\|\|\(u\.o==='m'&&!u\.tg\)\|\|\(u\.o==='a'&&\(!u\.tg\|\|u\.tg\.hp<=0\|\|u\.tg\.ld\|\|!isHostile\(t,u\.tg\.t\)\)\)\)/,
   'naval focus-fire counts must be built once before ship target scoring');
-assert.match(policy, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/,
+assert.match(maritime, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/,
   'each ship assignment must update focus-fire counts for following ships');
 assert.match(policy, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
   'AI must value naval attack research against any confirmed enemy combat-ship class');

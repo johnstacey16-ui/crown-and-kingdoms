@@ -39,10 +39,11 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(simAt >= 0 && aiAt > simAt && pathAt > aiAt,
     'AI must load after core simulation declarations and before engine startup');
   assert.ok(worker.includes("'./js/ai.js'"), 'The offline service-worker cache must contain ai.js');
+  assert.ok(worker.includes("'./js/ai-maritime.js'"),'The offline shell must contain the AI maritime module');
   assert.ok(worker.includes("'./js/ai-construction.js'"),'The offline shell must contain the AI construction module');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+9),
-    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+10),
+    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });

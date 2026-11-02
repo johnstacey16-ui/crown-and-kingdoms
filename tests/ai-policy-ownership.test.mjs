@@ -5,14 +5,20 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const policy=read('js/ai-policy.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
+const policy=read('js/ai-policy.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
+ }
+ for(const fn of ["aiTradeEscorts","aiManageFishingShips","aiManageFleetRepairs","aiDisengageDamagedWarships","aiAssignWarshipTargets"]){
+  assert.match(maritime,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(offence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
  for(const fn of ['aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave']){
@@ -47,6 +53,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
+ assert.doesNotThrow(()=>new vm.Script(maritime));
  assert.doesNotThrow(()=>new vm.Script(offence));
  assert.doesNotThrow(()=>new vm.Script(construction));
  for(const fn of ['aiBuild','aiWall','aiDock','aiNear'])assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
@@ -57,9 +64,10 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+7),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+8),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
+ assert.ok(sw.includes("'./js/ai-maritime.js'"));
  assert.ok(sw.includes("'./js/ai-offence.js'"));
  assert.ok(sw.includes("'./js/ai-construction.js'"));
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
@@ -84,7 +92,7 @@ function escortFixture(){
   goalNear:(target)=>target,
   path:()=>pathAllowed?[{x:5,y:5}]:null,
  });
- vm.runInContext(policy+"\n;globalThis.assign=aiTradeEscorts;",ctx);
+ vm.runInContext(policy+'\n'+maritime+"\n;globalThis.assign=aiTradeEscorts;",ctx);
  const merchant=(k,x=10,y=10)=>({k,x,y,t:1,hp:100,o:'m',p:[],rp:0,tradeEscortUntil:0});
  const guard=(k,x=12,y=12)=>({k,x,y,t:1,hp:85,o:'i',p:[],rp:0,tradeEscortUntil:0});
  const enemy=(k,x=13,y=12)=>({k,x,y,t:0,hp:100});
@@ -155,7 +163,7 @@ function fishFixture({trap=false}={}){
    trapDeployments++;
    if(trap)S.nodes.push({k:'f',fi:1,amt:100,x:23,y:20});
   }});
- vm.runInContext(policy+"\n;globalThis.fishing=aiManageFishingShips;",context);
+ vm.runInContext(policy+'\n'+maritime+"\n;globalThis.fishing=aiManageFishingShips;",context);
  const fish={k:'fish',t:1,x:20,y:20,hp:40,o:'i',p:[],rp:0};
  return {S,fish,run:(ships,enemy,resources)=>context.fishing(ships,enemy,resources),
   deployments:()=>trapDeployments,blockPath:()=>{canPath=false}};
@@ -202,7 +210,7 @@ test('fishing trap construction is resource gated and selected only if accessibl
 function fleetRepairFixture(){
  const S={us:[]},U={gal:{sh:1},fish:{sh:1},cog:{sh:1},trn:{sh:1}};
  const ctx=vm.createContext({S,U,mhp:()=>100,isHostile:(a,b)=>a!==b});
- vm.runInContext(policy+'\n;globalThis.repair=aiManageFleetRepairs;',ctx);
+ vm.runInContext(policy+'\n'+maritime+'\n;globalThis.repair=aiManageFleetRepairs;',ctx);
  const ship=(k,hp,o='i',x=10,y=10)=>({k,sh:1,hp,o,x,y,t:1,p:[{x:1,y:1}],tg:null});
  return {S,ship,run:my=>ctx.repair(1,my)};
 }
@@ -240,7 +248,7 @@ function damagedWarshipFixture({water=true,canPath=true}={}){
  let attempts=0;
  const ctx=vm.createContext({S,U,W,H,mhp:()=>100,gp:(x,y)=>({x,y}),
   path:()=>{attempts++;return canPath?[{x:33,y:34}]:null}});
- vm.runInContext(policy+'\n;globalThis.disengage=aiDisengageDamagedWarships;',ctx);
+ vm.runInContext(policy+'\n'+maritime+'\n;globalThis.disengage=aiDisengageDamagedWarships;',ctx);
  const ship=(k,hp=25,o='a')=>({k,t:1,x:24,y:24,hp,o,ld:0,tg:{k:'gal'},p:[],rp:0});
  const enemy={k:'gal',t:0,x:25,y:24,hp:100};
  return {S,U,ship,enemy,run:(my,hostile=[enemy])=>ctx.disengage(my,hostile),attempts:()=>attempts};
@@ -348,7 +356,7 @@ function navalTargetFixture({shipsReachable=true,patrolReachable=true}={}){
    if(goal.kind==='ship'){shipChecks++;return shipsReachable?[{x:1,y:1}]:null}
    patrolChecks++;return patrolReachable?[{x:1,y:1},{x:2,y:2}]:null;
   }});
- vm.runInContext(policy+'\n;globalThis.assignWarships=aiAssignWarshipTargets;',ctx);
+ vm.runInContext(policy+'\n'+maritime+'\n;globalThis.assignWarships=aiAssignWarshipTargets;',ctx);
  const ship=(o='i',x=12,y=10,hp=100)=>({k:'gal',t:1,x,y,hp,o,tg:null,ld:0,p:[{x:0,y:0}],rp:0});
  const enemy=(k='gal',x=17,y=10)=>({k,t:0,x,y,hp:100,ld:0});
  const base={k:'tc',t:0,x:34,y:34,s:4,hp:500};
