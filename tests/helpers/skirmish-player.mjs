@@ -12,7 +12,11 @@ function scriptedPlayerTick(){
  if(popOf(0)+4>=capOf(0)&&!bs.some(b=>b.k==='house'&&!b.done))build('house');
  for(const k of ['lumber','mill','mine'])if(!count(k)){build(k);break}
  if(S.age[0]>=1){
-  if(!count('bar'))build('bar');else if(!count('rng'))build('rng');
+  if(!count('bar'))build('bar');
+  else if(!count('rng'))build('rng');
+  // A Range alone is not enough: Castle Age requires two different Feudal
+  // buildings. The old driver never supplied the second prerequisite.
+  else if(S.age[0]===1&&!count('stable'))build('stable');
   if(S.age[0]>=2&&!count('siege'))build('siege');
  }
  if(!tc.rs&&!tc.q.length){
@@ -20,12 +24,15 @@ function scriptedPlayerTick(){
   else if(workers.length<(S.age[0]?28:18)&&train(tc,'vil'))playerStats.trained++;
  }
  const army=S.us.filter(u=>u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!['vil','king','cart','cog'].includes(u.k));
+ // Keep a small defence force but stop perpetually buying Feudal troops once
+ // the genuine age prerequisites are built: save the 800 food and 200 gold.
+ const savingForCastle=S.age[0]===1&&workers.length>=18&&ageRequirements(0).ready;
  for(const b of bs)if(b.done&&!b.rs&&!b.q.length){
   const kind=b.k==='bar'?'spear':b.k==='rng'?'arc':b.k==='siege'?'ram':null;
-  if(kind&&army.length<40&&train(b,kind))playerStats.trained++;
+  if(kind&&army.length<40&&(!savingForCastle||army.length<8)&&train(b,kind))playerStats.trained++;
  }
  // Reassign only idle/empty-handed workers; carried resources are never discarded.
- const desired={f:.45,w:.35,g:.20};const assigned={f:0,w:0,g:0};
+ const desired=savingForCastle?{f:.58,w:.32,g:.10}:{f:.45,w:.35,g:.20};const assigned={f:0,w:0,g:0};
  for(const u of workers)if(u.o==='g'&&u.ct in assigned)assigned[u.ct]++;
  for(const u of workers){
   if(u.o!=='i'&&!(u.o==='g'&&!u.car&&!u.ret))continue;

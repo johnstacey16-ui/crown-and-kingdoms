@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {checkPlan,runChecks} from '../scripts/run-checks.mjs';
+import {scriptedPlayer} from './helpers/skirmish-player.mjs';
 
 test('quick command runs the current five independent validation gates',()=>{
  const jobs=checkPlan();
@@ -125,4 +126,16 @@ test('fast hosted contract selection is one explicit reproducible Node test plan
   'tests/network-command-uplink.test.mjs',
   'tests/network-sync-authority.test.mjs'])
   assert.ok(files.includes(file),'critical focused contract absent: '+file);
+});
+
+test('active scripted skirmish unlocks Castle Age and stops buying away its age reserve',()=>{
+ assert.match(scriptedPlayer,/else if\(S\.age\[0\]===1&&!count\('stable'\)\)build\('stable'\)/,
+  'a completed Range and Stable must unlock the second age prerequisite');
+ assert.match(scriptedPlayer,/savingForCastle=S\.age\[0\]===1&&workers\.length>=18&&ageRequirements\(0\)\.ready/);
+ assert.match(scriptedPlayer,/!savingForCastle\|\|army\.length<8/,
+  'preserve a defensive minimum while saving toward Castle Age');
+ assert.match(scriptedPlayer,/S\.age\[0\]>=2&&!count\('siege'\)/,
+  'Castle Age still builds a workshop instead of changing victory rules');
+ assert.match(scriptedPlayer,/S\.sel=ready;orderSel\(target,/,
+  'the acceptance driver must still use real target/attack orders');
 });
