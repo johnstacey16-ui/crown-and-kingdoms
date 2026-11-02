@@ -567,17 +567,6 @@ function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;overwriteSlotTarge
 function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==null){if(E[1]){overwriteSlotTarget=null;return}if(E[0]){slot=overwriteSlotTarget;overwriteSlotTarget=null;if(saveG()){refreshSlots();mode=sb}}return}if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots();ci=Math.min(ci,slotItems().length-1)}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:it[ci].deleteTarget;if(target!==undefined&&target!==null&&(target==='auto'||SI[target]))deleteSlotTarget=target}if(E[1])mode=sb}
 
 
-let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,vpWheel=null,yc=0,yDown=false,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;
-function cancelSelectionGesture(){aDown=boxR=null;lastTap=0;lastTapK=null}
-function cancelShortcutGesture(){yDown=false;yc=0}
-function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture();vpWheel=null;window.CK_AUTH_LOBBY?.suspend?.()}
-const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost'];
-const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
-const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
-const focus=a=>ctr(a.x+(a.s||0)/2,a.y+(a.s||0)/2);
-function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
-const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';const req=k==='farm'?'mill':d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
-function selectedBuilders(){return controlGroupMembers(S.sel).filter(u=>u.k==='vil'&&S.us.includes(u))}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){X=WORLD_X;
 updateXboxPictureForFrame();

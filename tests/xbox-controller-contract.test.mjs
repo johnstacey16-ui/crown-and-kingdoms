@@ -7,11 +7,39 @@ import { headlessGame } from './helpers/headless-game.mjs';
 const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 
+test('Xbox interaction state and selection helpers have one controller owner',()=>{
+ for(const name of ['cancelSelectionGesture','cancelShortcutGesture','cancelGameplayGestures','nearV','selectedBuilders']){
+  assert.ok(selectionInput.includes('function '+name+'('),name+' is input-owned');
+  assert.ok(!selectionEngine.includes('function '+name+'('),name+' is not duplicated in engine');
+ }
+ for(const variable of ['aDown','boxR','vpWheel','ysc','mmF','mmM','omr','tsc','tcI']){
+  assert.match(selectionInput,new RegExp('\\\\b'+variable+'\\\\b'));
+ }
+ assert.match(selectionInput,/const SIEGE=/);
+ assert.match(selectionInput,/const bLock=/);
+ assert.doesNotMatch(selectionEngine,/const SIEGE=/);
+});
+
+test('clearing gameplay gestures resets selection, shortcut and wheel state',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\n;globalThis.evaluate=code=>eval(code);',sandbox);
+ const evaluate=sandbox.evaluate;
+ evaluate('aDown={x:1};boxR={x0:0};lastTap=123;lastTapK="vil";yDown=true;yc=2;vpWheel={sel:3};cancelGameplayGestures()');
+ assert.equal(evaluate('aDown'),null);
+ assert.equal(evaluate('boxR'),null);
+ assert.equal(evaluate('lastTap'),0);
+ assert.equal(evaluate('lastTapK'),null);
+ assert.equal(evaluate('yDown'),false);
+ assert.equal(evaluate('yc'),0);
+ assert.equal(evaluate('vpWheel'),null);
+});
+
 test('in-match Xbox controller dispatch is owned by input rather than the frame engine',()=>{
  assert.match(selectionInput,/function playCtl\(dt\)\{/);
  assert.match(selectionInput,/playCtl\(dt\);return;/);
  assert.doesNotMatch(selectionEngine,/function playCtl\(dt\)\{/);
- assert.match(selectionEngine,/let aDown=null/);
+ assert.match(selectionInput,/let aDown=null/);
+ assert.doesNotMatch(selectionEngine,/let aDown=null/);
 });
 
 test('Xbox Y shortcut, contextual radial menu and R3 priorities wheel are input-owned',()=>{

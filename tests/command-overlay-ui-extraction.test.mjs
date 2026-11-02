@@ -29,5 +29,6 @@ test('draw loop and command state remain connected to the extracted overlays', (
   assert.doesNotMatch(engine, /function openRadial\(wx,wy\)\{/);
   assert.match(input, /function playCtl\(dt\)\{/);
   assert.doesNotMatch(engine, /function playCtl\(dt\)\{/);
-  assert.match(engine, /let aDown=null/);
+  assert.match(input, /let aDown=null/);
+  assert.doesNotMatch(engine, /let aDown=null/);
 });
