@@ -210,3 +210,28 @@ for(const merchant of my.filter(u=>u.k==='cog'&&!u.ld&&u.hp>0)){
  for(const escort of escorts.slice(0,3)){const route=path(escort,goalNear(merchant,2));if(!route)continue;escort.o='G';escort.tg=merchant;escort.p=route;escort.rp=1;escort.tradeEscortUntil=S.t+20;break}
 }
 }
+
+// Fishing AI: flee nearby warships, then select reachable fishing grounds or
+// deploy a trap. Retains the original path scoring, resource and cooldown rules.
+function aiManageFishingShips(fish,hostileFleet,R){
+/* Fishing ships break off and seek open water when hostile combat ships close in; they resume fishing after the threat passes. */
+for(const s of fish.filter(u=>u.hp>0)){
+ let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-s.x,e.y-s.y);if(!threat||d<threat.d)threat={e,d}}
+ if((!threat||threat.d>14)&&s.fleeUntil)s.fleeUntil=0;
+ if(threat&&threat.d<10&&S.t>=(s.fleeUntil||0)){
+  const dx=s.x-threat.e.x,dy=s.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
+  for(let r=7;r<=15;r+=2)for(let a=0;a<16;a++){
+   const ang=angle+(a/16)*Math.PI*2,x=Math.round(s.x+Math.cos(ang)*r),y=Math.round(s.y+Math.sin(ang)*r);
+   if(x<1||y<1||x>=W-1||y>=H-1)continue;
+   const ix=y*W+x;
+   if(S.wt[ix]!==1||S.nd[ix])continue;
+   let danger=30;for(const e of hostileFleet)danger=Math.min(danger,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
+   spots.push({x,y,score:danger-Math.hypot(x-s.x,y-s.y)*.18+(S.ex[ix]?0.15:0)});
+  }
+  spots.sort((a,b)=>b.score-a.score);
+  let route=null;for(const spot of spots.slice(0,8)){route=path(s,gp(spot.x+.5,spot.y+.5,1.2));if(route&&route.length)break;route=null}
+  if(route){s.o='m';s.tg=null;s.p=route;s.fleeUntil=S.t+10}
+ }
+}
+for(const s of fish.filter(u=>u.o==='i'&&S.t>=Math.max(u.fleeUntil||0,u.nextFishingRoute||0))){s.nextFishingRoute=S.t+8;let target=null,route=null;const candidates=S.nodes.filter(n=>n.k==='f'&&n.fi&&n.amt>0&&(!n.trap||n.t===s.t)&&Math.hypot(n.x-s.x,n.y-s.y)<32).sort((a,b)=>Math.hypot(a.x-s.x,a.y-s.y)-Math.hypot(b.x-s.x,b.y-s.y));for(const n of candidates.slice(0,12)){const p=path(s,goalNear(n,1));if(p){target=n;route=p;break}}if(!target&&R.w>=100&&S.t>=(s.nextFishTrapAt||0)){s.nextFishTrapAt=S.t+45;deployFishTrap([s]);for(const n of S.nodes.filter(n=>n.k==='f'&&n.fi&&n.amt>0&&(!n.trap||n.t===s.t)&&Math.hypot(n.x-s.x,n.y-s.y)<32).slice(-8)){const p=path(s,goalNear(n,1));if(p){target=n;route=p;break}}}if(target){s.o='g';s.tg=target;s.ct='f';s.p=route;s.rp=1;s.ret=0}}
+}

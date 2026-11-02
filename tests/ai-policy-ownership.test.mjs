@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -24,6 +24,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiResumeIdleWave\(/);
  assert.match(ai,/aiShareResources\(t,A,R\)/);
  assert.match(ai,/aiTradeEscorts\(A,my,arm,galleys,hostileFleet,humanArmy\)/);
+ assert.match(ai,/aiManageFishingShips\(fish,hostileFleet,R\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -119,4 +120,59 @@ test('trade cogs use idle war galleys for escort, never land units or fishing sh
  f.assign(A,[cog,gal,fish],[],[gal],[],[]);
  assert.equal(gal.o,'i');
  assert.equal(gal.tg,null);
+});
+
+function fishFixture({trap=false}={}){
+ const W=48,H=48,S={t:100,wt:new Uint8Array(W*H).fill(1),
+  nd:Array(W*H).fill(null),ex:new Uint8Array(W*H),nodes:[]};
+ let trapDeployments=0,canPath=true;
+ const context=vm.createContext({W,H,S,
+  gp:(x,y)=>({x,y}),goalNear:n=>n,
+  path:()=>canPath?[{x:18,y:18}]:null,
+  deployFishTrap:()=>{
+   trapDeployments++;
+   if(trap)S.nodes.push({k:'f',fi:1,amt:100,x:23,y:20});
+  }});
+ vm.runInContext(policy+"\n;globalThis.fishing=aiManageFishingShips;",context);
+ const fish={k:'fish',t:1,x:20,y:20,hp:40,o:'i',p:[],rp:0};
+ return {S,fish,run:(ships,enemy,resources)=>context.fishing(ships,enemy,resources),
+  deployments:()=>trapDeployments,blockPath:()=>{canPath=false}};
+}
+
+test('AI fishing ships flee a nearby hostile warship to reachable deep water',()=>{
+ const f=fishFixture(),enemy={k:'gal',x:21,y:20,hp:100};
+ f.run([f.fish],[enemy],{w:0});
+ assert.equal(f.fish.o,'m');
+ assert.equal(f.fish.tg,null);
+ assert.equal(f.fish.p.length,1);
+ assert.equal(f.fish.fleeUntil,110,'flee route has the original ten-second cooldown');
+ f.S.t=101;f.run([f.fish],[],{w:0});
+ assert.equal(f.fish.fleeUntil,0,'safe fishing ships can resume normal routes');
+ const g=fishFixture();g.blockPath();
+ g.run([g.fish],[enemy],{w:0});
+ assert.equal(g.fish.o,'i','no path must not assign a bogus escape');
+});
+
+test('AI fishing ships find living fish nodes without paying for a trap',()=>{
+ const f=fishFixture(),node={k:'f',fi:1,amt:80,x:25,y:21};
+ f.S.nodes.push(node);
+ f.run([f.fish],[],{w:200});
+ assert.equal(f.fish.o,'g');
+ assert.equal(f.fish.tg,node);
+ assert.equal(f.fish.ct,'f');
+ assert.equal(f.fish.p.length,1);
+ assert.equal(f.fish.rp,1);
+ assert.equal(f.fish.nextFishingRoute,108);
+ assert.equal(f.deployments(),0);
+});
+
+test('fishing trap construction is resource gated and selected only if accessible',()=>{
+ const f=fishFixture({trap:true});
+ f.run([f.fish],[],{w:99});
+ assert.equal(f.deployments(),0,'insufficient wood cannot buy a fish trap');
+ f.S.t=110;f.fish.nextFishingRoute=0;
+ f.run([f.fish],[],{w:100});
+ assert.equal(f.deployments(),1);
+ assert.equal(f.fish.nextFishTrapAt,155);
+ assert.equal(f.fish.o,'g');
 });
