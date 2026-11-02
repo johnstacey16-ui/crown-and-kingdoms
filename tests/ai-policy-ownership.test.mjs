@@ -9,9 +9,9 @@ const policy=read('js/ai-policy.js'),economy=read('js/ai-economy.js'),defence=re
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiCanResearchWhileSaving','aiQueuedUnits',
-  'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
+  'aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority']){
+  'aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -33,7 +33,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
   assert.doesNotMatch(offence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
- for(const fn of ['aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave','aiRememberEnemySites','aiMaintainAttackWave']){
+ for(const fn of ['aiSiegeTarget','aiOpeningWaveNeed','aiResumeIdleWave','aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave','aiRememberEnemySites','aiMaintainAttackWave']){
   assert.match(offence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
@@ -43,7 +43,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiQueuedUnits\(/);
  assert.match(construction,/aiDockWaterReach\(/);
  assert.match(ai,/aiRebal\(/);
- assert.match(policy,/aiOpeningWaveNeed\(/);
+ assert.match(offence,/aiOpeningWaveNeed\(/);
  assert.match(ai,/aiResumeIdleWave\(/);
  assert.match(ai,/aiShareResources\(t,A,R\)/);
  assert.match(ai,/aiTradeEscorts\(A,my,arm,galleys,hostileFleet,humanArmy\)/);

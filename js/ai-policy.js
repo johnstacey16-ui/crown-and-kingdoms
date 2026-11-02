@@ -1,5 +1,4 @@
-/* Shared AI threat, economy, siege and builder-selection policies. Loaded before ai.js; global function declarations retained. */
-// Siege should neutralise reachable fortifications before ordinary town centres.
+/* Shared AI threat classification, research and builder-selection policies. Loaded before ai.js; global function declarations retained. */
 /* Protect the complete next-age budget when deciding on optional research. */
 function aiCanResearchWhileSaving(resources,researchCost,ageCost){
  return Object.keys(ageCost).every(res=>(resources[res]||0)-(researchCost[res]||0)>=ageCost[res]);
@@ -9,15 +8,6 @@ function aiQueuedUnits(buildings,k){
  if(!Array.isArray(buildings))return 0;
  return buildings.reduce((count,b)=>count+(b&&b.hp>0&&Array.isArray(b.q)?
    b.q.filter(q=>q&&q.k===k).length:0),0);
-}
-function aiSiegeTarget(leader,buildings,fallback){
- if(!leader)return fallback;
- const priority={castle:0,tower:1,tc:2};
- const choices=buildings.filter(b=>b&&b.done&&b.hp>0&&isHostile(leader.t,b.t)&&Object.prototype.hasOwnProperty.call(priority,b.k))
-  .map(b=>{const dx=b.x+b.s/2-leader.x,dy=b.y+b.s/2-leader.y;return {b,d:dx*dx+dy*dy}})
-  .sort((a,b)=>priority[a.b.k]-priority[b.b.k]||a.d-b.d);
- for(let i=0;i<Math.min(12,choices.length);i++)if(path(leader,goalNear(choices[i].b,2)))return choices[i].b;
- return fallback;
 }
 function aiAvailableBuilder(u){return u&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.aiEvac&&!u.retreating&&!['b','B','a','m','rep'].includes(u.o)}
 function aiBuilderCandidates(vs){return vs.filter(u=>aiAvailableBuilder(u)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H).sort((a,b)=>(a.o==='i'?0:a.o==='g'?1:2)-(b.o==='i'?0:b.o==='g'?1:2))}
@@ -81,30 +71,6 @@ function aiDockWaterReach(x,y,minCells=32){
  }
  return false;
 }
-// The first Feudal push can be a smaller skirmish. Using the full
-// late-game difficulty wave size before the first raid stalls real AI games
-// when villagers gather at DE reference speeds. Later waves are unchanged.
-function aiOpeningWaveNeed(base,age,wave){return age===1&&wave===0?Math.max(6,Math.ceil(base*.7)):base}
-// After an opening attack breaks off to fight enemy villagers, survivors must
-// resume attacking a live objective rather than idling with A.on still true.
-// One bounded route check per reachable objective and soldier every ten seconds.
-function aiResumeIdleWave(t,A){
- if(!A?.on||A.stg||!Array.isArray(A.wu)||S.t<(A.nextWaveObjectiveAt||0))return 0;
- A.nextWaveObjectiveAt=S.t+10;
- const candidates=S.bs.filter(b=>b&&b.hp>0&&isHostile(t,b.t)).sort((a,b)=>Number(b.k==='tc')-Number(a.k==='tc'));
- if(!candidates.length)return 0;
- let retasked=0;
- for(const u of A.wu){
-  if(!u||u.hp<=0||u.ld||u.retreating||u.o!=='i'||!U[u.k]||U[u.k].dmg<=0)continue;
-  for(const target of candidates.slice(0,3)){
-   const route=path(u,goalNear(target,1));
-   if(!route||!route.length)continue;
-   u.o='a';u.tg=target;u.p=route;u.rp=1;retasked++;break;
-  }
- }
- return retasked;
-}
-
 /* Preserve the scouting cadence and randomized waypoint selection from the AI
  * loop: at most four attempts, eight seconds between attempts and avoidance
  * of the current position and last destination. */
