@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
-const code=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+const code=readFileSync(new URL('../js/render-troops.js',import.meta.url),'utf8');
 const beg=code.indexOf('const TROOP_TEXTURE_PIXEL_LIMIT='),end=code.indexOf('function drawPaintedTroop(',beg);
 assert.ok(beg>=0&&end>beg,'the original production cache and troop painter are present');
 const production=code.slice(beg,end);
@@ -55,7 +55,7 @@ test('on canvas allocation failure, the existing atlas source can still render',
  assert.equal(s.TROOP_TEXTURE_LRU.size,0);
 });
 test('painted troop painter retains original source dimensions, flip, anchor and animation',()=>{
- const painterBeg=code.indexOf('function drawPaintedTroop('),painterEnd=code.indexOf('// Fog stays beneath',painterBeg);
+ const painterBeg=code.indexOf('function drawPaintedTroop('),painterEnd=code.indexOf('/* In-match troop drawing and researched equipment cues. */',painterBeg);
  assert.ok(painterEnd>painterBeg);
  const calls=[];const img={},f={x:20,y:30,w:120,h:170,ax:60,ay:166};
  const productionPainter=code.slice(painterBeg,painterEnd);
@@ -98,4 +98,18 @@ test('an already prepared native tint frame draws directly without a redundant t
  const s=scene(),img={width:230,height:246,paintedSourceFrame:{x:15,y:26,w:230,h:246}},f={x:0,y:0,w:230,h:246,ax:75,ay:240};
  assert.equal(s.troopFrameTexture({img,f}),img);assert.equal(s.crops.length,0);assert.equal(s.TROOP_TEXTURE_LRU.size,0);
  assert.notEqual(s.troopFrameTexture({img,f:{...f,w:229}}),img,'a different source rectangle still follows the ordinary crop path');
+});
+
+test('painted troop art, its pixel budget and unit dispatcher have exactly one offline runtime owner',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
+ const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+ assert.ok(html.indexOf('./js/render-procedural-units.js')<html.indexOf('./js/render-troops.js'));
+ assert.ok(html.indexOf('./js/render-troops.js')<html.indexOf('./js/ui.js'));
+ assert.ok(sw.includes("'./js/render-troops.js'"));
+ for(const marker of ['function unitVisualPose(','function paintedSecondaryPose(','function troopFrameTexture(','function drawPaintedTroop(','function drawUnit(','const TROOP_TEXTURE_PIXEL_LIMIT=']){
+  assert.ok(code.includes(marker),'troop module owns '+marker);
+  assert.ok(!render.includes(marker),'world renderer does not duplicate '+marker);
+ }
+ assert.ok(render.includes('function drawWorld()'),'original world sort remains in place');
 });

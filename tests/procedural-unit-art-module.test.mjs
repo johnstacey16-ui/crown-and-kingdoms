@@ -6,6 +6,7 @@ import {coreGameScriptPaths,browserScriptPaths} from '../scripts/runtime-sources
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const procedural=readFileSync(new URL('../js/render-procedural-units.js',import.meta.url),'utf8');
+const troops=readFileSync(new URL('../js/render-troops.js',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 
 test('fallback art has a single new source owner and is still offline',()=>{
@@ -33,5 +34,5 @@ test('fallback dispatcher retains original painted-miss routes',()=>{
  for(const part of ['if(U[k].sh)shp(', "else if(k==='ram'",'else if(U[k].mt','else man(g,k,tc,st,fr)'])
   assert.ok(procedural.includes(part),part);
  assert.match(procedural,/Object\.assign\(MP,\{/);
- assert.match(render,/paintUnit\(/);
+ assert.match(troops,/paintUnit\(/);
 });

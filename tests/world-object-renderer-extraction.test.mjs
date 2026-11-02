@@ -7,6 +7,7 @@ const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const procedural = readFileSync(new URL('../js/render-procedural-units.js', import.meta.url), 'utf8');
+const troops = readFileSync(new URL('../js/render-troops.js', import.meta.url), 'utf8');
 const resource = readFileSync(new URL('../js/render-resources.js', import.meta.url), 'utf8');
 const buildings = readFileSync(new URL('../js/render-buildings.js', import.meta.url), 'utf8');
 
@@ -36,7 +37,7 @@ test('world rendering and procedural fallback unit art have distinct owners',()=
 test('world rendering still invokes extracted object painters while simulation remains in engine.js', () => {
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawBld\(/);
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawNode\(/);
-  assert.match(render, /function drawUnit\(u,selectedUnits\)[\s\S]*?paintUnit\(/);
+  assert.match(troops, /function drawUnit\(u,selectedUnits\)[\s\S]*?paintUnit\(/);
   assert.match(render, /function emit\(k,x,y,n,o\)\{/);
   assert.match(render, /function updP\(dt\)\{/);
   assert.doesNotMatch(engine, /function emit\(k,x,y,n,o\)\{/);

@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const movement=readFileSync(new URL('../js/simulation-separation.js',import.meta.url),'utf8');
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+const troops=readFileSync(new URL('../js/render-troops.js',import.meta.url),'utf8');
 const finding=readFileSync(new URL('../js/pathfinding.js',import.meta.url),'utf8');
 const routing=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 function section(source,from,to){
@@ -21,7 +22,7 @@ const snippets=[
  section(movement,'const mv=(u,dx,dy)=>','/* Local spatial grid for unit separation.'),
  section(finding,'function d2(px,py,t){','const goalNear='),
  section(render,'const PAINT=','/* Painted terrain sampling and bounded edge blending:'),
- section(render,'function unitVisualPose(u,time){','function drawPaintedTroop(')
+ section(troops,'function unitVisualPose(u,time){','function drawPaintedTroop(')
 ].join('\n');
 
 function scenario(){
