@@ -23,6 +23,7 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/render-troops.js'),scripts.indexOf('./js/render-procedural-units.js')+1);
  assert.equal(scripts.indexOf('./js/render-effects.js'),scripts.indexOf('./js/render-troops.js')+1);
  assert.equal(scripts.indexOf('./js/ui-commands.js'),scripts.indexOf('./js/ui.js')+1);
+ assert.equal(scripts.indexOf('./js/ui-screens.js'),scripts.indexOf('./js/ui-commands.js')+1);
  assert.equal(scripts.indexOf('./js/simulation-logistics.js')+1,scripts.indexOf('./js/simulation-resource-routing.js'));
  assert.equal(scripts.indexOf('./js/simulation-resource-routing.js')+1,scripts.indexOf('./js/simulation-production-queues.js'));
  assert.equal(scripts.indexOf('./js/simulation-production-queues.js')+1,scripts.indexOf('./js/simulation-research.js'));
@@ -46,14 +47,14 @@ test('browser script references are unique, safely rooted and in declared order'
 });
 test('headless production source order excludes both canvas UI owners and atlas manager',()=>{
  const production=coreGameScriptPaths(html),paths=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
- assert.deepEqual(paths,production.filter(p=>p!=='./js/ui.js'&&p!=='./js/ui-commands.js'&&p!=='./js/assets.js'));
+ assert.deepEqual(paths,production.filter(p=>p!=='./js/ui.js'&&p!=='./js/ui-commands.js'&&p!=='./js/ui-screens.js'&&p!=='./js/assets.js'));
  assert.equal(paths[0],'./js/config.js');
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.indexOf('./js/ai.js')<paths.indexOf('./js/pathfinding.js'));
  assert.ok(paths.indexOf('./js/kingdom.js')<paths.indexOf('./js/entities.js'));
  assert.ok(paths.includes('./js/render-procedural-units.js'));
  assert.ok(production.includes('./js/ui.js')&&production.includes('./js/assets.js'));
- assert.equal(paths.length,production.length-3,'headless excludes two UI owners and the atlas manager');
+ assert.equal(paths.length,production.length-4,'headless excludes three UI owners and the atlas manager');
  assert.equal(loadCoreGameSource(),paths.map(p=>readFileSync(new URL('../'+p.slice(2),import.meta.url),'utf8')).join('\n'));
 });
 test('source validator sees every browser script, including both network transport implementations',()=>{

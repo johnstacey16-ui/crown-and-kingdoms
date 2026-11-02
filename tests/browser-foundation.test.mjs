@@ -26,6 +26,7 @@ const buildings = script('js/render-buildings.js');
 const terrain = script('js/render-terrain.js');
 const ui = script('js/ui.js');
 const uiCommands=script('js/ui-commands.js');
+const uiScreens=script('js/ui-screens.js');
 const simulation = script('js/simulation.js');
 const ai = script('js/ai.js');
 const pathfinding = script('js/pathfinding.js');
@@ -68,7 +69,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.includes('<script src="./js/ui.js"></script>'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/ui.js'));
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/ui-commands.js'));
-  assert.ok(html.indexOf('./js/ui-commands.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(html.indexOf('./js/ui-commands.js') < html.indexOf('./js/ui-screens.js'));
+  assert.ok(html.indexOf('./js/ui-screens.js') < html.indexOf('./js/simulation.js'));
+  assert.match(uiScreens,/function drawTitle\(\)/);
   assert.ok(uiCommands.includes('function drawRadial()'));
   assert.ok(ui.includes('function drawPerfOverlay(dt)'));
   assert.ok(ui.includes('const ovr=()=>'));
@@ -229,7 +232,7 @@ test('game balance data is separated from runtime code and resize work is deboun
 test('browser foundation source comes from index.html in actual classic-script order',()=>{
  const paths=coreGameScriptPaths(html);
  const headless=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
- assert.equal(paths.length,headless.length+3,'full core adds the UI dispatcher, command-overlay owner and atlas manager');
+ assert.equal(paths.length,headless.length+4,'full core adds UI dispatch, command overlay, menu screens and atlas manager');
  assert.equal(paths[0],'./js/config.js');
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.includes('./js/assets.js')&&paths.includes('./js/ui.js')&&paths.includes('./js/render-procedural-units.js'));

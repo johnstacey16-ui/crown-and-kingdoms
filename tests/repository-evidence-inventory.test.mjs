@@ -8,7 +8,7 @@ test('live repository counts come from files and the canonical browser script gr
  const inventory=reportRepositoryInventory();
  assert.ok(inventory.standaloneRegressionFiles>200);
  assert.ok(inventory.productionScripts>30);
- assert.equal(inventory.headlessScripts,inventory.coreScripts-3,
+ assert.equal(inventory.headlessScripts,inventory.coreScripts-4,
   'headless source omits both browser UI owners and painted atlas loader');
  assert.equal(inventory.focusedFileCount,checkPlan('focused')[0].args.length);
  assert.ok(inventory.focusedFileCount<inventory.standaloneRegressionFiles,
