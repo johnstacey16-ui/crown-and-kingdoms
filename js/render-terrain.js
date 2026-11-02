@@ -87,3 +87,100 @@ const GCd=GC.map(c=>shd(c,.86)),GCl=GC.map(c=>shd(c,1.09));
 const PALS=[{g:GC,d:GCd,l:GCl,coast:'#cdbd82',dirt:['#8d7b4c','#867449']}];
 {const mk=(a,c,dk)=>({g:a,d:a.map(x=>shd(x,.9)),l:a.map(x=>shd(x,1.06)),coast:c,dirt:dk});PALS.push(mk(['#d8c48a','#d2bd80','#dcc890','#cdb676','#d6c286','#d0ba7c'],'#e6d8a8',['#b89a60','#b0925a']),mk(['#e8f0f4','#dde8ee','#f0f6f8','#d4e2ea','#e2ecf0','#d9e6ec'],'#c3d0d6',['#8e8a84','#86827c']),mk(['#7f9a62','#789358','#86a068','#718c54','#7c9660','#7a945a'],'#b8b090',['#7d7568','#766e62']))}
 
+
+/* Original terrain landmarks, chunk LRU and bounded Xbox viewport cache.
+ * Moved unchanged from js/render.js; fog and world draw remain separate. */
+const CKS=8,TCH=new Map();let CHK=true;
+
+/* Isometric tile painting and detail: js/render-terrain.js. */
+function drawHill(o){
+ const P=w2s(o.x,o.y),rx=TW*2.8,ry=TH*1.8,z=zm,px=P[0],py=P[1];
+ X.save();
+ // Low, warm-edged earth mound keeps the existing footprint and landmark position.
+ X.globalAlpha=.94;
+ X.fillStyle='rgba(25,34,24,.48)';
+ X.beginPath();X.ellipse(px,py+2*z,rx*1.04,ry*1.04,0,0,Math.PI*2);X.fill();
+ X.fillStyle='#59634a';X.beginPath();X.ellipse(px,py,rx,ry,0,0,Math.PI*2);X.fill();
+ X.strokeStyle='#d8c995';X.lineWidth=Math.max(1,2*z);X.beginPath();X.ellipse(px,py,rx-3*z,ry-2*z,0,0,Math.PI*2);X.stroke();
+ // Three overlapping rock planes add a readable light direction without extra assets.
+ X.fillStyle='#414d4d';poly([[px-18*z,py-2*z],[px-8*z,py-15*z],[px+3*z,py-11*z],[px+8*z,py+2*z],[px-3*z,py+9*z]]);X.fill();
+ X.fillStyle='#707b78';poly([[px-8*z,py-15*z],[px+5*z,py-19*z],[px+18*z,py-8*z],[px+8*z,py+2*z],[px+3*z,py-11*z]]);X.fill();
+ X.fillStyle='#aab0a0';poly([[px-8*z,py-15*z],[px+5*z,py-19*z],[px+1*z,py-12*z],[px-5*z,py-10*z]]);X.fill();
+ X.strokeStyle='rgba(224,218,185,.65)';X.lineWidth=Math.max(.7,z);X.beginPath();X.moveTo(px-17*z,py+1*z);X.lineTo(px-8*z,py-9*z);X.lineTo(px-2*z,py-5*z);X.moveTo(px+5*z,py-13*z);X.lineTo(px+13*z,py-8*z);X.stroke();
+ // Landmark plinth and flag retain their original centre/height for gameplay readability.
+ X.fillStyle='#7d8985';X.fillRect(px-4*z,py-24*z,8*z,21*z);
+ X.fillStyle='#c8cec1';X.fillRect(px-4*z,py-24*z,2.5*z,20*z);
+ X.fillStyle='#d8c995';dia(px,py-24*z,5*z,2.5*z);X.fill();
+ X.strokeStyle='#463b2a';X.lineWidth=Math.max(1,2*z);X.beginPath();X.moveTo(px+4*z,py-24*z);X.lineTo(px+4*z,py-38*z);X.stroke();
+ X.fillStyle='#be4b3a';poly([[px+4*z,py-38*z],[px+19*z,py-33*z+Math.sin(gt*4)*1.2*z],[px+4*z,py-28*z]]);X.fill();
+ X.fillStyle='rgba(245,225,169,.7)';poly([[px+5*z,py-37*z],[px+16*z,py-33*z+Math.sin(gt*4)*1.2*z],[px+5*z,py-32*z]]);X.fill();
+ X.restore();
+}
+function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){TCH.delete(key);TCH.set(key,c);return c}
+const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');
+for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
+c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);return c}
+
+// Chunks behind unexplored fog never contribute visible terrain. Test the
+// local exploration mask every frame before allocating/uploading a chunk:
+// first-time reveals work immediately without caching stale fog visibility.
+function chunkHasExploredLand(cx,cy){
+ const x0=cx*CKS,y0=cy*CKS,x1=Math.min(W,x0+CKS),y1=Math.min(H,y0+CKS);
+ if(!S||!S.ex)return true; // Preserve standalone chunk-painter use.
+ for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(S.ex[y*W+x])return true;
+ return false;
+}
+
+// The isometric view's axis-aligned WORLD bounding box includes terrain far
+// outside the SCREEN. Cull those chunks *before* generating their canvases.
+// A fixed 48-chunk LRU evicted visible chunks on wide/zoomed-out views,
+// causing the expensive terrain texture painter to rerun every single frame.
+// Retain all visible chunks (even above 320 on unusually large screens),
+// plus a capped panning margin, then trim the least-recently-used canvases.
+function drawChunks(x0,x1,y0,y1){
+ let visible=0;const chunks=[];
+ for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){
+  const x=cx*CKS,y=cy*CKS,ox=(x-y-CKS+1)*32-32,oy=(x+y+1)*16-16;
+  const sx=ox*zm-cam.x,sy=oy*zm-cam.y,sw=CKS*64*zm,sh=((2*CKS-2)*16+32)*zm;
+  if(sx>=CW||sy>=CH||sx+sw<=0||sy+sh<=0)continue;
+  if(!chunkHasExploredLand(cx,cy))continue;
+  const c=chunkOf(cx,cy);
+  chunks.push(c);
+  visible++;
+ }
+ const budget=Math.max(64,visible,Math.min(320,visible+16));
+ while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
+ drawTerrainViewport(chunks);
+}
+// Flatten static terrain at the current backing resolution. Reusing one opaque
+// surface avoids resampling overlapping transparent chunk textures each frame.
+// Fog, waves and all world objects are still painted live by drawWorld().
+const TERRAIN_VIEW={canvas:null,key:null,pending:null,chunks:[]};
+function drawTerrainViewport(chunks){
+ const dpr=typeof DPR==='number'?DPR:1,w=Math.round(CW*dpr),h=Math.round(CH*dpr);
+ const direct=()=>{for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)};
+ // At most 16 MiB of additional pixels. Oversized views keep the original path.
+ if(w<1||h<1||w*h>4000000){
+  if(TERRAIN_VIEW.canvas){TERRAIN_VIEW.canvas.width=TERRAIN_VIEW.canvas.height=1}
+  TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];direct();return;
+ }
+ const key=[cam.x,cam.y,zm,CW,CH,w,h,dpr].join('|');
+ // While panning/zooming use the original path. Flatten only after the view
+ // remains stable for a second frame, avoiding an extra full-screen pass per pan.
+ if(TERRAIN_VIEW.pending!==key){TERRAIN_VIEW.pending=key;TERRAIN_VIEW.key=null;direct();return}
+ try{
+  const cv=TERRAIN_VIEW.canvas||(TERRAIN_VIEW.canvas=document.createElement('canvas'));
+  const g=cv.getContext('2d',{alpha:false});
+  if(!g){direct();return}
+  if(TERRAIN_VIEW.key!==key||chunks.length!==TERRAIN_VIEW.chunks.length||chunks.some((c,i)=>c!==TERRAIN_VIEW.chunks[i])){
+   TERRAIN_VIEW.key=null;
+   if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
+   g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#000';g.fillRect(0,0,CW,CH);
+   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+   for(const c of chunks)g.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
+   TERRAIN_VIEW.chunks=chunks.slice();TERRAIN_VIEW.key=key;
+  }
+  // Copy physical pixels 1:1, including fractional-DPR edge rounding.
+  X.save();try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cv,0,0)}finally{X.restore()}
+ }catch(_){TERRAIN_VIEW.key=null;direct()}
+}

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+const render=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'utf8');
 const from=render.indexOf('function chunkOf(');
-const to=render.indexOf('/* Effects and sprite warm-up: js/render-effects.js. */',from);
+const to=render.length;
 assert.ok(from>=0&&to>from,'test extracts the exact production chunk painter');
 const production=render.slice(from,to);
 

@@ -52,5 +52,7 @@ test('painted terrain helpers have one offline runtime owner without touching th
   assert.ok(source.includes('function '+fn+'('),fn+' stays in the terrain owner');
   assert.ok(!renderer.includes('function '+fn+'('),fn+' is not duplicated in world renderer');
  }
- assert.ok(renderer.includes('const TERRAIN_VIEW='),'existing Xbox viewport caching remains in world renderer');
+ assert.ok(source.includes('const TERRAIN_VIEW='),'existing Xbox viewport cache now belongs to terrain module');
+ assert.ok(!renderer.includes('const TERRAIN_VIEW='),'world renderer never duplicates the viewport cache');
+ assert.ok(renderer.includes('function drawWorld()'),'world composition remains in its original owner');
 });

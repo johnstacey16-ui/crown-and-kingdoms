@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const source=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
-const production=source.slice(source.indexOf('const TERRAIN_VIEW='),source.indexOf('/* Effects and sprite warm-up: js/render-effects.js. */'));
+const source=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'utf8');
+const production=source.slice(source.indexOf('const TERRAIN_VIEW='),source.length);
 function scene(){
  const builds=[],blits=[],transforms=[];
  const g={setTransform(...a){transforms.push(a)},fillRect(){},drawImage(...a){builds.push(a)}};
