@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -27,6 +27,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiManageFishingShips\(fish,hostileFleet,R\)/);
  assert.match(ai,/aiManageFleetRepairs\(t,my\)/);
  assert.match(ai,/aiDisengageDamagedWarships\(my,hostileFleet\)/);
+ assert.match(ai,/aiScoutIdleUnits\(scouts\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -269,4 +270,51 @@ test('blocked water and unreachable routes leave damaged combat ship orders unch
  assert.equal(ship.tg!==null,true,'failed retreat must keep original target');
  assert.ok(unreachable.attempts()>0,'reachable candidates are actually tested');
  assert.equal(ship.navalFallbackUntil,undefined,'failed retreat should not start cooldown');
+});
+
+function scoutRouteFixture({draws=[.8,.8],reachable=true}={}){
+ const W=48,H=48;
+ let index=0,calls=0;
+ const S={t:100,r:()=>draws[Math.min(index++,draws.length-1)]};
+ const ctx=vm.createContext({S,W,H,gp:(x,y)=>({x,y}),path:()=>{calls++;return reachable?[{x:32,y:32}]:null}});
+ vm.runInContext(policy+'\n;globalThis.scout=aiScoutIdleUnits;',ctx);
+ const unit=(o='i')=>({k:'scout',x:10,y:10,o,p:[],rp:0});
+ return {S,unit,run:scouts=>ctx.scout(scouts),calls:()=>calls,draws:()=>index};
+}
+
+test('idle scout policy assigns a reachable random route and preserves eight-second cooldown',()=>{
+ const f=scoutRouteFixture(),scout=f.unit();
+ f.run([scout]);
+ assert.equal(scout.o,'m');
+ assert.equal(scout.rp,1);
+ assert.equal(scout.nextScoutRoute,108);
+ assert.deepEqual(Array.from(scout.p),[{x:32,y:32}]);
+ assert.ok(scout.lastScoutX>30&&scout.lastScoutY>30);
+ scout.o='i';f.S.t=107;
+ f.run([scout]);
+ assert.equal(f.calls(),1,'scout cooldown prevents immediate replanning');
+ f.S.t=108;f.run([scout]);
+ assert.equal(scout.nextScoutRoute,116);
+ assert.equal(f.calls(),1,'the previously visited destination is not picked again');
+ assert.equal(scout.o,'i','without a new waypoint the scout stays idle');
+});
+
+test('scout routing skips nearby destinations and tries another candidate',()=>{
+ const f=scoutRouteFixture({draws:[.2,.2,.9,.9]}),scout=f.unit();
+ f.run([scout]);
+ assert.equal(scout.o,'m');
+ assert.equal(f.calls(),1,'only the far waypoint reaches pathfinding');
+ assert.equal(f.draws(),4,'a rejected close point consumes one random attempt');
+});
+
+test('scouts remain idle if every route is blocked; busy units do not receive scout orders',()=>{
+ const f=scoutRouteFixture({reachable:false}),idle=f.unit(),busy=f.unit('g');
+ f.run([idle,busy]);
+ assert.equal(f.calls(),4,'scouting keeps its four route-attempt budget');
+ assert.equal(idle.o,'i');
+ assert.equal(busy.o,'g');
+ assert.equal(idle.nextScoutRoute,108,'even unsuccessful scouting attempts have a cooldown');
+ assert.equal(busy.nextScoutRoute,undefined);
+ f.S.t=101;f.run([idle,busy]);
+ assert.equal(f.calls(),4,'blocked destinations are not retried every AI tick');
 });
