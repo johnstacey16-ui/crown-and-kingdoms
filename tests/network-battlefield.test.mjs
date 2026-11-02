@@ -426,3 +426,38 @@ test('procedural fallback and unfinished-building indicators survive missing or 
  c.testFallbackMap=map;c.run('testFallbackMap.refresh(S,0,W,H,true)');
  assert.equal(c.worldHash(),before);
 });
+
+test('starting centres remain free and additional centres require Castle Age and full paid resources',()=>{
+ const c=fixture();
+ const before=JSON.parse(c.run('JSON.stringify(S.res[0])'));
+ assert.equal(c.run("B.tc.cost.w"),275);
+ assert.equal(c.run("B.tc.cost.s"),100);
+ assert.equal(c.run("B.tc.age"),2);
+ assert.equal(c.run("S.bs.filter(b=>b.k==='tc'&&b.done).length"),2,'both initial teams receive a finished centre');
+ const order={type:'build',entities:[c.ids.worker],value:'tc',point:{x:23,y:26}};
+ assert.match(c.run("bLock('tc')"),/Castle Age/);
+ assert.equal(c.act(order),false,'Feudal Age centre denied');
+ assert.equal(c.run('S.res[0].w'),before.w,'rejected construction cannot charge wood');
+ c.run('S.age[0]=2;S.res[0].w=274;S.res[0].s=100');
+ assert.equal(c.act(order),false,'short wood budget is rejected');
+ c.run('S.res[0].w=275;S.res[0].s=99');
+ assert.equal(c.act(order),false,'short stone budget is rejected');
+ c.run('S.res[0].s=100');
+ assert.equal(c.run("bLock('tc')"),'');
+ assert.equal(c.run("S.sel=[worker];openMenu();menu.items.some(o=>o.l==='Town Centre'&&!o.lk)"),true,'solo Xbox build wheel exposes the unlocked centre');
+ assert.equal(c.run("adapter.buildOptions(S,0).flat().some(o=>o.value==='tc'&&!o.locked)"),true,'multiplayer builder exposes the same option');
+ assert.equal(c.act(order),true,'legal multiplayer construction uses the production builder');
+ assert.equal(c.run('S.res[0].w'),0);
+ assert.equal(c.run('S.res[0].s'),0);
+ assert.equal(c.run("S.bs.filter(b=>b.t===0&&b.k==='tc'&&!b.done).length"),1);
+ assert.equal(c.run("S.bs.filter(b=>b.t===1&&b.k==='tc').length"),1,'opposing team is unchanged');
+});
+test('Sudden Death forbids extra Town Centres without spending or changing the starting centre',()=>{
+ const c=fixture(),order={type:'build',entities:[c.ids.worker],value:'tc',point:{x:23,y:26}};
+ c.run('S.age[0]=3;vm=6');
+ assert.match(c.run("bLock('tc')"),/Sudden Death/);
+ assert.match(c.run("adapter.buildOptions(S,0).flat().find(o=>o.value==='tc').locked"),/Sudden Death/);
+ const before=c.run('JSON.stringify([S.res[0],S.bs.length])');
+ assert.equal(c.act(order),false);
+ assert.equal(c.run('JSON.stringify([S.res[0],S.bs.length])'),before);
+});

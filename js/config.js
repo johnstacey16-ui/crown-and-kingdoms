@@ -49,7 +49,9 @@ const REGIONAL_UNIT_ACCESS=Object.freeze([
  Object.freeze({unit:'camel',civilizations:Object.freeze([2,3,4,8,9,13,22,23]),buildings:Object.freeze(['stable'])})
 ]);
 
-const B={tc:{n:'Town Centre',s:3,hp:900,cost:{},bt:1,tr:['vil'],rs:['loom','wheel','handcart','gath','carry'],atk:'tca'},house:{n:'House',s:2,hp:200,cost:{w:25},bt:12},
+// Founding Town Centres are granted directly by newGame(); additional centres
+// must be purchased by builders after Castle Age, on both solo and online paths.
+const B={tc:{n:'Town Centre',s:3,hp:900,cost:{w:275,s:100},bt:1,age:2,tr:['vil'],rs:['loom','wheel','handcart','gath','carry'],atk:'tca'},house:{n:'House',s:2,hp:200,cost:{w:25},bt:12},
 lumber:{n:'Lumber Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['axe','saw']},mine:{n:'Mining Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['gmine','smine']},mill:{n:'Mill',s:2,hp:250,cost:{w:100},bt:15,rs:['coll','plow','crop']},farm:{n:'Farm',s:1,hp:480,cost:{w:60},bt:15},
 bar:{n:'Barracks',s:3,hp:500,cost:{w:150},bt:25,tr:['mil','spear'],rs:['man','longs','twohand','champ','pike','halb','squires','arson'],age:0},rng:{n:'Archery Range',s:3,hp:500,cost:{w:150},bt:25,tr:['arc','skirm','xbow','hcan'],rs:['xbow','elsk','thumb','arb'],req:'bar',age:1},
 stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight'],rs:['lcav','cavl','hcamel','blood','husb'],req:'bar',age:1},smith:{n:'Blacksmith',s:3,hp:400,cost:{w:150},bt:25,rs:['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'],req:'bar',age:1},

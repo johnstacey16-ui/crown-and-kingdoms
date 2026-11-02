@@ -85,12 +85,13 @@
 
   const BUILD_PAGES = Object.freeze([
     Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost']),
-    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'])
+    Object.freeze(['tc','bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'])
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
       const d=B[kind],req=kind==='farm'?'mill':d.req;
-      const locked=kind==='wonder'&&vm!==1?'Wonder victory is off':
+      const locked=kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
+        kind==='wonder'&&vm!==1?'Wonder victory is off':
         d.age>world.age[team]?'Requires '+AG[d.age].n:
         req&&!world.bs.some(b=>b.t===team&&b.k===req&&b.hp>0&&b.done)?'Requires '+B[req].n:'';
       return {type:'build',value:kind,label:d.n,cost:{...d.cost},size:d.s,locked};

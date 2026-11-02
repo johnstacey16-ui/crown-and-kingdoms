@@ -14,11 +14,11 @@ function makeWorld({reachable=true}={}){
  const S={bs:[tc],nodes:[],wt:new Uint8Array(64*64),nd:Array(64*64).fill(null),
   age:[0,1],r:()=>.8};
  const placed=[],charges=[];
- const B={house:{age:0,cost:{w:50},s:2},
+ const B={tc:{age:2,cost:{w:275,s:100},s:3},house:{age:0,cost:{w:50},s:2},
   lcamp:{age:0,cost:{w:100},s:2},
   wall:{age:0,cost:{s:5},s:1},
   dock:{age:0,cost:{w:150},s:2}};
- const ctx=vm.createContext({S,B,W:64,H:64,
+ const ctx=vm.createContext({S,B,W:64,H:64,vm:0,
   aiAvailableBuilder:u=>u===builder&&u.o==='i',
   aiReachableBuilder:(_vs,_target)=>reachable?{builder,route:[[21,21]]}:null,
   aiDockWaterReach:()=>true,can:()=>true,
@@ -26,7 +26,7 @@ function makeWorld({reachable=true}={}){
   addB:(t,k,x,y,done)=>{const b={t,k,x,y,done,hp:1};placed.push(b);S.bs.push(b);return b},
   pay:(t,cost)=>charges.push({t,cost})});
  vm.runInContext(construction+'\n;globalThis.actions={aiBuild,aiWall,aiDock,aiNear};',ctx);
- return {S,B,tc,builder,placed,charges,...ctx.actions};
+ return {S,B,tc,builder,placed,charges,setMode:mode=>{ctx.vm=mode},...ctx.actions};
 }
 
 test('AI construction routines have exactly one owner in the production runtime order',()=>{
@@ -98,4 +98,25 @@ test('AI Dock construction requires a usable shoreline and charged worker assign
  assert.equal(wet.placed[0].k,'dock');
  assert.equal(wet.builder.tg,wet.placed[0]);
  assert.equal(wet.charges.length,1);
+});
+
+test('AI Castle-Age Town Centre expansion pays wood and stone, never spawning a free centre',()=>{
+ const h=makeWorld();
+ h.aiBuild([h.builder],'tc',1);
+ assert.equal(h.placed.length,0,'Feudal Age AI cannot add a centre');
+ assert.equal(h.charges.length,0);
+ h.S.age[1]=2;
+ h.aiBuild([h.builder],'tc',1);
+ assert.equal(h.placed.length,1);
+ assert.equal(h.placed[0].k,'tc');
+ assert.deepEqual({...h.charges[0].cost},{w:275,s:100});
+ assert.equal(h.charges[0].t,1);
+ assert.equal(h.builder.o,'b');
+});
+test('AI cannot place extra Town Centres in Sudden Death',()=>{
+ const h=makeWorld();
+ h.S.age[1]=3;h.setMode(6);
+ h.aiBuild([h.builder],'tc',1);
+ assert.equal(h.placed.length,0);
+ assert.equal(h.charges.length,0);
 });
