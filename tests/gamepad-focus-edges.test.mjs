@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
-const segment=input.slice(0,input.indexOf('function pick('));
+const segment=input.slice(0,input.indexOf('/* Selection targeting, movement orders'));
+assert.ok(segment.length>1000,'polling only, not gameplay dispatch');
 assert.ok(segment.includes('function readPad()'), 'Test must execute production polling logic');
 
 function fixture(initial=[]){

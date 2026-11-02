@@ -119,7 +119,7 @@ test('discounted completed research and in-flight queues persist in current-vers
  assert.equal(c('S.res[0].g'),0);
 });
 test('controller menu and AI research policy use shared actual research cost',()=>{
- const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+ const input=readFileSync(new URL('../js/input-selection.js',import.meta.url),'utf8');
  const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
  const net=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
  assert.match(input,/it\.push\(\{l:e\.n,c:researchCost\(s,k\),lk/);

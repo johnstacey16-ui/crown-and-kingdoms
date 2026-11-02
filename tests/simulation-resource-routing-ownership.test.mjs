@@ -7,7 +7,7 @@ import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources
 const source=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
 const unit=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
-const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+const input=readFileSync(new URL('../js/input-selection.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 const functions=['resourceGatherRate','baseGatherRate','gatherCapacity','farmAvailableTo','resourceApproachCapacity','resourceClaimCount',

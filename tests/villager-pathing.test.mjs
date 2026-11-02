@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
-const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+const input=readFileSync(new URL('../js/input-selection.js',import.meta.url),'utf8');
 const start=kingdom.indexOf('function autoNodeKey(');
 const finish=kingdom.indexOf('function applyVillagerPriorities(',start);
 assert.ok(start>=0&&finish>start,'automatic villager route helpers must remain accessible');
