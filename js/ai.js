@@ -75,6 +75,8 @@ if(tc.done&&!tc.rs&&Array.isArray(tc.q)&&!aiTownTechReady(t,tc,vil.length)&&vil.
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
+// A second, fully paid centre is a late Castle-Age economic expansion, not a free spawn.
+if(vm!==6&&S.age[t]>=2&&S.t>=900&&vil.length>=24&&cnt('tc')<2&&can(t,B.tc.cost))aiBuild(vil,'tc',t);
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall'&&b.hp>0).length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
 if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||navalThreatCount>0)&&(navalThreatCount>0||S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24)))aiDock(vil,tc,t);
 aiManageFishingShips(fish,hostileFleet,R);
