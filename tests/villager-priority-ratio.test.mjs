@@ -92,7 +92,7 @@ test('rebalancing real worker orders honors ratios without disturbing manual com
 });
 
 test('R3 wheel previews scaled headcounts instead of misleading fixed counts',()=>{
- const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const source=readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8');
  const begin=source.indexOf('function drawVillagerPriorityWheel()');
  const end=source.indexOf('function drawCg()',begin);
  assert.ok(begin>=0&&end>begin,'R3 wheel renderer must be present');

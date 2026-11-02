@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
-const uiSource=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const uiSource=readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8');
 const radialStart=uiSource.indexOf('function radialMenuPage(m){');
 const radialEnd=uiSource.indexOf('\nfunction drawRadial(){',radialStart);
 assert.ok(radialStart>=0&&radialEnd>radialStart,'production radial page helper exists');

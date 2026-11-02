@@ -7,7 +7,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 function game(){
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
- const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ui=(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8'));
  const setup=[
   "seedOv=123456;msz=0;kingdoms=2;cmp=null;start();snd=0;mode='play';",
   "pad={axes:[0,0,0,0],buttons:[]};cur={x:CW/2,y:CH/2};",

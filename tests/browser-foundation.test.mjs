@@ -25,6 +25,7 @@ const resource = script('js/render-resources.js');
 const buildings = script('js/render-buildings.js');
 const terrain = script('js/render-terrain.js');
 const ui = script('js/ui.js');
+const uiCommands=script('js/ui-commands.js');
 const simulation = script('js/simulation.js');
 const ai = script('js/ai.js');
 const pathfinding = script('js/pathfinding.js');
@@ -66,7 +67,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.includes('<script src="./js/render.js"></script>'));
   assert.ok(html.includes('<script src="./js/ui.js"></script>'));
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./js/ui.js'));
-  assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/ui-commands.js'));
+  assert.ok(html.indexOf('./js/ui-commands.js') < html.indexOf('./js/simulation.js'));
+  assert.ok(uiCommands.includes('function drawRadial()'));
   assert.ok(ui.includes('function drawPerfOverlay(dt)'));
   assert.ok(ui.includes('const ovr=()=>'));
   assert.ok(ui.includes('function drawOv()'));

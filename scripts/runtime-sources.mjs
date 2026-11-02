@@ -14,7 +14,7 @@ export function browserScriptPaths(html){
 export function coreGameScriptPaths(html,{includeUI=true,includeAssets=true}={}){
  const scripts=browserScriptPaths(html),start=scripts.indexOf('./js/config.js'),end=scripts.indexOf('./engine.js');
  if(start<0||end<=start)throw Error('Game scripts are missing or misordered in index.html');
- const excluded=new Set([!includeUI&&'./js/ui.js',!includeAssets&&'./js/assets.js'].filter(Boolean));
+ const excluded=new Set([!includeUI&&'./js/ui.js',!includeUI&&'./js/ui-commands.js',!includeAssets&&'./js/assets.js'].filter(Boolean));
  return scripts.slice(start,end+1).filter(path=>!excluded.has(path));
 }
 export function readBrowserRuntime({html=readFileSync(new URL('index.html',ROOT),'utf8'),root=ROOT}={}){

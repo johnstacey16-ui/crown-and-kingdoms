@@ -22,6 +22,7 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render-buildings.js')+1);
  assert.equal(scripts.indexOf('./js/render-troops.js'),scripts.indexOf('./js/render-procedural-units.js')+1);
  assert.equal(scripts.indexOf('./js/render-effects.js'),scripts.indexOf('./js/render-troops.js')+1);
+ assert.equal(scripts.indexOf('./js/ui-commands.js'),scripts.indexOf('./js/ui.js')+1);
  assert.equal(scripts.indexOf('./js/simulation-logistics.js')+1,scripts.indexOf('./js/simulation-resource-routing.js'));
  assert.equal(scripts.indexOf('./js/simulation-resource-routing.js')+1,scripts.indexOf('./js/simulation-production-queues.js'));
  assert.equal(scripts.indexOf('./js/simulation-production-queues.js')+1,scripts.indexOf('./js/simulation-research.js'));
@@ -45,7 +46,7 @@ test('browser script references are unique, safely rooted and in declared order'
 });
 test('headless production source order excludes only canvas UI and atlas manager',()=>{
  const production=coreGameScriptPaths(html),paths=coreGameScriptPaths(html,{includeUI:false,includeAssets:false});
- assert.deepEqual(paths,production.filter(p=>p!=='./js/ui.js'&&p!=='./js/assets.js'));
+ assert.deepEqual(paths,production.filter(p=>p!=='./js/ui.js'&&p!=='./js/ui-commands.js'&&p!=='./js/assets.js'));
  assert.equal(paths[0],'./js/config.js');
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.indexOf('./js/ai.js')<paths.indexOf('./js/pathfinding.js'));

@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const ui=read('js/ui.js'),input=read('js/input.js');
+const ui=read('js/ui-commands.js'),input=read('js/input.js');
 const pageStart=ui.indexOf('function radialMenuPage(m){');
 const uiEnd=ui.indexOf('\nfunction drawVillagerPriorityWheel',pageStart);
 const inputStart=input.indexOf('if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);');
