@@ -15,7 +15,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
- for(const fn of ["aiRebal","aiShareResources","aiRepairImportantBuildings","aiAssignIdleVillagers"]){
+ for(const fn of ["aiRebal","aiShareResources","aiRepairImportantBuildings","aiAssignIdleVillagers","aiManageMarketTrade"]){
   assert.match(economy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(defence,new RegExp('function '+fn+'\\('));
@@ -33,7 +33,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
   assert.doesNotMatch(offence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
- for(const fn of ['aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave']){
+ for(const fn of ['aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave','aiRememberEnemySites','aiMaintainAttackWave']){
   assert.match(offence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
@@ -60,6 +60,9 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiDefendTownCentre\(A,tc,arm,vil,my,nearbyRaiders\)/);
  assert.match(ai,/aiRelieveAlliedBases\(t,A,arm,nearbyRaiders\)/);
  assert.match(ai,/aiDefendEconomicSites\(t,A,arm,bl,nearbyRaiders\)/);
+ assert.match(ai,/aiRememberEnemySites\(t,A,my\)/);
+ assert.match(ai,/aiMaintainAttackWave\(A,tc,diff\)/);
+ assert.match(ai,/aiManageMarketTrade\(t,A,bl,R\)/);
  assert.match(ai,/aiAdvanceStagedWave\(t,A,tc\)/);
  assert.match(ai,/aiManageEconomicRaids\(t,A,arm,tc,diff,aip\)/);
  assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
@@ -941,4 +944,83 @@ test('economic raids exclude retreating or invalid units from alive raid members
  assert.equal(healthy.o,'m');
  assert.equal(retreat.o,'a');
  assert.equal(invalid.o,'a');
+});
+
+function offensiveLifecycleFixture({reachable=true}={}){
+ const W=64,H=64,S={t:100,bs:[]},notifications=[],attempts=[];
+ const ctx=vm.createContext({
+  W,H,S,isHostile:(our,other)=>our!==other,
+  gp:(x,y,r)=>({x,y,r}),
+  path:(unit,destination)=>{attempts.push({unit,destination});return reachable?[destination]:null},
+  note:message=>notifications.push(message)
+ });
+ vm.runInContext(offence+'\n;globalThis.remember=aiRememberEnemySites;globalThis.maintain=aiMaintainAttackWave;',ctx);
+ const soldier=(o='a')=>({o,k:'mil',t:1,x:10,y:10,hp:100,ld:false,retreating:false,p:[],rp:0,tg:{hp:200}});
+ const enemy=(x=12,y=12,t=0,hp=200)=>({k:'tc',x,y,t,hp});
+ const tc={x:8,y:8};
+ return {S,tc,soldier,enemy,notifications,attempts,
+  remember:(A,my)=>ctx.remember(1,A,my),maintain:(A,diff=2)=>ctx.maintain(A,tc,diff)};
+}
+test('AI remembers only observed hostile structures and discards destroyed or allied sites',()=>{
+ const f=offensiveLifecycleFixture(),near=f.enemy(),far=f.enemy(40,40),lost=f.enemy(17,17,0,0),ally=f.enemy(11,11,1);
+ f.S.bs=[near,far,lost,ally];const scout=f.soldier('i'),A={kn:new Set([lost,ally])};
+ f.remember(A,[scout]);
+ assert.equal(A.kn.has(near),true);
+ assert.equal(A.kn.has(far),false);
+ assert.equal(A.kn.has(lost),false);
+ assert.equal(A.kn.has(ally),false);
+ far.x=11;far.y=12;f.remember(A,[scout]);assert.equal(A.kn.has(far),true);
+ near.hp=0;f.remember(A,[scout]);assert.equal(A.kn.has(near),false);
+});
+test('AI pulls survivors home when wave strength drops below forty percent',()=>{
+ const f=offensiveLifecycleFixture(),alive=f.soldier(),retreating=f.soldier(),dead=f.soldier();
+ retreating.retreating=true;dead.hp=0;
+ const A={on:1,stg:{t:80},wu:[alive,retreating,dead],ws:6,nx:0};
+ f.maintain(A,2);
+ assert.equal(A.on,0);assert.equal(A.stg,null);assert.equal(A.wu.length,1);
+ assert.equal(A.nx,310,'difficulty 2 waits 210 seconds after retreat');
+ assert.equal(alive.o,'m');assert.equal(alive.rp,1);assert.equal(alive.tg,null);
+ assert.equal(alive.p.length,1);
+ assert.equal(retreating.o,'a','already-retreating fighters stay under defensive control');
+ assert.deepEqual(f.notifications,['The enemy army is retreating!']);
+});
+test('AI cancels an idle wave quietly and does not invent return paths',()=>{
+ const f=offensiveLifecycleFixture(),idle=f.soldier('i'),other=f.soldier('i');
+ const A={on:1,stg:{t:50},wu:[idle,other],ws:2,nx:0};
+ f.maintain(A);
+ assert.equal(A.on,0);assert.equal(A.stg,null);assert.equal(A.nx,0);
+ assert.equal(f.attempts.length,0);
+ assert.equal(f.notifications.length,0);
+ const g=offensiveLifecycleFixture({reachable:false}),soldier=g.soldier();
+ const B={on:1,stg:{t:60},wu:[soldier],ws:4,nx:0};g.maintain(B);
+ assert.equal(B.on,0);assert.equal(soldier.o,'a');
+ assert.equal(soldier.p.length,0,'unreachable home route leaves current orders untouched');
+ assert.equal(B.nx,310);
+});
+test('AI keeps a healthy active wave on mission without spurious retreat orders',()=>{
+ const f=offensiveLifecycleFixture(),roster=[f.soldier('a'),f.soldier('m'),f.soldier('a')];
+ const A={on:1,stg:null,wu:roster,ws:3,nx:17};
+ f.maintain(A,4);
+ assert.equal(A.on,1);assert.equal(A.nx,17);
+ assert.equal(f.notifications.length,0);assert.equal(f.attempts.length,0);
+});
+test('AI market balancing obeys live market, fifteen-second cooldown and sell/buy priorities',()=>{
+ const actions=[],S={t:100},ctx=vm.createContext({S,trade:(team,resource,action)=>{actions.push([team,resource,action]);return true}});
+ vm.runInContext(economy+'\n;globalThis.market=aiManageMarketTrade;',ctx);
+ const market={k:'market',hp:100,done:true},A={},R={f:1200,w:1200,s:1200,g:100};
+ ctx.market(1,A,[market],R);
+ assert.deepEqual(actions,[[1,'f','sell']]);assert.equal(A.lastMarketTrade,100);
+ S.t=114;ctx.market(1,A,[market],R);assert.equal(actions.length,1);
+ S.t=115;R.f=20;R.w=30;R.s=25;R.g=700;
+ ctx.market(1,A,[market],R);assert.deepEqual(actions[1],[1,'f','buy']);
+ S.t=130;market.done=false;ctx.market(1,A,[market],R);assert.equal(actions.length,2);
+});
+test('AI market does not trade stone on buy, or start cooldown after failed orders',()=>{
+ const actions=[],S={t:200},ctx=vm.createContext({S,trade:(t,k,action)=>{actions.push([k,action]);return false}});
+ vm.runInContext(economy+'\n;globalThis.market=aiManageMarketTrade;',ctx);
+ const A={},R={f:500,w:500,s:20,g:1000},market={k:'market',hp:100,done:true};
+ ctx.market(1,A,[market],R);
+ assert.equal(actions.length,0,'stone cannot be purchased automatically');
+ R.f=50;ctx.market(1,A,[market],R);assert.deepEqual(actions,[['f','buy']]);
+ assert.equal(A.lastMarketTrade,undefined,'failed trade does not throttle retries');
 });

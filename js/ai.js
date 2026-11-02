@@ -65,12 +65,11 @@ aiRebal(vil,R,t);
 aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders);
 aiRelieveAlliedBases(t,A,arm,nearbyRaiders);
 aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders);
-if(bl.some(b=>b.k==='market'&&b.done&&b.hp>0)&&S.t-(A.lastMarketTrade??-99)>=15){for(const k of ['f','w','s']){if(R[k]>1100&&R.g<400){if(trade(t,k,'sell')){A.lastMarketTrade=S.t;break}}else if(R[k]<80&&R.g>600&&k!=='s'){if(trade(t,k,'buy')){A.lastMarketTrade=S.t;break}}}}
+aiManageMarketTrade(t,A,bl,R);
 aiAdvanceStagedWave(t,A,tc);
-{A.kn=A.kn||new Set();for(const known of A.kn)if(!known||known.hp<=0||!isHostile(t,known.t))A.kn.delete(known);for(const b of S.bs)if(isHostile(t,b.t)&&b.hp>0&&!A.kn.has(b)&&my.some(u=>Math.hypot(u.x-b.x,u.y-b.y)<9))A.kn.add(b);
+aiRememberEnemySites(t,A,my);
 aiResumeIdleWave(t,A);
- if(A.on){A.wu=(A.wu||[]).filter(u=>u.hp>0&&!u.ld&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if(!A.wu.length||A.wu.length<A.ws*.4){A.on=0;A.stg=null;for(const u of A.wu){const p=path(u,gp(tc.x+1,tc.y+5,3));if(p){u.o='m';u.p=p;u.rp=1;u.tg=null}}A.nx=S.t+[320,260,210,170,135,110][diff];note('The enemy army is retreating!')}else if(A.wu.length&&A.wu.every(u=>u.o==='i')){A.on=0;A.stg=null}}
+aiMaintainAttackWave(A,tc,diff);
 aiManageEconomicRaids(t,A,arm,tc,diff,aip);
-}
 aiLaunchOffensiveWave(t,A,arm,tc,diff,aip,vm);
 }
