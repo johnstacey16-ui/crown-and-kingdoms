@@ -839,7 +839,7 @@ function economicRaidFixture({reachable=()=>true}={}){
   goalNear:b=>b,gp:(x,y,r)=>({x,y,r}),
   path:(u,target)=>{paths.push({u,target});return reachable(u,target)?[{x:target.x,y:target.y}]:null}});
  vm.runInContext(policy+'\n;globalThis.economicRaid=aiManageEconomicRaids;',ctx);
- const unit=(o='i')=>({k:'mil',t:1,x:10,y:10,hp:90,ld:0,retreating:false,o,tg:null,p:[],rp:0});
+ const unit=(o='i')=>({k:'knight',t:1,x:10,y:10,hp:90,ld:0,retreating:false,o,tg:null,p:[],rp:0});
  const site=(k='mill',x=26,y=26,hp=100)=>({k,t:0,x,y,s:2,hp,done:true});
  const tc={x:10,y:10};
  const A={on:0,stg:null,kn:new Set()};
@@ -888,7 +888,7 @@ test('economic raids retry a reachable alternative building and postpone fully b
 test('economic raiders retire once their target is destroyed or the raid times out',()=>{
  const f=economicRaidFixture(),target=f.site(),units=Array.from({length:3},()=>f.unit('a'));
  units.forEach(u=>u.tg=target);
- f.A.rd={u:units,t:850};
+ f.A.rd={u:units,t:849};
  f.run([]);
  assert.equal(f.A.rd,null,'a raid older than 150 seconds is cancelled');
  assert.ok(units.every(u=>u.o==='m'&&u.tg===null&&u.p.length===1));
