@@ -131,6 +131,8 @@ const FOCUSED=[
  "tests/xbox-render-layer-diagnosis.test.mjs",
  "tests/xbox-villager-preset-ratios.test.mjs",
  "tests/network-patrol.test.mjs",
+ // Authenticated host construction: starting centres, paid Castle-Age expansion and Sudden Death.
+ "tests/network-battlefield.test.mjs",
  "tests/network-stop.test.mjs",
  "tests/campaign-safety-runtime.test.mjs",
  "tests/campaign-objective-guards.test.mjs",
