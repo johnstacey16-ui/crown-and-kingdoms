@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave','aiManageEconomicRaids']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -38,6 +38,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiRelieveAlliedBases\(t,A,arm,nearbyRaiders\)/);
  assert.match(ai,/aiDefendEconomicSites\(t,A,arm,bl,nearbyRaiders\)/);
  assert.match(ai,/aiAdvanceStagedWave\(t,A,tc\)/);
+ assert.match(ai,/aiManageEconomicRaids\(t,A,arm,tc,diff,aip\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -829,4 +830,83 @@ test('staged waves cancel without a reachable target and apply their original 90
  assert.equal(A.stg,null);
  assert.equal(soldier.o,'i');
  assert.equal(soldier.rp,0);
+});
+
+
+function economicRaidFixture({reachable=()=>true}={}){
+ const S={t:1000,age:[1,2]},W=64,H=64,U={mil:{dmg:5},knight:{dmg:10}},PERS=[{r:1}],paths=[];
+ const ctx=vm.createContext({S,W,H,U,PERS,isHostile:(t,enemy)=>enemy===0,
+  goalNear:b=>b,gp:(x,y,r)=>({x,y,r}),
+  path:(u,target)=>{paths.push({u,target});return reachable(u,target)?[{x:target.x,y:target.y}]:null}});
+ vm.runInContext(policy+'\n;globalThis.economicRaid=aiManageEconomicRaids;',ctx);
+ const unit=(o='i')=>({k:'mil',t:1,x:10,y:10,hp:90,ld:0,retreating:false,o,tg:null,p:[],rp:0});
+ const site=(k='mill',x=26,y=26,hp=100)=>({k,t:0,x,y,s:2,hp,done:true});
+ const tc={x:10,y:10};
+ const A={on:0,stg:null,kn:new Set()};
+ return {S,A,unit,site,tc,paths,run:(arm=[],difficulty=5)=>ctx.economicRaid(1,A,arm,tc,difficulty,0)};
+}
+
+test('economic raids send only reachable idle soldiers toward a known enemy economy site',()=>{
+ const f=economicRaidFixture(),target=f.site();
+ f.A.kn.add(target);
+ const units=Array.from({length:5},()=>f.unit()),busy=f.unit('m');
+ f.run([...units,busy]);
+ assert.equal(f.A.rd.u.length,5);
+ assert.equal(f.A.rd.t,1000);
+ assert.equal(f.A.rn,1140,'highest-difficulty raid recurrence is preserved');
+ assert.ok(units.every(u=>u.o==='a'&&u.tg===target&&u.p.length===0));
+ assert.equal(busy.o,'m');
+});
+
+test('economic raids defer until sufficient units and available age/cooldown gates',()=>{
+ const f=economicRaidFixture(),target=f.site(),units=Array.from({length:4},()=>f.unit());
+ f.A.kn.add(target);
+ f.S.age[1]=0;f.run(units);
+ assert.equal(f.A.rd,undefined);
+ f.S.age[1]=2;f.A.rn=1200;f.run(units);
+ assert.equal(f.A.rd,undefined,'the next planned raid has not become due');
+ f.A.rn=0;f.run(units.slice(0,3));
+ assert.equal(f.A.rd,undefined,'three soldiers are below the minimum raid group');
+});
+
+test('economic raids retry a reachable alternative building and postpone fully blocked targets',()=>{
+ const closest={k:'mill',t:0,x:19,y:19,s:2,hp:90};
+ const alternate={k:'mine',t:0,x:34,y:34,s:2,hp:90};
+ const f=economicRaidFixture({reachable:(_u,b)=>b!==closest});
+ const units=Array.from({length:4},()=>f.unit());
+ f.A.kn=new Set([closest,alternate]);f.run(units);
+ assert.ok(f.A.rd);
+ assert.ok(units.every(u=>u.tg===alternate));
+ const g=economicRaidFixture({reachable:()=>false});
+ g.A.kn.add(g.site());const other=Array.from({length:4},()=>g.unit());
+ g.run(other);
+ assert.equal(g.A.rd,undefined);
+ assert.equal(g.A.rn,1045);
+ assert.ok(other.every(u=>u.o==='i'));
+});
+
+test('economic raiders retire once their target is destroyed or the raid times out',()=>{
+ const f=economicRaidFixture(),target=f.site(),units=Array.from({length:3},()=>f.unit('a'));
+ units.forEach(u=>u.tg=target);
+ f.A.rd={u:units,t:850};
+ f.run([]);
+ assert.equal(f.A.rd,null,'a raid older than 150 seconds is cancelled');
+ assert.ok(units.every(u=>u.o==='m'&&u.tg===null&&u.p.length===1));
+ const g=economicRaidFixture(),enemy=g.site(),group=Array.from({length:2},()=>g.unit('a'));
+ group.forEach(u=>u.tg=enemy);
+ g.A.rd={u:group,t:995};g.run([]);
+ assert.ok(g.A.rd,'a live current raid remains active');
+ enemy.hp=0;g.run([]);
+ assert.equal(g.A.rd,null,'destroyed objectives cannot hold raiders indefinitely');
+});
+
+test('economic raids exclude retreating or invalid units from alive raid members',()=>{
+ const f=economicRaidFixture(),target=f.site(),healthy=f.unit('a'),retreat=f.unit('a'),invalid=f.unit('a');
+ healthy.tg=target;retreat.tg=target;invalid.tg=target;
+ retreat.retreating=true;invalid.x=NaN;
+ f.A.rd={u:[healthy,retreat,invalid],t:999};f.run([]);
+ assert.equal(f.A.rd,null,'understrength surviving raid disbands');
+ assert.equal(healthy.o,'m');
+ assert.equal(retreat.o,'a');
+ assert.equal(invalid.o,'a');
 });
