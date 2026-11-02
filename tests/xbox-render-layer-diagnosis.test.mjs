@@ -13,11 +13,11 @@ function scene(){
  vm.runInContext(source+[
   'globalThis.evaluate=code=>eval(code);',
   'globalThis.ASSET={n:0};',
-  'globalThis.layerCounts={chunks:0,units:0,buildings:0};',
+  'globalThis.layerCounts={chunks:0,units:0,buildings:0,nodes:0};',
   'drawChunks=function(){layerCounts.chunks++};',
   'drawUnit=function(){layerCounts.units++};',
   'drawBld=function(){layerCounts.buildings++};',
-  'drawNode=function(){};',
+  'drawNode=function(){layerCounts.nodes++};',
  ].join('\n'),sandbox);
  const run=sandbox.evaluate;
  run('start();S.ex.fill(1);S.vs.fill(1);perfHud=1');
@@ -56,4 +56,21 @@ test('Xbox menu exposes layer test and displays which graphics are hidden',()=>{
  assert.match(uiSrc,/TEST: OBJECTS ONLY/);
  assert.match(uiSrc,/perfFlatField=0;perfHud=1;perfFps=0/);
  assert.match(renderSrc,/if\(CHK&&perfLayerMode!==2\)drawChunks/);
+});
+
+test('Xbox object benchmark selects only the requested render category and restores it',()=>{
+ const run=scene();
+ const before=run('JSON.stringify(S.us.map(u=>[u.id,u.x,u.y]))');
+ for(const [pass,key] of [[1,'units'],[2,'buildings'],[3,'nodes']]){
+  run('layerCounts={chunks:0,units:0,buildings:0,nodes:0};perfLayerMode=2;perfObjectPass='+pass+';drawWorld()');
+  const counts=JSON.parse(run('JSON.stringify(layerCounts)'));
+  assert.equal(counts.chunks,0);
+  assert.ok(counts[key]>0,key+' remains visible');
+  for(const other of ['units','buildings','nodes'])if(other!==key)assert.equal(counts[other],0);
+  assert.equal(run('perfEffectsMs'),0);
+ }
+ run('layerCounts={chunks:0,units:0,buildings:0,nodes:0};perfObjectPass=0;perfLayerMode=0;drawWorld()');
+ const counts=JSON.parse(run('JSON.stringify(layerCounts)'));
+ for(const kind of ['chunks','units','buildings','nodes'])assert.ok(counts[kind]>0,kind+' restored');
+ assert.equal(run('JSON.stringify(S.us.map(u=>[u.id,u.x,u.y]))'),before);
 });

@@ -135,3 +135,38 @@ test('new pacing diagnostic is opt-in, labelled and never persists or intercepts
  assert.equal(run('canvasBenchmark'),null,'pause interruption restores the canvas');
  assert.equal(run('perfRenderScale'),1);
 });
+
+test('object breakdown times all categories at original scale with the same frozen units',()=>{
+ const {run,storage}=game();
+ run('start();perfTestMatch=1;mode="pause";gs=1.5;perfRenderScale=.75;perfSharpHud=1');
+ assert.equal(run("beginCanvasBenchmark('objects')"),true);
+ const before=run('JSON.stringify(S.us.map(u=>[u.id,u.x,u.y]))');
+ const passes=[0,1,2,3,0],values=[125,60,80,70,130];
+ let now=60000;
+ for(let i=0;i<5;i++){
+  assert.deepEqual(JSON.parse(run('JSON.stringify([perfLayerMode,perfObjectPass,perfRenderScale,gs])')),[2,passes[i],1,0]);
+  run('sampleCanvasBenchmark('+now+',250)');
+  for(let j=1;j<7;j++)run('sampleCanvasBenchmark('+(now+j*1000)+','+values[i]+')');
+  run('sampleCanvasBenchmark('+(now+7000)+',260)');
+  now+=7000;
+ }
+ assert.equal(run('canvasBenchmark'),null);
+ assert.deepEqual(JSON.parse(run('JSON.stringify([perfLayerMode,perfObjectPass,perfFlatField,perfRenderScale,perfSharpHud,gs])')),[0,0,0,1,1,1.5]);
+ const result=JSON.parse(run('JSON.stringify(canvasBenchSummary)'));
+ assert.deepEqual(result.results.map(x=>x.label),['Objects full','Units only','Buildings only','Resources only','Objects repeat']);
+ assert.deepEqual(result.results.map(x=>x.objectPass),passes);
+ assert.deepEqual(result.results.map(x=>x.ms),values);
+ assert.equal(run('JSON.stringify(S.us.map(u=>[u.id,u.x,u.y]))'),before);
+ assert.equal(storage.has('ck_set'),false);
+ assert.match(ui,/n:'Run Xbox object breakdown'/);
+ assert.match(ui,/ALL REPEAT/);
+});
+test('canceling object breakdown restores every painter without saving',()=>{
+ const {run}=game();
+ run('start();perfTestMatch=1;mode="pause";gs=2;beginCanvasBenchmark("objects");canvasBenchmark.phase=2;setupCanvasBenchmarkStage(canvasBenchmark)');
+ assert.equal(run('perfObjectPass'),2);
+ run('mode="pause";sampleCanvasBenchmark(9000,100)');
+ assert.equal(run('canvasBenchmark'),null);
+ assert.equal(run('perfLayerMode+perfObjectPass+perfFlatField'),0);
+ assert.equal(run('gs'),2);
+});

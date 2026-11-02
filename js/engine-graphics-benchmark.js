@@ -8,6 +8,15 @@ const CK_LAYER_BENCH_STAGES=[
  {label:'Flat field',layer:0,flat:1},
  {label:'Normal repeat',layer:0,flat:0}
 ];
+// Session-only object isolation: 0 all, 1 units, 2 buildings, 3 resources.
+const CK_OBJECT_BENCH_STAGES=[
+ {label:'Objects full',pass:0},
+ {label:'Units only',pass:1},
+ {label:'Buildings only',pass:2},
+ {label:'Resources only',pass:3},
+ {label:'Objects repeat',pass:0}
+];
+let perfObjectPass=0;
 // The diagnostic preserves the last canvas frame during frozen stages: no
 // Canvas2D commands, HUD draws or canvas resizes. RAF/input sampling continue.
 // Compare full/flat redraw against the same scene without any canvas writes.
@@ -21,8 +30,10 @@ const CK_PACING_BENCH_STAGES=[
 function setupCanvasBenchmarkStage(b){
  const mode=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase]:null;
  const pacing=b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase]:null;
- perfRenderScale=mode||pacing?1:CK_CANVAS_BENCH_STAGES[b.phase];
- perfFlatField=mode?mode.flat:pacing?pacing.flat:0;perfLayerMode=mode?mode.layer:0;
+ const objects=b.kind==='objects'?CK_OBJECT_BENCH_STAGES[b.phase]:null;
+ perfRenderScale=mode||pacing||objects?1:CK_CANVAS_BENCH_STAGES[b.phase];
+ perfFlatField=mode?mode.flat:pacing?pacing.flat:0;perfLayerMode=mode?mode.layer:objects?2:0;
+ perfObjectPass=objects?objects.pass:0;
  perfFps=0;
  // A resize clears the canvas. Keep the existing image for frozen phases.
  if(!pacing||b.phase===0)rs();
@@ -35,13 +46,13 @@ function canvasBenchmarkMedian(values){
 }
 function stopCanvasBenchmark(abort=false){
  const b=canvasBenchmark;if(!b)return false;
- canvasBenchmark=null;gs=b.oldSpeed;acc=0;perfRenderScale=1;perfFlatField=0;perfLayerMode=0;perfSharpHud=b.oldSharpHud||0;rs();perfFps=0;
+ canvasBenchmark=null;gs=b.oldSpeed;acc=0;perfRenderScale=1;perfFlatField=0;perfLayerMode=0;perfObjectPass=0;perfSharpHud=b.oldSharpHud||0;rs();perfFps=0;
  if(abort)canvasBenchSummary=null;
  return true;
 }
 function beginCanvasBenchmark(kind='pixels'){
  if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
- if(kind!=='layers'&&kind!=='pacing')kind='pixels';
+ if(kind!=='layers'&&kind!=='pacing'&&kind!=='objects')kind='pixels';
  stopCanvasBenchmark(true);
  canvasBenchSummary=null;selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
  gs=0;acc=0;perfHud=1;perfSharpHud=0;setupCanvasBenchmarkStage(canvasBenchmark);
@@ -55,12 +66,14 @@ function sampleCanvasBenchmark(now,rafMs){
  if(elapsed>=CK_CANVAS_BENCH_STAGE_MS){
   const median=canvasBenchmarkMedian(b.intervals);
   const stage=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase]:
-    b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase]:null;
-  b.results.push(stage?{label:stage.label,flat:stage.flat,...(b.kind==='layers'?{layer:stage.layer}:{skip:stage.skip}),ms:median,n:b.intervals.length}
+    b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase]:
+    b.kind==='objects'?CK_OBJECT_BENCH_STAGES[b.phase]:null;
+  b.results.push(stage?{label:stage.label,flat:stage.flat,...(b.kind==='layers'?{layer:stage.layer}:b.kind==='objects'?{objectPass:stage.pass}:{skip:stage.skip}),ms:median,n:b.intervals.length}
     :{scale:CK_CANVAS_BENCH_STAGES[b.phase],ms:median,n:b.intervals.length});
   b.phase++;
   if(b.phase===(b.kind==='layers'?CK_LAYER_BENCH_STAGES.length:
-    b.kind==='pacing'?CK_PACING_BENCH_STAGES.length:CK_CANVAS_BENCH_STAGES.length)){
+    b.kind==='pacing'?CK_PACING_BENCH_STAGES.length:
+    b.kind==='objects'?CK_OBJECT_BENCH_STAGES.length:CK_CANVAS_BENCH_STAGES.length)){
    canvasBenchSummary={kind:b.kind,results:b.results.slice()};
    stopCanvasBenchmark(false);
   }else{
