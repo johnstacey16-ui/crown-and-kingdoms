@@ -27,7 +27,7 @@ Use the central `scripts/run-checks.mjs` rather than new handwritten workflow te
 
 Per-push [game-validation](.github/workflows/game-validation.yml) runs quick and focused only. [game-regression](.github/workflows/game-regression.yml) and [battlefield-browser](.github/workflows/battlefield-browser.yml) remain weekly/manual **to preserve free GitHub Actions minutes**. Separate game-regression jobs let skirmishes run even if other tests fail.
 
-**Last green hosted code revision:** `09d0dd9`, [Actions 41397392291](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41397392291), **964/964 focused assertions**, **five quick gates**, zero failures (243/247 standalone files). The idle-villager economy and emergency evacuation/return-to-work functions now live in `js/ai-policy.js`, with nine added executable checks and production calls from `ai.js`; offline shell **v100**. Latest Vercel deployment SHA, full 247-file suite, seeded skirmishes, campaign wins, WAN multiplayer and physical Xbox Series S Edge remain **OPEN/UNVERIFIED**.
+**Last green hosted code revision:** `e114910`, [Actions 41398941175](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41398941175), **972/972 focused assertions**, **five quick gates**, zero failures (243/247 standalone files). Town Centre siege/garrison defence, limited allied reinforcement and local anti-raid defence have dedicated tested AI policy functions; eight new executable cases verify targeting, soldier caps, diplomacy and cooldowns. Offline shell **v102**. Vercel production SHA, the complete suite, seeded skirmishes, human campaign wins, WAN multiplayer and physical Xbox Series S Edge remain **OPEN/UNVERIFIED**.
 
 ## Controller, hosting, security and save policy
 
