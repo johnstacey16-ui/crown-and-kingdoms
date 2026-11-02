@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave','aiManageEconomicRaids']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -39,6 +39,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiDefendEconomicSites\(t,A,arm,bl,nearbyRaiders\)/);
  assert.match(ai,/aiAdvanceStagedWave\(t,A,tc\)/);
  assert.match(ai,/aiManageEconomicRaids\(t,A,arm,tc,diff,aip\)/);
+ assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
