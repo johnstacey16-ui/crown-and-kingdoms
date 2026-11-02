@@ -34,13 +34,15 @@ test('production world times visible nodes/buildings/troops separately in origin
   'globalThis.evaluate=code=>eval(code);',
   'globalThis.ASSET={n:0};',
   'drawChunks=function(){};',
-  'drawNode=function(){};drawBld=function(){};drawUnit=function(){};',
+  'globalThis.projectedUnits=[];drawNode=function(){};drawBld=function(){};drawUnit=function(u,selected,screen){projectedUnits.push({actual:screen,expected:w2s(u.x,u.y),selected:selected.has(u)})};',
  ].join('\n'),sandbox);
  const run=sandbox.evaluate;
  run('start();perfHud=1;perfLayerMode=2;S.ex.fill(1);S.vs.fill(1);drawWorld()');
  assert.ok(run('perfNodeCount')>0);
  assert.ok(run('perfBuildingCount')>0);
  assert.ok(run('perfUnitCount')>0);
+ assert.equal(run('projectedUnits.length>0&&projectedUnits.every(p=>p.actual&&p.actual[0]===p.expected[0]&&p.actual[1]===p.expected[1])'),true,
+  'depth-sort painter reuses the exact precomputed screen coordinates instead of projecting units again');
  assert.equal(run('perfNodeMs>=0&&perfBuildingMs>=0&&perfUnitMs>=0'),true);
  run('perfLayerMode=1;drawWorld()');
  assert.equal(run('perfNodeCount+perfBuildingCount+perfUnitCount'),0);
