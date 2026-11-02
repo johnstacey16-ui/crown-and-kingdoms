@@ -75,8 +75,8 @@ test('large maps throttle minimap updates and no-AI campaigns still tick objecti
 
 test('live array compaction is simulation-owned and preserves stable order for units and projectiles',()=>{
  const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
- assert.doesNotMatch(engine,/function compactPositive\\(/);
- assert.doesNotMatch(engine,/function compactNotFlag\\(/);
+ assert.doesNotMatch(engine,/function compactPositive\(/);
+ assert.doesNotMatch(engine,/function compactNotFlag\(/);
  const start=source.indexOf('function compactPositive(a,k){');
  const end=source.indexOf('/* ===== SIMULATION STEP ===== */',start);
  assert.ok(start>=0&&end>start);
