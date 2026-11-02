@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `8b262d4` · [GitHub Actions 41364986053](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41364986053) · **934/934 focused**, **5/5 quick**, **0 failures** · Vercel READY on the same source. Six added tests validate extracted trade escorts and fishing escape/resupply behaviour; the four expensive standalone regressions and Xbox hardware acceptance remain open.
+**Last green code revision:** `73425a3` · [GitHub Actions 41391464494](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41391464494) · **936/936 focused**, **5/5 quick**, **0 failures** · offline shell v92. Latest Vercel production deployment is unverified (older `8b262d4` was READY); the full 247-file suite, four expensive isolated regressions and Xbox hardware acceptance remain open.
 
 ## Current footprint and ownership
 
@@ -15,6 +15,7 @@
 
 ## Latest verified incremental work
 
+- `76e1ca4` / `d534ef7` / `73425a3`: moved the unchanged 627-character damaged-fleet repair decision from `ai.js` into `ai-policy.js`, corrected an outdated naval source-owner contract, added two behavioural tests for warship priority, safe repairs and duplicate assignment, and advanced the offline cache to v92. Hosted quick/focused CI **936/936** passed; full simulations and production/Xbox acceptance are still open.
 - `1dc781d` / `81f5e48`: extracted 2,173 characters of trade-cart and trade-cog escort planning into `aiTradeEscorts`; three focused regression cases cover guard assignment, risk/expiry, impassable routes, weak/reserved soldiers, and naval escort eligibility.
 - `a4f6ee3` / `8b262d4`: extracted 1,928 characters of fishing-ship escape, fishing target and fish-trap policy into `aiManageFishingShips`; three added cases cover reachable safe water, cooldowns, reachable grounds and resource-gated traps. Latest CI **934/934**; offline cache v91.
 
