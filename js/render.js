@@ -433,37 +433,14 @@ function drawChunks(x0,x1,y0,y1){
  while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
  drawTerrainViewport(chunks);
 }
-// Flatten static terrain at the current backing resolution. Reusing one opaque
-// surface avoids resampling overlapping transparent chunk textures each frame.
-// Fog, waves and all world objects are still painted live by drawWorld().
-const TERRAIN_VIEW={canvas:null,key:null,pending:null,chunks:[]};
+// Xbox Edge safety: draw only the already-cached, transparent terrain chunks.
+// A previous optimisation flattened them into a second opaque full-screen 2D
+// canvas and copied that back every frame. On Xbox Edge the extra GPU surface
+// can leave a black battlefield while the simulation and HUD still run.
+// Keep chunk artwork/LRU caching, exploration culling and the fog layer; avoid
+// large offscreen allocations and full-screen readbacks/copies entirely.
 function drawTerrainViewport(chunks){
- const dpr=typeof DPR==='number'?DPR:1,w=Math.round(CW*dpr),h=Math.round(CH*dpr);
- const direct=()=>{for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)};
- // At most 16 MiB of additional pixels. Oversized views keep the original path.
- if(w<1||h<1||w*h>4000000){
-  if(TERRAIN_VIEW.canvas){TERRAIN_VIEW.canvas.width=TERRAIN_VIEW.canvas.height=1}
-  TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];direct();return;
- }
- const key=[cam.x,cam.y,zm,CW,CH,w,h,dpr].join('|');
- // While panning/zooming use the original path. Flatten only after the view
- // remains stable for a second frame, avoiding an extra full-screen pass per pan.
- if(TERRAIN_VIEW.pending!==key){TERRAIN_VIEW.pending=key;TERRAIN_VIEW.key=null;direct();return}
- try{
-  const cv=TERRAIN_VIEW.canvas||(TERRAIN_VIEW.canvas=document.createElement('canvas'));
-  const g=cv.getContext('2d',{alpha:false});
-  if(!g){direct();return}
-  if(TERRAIN_VIEW.key!==key||chunks.length!==TERRAIN_VIEW.chunks.length||chunks.some((c,i)=>c!==TERRAIN_VIEW.chunks[i])){
-   TERRAIN_VIEW.key=null;
-   if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
-   g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#000';g.fillRect(0,0,CW,CH);
-   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
-   for(const c of chunks)g.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
-   TERRAIN_VIEW.chunks=chunks.slice();TERRAIN_VIEW.key=key;
-  }
-  // Copy physical pixels 1:1, including fractional-DPR edge rounding.
-  X.save();try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cv,0,0)}finally{X.restore()}
- }catch(_){TERRAIN_VIEW.key=null;direct()}
+ for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
 }
 const PMAX=[100,260,520],PT=[];
 
