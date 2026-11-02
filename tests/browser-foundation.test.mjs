@@ -20,6 +20,7 @@ const save = script('js/save.js');
 const engineSource = script('engine.js');
 const input = script('js/input.js');
 const render = script('js/render.js');
+const resource = script('js/render-resources.js');
 const terrain = script('js/render-terrain.js');
 const ui = script('js/ui.js');
 const simulation = script('js/simulation.js');

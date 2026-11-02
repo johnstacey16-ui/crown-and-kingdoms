@@ -7,12 +7,13 @@ const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const procedural = readFileSync(new URL('../js/render-procedural-units.js', import.meta.url), 'utf8');
+const resource = readFileSync(new URL('../js/render-resources.js', import.meta.url), 'utf8');
 
 test('world rendering and procedural fallback unit art have distinct owners',()=>{
  assert.ok(html.indexOf('./js/render.js')<html.indexOf('./js/render-procedural-units.js'));
  assert.ok(html.indexOf('./js/render-procedural-units.js')<html.indexOf('./js/ui.js'));
  for(const marker of ['const BG=','const CK_TEX=','function loadCKTexture(','const BP=',
-  'function paintBld(','function drawBld(','function paintNode(','function drawNode(',
+  'function paintBld(','function drawBld(',
   'const SPC=','function spr(']){
   assert.ok(render.includes(marker),marker+' remains in world renderer');
   assert.ok(!procedural.includes(marker),marker+' not duplicated into procedural art');
@@ -38,4 +39,19 @@ test('world rendering still invokes extracted object painters while simulation r
   assert.doesNotMatch(engine, /function setZoom\(z\)\{/);
   assert.match(render, /function draw\(dt\)[\s\S]*?drawWorld\(\)/);
   assert.doesNotMatch(engine, /function draw\(dt\)/);
+});
+
+test('resource art is an offline-owned, nonduplicated stage of the original painter',()=>{
+ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
+ assert.ok(html.indexOf('./js/render-terrain.js')<html.indexOf('./js/render-resources.js'));
+ assert.ok(html.indexOf('./js/render-resources.js')<html.indexOf('./js/render-procedural-units.js'));
+ assert.ok(sw.includes("'./js/render-resources.js'"));
+ for(const name of ['paintNode','paintedNodeTexture','resourceVisualAmount','paintedResourceFrame',
+  'paintedEnvironmentFrame','paintedResourceWidth','drawPaintedRelic','drawNode']){
+  assert.ok(resource.includes('function '+name+'('),name+' belongs to resource art');
+  assert.ok(!render.includes('function '+name+'('),name+' is not duplicated in world renderer');
+ }
+ assert.ok(resource.includes('const NODE_TEXTURE_CACHE=new WeakMap()'));
+ assert.ok(!render.includes('const NODE_TEXTURE_CACHE='));
+ assert.match(render,/function drawWorld\(\)[\s\S]*?drawNode\(/);
 });

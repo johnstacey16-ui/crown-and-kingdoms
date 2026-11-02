@@ -5,8 +5,9 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+const resource=readFileSync(new URL('../js/render-resources.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
-const s=render.indexOf('const NODE_TEXTURE_CACHE='),e=render.indexOf('function drawNode(',s);
+const s=resource.indexOf('const NODE_TEXTURE_CACHE='),e=resource.indexOf('function drawNode(',s);
 assert.ok(s>=0&&e>s,'extract actual production static resource cache');
 
 test('a painted static resource is cropped once per atlas image and frame',()=>{
@@ -15,7 +16,7 @@ test('a painted static resource is cropped once per atlas image and frame',()=>{
   return {width:0,height:0,getContext(type){assert.equal(type,'2d');
    return {drawImage(...args){calls.push(args)}}}};
  }}};
- const crop=vm.runInNewContext(render.slice(s,e)+'\npaintedNodeTexture',fake);
+ const crop=vm.runInNewContext(resource.slice(s,e)+'\npaintedNodeTexture',fake);
  const img={},f={x:25,y:27,w:120,h:180,ax:52,ay:177},a={img,f,painted:true};
  const first=crop(a,72);
  assert.equal(first.width,144);assert.equal(first.height,216);

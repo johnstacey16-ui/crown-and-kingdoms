@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const render=read('js/render.js'),source=render.slice(render.indexOf('function paintedResourceFrame('),render.indexOf('function drawNode('));
+const render=read('js/render-resources.js'),source=render.slice(render.indexOf('function paintedResourceFrame('),render.indexOf('function drawNode('));
 test('resource artwork has stable variants and excludes farms, fish and hunted animals',()=>{
  const calls=[],c=vm.createContext({ASSET:{n:1},hsh:(x,y)=>x%2?.7:.2,assetFrame(...args){calls.push(args);return args[0]}});vm.runInContext(source,c);
  for(const [k,name]of [['s','stone'],['g','gold'],['f','berry']]){

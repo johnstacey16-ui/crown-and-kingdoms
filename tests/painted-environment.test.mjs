@@ -6,7 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 import {reflowSpriteGrid} from '../scripts/sprite-grid.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('environment selection distinguishes animals, fish and three tree forms without replacing farms or confusing traps with shoals',()=>{
- const source=read('js/render.js'),c=vm.createContext({ASSET:{n:1},hsh:(x,y)=>x/3,assetFrame:k=>k});vm.runInContext(source.slice(source.indexOf('function paintedEnvironmentFrame('),source.indexOf('function drawPaintedRelic(')),c);
+ const source=read('js/render-resources.js'),c=vm.createContext({ASSET:{n:1},hsh:(x,y)=>x/3,assetFrame:k=>k});vm.runInContext(source.slice(source.indexOf('function paintedEnvironmentFrame('),source.indexOf('function drawPaintedRelic(')),c);
  for(let x=0;x<3;x++)assert.equal(c.paintedEnvironmentFrame({k:'w',x,y:0}),'env_'+['pine','oak','birch'][x]);
  assert.equal(c.paintedEnvironmentFrame({k:'f',an:1}),'env_deer');assert.equal(c.paintedEnvironmentFrame({k:'f',fi:1}),'env_fish');
  assert.equal(c.paintedEnvironmentFrame({k:'f',fi:1,trap:1,x:0,y:0}),'env_trap_0');assert.equal(c.paintedEnvironmentFrame({k:'w',fi:1,trap:1,x:0,y:0}),null);assert.equal(c.paintedEnvironmentFrame({k:'f',fm:1}),null);assert.equal(c.paintedEnvironmentFrame({k:'g'}),null);
@@ -39,7 +39,7 @@ test('all graphics categories remain explicitly tracked with complete unit/build
 
 
 test('fish-trap variants are geographic, neutral, static and preserve resource state and fallback',()=>{
- const source=read('js/render.js'),calls=[],c=vm.createContext({ASSET:{n:1},hsh:(x,y)=>x/4,assetFrame(...args){calls.push(args);return args[0]}});
+ const source=read('js/render-resources.js'),calls=[],c=vm.createContext({ASSET:{n:1},hsh:(x,y)=>x/4,assetFrame(...args){calls.push(args);return args[0]}});
  vm.runInContext(source.slice(source.indexOf('function paintedEnvironmentFrame('),source.indexOf('function drawPaintedRelic(')),c);
  for(let x=0;x<4;x++){
   const n={k:'f',fi:1,trap:1,x,y:0,t:0,amt:900},before=JSON.stringify(n);
@@ -57,7 +57,7 @@ test('fish-trap variants are geographic, neutral, static and preserve resource s
 
 
 test('wildlife idles use game time, constant reference width and neutral static fallbacks',()=>{
- const pack=JSON.parse(read('assets/atlas-manifest.json')),source=read('js/render.js'),c=vm.createContext({hsh:()=>0});
+ const pack=JSON.parse(read('assets/atlas-manifest.json')),source=read('js/render-resources.js'),c=vm.createContext({hsh:()=>0});
  vm.runInContext(read('js/assets.js')+'\n'+source.slice(source.indexOf('function paintedEnvironmentFrame('),source.indexOf('function drawPaintedRelic('))+';globalThis.run=s=>eval(s);',c);
  for(const a of pack.atlases.filter(a=>a.meta.environmentMotion||a.id==='painted-environment'))c.run(`regAtlas('${a.id}',{},${JSON.stringify(a.meta)})`);
  for(const kind of ['deer','fish']){
