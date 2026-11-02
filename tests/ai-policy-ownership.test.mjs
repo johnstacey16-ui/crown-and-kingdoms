@@ -5,14 +5,20 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const policy=read('js/ai-policy.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
+const policy=read('js/ai-policy.js'),defence=read('js/ai-defence.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
- for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
+ for(const fn of ['aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiShareResources','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
+ }
+ for(const fn of ["aiBaseDefenceThreat","aiRetreat","aiEvacuateVillagers","aiDefendTownCentre","aiRelieveAlliedBases","aiDefendEconomicSites"]){
+  assert.match(defence,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(maritime,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
  for(const fn of ["aiTradeEscorts","aiManageFishingShips","aiManageFleetRepairs","aiDisengageDamagedWarships","aiAssignWarshipTargets"]){
@@ -53,6 +59,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
+ assert.doesNotThrow(()=>new vm.Script(defence));
  assert.doesNotThrow(()=>new vm.Script(maritime));
  assert.doesNotThrow(()=>new vm.Script(offence));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -64,9 +71,10 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+8),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+9),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
+ assert.ok(sw.includes("'./js/ai-defence.js'"));
  assert.ok(sw.includes("'./js/ai-maritime.js'"));
  assert.ok(sw.includes("'./js/ai-offence.js'"));
  assert.ok(sw.includes("'./js/ai-construction.js'"));
@@ -628,7 +636,7 @@ function evacuationFixture({canPath=()=>true}={}){
  const ctx=vm.createContext({S,W,H,
   goalNear:(target)=>target,gp:(x,y,r)=>({x,y,r,k:'escape'}),
   path:(unit,target)=>{attempts.push(target);return canPath(unit,target)?[{x:target.x,y:target.y}]:null}});
- vm.runInContext(policy+'\n;globalThis.evac=aiEvacuateVillagers;',ctx);
+ vm.runInContext(policy+'\n'+defence+'\n;globalThis.evac=aiEvacuateVillagers;',ctx);
  const worker=(o='g')=>({k:'vil',x:11,y:10,hp:100,ld:0,o,
   tg:{k:'f',x:5,y:5,amt:50},ct:'f',p:[],rp:0,aiEvac:null});
  const shelter=(k='tc',x=20,y=20)=>({k,x,y,s:4,hp:400,done:true});
@@ -686,7 +694,7 @@ function townCentreDefenceFixture(){
  const S={t:100},unloads=[];
  const U={mil:{dmg:5},ram:{dmg:10},mon:{dmg:0},king:{dmg:0}};
  const ctx=vm.createContext({S,U,unload:b=>unloads.push(b)});
- vm.runInContext(policy+'\n;globalThis.defendTown=aiDefendTownCentre;',ctx);
+ vm.runInContext(policy+'\n'+defence+'\n;globalThis.defendTown=aiDefendTownCentre;',ctx);
  const tc={k:'tc',x:20,y:20,hp:500,cg:[]};
  const soldier=(k='mil',o='i',x=21,y=20)=>({k,o,x,y,ld:false,tg:null,p:[{x:1,y:1}]});
  return {S,tc,U,unloads,soldier,A:{gu:0},
@@ -729,7 +737,7 @@ test('Town Centre defence ignores remote raids and does not exceed the shelter c
 
 function localDefenceFixture(){
  const S={t:100,bs:[],nodes:[]},U={mil:{dmg:6},ram:{dmg:12},mon:{dmg:0}},ctx=vm.createContext({S,U,diplomacyRelation:(t,b)=>b===2?'ally':'enemy'});
- vm.runInContext(policy+'\n;globalThis.relieve=aiRelieveAlliedBases;globalThis.protect=aiDefendEconomicSites;',ctx);
+ vm.runInContext(policy+'\n'+defence+'\n;globalThis.relieve=aiRelieveAlliedBases;globalThis.protect=aiDefendEconomicSites;',ctx);
  const defender=(k='mil',o='i',x=20,y=20)=>({k,o,x,y,ld:0,retreating:false,tg:null,p:[{x:0,y:0}]});
  const base=(k='tc',t=2,x=20,y=20)=>({k,t,x,y,s:2,done:true,hp:100});
  const raider=(x=22,y=21,k='mil')=>({k,x,y,hp:100});

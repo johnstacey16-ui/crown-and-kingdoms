@@ -9,6 +9,7 @@ const checker = readFileSync(new URL('../scripts/check-game.mjs', import.meta.ur
 const simulation = readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8');
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
+const defence = readFileSync(new URL('../js/ai-defence.js', import.meta.url), 'utf8');
 const construction = readFileSync(new URL('../js/ai-construction.js', import.meta.url), 'utf8');
 
 test('enemy strategy has one cohesive owner in js/ai.js', () => {
@@ -23,7 +24,7 @@ test('enemy strategy has one cohesive owner in js/ai.js', () => {
       name + ' must not be duplicated in js/ai.js');
   }
   assert.doesNotMatch(simulation,/function ai(?:Build|Wall|Dock|Near|Team)?\s*\(/);
-  assert.equal((policy.match(/function aiRetreat\s*\(/g)||[]).length,1,'retreat decisions belong to one policy owner');
+  assert.equal((defence.match(/function aiRetreat\s*\(/g)||[]).length,1,'retreat decisions belong to one policy owner');
   assert.doesNotMatch(ai,/function aiRetreat\s*\(/,'main AI loop does not define retreat policy');
   assert.match(ai,/aiRetreat\(/,'main AI loop still executes defensive retreats');
   assert.ok(simulation.includes('ai(dt)'), 'The fixed-step simulation must still call the AI entry point');
@@ -39,11 +40,12 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(simAt >= 0 && aiAt > simAt && pathAt > aiAt,
     'AI must load after core simulation declarations and before engine startup');
   assert.ok(worker.includes("'./js/ai.js'"), 'The offline service-worker cache must contain ai.js');
+  assert.ok(worker.includes("'./js/ai-defence.js'"),'The offline shell must contain the AI defensive module');
   assert.ok(worker.includes("'./js/ai-maritime.js'"),'The offline shell must contain the AI maritime module');
   assert.ok(worker.includes("'./js/ai-construction.js'"),'The offline shell must contain the AI construction module');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+10),
-    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+11),
+    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });

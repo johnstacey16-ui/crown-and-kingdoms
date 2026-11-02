@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const aiPolicy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const aiPolicy=readFileSync(new URL('../js/ai-defence.js',import.meta.url),'utf8');
 const aiOffence=readFileSync(new URL('../js/ai-offence.js',import.meta.url),'utf8');
 const unitBehaviour=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const start=aiPolicy.indexOf('function aiRetreat(');

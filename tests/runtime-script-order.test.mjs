@@ -10,7 +10,7 @@ test('browser script references are unique, safely rooted and in declared order'
  const core=coreGameScriptPaths(html);
  assert.ok(scripts.length>core.length,'browser bootstrap and transports must surround the core game');
  for(const path of ['./js/simulation-combat-bonuses.js','./js/simulation-victory.js','./js/simulation-logistics.js','./js/simulation-resource-routing.js','./js/simulation-production-queues.js','./js/simulation-research.js','./js/simulation-building-production.js','./js/simulation-building-updates.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js',
-  './js/ai-policy.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/engine-graphics-benchmark.js'])
+  './js/ai-policy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/engine-graphics-benchmark.js'])
   assert.ok(scripts.includes(path),'required split runtime module '+path);
  assert.equal(scripts[0],'./persistence.js');
  assert.equal(scripts.at(-1),'./multiplayer.js');
@@ -26,7 +26,8 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/simulation.js')+1,scripts.indexOf('./js/simulation-unit-behaviour.js'));
  assert.equal(scripts.indexOf('./js/simulation-unit-behaviour.js')+1,scripts.indexOf('./js/simulation-separation.js'));
  assert.equal(scripts.indexOf('./js/simulation-separation.js')+1,scripts.indexOf('./js/ai-policy.js'));
- assert.equal(scripts.indexOf('./js/ai-policy.js')+1,scripts.indexOf('./js/ai-maritime.js'));
+ assert.equal(scripts.indexOf('./js/ai-policy.js')+1,scripts.indexOf('./js/ai-defence.js'));
+ assert.equal(scripts.indexOf('./js/ai-defence.js')+1,scripts.indexOf('./js/ai-maritime.js'));
  assert.equal(scripts.indexOf('./js/ai-maritime.js')+1,scripts.indexOf('./js/ai-offence.js'));
  assert.equal(scripts.indexOf('./js/ai-offence.js')+1,scripts.indexOf('./js/ai-construction.js'));
  assert.equal(scripts.indexOf('./js/ai-construction.js')+1,scripts.indexOf('./js/ai.js'));
