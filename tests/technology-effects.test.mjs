@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const html = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/state.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/entities.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/audio.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/save.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/input.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/render.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-combat-bonuses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-resource-routing.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-production.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/simulation-separation.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const researchPolicy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 
 // Source-level guards for technology effects on current and future game objects.
 assert.match(html, /function farmFood\(t\)\{const q=S\.tech\[t\]\|\|\{\};return 175\+\(q\.coll\?75:0\)\+\(q\.plow\?125:0\)\+\(q\.crop\?175:0\)\}/, 'farm capacity must reflect researched Horse Collar, Heavy Plow and Crop Rotation');
@@ -48,17 +49,17 @@ assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\[
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Scale Barding Armor \(\+1\/\+1 cavalry\)',cost:\{f:150\},t:45,age:1\}/,
   'Cavalry Armour matches the first source-pinned armor tier cost, research time and age');
-assert.match(html, /if\(k==='armC'&&ownCav>=3\)score\+=32/,
+assert.match(researchPolicy, /if\(k==='armC'&&ownCav>=3\)score\+=32/,
   'AI research priority must value cavalry armour when its own army fields cavalry');
-assert.match(html, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
+assert.match(researchPolicy, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
   'AI research priority must value infantry armour when its own army fields infantry');
-assert.match(html, /if\(k==='armR'&&ownRanged>=3\)score\+=32/,
+assert.match(researchPolicy, /if\(k==='armR'&&ownRanged>=3\)score\+=32/,
   'AI research priority must value ranged armour when its own army fields ranged units');
-assert.match(html, /if\(k==='armR'&&ownRanged<2\)score-=28/,
+assert.match(researchPolicy, /if\(k==='armR'&&ownRanged<2\)score-=28/,
   'AI should delay ranged armour when it has no meaningful ranged force');
-assert.match(html, /if\(k==='armC'&&ownCav<2\)score-=28/,
+assert.match(researchPolicy, /if\(k==='armC'&&ownCav<2\)score-=28/,
   'AI should delay cavalry armour when it has no meaningful cavalry force');
-assert.match(html, /if\(\['atkR','bodkin','atkR2','ballistics','thumb'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
+assert.match(researchPolicy, /if\(\['atkR','bodkin','atkR2','ballistics','thumb'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
   'AI should avoid premature ranged attack research before fielding ranged units');
 assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
@@ -94,7 +95,7 @@ assert.match(html, /function trainRate\(b,k\)\{return S\.tech\[b\.t\]&&S\.tech\[
   'Conscription must only speed military units, not villagers, traders, fishing or transport ships');
 assert.match(html, /q\.t-=dt\*trainRate\(b,q\.k\)/,
   'Conscription must accelerate the live unit production queue, including units already queued');
-assert.match(html, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
+assert.match(researchPolicy, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
   'AI must value Conscription once it has a substantial army');
 assert.ok(['pike','halb'].every(id=>technologyBuildings.bar.rs.includes(id)),
   'Pikeman and Halberdier must remain in the Barracks research list without excluding other valid upgrades');
@@ -124,7 +125,7 @@ speedContext.S.tech[0].squires=1;
 assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
 assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
   'Mounted classification must cover unique cavalry and mounted raiders consistently');
-assert.match(html, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
+assert.match(researchPolicy, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
