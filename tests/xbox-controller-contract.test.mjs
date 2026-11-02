@@ -7,6 +7,16 @@ import { headlessGame } from './helpers/headless-game.mjs';
 const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 
+test('Xbox Y shortcut, contextual radial menu and R3 priorities wheel are input-owned',()=>{
+ for(const fn of ["yShort","siteMenu","openRadial","openVillagerPriorityWheel","operateVillagerPriorityWheel"]){
+  assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
+  assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' must not remain in engine');
+ }
+ for(const fn of ['yShort','openRadial','operateVillagerPriorityWheel']){
+  assert.ok(selectionEngine.includes(fn+'('),fn+' remains connected to Xbox input orchestration');
+ }
+});
+
 test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
  for(const fn of ['quickSelectionChoices','qsel','boxSel','tapA']){
   assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
