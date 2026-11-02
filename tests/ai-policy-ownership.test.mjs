@@ -334,6 +334,7 @@ function navalTargetFixture({shipsReachable=true,patrolReachable=true}={}){
  const ship=(o='i',x=12,y=10,hp=100)=>({k:'gal',t:1,x,y,hp,o,tg:null,ld:0,p:[{x:0,y:0}],rp:0});
  const enemy=(k='gal',x=17,y=10)=>({k,t:0,x,y,hp:100,ld:0});
  const base={k:'tc',t:0,x:34,y:34,s:4,hp:500};
+ S.bs.push(base);
  return {S,ship,enemy,base,run:(fleet,hostiles)=>ctx.assignWarships(1,base,fleet,hostiles),
   shipChecks:()=>shipChecks,patrolChecks:()=>patrolChecks};
 }
