@@ -153,3 +153,31 @@ test('Xbox performance HUD reports bounded team tint and original-size troop fra
  assert.match(ui,/TROOP_TEXTURE_LRU\.size/);
  assert.match(code,/g\.imageSmoothingQuality==='high'/);
 });
+
+test('Xbox diagnostic unit pass separates original sprites from ground markings',()=>{
+ const code=readFileSync(new URL('../js/render-troops.js',import.meta.url),'utf8');
+ const from=code.indexOf('function drawUnitGround('),to=code.indexOf('function drawUnit(',from);
+ assert.ok(from>=0&&to>from);
+ const calls=[],texture={painted:true,animated:true,sc:1,f:{x:0,y:0,w:20,h:30,ax:10,ay:29},img:{}};
+ const context=vm.createContext({
+  S:{t:0,sel:[],tech:[{}]},U:{mil:{r:6,sh:false}},zm:1,gt:10,gq:0,ASSET:{n:1},
+  X:new Proxy({imageSmoothingEnabled:true,imageSmoothingQuality:'high'},{
+   get(o,k){if(k in o)return o[k];return (...a)=>{calls.push([k,...a])}},
+   set(o,k,v){o[k]=v;return true}}),
+  USZ:()=>[20,30],unitVisualPose:()=>({heading:0,state:0,phase:0,time:0}),
+  assetFrame:()=>texture,drawPaintedTroop:()=>calls.push(['sprite']),
+  mhp:()=>100,bar:()=>calls.push(['bar']),Math,Number
+ });
+ vm.runInContext('let perfUnitPass=0;'+code.slice(from)+';globalThis.paint=drawUnit;globalThis.setPass=p=>{perfUnitPass=p}',context);
+ const unit={k:'mil',t:0,hp:100,x:10,y:12,hit:-99};
+ const results=[];
+ for(const pass of [0,1,2,3,0]){
+  calls.length=0;context.setPass(pass);context.paint(unit,new Set([unit]),[80,100]);
+  results.push(calls.map(x=>x[0]));
+ }
+ assert.ok(results[0].includes('ellipse')&&results[0].includes('sprite'),'full unit has both ground and art');
+ assert.ok(results[1].includes('sprite')&&!results[1].includes('ellipse'),'sprite isolation skips ground');
+ assert.ok(results[2].includes('ellipse')&&!results[2].includes('sprite'),'ground isolation never paints a sprite');
+ assert.deepEqual(results[3],[],'no-paint pass performs no canvas commands');
+ assert.deepEqual(results[4],results[0],'the original full draw is unchanged after the diagnostic');
+});
