@@ -79,7 +79,7 @@ if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,a
 // behaviour; do not substitute an extra generic order or subgroup cycling.
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 
-function ctl(dt){if(mode!=='play')cancelShortcutGesture();if(E.some(Boolean)&&aInit()&&AC.state==='suspended')AC.resume().catch(()=>{});if(mode!=='play'){if(E[12]||E[13]||E[14]||E[15])uis('move');else if(E[0])uis('ok');else if(E[1]||E[9])uis('back')}
+function ctl(dt){if(mode!=='play')cancelShortcutGesture();if(E.some(Boolean)&&aInit()&&AC.state==='suspended')AC.resume().catch(()=>{});if(mode!=='play'){if(E[12]||E[13]||E[14]||E[15])uis('move');else if(E[0])uis('ok');else if((E[1]||E[9])&&mode!=='title')uis('back')}
 if(mode==='remap'){if(rw){const b=ER.findIndex((v,i)=>v&&i!==9);if(b>=0){BM[RA[ri][0]]=b;rw=0;sv()}return}
 if(ER[12])ri=(ri+RA.length-1)%RA.length;if(ER[13])ri=(ri+1)%RA.length;if(ER[0])rw=1;if(ER[2]){BM={};sv()}if(ER[9]||ER[1])mode=rbk;return}
 if(mode==='obj'){if(E[0]||E[1]||E[8]||E[9]||E[5])mode=omr;return}
