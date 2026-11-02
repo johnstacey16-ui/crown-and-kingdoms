@@ -1,9 +1,5 @@
 name: Game regression checks
 on:
-  # One-off nonproduction acceptance branch. Do not add pushes to this branch.
-  push:
-    branches:
-      - acceptance-2026-11-02-full-suite
   # The expensive full suites are weekly or manually requested; never on every push.
   schedule:
     - cron: '0 7 * * 0'
@@ -15,29 +11,19 @@ concurrency:
   cancel-in-progress: true
 jobs:
   campaign-playthroughs:
-    # Prior run verified 19/19 and 247/247. Recheck skirmish only.
-    if: ${{ false }}
     name: Campaign mission suite (19 isolated missions)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Verify untouched main, not the one-off branch trigger policy.
-          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Run all isolated campaign playthroughs
         run: node scripts/run-checks.mjs --campaigns
   node-checks:
-    # Prior run verified 19/19 and 247/247. Recheck skirmish only.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Verify untouched main, not the one-off branch trigger policy.
-          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -50,9 +36,6 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Verify untouched main, not the one-off branch trigger policy.
-          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
