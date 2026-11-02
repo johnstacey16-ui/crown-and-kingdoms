@@ -86,8 +86,8 @@ test('leaving campaign restores every pre-campaign setup option', () => {
     /\{n:'Back',a:\(\)=>\{leaveCampaign\(\)\}\}/,
     'The campaign list Back action must use the shared exit handler');
   assert.match(html,
-    /function campCtl\(\)\{[^}]*if\(E\[1\]\)leaveCampaign\(\)\}/,
-    'The controller Back input must use the shared exit handler');
+    /function campCtl\(\)\{[^}]*if\(E\[1\]\|\|E\[9\]\)leaveCampaign\(\)\}/,
+    'B and Menu/Start must both use the shared campaign exit handler');
   assert.match(html,
     /function endB\(\)\{if\(cmp\)\{if\(S\.over==='win'&&nextCampaignMission\(cmp\.i\)===null\)\{leaveCampaign\(\)\}else\{mode='camp';ci=0\}\}else leaveCampaign\(\)\}/,
     'Leaving the final mission results screen must restore the saved setup');
