@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const procedural = readFileSync(new URL('../js/render-procedural-units.js', import.meta.url), 'utf8');
 
@@ -33,6 +34,7 @@ test('world rendering still invokes extracted object painters while simulation r
   assert.match(render, /function updP\(dt\)\{/);
   assert.doesNotMatch(engine, /function emit\(k,x,y,n,o\)\{/);
   assert.doesNotMatch(engine, /function updP\(dt\)\{/);
-  assert.match(engine, /function setZoom\(z\)\{/);
+  assert.match(input, /function setZoom\(z\)\{/);
+  assert.doesNotMatch(engine, /function setZoom\(z\)\{/);
   assert.match(engine, /drawWorld\(\)/);
 });

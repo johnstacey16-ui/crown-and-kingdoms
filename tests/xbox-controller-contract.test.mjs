@@ -7,13 +7,24 @@ import { headlessGame } from './helpers/headless-game.mjs';
 const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 
+test('Xbox controller module owns haptics and camera zoom without engine duplication',()=>{
+ for(const fn of ['rumble','setZoom']){
+  assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
+  assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' does not belong to game frame engine');
+ }
+ assert.match(selectionInput,/const rumbleOK=/);
+ assert.match(selectionInput,/let lastRb=0/);
+ assert.match(selectionInput,/const c=S\?s2w\(CW\/2,CH\/2\):null/);
+ assert.match(selectionInput,/if\(n-lastRb<150\)return/);
+});
+
 test('Xbox interaction state and selection helpers have one controller owner',()=>{
  for(const name of ['cancelSelectionGesture','cancelShortcutGesture','cancelGameplayGestures','nearV','selectedBuilders']){
   assert.ok(selectionInput.includes('function '+name+'('),name+' is input-owned');
   assert.ok(!selectionEngine.includes('function '+name+'('),name+' is not duplicated in engine');
  }
  for(const variable of ['aDown','boxR','vpWheel','ysc','mmF','mmM','omr','tsc','tcI']){
-  assert.match(selectionInput,new RegExp('\\\\b'+variable+'\\\\b'));
+  assert.ok(selectionInput.includes(variable),variable+' remains in the input module');
  }
  assert.match(selectionInput,/const SIEGE=/);
  assert.match(selectionInput,/const bLock=/);
