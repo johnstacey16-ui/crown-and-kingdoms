@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const catalogue=vm.runInNewContext(config+'\n;({U,TE})');
 
@@ -20,8 +21,8 @@ test('spearman upgrades remain researchable without untrainable pike/halb AI uni
  assert.ok(catalogue.TE.pike&&catalogue.TE.halb);
  assert.equal(catalogue.U.pike,undefined);
  assert.equal(catalogue.U.halb,undefined);
- assert.match(ai,/if\(k==='pike'&&humanCav>=2\)score\+=90/);
- assert.match(ai,/if\(k==='halb'&&humanCav>=2\)score\+=85/);
+ assert.match(policy,/if\(k==='pike'&&humanCav>=2\)score\+=90/);
+ assert.match(policy,/if\(k==='halb'&&humanCav>=2\)score\+=85/);
  assert.match(ai,/units:\['spear','camel'\],own:\['spear','camel'\]/);
  assert.doesNotMatch(ai,/units:\[[^\]]*'pike'|units:\[[^\]]*'halb'/);
  assert.doesNotMatch(ai,/humanInf=humanArmy\.filter\(u=>\[[^\]]*'pike'/);

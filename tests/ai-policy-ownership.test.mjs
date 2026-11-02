@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -30,6 +30,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiScoutIdleUnits\(scouts\)/);
  assert.match(ai,/aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/);
  assert.match(ai,/aiClassifyHostileForces\(t\)/);
+ assert.match(ai,/aiTechnologyPriority\(k,techContext\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -423,4 +424,51 @@ test('hostile roster policy ignores dead, allied, malformed and unknown records'
  assert.deepEqual(Array.from(found.hostileShips),[enemy]);
  assert.equal(found.navalThreatCount,1);
  assert.equal(found.humanArmy.length,0);
+});
+
+function researchScoreFixture(){
+ const ctx=vm.createContext({INFARM:new Set(['mil','spear']),ARCHARM:new Set(['arc','xbow']),
+  CAVARM:new Set(['knight','camel'])});
+ vm.runInContext(policy+'\n;globalThis.scoreTech=aiTechnologyPriority;',ctx);
+ const rosters=()=>({arm:[],vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]});
+ return {score:(k,r)=>ctx.scoreTech(k,r),rosters};
+}
+
+test('technology scoring preserves naval research urgency only against real hostile combat ships',()=>{
+ const f=researchScoreFixture(),r=f.rosters();
+ assert.equal(f.score('navalHull',r),57);
+ assert.equal(f.score('navalAtk',r),55);
+ r.humanShips.push({k:'gal'});
+ assert.equal(f.score('navalHull',r),152);
+ assert.equal(f.score('navalAtk',r),160);
+ assert.equal(f.score('unknownTech',r),20,'unknown research keys keep the original fallback');
+});
+
+test('technology scoring preserves infantry, cavalry and archery armour investment thresholds',()=>{
+ const f=researchScoreFixture(),r=f.rosters();
+ assert.equal(f.score('armI',r),32,'unfielded infantry takes the original armour penalty');
+ assert.equal(f.score('armR',r),32,'unfielded archers take the original armour penalty');
+ assert.equal(f.score('armC',r),32,'unfielded cavalry takes the original armour penalty');
+ r.arm.push({k:'mil'},{k:'spear'},{k:'mil'},{k:'arc'},{k:'xbow'},{k:'arc'},{k:'knight'},{k:'knight'},{k:'camel'});
+ assert.equal(f.score('armI',r),90);
+ assert.equal(f.score('armR',r),92);
+ assert.equal(f.score('armC',r),92);
+ r.humanCav=2;
+ assert.equal(f.score('pike',r),153);
+ assert.equal(f.score('halb',r),151);
+});
+
+test('technology scoring retains villager, monk and damaged town-centre priorities',()=>{
+ const f=researchScoreFixture(),r=f.rosters();
+ assert.equal(f.score('loom',r),76);
+ assert.equal(f.score('wheel',r),79);
+ assert.equal(f.score('sanctity',r),20,'monk research is deprioritised without monks');
+ r.vil.push(...Array.from({length:12},()=>({k:'vil'})));
+ assert.equal(f.score('loom',r),92);
+ assert.equal(f.score('wheel',r),97);
+ assert.equal(f.score('handcart',r),95);
+ r.my.push({k:'mon'},{k:'mon'});
+ assert.equal(f.score('sanctity',r),55);
+ r.bl.push({k:'tc',hp:60,mh:100});
+ assert.equal(f.score('mas',r),67,'masonry gets the original damaged town-centre boost');
 });

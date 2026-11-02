@@ -11,7 +11,7 @@ assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'Naval target selection must ignore garrisoned hostile ships');
 assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
-assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
+assert.match(policy, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
 assert.match(policy, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,
   'the extracted escape policy must cover every combat warship, not only galleys');
 assert.match(ai, /aiDisengageDamagedWarships\(my,hostileFleet\)/,
@@ -22,7 +22,7 @@ assert.match(policy, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o=
   'naval focus-fire counts must be built once before ship target scoring');
 assert.match(policy, /focusCounts\.set\(enemy,\(focusCounts\.get\(enemy\)\|\|0\)\+1\);continue/,
   'each ship assignment must update focus-fire counts for following ships');
-assert.match(ai, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
+assert.match(policy, /if\(k==='navalAtk'&&humanShips\.length\)score\+=105/,
   'AI must value naval attack research against any confirmed enemy combat-ship class');
 assert.match(ai, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');

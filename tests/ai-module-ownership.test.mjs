@@ -27,8 +27,9 @@ test('enemy strategy has one cohesive owner in js/ai.js', () => {
   assert.doesNotMatch(ai,/function aiRetreat\s*\(/,'main AI loop does not define retreat policy');
   assert.match(ai,/aiRetreat\(/,'main AI loop still executes defensive retreats');
   assert.ok(simulation.includes('ai(dt)'), 'The fixed-step simulation must still call the AI entry point');
-  assert.ok(ai.includes('techPriority'), 'Composition-aware technology selection must stay inside the AI module');
-  assert.ok(ai.includes('navalHull') && ai.includes('navalAtk'), 'Naval counter-research priorities must be retained');
+  assert.match(ai,/aiTechnologyPriority\(k,techContext\)/, 'AI invokes the shared research scoring policy');
+  assert.ok(policy.includes('function aiTechnologyPriority('), 'Composition-aware research scoring has a dedicated owner');
+  assert.ok(policy.includes('navalHull') && policy.includes('navalAtk'), 'Naval counter-research priorities remain in the shared policy');
 });
 
 test('AI script order, offline support and syntax checks are wired consistently', () => {

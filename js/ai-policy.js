@@ -294,3 +294,65 @@ function aiClassifyHostileForces(t){
 const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;if(!e.ld&&!U[e.k].sh)humanArmy.push(e);if(U[e.k].sh){if(!e.ld&&e.k!=='fish')hostileShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4){navalThreatCount++;hostileFleet.push(e)}}}
 return {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount};
 }
+
+/* Composition-sensitive research scoring. Receives current live rosters rather
+ * than closing over aiTeam so production and focused policy checks use one owner.
+ * Existing research weights, prerequisites and sorting remain unchanged. */
+function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,humanInf,humanShips}){
+ const base={loom:76,wheel:79,handcart:75,gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60,armI2:64,armI3:66,armR:60,armR2:64,armR3:66,armC:60,armC2:64,armC3:66,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,blood:68,squires:64,arson:56,xbow:70,arb:65,elsk:64,lcav:62,cavl:65,siegeup:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57,devotion:40,faith:30,heresy:25,redemption:45,atonement:40,sanctity:55,fervor:48,blockPrinting:60,illumination:50,theocracy:42,herbalMedicine:36,murderHoles:38};
+ let score=base[k]||20;
+ if(k==='pike'&&humanCav>=2)score+=90;
+ if(k==='halb'&&humanCav>=2)score+=85;
+ const ownInf=arm.filter(u=>INFARM.has(u.k)).length,ownRanged=arm.filter(u=>ARCHARM.has(u.k)).length,ownCav=arm.filter(u=>CAVARM.has(u.k)).length;
+ if(k==='husb'&&ownCav>=3)score+=22;
+ if(k==='blood'&&ownCav>=3)score+=26;
+ if(k==='squires'&&ownInf>=3)score+=22;
+ if(k==='arson'&&ownInf>=4)score+=18;
+ if(k==='elsk'&&humanRanged>=4)score+=60;
+  if(k==='thumb'&&arm.some(u=>['arc','xbow','skirm','mgd','chuko','genoa','plumed','lbow'].includes(u.k)))score+=25;
+  if((k==='xbow'||k==='arb')&&ownRanged>=4)score+=26;
+ /* Avoid spending scarce resources on upgrades for unit classes not yet fielded. */
+ if(k==='husb'&&ownCav<2)score-=24;
+ if(k==='blood'&&ownCav<2)score-=26;
+ if(k==='squires'&&ownInf<2)score-=24;
+ if(k==='arson'&&ownInf<3)score-=24;
+ if(k==='armR'&&ownRanged<2)score-=28;
+ if((k==='armR2'||k==='armR3')&&ownRanged<2)score-=28;
+ if(k==='armI'&&ownInf<2)score-=28;
+ if((k==='armI2'||k==='armI3')&&ownInf<2)score-=28;
+ if(k==='armC'&&ownCav<2)score-=28;
+ if((k==='armC2'||k==='armC3')&&ownCav<2)score-=28;
+ if(['forging','ironCasting'].includes(k)&&ownInf+ownCav<2)score-=20;
+ if(k==='blastFurnace'&&ownInf+ownCav<2)score-=28;
+ if(['atkR','bodkin','atkR2','ballistics','thumb'].includes(k)&&ownRanged<2)score-=20;
+ if(k==='atkR2'&&ownRanged<2)score-=28;
+ /* Armour research should protect the army we actually field, not just react to the enemy's composition. */
+ if(k==='armR'&&ownRanged>=3)score+=32;
+ if((k==='armR2'||k==='armR3')&&ownRanged>=3)score+=32;
+ if(k==='armI'&&ownInf>=3)score+=30;
+ if((k==='armI2'||k==='armI3')&&ownInf>=3)score+=30;
+ if(k==='armC'&&ownCav>=3)score+=32;
+ if((k==='armC2'||k==='armC3')&&ownCav>=3)score+=32;
+ if(k==='armI'&&humanRanged>=3)score+=12;
+ if((k==='armI2'||k==='armI3')&&humanRanged>=3)score+=12;
+ if(k==='armR'&&humanInf>=4)score+=10;
+ if((k==='armR2'||k==='armR3')&&humanInf>=4)score+=10;
+ if((k==='twohand'||k==='champ')&&humanInf>=3)score+=22;
+ if(k==='cons'&&arm.length>=8)score+=24;
+ if(['forging','ironCasting','blastFurnace'].includes(k)&&ownInf+ownCav>=4)score+=24;
+ if(k==='atkR'&&ownRanged>=4)score+=24;
+ if(k==='siegeup'&&humanSiege>=1)score+=42;
+ if(k==='navalHull'&&humanShips.length)score+=95;
+ if(k==='navalAtk'&&humanShips.length)score+=105;
+ if(k==='atkR'&&humanRanged>=4)score+=18;
+ if(k==='loom'&&vil.length>=5)score+=16;
+ if(k==='wheel'&&vil.length>=8)score+=18;
+ if(k==='handcart'&&vil.length>=12)score+=20;
+ if(k==='gath'&&vil.length>=8)score+=15;
+ if(k==='axe'&&vil.length>=4)score+=12;
+ if(k==='carry'&&vil.length>=12)score+=12;
+ if(k==='mas'&&bl.some(b=>b.k==='tc'&&b.hp<b.mh*.8))score+=15;
+ if(['sanctity','fervor','redemption','atonement','blockPrinting','illumination','theocracy'].includes(k)&&my.filter(u=>u.k==='mon').length<2)score-=35;
+ if(k==='murderHoles'&&!bl.some(b=>b.k==='tower'||b.k==='castle'))score-=35;
+ return score
+}
