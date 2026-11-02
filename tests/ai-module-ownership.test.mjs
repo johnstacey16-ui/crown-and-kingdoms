@@ -50,3 +50,18 @@ test('AI script order, offline support and syntax checks are wired consistently'
     ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });
+
+test('AI military training and technology research remain separate ordered planning phases',()=>{
+ for(const name of ['aiPlanMilitaryTraining','aiPlanResearch']){
+  assert.equal((ai.match(new RegExp('function '+name+'\\\\(', 'g'))||[]).length,1,
+   name+' must have one live definition');
+ }
+ const team=ai.slice(ai.indexOf('function aiTeam('));
+ const military=team.indexOf('aiPlanMilitaryTraining(t,{');
+ const research=team.indexOf('aiPlanResearch(t,{');
+ const repairs=team.indexOf('aiRepairImportantBuildings(t,A,bl,vil)');
+ assert.ok(military>=0&&research>military&&repairs>research,
+  'military queues must be planned before research and subsequent economy/defence');
+ assert.match(ai,/const queuedUnits=k=>aiQueuedUnits\\(bl,k\\)/);
+ assert.match(ai,/const techPriority=k=>aiTechnologyPriority\\(k,techContext\\)/);
+});
