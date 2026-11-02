@@ -150,3 +150,15 @@ test('large battle stays out of ordinary saves and cannot replace a running matc
  assert.match(menus,/ti===8\)loadSeriesSLargeBattleSave\(\)/);
  assert.match(ui,/Large Battle Test Save/);
 });
+
+test('nine title options stay above controller help text at Xbox screen heights',()=>{
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ assert.match(ui,/rh=Math.max\(30,Math.min\(48,Math.floor\(\(CH-385\)\/it.length\)\)\)/);
+ const items=9;
+ for(const height of [600,720,900,1080]){
+  const row=Math.max(30,Math.min(48,Math.floor((height-385)/items)));
+  const top=Math.max(48,Math.min(height*.35,height-145-items*row));
+  assert.ok(top+items*row<height-111,
+   'last title entry is above the gamepad-status bar at '+height+'px');
+ }
+});
