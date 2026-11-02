@@ -139,6 +139,7 @@ if(menu&&!menu.rad){
   tx(it.lk||cs(it.c),x+w-24,yy+rh*.65,fs-4,it.lk?'#f99':'#cbd5e1','right')
  }
 }
+}
 
 /* Full-screen menu and campaign views: js/ui-screens.js. */
 
