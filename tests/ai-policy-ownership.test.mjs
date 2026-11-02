@@ -20,7 +20,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiQueuedUnits\(/);
  assert.match(construction,/aiDockWaterReach\(/);
  assert.match(ai,/aiRebal\(/);
- assert.match(ai,/aiOpeningWaveNeed\(/);
+ assert.match(policy,/aiOpeningWaveNeed\(/);
  assert.match(ai,/aiResumeIdleWave\(/);
  assert.match(ai,/aiShareResources\(t,A,R\)/);
  assert.match(ai,/aiTradeEscorts\(A,my,arm,galleys,hostileFleet,humanArmy\)/);

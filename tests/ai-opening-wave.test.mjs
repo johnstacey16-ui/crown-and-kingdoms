@@ -81,7 +81,7 @@ test('offensive wave keeps siege priority and issues fallback attacks when forma
 });
 
 test('hill victory launches a centre objective and routes monks separately',()=>{
- const f=launchFixture({mode:5}),army=f.army(11),monk=f.unit('mon');
+ const f=launchFixture({mode:5}),army=f.army(12),monk=f.unit('mon');
  army.push(monk);f.run(army);
  assert.equal(f.A.wave,1);
  assert.equal(f.A.stg.tg.k,'hill');
