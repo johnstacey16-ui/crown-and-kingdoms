@@ -129,13 +129,24 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
 }
 
 
+// Shared by normal drawing and diagnostic-only ground-paint isolation.
+function drawUnitGround(u,selectedUnits,sx,sy,z,r){
+ X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(r+3)*z,(r+3)*z/2,0,0,7);X.fill();
+ if((selectedUnits?selectedUnits.has(u):S.sel.includes(u))){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(r+10)*z,(r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
+}
+
 /* In-match troop drawing and researched equipment cues. */
-function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1],pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
+function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1];
+ if(perfUnitPass===3)return;
+ // Ground-only has zero atlas lookup or sprite painting.
+ if(perfUnitPass===2){drawUnitGround(u,selectedUnits,sx,sy,zm,d.r);return}
+ const pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
 const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null,
 c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
-X.fillStyle='rgba(0,0,0,.3)';X.beginPath();X.ellipse(sx,sy+z,(d.r+3)*z,(d.r+3)*z/2,0,0,7);X.fill();if((selectedUnits?selectedUnits.has(u):S.sel.includes(u))){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(d.r+10)*z,(d.r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
+if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);
 /* Validated motion frames take priority; generate procedural art only if every atlas misses. */if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
+if(perfUnitPass===1)return;
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}
 /* Small equipment upgrades make researched elite ranks legible in the actual battlefield, not only in menus. */
