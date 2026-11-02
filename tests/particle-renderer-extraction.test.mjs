@@ -22,9 +22,9 @@ test('particle ownership includes emission, lifetime and sprite warm-up, while e
   }
   assert.match(render, /const PMAX=\[100,260,520\],PT=\[\]/);
   assert.match(render, /let WQ=\[\]/);
-  assert.match(engine, /updP\(dt\)/);
+  assert.match(render, /updP\(dt\)/);
   assert.match(engine, /queueWarm\(\)/);
-  assert.match(engine, /warm\(\)/);
+  assert.match(render, /warm\(\)/);
   assert.match(render, /drawP\(\);X\.lineWidth=2;for\(const p of S\.pj\)/);
 });
 

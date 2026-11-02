@@ -7,6 +7,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 
 function game(){
  const {source,sandbox,storage}=headlessGame();
@@ -55,5 +56,5 @@ test('B and disconnect also cancel; ordinary inputs work after diagnostic exits'
  assert.match(input,/if\(typeof canvasBenchmark!=='undefined'&&canvasBenchmark\)/);
  assert.match(input,/if\(E\[9\]\|\|E\[1\]\)\{stopCanvasBenchmark\(true\)/);
  assert.match(ui,/Menu\/B cancels/);
- assert.match(engine,/if\(mode!=='play'&&mode!=='pause'&&canvasBenchmark\)stopCanvasBenchmark\(true\)/);
+ assert.match(render,/if\(mode!=='play'&&mode!=='pause'&&canvasBenchmark\)stopCanvasBenchmark\(true\)/);
 });

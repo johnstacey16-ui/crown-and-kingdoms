@@ -45,7 +45,7 @@ test('normal mode restores terrain and world objects, and test is unsaved',()=>{
  const result=JSON.parse(run('JSON.stringify(layerCounts)'));
  assert.ok(result.chunks>0);
  assert.ok(result.units+result.buildings>0);
- assert.match(engineSrc,/if\(mode!=='play'&&mode!=='pause'\)perfLayerMode=0/);
+ assert.match(renderSrc,/if\(mode!=='play'&&mode!=='pause'\)perfLayerMode=0/);
  const settings=engineSrc.match(/function sset\(\)\{[\s\S]{0,450}JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(settings);assert.ok(!settings[1].includes('perfLayerMode'));
 });

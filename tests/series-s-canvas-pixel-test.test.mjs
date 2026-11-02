@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 
 function game(){
@@ -61,5 +62,5 @@ test('Xbox menu test uses explicit controller choices, labels physical pixels an
  const save=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(save);
  assert.ok(!save[1].includes('perfRenderScale'));
- assert.match(engine,/if\(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1\)\{perfRenderScale=1;rs\(\)\}/);
+ assert.match(render,/if\(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1\)\{perfRenderScale=1;rs\(\)\}/);
 });

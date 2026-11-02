@@ -6,6 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 
 function fixture(){
  const {source,sandbox,storage}=headlessGame();
@@ -75,7 +76,7 @@ test('benchmark visibility in Xbox menu, continuous overlay, stable median and c
  assert.match(engine,/CK_CANVAS_BENCH_STAGES=\[1,\.75,\.5,1\]/);
  assert.match(engine,/if\(canvasBenchmark\)sampleCanvasBenchmark\(now,rafMs\)/);
  assert.match(engine,/if\(canvasBenchmark\)stopCanvasBenchmark\(true\)/);
- assert.match(engine,/if\(mode!=='play'&&mode!=='pause'\)canvasBenchSummary=null/);
+ assert.match(render,/if\(mode!=='play'&&mode!=='pause'\)canvasBenchSummary=null/);
  const {run}=fixture();
  assert.equal(run('canvasBenchmarkMedian([250,16,100,50])'),75);
  assert.equal(run('canvasBenchmarkMedian([100,10,500])'),100);

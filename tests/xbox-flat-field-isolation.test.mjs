@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const gameSrc=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const renderSrc=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const uiSrc=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 
 function instrumentedGame(){
@@ -49,8 +50,8 @@ test('Xbox pause menu exposes an explicit controller-toggle and the test is neve
  assert.match(uiSrc,/n:'Render isolation test'/);
  assert.match(uiSrc,/perfFlatField\^=1;perfHud=1;perfFps=0/);
  assert.match(uiSrc,/TEST: FLAT FIELD/);
- assert.match(gameSrc,/else drawWorld\(\)/);
- assert.match(gameSrc,/if\(mode!=='play'&&mode!=='pause'\)perfFlatField=0/);
+ assert.match(renderSrc,/else drawWorld\(\)/);
+ assert.match(renderSrc,/if\(mode!=='play'&&mode!=='pause'\)perfFlatField=0/);
  const settings=gameSrc.match(/function sset\(\)\{[\s\S]{0,450}JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(settings,'game settings must remain serialized through sset()');
  assert.ok(!settings[1].includes('perfFlatField'),'flat test must never persist to localStorage');

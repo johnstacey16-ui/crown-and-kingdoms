@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const picture = readFileSync(new URL('../js/engine-picture.js', import.meta.url), 'utf8');
 
@@ -21,10 +22,10 @@ test('radial menu, control-group and quick-select drawing live in js/ui.js', () 
 
 test('draw loop and command state remain connected to the extracted overlays', () => {
   assert.match(ui, /function drawGameOverlays\(dt\)\{[\s\S]*?if\(menu&&menu\.rad\)drawRadial\(\);if\(cgo\)drawCg\(\)/);
-  assert.match(engine, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
+  assert.match(render, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
   assert.match(picture, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
   assert.match(picture, /else drawGameOverlays\(dt\)/);
-  assert.match(engine, /drawXboxHudOverlays\(dt\)/);
+  assert.match(render, /drawXboxHudOverlays\(dt\)/);
   assert.match(input, /function openRadial\(wx,wy\)\{/);
   assert.doesNotMatch(engine, /function openRadial\(wx,wy\)\{/);
   assert.match(input, /function playCtl\(dt\)\{/);

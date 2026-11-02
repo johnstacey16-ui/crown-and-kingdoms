@@ -6,6 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const source=readFileSync(new URL('../engine.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 
 function game(){
  const {source:gameSource,sandbox,storage}=headlessGame();
@@ -62,7 +63,7 @@ test('only sample game exposes an Xbox graphics comparison with screenshot-ready
  assert.match(ui,/if\(!canvasBenchmark\)\{[\s\S]*?if\(perfFlatField\)tx\('TEST: FLAT FIELD/,'separate in-progress bench row from manual isolation captions');
  assert.match(ui,/FLAT '\+f\(3\)/);
  assert.match(source,/CK_LAYER_BENCH_STAGES=\[/);
- assert.match(source,/if\(mode!=='play'&&mode!=='pause'&&canvasBenchmark\)stopCanvasBenchmark\(true\)/);
+ assert.match(render,/if\(mode!=='play'&&mode!=='pause'&&canvasBenchmark\)stopCanvasBenchmark\(true\)/);
  const {run}=game();
  run('start();mode="pause"');
  assert.equal(run("beginCanvasBenchmark('layers')"),false);
