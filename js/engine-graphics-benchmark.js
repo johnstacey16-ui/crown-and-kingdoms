@@ -8,11 +8,24 @@ const CK_LAYER_BENCH_STAGES=[
  {label:'Flat field',layer:0,flat:1},
  {label:'Normal repeat',layer:0,flat:0}
 ];
+// The diagnostic preserves the last canvas frame during frozen stages: no
+// Canvas2D commands, HUD draws or canvas resizes. RAF/input sampling continue.
+// Compare full/flat redraw against the same scene without any canvas writes.
+const CK_PACING_BENCH_STAGES=[
+ {label:'Full',flat:0,skip:false},
+ {label:'Frozen full',flat:0,skip:true},
+ {label:'Flat field',flat:1,skip:false},
+ {label:'Frozen flat',flat:1,skip:true},
+ {label:'Full repeat',flat:0,skip:false}
+];
 function setupCanvasBenchmarkStage(b){
  const mode=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase]:null;
- perfRenderScale=mode?1:CK_CANVAS_BENCH_STAGES[b.phase];
- perfFlatField=mode?mode.flat:0;perfLayerMode=mode?mode.layer:0;
- perfFps=0;rs();
+ const pacing=b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase]:null;
+ perfRenderScale=mode||pacing?1:CK_CANVAS_BENCH_STAGES[b.phase];
+ perfFlatField=mode?mode.flat:pacing?pacing.flat:0;perfLayerMode=mode?mode.layer:0;
+ perfFps=0;
+ // A resize clears the canvas. Keep the existing image for frozen phases.
+ if(!pacing||b.phase===0)rs();
 }
 let canvasBenchmark=null,canvasBenchSummary=null;
 function canvasBenchmarkMedian(values){
@@ -28,7 +41,7 @@ function stopCanvasBenchmark(abort=false){
 }
 function beginCanvasBenchmark(kind='pixels'){
  if(mode!=='pause'||!S||!perfTestMatch||window.CK_NET?.isRunning?.())return false;
- if(kind!=='layers')kind='pixels';
+ if(kind!=='layers'&&kind!=='pacing')kind='pixels';
  stopCanvasBenchmark(true);
  canvasBenchSummary=null;selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();canvasBenchmark={phase:0,start:null,intervals:[],results:[],oldSpeed:gs,oldSharpHud:perfSharpHud,kind};
  gs=0;acc=0;perfHud=1;perfSharpHud=0;setupCanvasBenchmarkStage(canvasBenchmark);
@@ -41,11 +54,13 @@ function sampleCanvasBenchmark(now,rafMs){
  const elapsed=Math.max(0,now-b.start);
  if(elapsed>=CK_CANVAS_BENCH_STAGE_MS){
   const median=canvasBenchmarkMedian(b.intervals);
-  const stage=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase]:null;
-  b.results.push(stage?{label:stage.label,layer:stage.layer,flat:stage.flat,ms:median,n:b.intervals.length}
+  const stage=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase]:
+    b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase]:null;
+  b.results.push(stage?{label:stage.label,flat:stage.flat,...(b.kind==='layers'?{layer:stage.layer}:{skip:stage.skip}),ms:median,n:b.intervals.length}
     :{scale:CK_CANVAS_BENCH_STAGES[b.phase],ms:median,n:b.intervals.length});
   b.phase++;
-  if(b.phase===(b.kind==='layers'?CK_LAYER_BENCH_STAGES.length:CK_CANVAS_BENCH_STAGES.length)){
+  if(b.phase===(b.kind==='layers'?CK_LAYER_BENCH_STAGES.length:
+    b.kind==='pacing'?CK_PACING_BENCH_STAGES.length:CK_CANVAS_BENCH_STAGES.length)){
    canvasBenchSummary={kind:b.kind,results:b.results.slice()};
    stopCanvasBenchmark(false);
   }else{

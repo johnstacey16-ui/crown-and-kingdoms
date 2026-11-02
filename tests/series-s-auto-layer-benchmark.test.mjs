@@ -69,3 +69,69 @@ test('only sample game exposes an Xbox graphics comparison with screenshot-ready
  assert.equal(run("beginCanvasBenchmark('layers')"),false);
  assert.equal(run('canvasBenchmark'),null);
 });
+
+test('frame-pacing benchmark freezes the same world and returns all five measured stages',()=>{
+ const {run,storage}=game();
+ run('start();perfTestMatch=1;mode="pause";gs=1.5;perfSharpHud=1;perfRenderScale=.75;rs()');
+ const original=run('JSON.stringify([S.us.map(u=>[u.id,u.x,u.y]),S.bs.map(b=>[b.id,b.x,b.y])])');
+ assert.equal(run("beginCanvasBenchmark('pacing')"),true);
+ assert.equal(run('gs'),0);
+ assert.equal(run('perfSharpHud'),0);
+ const expected=[
+  ['Full',false,0],['Frozen full',true,0],['Flat field',false,1],
+  ['Frozen flat',true,1],['Full repeat',false,0]
+ ],values=[100,16.7,83.3,20,110];
+ let now=20000;
+ for(let p=0;p<expected.length;p++){
+  const state=JSON.parse(run('JSON.stringify([CK_PACING_BENCH_STAGES[canvasBenchmark.phase].label,CK_PACING_BENCH_STAGES[canvasBenchmark.phase].skip,perfFlatField])'));
+  assert.deepEqual(state,expected[p]);
+  assert.equal(run('perfRenderScale'),1,'pacing comparison never changes resolution');
+  run('sampleCanvasBenchmark('+now+',250)');
+  for(let i=1;i<7;i++)run('sampleCanvasBenchmark('+(now+i*1000)+','+values[p]+')');
+  run('sampleCanvasBenchmark('+(now+7000)+',260)');
+  now+=7000;
+ }
+ assert.equal(run('canvasBenchmark'),null);
+ assert.equal(run('perfRenderScale'),1);
+ assert.equal(run('perfSharpHud'),1);
+ assert.equal(run('perfFlatField+perfLayerMode'),0);
+ assert.equal(run('gs'),1.5);
+ const result=JSON.parse(run('JSON.stringify(canvasBenchSummary)'));
+ assert.equal(result.kind,'pacing');
+ assert.deepEqual(result.results.map(x=>x.label),expected.map(x=>x[0]));
+ assert.deepEqual(result.results.map(x=>x.skip),expected.map(x=>x[1]));
+ assert.deepEqual(result.results.map(x=>x.ms),values);
+ assert.equal(run('JSON.stringify([S.us.map(u=>[u.id,u.x,u.y]),S.bs.map(b=>[b.id,b.x,b.y])])'),original);
+ assert.equal(storage.has('ck_set'),false);
+});
+test('the frozen pacing phase skips every canvas draw but leaves normal frame2 draws untouched',()=>{
+ const {run}=game();
+ run('start();mode="pause";perfTestMatch=1;pad={connected:true,buttons:[],axes:[0,0,0,0]};E=[];P=[];readPad=()=>{};beginCanvasBenchmark("pacing");globalThis.drawCount=0;draw=()=>{drawCount++};');
+ run('canvasBenchmark.phase=1;setupCanvasBenchmarkStage(canvasBenchmark)');
+ run('frame2(1000)');
+ assert.equal(run('drawCount'),0,'no Canvas2D operation via the game draw dispatch');
+ assert.equal(run('perfDrawMs'),0);
+ run('canvasBenchmark.phase=2;setupCanvasBenchmarkStage(canvasBenchmark);canvasBenchmark.start=null');
+ run('frame2(1016)');
+ assert.equal(run('drawCount'),1,'flat-field stage draws normally');
+ run('stopCanvasBenchmark(true);frame2(1032)');
+ assert.equal(run('drawCount'),2,'all ordinary frames continue drawing after the diagnostic');
+ assert.equal(run('perfFlatField+perfLayerMode'),0);
+ assert.equal(run('canvasBenchSummary'),null);
+});
+test('new pacing diagnostic is opt-in, labelled and never persists or intercepts regular match rendering',()=>{
+ assert.match(ui,/n:'Run Xbox frame pacing comparison'/);
+ assert.match(ui,/beginCanvasBenchmark\('pacing'\)/);
+ assert.match(ui,/FROZEN FULL /);
+ assert.match(ui,/FROZEN FLAT /);
+ assert.match(source,/CK_PACING_BENCH_STAGES=\[/);
+ assert.match(source,/if\(frozenCanvas\)perfDrawMs=0/);
+ assert.match(source,/else\{draw\(dt\);perfDrawMs=performance\.now\(\)-drawStart/);
+ const {run}=game();
+ run('start();mode="pause"');
+ assert.equal(run("beginCanvasBenchmark('pacing')"),false);
+ assert.equal(run('canvasBenchmark'),null);
+ run('perfTestMatch=1;beginCanvasBenchmark("pacing");mode="pause";sampleCanvasBenchmark(1000,50)');
+ assert.equal(run('canvasBenchmark'),null,'pause interruption restores the canvas');
+ assert.equal(run('perfRenderScale'),1);
+});
