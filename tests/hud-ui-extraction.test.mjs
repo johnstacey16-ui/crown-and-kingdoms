@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const picture = readFileSync(new URL('../js/engine-picture.js', import.meta.url), 'utf8');
 
 test('resource bar and in-match HUD have one owner in js/ui.js', () => {
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
@@ -16,8 +17,9 @@ test('resource bar and in-match HUD have one owner in js/ui.js', () => {
   assert.doesNotMatch(engine, /function hud\(\)\{/);
   assert.match(ui, /function drawGameOverlays\(dt\)\{if\(mode==='play'\)\{const\[wx,wy\]=s2w\(cur\.x,cur\.y\);hud\(\);/);
   assert.match(engine, /else drawWorld\(\);[\s\S]*?const uiStart=perfHud\?performance\.now\(\):0/);
-  assert.match(engine, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
-  assert.match(engine, /else drawGameOverlays\(dt\)/);
+  assert.match(picture, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+  assert.match(picture, /else drawGameOverlays\(dt\)/);
+  assert.match(engine, /drawXboxHudOverlays\(dt\)/);
 });
 
 test('victory-mode status remains part of the extracted HUD', () => {
