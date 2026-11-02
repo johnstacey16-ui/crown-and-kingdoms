@@ -53,7 +53,7 @@ test('AI script order, offline support and syntax checks are wired consistently'
 
 test('AI military training and technology research remain separate ordered planning phases',()=>{
  for(const name of ['aiPlanMilitaryTraining','aiPlanResearch']){
-  assert.equal((ai.match(new RegExp('function '+name+'\\\\(', 'g'))||[]).length,1,
+  assert.equal((ai.match(new RegExp('function '+name+'\\(', 'g'))||[]).length,1,
    name+' must have one live definition');
  }
  const team=ai.slice(ai.indexOf('function aiTeam('));
@@ -62,6 +62,6 @@ test('AI military training and technology research remain separate ordered plann
  const repairs=team.indexOf('aiRepairImportantBuildings(t,A,bl,vil)');
  assert.ok(military>=0&&research>military&&repairs>research,
   'military queues must be planned before research and subsequent economy/defence');
- assert.match(ai,/const queuedUnits=k=>aiQueuedUnits\\(bl,k\\)/);
- assert.match(ai,/const techPriority=k=>aiTechnologyPriority\\(k,techContext\\)/);
+ assert.match(ai,/const queuedUnits=k=>aiQueuedUnits\(bl,k\)/);
+ assert.match(ai,/const techPriority=k=>aiTechnologyPriority\(k,techContext\)/);
 });
