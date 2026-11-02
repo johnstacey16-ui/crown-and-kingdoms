@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const ui=read('js/ui-commands.js'),input=read('js/input.js');
+const listUi=read('js/ui.js'),selectionPolicy=read('js/input-selection.js');
 const pageStart=ui.indexOf('function radialMenuPage(m){');
 const uiEnd=ui.indexOf('\nfunction drawVillagerPriorityWheel',pageStart);
 const inputStart=input.indexOf('if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);');
@@ -99,4 +100,46 @@ test('malformed choices preserve custom page indices and never become executable
  ctx.menu.i=3;ctx.E[0]=true;
  assert.doesNotThrow(()=>ctx.control(),'A on an unusable entry is harmless');
  ctx.E=[];ctx.E[1]=true;ctx.control();assert.equal(ctx.menu,null,'B still closes stale menus');
+});
+
+test('list menu uses the same safe choices as the radial controller path',()=>{
+ const begin=listUi.indexOf('if(menu&&!menu.rad){'),end=listUi.indexOf('\n\n/* Full-screen menu',begin);
+ const radialEnd=ui.indexOf('\nfunction drawRadial()',pageStart);
+ assert.ok(begin>=0&&end>begin&&radialEnd>pageStart);
+ const labels=[];
+ const ctx=vm.createContext({menu:null,CW:1280,CH:720,DS:{},X:{fillRect(){}},
+  panel(){},cs:()=>'',tx:s=>labels.push(String(s))});
+ vm.runInContext(ui.slice(pageStart,radialEnd)+
+  '\nfunction renderList(){'+listUi.slice(begin,end)+'}\n'+
+  'globalThis.listPage=listMenuPage;globalThis.renderList=renderList;',ctx);
+ for(const items of [undefined,[],[null,42,{l:'',c:null},{l:'Ready',c:{},lk:''}]]) {
+  ctx.menu={rad:0,title:null,items,i:999,pg:5,pr:[[5,7]]};
+  assert.doesNotThrow(()=>ctx.renderList(),'list rendering must tolerate empty, missing or corrupt entries');
+  const p=ctx.listPage(ctx.menu);
+  assert.ok(p.i>=0&&(!p.N||p.i<p.N));
+ }
+ assert.ok(labels.includes('No commands available — A or B to close'));
+ ctx.menu={rad:0,title:'Production',items:[{l:'Militia',c:{},lk:''},{l:'Archer',c:{},lk:''}],i:-999};
+ assert.doesNotThrow(()=>ctx.renderList());
+ assert.equal(ctx.listPage(ctx.menu).i,0,'stale list cursor resolves to the first valid slot');
+ assert.ok(labels.includes('Production'));
+});
+
+test('opening a radial menu never dereferences a missing contextual menu',()=>{
+ const start=selectionPolicy.indexOf('function openRadial(wx,wy){');
+ const end=selectionPolicy.indexOf('\nfunction openVillagerPriorityWheel()',start);
+ assert.ok(start>=0&&end>start);
+ const ctx=vm.createContext({S:{sel:[]},menu:null,cancelGameplayGestures(){},
+  pick:()=>null,siteMenu:()=>null,openMenu(){}});
+ vm.runInContext(selectionPolicy.slice(start,end)+'\nglobalThis.open=openRadial;',ctx);
+ assert.doesNotThrow(()=>ctx.open(8,8));
+ assert.equal(ctx.menu,null,'empty context leaves no radial menu');
+ ctx.S.sel=[{t:0,k:'mil',hp:20}];
+ assert.doesNotThrow(()=>ctx.open(8,8),'selection command may close without offering choices');
+ assert.equal(ctx.menu,null);
+ ctx.siteMenu=()=>({title:'Target',items:[]});
+ ctx.S.sel=[];
+ ctx.open(8,8);
+ assert.equal(ctx.menu.rad,1);
+ assert.equal(ctx.menu.pg,0);
 });
