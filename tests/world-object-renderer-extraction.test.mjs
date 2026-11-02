@@ -38,7 +38,7 @@ test('world rendering and procedural fallback unit art have distinct owners',()=
 test('world rendering still invokes extracted object painters while simulation remains in engine.js', () => {
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawBld\(/);
   assert.match(render, /function drawWorld\(\)[\s\S]*?drawNode\(/);
-  assert.match(troops, /function drawUnit\(u,selectedUnits\)[\s\S]*?paintUnit\(/);
+  assert.match(troops, /function drawUnit\(u,selectedUnits(?:,screenPosition)?\)[\s\S]*?paintUnit\(/);
   assert.match(effects, /function emit\(k,x,y,n,o\)\{/);
   assert.match(effects, /function updP\(dt\)\{/);
   assert.doesNotMatch(engine, /function emit\(k,x,y,n,o\)\{/);
