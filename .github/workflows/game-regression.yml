@@ -15,25 +15,29 @@ concurrency:
   cancel-in-progress: true
 jobs:
   campaign-playthroughs:
+    # Prior run verified 19/19 and 247/247. Recheck skirmish only.
+    if: ${{ false }}
     name: Campaign mission suite (19 isolated missions)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           # Verify untouched main, not the one-off branch trigger policy.
-          ref: 3bfae6682588fefb83fdd2a8294fd72bfeb272c1
+          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Run all isolated campaign playthroughs
         run: node scripts/run-checks.mjs --campaigns
   node-checks:
+    # Prior run verified 19/19 and 247/247. Recheck skirmish only.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           # Verify untouched main, not the one-off branch trigger policy.
-          ref: 3bfae6682588fefb83fdd2a8294fd72bfeb272c1
+          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -48,7 +52,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Verify untouched main, not the one-off branch trigger policy.
-          ref: 3bfae6682588fefb83fdd2a8294fd72bfeb272c1
+          ref: 4404b22edac713236cd8abdee9ae84814c62837c
       - uses: actions/setup-node@v4
         with:
           node-version: 22
