@@ -101,7 +101,7 @@ test('performance unit selection is session-local and invalid size or live game 
  const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
  const menus=readFileSync(new URL('../js/menus.js',import.meta.url),'utf8');
  const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
- assert.match(benchmark,/CK_SERIES_S_UNIT_LOADS=\\[50,100,200\\]/);
- assert.match(menus,/if\\(ti===7\\)\\{if\\(E\\[14\\]\\)cycleXboxPerformanceLoad\\(-1\\)/);
- assert.match(ui,/Xbox FPS Test · '\\+selectedXboxPerformanceLoad\\+' units/);
+ assert.match(benchmark,/CK_SERIES_S_UNIT_LOADS=\[50,100,200\]/);
+ assert.match(menus,/if\(ti===7\)\{if\(E\[14\]\)cycleXboxPerformanceLoad\(-1\)/);
+ assert.match(ui,/Xbox FPS Test · '\+selectedXboxPerformanceLoad\+' units/);
 });
