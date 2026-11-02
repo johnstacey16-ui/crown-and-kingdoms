@@ -101,7 +101,7 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/render-troops.js')<html.indexOf('./js/ui.js'));
   assert.ok(terrain.includes('function paintTerrain('));
   assert.ok(html.indexOf('./js/render.js')<html.indexOf('./js/render-terrain.js'));
-  assert.ok(troops.includes('function drawUnit(u,selectedUnits)'));
+  assert.ok(/function drawUnit\(u,selectedUnits(?:,screenPosition)?\)/.test(troops));
   assert.ok(render.includes('function drawRelic(q)'));
   assert.ok(terrain.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(terrain.includes('function paintTileDetail(g,x,y,cx,cy)'));
@@ -111,7 +111,7 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(terrain.includes('function chunkOf(cx,cy)'));
   assert.ok(terrain.includes('function drawChunks(x0,x1,y0,y1)'));
   assert.ok(!engineSource.includes('function drawWorld()'));
-  assert.ok(!engineSource.includes('function drawUnit(u,selectedUnits)'));
+  assert.ok(!/function drawUnit\(u,selectedUnits(?:,screenPosition)?\)/.test(engineSource));
   assert.ok(!engineSource.includes('function drawRelic(q)'));
   assert.ok(!engineSource.includes('function paintTile(g,x,y,cx,cy)'));
   assert.ok(!engineSource.includes('function paintTileDetail(g,x,y,cx,cy)'));
@@ -214,7 +214,7 @@ test('in-game About copy describes the real asset, audio and verification bounda
 });
 
 test('unit equipment rendering reads technology state and exposes researched armour visually', () => {
-  assert.match(troops, /function drawUnit\(u,selectedUnits\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
+  assert.match(troops, /function drawUnit\(u,selectedUnits(?:,screenPosition)?\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
   assert.match(troops, /T\.armI&&INFARM\.has\(k\)/);
   assert.match(troops, /T\.armR&&ARCHARM\.has\(k\)/);
   assert.match(troops, /Blacksmith armour upgrades receive a small battlefield-visible cue/);
