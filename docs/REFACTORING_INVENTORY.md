@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Current acceptance (2 November 2026):** [247/247 regression files and 19/19 mission simulations](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432394004) and [2/2 Chromium checks](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41431724523) on base `3bfae66`; [3/3 seeded AI skirmishes](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41433080535) and [1,015/1,015 focused plus 5/5 quick](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432869331) on corrected `4404b22`. Shell **v136**. Live Vercel last READY at older `c495724`. Physical Xbox, WAN and human/DLC parity remain unverified.
+**Current acceptance (2 November 2026):** [247/247 regression files, 19/19 campaign simulations](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432394004), [2/2 Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41431724523) and [3/3 seeded AI](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41433080535) remain green on their recorded revisions. Latest `b4b14b4` passed [**1,017/1,017 focused plus 5/5 quick**](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41435088392); new 50/100/200-unit Series S test fixtures are deterministic, use original artwork and preserve personal saves. Shell **v136**. Production last served READY `541e17a`; current green revision is one Vercel-rate-limited test-correction commit ahead. Physical Xbox FPS, radial crash retest and WAN/human DLC acceptance remain open.
 
 ## Current footprint and ownership
 
@@ -16,6 +16,7 @@
 
 ## Latest verified incremental work
 
+- `541e17a` / `b4b14b4`: title-screen Xbox FPS Test cycles exact **50/100/200 total units** with D-pad Left/Right on a consistent native-art two-town scene. Corrected two source-pattern assertions; [hosted focused b4b14b4](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41435088392) **1,017/1,017**, **5/5 quick**. No normal saves, online matches or controller layouts altered; physical Xbox FPS still needs console measurement.
 - `4404b22`: corrected scripted acceptance player Castle Age prerequisites and reserve; [3/3 skirmishes](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41433080535) and [1,015/1,015 focused](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432869331) passed.
 - `3bfae66`: untouched post-refactor `main` passed [247/247 regressions and 19/19 missions](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432394004); [2/2 Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41431724523). An initial one-off branch tripped the no-push policy test; that was isolated from `main`, rerun against the original workflow and disarmed.
 Historical 2026-11-02 renderer extractions (terrain, resource, buildings, troops and effects) are source-linked in Git history; latest focused art/terrain checks passed at `62e5b76` ([run 41430786922](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41430786922)). No artwork, cache-limit or controller changes were made.
@@ -24,7 +25,7 @@ Historical 2026-11-02 renderer extractions (terrain, resource, buildings, troops
 
 - **Software acceptance:** [regression and campaigns](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432394004) **247/247 and 19/19**, [Chromium](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41431724523) **2/2**, all at base `3bfae66`. [AI skirmishes](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41433080535) **3/3** and [focused](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41432869331) **1,015/1,015 plus 5/5** at `4404b22`. Campaign checks are simulations, not 19 human wins.
 - **Skirmish fix:** the scripted player previously could not qualify for Castle Age because it never built a second Feudal structure; after repairing construction and resource-saving orders, its match ended naturally at 2,024 simulated seconds. Production age rules and victory conditions unchanged.
-- **Deployment:** production alias last READY at `c495724`; current source rate-limited by free Vercel tier (**retry in 24 hours**). No upgrade, forced deployment or billing changes.
+- **Deployment:** production alias last READY at `541e17a` (contains selectable FPS scene), behind fully green `b4b14b4` by the test-only assertion correction; GitHub reports the latter rate-limited by free Vercel tier (**retry in 24 hours**). No forced deploy, paid tier or billing changes.
 - **OPEN:** physical Xbox Series S Edge 50/100/200-unit profiling, radial-menu crash retest, live WAN multiplayer and full original gameplay/DLC/controller acceptance.
 
 ## Refactoring queue, before broad new features
