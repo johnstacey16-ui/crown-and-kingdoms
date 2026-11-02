@@ -100,7 +100,7 @@ test('performance unit selection is session-local and invalid size or live game 
  assert.equal(storage.get('ck_autosave'),'auto');
  const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
  const menus=readFileSync(new URL('../js/menus.js',import.meta.url),'utf8');
- const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
  assert.match(benchmark,/CK_SERIES_S_UNIT_LOADS=\[50,100,200\]/);
  assert.match(menus,/if\(ti===7\)\{if\(E\[14\]\)cycleXboxPerformanceLoad\(-1\)/);
  assert.match(ui,/Xbox FPS Test · '\+selectedXboxPerformanceLoad\+' units/);
@@ -144,7 +144,7 @@ test('large battle stays out of ordinary saves and cannot replace a running matc
  assert.equal(run('JSON.stringify([S.us.length,S.bs.length,mode])'),before);
  const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
  const menus=readFileSync(new URL('../js/menus.js',import.meta.url),'utf8');
- const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
  assert.match(benchmark,/const CK_SERIES_S_BATTLE_KEY='ck_series_s_prebattle_fixture_v1'/);
  assert.match(menus,/const n=9/);
  assert.match(menus,/ti===8\)loadSeriesSLargeBattleSave\(\)/);
@@ -152,7 +152,7 @@ test('large battle stays out of ordinary saves and cannot replace a running matc
 });
 
 test('nine title options stay above controller help text at Xbox screen heights',()=>{
- const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
  assert.match(ui,/rh=Math.max\(30,Math.min\(48,Math.floor\(\(CH-385\)\/it.length\)\)\)/);
  const items=9;
  for(const height of [600,720,900,1080]){

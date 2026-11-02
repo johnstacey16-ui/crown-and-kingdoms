@@ -78,7 +78,7 @@ test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
 function fixture() {
   const {source,sandbox,listeners}=headlessGame();
   sandbox.fireEvent=(name,event)=>listeners.get(name)?.(event);
-  vm.createContext(sandbox);vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8')),sandbox);
+  vm.createContext(sandbox);vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8')),sandbox);
   vm.runInContext(`
     mode='play';S={us:[],bs:[],sel:[],vp:createVillagerPriority()};
     pad={axes:[0,0,0,0],buttons:[]};
@@ -96,7 +96,7 @@ const button=i=>Object.assign([],{[i]:true});
 
 function cameraFixture(){
   const {source,sandbox}=headlessGame();vm.createContext(sandbox);
-  vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8'))+'\n'+readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8'),sandbox);
+  vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8'))+'\n'+readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8'),sandbox);
   vm.runInContext(`
     seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();snd=0;mode='play';
     pad={axes:[0,0,0,0],buttons:[]};ctr(30,30);cur={x:CW/2,y:CH/2};
@@ -159,7 +159,7 @@ test('hold-A box selection stays on its world anchor while left-stick camera pan
 
 test('the documented Menu > Zoom path adjusts only the local camera and B resumes',()=>{
   const {source,sandbox}=headlessGame();vm.createContext(sandbox);
-  vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8')),sandbox);
+  vm.runInContext(source+'\n'+(readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8')),sandbox);
   vm.runInContext(`
     seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();snd=0;
     pad={axes:[0,0,0,0],buttons:[]};mode='play';
