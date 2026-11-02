@@ -106,11 +106,13 @@ test('list menu uses the same safe choices as the radial controller path',()=>{
  const begin=listUi.indexOf('if(menu&&!menu.rad){'),end=listUi.indexOf('\n\n/* Full-screen menu',begin);
  const radialEnd=ui.indexOf('\nfunction drawRadial()',pageStart);
  assert.ok(begin>=0&&end>begin&&radialEnd>pageStart);
+ // The HUD owns one additional outer closing brace after its list-menu branch.
+ const block=listUi.slice(begin,end),body=block.slice(0,block.lastIndexOf('\n}'));
  const labels=[];
  const ctx=vm.createContext({menu:null,CW:1280,CH:720,DS:{},X:{fillRect(){}},
   panel(){},cs:()=>'',tx:s=>labels.push(String(s))});
  vm.runInContext(ui.slice(pageStart,radialEnd)+
-  '\nfunction renderList(){'+listUi.slice(begin,end)+'}\n'+
+  '\nfunction renderList(){'+body+'}\n'+
   'globalThis.listPage=listMenuPage;globalThis.renderList=renderList;',ctx);
  for(const items of [undefined,[],[null,42,{l:'',c:null},{l:'Ready',c:{},lk:''}]]) {
   ctx.menu={rad:0,title:null,items,i:999,pg:5,pr:[[5,7]]};
