@@ -20,7 +20,7 @@ const snippets=[
  unit.slice(unit.indexOf('function upU(u,dt){')),
  section(movement,'const mv=(u,dx,dy)=>','/* Local spatial grid for unit separation.'),
  section(finding,'function d2(px,py,t){','const goalNear='),
- section(render,'const PAINT=','function loadPaintedTerrain('),
+ section(render,'const PAINT=','/* Painted terrain sampling and bounded edge blending:'),
  section(render,'function unitVisualPose(u,time){','function drawPaintedTroop(')
 ].join('\n');
 
