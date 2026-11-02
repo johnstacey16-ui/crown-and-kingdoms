@@ -74,3 +74,6 @@ The single runner continues after individual failures, preserves isolated scenar
 | [MASTER_AUDIT_AND_DELIVERY_REGISTER.md](MASTER_AUDIT_AND_DELIVERY_REGISTER.md) | Dated implementation evidence and historic `CK-###` items |
 
 The [older AoE II journal](AOE2_PARITY_ROADMAP.md), graphics history and prior CI/deployment notes are historical evidence, **not active instructions**. Git history retains superseded prose. Do not bulk-delete legacy-looking runtime, artwork, save, security, network or test files without proving them unused and running the relevant regression checks.
+
+
+**Xbox large battle save:** Select **Large Battle Test Save** on the title screen and press **A**. It prepares a reproducible four-kingdom battlefield with **372 real units, 238 completed buildings** and opposing armies staged near the map centre with saved attack orders. The game opens **paused**, so choose **Resume** when you want the fighting to begin. Performance HUD is enabled and normal manual/autosave slots are not touched; the test uses the reserved `ck_series_s_prebattle_fixture_v1` key. The battle is regenerated from the same seed when selected again; it is not a replacement for your campaign or ordinary saves. Check sustained FPS/unit rendering after resuming on physical Xbox Series S Edge.

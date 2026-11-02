@@ -105,3 +105,48 @@ test('performance unit selection is session-local and invalid size or live game 
  assert.match(menus,/if\(ti===7\)\{if\(E\[14\]\)cycleXboxPerformanceLoad\(-1\)/);
  assert.match(ui,/Xbox FPS Test · '\+selectedXboxPerformanceLoad\+' units/);
 });
+
+test('Large Battle Test Save stages 372 real units and 238 buildings before combat begins',()=>{
+ const {run,storage}=setup();
+ run('localStorage.setItem("ck_save","owned-manual");localStorage.setItem("ck_autosave","owned-auto");ti=8;E=[];E[0]=true;titleCtl()');
+ const state=details(run);
+ assert.equal(state.mode,'pause','the owner controls when the battle resumes');
+ assert.equal(state.perfTestMatch,1);
+ assert.equal(state.perfHud,1);
+ assert.equal(state.units,372);
+ assert.equal(state.buildings,238);
+ assert.equal(state.seedW,128);
+ assert.equal(state.seedH,128);
+ assert.equal(run('S.teamN'),4);
+ assert.deepEqual(JSON.parse(run('JSON.stringify(S.us.reduce((a,u)=>(a[u.t]++,a),[0,0,0,0]))')),[93,93,93,93]);
+ assert.deepEqual(JSON.parse(run('JSON.stringify(S.bs.reduce((a,b)=>(a[b.t]++,a),[0,0,0,0]))')),[60,60,59,59]);
+ assert.equal(storage.get('ck_save'),'owned-manual');
+ assert.equal(storage.get('ck_autosave'),'owned-auto');
+ assert.equal(storage.has('ck_series_s_fps_fixture_v1'),false,'small benchmark slot remains untouched');
+ const saved=JSON.parse(storage.get('ck_series_s_prebattle_fixture_v1'));
+ assert.equal(saved.us.length,372);assert.equal(saved.bs.length,238);
+ const army=JSON.parse(run('JSON.stringify(S.us.filter(u=>u.k!=="vil").map(u=>({t:u.t,o:u.o,target:u.tg?.t,x:u.x,y:u.y})))'));
+ assert.ok(army.length>=300,'all four kingdoms have substantial combat troops');
+ assert.ok(army.every(u=>u.o==='a'&&u.target!==u.t),'pre-staged opponents have hostile attack orders');
+ assert.equal(new Set(army.map(u=>u.x+','+u.y)).size,army.length,'combat units have distinct staging cells');
+ assert.ok(army.every(u=>u.x>2&&u.y>2&&u.x<126&&u.y<126));
+ assert.equal(run('mode="play";mode'), 'play','Resume is possible without reloading');
+});
+test('large battle stays out of ordinary saves and cannot replace a running match',()=>{
+ const {run,storage}=setup();
+ run('localStorage.setItem("ck_autosave","my-autosave");localStorage.setItem("ck_save","my-manual")');
+ assert.equal(run('loadSeriesSLargeBattleSave()'),true);
+ assert.equal(run('saveG(true)'),false,'large battle does not overwrite real autosaves');
+ assert.equal(storage.get('ck_autosave'),'my-autosave');
+ assert.equal(storage.get('ck_save'),'my-manual');
+ const before=run('JSON.stringify([S.us.length,S.bs.length,mode])');
+ assert.equal(run('loadSeriesSLargeBattleSave()'),false);
+ assert.equal(run('JSON.stringify([S.us.length,S.bs.length,mode])'),before);
+ const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
+ const menus=readFileSync(new URL('../js/menus.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ assert.match(benchmark,/const CK_SERIES_S_BATTLE_KEY='ck_series_s_prebattle_fixture_v1'/);
+ assert.match(menus,/const n=9/);
+ assert.match(menus,/ti===8\)loadSeriesSLargeBattleSave\(\)/);
+ assert.match(ui,/Large Battle Test Save/);
+});

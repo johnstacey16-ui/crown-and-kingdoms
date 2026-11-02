@@ -145,3 +145,112 @@ function loadSeriesSPerformanceSave(unitLoad=selectedXboxPerformanceLoad){
   // the user's stored setup preferences in ck_set remain untouched.
  }
 }
+
+/* One-click four-kingdom stress save just BEFORE an actual clash.
+ * Four built towns, 372 genuine production units and 238 legal buildings.
+ * The scene is paused so the controller owner decides when combat begins.
+ * This uses a separate test slot, never the owner's manual or autosaves.
+ */
+const CK_SERIES_S_BATTLE_KEY='ck_series_s_prebattle_fixture_v1';
+function loadSeriesSLargeBattleSave(){
+ if(mode!=='title'||window.CK_NET?.isRunning?.())return false;
+ const previous={seedOv,mapLayout,mt,msz,kingdoms,startAge,startRes,startVillagers,
+  startArmy,gameMode,vm,cmp,civ,aiCiv,diff,aip};
+ try{
+  cmp=null;seedOv=202692;mapLayout=0;mt=3;msz=2;kingdoms=4;
+  startAge=3;startRes=5;startVillagers=2;startArmy=0;gameMode=0;
+  vm=0;civ=0;aiCiv=1;diff=1;aip=0;start();
+  if(S.teamN!==4)throw Error('Large battle requires four kingdoms');
+  const targets=[60,60,59,59];
+  // Build around each established Town Centre, preserving unobstructed
+  // terrain and never placing a building over any previous footprint.
+  const roster=['house','house','bar','rng','stable','smith','market',
+   'tower','mill','lumber','mine','outpost','house','house','castle',
+   'house','house','bar','rng','stable','house','house','tower','house'];
+  for(let t=0;t<4;t++){
+   const home=S.bs.find(b=>b.t===t&&b.k==='tc'),seedX=home?.x+1,seedY=home?.y+1;
+   if(!home)throw Error('Missing large battle Town Centre');
+   let placed=0;
+   function available(x,y,size){
+    if(x<2||y<2||x+size>=W-2||y+size>=H-2)return false;
+    // No structures in the central troop staging arena.
+    if(Math.hypot(x+size/2-W/2,y+size/2-H/2)<W*.21)return false;
+    for(let yy=y;yy<y+size;yy++)for(let xx=x;xx<x+size;xx++)
+     if(S.g[yy*W+xx]||S.wt[yy*W+xx])return false;
+    return true;
+   }
+   function footprint(size){
+    for(let radius=5;radius<=48;radius++)for(let dy=-radius;dy<=radius;dy++)
+     for(const dx of[-radius,radius]){
+      const x=seedX+dx,y=seedY+dy;
+      if(available(x,y,size))return [x,y];
+     }
+    for(let radius=5;radius<=48;radius++)for(let dx=-radius;dx<=radius;dx++)
+     for(const dy of[-radius,radius]){
+      const x=seedX+dx,y=seedY+dy;
+      if(available(x,y,size))return [x,y];
+     }
+    return null;
+   }
+   while(S.bs.filter(b=>b.t===t).length<targets[t]){
+    const k=roster[placed++%roster.length],p=footprint(B[k].s);
+    if(!p)throw Error('No legal large battle building footprint: '+k+' team '+t);
+    addB(t,k,p[0],p[1],true);
+   }
+   S.res[t]={f:10000,w:10000,g:10000,s:10000};
+  }
+  // Four real armies at the centre; no fake sprites, collision-overlaps,
+  // miniature proxies, or stripped-down terrain. Unit locations are shared
+  // across the four factions and all land cells are genuine traversable tiles.
+  const staging=[[-12,9],[12,-9],[-12,-9],[12,9]];
+  const occupied=new Set();
+  const kinds=['mil','spear','arc','xbow','knight','scout','skirm','camel','ram','mang'];
+  const targetTeams=[2,3,0,1];
+  for(let t=0;t<4;t++){
+   const [dx,dy]=staging[t],ox=(W/2|0)+dx,oy=(H/2|0)+dy;
+   function stagingTile(){
+    for(let radius=0;radius<=22;radius++)for(let yy=-radius;yy<=radius;yy++)
+     for(let xx=-radius;xx<=radius;xx++){
+      if(Math.max(Math.abs(xx),Math.abs(yy))!==radius)continue;
+      const x=ox+xx,y=oy+yy,index=y*W+x;
+      if(x<2||y<2||x>=W-2||y>=H-2||occupied.has(index)||S.g[index]||S.wt[index])continue;
+      occupied.add(index);return [x+.5,y+.5];
+     }
+    return null;
+   }
+   const initial=S.us.filter(u=>u.t===t&&u.hp>0).length;
+   for(let i=0;i<93-initial;i++){
+    const p=stagingTile(),kind=kinds[i%kinds.length];
+    if(!p)throw Error('No clear large battle staging tile: '+t);
+    addU(t,kind,p[0],p[1]);
+   }
+  }
+  if(S.bs.length!==238||S.us.length!==372)throw Error('Wrong large battle scene size');
+  // Genuine hostile attack orders survive normal save/reload. After the
+  // owner resumes, each army advances to meet its counterpart.
+  for(let t=0;t<4;t++){
+   const enemies=S.us.filter(u=>u.t===targetTeams[t]&&u.k!=='vil'&&u.hp>0);
+   const army=S.us.filter(u=>u.t===t&&u.k!=='vil'&&u.hp>0);
+   if(!enemies.length||!army.length)throw Error('Missing large battle opponents');
+   for(let i=0;i<army.length;i++){
+    const unit=army[i];unit.o='a';unit.tg=enemies[i%enemies.length];
+    unit.p=[];unit.rp=0;
+   }
+  }
+  fog();mmUp();ctr(W/2,H/2);S.sel=[];
+  perfHud=1;perfFps=0;perfFlatField=0;perfLayerMode=0;
+  const saved=saveG(false,CK_SERIES_S_BATTLE_KEY);
+  if(saved&&!loadG(false,CK_SERIES_S_BATTLE_KEY))throw Error('Battle test save failed validation');
+  // Never resume the combat until the owner presses A/B on Resume.
+  perfTestMatch=1;mode='pause';pm=0;lastAutoSaveAt=0;
+  note(saved?'Large Battle Test saved: 372 units, 238 buildings - resume when ready':
+   'Large Battle Test ready in memory: 372 units, 238 buildings');
+  return true;
+ }catch(error){
+  console.warn('[Crown & Kingdoms] Large battle test failed',error);
+  perfTestMatch=0;mode='title';note('Could not prepare Large Battle Test');return false;
+ }finally{
+  ({seedOv,mapLayout,mt,msz,kingdoms,startAge,startRes,startVillagers,
+   startArmy,gameMode,civ,aiCiv,aip}=previous);
+ }
+}
