@@ -4,11 +4,11 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const ui=read('js/ui.js'),engine=read('engine.js');
+const ui=read('js/ui.js'),input=read('js/input.js');
 const pageStart=ui.indexOf('function radialMenuPage(m){');
 const uiEnd=ui.indexOf('\nfunction drawVillagerPriorityWheel',pageStart);
-const inputStart=engine.indexOf('if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);');
-const inputEnd=engine.indexOf('\nif(pat){',inputStart);
+const inputStart=input.indexOf('if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);');
+const inputEnd=input.indexOf('\nif(pat){',inputStart);
 assert.ok(pageStart>=0&&uiEnd>pageStart,'radial menu page/render source exists');
 assert.ok(inputStart>=0&&inputEnd>inputStart,'controller uses the same radial page layout');
 
@@ -18,7 +18,7 @@ function fixture(){
  const ctx=vm.createContext({CW:1280,CH:720,X,menu:null,DS:{},cs:()=>'',tx:s=>labels.push(String(s)),
    E:[],RE:[],ax:()=>0,yc:0});
  vm.runInContext(ui.slice(pageStart,uiEnd)+'\n'+
-   'function handleMenuInput(){'+engine.slice(inputStart,inputEnd)+'}\n'+
+   'function handleMenuInput(){'+input.slice(inputStart,inputEnd)+'}\n'+
    'globalThis.page=radialMenuPage;globalThis.draw=drawRadial;globalThis.control=handleMenuInput;',ctx);
  return {ctx,labels};
 }

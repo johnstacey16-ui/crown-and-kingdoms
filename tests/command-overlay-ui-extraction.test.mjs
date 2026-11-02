@@ -27,6 +27,7 @@ test('draw loop and command state remain connected to the extracted overlays', (
   assert.match(engine, /drawXboxHudOverlays\(dt\)/);
   assert.match(input, /function openRadial\(wx,wy\)\{/);
   assert.doesNotMatch(engine, /function openRadial\(wx,wy\)\{/);
-  assert.match(engine, /function playCtl\(dt\)\{/);
+  assert.match(input, /function playCtl\(dt\)\{/);
+  assert.doesNotMatch(engine, /function playCtl\(dt\)\{/);
   assert.match(engine, /let aDown=null/);
 });

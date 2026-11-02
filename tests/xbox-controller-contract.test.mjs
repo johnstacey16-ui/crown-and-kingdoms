@@ -7,13 +7,20 @@ import { headlessGame } from './helpers/headless-game.mjs';
 const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 
+test('in-match Xbox controller dispatch is owned by input rather than the frame engine',()=>{
+ assert.match(selectionInput,/function playCtl\(dt\)\{/);
+ assert.match(selectionInput,/playCtl\(dt\);return;/);
+ assert.doesNotMatch(selectionEngine,/function playCtl\(dt\)\{/);
+ assert.match(selectionEngine,/let aDown=null/);
+});
+
 test('Xbox Y shortcut, contextual radial menu and R3 priorities wheel are input-owned',()=>{
  for(const fn of ["yShort","siteMenu","openRadial","openVillagerPriorityWheel","operateVillagerPriorityWheel"]){
   assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
   assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' must not remain in engine');
  }
  for(const fn of ['yShort','openRadial','operateVillagerPriorityWheel']){
-  assert.ok(selectionEngine.includes(fn+'('),fn+' remains connected to Xbox input orchestration');
+  assert.ok(selectionInput.includes(fn+'('),fn+' remains connected to Xbox input orchestration');
  }
 });
 
@@ -22,10 +29,10 @@ test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
   assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
   assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' is not duplicated in engine');
  }
- assert.match(selectionEngine,/if\(E\[0\]\)\{if\(cur\.x>=mm\.x/);
- assert.match(selectionEngine,/boxSel\(boxR,lt\)/);
- assert.match(selectionEngine,/tapA\(aw\[0\],aw\[1\],lt\)/);
- assert.match(selectionEngine,/qsel\('idle'\)/);
+ assert.match(selectionInput,/if\(E\[0\]\)\{if\(cur\.x>=mm\.x/);
+ assert.match(selectionInput,/boxSel\(boxR,lt\)/);
+ assert.match(selectionInput,/tapA\(aw\[0\],aw\[1\],lt\)/);
+ assert.match(selectionInput,/qsel\('idle'\)/);
  assert.ok(selectionInput.includes('controlGroupMembers(S.sel)'), 'selection preserves live ownership checks');
 });
 
