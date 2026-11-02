@@ -81,7 +81,8 @@ test('Xbox-style automatic worker assignment chooses a reachable unclaimed food 
 
 test('all command surfaces preserve the one-farmer rule',()=>{
  assert.match(input,/!resourceHasWorksite\(u,tg\)/);
- assert.match(engine,/farmAvailableTo\(u,n\)/);
+ assert.match(input,/farmAvailableTo\(u,n\)/);
+ assert.doesNotMatch(engine,/farmAvailableTo\(u,n\)/);
  assert.match(network,/farmAvailableTo\(u,entity\)/);
  assert.match(network,/!!node\.fm&&!farmAvailableTo\(u,node\)/);
  assert.match(economy,/farmAvailableTo\(w,n\)/);
