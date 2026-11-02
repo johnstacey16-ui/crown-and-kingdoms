@@ -72,3 +72,24 @@ test('large maps throttle minimap updates and no-AI campaigns still tick objecti
  assert.equal(f.calls.filter(x=>x==='fog').length,4);
  assert.equal(f.calls.filter(x=>x==='minimap').length,1);
 });
+
+test('live array compaction is simulation-owned and preserves stable order for units and projectiles',()=>{
+ const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+ assert.doesNotMatch(engine,/function compactPositive\\(/);
+ assert.doesNotMatch(engine,/function compactNotFlag\\(/);
+ const start=source.indexOf('function compactPositive(a,k){');
+ const end=source.indexOf('/* ===== SIMULATION STEP ===== */',start);
+ assert.ok(start>=0&&end>start);
+ const ctx={};vm.createContext(ctx);
+ vm.runInContext(source.slice(start,end)+';globalThis.compact={positive:compactPositive,notFlag:compactNotFlag};',ctx);
+ const living=[{id:1,hp:10},{id:2,hp:0},{id:3,hp:5},{id:4,hp:-1},{id:5,hp:1}];
+ ctx.compact.positive(living,'hp');
+ assert.deepEqual(living.map(u=>u.id),[1,3,5]);
+ const projectiles=[{id:1,dead:0},{id:2,dead:1},{id:3,dead:false},{id:4,dead:true},{id:5}];
+ ctx.compact.notFlag(projectiles,'dead');
+ assert.deepEqual(projectiles.map(p=>p.id),[1,3,5]);
+ const effects=[{l:0},{l:.01},{l:-2}];
+ ctx.compact.positive(effects,'l');
+ assert.equal(effects.length,1);
+ assert.equal(effects[0].l,.01);
+});

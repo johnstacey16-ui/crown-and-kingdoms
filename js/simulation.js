@@ -6,6 +6,12 @@
 // Farms have one live assigned worker. Old duplicate orders use stable unit order.
 // Unit orders, combat, gathering and build work live in simulation-unit-behaviour.js.
 /* Enemy strategy and composition-aware decisions are implemented in js/ai.js. */
+/* Shared stable in-place compaction for live entities, projectiles and notes.
+ * Keep original element order and avoid array reallocation per simulation tick. */
+function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
+function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
+
+
 /* ===== SIMULATION STEP ===== */
 // Preserve this coordinator's call ordering and 30 Hz tick cadence.
 function step(dt){
