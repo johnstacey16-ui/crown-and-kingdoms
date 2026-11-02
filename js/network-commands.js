@@ -85,7 +85,8 @@
 
   const BUILD_PAGES = Object.freeze([
     Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost']),
-    Object.freeze(['tc','bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder'])
+    // Append new buildings; never shift existing Xbox RT wheel sectors.
+    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc'])
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{

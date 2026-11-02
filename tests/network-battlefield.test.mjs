@@ -212,6 +212,8 @@ test('battlefield graphics and contextual A use sight-filtered targets without o
 
 test('RT construction pages open a blueprint and submit a typed paid order; refresh retains the chosen page and preview',()=>{
  const c=fixture(),f=mapFixture(c),before=c.worldHash();
+ assert.equal(c.run("adapter.buildOptions(S,0)[1][0].value"),'bar','existing Xbox Barracks sector is unchanged');
+ assert.equal(c.run("adapter.buildOptions(S,0)[1].at(-1).value"),'tc','new Town Centre is a new sector');
  f.map.choose({x:21.5,y:21.5});f.map.control({7:true},{7:true});
  f.map.control({3:true},{7:true,3:true});f.refresh();
  f.map.control({0:true},{7:true,0:true});assert.equal(f.orders.length,0,'choosing a blueprint is not construction');
