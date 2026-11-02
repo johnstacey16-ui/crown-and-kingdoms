@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v140-screen-ui-ownership-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v141-controller-selection-ownership-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -76,6 +76,7 @@ const CORE_ASSETS = [
   './js/audio.js',
   './js/save.js',
   './js/input.js',
+  './js/input-selection.js',
   './js/render.js',
   './js/render-terrain.js',
   './js/render-resources.js',
