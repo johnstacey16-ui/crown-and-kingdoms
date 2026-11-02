@@ -30,7 +30,7 @@ test('particle ownership includes emission, lifetime and sprite warm-up, while e
 
 function runtime(){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
- vm.runInContext(source+'\\n;globalThis.run=code=>eval(code);',sandbox);
+ vm.runInContext(source+'\n;globalThis.run=code=>eval(code);',sandbox);
  return sandbox.run;
 }
 
