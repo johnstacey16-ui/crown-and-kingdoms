@@ -7,6 +7,7 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
 const begin=resource.indexOf('function farmAvailableTo(u,n){');
 const end=resource.indexOf('\nfunction dropoffKey(',begin);
@@ -47,6 +48,7 @@ test('fishing delivery, carrying upgrades and AI idle orders retain their gamepl
  assert.match(sim,/S\.res\[u\.t\]\[u\.ct\]\+=u\.car/,'delivered resources belong to the correct player');
  assert.match(resource,/u\.sh\?q\.k==='dock':q\.k==='tc'/,'ships use Docks rather than land resource depots');
  assert.match(ai,/queuedUnits\('fish'\)/,'AI fishing cap must account for ships in training');
- assert.match(ai,/for\(const s of fish\.filter\(u=>u\.o==='i'&&S\.t>=Math\.max\(u\.fleeUntil\|\|0,u\.nextFishingRoute\|\|0\)\)\)/,
+ assert.match(policy,/for\(const s of fish\.filter\(u=>u\.o==='i'&&S\.t>=Math\.max\(u\.fleeUntil\|\|0,u\.nextFishingRoute\|\|0\)\)\)/,
   'idle AI fishing ships may retry after flee and routing cooldowns');
+ assert.match(ai,/aiManageFishingShips\(fish,hostileFleet,R\)/,'live AI must execute the extracted fishing policy');
 });
