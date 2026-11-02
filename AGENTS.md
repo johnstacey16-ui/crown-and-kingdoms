@@ -27,7 +27,7 @@ Use the central `scripts/run-checks.mjs` rather than new handwritten workflow te
 
 Per-push [game-validation](.github/workflows/game-validation.yml) runs quick and focused only. [game-regression](.github/workflows/game-regression.yml) and [battlefield-browser](.github/workflows/battlefield-browser.yml) remain weekly/manual **to preserve free GitHub Actions minutes**. Separate game-regression jobs let skirmishes run even if other tests fail.
 
-**Last green hosted code revision:** `039221d`, [Actions 41363920325](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41363920325), **928/928 focused assertions, five quick gates, zero failures**. Vercel READY on the same SHA. The new runtime evidence guards malformed radial entries and confirms the First Hearth A-button gathering tutorial. Earlier Sunday Chromium and 19 isolated campaigns ran at older commits. Complete current **247-file isolated suite**, three seeded AI skirmishes, human campaign wins, independent-network multiplayer and physical Xbox hardware remain OPEN.
+**Last green hosted code revision:** `8b262d4`, [Actions 41364986053](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41364986053), **934/934 focused assertions, five quick gates, zero failures**. Vercel READY at the same code SHA. The AI orchestration file shed roughly 4,000 characters of merchant escort and fishing-vessel rules into the shared policy module, with six new executable tests. Previous Sunday Chromium and 19 isolated campaigns were checked on older commits. The **current 247-file isolated suite**, three seeded AI skirmishes, human campaign wins, WAN and physical Xbox hardware remain **OPEN**.
 
 ## Controller, hosting, security and save policy
 

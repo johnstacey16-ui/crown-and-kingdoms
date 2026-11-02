@@ -1,19 +1,22 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `039221d` · [GitHub Actions 41363920325](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41363920325) · **928/928 focused**, **5/5 quick**, **0 failures** · Vercel READY on the same SHA. Stale radial-command entries and the First Hearth A-button guidance have new executable regressions. Xbox hardware acceptance remains open.
+**Last green code revision:** `8b262d4` · [GitHub Actions 41364986053](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41364986053) · **934/934 focused**, **5/5 quick**, **0 failures** · Vercel READY on the same source. Six added tests validate extracted trade escorts and fishing escape/resupply behaviour; the four expensive standalone regressions and Xbox hardware acceptance remain open.
 
 ## Current footprint and ownership
 
 | Area | Current live owner and decision |
 |---|---|
 | Browser and headless runtime | `index.html` defines **47** production browser scripts, **34** core and **32** headless scripts. `scripts/runtime-sources.mjs` is the canonical ordered loader; `scripts/check-game.mjs` and `scripts/audit-runtime-graph.mjs` check all source/offline dependencies. |
-| Offline/versioned artwork | `sw.js` shell **v90**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
-| Simulation and AI | `js/simulation*.js` own tick, combat, victory, logistics, production, research, unit state and separation. `js/ai.js` is strategic orchestration; `js/ai-policy.js` owns threat, retreat, builder, wave and **ally resource-sharing** policies; `js/ai-construction.js` owns placement, walls, docks and resource-site building orders. |
+| Offline/versioned artwork | `sw.js` shell **v91**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
+| Simulation and AI | `js/simulation*.js` own tick, combat, victory, logistics, production, research, unit state and separation. `js/ai.js` is strategic orchestration; `js/ai-policy.js` owns threat, retreat, builder, wave and **ally resource-sharing, trade escort and fishing vessel** policies; `js/ai-construction.js` owns placement, walls, docks and resource-site building orders. |
 | Acceptance | **247 standalone `tests/*.test.mjs` files**, **243** selected for the fast hosted plan. Four network/simulation integration files remain weekly/manual. Campaign simulations (19), three seeded skirmishes, two Chromium checks and software Xbox contracts use the same check-runner plan. |
 | Multiplayer | Authenticated two-human WebRTC preview and network adapter modules are ACTIVE; reconnect, fallback transport, party scale, WAN and hidden-state/security acceptance remain open. |
 | Docs | `ROADMAP.md` retains the audited 48-task backlog, `AGENTS.md` the operating constraints, this file the current refactoring inventory. Existing audited snapshots, delivery register and Git history preserve dated evidence; avoid re-copying the same checkpoint prose across these files. |
 
 ## Latest verified incremental work
+
+- `1dc781d` / `81f5e48`: extracted 2,173 characters of trade-cart and trade-cog escort planning into `aiTradeEscorts`; three focused regression cases cover guard assignment, risk/expiry, impassable routes, weak/reserved soldiers, and naval escort eligibility.
+- `a4f6ee3` / `8b262d4`: extracted 1,928 characters of fishing-ship escape, fishing target and fish-trap policy into `aiManageFishingShips`; three added cases cover reachable safe water, cooldowns, reachable grounds and resource-gated traps. Latest CI **934/934**; offline cache v91.
 
 - `69cc36d`: command-wheel page helper normalizes corrupt/stale item labels/costs into inert entries without changing menu indices; two runtime tests protect rendering and A/B handling.
 - `039221d`: First Hearth scripted prompts checked against production controller A-release semantics, explicitly not X-only gathering; 928/928 hosted focused green.
