@@ -6,14 +6,7 @@ const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreat
 aiShareResources(t,A,R);
 aiRetreat(t,my,tc,bl);
 aiTradeEscorts(A,my,arm,galleys,hostileFleet,humanArmy);
-const damagedFleet=my.filter(u=>u.sh&&!u.ld&&u.hp>0&&u.hp<mhp(u)*.55&&u.o!=='rep').sort((a,b)=>(['fish','cog','trn'].includes(a.k)?1:0)-(['fish','cog','trn'].includes(b.k)?1:0)||a.hp/mhp(a)-b.hp/mhp(b));
-if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
- const target=damagedFleet[0],underFire=S.us.some(e=>e&&Number.isInteger(e.t)&&isHostile(t,e.t)&&e.hp>0&&U[e.k]?.sh&&Math.hypot(e.x-target.x,e.y-target.y)<10);
- if(!underFire){
-  const repairer=my.find(u=>u!==target&&u.sh&&!u.ld&&u.hp>mhp(u)*.7&&u.o==='i'&&!['fish','trn','cog'].includes(u.k));
-  if(repairer){repairer.o='rep';repairer.tg=target;repairer.p=[]}
- }
-}
+aiManageFleetRepairs(t,my);
 const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&b.hp>0&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
 if(tc.done&&!tc.rs&&Array.isArray(tc.q)&&!aiTownTechReady(t,tc,vil.length)&&vil.length+tc.q.filter(q=>q&&q.k==='vil').length<([12,18,26,32,38,44][diff]*PERS[aip].v|0)&&tc.q.length<2&&!aiSavingAgeFood(t,vil.length))train(tc,'vil');

@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -25,6 +25,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiShareResources\(t,A,R\)/);
  assert.match(ai,/aiTradeEscorts\(A,my,arm,galleys,hostileFleet,humanArmy\)/);
  assert.match(ai,/aiManageFishingShips\(fish,hostileFleet,R\)/);
+ assert.match(ai,/aiManageFleetRepairs\(t,my\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -175,4 +176,38 @@ test('fishing trap construction is resource gated and selected only if accessibl
  assert.equal(f.deployments(),1);
  assert.equal(f.fish.nextFishTrapAt,155);
  assert.equal(f.fish.o,'g');
+});
+
+function fleetRepairFixture(){
+ const S={us:[]},U={gal:{sh:1},fish:{sh:1},cog:{sh:1},trn:{sh:1}};
+ const ctx=vm.createContext({S,U,mhp:()=>100,isHostile:(a,b)=>a!==b});
+ vm.runInContext(policy+'\n;globalThis.repair=aiManageFleetRepairs;',ctx);
+ const ship=(k,hp,o='i',x=10,y=10)=>({k,sh:1,hp,o,x,y,t:1,p:[{x:1,y:1}],tg:null});
+ return {S,ship,run:my=>ctx.repair(1,my)};
+}
+
+test('fleet repair prioritizes the most damaged warship before utility ships, using one healthy idle escort',()=>{
+ const f=fleetRepairFixture(),repairer=f.ship('gal',95),warship=f.ship('gal',20,'a'),
+  second=f.ship('gal',45,'a'),fish=f.ship('fish',8,'g');
+ f.run([fish,second,repairer,warship]);
+ assert.equal(repairer.o,'rep');
+ assert.equal(repairer.tg,warship,'combat vessels take priority even when utility ships have less health');
+ assert.equal(repairer.p.length,0,'repair orders clear the prior movement path');
+ const spare=f.ship('gal',98);
+ f.run([fish,second,repairer,warship,spare]);
+ assert.equal(spare.o,'i','an existing repair order prevents a duplicate');
+});
+
+test('fleet repairs defer under enemy naval fire or when no eligible warship is idle',()=>{
+ const f=fleetRepairFixture(),target=f.ship('gal',30,'a'),repairer=f.ship('gal',90);
+ f.S.us.push({k:'gal',t:0,hp:100,x:11,y:10});
+ f.run([target,repairer]);
+ assert.equal(repairer.o,'i','enemy warship nearby prevents exposed repair');
+ f.S.us[0].x=50;
+ repairer.o='m';f.run([target,repairer]);
+ assert.equal(repairer.o,'m','busy warships cannot be diverted into repair');
+ repairer.o='i';repairer.hp=70;f.run([target,repairer]);
+ assert.equal(repairer.o,'i','only vessels above seventy percent health repair');
+ repairer.hp=90;f.run([target,repairer]);
+ assert.equal(repairer.o,'rep','repair resumes once the enemy is distant and the escort is ready');
 });
