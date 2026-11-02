@@ -162,3 +162,21 @@ test('nine title options stay above controller help text at Xbox screen heights'
    'last title entry is above the gamepad-status bar at '+height+'px');
  }
 });
+
+test('King starting mode skips missing Town Centres and still spawns at valid centres',()=>{
+ const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+ const begin=engine.indexOf('if(vm===3)for(let t=0;t<S.teamN;t++){');
+ const end=engine.indexOf("mode='play'",begin);
+ assert.ok(begin>=0&&end>begin,'starting kings are assigned during live match creation');
+ const spawns=[],kings=[];
+ const ctx={vm:3,S:{teamN:3,bs:[{t:1,k:'tc'}]},spawnPos:b=>{
+  spawns.push(b);return [7,8]
+ },addU:(...args)=>kings.push(args)};
+ vm.runInNewContext(engine.slice(begin,end),ctx);
+ assert.equal(spawns.length,1,'no undefined centre reaches spawnPos');
+ assert.equal(kings.length,1,'only valid centres create a king');
+ assert.deepEqual(kings[0],[1,'king',7,8]);
+ ctx.S.bs=[];spawns.length=0;kings.length=0;
+ assert.doesNotThrow(()=>vm.runInNewContext(engine.slice(begin,end),ctx));
+ assert.equal(spawns.length,0,'no centres is a safe exceptional state');
+});

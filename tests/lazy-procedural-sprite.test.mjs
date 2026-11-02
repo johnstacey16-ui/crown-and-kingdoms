@@ -54,3 +54,25 @@ test('partial atlas loading preserves fallback for only the missing building',()
  assert.equal(run('spriteRequests'),1,'painted troop uses atlas; unavailable house uses fallback');
  assert.ok(run('ASSET.hits')>=1&&run('ASSET.miss')>=1);
 });
+
+test('procedural fallback textures obey an 8 MiB LRU and refresh on demand',()=>{
+ const run=fixture();
+ run('clearProceduralSpriteCache();globalThis.spriteA=spr("a",400,400,()=>{});spr("b",400,400,()=>{});spr("c",400,400,()=>{})');
+ assert.equal(run('SPC.size'),3);
+ assert.equal(run('SPC_PIXELS'),3*400*400*4);
+ run('spr("b",400,400,()=>{});spr("d",400,400,()=>{})');
+ assert.equal(run('SPC.has("a")'),false,'the oldest unused sprite is evicted');
+ assert.equal(run('SPC.has("b")'),true,'recently-used sprite is retained');
+ assert.ok(run('SPC_PIXELS')<=run('SPC_PIXEL_LIMIT'));
+ assert.equal(run('SPC.size'),3);
+ run('spr("a",400,400,()=>{})');
+ assert.equal(run('SPC.has("a")'),true,'evicted fallback artwork is reconstructed');
+ assert.equal(run('SPC.get("a")===spriteA'),false);
+ const before=run('SPC.size');
+ assert.equal(run('spr("oversize",1500,1500,()=>{}).width'),3000);
+ assert.equal(run('SPC.size'),before,'oversized art renders without entering the cache');
+ assert.ok(run('SPC_PIXELS')<=run('SPC_PIXEL_LIMIT'));
+ run('clearProceduralSpriteCache()');
+ assert.equal(run('SPC.size'),0);
+ assert.equal(run('SPC_PIXELS'),0,'atlas reload clears accounting too');
+});
