@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const sim=fs.readFileSync(new URL('../js/simulation-production-queues.js',import.meta.url),'utf8');
 const runtime=fs.readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
-const engine=fs.readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const economy=fs.readFileSync(new URL('../js/economy.js',import.meta.url),'utf8');
 
 test('queued population is counted once when training',()=>{
  const source=sim.slice(sim.indexOf('function train(b,k)'),sim.indexOf('function cancelQ('));
@@ -30,7 +30,7 @@ test('full population prevents new training',()=>{
 test('AI housing forecast uses actual plus queued population only once',()=>{
  assert.match(ai,/if\(popOf\(t\)\+5>capOf\(t\)/);
  assert.doesNotMatch(ai,/popOf\(t\)\+queuedPopulation\(t\)/);
- assert.ok(engine.includes('const popOf=t=>livePopulation(t)+queuedPopulation(t)'));
+ assert.ok(economy.includes('const popOf=t=>livePopulation(t)+queuedPopulation(t)'));
 });
 test('Treadmill Crane increases repair rate as well as build rate',()=>{
  assert.match(runtime,/tg\.mh\*dt\/\(S\.tech\[u\.t\]\.crane\?32:40\)/);
