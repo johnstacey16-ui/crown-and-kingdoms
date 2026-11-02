@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 function setup(){
@@ -49,4 +50,15 @@ test('the built-in sample is inaccessible from another live match or an online s
  const before=JSON.parse(run('JSON.stringify([S.us.length,S.bs.length,mode])'));
  assert.equal(run('loadSeriesSPerformanceSave()'),false);
  assert.deepEqual(JSON.parse(run('JSON.stringify([S.us.length,S.bs.length,mode])')),before);
+});
+
+test('Xbox performance fixture has a single benchmark owner, not a duplicate in engine',()=>{
+ const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
+ const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+ assert.match(benchmark,/function loadSeriesSPerformanceSave\(\)/);
+ assert.match(benchmark,/const CK_SERIES_S_SAMPLE_KEY='ck_series_s_fps_fixture_v1'/);
+ assert.match(benchmark,/saveG\(false,CK_SERIES_S_SAMPLE_KEY\)/);
+ assert.match(benchmark,/loadG\(false,CK_SERIES_S_SAMPLE_KEY\)/);
+ assert.doesNotMatch(engine,/function loadSeriesSPerformanceSave\(\)/);
+ assert.doesNotMatch(engine,/const CK_SERIES_S_SAMPLE_KEY=/);
 });
