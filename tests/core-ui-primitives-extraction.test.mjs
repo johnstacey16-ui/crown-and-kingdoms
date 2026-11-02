@@ -55,7 +55,8 @@ test('frame, browser error, promise rejection and audio timer report one stable 
  assert.equal(ctx.snapshot().error.units,1);
  assert.equal(ctx.snapshot().error.buildings,1);
  assert.equal(ctx.snapshot().error.map,'128x128');
- assert.equal(ctx.snapshot().error.mode,'error');
+ assert.equal(ctx.snapshot().error.mode,'play','snapshot records the mode that failed');
+ assert.equal(ctx.snapshot().mode,'error','runtime enters diagnostic error mode');
  assert.equal(ctx.snapshot().acc,0);
  events.get('unhandledrejection')({reason:Error('do not overwrite')});
  assert.equal(ctx.snapshot().error.message,'event failure','first failure is retained');
