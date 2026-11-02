@@ -1,7 +1,36 @@
 /* Crown & Kingdoms — economic, defensive, and naval AI. Loaded after simulation.js. */
 /* ===== ENEMY AI (same rules as player; no resource or damage bonuses) ===== */
 function ai(dt){if(!Number.isFinite(dt)||dt<=0)return;for(let t=1;t<S.teamN;t++)if(!Array.isArray(S.humanTeams)||!S.humanTeams.includes(t))aiTeam(t,dt)}
-function aiTeam(t,dt){if(!S||!Number.isInteger(t)||t<=0||t>=S.teamN||!Number.isFinite(dt)||dt<=0||!S.res?.[t])return;const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([4.5,3.2,2.4,1.8,1.35,1.05][diff])*(1+(t-1)*.05);const R=S.res[t],my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;for(const u of S.us)if(u&&u.t===t&&u.hp>0&&U[u.k]){my.push(u);if(u.k==='vil'&&!u.ld)vil.push(u);else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);if(u.k==='fish'&&!u.ld)fish.push(u);if(u.k==='scout'&&!u.ld)scouts.push(u);if(u.k==='gal'&&!u.ld)galleys.push(u)}for(const b of S.bs)if(b&&b.t===t&&b.hp>0){bl.push(b);if(b.k==='tc'&&b.hp>0&&(!tc||(!tc.done&&b.done)))tc=b}if(!tc)return;
+// Build the strategic roster once per AI decision. Keep garrisoned units in
+// total ownership counts, but exclude them from active worker/army/fleet groups.
+// A completed, living Town Centre takes priority over an unfinished fallback.
+function aiTeamRoster(t){
+ const my=[],vil=[],arm=[],fish=[],scouts=[],galleys=[],bl=[];let tc=null;
+ for(const u of S.us)if(u&&u.t===t&&u.hp>0&&U[u.k]){
+  my.push(u);
+  if(u.k==='vil'&&!u.ld)vil.push(u);
+  else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);
+  if(u.k==='fish'&&!u.ld)fish.push(u);
+  if(u.k==='scout'&&!u.ld)scouts.push(u);
+  if(u.k==='gal'&&!u.ld)galleys.push(u)
+ }
+ for(const b of S.bs)if(b&&b.t===t&&b.hp>0){
+  bl.push(b);
+  if(b.k==='tc'&&b.hp>0&&(!tc||(!tc.done&&b.done)))tc=b
+ }
+ return {my,vil,arm,fish,scouts,galleys,bl,tc}
+}
+// Counts deliberately use the same live hostile roster supplied by ai-policy;
+// classification thresholds are kept unchanged for formation counters.
+function aiHostileComposition(humanArmy){
+ return {
+  humanCav:humanArmy.filter(u=>CAVARM.has(u.k)).length,
+  humanRanged:humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,
+  humanSiege:humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,
+  humanInf:humanArmy.filter(u=>['mil','spear','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length
+ }
+}
+function aiTeam(t,dt){if(!S||!Number.isInteger(t)||t<=0||t>=S.teamN||!Number.isFinite(dt)||dt<=0||!S.res?.[t])return;const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([4.5,3.2,2.4,1.8,1.35,1.05][diff])*(1+(t-1)*.05);const R=S.res[t],{my,vil,arm,fish,scouts,galleys,bl,tc}=aiTeamRoster(t);if(!tc)return;
 const {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount}=aiClassifyHostileForces(t);
 aiShareResources(t,A,R);
 aiRetreat(t,my,tc,bl);
@@ -34,7 +63,7 @@ if(PERS[aip].rg&&cnt('bar')&&cnt('rng')<2&&vil.length>=10&&(arm.length>=4||R.w>=
   if(options.length)aiBuild(vil,options[0],t)
  }
 }}
-const humanCav=humanArmy.filter(u=>CAVARM.has(u.k)).length,humanRanged=humanArmy.filter(u=>['arc','xbow','lbow','skirm','mgd','genoa','jan','hcan','conq'].includes(u.k)).length,humanSiege=humanArmy.filter(u=>['ram','mang','scor','treb','bomb','cata'].includes(u.k)).length,humanInf=humanArmy.filter(u=>['mil','spear','woad','bers','huskarl','jaguar','saml','tk','axe','gbeto'].includes(u.k)).length;
+const {humanCav,humanRanged,humanSiege,humanInf}=aiHostileComposition(humanArmy);
 const queuedUnits=k=>aiQueuedUnits(bl,k);
 // Feudal→Castle advancement needs 800 food / 200 gold; otherwise
 // constant paid soldier training can indefinitely consume the age-up budget.
