@@ -10,6 +10,23 @@
  * Keep original element order and avoid array reallocation per simulation tick. */
 function compactPositive(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(v[k]>0)a[w++]=v}a.length=w}
 function compactNotFlag(a,k){let w=0;for(let i=0;i<a.length;i++){const v=a[i];if(!v[k])a[w++]=v}a.length=w}
+// Rubble is purely visual and is never serialized. Keep only the 40-second
+// painted lifetime; cap retained entries during mass destruction/headless runs.
+// Stable in-place compaction avoids allocating another array every tick.
+const RUBBLE_LIFETIME=40,RUBBLE_LIMIT=512;
+function compactRubble(now){
+ let w=0;
+ for(let i=0;i<rub.length;i++){
+  const q=rub[i];
+  if(q&&Number.isFinite(q.t)&&now-q.t<=RUBBLE_LIFETIME)rub[w++]=q
+ }
+ if(w>RUBBLE_LIMIT){
+  const excess=w-RUBBLE_LIMIT;
+  for(let i=0;i<RUBBLE_LIMIT;i++)rub[i]=rub[i+excess];
+  w=RUBBLE_LIMIT
+ }
+ rub.length=w
+}
 
 
 /* ===== SIMULATION STEP ===== */
@@ -68,6 +85,7 @@ for(const f of fx)f.l-=dt;
 if(++S.vt%30===0)S.scoreCache=Array.from({
     length:S.teamN
   },(_,t)=>kingdomScore(t));
+  if(S.vt%30===0)compactRubble(gt);
   if(S.vt%6===0){
     fog();
     if(S.vt%(W*H>20000?24:W*H>9000?12:6)===0)mmUp()
