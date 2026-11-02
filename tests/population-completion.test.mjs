@@ -47,8 +47,9 @@ test('dead units and destroyed production stop occupying slots; garrisoned units
 
 test('population and shared resource-transaction helpers belong to economy without changed semantics',()=>{
  for(const name of ['capOf','livePopulation','popOf','can','pay','cs']){
-  assert.match(economy,new RegExp('const '+name+'='));
-  assert.doesNotMatch(engine,new RegExp('const '+name+'='));
+  const declaration=new RegExp(name==='pay'?'(?:const |,)pay=':'const '+name+'=');
+  assert.match(economy,declaration);
+  assert.doesNotMatch(engine,declaration);
  }
  const start=economy.indexOf('const capOf=t=>');
  const end=economy.indexOf('const cs=c=>',start);
