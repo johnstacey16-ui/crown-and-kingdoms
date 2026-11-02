@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
-const engine=read('engine.js'),sim=read('js/simulation-building-updates.js'),queueSource=read('js/simulation-production-queues.js');
-const pop=engine.split('\n').filter(l=>/^const (capOf|popOf|livePopulation)=/.test(l)).join('\n');
+const engine=read('engine.js'),economy=read('js/economy.js'),sim=read('js/simulation-building-updates.js'),queueSource=read('js/simulation-production-queues.js');
+const pop=economy.split('\n').filter(l=>/^const (capOf|popOf|livePopulation)=/.test(l)).join('\n');
 const queued=queueSource.slice(queueSource.indexOf('function queuedPopulation('),queueSource.indexOf('function train('));
 const production=sim.slice(sim.indexOf('function upB('));
 function fixture(count,queues){
@@ -43,4 +43,31 @@ test('dead units and destroyed production stop occupying slots; garrisoned units
  assert.equal(f.run('popOf(1)'),1);
  f.run('upB(S.bs[1],1)');
  assert.equal(f.S.pl.tr,0,'destroyed building cannot finish training');
+});
+
+test('population and shared resource-transaction helpers belong to economy without changed semantics',()=>{
+ for(const name of ['capOf','livePopulation','popOf','can','pay','cs']){
+  assert.match(economy,new RegExp('const '+name+'='));
+  assert.doesNotMatch(engine,new RegExp('const '+name+'='));
+ }
+ const start=economy.indexOf('const capOf=t=>');
+ const end=economy.indexOf('const cs=c=>',start);
+ assert.ok(start>=0&&end>start);
+ const lineEnd=economy.indexOf('\n',end);
+ const code=economy.slice(start,lineEnd<0?economy.length:lineEnd);
+ const S={us:[{t:0,hp:25},{t:0,hp:0},{t:1,hp:40}],
+  bs:[{t:0,k:'house',done:true,hp:60},{t:0,k:'house',done:true,hp:0}],
+  res:[{f:100,w:50,g:0,s:0},{f:0,w:0,g:0,s:0}]};
+ const ctx=vm.createContext({S,popLimit:200,queuedPopulation:t=>t===0?2:0});
+ vm.runInContext(code+';globalThis.helpers={capOf,livePopulation,popOf,can,pay,cs};',ctx);
+ const {capOf,livePopulation,popOf,can,pay,cs}=ctx.helpers;
+ assert.equal(capOf(0),15);assert.equal(livePopulation(0),1);assert.equal(popOf(0),3);
+ assert.equal(can(0,{f:100,w:50}),true);
+ assert.equal(can(0,{g:1}),false);
+ pay(0,{f:100,w:25});
+ assert.deepEqual(S.res[0],{f:0,w:25,g:0,s:0});
+ pay(0,{f:100,w:25},1);
+ assert.deepEqual(S.res[0],{f:100,w:50,g:0,s:0});
+ assert.equal(cs({f:50,w:20}),'50F 20W');
+ assert.equal(cs({}),'free');
 });
