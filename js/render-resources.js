@@ -8,23 +8,42 @@ else{const gold=kind==='g';g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse
 // Cache high-resolution but small static resource crops instead of sampling
 // huge painted atlases every frame on Xbox Edge. Team-colour image identity
 // weakly keys the cache, so reloaded/new art never reuses stale texture pixels.
-const NODE_TEXTURE_CACHE=new WeakMap();
+// Static crops share one LRU across source atlases. Bound retained native
+// canvases on Xbox Edge without changing rendered dimensions or atlas fallbacks.
+const NODE_TEXTURE_CACHE=new WeakMap(),NODE_TEXTURE_RECENCY=new Map();
+const NODE_TEXTURE_PIXEL_LIMIT=2*1024*1024,NODE_TEXTURE_ENTRY_LIMIT=128; // 8 MiB RGBA
+let nodeTextureSeq=0,NODE_TEXTURE_PIXELS=0;
 function paintedNodeTexture(painted,width){
- if(!painted?.img||!painted.f)return null;
- const f=painted.f,img=painted.img;
- let frames=NODE_TEXTURE_CACHE.get(img);
- if(!frames){frames=new Map();NODE_TEXTURE_CACHE.set(img,frames)}
- const key=[f.x,f.y,f.w,f.h,width,painted.referenceWidth||f.w].join('/');
- if(frames.has(key))return frames.get(key);
+ if(!painted?.img||!painted.f||typeof painted.img!=='object')return null;
+ const f=painted.f,img=painted.img,reference=painted.referenceWidth||f.w;
+ if(![f.x,f.y,f.w,f.h,reference,width].every(Number.isFinite)||
+    f.x<0||f.y<0||f.w<=0||f.h<=0||reference<=0||width<=0)return null;
+ const scale=2*width/reference,w=Math.max(1,Math.round(f.w*scale)),
+       h=Math.max(1,Math.round(f.h*scale)),pixels=w*h;
+ // Oversized frames render directly from their original atlas without caching.
+ if(!Number.isSafeInteger(pixels)||pixels>NODE_TEXTURE_PIXEL_LIMIT)return null;
+ let entry=NODE_TEXTURE_CACHE.get(img);
+ if(!entry){entry={id:++nodeTextureSeq,frames:new Map()};NODE_TEXTURE_CACHE.set(img,entry)}
+ const frames=entry.frames,key=[f.x,f.y,f.w,f.h,width,reference].join('/'),
+       recencyKey=entry.id+'/'+key;
+ if(frames.has(key)){
+  const canvas=frames.get(key);NODE_TEXTURE_RECENCY.delete(recencyKey);
+  NODE_TEXTURE_RECENCY.set(recencyKey,{frames,key,canvas});return canvas;
+ }
  try{
-  const canvas=document.createElement('canvas'),scale=2*width/(painted.referenceWidth||f.w);
-  canvas.width=Math.max(1,Math.round(f.w*scale));
-  canvas.height=Math.max(1,Math.round(f.h*scale));
+  const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
   const g=canvas.getContext('2d');if(!g)return null;
   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
-  g.drawImage(img,f.x,f.y,f.w,f.h,0,0,canvas.width,canvas.height);
+  g.drawImage(img,f.x,f.y,f.w,f.h,0,0,w,h);
   canvas.paintedAtlas=!!painted.painted;canvas.paintedTeam=img.paintedTeam??null;
-  frames.set(key,canvas);return canvas;
+  frames.set(key,canvas);NODE_TEXTURE_RECENCY.set(recencyKey,{frames,key,canvas});
+  NODE_TEXTURE_PIXELS+=pixels;
+  while(NODE_TEXTURE_PIXELS>NODE_TEXTURE_PIXEL_LIMIT||NODE_TEXTURE_RECENCY.size>NODE_TEXTURE_ENTRY_LIMIT){
+   const oldestKey=NODE_TEXTURE_RECENCY.keys().next().value,oldest=NODE_TEXTURE_RECENCY.get(oldestKey);
+   NODE_TEXTURE_RECENCY.delete(oldestKey);oldest.frames.delete(oldest.key);
+   NODE_TEXTURE_PIXELS-=oldest.canvas.width*oldest.canvas.height;
+  }
+  return canvas;
  }catch(_){return null}
 }
 // Stable geographic variants, independent of clock and owner.
@@ -63,10 +82,15 @@ function drawPaintedRelic(g,x,y,width){
 }
 
 function drawNode(n){const P=w2s(n.x+.5,n.y+.5),v=hsh(n.x,n.y),i=n.y*W+n.x;X.globalAlpha=S.vs[i]?1:.65;
-const painted=paintedEnvironmentFrame(n,S.t)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm||n.trap,resourceVisualAmount(n,!!S.vs[i]))||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/(painted.referenceWidth||f.w)*zm;X.save();X.translate(P[0],P[1]+4*zm);if(!n.fm&&v<.5)X.scale(-1,1);const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
-if(cached)X.drawImage(cached,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
-else X.drawImage(painted.img,f.x,f.y,f.w,f.h,-f.ax*sc,-f.ay*sc,f.w*sc,f.h*sc);
-X.restore();X.globalAlpha=1;return;}
+const painted=paintedEnvironmentFrame(n,S.t)||paintedResourceFrame(n.k,n.x,n.y,n.an||n.fi||n.fm||n.trap,resourceVisualAmount(n,!!S.vs[i]))||(ASSET.n?assetFrame(n.fm?'bld_farm':n.k==='w'?'node_tree':'none',n.t||0,0,0,gt):null);if(painted?.painted){const f=painted.f,sc=paintedResourceWidth(n,painted)/(painted.referenceWidth||f.w)*zm,flip=!n.fm&&v<.5,
+ dx=flip?-f.ax*sc:P[0]-f.ax*sc,dy=flip?-f.ay*sc:P[1]+4*zm-f.ay*sc;
+ const cached=paintedNodeTexture(painted,paintedResourceWidth(n,painted));
+ // Nonmirrored resources draw at identical absolute positions without transforms.
+ if(flip){X.save();X.translate(P[0],P[1]+4*zm);X.scale(-1,1)}
+ if(cached)X.drawImage(cached,dx,dy,f.w*sc,f.h*sc);
+ else X.drawImage(painted.img,f.x,f.y,f.w,f.h,dx,dy,f.w*sc,f.h*sc);
+ if(flip)X.restore();
+ X.globalAlpha=1;return;}
 if(n.fi){const sx=P[0],sy=P[1],z=zm,r=(6+Math.sin(gt*2+n.x)*2)*z;if(n.trap){X.strokeStyle='#d7b36a';X.lineWidth=2*z;X.beginPath();X.ellipse(sx,sy+2*z,13*z,6*z,0,0,7);X.stroke();X.strokeStyle='#8b6b3b';X.beginPath();X.moveTo(sx-8*z,sy);X.lineTo(sx+8*z,sy+3*z);X.moveTo(sx+6*z,sy-4*z);X.lineTo(sx-5*z,sy+5*z);X.stroke();}X.strokeStyle='rgba(255,255,255,.5)';X.beginPath();X.ellipse(sx,sy,r+6*z,(r+6*z)/2,0,0,7);X.stroke();X.fillStyle='#d8eef6';X.beginPath();X.ellipse(sx,sy-2*z,8*z,3.5*z,0,0,7);X.fill();X.fillStyle='#8cc0d6';poly([[sx+7*z,sy-2*z],[sx+12*z,sy-6*z],[sx+12*z,sy+2*z]]);X.fill()}
 else if(n.fm){const z=zm,st=Math.min(3,(n.amt/110)|0),c=spr('farm|'+st,70,40,g=>{pg(g,[[0,5],[30,-8],[0,-21],[-30,-8]],lin(g,0,-21,0,5,'#9a7a44','#6a4a22'),'#2a1a0a',1);for(let r=-3;r<=3;r++){g.strokeStyle='rgba(40,20,5,.5)';g.lineWidth=1;g.beginPath();g.moveTo(-22+r*4+8,-4+r*2-10);g.lineTo(2+r*4+8,8+r*2-12);g.stroke();if(st>0)for(let q=0;q<5;q++){g.fillStyle=st>2?'#d8b84a':'#6aa83a';g.fillRect(-18+r*4+q*5+8,-8+r*2+q*2.3-10-st*1.6,1.6,2+st*1.8);if(st>=2){const fx=-18+r*4+q*5+8,fy=-8+r*2+q*2.3-10-st*1.6;g.strokeStyle='rgba(226,197,105,.9)';g.lineWidth=.7;g.beginPath();g.moveTo(fx+.7,fy);g.lineTo(fx+1.2,fy-3);g.stroke();g.fillStyle=st>2?'#f0d477':'#b7bd50';g.beginPath();g.ellipse(fx+1.2,fy-3,1.1,.65,-.5,0,Math.PI*2);g.fill()}}}});blit(c,P[0],P[1]+4*z,70,40,false)}
 else{const kind=n.an?'d':n.k,vv=kind==='w'?(v<.34?0:v<.67?1:2):0,sz=kind==='w'?[64,84]:[48,44],c=spr('n|'+kind+'|'+vv,sz[0],sz[1],g=>paintNode(g,kind,kind==='w'?v:0));blit(c,P[0],P[1]+4*zm,sz[0],sz[1],false)}
