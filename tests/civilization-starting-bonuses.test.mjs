@@ -79,6 +79,6 @@ test('civilization stat bonus helpers are kingdom-owned and preserve additive te
  const helpers=vm.runInNewContext(kingdom.slice(start,end)+';({hpbF,atkbF})',{S});
  helpers.hpbF(0,'vil',10);helpers.hpbF(0,'vil',5);helpers.hpbF(1,'vil',2);
  helpers.atkbF(0,'mil',1);helpers.atkbF(1,'mil',3);
- assert.deepEqual(S.tech[0],{hpb:{vil:15},atkb:{mil:1}});
- assert.deepEqual(S.tech[1],{hpb:{vil:2},atkb:{mil:3}});
+ assert.deepEqual(JSON.parse(JSON.stringify(S.tech[0])),{hpb:{vil:15},atkb:{mil:1}});
+ assert.deepEqual(JSON.parse(JSON.stringify(S.tech[1])),{hpb:{vil:2},atkb:{mil:3}});
 });
