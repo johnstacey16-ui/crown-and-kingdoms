@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -33,6 +33,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiTechnologyPriority\(k,techContext\)/);
  assert.match(ai,/aiRepairImportantBuildings\(t,A,bl,vil\)/);
  assert.match(ai,/aiAssignIdleVillagers\(t,vil,bl,arm,tc,R,cnt\)/);
+ assert.match(ai,/aiEvacuateVillagers\(vil,bl,nearbyRaiders\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -599,4 +600,63 @@ test('idle economy selection ignores garrisoned, evacuating and out-of-bounds vi
  f.run([garrison,evac,outside]);
  assert.equal(f.checked.length,0);
  assert.ok([garrison,evac,outside].every(v=>v.o==='i'));
+});
+
+function evacuationFixture({canPath=()=>true}={}){
+ const W=48,H=48,S={t:100},attempts=[];
+ const ctx=vm.createContext({S,W,H,
+  goalNear:(target)=>target,gp:(x,y,r)=>({x,y,r,k:'escape'}),
+  path:(unit,target)=>{attempts.push(target);return canPath(unit,target)?[{x:target.x,y:target.y}]:null}});
+ vm.runInContext(policy+'\n;globalThis.evac=aiEvacuateVillagers;',ctx);
+ const worker=(o='g')=>({k:'vil',x:11,y:10,hp:100,ld:0,o,
+  tg:{k:'f',x:5,y:5,amt:50},ct:'f',p:[],rp:0,aiEvac:null});
+ const shelter=(k='tc',x=20,y=20)=>({k,x,y,s:4,hp:400,done:true});
+ const raider=(x=12,y=10)=>({k:'mil',x,y,hp:100});
+ return {S,worker,shelter,raider,attempts,run:(villagers,buildings=[],raiders=[])=>ctx.evac(villagers,buildings,raiders)};
+}
+
+test('villagers evacuate to reachable Town Centre and resume prior gathering on safety',()=>{
+ const f=evacuationFixture(),v=f.worker(),tc=f.shelter(),enemy=f.raider();
+ const food=v.tg;
+ f.run([v],[tc],[enemy]);
+ assert.equal(v.o,'m');assert.equal(v.tg,tc);
+ assert.equal(v.aiEvac.o,'g');assert.equal(v.aiEvac.tg,food);
+ assert.equal(v.aiEvac.until,118);
+ v.x=22;v.y=22;
+ f.run([v],[tc],[]);
+ assert.equal(v.o,'g');assert.equal(v.tg,food);
+ assert.equal(v.aiEvac,null);assert.equal(v.rp,1);
+});
+
+test('villagers fall back to open-field retreat and become idle if prior work expires',()=>{
+ const f=evacuationFixture(),v=f.worker();
+ f.run([v],[],[f.raider()]);
+ assert.equal(v.o,'m');assert.equal(v.tg,null);
+ assert.equal(v.aiEvac.shelter,null);assert.equal(v.aiEvac.until,108);
+ v.aiEvac.tg.amt=0;
+ f.S.t=108;f.run([v],[],[]);
+ assert.equal(v.o,'i');assert.equal(v.tg,null);
+ assert.equal(v.aiEvac,null);
+});
+
+test('evacuation tries reachable shelters in order and ignores invalid or garrisoned workers',()=>{
+ const f=evacuationFixture({canPath:(_v,goal)=>goal.k==='castle'}),v=f.worker(),
+  tc=f.shelter(),castle=f.shelter('castle',24,24);
+ const loaded=f.worker(),outside=f.worker(),dead=f.worker();
+ loaded.ld=1;outside.x=NaN;dead.hp=0;
+ f.run([v,loaded,outside,dead],[tc,castle],[f.raider()]);
+ assert.equal(v.tg,castle);
+ assert.equal(f.attempts[0],tc);assert.equal(f.attempts[1],castle);
+ assert.equal(loaded.aiEvac,null);assert.equal(outside.aiEvac,null);assert.equal(dead.aiEvac,null);
+});
+
+test('villagers already fleeing can repath toward shelter while threat persists',()=>{
+ const f=evacuationFixture(),v=f.worker(),tc=f.shelter();
+ v.aiEvac={o:'g',tg:v.tg,ct:'f',shelter:tc,until:118};
+ v.o='m';v.p=[];
+ f.run([v],[tc],[f.raider()]);
+ assert.equal(v.o,'m');assert.equal(v.tg,tc);
+ assert.equal(v.p.length,1);
+ assert.equal(v.rp,1);
+ assert.ok(v.aiEvac,'escape state stays active while hostile units remain nearby');
 });
