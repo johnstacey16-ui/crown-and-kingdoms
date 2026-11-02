@@ -1,9 +1,5 @@
 name: Battlefield browser graphics
 on:
-  # One-off nonproduction acceptance branch. Do not add pushes to this branch.
-  push:
-    branches:
-      - acceptance-2026-11-02-full-suite
   # Conserve the free monthly allowance of this private repository.
   # Full suites remain manual and run once weekly, never on every code commit.
   workflow_dispatch:
