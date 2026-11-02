@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -28,6 +28,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiManageFleetRepairs\(t,my\)/);
  assert.match(ai,/aiDisengageDamagedWarships\(my,hostileFleet\)/);
  assert.match(ai,/aiScoutIdleUnits\(scouts\)/);
+ assert.match(ai,/aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -317,4 +318,73 @@ test('scouts remain idle if every route is blocked; busy units do not receive sc
  assert.equal(busy.nextScoutRoute,undefined);
  f.S.t=101;f.run([idle,busy]);
  assert.equal(f.calls(),4,'blocked destinations are not retried every AI tick');
+});
+
+function navalTargetFixture({shipsReachable=true,patrolReachable=true}={}){
+ const S={t:100,bs:[]},U={gal:{dmg:8},cog:{dmg:0},fish:{dmg:0}};
+ let shipChecks=0,patrolChecks=0;
+ const ctx=vm.createContext({S,U,mhp:()=>100,
+  isHostile:(a,b)=>a!==b,attackRange:()=>4,
+  goalNear:target=>({kind:'ship',target}),gp:(x,y,r)=>({kind:'patrol',x,y,r}),
+  path:(_ship,goal)=>{
+   if(goal.kind==='ship'){shipChecks++;return shipsReachable?[{x:1,y:1}]:null}
+   patrolChecks++;return patrolReachable?[{x:1,y:1},{x:2,y:2}]:null;
+  }});
+ vm.runInContext(policy+'\n;globalThis.assignWarships=aiAssignWarshipTargets;',ctx);
+ const ship=(o='i',x=12,y=10,hp=100)=>({k:'gal',t:1,x,y,hp,o,tg:null,ld:0,p:[{x:0,y:0}],rp:0});
+ const enemy=(k='gal',x=17,y=10)=>({k,t:0,x,y,hp:100,ld:0});
+ const base={k:'tc',t:0,x:34,y:34,s:4,hp:500};
+ return {S,ship,enemy,base,run:(fleet,hostiles)=>ctx.assignWarships(1,base,fleet,hostiles),
+  shipChecks:()=>shipChecks,patrolChecks:()=>patrolChecks};
+}
+
+test('warship target selection coordinates focus fire and prioritizes hostile combat ships',()=>{
+ const f=navalTargetFixture(),target=f.enemy('gal'),merchant=f.enemy('cog',13,10);
+ const first=f.ship('a'),second=f.ship('i',13,10);
+ first.tg=target;
+ f.run([first,second],[merchant,target]);
+ assert.equal(second.o,'a');
+ assert.equal(second.tg,target,'galley priority and existing focus outweigh a nearby merchant');
+ assert.equal(second.p.length,0,'new attack target clears the old patrol route');
+ assert.equal(first.tg,target,'existing valid attack orders remain untouched');
+ assert.equal(f.shipChecks(),1,'only the highest ranked reachable target is probed');
+});
+
+test('warships retarget obsolete enemies, while retreat cooldown protects injured vessels',()=>{
+ const f=navalTargetFixture(),target=f.enemy('gal'),former=f.enemy('gal',12,11);
+ former.hp=0;
+ const ship=f.ship('a');ship.tg=former;
+ const recovering=f.ship('i',13,10,20);recovering.navalFallbackUntil=125;
+ f.run([ship,recovering],[target]);
+ assert.equal(ship.tg,target,'expired attack target is replaced');
+ assert.equal(recovering.o,'i','recovering ship waits for escape cooldown');
+ f.S.t=125;f.run([ship,recovering],[target]);
+ assert.equal(recovering.o,'a','damaged ship can reacquire targets after escape cooldown');
+ assert.equal(recovering.tg,target);
+});
+
+test('unreachable naval opponents back off and patrol only when the cooldown expires',()=>{
+ const f=navalTargetFixture({shipsReachable:false}),ship=f.ship(),target=f.enemy();
+ f.run([ship],[target]);
+ assert.equal(ship.o,'m','fleet patrols toward an enemy Town Centre when naval targets are unreachable');
+ assert.equal(ship.nextNavalTargetAt,108);
+ assert.equal(ship.nextNavalPatrol,112);
+ assert.equal(f.shipChecks(),1);
+ assert.equal(f.patrolChecks(),1);
+ ship.o='i';f.S.t=104;f.run([ship],[target]);
+ assert.equal(ship.o,'i','both target and patrol cooldowns prevent duplicate orders');
+ assert.equal(f.shipChecks(),1);
+ assert.equal(f.patrolChecks(),1);
+ f.S.t=108;f.run([ship],[target]);
+ assert.equal(f.shipChecks(),2,'target retry resumes after eight seconds');
+ assert.equal(f.patrolChecks(),1,'patrol remains throttled to twelve seconds');
+});
+
+test('warships without reachable hostiles or an enemy Town Centre preserve idle orders',()=>{
+ const f=navalTargetFixture(),ship=f.ship();
+ f.S.bs.length=0;
+ f.run([ship],[]);
+ assert.equal(ship.o,'i');
+ assert.equal(f.shipChecks(),0);
+ assert.equal(f.patrolChecks(),0);
 });
