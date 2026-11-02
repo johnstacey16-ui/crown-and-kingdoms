@@ -136,11 +136,11 @@ function drawUnitGround(u,selectedUnits,sx,sy,z,r){
 }
 
 /* In-match troop drawing and researched equipment cues. */
-function drawUnit(u,selectedUnits,screenPosition){
+function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1];
  if(perfUnitPass===3)return;
- // Avoid even sprite lookup during ground-only isolation.
- if(perfUnitPass===2){const P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1];drawUnitGround(u,selectedUnits,sx,sy,zm,U[u.k].r);return}
- const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1],pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
+ // Ground-only has zero atlas lookup or sprite painting.
+ if(perfUnitPass===2){drawUnitGround(u,selectedUnits,sx,sy,zm,d.r);return}
+ const pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
 const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null,
 c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
