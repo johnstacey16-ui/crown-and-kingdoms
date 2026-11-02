@@ -55,3 +55,29 @@ function cycleXboxPicturePreset(step){
  const current=currentXboxPicturePreset();
  return setXboxPicturePreset(current<0?(step<0?0:1):(current+step+CK_XBOX_PICTURE_PRESETS.length)%CK_XBOX_PICTURE_PRESETS.length);
 }
+
+/* Reapply a session-only Xbox picture preset after full-screen menus, and
+ * clear it when leaving the match. Keep drawing mode/resize order unchanged. */
+function updateXboxPictureForFrame(){
+if(mode==='play'||mode==='pause'){
+ if(selectedXboxPicturePreset>=0&&!canvasBenchmark&&currentXboxPicturePreset()!==selectedXboxPicturePreset){
+  const p=CK_XBOX_PICTURE_PRESETS[selectedXboxPicturePreset];
+  perfRenderScale=p.adaptive?adaptivePictureScale:p.scale;perfSharpHud=p.sharp;rs();
+ }
+}else if(mode==='title'||mode==='end'||mode==='error'||mode==='multiplayer'){
+ selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();
+}
+}
+
+/* World/HUD canvas selection belongs to picture presentation, not the fixed
+ * simulation frame loop. Always restore the world context after UI rendering. */
+function drawXboxHudOverlays(dt){
+if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
+ // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
+ // Keep the original canvas/control coordinate system and guaranteed context
+ // restoration even if an overlay renderer throws.
+ X=HUD_X;X.setTransform(hudCanvas.width/CW,0,0,hudCanvas.height/CH,0,0);
+ X.clearRect(0,0,CW,CH);
+ try{drawGameOverlays(dt)}finally{X=WORLD_X}
+}else drawGameOverlays(dt);
+}

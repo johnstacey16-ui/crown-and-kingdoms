@@ -21,10 +21,12 @@ test('Xbox graphics benchmark functions have one owner, without changing their b
  assert.match(engine,/function outsideGameLoopMs\(/);
  assert.doesNotThrow(()=>new vm.Script(benchmark));
  assert.doesNotThrow(()=>new vm.Script(picture));
- for(const fn of ['resetAdaptivePictureSampling','sampleAdaptivePicture','currentXboxPicturePreset','setXboxPicturePreset','cycleXboxPicturePreset']){
+ for(const fn of ['resetAdaptivePictureSampling','sampleAdaptivePicture','currentXboxPicturePreset','setXboxPicturePreset','cycleXboxPicturePreset','updateXboxPictureForFrame','drawXboxHudOverlays']){
   assert.match(picture,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(engine,new RegExp('function '+fn+'\\('));
  }
+ assert.match(engine,/updateXboxPictureForFrame\(\)/);
+ assert.match(engine,/drawXboxHudOverlays\(dt\)/);
  assert.doesNotThrow(()=>new vm.Script(engine));
 });
 test('benchmark is loaded exactly once after assets, before engine, and precached offline',()=>{

@@ -682,17 +682,7 @@ if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,a
 if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.ping.y);else{const a=S.sel[0]||S.bs.find(b=>b.t===0&&b.k==='tc');if(a)focus(a)}}}
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){X=WORLD_X;
-// Keep picture modes session-local but reapply after temporary full-screen
-// views (save slots, objectives, technology tree), which render at native
-// resolution for sharp text and previously reset canvas DPR.
-if(mode==='play'||mode==='pause'){
- if(selectedXboxPicturePreset>=0&&!canvasBenchmark&&currentXboxPicturePreset()!==selectedXboxPicturePreset){
-  const p=CK_XBOX_PICTURE_PRESETS[selectedXboxPicturePreset];
-  perfRenderScale=p.adaptive?adaptivePictureScale:p.scale;perfSharpHud=p.sharp;rs();
- }
-}else if(mode==='title'||mode==='end'||mode==='error'||mode==='multiplayer'){
- selectedXboxPicturePreset=-1;resetAdaptivePictureSampling();
-}
+updateXboxPictureForFrame();
 gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
 if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
 if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
@@ -708,14 +698,7 @@ if(perfFlatField){
  perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
 }else drawWorld();
 const uiStart=perfHud?performance.now():0;
-if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
- // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
- // Keep the original canvas/control coordinate system and guaranteed context
- // restoration even if an overlay renderer throws.
- X=HUD_X;X.setTransform(hudCanvas.width/CW,0,0,hudCanvas.height/CH,0,0);
- X.clearRect(0,0,CW,CH);
- try{drawGameOverlays(dt)}finally{X=WORLD_X}
-}else drawGameOverlays(dt);
+drawXboxHudOverlays(dt);
 if(perfHud)perfUiMs=performance.now()-uiStart}
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
 /* Runtime exceptions used to be painted as a thin red strip while the same failing simulation kept running every frame. Halt immediately and expose useful diagnostics instead of repeatedly executing a broken step. */

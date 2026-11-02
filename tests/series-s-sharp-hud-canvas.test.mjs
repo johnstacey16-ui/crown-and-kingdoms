@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const code=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const picture=readFileSync(new URL('../js/engine-picture.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
@@ -64,7 +65,8 @@ test('test is opt-in, no input interception, no saved settings and reset when ex
  assert.match(html,/id="ck-hud" aria-hidden="true"/);
  assert.match(css,/#ck-hud[\s\S]*?pointer-events: none/);
  assert.match(ui,/perfTestMatch\?\[\{n:'Sharp HUD test'/);
- assert.match(code,/try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+ assert.match(picture,/try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
+ assert.match(code,/drawXboxHudOverlays\(dt\)/);
  const saved=code.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(saved);assert.ok(!saved[1].includes('perfSharpHud'));
  const {run,storage,hud}=game();
