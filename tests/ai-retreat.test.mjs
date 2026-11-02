@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const aiPolicy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const aiOffence=readFileSync(new URL('../js/ai-offence.js',import.meta.url),'utf8');
 const unitBehaviour=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const start=aiPolicy.indexOf('function aiRetreat(');
 assert.ok(start>=0,'AI retreat policy must exist in the dedicated policy module');
@@ -72,7 +73,7 @@ test('shelter proximity no longer grants free hit-point healing',()=>{
 
 test('retreating units are excluded from coordinated AI attack waves',()=>{
  assert.match(ai,/else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)arm\.push\(u\)/);
- assert.match(aiPolicy,/\(A\.wu\|\|\[\]\)\.filter\(u=>u\.hp>0&&!u\.ld&&u\.k!=='mon'&&!u\.retreating/);
+ assert.match(aiOffence,/\(A\.wu\|\|\[\]\)\.filter\(u=>u\.hp>0&&!u\.ld&&u\.k!=='mon'&&!u\.retreating/);
 });
 
 test('threat-weighted retreat picks a safer shelter even when the nearer shelter is reachable',()=>{

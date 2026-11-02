@@ -5,14 +5,19 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const policy=read('js/ai-policy.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
+const policy=read('js/ai-policy.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
+ }
+ for(const fn of ['aiAdvanceStagedWave','aiManageEconomicRaids','aiLaunchOffensiveWave']){
+  assert.match(offence,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
  assert.match(construction,/function aiBuild\(/);
@@ -42,6 +47,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
+ assert.doesNotThrow(()=>new vm.Script(offence));
  assert.doesNotThrow(()=>new vm.Script(construction));
  for(const fn of ['aiBuild','aiWall','aiDock','aiNear'])assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  assert.doesNotThrow(()=>new vm.Script(ai));
@@ -51,9 +57,10 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+6),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-construction.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+7),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
+ assert.ok(sw.includes("'./js/ai-offence.js'"));
  assert.ok(sw.includes("'./js/ai-construction.js'"));
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
  assert.deepEqual(core,browser.slice(browser.indexOf('./js/config.js'),browser.indexOf('./engine.js')+1),
@@ -776,7 +783,7 @@ function stagedWaveFixture({route=()=>true}={}){
  const ctx=vm.createContext({S,W,H,isHostile:(t,other)=>other===0,
   d2:(x,y,b)=>Math.hypot(b.x-x,b.y-y),goalNear:b=>b,
   path:(u,target)=>route(u,target)?[{x:target.x,y:target.y}]:null});
- vm.runInContext(policy+'\n;globalThis.advance=aiAdvanceStagedWave;',ctx);
+ vm.runInContext(policy+'\n'+offence+'\n;globalThis.advance=aiAdvanceStagedWave;',ctx);
  const enemy=(k='tc',x=30,y=30,hp=100)=>({k,x,y,t:0,hp});
  const unit=(k='mil',o='i')=>({k,o,t:1,x:10,y:10,hp:100,ld:0,
   retreating:false,tg:null,p:[{x:1,y:1}],rp:1});
@@ -839,7 +846,7 @@ function economicRaidFixture({reachable=()=>true}={}){
  const ctx=vm.createContext({S,W,H,U,PERS,isHostile:(t,enemy)=>enemy===0,
   goalNear:b=>b,gp:(x,y,r)=>({x,y,r}),
   path:(u,target)=>{paths.push({u,target});return reachable(u,target)?[{x:target.x,y:target.y}]:null}});
- vm.runInContext(policy+'\n;globalThis.economicRaid=aiManageEconomicRaids;',ctx);
+ vm.runInContext(policy+'\n'+offence+'\n;globalThis.economicRaid=aiManageEconomicRaids;',ctx);
  const unit=(o='i')=>({k:'knight',t:1,x:10,y:10,hp:90,ld:0,retreating:false,o,tg:null,p:[],rp:0});
  const site=(k='mill',x=26,y=26,hp=100)=>({k,t:0,x,y,s:2,hp,done:true});
  const tc={x:10,y:10};

@@ -42,7 +42,7 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(worker.includes("'./js/ai-construction.js'"),'The offline shell must contain the AI construction module');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+8),
-    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+9),
+    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });

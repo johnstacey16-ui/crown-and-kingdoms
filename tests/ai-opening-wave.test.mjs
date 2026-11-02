@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const offence=readFileSync(new URL('../js/ai-offence.js',import.meta.url),'utf8');
 const start=policy.indexOf('function aiOpeningWaveNeed(base,age,wave){');
 const end=policy.indexOf('function aiRebal(',start);
 assert.ok(start>=0&&end>start,'opening-wave logic must remain executable');
@@ -20,8 +21,8 @@ test('later Feudal waves and other ages retain existing wave thresholds',()=>{
  assert.equal(openingNeed(18,2,0),18);
  assert.equal(openingNeed(22,3,0),22);
  assert.equal(openingNeed(14,0,0),14);
- assert.match(policy,/waveReady\.length>=aiOpeningWaveNeed\(need,S\.age\[t\],A\.wave\)/);
- assert.match(policy,/A\.wave\+\+/,'only actual wave launches increment the wave number');
+ assert.match(offence,/waveReady\.length>=aiOpeningWaveNeed\(need,S\.age\[t\],A\.wave\)/);
+ assert.match(offence,/A\.wave\+\+/,'only actual wave launches increment the wave number');
 });
 
 function launchFixture({mode=0,blocked=()=>false,difficulty=0,now=1000}={}){
@@ -32,7 +33,7 @@ function launchFixture({mode=0,blocked=()=>false,difficulty=0,now=1000}={}){
   gp:(x,y,r)=>({x,y,r,formation:true}),
   path:(u,target)=>{routeChecks.push({unit:u,target});return blocked(u,target)?null:[{x:target.x,y:target.y}]},
   formationSlots:()=>i=>[i%4,Math.floor(i/4)]});
- vm.runInContext(policy+'\n;globalThis.launch=aiLaunchOffensiveWave;',ctx);
+ vm.runInContext(policy+'\n'+offence+'\n;globalThis.launch=aiLaunchOffensiveWave;',ctx);
  const tc={k:'tc',t:1,x:6,y:6};
  const objective=(k='tc',x=26,y=26,done=true,hp=100,t=0)=>({k,x,y,hp,t,done,s:3});
  const unit=(k='mil')=>({k,t:1,o:'i',hp:100,ld:0,retreating:false,x:10,y:10,p:[],rp:0,tg:null,sh:false});

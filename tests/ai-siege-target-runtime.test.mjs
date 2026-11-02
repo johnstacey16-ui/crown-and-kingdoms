@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-const source=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai-offence.js',import.meta.url),'utf8')+'\n'+readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const start=source.indexOf('function aiSiegeTarget('),end=source.indexOf('function aiAvailableBuilder(',start);
 assert.ok(start>=0&&end>start,'siege target decision policy must remain defined');
 const code=source.slice(start,end);
