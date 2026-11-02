@@ -32,3 +32,6 @@ jobs:
         run: node scripts/run-checks.mjs --quick
       - name: Check focused gameplay, controller and graphics regression contracts
         run: node scripts/run-checks.mjs --focused
+      - name: One-off verify all 3 current seeded AI matches, including active reload
+        if: github.head_ref == 'verify/current-ai-skirmishes-2026-11-02'
+        run: node scripts/run-checks.mjs --skirmishes
