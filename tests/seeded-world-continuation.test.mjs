@@ -21,7 +21,15 @@ function seededWorld(seed=123456){
    load:()=>loadG(),
    rng:()=>S.r.state(),
    units:()=>S.us.length,
-   resource:team=>({ ...S.res[team] })
+   resource:team=>({ ...S.res[team] }),
+   setAiTimers:values=>Object.assign(S.ai[1],values),
+   aiTimers:()=>Object.fromEntries(['gu','lastAllyHelp','lastBuildingRepair','nextWaveObjectiveAt','targetRetryAt']
+    .map(key=>[key,S.ai[1][key]])),
+   oldSaveWithoutTimers:()=>{
+    const key=skey(slot),payload=JSON.parse(localStorage.getItem(key));
+    for(const field of ['gu','lastAllyHelp','lastBuildingRepair','nextWaveObjectiveAt'])delete payload.ai[1][field];
+    localStorage.setItem(key,JSON.stringify(payload))
+   }
   };
  `,sandbox,{filename:'seeded-world-continuation.js',timeout:15000});
  return sandbox.CHECKPOINT_TEST;
@@ -55,4 +63,27 @@ test('mid-match current-version save/load preserves the authoritative world chec
   assert.equal(reloaded.hash(50+ticks),live.hash(50+ticks),
    'save/load diverged after '+ticks+' resumed simulation ticks');
  }
+});
+
+test('AI tactical cooldowns survive real current-version save/load instead of silently resetting',()=>{
+ const f=seededWorld();
+ f.advance(50);
+ const initial={gu:17.5,lastAllyHelp:25.25,lastBuildingRepair:28.75,
+  nextWaveObjectiveAt:35.5,targetRetryAt:41.25};
+ f.setAiTimers(initial);
+ assert.deepEqual(f.aiTimers(),initial);
+ assert.equal(f.save(),true);
+ assert.equal(f.load(),true);
+ assert.deepEqual(f.aiTimers(),initial,
+  'AI garrison, allied help, repairs, idle-wave retarget and target retry preserve timing');
+ assert.equal(f.save(),true);
+ f.oldSaveWithoutTimers();
+ assert.equal(f.load(),true,'older current-build saves without these optional fields remain valid');
+ const restored=f.aiTimers();
+ assert.equal(restored.gu,0);
+ assert.equal(restored.lastAllyHelp,-99);
+ assert.equal(restored.lastBuildingRepair,-99);
+ assert.equal(restored.nextWaveObjectiveAt,0);
+ assert.equal(restored.targetRetryAt,initial.targetRetryAt,
+  'existing cooldown fields remain preserved when optional fields are missing');
 });
