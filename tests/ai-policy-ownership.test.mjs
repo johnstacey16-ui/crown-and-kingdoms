@@ -490,7 +490,7 @@ function buildingRepairFixture({reachable=()=>true}={}){
 }
 test('building repair chooses high-priority Town Centre and assigns at most two idle workers',()=>{
  const f=buildingRepairFixture(),tc=f.site('tc'),house=f.site('house',1,1,100,21,21,2);
- const v1=f.worker(19,20),v2=f.worker(21,20),v3=f.worker(22,20);
+ const v1=f.worker(19,20),v2=f.worker(21,20),v3=f.worker(10,10);
  f.run([house,tc],[v1,v2,v3]);
  assert.equal(v1.o,'b');assert.equal(v2.o,'b');assert.equal(v3.o,'i');
  assert.equal(v1.tg,tc);assert.equal(v2.tg,tc);assert.equal(v1.rp,1);
