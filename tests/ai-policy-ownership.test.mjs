@@ -803,7 +803,7 @@ test('staged waves honour independent siege targets after 50-second staging time
  f.run(A);
  assert.equal(ram.tg,siege,'siege units keep their selected priority target');
  assert.equal(ram.o,'a');
- assert.equal(marcher.o,'m','moving soldiers retain their formation orders');
+ assert.equal(marcher.o,'a','the staging timeout orders remaining marchers to attack');
  assert.equal(A.stg,null);
 });
 

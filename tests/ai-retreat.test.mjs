@@ -72,7 +72,7 @@ test('shelter proximity no longer grants free hit-point healing',()=>{
 
 test('retreating units are excluded from coordinated AI attack waves',()=>{
  assert.match(ai,/else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'&&u\.k!=='king'&&u\.k!=='cart'&&!u\.retreating\)arm\.push\(u\)/);
- assert.match(ai,/\(A\.wu\|\|\[\]\)\.filter\(u=>u\.hp>0&&!u\.ld&&u\.k!=='mon'&&!u\.retreating/);
+ assert.match(aiPolicy,/\(A\.wu\|\|\[\]\)\.filter\(u=>u\.hp>0&&!u\.ld&&u\.k!=='mon'&&!u\.retreating/);
 });
 
 test('threat-weighted retreat picks a safer shelter even when the nearer shelter is reachable',()=>{
