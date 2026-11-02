@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -32,6 +32,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiClassifyHostileForces\(t\)/);
  assert.match(ai,/aiTechnologyPriority\(k,techContext\)/);
  assert.match(ai,/aiRepairImportantBuildings\(t,A,bl,vil\)/);
+ assert.match(ai,/aiAssignIdleVillagers\(t,vil,bl,arm,tc,R,cnt\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -524,4 +525,78 @@ test('building repairs reject invalid or distant workers and completed healthy b
  assert.equal(f.attempts(),0);
  assert.equal(far.o,'i');assert.equal(invalid.o,'i');
  assert.equal(f.A.lastBuildingRepair,0);
+});
+
+function idleVillagerFixture({canFarm=false,route=()=>true,nodes=[]}={}){
+ const W=48,H=48,paid=[],built=[],checked=[];
+ const S={age:[0,1],nodes,wt:new Uint8Array(W*H),r:()=>.75};
+ const B={farm:{cost:{w:60}}};
+ const ctx=vm.createContext({S,B,W,H,findNode:(v,k)=>nodes.find(n=>n.k===k&&n.amt>0)||null,
+  can:()=>canFarm,cor:()=>false,okPlace:()=>true,
+  gp:(x,y,r)=>({x,y,r,kind:'place'}),goalNear:(target,r)=>target,
+  path:(v,target)=>{checked.push(target);return route(v,target)?[{x:target.x,y:target.y}]:null},
+  farmFood:()=>175,addN:(k,x,y,amt)=>{const n={k,x,y,amt,fm:true};built.push(n);return n},
+  pay:(team,cost)=>paid.push({team,cost})});
+ vm.runInContext(policy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
+ const villager=(o='i',x=10,y=10)=>({k:'vil',t:1,o,x,y,hp:100,ld:0,aiEvac:false,
+  ct:null,tg:null,p:[],rp:0,ret:5});
+ const site=(k='house',done=false)=>({k,done,hp:100,x:11,y:10,s:2});
+ return {S,B,villager,site,paid,built,checked,
+  run:(vil,bl=[],arm=[],R={w:0},tc={x:20,y:20})=>
+   ctx.assignIdle(1,vil,bl,arm,tc,R,()=>0)};
+}
+
+test('idle economy workers complete reachable unfinished construction before gathering',()=>{
+ const f=idleVillagerFixture({nodes:[{k:'f',x:13,y:10,amt:20}]}),v=f.villager(),
+  house=f.site(),other=f.site('bar');
+ f.run([v],[house,other]);
+ assert.equal(v.o,'b');assert.equal(v.tg,house);assert.equal(v.rp,1);
+ assert.equal(v.ct,null,'construction does not also queue gathering');
+ const assigned=f.villager('b'),idle=f.villager();
+ assigned.tg=house;
+ f.run([assigned,idle],[house,other]);
+ assert.equal(idle.tg,other,'sites already being built are skipped');
+});
+
+test('idle economy workers gather food first, then rebalance to wood with enough food workers',()=>{
+ const food={k:'f',x:13,y:10,amt:50},wood={k:'w',x:15,y:10,amt:50};
+ const f=idleVillagerFixture({nodes:[food,wood]}),v=f.villager();
+ f.run([v]);
+ assert.equal(v.o,'g');assert.equal(v.ct,'f');assert.equal(v.tg,food);
+ assert.equal(v.ret,0);
+ const foodWorkers=Array.from({length:8},()=>({...f.villager('g'),ct:'f'}));
+ const extra=f.villager();
+ f.run([...foodWorkers,extra]);
+ assert.equal(extra.o,'g');assert.equal(extra.ct,'w');
+ assert.equal(extra.tg,wood);
+});
+
+test('idle economy worker falls back to reachable alternative resource nodes',()=>{
+ const food={k:'f',x:12,y:10,amt:50},wood={k:'w',x:16,y:11,amt:50};
+ const f=idleVillagerFixture({nodes:[food,wood],route:(_v,n)=>n===wood});
+ const v=f.villager();
+ f.run([v]);
+ assert.equal(v.o,'g');assert.equal(v.tg,wood);
+ assert.equal(v.ct,'w');
+ assert.equal(f.checked[0],food,'first preferred resource was tested before fallback');
+});
+
+test('idle villagers can place and pay for an accessible farm when food sites are absent',()=>{
+ const f=idleVillagerFixture({canFarm:true}),v=f.villager();
+ f.run([v],[],[],{w:150});
+ assert.equal(f.built.length,1);
+ assert.equal(f.paid.length,1,'new farm construction charges resources once');
+ assert.equal(f.paid[0].team,1);
+ assert.equal(f.paid[0].cost.w,60);
+ assert.equal(f.built[0].t,1);
+ assert.equal(v.o,'g');assert.equal(v.tg,f.built[0]);
+});
+
+test('idle economy selection ignores garrisoned, evacuating and out-of-bounds villagers',()=>{
+ const f=idleVillagerFixture({nodes:[{k:'f',x:15,y:12,amt:20}]}),
+  garrison=f.villager(),evac=f.villager(),outside=f.villager('i',NaN,10);
+ garrison.ld=1;evac.aiEvac=true;
+ f.run([garrison,evac,outside]);
+ assert.equal(f.checked.length,0);
+ assert.ok([garrison,evac,outside].every(v=>v.o==='i'));
 });
