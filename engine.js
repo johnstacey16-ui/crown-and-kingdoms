@@ -557,26 +557,6 @@ const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan
 const CAVARM=new Set(['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan']);
 Object.assign(MA,{boyar:3,tarkan:2,huskarl:1,kamayuk:1,huszar:1,wagon:1});Object.assign(PRA,{boyar:3,tarkan:2,huskarl:6,kamayuk:2,huszar:2,wagon:3,jaguar:1,gbeto:1});
 
-/* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
-function draw(dt){X=WORLD_X;
-updateXboxPictureForFrame();
-gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
-if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
-if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
-if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
-if(mode!=='play'&&mode!=='pause'&&perfSharpHud){perfSharpHud=0;rs()}
-if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
-if(drawFrontEndScreen())return;
-for(const n of notes)n.t-=dt;compactPositive(notes,'t');
-if(perfFlatField){
- // Reversible GPU/presentation isolation: keep sim, input and the live HUD;
- // replace world/fog/units with one flat clear. Never save this preference.
- X.fillStyle='#15251b';X.fillRect(0,0,CW,CH);
- perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
-}else drawWorld();
-const uiStart=perfHud?performance.now():0;
-drawXboxHudOverlays(dt);
-if(perfHud)perfUiMs=performance.now()-uiStart}
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
 /* Runtime exceptions used to be painted as a thin red strip while the same failing simulation kept running every frame. Halt immediately and expose useful diagnostics instead of repeatedly executing a broken step. */
 let CK_ERR=null;
@@ -589,7 +569,6 @@ let lastAutoSaveAt=-60000;
  * fixed scene. Run only in the offline bundled test match, never in multiplayer.
  * Freeze simulation during measurements, not the visual renderer. Save and
  * restore prior game speed; comparison is invalidated if the tab is hidden. */
-function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
 function frame2(now){
  const timing=!!perfHud,loopStart=timing?performance.now():0,rafMs=Math.max(0,now-last);
  if(timing){perfFrameIntervalMs=rafMs;perfGapMs=outsideGameLoopMs(rafMs,perfLoopMs)}

@@ -36,5 +36,6 @@ test('world rendering still invokes extracted object painters while simulation r
   assert.doesNotMatch(engine, /function updP\(dt\)\{/);
   assert.match(input, /function setZoom\(z\)\{/);
   assert.doesNotMatch(engine, /function setZoom\(z\)\{/);
-  assert.match(engine, /drawWorld\(\)/);
+  assert.match(render, /function draw\(dt\)[\s\S]*?drawWorld\(\)/);
+  assert.doesNotMatch(engine, /function draw\(dt\)/);
 });

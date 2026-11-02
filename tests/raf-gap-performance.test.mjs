@@ -4,11 +4,12 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const picture=readFileSync(new URL('../js/engine-picture.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 const state=readFileSync(new URL('../js/state.js',import.meta.url),'utf8');
-const start=engine.indexOf('function outsideGameLoopMs('),end=engine.indexOf('function frame2(now)',start);
+const start=picture.indexOf('function outsideGameLoopMs('),end=picture.indexOf('function resetAdaptivePictureSampling(',start);
 assert.ok(start>=0&&end>start,'the exact production frame budget helper exists');
-const outsideGameLoopMs=vm.runInNewContext(engine.slice(start,end)+'\noutsideGameLoopMs');
+const outsideGameLoopMs=vm.runInNewContext(picture.slice(start,end)+'\noutsideGameLoopMs');
 
 test('normal 60 Hz draw time is subtracted from RAF interval, never counted twice',()=>{
  assert.equal(outsideGameLoopMs(16.7,3.3),13.399999999999999);

@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const source=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const engine=source('engine.js'),benchmark=source('js/engine-graphics-benchmark.js'),picture=source('js/engine-picture.js');
+const engine=source('engine.js'),render=source('js/render.js'),benchmark=source('js/engine-graphics-benchmark.js'),picture=source('js/engine-picture.js');
 const browser=browserScriptPaths(source('index.html'));
 const core=coreGameScriptPaths(source('index.html'));
 const sw=source('sw.js');
@@ -18,15 +18,17 @@ test('Xbox graphics benchmark functions have one owner, without changing their b
  }
  assert.match(benchmark,/let canvasBenchmark=null,canvasBenchSummary=null;/);
  assert.match(engine,/if\(canvasBenchmark\)sampleCanvasBenchmark\(now,rafMs\)/);
- assert.match(engine,/function outsideGameLoopMs\(/);
+ assert.match(picture,/function outsideGameLoopMs\(/);
+ assert.doesNotMatch(engine,/function outsideGameLoopMs\(/);
  assert.doesNotThrow(()=>new vm.Script(benchmark));
  assert.doesNotThrow(()=>new vm.Script(picture));
  for(const fn of ['resetAdaptivePictureSampling','sampleAdaptivePicture','currentXboxPicturePreset','setXboxPicturePreset','cycleXboxPicturePreset','updateXboxPictureForFrame','drawXboxHudOverlays']){
   assert.match(picture,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(engine,new RegExp('function '+fn+'\\('));
  }
- assert.match(engine,/updateXboxPictureForFrame\(\)/);
- assert.match(engine,/drawXboxHudOverlays\(dt\)/);
+ assert.match(render,/updateXboxPictureForFrame\(\)/);
+ assert.match(render,/drawXboxHudOverlays\(dt\)/);
+ assert.match(engine,/draw\(dt\)/);
  assert.doesNotThrow(()=>new vm.Script(engine));
 });
 test('benchmark is loaded exactly once after assets, before engine, and precached offline',()=>{

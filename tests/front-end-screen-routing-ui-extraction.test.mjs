@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 
 test('full-screen routing is owned by js/ui.js', () => {
@@ -14,11 +15,12 @@ test('full-screen routing is owned by js/ui.js', () => {
   }
   assert.doesNotMatch(engine, /if\(mode==='title'\)return drawTitle\(\)/);
   assert.doesNotMatch(engine, /if\(mode==='multiplayer'\)return window\.CK_NET/);
-  assert.match(engine, /if\(drawFrontEndScreen\(\)\)return;/);
+  assert.match(render, /if\(drawFrontEndScreen\(\)\)return;/);
+  assert.doesNotMatch(engine, /function draw\(dt\)/);
 });
 
 test('screen routing still precedes world and live-match drawing', () => {
-  const draw = engine.slice(engine.indexOf('function draw(dt){'), engine.indexOf('/* ===== MAIN LOOP'));
+  const draw = render.slice(render.indexOf('function draw(dt){'));
   const clear = draw.indexOf('X.fillRect(0,0,CW,CH);');
   const reset = draw.indexOf("if(mode!=='play'&&mode!=='pause')perfFlatField=0;");
   const route = draw.indexOf('if(drawFrontEndScreen())return;');

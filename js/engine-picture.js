@@ -6,6 +6,7 @@
 let selectedXboxPicturePreset=-1,adaptivePictureScale=.5;
 const ADAPTIVE_WINDOW_MS=8000,ADAPTIVE_WARMUP_MS=1500;
 let adaptiveWindowStart=null,adaptiveSamples=[],adaptiveFastWindows=0;
+function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
 function resetAdaptivePictureSampling(){adaptiveWindowStart=null;adaptiveSamples=[];adaptiveFastWindows=0}
 // Optional conservative frame-pacing governor. Only when expressly selected.
 // Warm up for 1.5s after each window, and resize at most once every 8s.

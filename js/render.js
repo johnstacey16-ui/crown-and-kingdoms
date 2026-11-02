@@ -836,3 +836,24 @@ function dia(cx,cy,hw,hh){X.beginPath();X.moveTo(cx,cy-hh);X.lineTo(cx+hw,cy);X.
 function poly(a){X.beginPath();X.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)X.lineTo(a[i][0],a[i][1]);X.closePath()}
 
 
+
+/* Main render dispatch: world presentation, mode routing and HUD pass. */
+function draw(dt){X=WORLD_X;
+updateXboxPictureForFrame();
+gt+=dt;X.setTransform(DPR,0,0,DPR,0,0);updP(dt);warm();X.fillStyle='#000';X.fillRect(0,0,CW,CH);if(mode!=='play'&&mode!=='pause')perfFlatField=0;
+if(mode!=='play'&&mode!=='pause')perfLayerMode=0;
+if(mode!=='play'&&mode!=='pause'&&canvasBenchmark)stopCanvasBenchmark(true);
+if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
+if(mode!=='play'&&mode!=='pause'&&perfSharpHud){perfSharpHud=0;rs()}
+if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
+if(drawFrontEndScreen())return;
+for(const n of notes)n.t-=dt;compactPositive(notes,'t');
+if(perfFlatField){
+ // Reversible GPU/presentation isolation: keep sim, input and the live HUD;
+ // replace world/fog/units with one flat clear. Never save this preference.
+ X.fillStyle='#15251b';X.fillRect(0,0,CW,CH);
+ perfChunksMs=perfTilesMs=perfObjectsMs=perfEffectsMs=0;perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;
+}else drawWorld();
+const uiStart=perfHud?performance.now():0;
+drawXboxHudOverlays(dt);
+if(perfHud)perfUiMs=performance.now()-uiStart}
