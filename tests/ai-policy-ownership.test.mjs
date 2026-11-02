@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -34,6 +34,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiRepairImportantBuildings\(t,A,bl,vil\)/);
  assert.match(ai,/aiAssignIdleVillagers\(t,vil,bl,arm,tc,R,cnt\)/);
  assert.match(ai,/aiEvacuateVillagers\(vil,bl,nearbyRaiders\)/);
+ assert.match(ai,/aiDefendTownCentre\(A,tc,arm,vil,my,nearbyRaiders\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -659,4 +660,49 @@ test('villagers already fleeing can repath toward shelter while threat persists'
  assert.equal(v.p.length,1);
  assert.equal(v.rp,1);
  assert.ok(v.aiEvac,'escape state stays active while hostile units remain nearby');
+});
+
+function townCentreDefenceFixture(){
+ const S={t:100},unloads=[];
+ const U={mil:{dmg:5},ram:{dmg:10},mon:{dmg:0},king:{dmg:0}};
+ const ctx=vm.createContext({S,U,unload:b=>unloads.push(b)});
+ vm.runInContext(policy+'\n;globalThis.defendTown=aiDefendTownCentre;',ctx);
+ const tc={k:'tc',x:20,y:20,hp:500,cg:[]};
+ const soldier=(k='mil',o='i',x=21,y=20)=>({k,o,x,y,ld:false,tg:null,p:[{x:1,y:1}]});
+ return {S,tc,U,unloads,soldier,A:{gu:0},
+  run:(arm,vil=[],my=[],raiders=[])=>
+    ctx.defendTown({gu:0},tc,arm,vil,my,raiders),
+  call:(A,arm,vil=[],my=[],raiders=[])=>ctx.defendTown(A,tc,arm,vil,my,raiders)};
+}
+test('Town Centre defence prioritises siege, orders nearby idle soldiers, and shelters workers and king',()=>{
+ const f=townCentreDefenceFixture(),A={gu:0},mil=f.soldier(),reserve=f.soldier('mil','i',50,50),
+   monk=f.soldier('mon'),villager=f.soldier('vil','g',22,21),king=f.soldier('king','i',22,22);
+ const ordinary={k:'mil',x:29,y:20},ram={k:'ram',x:32,y:20};
+ f.call(A,[mil,reserve,monk],[villager],[king],[ordinary,ram]);
+ assert.equal(mil.o,'a');assert.equal(mil.tg,ram,'reachable siege is prioritised');
+ assert.equal(reserve.o,'i');assert.equal(monk.o,'i');
+ assert.equal(villager.o,'B');assert.equal(villager.tg,f.tc);
+ assert.equal(king.o,'B');assert.equal(king.tg,f.tc);
+ assert.equal(A.gu,100);
+});
+test('Town Centre defence waits fifteen seconds before unloading after a raid',()=>{
+ const f=townCentreDefenceFixture(),A={gu:100};
+ f.tc.cg=[{k:'vil'}];f.S.t=114;
+ f.call(A,[]);
+ assert.equal(f.unloads.length,0,'sheltered troops remain until the safe interval');
+ f.S.t=116;
+ f.call(A,[]);
+ assert.equal(f.unloads.length,1);
+ assert.equal(f.unloads[0],f.tc);
+});
+test('Town Centre defence ignores remote raids and does not exceed the shelter capacity',()=>{
+ const f=townCentreDefenceFixture(),A={gu:0};
+ const far={k:'mil',x:32,y:20},soldier=f.soldier(),worker=f.soldier('vil','g',22,20);
+ f.call(A,[soldier],[worker],[],[far]);
+ assert.equal(soldier.o,'i','a unit thirteen tiles from the Centre is not a nearby raid');
+ assert.equal(worker.o,'g');
+ f.tc.cg=Array.from({length:15},()=>({k:'vil'}));
+ f.call(A,[soldier],[worker],[],[{k:'mil',x:21,y:20}]);
+ assert.equal(worker.o,'g','a full shelter must not receive further boarding orders');
+ assert.equal(soldier.o,'a');
 });
