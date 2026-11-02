@@ -25,7 +25,7 @@ test('base building frames carry age detail metadata while dedicated age sheets 
 });
 
 test('four architectural detail stages are distinct and restore the canvas',()=>{
- const source=read('js/render.js'),sandbox={};vm.createContext(sandbox);
+ const source=read('js/render-buildings.js'),sandbox={};vm.createContext(sandbox);
  vm.runInContext(source.slice(source.indexOf('function drawBuildingAgeDetails('),source.indexOf('// Shared original construction presentation.'))+';globalThis.draw=drawBuildingAgeDetails',sandbox);
  const signatures=[];
  for(let age=0;age<4;age++){

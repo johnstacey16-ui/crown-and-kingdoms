@@ -8,15 +8,21 @@ const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const procedural = readFileSync(new URL('../js/render-procedural-units.js', import.meta.url), 'utf8');
 const resource = readFileSync(new URL('../js/render-resources.js', import.meta.url), 'utf8');
+const buildings = readFileSync(new URL('../js/render-buildings.js', import.meta.url), 'utf8');
 
 test('world rendering and procedural fallback unit art have distinct owners',()=>{
  assert.ok(html.indexOf('./js/render.js')<html.indexOf('./js/render-procedural-units.js'));
  assert.ok(html.indexOf('./js/render-procedural-units.js')<html.indexOf('./js/ui.js'));
- for(const marker of ['const BG=','const CK_TEX=','function loadCKTexture(','const BP=',
-  'function paintBld(','function drawBld(',
-  'const SPC=','function spr(']){
+ for(const marker of ['const SPC=','function spr(']){
   assert.ok(render.includes(marker),marker+' remains in world renderer');
   assert.ok(!procedural.includes(marker),marker+' not duplicated into procedural art');
+  assert.ok(!engine.includes(marker),marker+' not duplicated in engine');
+ }
+ for(const marker of ['const BG=','const CK_TEX=','function loadCKTexture(','const BP=',
+  'function paintBld(','function drawBld(']){
+  assert.ok(buildings.includes(marker),marker+' belongs to building artwork');
+  assert.ok(!render.includes(marker),marker+' not duplicated into world renderer');
+  assert.ok(!procedural.includes(marker),marker+' not duplicated in unit fallback');
   assert.ok(!engine.includes(marker),marker+' not duplicated in engine');
  }
  for(const marker of ['const MP=','function man(','function mnt(','function sgp(',
@@ -54,4 +60,19 @@ test('resource art is an offline-owned, nonduplicated stage of the original pain
  assert.ok(resource.includes('const NODE_TEXTURE_CACHE=new WeakMap()'));
  assert.ok(!render.includes('const NODE_TEXTURE_CACHE='));
  assert.match(render,/function drawWorld\(\)[\s\S]*?drawNode\(/);
+});
+
+test('building sprite/age/construction/damage ownership is offline and preserves the world draw order',()=>{
+ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
+ assert.ok(html.indexOf('./js/render-resources.js')<html.indexOf('./js/render-buildings.js'));
+ assert.ok(html.indexOf('./js/render-buildings.js')<html.indexOf('./js/render-procedural-units.js'));
+ assert.ok(sw.includes("'./js/render-buildings.js'"));
+ for(const name of ['buildingVisualAge','buildingVisualConstruction','buildingVisualDamage',
+  'drawBuildingAgeDetails','drawBuildingArtwork','drawBuildingDamageEffects','damagedBuildingArtwork']){
+  assert.ok(buildings.includes('function '+name+'('),name+' lives with building art');
+  assert.ok(!render.includes('function '+name+'('),name+' has a single production owner');
+ }
+ assert.ok(buildings.includes('const BUILDING_DAMAGE_CACHE='));
+ assert.ok(!render.includes('const BUILDING_DAMAGE_CACHE='));
+ assert.match(render,/function drawWorld\(\)[\s\S]*?drawBld\(/);
 });

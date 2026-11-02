@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 function fixture(){
- const source=readFileSync(new URL('../js/render.js',import.meta.url),'utf8'),calls=[];
+ const source=readFileSync(new URL('../js/render-buildings.js',import.meta.url),'utf8'),calls=[];
  const context=new Proxy({createRadialGradient(){return {addColorStop(){}}},getImageData(x,y,w,h){return {data:new Uint8ClampedArray(w*h*4)}}},{get(o,k){return o[k]||((...args)=>calls.push([k,...args]))}});
  const sandbox={document:{createElement(){return {width:0,height:0,getContext:()=>context}}}};
  vm.createContext(sandbox);vm.runInContext(source.slice(source.indexOf('function buildingDamageStage('),source.indexOf('function drawBld('))+';globalThis.api={stage:buildingDamageStage,draw:drawBuildingArtwork,prepare:damagedBuildingArtwork,cache:BUILDING_DAMAGE_CACHE};',sandbox);
