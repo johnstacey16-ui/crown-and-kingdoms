@@ -30,7 +30,6 @@ function start(){if(canvasBenchmark)stopCanvasBenchmark(true);canvasBenchSummary
 if(perfRenderScale!==1||perfSharpHud){perfRenderScale=1;perfSharpHud=0;rs()}
 perfTestMatch=0;lastAutoSaveAt=-60000;newGame();if(!cmp&&gameMode===1){for(let t=0;t<S.teamN;t++){S.res[t]={f:2000,w:2000,g:2000,s:2000};S.age[t]=3;grp(t,'knight',6);grp(t,'arc',8);grp(t,'ram',2)}}else if(!cmp&&gameMode===2){for(let t=0;t<S.teamN;t++){S.res[t]={f:500,w:500,g:500,s:500};grp(t,'vil',5)}}if(!cmp&&startArmy>0){for(let t=0;t<S.teamN;t++){if(startArmy===1)grp(t,'scout',2);else if(startArmy===2){grp(t,'mil',3);grp(t,'arc',2)}else if(startArmy===3){grp(t,'mil',4);grp(t,'arc',4);grp(t,'ram',1)}}}if(vm===3)for(let t=0;t<S.teamN;t++){const tc=S.bs.find(b=>b.t===t&&b.k==='tc'),p=spawnPos(tc);if(p)addU(t,'king',p[0],p[1])}mode='play';menu=place=null;fx=[];corp=[];rub=[];notes=[];idleI=0;queueWarm();PT.length=0;note('Left stick moves the cursor, A selects, hold RT for the command menu, D-pad quick-selects');note('You lead the '+CIV[S.civ[0]].n+(S.teamN>2?' against '+(S.teamN-1)+' rival kingdoms':' vs the '+CIV[S.civ[1]].n)+': '+CIV[S.civ[0]].d);if(vm===6)note('Sudden Death: protect your starting Town Centre; losing it eliminates your kingdom and extra Town Centres are disabled')}
 const vis=e=>e.t===0||S.vs[(e.y|0)*W+(e.x|0)];
-const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||0)+v},atkbF=(t,k,v)=>{const T0=S.tech[t];T0.atkb=T0.atkb||{};T0.atkb[k]=(T0.atkb[k]||0)+v};
 const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t,'knight',15),ut:{k:'ut0',n:'Chivalry',cost:{f:300,g:200},t:50,age:2,fx:t=>atkbF(t,'knight',2)}},
 {n:'Britons',uu:'lbow',d:'Archers +1 attack; Longbowmen',fx:t=>{atkbF(t,'arc',1);atkbF(t,'xbow',1);atkbF(t,'hcan',1)},ut:{k:'ut1',n:'Yeomen',cost:{f:250,w:200},t:50,age:2,fx:t=>{atkbF(t,'arc',2);atkbF(t,'lbow',2);atkbF(t,'xbow',2)}}},
 {n:'Mongols',uu:'mgd',d:'Scouts +30 HP, faster hunting; Mangudai',fx:t=>{hpbF(t,'scout',30);S.tech[t].hunt=1},ut:{k:'ut2',n:'Nomads',cost:{f:250,g:200},t:50,age:2,fx:t=>{hpbF(t,'mgd',30);atkbF(t,'mgd',2)}}},
@@ -438,29 +437,6 @@ const PERS=[{v:1,g:1,n:1,r:1,tw:2,wl:56},{v:.85,g:.7,n:.8,r:.8,tw:2,wl:20,cv:1},
 const AIPN=['Balanced','Aggressive','Defensive','Economic','Rush','Turtle','Raider'],AIPD=['Even mix of economy and army.','Attacks earlier, favours melee and cavalry.','Builds towers and walls; strong defenders.','Big economy; attacks late with large armies.','Early small attack on a thin economy.','Heavy walls and towers; a very late, big attack.','Frequent cavalry and archer raids.'];
 const CATU={scout:'cav',knight:'cav',camel:'cav',mgd:'cav',cata:'cav',mamel:'cav',ele:'cav',eled:'cav',arc:'rng',xbow:'rng',lbow:'rng',skirm:'rng',hcan:'rng',jan:'rng',chuko:'rng',axe:'rng',boyar:'cav',tarkan:'cav',huszar:'cav',wagon:'cav',conq:'rng',genoa:'rng',plumed:'rng',gbeto:'rng',ram:'sg',mang:'sg',scor:'sg',treb:'sg',bomb:'sg'},PW=[{},{cav:1.6,inf:1.4,rng:.8},{rng:1.5,inf:1.2,cav:.6,sg:.7},{sg:1.2},{inf:1.8,cav:1,rng:.6,sg:.3},{rng:1.6,cav:.5,sg:.8},{cav:2.2,rng:1.2,inf:.5,sg:.6}];
 function pickW(o){const w=o.map(k=>PW[aip][CATU[k]||'inf']||1),t=w.reduce((a,b)=>a+b,0);let r=S.r()*t;for(let i=0;i<o.length;i++){r-=w[i];if(r<=0)return o[i]}return o[o.length-1]}
-/* One trainability boundary for solo, authenticated peer commands and AI. */
-function regionalTrainables(kind,civId){
- const available=(B[kind]?.tr||[]).filter(unit=>{
-  const rule=REGIONAL_UNIT_ACCESS.find(r=>r.unit===unit);
-  return !rule||(rule.buildings.includes(kind)&&rule.civilizations.includes(civId));
- });
- for(const rule of REGIONAL_UNIT_ACCESS){
-  if(rule.buildings.includes(kind)&&rule.civilizations.includes(civId)&&U[rule.unit]&&!available.includes(rule.unit))available.push(rule.unit);
- }
- return available;
-}
-const trOf=(b,civs=S?.civ)=>{
- const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
- const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
- const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
- // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
- // Do not expose the legacy standalone Crossbowman before it is researched.
- if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
- // Castles in DE cannot independently create foot Crossbowmen. Campaign
- // scripted units and older save IDs remain valid.
- if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
- return eligible;
-};
 /* Xbox picture presets and adaptive frame sampling: js/engine-picture.js. */
 function setQ(v){gq=v;rs();sset()}
 function autoPause(){if(mode==='play'){if(typeof canvasBenchmark!=='undefined'&&canvasBenchmark)stopCanvasBenchmark(true);cancelGameplayGestures();if((typeof perfTestMatch==='undefined'||!perfTestMatch)&&!(window.CK_NET&&window.CK_NET.isRunning()))saveG(true);mode='pause';pm=0}}

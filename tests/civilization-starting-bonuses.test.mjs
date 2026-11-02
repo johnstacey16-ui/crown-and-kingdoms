@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 function match(player,opponent,seed=123456){
@@ -64,4 +65,20 @@ test('starting reconciliation is independently tracked for successive new worlds
  assert.equal(after,before);
  assert.equal(run("S.us.filter(u=>u.t===0&&u.k==='vil').every(u=>u.hp===U.vil.hp+10)"),true);
  assert.equal(run("S.bs.find(b=>b.t===1&&b.k==='tc').hp"),Math.round(run("B.tc.hp")*1.15));
+});
+
+test('civilization stat bonus helpers are kingdom-owned and preserve additive team isolation',()=>{
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+ const start=kingdom.indexOf('const hpbF=(t,k,v)=>');
+ const end=kingdom.indexOf('/* One trainability boundary for solo',start);
+ assert.ok(start>=0&&end>start);
+ assert.doesNotMatch(engine,/const hpbF=/);
+ assert.doesNotMatch(engine,/atkbF=\(t,k,v\)=>/);
+ const S={tech:[{},{}]};
+ const helpers=vm.runInNewContext(kingdom.slice(start,end)+';({hpbF,atkbF})',{S});
+ helpers.hpbF(0,'vil',10);helpers.hpbF(0,'vil',5);helpers.hpbF(1,'vil',2);
+ helpers.atkbF(0,'mil',1);helpers.atkbF(1,'mil',3);
+ assert.deepEqual(S.tech[0],{hpb:{vil:15},atkb:{mil:1}});
+ assert.deepEqual(S.tech[1],{hpb:{vil:2},atkb:{mil:3}});
 });

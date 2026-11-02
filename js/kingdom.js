@@ -264,3 +264,30 @@ function villagerPriorityMenuItems(){
   ...WORKER_TARGETS.map(r=>({n:'Worker target: '+r.n,v:()=>p[r.k]+' weight / '+villagerPriorityTargets(0,p)[r.k]+' target / '+villagerAssignedCount(0,r.k)+' assigned',l:()=>changeVillagerTarget(r.k,-1),r:()=>changeVillagerTarget(r.k,1),a:()=>applyVillagerPriorities(0)}))
  ];
 }
+
+/* Civilization stat modifiers and regional production are kingdom rules,
+ * not responsibilities of the engine frame dispatcher. */
+const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||0)+v},atkbF=(t,k,v)=>{const T0=S.tech[t];T0.atkb=T0.atkb||{};T0.atkb[k]=(T0.atkb[k]||0)+v};
+/* One trainability boundary for solo, authenticated peer commands and AI. */
+function regionalTrainables(kind,civId){
+ const available=(B[kind]?.tr||[]).filter(unit=>{
+  const rule=REGIONAL_UNIT_ACCESS.find(r=>r.unit===unit);
+  return !rule||(rule.buildings.includes(kind)&&rule.civilizations.includes(civId));
+ });
+ for(const rule of REGIONAL_UNIT_ACCESS){
+  if(rule.buildings.includes(kind)&&rule.civilizations.includes(civId)&&U[rule.unit]&&!available.includes(rule.unit))available.push(rule.unit);
+ }
+ return available;
+}
+const trOf=(b,civs=S?.civ)=>{
+ const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
+ const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
+ const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
+ // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
+ // Do not expose the legacy standalone Crossbowman before it is researched.
+ if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
+ // Castles in DE cannot independently create foot Crossbowmen. Campaign
+ // scripted units and older save IDs remain valid.
+ if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
+ return eligible;
+};
