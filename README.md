@@ -6,7 +6,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **CI status (2 November 2026):** [Game validation 41402141773](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41402141773) passed **981/981 focused assertions**, **5/5 quick checks** and zero failures at [`6b33e88`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/6b33e88521aa1563b88f73476bd7313da0f6bb9b) (**243 of 247 standalone regression files selected**). Staged offensive-wave target recovery/release and small resource-site raiding/withdrawal are now delegated by `js/ai.js` to `js/ai-policy.js`, with nine executable checks across those policies; earlier source-location and fixture assumptions were corrected. Offline shell is **v104**. This is incremental refactoring, not full gameplay, DLC, or controller parity. The full 247-file regression run, seeded AI skirmishes, campaign wins, WAN multiplayer, latest Vercel production SHA, and physical Xbox Series S Edge acceptance remain **OPEN/UNVERIFIED**. Expensive workflows remain weekly/manual to preserve free runner minutes; controller mappings, save format, artwork and free-only hosting stay unchanged.
 
-**Current tree inventory:** 247 standalone regression files, 47 production browser scripts, 34 core scripts, 32 headless scripts and 30 Markdown documents.
+**Current tree inventory:** 247 standalone regression files, 48 production browser scripts, 35 core scripts, 33 headless scripts and 30 Markdown documents.
 
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
