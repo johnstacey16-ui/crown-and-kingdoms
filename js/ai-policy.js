@@ -420,3 +420,42 @@ for(const v of vil){
 /* Protect the AI Town Centre with siege-weighted targeting, short-range
  * garrison orders and the existing delayed unload policy. */
 function aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders){let thr=false,intr=null,best=Infinity;for(const e of nearbyRaiders){const d=Math.hypot(e.x-tc.x,e.y-tc.y);if(d<12)thr=true;if(d<13){const score=d-(['ram','mang','scor','treb','bomb'].includes(e.k)?8:0);if(score<best){best=score;intr=e}}}if(thr){if(intr)for(const d of arm)if(d.o==='i'&&U[d.k]?.dmg>0&&Math.hypot(d.x-tc.x,d.y-tc.y)<18){d.o='a';d.tg=intr;d.p=[]}for(const v of vil.concat(my.filter(u=>u.k==='king')))if(v.o!=='B'&&!v.ld&&Math.hypot(v.x-tc.x,v.y-tc.y)<16&&(tc.cg||[]).length<15){v.o='B';v.tg=tc;v.p=[]}A.gu=S.t}else if(tc.cg&&tc.cg.length&&S.t-(A.gu||0)>15)unload(tc)}
+
+/* Limited allied relief force: retain shared threat priorities and six-second
+ * response cooldown without pulling committed soldiers from their orders. */
+function aiRelieveAlliedBases(t,A,arm,nearbyRaiders){
+/* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
+const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
+let distress=null;
+for(const base of alliedBases){
+ const intruder=aiBaseDefenceThreat(nearbyRaiders,base);
+ if(intruder){distress={base,enemy:intruder};break}
+}
+if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
+ const responders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&U[u.k]?.dmg>0&&u.k!=='mon'&&Math.hypot(u.x-(distress.base.x+distress.base.s/2),u.y-(distress.base.y+distress.base.s/2))<32)
+  .sort((a,b)=>Math.hypot(a.x-distress.base.x,a.y-distress.base.y)-Math.hypot(b.x-distress.base.x,b.y-distress.base.y)).slice(0,8);
+ for(const u of responders){u.o='a';u.tg=distress.enemy;u.p=[]}
+ if(responders.length)A.lastAllyHelp=S.t;
+}
+
+}
+
+/* Local four-defender anti-raid response for buildings and farm sites. */
+function aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders){
+/* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
+const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
+ .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
+let raid=null;
+for(const site of economicSites){
+ let intruder=null;const sx=site.x+(site.s||0)/2,sy=site.y+(site.s||0)/2;
+ for(const e of nearbyRaiders){const d=Math.hypot(e.x-sx,e.y-sy);if(d<8.5&&(!intruder||d<intruder.d))intruder={e,d}}
+ if(intruder){raid={site,e:intruder.e};break}
+}
+if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
+ const defenders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&U[u.k]?.dmg>0&&Math.hypot(u.x-raid.site.x,u.y-raid.site.y)<21)
+  .sort((a,b)=>Math.hypot(a.x-raid.site.x,a.y-raid.site.y)-Math.hypot(b.x-raid.site.x,b.y-raid.site.y)).slice(0,4);
+ for(const u of defenders){u.o='a';u.tg=raid.e;u.p=[]}
+ if(defenders.length)A.lastRaidDefense=S.t;
+}
+
+}

@@ -63,34 +63,8 @@ const nearbyRaiders=S.us.filter(e=>e&&e.hp>0&&!e.ld&&Number.isInteger(e.t)&&isHo
 aiEvacuateVillagers(vil,bl,nearbyRaiders);
 aiRebal(vil,R,t);
 aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders);
-/* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
-const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
-let distress=null;
-for(const base of alliedBases){
- const intruder=aiBaseDefenceThreat(nearbyRaiders,base);
- if(intruder){distress={base,enemy:intruder};break}
-}
-if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
- const responders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&U[u.k]?.dmg>0&&u.k!=='mon'&&Math.hypot(u.x-(distress.base.x+distress.base.s/2),u.y-(distress.base.y+distress.base.s/2))<32)
-  .sort((a,b)=>Math.hypot(a.x-distress.base.x,a.y-distress.base.y)-Math.hypot(b.x-distress.base.x,b.y-distress.base.y)).slice(0,8);
- for(const u of responders){u.o='a';u.tg=distress.enemy;u.p=[]}
- if(responders.length)A.lastAllyHelp=S.t;
-}
-/* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
-const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
- .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
-let raid=null;
-for(const site of economicSites){
- let intruder=null;const sx=site.x+(site.s||0)/2,sy=site.y+(site.s||0)/2;
- for(const e of nearbyRaiders){const d=Math.hypot(e.x-sx,e.y-sy);if(d<8.5&&(!intruder||d<intruder.d))intruder={e,d}}
- if(intruder){raid={site,e:intruder.e};break}
-}
-if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
- const defenders=arm.filter(u=>u.o==='i'&&!u.retreating&&!u.ld&&U[u.k]?.dmg>0&&Math.hypot(u.x-raid.site.x,u.y-raid.site.y)<21)
-  .sort((a,b)=>Math.hypot(a.x-raid.site.x,a.y-raid.site.y)-Math.hypot(b.x-raid.site.x,b.y-raid.site.y)).slice(0,4);
- for(const u of defenders){u.o='a';u.tg=raid.e;u.p=[]}
- if(defenders.length)A.lastRaidDefense=S.t;
-}
+aiRelieveAlliedBases(t,A,arm,nearbyRaiders);
+aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders);
 if(bl.some(b=>b.k==='market'&&b.done&&b.hp>0)&&S.t-(A.lastMarketTrade??-99)>=15){for(const k of ['f','w','s']){if(R[k]>1100&&R.g<400){if(trade(t,k,'sell')){A.lastMarketTrade=S.t;break}}else if(R[k]<80&&R.g>600&&k!=='s'){if(trade(t,k,'buy')){A.lastMarketTrade=S.t;break}}}}
 if(A.stg){const wu=(A.wu||[]).filter(u=>u.hp>0&&!u.ld&&u.k!=='mon'&&!u.retreating&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&u.x>=0&&u.y>=0&&u.x<W&&u.y<H);if((!A.stg.tg||A.stg.tg.hp<=0)&&wu.length){const next=S.bs.filter(b=>b.hp>0&&isHostile(t,b.t)).sort((a,b)=>d2(tc.x,tc.y,a)-d2(tc.x,tc.y,b)).slice(0,16).find(b=>wu.slice(0,3).some(u=>path(u,goalNear(b,2))));if(next){A.stg.tg=next;A.stg.siegeT=next}else{for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='i';u.tg=null;u.p=[];u.rp=0}A.on=0;A.nx=S.t+90}}if(!A.on||!A.stg.tg||A.stg.tg.hp<=0||!wu.length){A.stg=null}else if(wu.every(u=>u.o!=='m')||S.t-A.stg.t>50){for(const u of wu)if(u.o==='m'||u.o==='i'){u.o='a';u.tg=['ram','mang','scor','treb','bomb'].includes(u.k)&&A.stg.siegeT&&A.stg.siegeT.hp>0?A.stg.siegeT:A.stg.tg;u.p=[]}A.stg=null}}
 {A.kn=A.kn||new Set();for(const known of A.kn)if(!known||known.hp<=0||!isHostile(t,known.t))A.kn.delete(known);for(const b of S.bs)if(isHostile(t,b.t)&&b.hp>0&&!A.kn.has(b)&&my.some(u=>Math.hypot(u.x-b.x,u.y-b.y)<9))A.kn.add(b);

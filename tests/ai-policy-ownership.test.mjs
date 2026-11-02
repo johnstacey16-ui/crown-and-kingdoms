@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -35,6 +35,8 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiAssignIdleVillagers\(t,vil,bl,arm,tc,R,cnt\)/);
  assert.match(ai,/aiEvacuateVillagers\(vil,bl,nearbyRaiders\)/);
  assert.match(ai,/aiDefendTownCentre\(A,tc,arm,vil,my,nearbyRaiders\)/);
+ assert.match(ai,/aiRelieveAlliedBases\(t,A,arm,nearbyRaiders\)/);
+ assert.match(ai,/aiDefendEconomicSites\(t,A,arm,bl,nearbyRaiders\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -705,4 +707,62 @@ test('Town Centre defence ignores remote raids and does not exceed the shelter c
  f.call(A,[soldier],[worker],[],[{k:'mil',x:21,y:20}]);
  assert.equal(worker.o,'g','a full shelter must not receive further boarding orders');
  assert.equal(soldier.o,'a');
+});
+
+function localDefenceFixture(){
+ const S={t:100,bs:[],nodes:[]},U={mil:{dmg:6},ram:{dmg:12},mon:{dmg:0}},ctx=vm.createContext({S,U,diplomacyRelation:(t,b)=>b===2?'ally':'enemy'});
+ vm.runInContext(policy+'\n;globalThis.relieve=aiRelieveAlliedBases;globalThis.protect=aiDefendEconomicSites;',ctx);
+ const defender=(k='mil',o='i',x=20,y=20)=>({k,o,x,y,ld:0,retreating:false,tg:null,p:[{x:0,y:0}]});
+ const base=(k='tc',t=2,x=20,y=20)=>({k,t,x,y,s:2,done:true,hp:100});
+ const raider=(x=22,y=21,k='mil')=>({k,x,y,hp:100});
+ const A={lastAllyHelp:0,lastRaidDefense:0};
+ return {S,U,A,base,defender,raider,
+  relieve:(arm,raiders)=>ctx.relieve(1,A,arm,raiders),
+  protect:(arm,buildings,raiders)=>ctx.protect(1,A,arm,buildings,raiders)};
+}
+
+test('allied relief sends only eight closest eligible idle soldiers toward actual allied threats',()=>{
+ const f=localDefenceFixture(),allied=f.base(),enemy=f.raider();
+ f.S.bs=[f.base('tc',0,2,2),allied];
+ const soldiers=Array.from({length:10},()=>f.defender()),monk=f.defender('mon'),busy=f.defender('mil','a');
+ f.relieve([...soldiers,monk,busy],[enemy]);
+ assert.equal(soldiers.filter(u=>u.o==='a').length,8);
+ assert.ok(soldiers.slice(0,8).every(u=>u.tg===enemy&&u.p.length===0));
+ assert.ok(soldiers.slice(8).every(u=>u.o==='i'));
+ assert.equal(monk.o,'i');assert.equal(busy.o,'a');
+ assert.equal(f.A.lastAllyHelp,100);
+});
+test('allied relief respects diplomacy, active defenders and its six-second retry cooldown',()=>{
+ const f=localDefenceFixture(),base=f.base(),enemy=f.raider(),d=f.defender();
+ f.S.bs=[base];
+ f.relieve([d],[enemy]);assert.equal(d.o,'a');
+ d.o='i';f.S.t=105;f.relieve([d],[enemy]);
+ assert.equal(d.o,'i','cooldown prevents repeat relief orders');
+ f.S.t=106;f.relieve([d],[enemy]);assert.equal(d.o,'a');
+ d.o='i';f.S.bs=[f.base('tc',0)];f.S.t=120;f.relieve([d],[enemy]);
+ assert.equal(d.o,'i','hostile buildings are not aided');
+});
+test('economic-site defence protects farm nodes with no more than four available soldiers',()=>{
+ const f=localDefenceFixture(),farm={k:'f',x:20,y:20,t:1,amt:80,fm:true},enemy=f.raider();
+ f.S.nodes=[farm];
+ const defenders=Array.from({length:6},()=>f.defender()),monk=f.defender('mon');
+ f.protect([...defenders,monk],[],[enemy]);
+ assert.equal(defenders.filter(d=>d.o==='a').length,4);
+ assert.ok(defenders.slice(0,4).every(d=>d.tg===enemy&&d.p.length===0));
+ assert.equal(defenders[4].o,'i');assert.equal(monk.o,'i');
+ assert.equal(f.A.lastRaidDefense,100);
+});
+test('economic-site defence ignores destroyed sites and observes eight-second cooldown',()=>{
+ const f=localDefenceFixture(),site=f.base('mill',1),enemy=f.raider(),d=f.defender();
+ site.hp=0;f.protect([d],[site],[enemy]);assert.equal(d.o,'i');
+ site.hp=100;f.protect([d],[site],[enemy]);assert.equal(d.o,'a');
+ d.o='i';f.S.t=107;f.protect([d],[site],[enemy]);assert.equal(d.o,'i');
+ f.S.t=108;f.protect([d],[site],[enemy]);assert.equal(d.o,'a');
+});
+test('economic-site defence leaves its cooldown untouched when only busy or damaged defenders exist',()=>{
+ const f=localDefenceFixture(),site=f.base('mill',1),enemy=f.raider(),busy=f.defender('mil','m');
+ const wounded=f.defender();wounded.retreating=true;
+ f.protect([busy,wounded],[site],[enemy]);
+ assert.equal(f.A.lastRaidDefense,0);
+ assert.equal(busy.o,'m');assert.equal(wounded.o,'i');
 });
