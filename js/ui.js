@@ -1,7 +1,7 @@
 function drawPerfOverlay(dt){
  if(!perfHud||mode!=='play'||!S)return;
  const instant=dt>0?1/dt:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
- const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?190:172)+(canvasBenchmark?23:canvasBenchSummary?canvasBenchSummary.kind==='layers'?68:46:0);
+ const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?190:172)+(canvasBenchmark?23:canvasBenchSummary?(canvasBenchSummary.kind==='layers'||canvasBenchSummary.kind==='pacing')?68:46:0);
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+(dt*1000).toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
  const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
@@ -21,14 +21,18 @@ function drawPerfOverlay(dt){
  }
  if(canvasBenchmark){
   const b=canvasBenchmark,percent=b.start===null?0:Math.min(100,Math.max(0,(performance.now()-b.start)/CK_CANVAS_BENCH_STAGE_MS*100));
-  const step=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase].label:Math.round(CK_CANVAS_BENCH_STAGES[b.phase]*100)+'%';
-  tx('AUTO BENCH '+(b.phase+1)+'/'+(b.kind==='layers'?5:4)+'  '+step+'  '+percent.toFixed(0)+'% complete | AI paused',x+9,y+180,11,'#fbd38d');
+  const step=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase].label:b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase].label:Math.round(CK_CANVAS_BENCH_STAGES[b.phase]*100)+'%';
+  tx('AUTO BENCH '+(b.phase+1)+'/'+(b.kind==='layers'||b.kind==='pacing'?5:4)+'  '+step+'  '+percent.toFixed(0)+'% complete | AI paused',x+9,y+180,11,'#fbd38d');
  }else if(canvasBenchSummary){
   const f=i=>{const r=canvasBenchSummary.results[i];return r&&r.ms?Math.round(1000/r.ms)+' FPS':'N/A'};
   if(canvasBenchSummary.kind==='layers'){
    tx('MEDIAN FPS: FULL '+f(0)+'  TERRAIN '+f(1)+'  OBJECTS '+f(2),x+9,y+180,11,'#fbd38d');
    tx('FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
    tx('All original graphics restored | AI running',x+9,y+216,11,'#fbd38d');
+  }else if(canvasBenchSummary.kind==='pacing'){
+   tx('MEDIAN FPS: FULL '+f(0)+'  FROZEN FULL '+f(1)+'  FLAT '+f(2),x+9,y+180,11,'#fbd38d');
+   tx('FROZEN FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
+   tx('All graphics restored | AI running',x+9,y+216,11,'#fbd38d');
   }else{
    tx('MEDIAN FPS: 100% '+f(0)+'  | 75% '+f(1)+'  | 50% '+f(2),x+9,y+180,11,'#fbd38d');
    tx('100% repeat '+f(3)+'  |  Full graphics restored',x+9,y+198,11,'#fbd38d');
@@ -83,7 +87,8 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
  l:()=>cycleXboxPicturePreset(-1),r:()=>cycleXboxPicturePreset(1),a:()=>cycleXboxPicturePreset(1)},
 ...(perfTestMatch?[
  {n:'Run Xbox FPS comparison',d:()=> 'One-click comparison of full graphics at 100%, 75%, 50%, then 100% again. Holds the test scene still for ~28 seconds, locks gameplay controls and restores the original resolution. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark()},
- {n:'Run Xbox graphics comparison',d:()=> 'One-click full scene, terrain only, objects only, flat field, and full-scene repeat. Holds the same scene and camera for ~35 seconds, locks gameplay controls and restores all graphics. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark('layers')}
+ {n:'Run Xbox graphics comparison',d:()=> 'One-click full scene, terrain only, objects only, flat field, and full-scene repeat. Holds the same scene and camera for ~35 seconds, locks gameplay controls and restores all graphics. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark('layers')},
+ {n:'Run Xbox frame pacing comparison',d:()=> 'Full graphics, frozen full frame, flat field, frozen flat frame, and full repeat over ~35 seconds. Frozen stages deliberately hold the picture without canvas redraw, while Xbox/RAF sampling continues. Restores graphics and game speed afterwards. Menu/B cancels. Test save only.',a:()=>beginCanvasBenchmark('pacing')}
 ]:[]),
 ...(perfTestMatch?[{n:'Sharp HUD test',v:()=>perfSharpHud?'On':'Off',d:()=> 'Optional comparison: retain original high-resolution text, buttons and controller HUD while drawing the battlefield at reduced pixel density. For ordinary games use Xbox picture preset. May be slower than a single canvas. Never saved.',a:()=>{selectedXboxPicturePreset=-1;perfSharpHud^=1;perfHud=1;rs()},l:()=>{selectedXboxPicturePreset=-1;perfSharpHud^=1;perfHud=1;rs()},r:()=>{selectedXboxPicturePreset=-1;perfSharpHud^=1;perfHud=1;rs()}}]:[]),
 {n:'Canvas pixel test',v:()=>Math.round(perfRenderScale*100)+'%',d:()=> 'Xbox Edge GPU presentation test. Temporarily draw the full original scene at 100, 75 or 50 percent canvas pixels. Text and art may look softer at low settings; use 100 percent to restore. Not saved.',l:()=>{const a=[.5,.75,1],i=a.indexOf(perfRenderScale);selectedXboxPicturePreset=-1;perfRenderScale=a[Math.max(0,i-1)];perfHud=1;perfFps=0;rs()},r:()=>{const a=[.5,.75,1],i=a.indexOf(perfRenderScale);selectedXboxPicturePreset=-1;perfRenderScale=a[Math.min(2,i+1)];perfHud=1;perfFps=0;rs()},a:()=>{const a=[1,.75,.5],i=a.indexOf(perfRenderScale);selectedXboxPicturePreset=-1;perfRenderScale=a[(i+1)%3];perfHud=1;perfFps=0;rs()}},
