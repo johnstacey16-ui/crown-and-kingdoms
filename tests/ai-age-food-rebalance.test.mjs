@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const policy=readFileSync(new URL('../js/ai-economy.js',import.meta.url),'utf8');
 const start=policy.indexOf('function aiRebal(vil,R,t=1){');
 assert.ok(start>=0,'production AI rebalancing can be evaluated');
 

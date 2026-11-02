@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const policy=readFileSync(new URL('../js/ai-economy.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const begin=policy.indexOf('function aiShareResources(t,A,R){');
 assert.ok(begin>=0,'the policy module must own allied resource sharing');

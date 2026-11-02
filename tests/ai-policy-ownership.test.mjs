@@ -5,14 +5,20 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const policy=read('js/ai-policy.js'),defence=read('js/ai-defence.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
+const policy=read('js/ai-policy.js'),economy=read('js/ai-economy.js'),defence=read('js/ai-defence.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
-  'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiShareResources','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers']){
+  'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach',
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiScoutIdleUnits','aiClassifyHostileForces','aiTechnologyPriority']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
+ }
+ for(const fn of ["aiRebal","aiShareResources","aiRepairImportantBuildings","aiAssignIdleVillagers"]){
+  assert.match(economy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(policy,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(defence,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
  for(const fn of ["aiBaseDefenceThreat","aiRetreat","aiEvacuateVillagers","aiDefendTownCentre","aiRelieveAlliedBases","aiDefendEconomicSites"]){
@@ -59,6 +65,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiLaunchOffensiveWave\(t,A,arm,tc,diff,aip,vm\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
+ assert.doesNotThrow(()=>new vm.Script(economy));
  assert.doesNotThrow(()=>new vm.Script(defence));
  assert.doesNotThrow(()=>new vm.Script(maritime));
  assert.doesNotThrow(()=>new vm.Script(offence));
@@ -71,9 +78,10 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+9),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+10),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
+ assert.ok(sw.includes("'./js/ai-economy.js'"));
  assert.ok(sw.includes("'./js/ai-defence.js'"));
  assert.ok(sw.includes("'./js/ai-maritime.js'"));
  assert.ok(sw.includes("'./js/ai-offence.js'"));
@@ -513,7 +521,7 @@ function buildingRepairFixture({reachable=()=>true}={}){
   isHostile:(a,b)=>a!==b&&b===0,
   goalNear:b=>b,
   path:(v,b)=>{attempts++;return reachable(v,b)?[{x:b.x,y:b.y}]:null}});
- vm.runInContext(policy+'\n;globalThis.buildingRepair=aiRepairImportantBuildings;',ctx);
+ vm.runInContext(policy+'\n'+economy+'\n;globalThis.buildingRepair=aiRepairImportantBuildings;',ctx);
  const site=(k='tc',t=1,hp=30,mh=100,x=20,y=20,s=4)=>({k,t,hp,mh,x,y,s,done:true});
  const worker=(x=20,y=20,o='i')=>({k:'vil',t:1,x,y,hp:100,ld:0,o,tg:null,p:[],rp:0});
  const A={lastBuildingRepair:0};
@@ -567,7 +575,7 @@ function idleVillagerFixture({canFarm=false,route=()=>true,nodes=[]}={}){
   path:(v,target)=>{checked.push(target);return route(v,target)?[{x:target.x,y:target.y}]:null},
   farmFood:()=>175,addN:(k,x,y,amt)=>{const n={k,x,y,amt,fm:true};built.push(n);return n},
   pay:(team,cost)=>paid.push({team,cost})});
- vm.runInContext(policy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
+ vm.runInContext(policy+'\n'+economy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
  const villager=(o='i',x=10,y=10)=>({k:'vil',t:1,o,x,y,hp:100,ld:0,aiEvac:false,
   ct:null,tg:null,p:[],rp:0,ret:5});
  const site=(k='house',done=false)=>({k,done,hp:100,x:11,y:10,s:2});

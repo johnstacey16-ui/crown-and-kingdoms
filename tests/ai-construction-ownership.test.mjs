@@ -44,7 +44,8 @@ test('AI construction routines have exactly one owner in the production runtime 
  assert.equal(paths[i-1],'./js/ai-offence.js');
  assert.equal(paths[i-2],'./js/ai-maritime.js');
  assert.equal(paths[i-3],'./js/ai-defence.js');
- assert.equal(paths[i-4],'./js/ai-policy.js');
+ assert.equal(paths[i-4],'./js/ai-economy.js');
+ assert.equal(paths[i-5],'./js/ai-policy.js');
  assert.equal(paths[i+1],'./js/ai.js');
  assert.ok(readFileSync(new URL('../sw.js',import.meta.url),'utf8').includes("'./js/ai-construction.js'"));
  assert.doesNotThrow(()=>new vm.Script(construction));
