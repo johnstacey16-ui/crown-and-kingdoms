@@ -72,7 +72,22 @@ Object.assign(MA,{boyar:3,tarkan:2,huskarl:1,kamayuk:1,huszar:1,wagon:1});Object
 /* ===== MAIN LOOP (fixed 30Hz step, clamped delta for tab suspension) ===== */
 /* Runtime exceptions used to be painted as a thin red strip while the same failing simulation kept running every frame. Halt immediately and expose useful diagnostics instead of repeatedly executing a broken step. */
 let CK_ERR=null;
-function frame(now){requestAnimationFrame(frame);try{frame2(now)}catch(e){if(mode!=='error'){CK_ERR={message:String(e&&e.message||e),stack:String(e&&e.stack||''),time:typeof S!=='undefined'&&S?S.t:0,units:typeof S!=='undefined'&&S&&S.us?S.us.length:0,buildings:typeof S!=='undefined'&&S&&S.bs?S.bs.length:0,map:typeof W!=='undefined'?W+'x'+H:'unknown',mode};mode='error';acc=0}try{drawError()}catch(_){X.fillStyle='#400';X.fillRect(0,0,CW,CH);X.fillStyle='#fff';X.fillText('Runtime error — simulation stopped',20,40)}}}
+// Centralize the same snapshot for frame, timer and uncaught browser errors.
+// Do not erase the first failure with a secondary canvas/audio exception.
+function recordGameFailure(e){
+ if(mode==='error')return false;
+ CK_ERR={message:String(e&&e.message||e),stack:String(e&&e.stack||''),
+  time:typeof S!=='undefined'&&S?S.t:0,
+  units:typeof S!=='undefined'&&S&&S.us?S.us.length:0,
+  buildings:typeof S!=='undefined'&&S&&S.bs?S.bs.length:0,
+  map:typeof W!=='undefined'?W+'x'+H:'unknown',mode};
+ mode='error';acc=0;return true
+}
+function recordAsyncGameFailure(e){
+ // Asset, lobby and platform errors outside a live game are not fatal.
+ return (mode==='play'||mode==='pause')&&recordGameFailure(e)
+}
+function frame(now){requestAnimationFrame(frame);try{frame2(now)}catch(e){recordGameFailure(e);try{drawError()}catch(_){X.fillStyle='#400';X.fillRect(0,0,CW,CH);X.fillStyle='#fff';X.fillText('Runtime error — simulation stopped',20,40)}}}
 let lastAutoSaveAt=-60000;
 /* Frame delta spans the *previous* game callback and browser time before this
  * callback. The residual is unattributed (vsync, compositor/GPU, throttling,
@@ -126,7 +141,11 @@ try{const ael=document.getElementById('ck-assets');if(ael&&ael.textContent&&ael.
 document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause()});addEventListener('blur',autoPause);
 addEventListener('keydown',e=>{if(e.target?.closest?.('.ck-room-overlay'))return;if(e.key&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter','Escape','Tab','PageUp','PageDown'].includes(e.key))e.preventDefault()},{passive:false});
 addEventListener('contextmenu',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e.preventDefault()});addEventListener('wheel',e=>{if(!e.target?.closest?.('.ck-room-overlay'))e.preventDefault()},{passive:false});
-setInterval(aTick,120);
+// Exceptions in event/microtask and audio callbacks do not enter the RAF
+// try/catch. Surface a single diagnostic rather than silently abandoning play.
+addEventListener('error',e=>{recordAsyncGameFailure(e?.error||new Error(e?.message||'Uncaught browser error'))});
+addEventListener('unhandledrejection',e=>{if(recordAsyncGameFailure(e?.reason||new Error('Unhandled promise rejection')))e.preventDefault?.()});
+setInterval(()=>{try{aTick()}catch(e){if(!recordAsyncGameFailure(e))console.error('[Crown & Kingdoms] Audio tick error',e)}},120);
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
 
