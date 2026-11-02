@@ -72,7 +72,7 @@ test('logistics is ordered directly before simulation in browser, core and offli
   assert.equal(list.indexOf('./js/simulation-building-production.js')+1,list.indexOf('./js/simulation-building-updates.js'));
   assert.equal(list.indexOf('./js/simulation-building-updates.js')+1,list.indexOf('./js/simulation.js'));
  }
- assert.deepEqual(headless,core.filter(p=>p!=='./js/ui.js'&&p!=='./js/assets.js'));
+ assert.deepEqual(headless,core.filter(p=>p!=='./js/ui.js'&&p!=='./js/ui-commands.js'&&p!=='./js/assets.js'));
  assert.ok(sw.includes("'./js/simulation-logistics.js'"));
 });
 test('unsafe transport requests and missing player trade depots retain safe behavior',()=>{
