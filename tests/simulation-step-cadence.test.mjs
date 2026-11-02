@@ -17,7 +17,7 @@ function fixture({width=20,height=20,campaign=null,victory=0}={}){
  const relics=[{c:carrier,x:0,y:0},{m:fallenMonk,x:0,y:0}];
  const S={t:0,vt:0,nodes:[farm],res:[{w:100}],us:[worker],
   bs:[{hp:100}],sel:[worker],rel:relics,px:[{f:99}],teamN:2};
- const ctx=vm.createContext({S,W:width,H:height,cmp:campaign,vm:victory,
+ const ctx=vm.createContext({S,W:width,H:height,cmp:campaign,vm:victory,rub:[],gt:0,compactRubble:record('rubble'),
   CAMP:[{noai:true}],fx:[{l:100}],menu:{items:[{up:record('menu')}]},
   retryAutomaticFarmWorkers:record('retry'),farmFood:()=>{calls.push('farm');return 80},
   note:record('note'),upU:record('units'),sep:record('separation'),
@@ -54,6 +54,7 @@ test('score, fog, minimap, worker retry and menu retain the established cadence'
  assert.equal(f.S.vt,30);
  assert.equal(f.calls.filter(x=>x==='retry').length,1);
  assert.equal(f.calls.filter(x=>x==='menu').length,1);
+ assert.equal(f.calls.filter(x=>x==='rubble').length,1,'rubble cleanup runs once per 30 simulation ticks');
  assert.equal(f.calls.filter(x=>x==='fog').length,5);
  assert.equal(f.calls.filter(x=>x==='minimap').length,5);
  assert.deepEqual(Array.from(f.S.scoreCache),[100,101]);
@@ -92,4 +93,27 @@ test('live array compaction is simulation-owned and preserves stable order for u
  ctx.compact.positive(effects,'l');
  assert.equal(effects.length,1);
  assert.equal(effects[0].l,.01);
+});
+
+test('visual rubble is compacted in place at 40 seconds and bounded under mass demolition',()=>{
+ const start=source.indexOf('function compactPositive(a,k){');
+ const end=source.indexOf('/* ===== SIMULATION STEP ===== */',start);
+ assert.ok(start>=0&&end>start,'rubble lifetime owner remains in simulation');
+ const survivors=[{id:'fresh',t:48},{id:'border',t:10},{id:'expired',t:9},
+  null,{id:'broken',t:NaN},{id:'future',t:51}];
+ const ctx=vm.createContext({rub:survivors});
+ vm.runInContext(source.slice(start,end)+'\n;globalThis.trim=compactRubble;',ctx);
+ const original=ctx.rub;
+ ctx.trim(50);
+ assert.equal(ctx.rub,original,'compaction must not allocate a new array');
+ assert.deepEqual(ctx.rub.map(q=>q.id),['fresh','border','future'],
+  'painted lifetime includes the exact 40 second boundary');
+ const mass=Array.from({length:800},(_,id)=>({id,t:50}));
+ ctx.rub.splice(0,ctx.rub.length,...mass);
+ ctx.trim(50);
+ assert.equal(ctx.rub.length,512,'visual history is capped when many structures fall');
+ assert.equal(ctx.rub[0].id,288,'oldest rubble is discarded first');
+ assert.equal(ctx.rub.at(-1).id,799,'most recent rubble remains in original order');
+ ctx.trim(100);
+ assert.equal(ctx.rub.length,0,'no expired rubble remains after quiet play');
 });
