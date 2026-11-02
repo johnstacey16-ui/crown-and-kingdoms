@@ -22,6 +22,14 @@ function radialMenuPage(m){
  return {items,pr,pg,a0:pr[pg][0],n:pr[pg][1]-pr[pg][0]};
 }
 
+// List menus use the same validated entries and controller page bounds as
+// radial menus. A stale index or malformed command cannot break the HUD.
+function listMenuPage(m){
+ const {items,a0,n}=radialMenuPage(m),N=items.length;
+ const i=n&&Number.isInteger(m?.i)&&m.i>=a0&&m.i<a0+n?m.i:a0;
+ return {items,N,i}
+}
+
 function drawRadial(){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m),vis=items.slice(a0,a0+n),cx=CW/2,cy=CH/2-10,R=Math.min(CW,CH)*.33;
 X.fillStyle='rgba(0,0,0,.55)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();X.fillStyle='#241709';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();X.stroke();
 const title=typeof m?.title==='string'?m.title:'Commands',ttl=title==='Build'?(pg===0?'Economic buildings':'Military buildings'):title;tx(ttl,cx,cy-R*.18,Math.min(24,R/10),'#f2c14e','center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),'#cbd5e1','center');
