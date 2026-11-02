@@ -108,8 +108,13 @@ function frame2(now){
    if(S&&!perfTestMatch&&!(window.CK_NET&&window.CK_NET.isRunning())&&now-lastAutoSaveAt>=60000){lastAutoSaveAt=now;saveG(true)}
   }
   perfStepMs=performance.now()-simStart;perfStepPeak=Math.max(perfStepPeak,perfStepMs);
+  // During the opt-in pacing test keep RAF, controller reads and sampling active,
+  // but issue absolutely no Canvas2D updates for frozen stages. This reveals
+  // whether slow callbacks persist without any game canvas redraw/presentation.
+  const frozenCanvas=canvasBenchmark?.kind==='pacing'&&CK_PACING_BENCH_STAGES[canvasBenchmark.phase]?.skip;
   const drawStart=performance.now();
-  draw(dt);perfDrawMs=performance.now()-drawStart;perfDrawPeak=Math.max(perfDrawPeak,perfDrawMs);
+  if(frozenCanvas)perfDrawMs=0;
+  else{draw(dt);perfDrawMs=performance.now()-drawStart;perfDrawPeak=Math.max(perfDrawPeak,perfDrawMs)}
  }finally{if(timing)perfLoopMs=performance.now()-loopStart}
 }
 function sset(){try{localStorage.setItem('ck_set',JSON.stringify({ui,br,msz,diff,aiDifficultyVersion:2,vm,scoreLimit,mt,mapLayout,civ,zm,gq,aip,kingdoms,startRes,startArmy,startAge,startVillagers,gameMode,perfHud,vol:VOL,rmb,snd,mus}))}catch(e){}}
