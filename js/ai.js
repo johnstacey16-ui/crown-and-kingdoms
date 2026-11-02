@@ -18,23 +18,7 @@ if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||navalThreatCount>0)
 aiManageFishingShips(fish,hostileFleet,R);
 for(const s of scouts.filter(u=>u.o==='i'&&S.t>=(u.nextScoutRoute||0))){s.nextScoutRoute=S.t+8;for(let attempt=0;attempt<4;attempt++){const x=2+S.r()*(W-4),y=2+S.r()*(H-4);if(Math.hypot(x-s.x,y-s.y)<10||Math.hypot(x-(s.lastScoutX??s.x),y-(s.lastScoutY??s.y))<12)continue;const p=path(s,gp(x,y,2.5));if(p){s.o='m';s.p=p;s.rp=1;s.lastScoutX=x;s.lastScoutY=y;break}}}
 {
-/* Wounded warships disengage to reachable open water instead of fighting to destruction. */
-for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog'].includes(u.k)&&U[u.k].dmg>=4&&!u.ld&&u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'||(u.o==='m'&&u.tg)))){
- if(S.t<(ship.navalFallbackUntil||0))continue;
- let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-ship.x,e.y-ship.y);if(!threat||d<threat.d)threat={e,d}}
- if(!threat||threat.d>18)continue;
- const dx=ship.x-threat.e.x,dy=ship.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
- for(let r=8;r<=16;r+=2)for(let a=0;a<12;a++){
-  const ang=angle+(a/12)*Math.PI*2,x=Math.round(ship.x+Math.cos(ang)*r),y=Math.round(ship.y+Math.sin(ang)*r);
-  if(x<1||y<1||x>=W-1||y>=H-1)continue;
-  const ix=y*W+x;if(S.wt[ix]!==1||S.nd[ix])continue;
-  let clearance=30;for(const e of hostileFleet)clearance=Math.min(clearance,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
-  spots.push({x,y,score:clearance-Math.hypot(x-ship.x,y-ship.y)*.12});
- }
- spots.sort((a,b)=>b.score-a.score);
- let escape=null;for(const spot of spots.slice(0,6)){escape=path(ship,gp(spot.x+.5,spot.y+.5,1.2));if(escape&&escape.length)break;escape=null}
- if(escape){ship.o='m';ship.tg=null;ship.p=escape;ship.rp=1;ship.navalFallbackUntil=S.t+20}
-}
+aiDisengageDamagedWarships(my,hostileFleet);
 const ptc=S.bs.filter(b=>isHostile(t,b.t)&&b.k==='tc'&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y))[0],focusCounts=new Map();for(const u of galleys)if(u.o==='a'&&u.tg)focusCounts.set(u.tg,(focusCounts.get(u.tg)||0)+1);for(const ship of galleys.filter(u=>(u.o==='i'||(u.o==='m'&&!u.tg)||(u.o==='a'&&(!u.tg||u.tg.hp<=0||u.tg.ld||!isHostile(t,u.tg.t))))&&(u.hp/mhp(u)>=.32||S.t>=(u.navalFallbackUntil||0)))){const navalTargetScore=e=>Math.hypot(e.x-ship.x,e.y-ship.y)-(e.k==='gal'?6:0)+(U[e.k].dmg>=4?0:10)-Math.min(3,focusCounts.get(e)||0)*4;let enemy=null;const navalCandidates=S.t>=(ship.nextNavalTargetAt||0)?hostileShips.filter(e=>Math.hypot(e.x-ship.x,e.y-ship.y)<28).sort((a,b)=>navalTargetScore(a)-navalTargetScore(b)):[];for(const candidate of navalCandidates.slice(0,6))if(path(ship,goalNear(candidate,Math.max(1,attackRange(ship))))){enemy=candidate;break}if(!enemy&&navalCandidates.length)ship.nextNavalTargetAt=S.t+8;if(enemy){ship.o='a';ship.tg=enemy;ship.p=[];focusCounts.set(enemy,(focusCounts.get(enemy)||0)+1);continue}if(!ptc)continue;const cx=ptc.x+ptc.s/2,cy=ptc.y+ptc.s/2;if(Math.hypot(ship.x-cx,ship.y-cy)<17)continue;if(S.t<(ship.nextNavalPatrol||0))continue;ship.nextNavalPatrol=S.t+12;const p=path(ship,gp(cx,cy,17));if(p&&p.length>1){ship.o='m';ship.p=p;ship.rp=1}}}
 if(vil.length>=7&&S.bs.filter(b=>b.t===t&&b.k==='bar'&&b.hp>0).length<1+(arm.length>=8)+(arm.length>=16))aiBuild(vil,'bar',t);else if(cnt('bar')&&vil.length>=10&&cnt('rng')<1+(arm.length>=12)&&(arm.length>=4))aiBuild(vil,'rng',t);if(vil.length>=6&&cnt('lumber')<1+(S.t>600)+(S.t>1200)+(S.t>1800))aiNear(vil,'lumber',['w'],t);else if(vil.length>=8&&cnt('mill')<1+(S.t>900)+(S.t>1800))aiNear(vil,'mill',['f'],t);else if(vil.length>=11&&cnt('mine')<1+(S.t>600)+(S.t>1200)+(S.t>1800))aiNear(vil,'mine',['g','s'],t);
 else if(cnt('rng')&&S.age[t]>=1&&vil.length>=12&&!cnt('stable')&&(arm.length>=4))aiBuild(vil,'stable',t);else if(cnt('bar')&&S.age[t]>=1&&vil.length>=12&&!cnt('smith')&&(arm.length>=4))aiBuild(vil,'smith',t);else if(S.age[t]>=1&&cnt('tower')<PERS[aip].tw&&vil.length>=12)aiBuild(vil,'tower',t);else if(S.age[t]>=2&&!cnt('castle')&&vil.length>=14)aiBuild(vil,'castle',t);else if(S.age[t]>=2&&!cnt('monastery')&&vil.length>=14)aiBuild(vil,'monastery',t);else if(S.age[t]>=2&&!cnt('siege')&&vil.length>=16)aiBuild(vil,'siege',t);else if(S.age[t]>=2&&!cnt('univ')&&cnt('smith')&&vil.length>=18)aiBuild(vil,'univ',t);else if(vm===1&&S.age[t]>=3&&!cnt('wonder')&&vil.length>=20)aiBuild(vil,'wonder',t);else if(S.age[t]>=1&&!cnt('market')&&vil.length>=14)aiBuild(vil,'market',t);

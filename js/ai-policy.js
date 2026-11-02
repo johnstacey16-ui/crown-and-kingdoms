@@ -250,3 +250,26 @@ if(damagedFleet.length&&!my.some(u=>u.sh&&u.o==='rep')){
  }
 }
 }
+
+/* Preserve the existing combat-warship-only escape policy: below 32% health,
+ * threatened within 18 tiles, reachable open water and 20-second fallback cooldown.
+ * Fishing, trade and transport ship escape remains handled by their own policies. */
+function aiDisengageDamagedWarships(my,hostileFleet){
+/* Wounded warships disengage to reachable open water instead of fighting to destruction. */
+for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog'].includes(u.k)&&U[u.k].dmg>=4&&!u.ld&&u.hp>0&&u.hp/mhp(u)<.32&&(u.o==='a'||u.o==='i'||(u.o==='m'&&u.tg)))){
+ if(S.t<(ship.navalFallbackUntil||0))continue;
+ let threat=null;for(const e of hostileFleet){const d=Math.hypot(e.x-ship.x,e.y-ship.y);if(!threat||d<threat.d)threat={e,d}}
+ if(!threat||threat.d>18)continue;
+ const dx=ship.x-threat.e.x,dy=ship.y-threat.e.y,angle=Math.atan2(dy,dx),spots=[];
+ for(let r=8;r<=16;r+=2)for(let a=0;a<12;a++){
+  const ang=angle+(a/12)*Math.PI*2,x=Math.round(ship.x+Math.cos(ang)*r),y=Math.round(ship.y+Math.sin(ang)*r);
+  if(x<1||y<1||x>=W-1||y>=H-1)continue;
+  const ix=y*W+x;if(S.wt[ix]!==1||S.nd[ix])continue;
+  let clearance=30;for(const e of hostileFleet)clearance=Math.min(clearance,Math.hypot(e.x-(x+.5),e.y-(y+.5)));
+  spots.push({x,y,score:clearance-Math.hypot(x-ship.x,y-ship.y)*.12});
+ }
+ spots.sort((a,b)=>b.score-a.score);
+ let escape=null;for(const spot of spots.slice(0,6)){escape=path(ship,gp(spot.x+.5,spot.y+.5,1.2));if(escape&&escape.length)break;escape=null}
+ if(escape){ship.o='m';ship.tg=null;ship.p=escape;ship.rp=1;ship.navalFallbackUntil=S.t+20}
+}
+}

@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -26,6 +26,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiTradeEscorts\(A,my,arm,galleys,hostileFleet,humanArmy\)/);
  assert.match(ai,/aiManageFishingShips\(fish,hostileFleet,R\)/);
  assert.match(ai,/aiManageFleetRepairs\(t,my\)/);
+ assert.match(ai,/aiDisengageDamagedWarships\(my,hostileFleet\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -210,4 +211,62 @@ test('fleet repairs defer under enemy naval fire or when no eligible warship is 
  assert.equal(repairer.o,'i','only vessels above seventy percent health repair');
  repairer.hp=90;f.run([target,repairer]);
  assert.equal(repairer.o,'rep','repair resumes once the enemy is distant and the escort is ready');
+});
+
+function damagedWarshipFixture({water=true,canPath=true}={}){
+ const W=48,H=48,S={t:100,wt:new Uint8Array(W*H).fill(water?1:0),nd:new Uint8Array(W*H)};
+ const U={gal:{sh:1,dmg:8},bomb:{sh:1,dmg:6},fish:{sh:1,dmg:0},
+  trn:{sh:1,dmg:0},cog:{sh:1,dmg:0},vil:{dmg:0}};
+ let attempts=0;
+ const ctx=vm.createContext({S,U,W,H,mhp:()=>100,gp:(x,y)=>({x,y}),
+  path:()=>{attempts++;return canPath?[{x:33,y:34}]:null}});
+ vm.runInContext(policy+'\n;globalThis.disengage=aiDisengageDamagedWarships;',ctx);
+ const ship=(k,hp=25,o='a')=>({k,t:1,x:24,y:24,hp,o,ld:0,tg:{k:'gal'},p:[],rp:0});
+ const enemy={k:'gal',t:0,x:25,y:24,hp:100};
+ return {S,U,ship,enemy,run:(my,hostile=[enemy])=>ctx.disengage(my,hostile),attempts:()=>attempts};
+}
+
+test('damaged combat warships disengage to reachable open water with original twenty-second cooldown',()=>{
+ const f=damagedWarshipFixture(),gal=f.ship('gal');
+ f.run([gal]);
+ assert.equal(gal.o,'m');
+ assert.equal(gal.tg,null);
+ assert.equal(gal.rp,1);
+ assert.deepEqual(Array.from(gal.p),[{x:33,y:34}]);
+ assert.equal(gal.navalFallbackUntil,120);
+ const first=f.attempts();
+ gal.o='a';f.S.t=119;f.run([gal]);
+ assert.equal(gal.o,'a','cooldown prevents a repeated emergency order');
+ assert.equal(f.attempts(),first);
+ f.S.t=120;f.run([gal]);
+ assert.equal(gal.o,'m','after cooldown a still-threatened low-health ship may disengage again');
+});
+
+test('damaged naval escape skips utility, healthy, loaded and unthreatened ships',()=>{
+ const f=damagedWarshipFixture();
+ const healthy=f.ship('gal',45),fish=f.ship('fish',10),trade=f.ship('cog',10),
+  transport=f.ship('trn',10),loaded=f.ship('gal',10),other=f.ship('bomb',25);
+ loaded.ld=1;
+ f.run([healthy,fish,trade,transport,loaded,other],[]);
+ assert.equal(f.attempts(),0,'no hostile fleet means no attempted escape routes');
+ f.run([healthy,fish,trade,transport,loaded]);
+ assert.equal(f.attempts(),0,'only damaged, active combat ships can flee');
+ assert.equal(fish.o,'a');
+ assert.equal(trade.o,'a');
+ assert.equal(transport.o,'a');
+ f.run([other]);
+ assert.equal(other.o,'m','all damage-dealing ship classes, not just galleys, may flee');
+});
+
+test('blocked water and unreachable routes leave damaged combat ship orders unchanged',()=>{
+ const blocked=damagedWarshipFixture({water:false}),gal=blocked.ship('gal');
+ blocked.run([gal]);
+ assert.equal(gal.o,'a');
+ assert.equal(blocked.attempts(),0,'impassable water rejects all destinations before pathfinding');
+ const unreachable=damagedWarshipFixture({canPath:false}),ship=unreachable.ship('gal');
+ unreachable.run([ship]);
+ assert.equal(ship.o,'a');
+ assert.equal(ship.tg!==null,true,'failed retreat must keep original target');
+ assert.ok(unreachable.attempts()>0,'reachable candidates are actually tested');
+ assert.equal(ship.navalFallbackUntil,undefined,'failed retreat should not start cooldown');
 });
