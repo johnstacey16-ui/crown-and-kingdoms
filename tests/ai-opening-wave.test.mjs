@@ -80,13 +80,13 @@ test('offensive wave keeps siege priority and issues fallback attacks when forma
  assert.equal(army.every(u=>u.o==='a'&&u.tg===target),true);
 });
 
-test('hill victory launches a centre objective and routes monks separately',()=>{
+test('hill victory launches a centre objective without drafting non-combat monks',()=>{
  const f=launchFixture({mode:5}),army=f.army(12),monk=f.unit('mon');
  army.push(monk);f.run(army);
  assert.equal(f.A.wave,1);
  assert.equal(f.A.stg.tg.k,'hill');
  assert.equal(f.A.stg.tg.x,32);
- assert.equal(monk.o,'m');
- assert.equal(monk.p.length,1);
- assert.ok(f.routeChecks.some(c=>c.unit===monk&&c.target.range===7));
+ assert.equal(monk.o,'i','non-combat monks are not part of an attack wave');
+ assert.equal(monk.p.length,0);
+ assert.ok(!f.routeChecks.some(c=>c.unit===monk&&c.target.range===7));
 });
