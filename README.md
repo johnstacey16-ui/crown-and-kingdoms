@@ -8,6 +8,8 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Current tree inventory:** 247 standalone regression files, 57 production browser scripts, 44 core scripts, 42 headless scripts and 30 Markdown documents.
 
+**Xbox Series S test scene:** From the title screen, highlight **Xbox FPS Test**, use **D-pad Left/Right** to choose **50, 100 or 200 total units**, and press **A**. The same two-settlement scene uses original painted artwork, displays unit count/FPS and supports the pause-menu pixel and layer benchmarks. Only a separate reserved test-save key is used; normal manual/autosaves are untouched. Record actual Series S Edge FPS and frame time for all three loads; desktop Chromium or simulated Node results are not console evidence.
+
 **Repeatable 200-unit movement probe:** `node scripts/stress-200.mjs --ticks=2400` prints route/pathfinding, wall-crossing, movement completion and Node timing metrics. The narrow artificial corridor is not an Xbox hardware benchmark.
 
 **Live audit counts:** `node scripts/report-repository-inventory.mjs` generates current numbers from the checked-out tree. The focused regression validates the README snapshot whenever source or tests are added.

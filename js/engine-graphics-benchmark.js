@@ -63,8 +63,15 @@ function sampleCanvasBenchmark(now,rafMs){
  * sample. Never uses a manual slot or ck_autosave and never starts online play.
  * All generated entities are legal free land placements and have stable IDs. */
 const CK_SERIES_S_SAMPLE_KEY='ck_series_s_fps_fixture_v1';
-function loadSeriesSPerformanceSave(){
- if(mode!=='title'||window.CK_NET?.isRunning?.())return false;
+const CK_SERIES_S_UNIT_LOADS=[50,100,200];
+let selectedXboxPerformanceLoad=50,xboxPerformanceUnitLoad=0;
+function cycleXboxPerformanceLoad(direction){
+ const i=CK_SERIES_S_UNIT_LOADS.indexOf(selectedXboxPerformanceLoad);
+ selectedXboxPerformanceLoad=CK_SERIES_S_UNIT_LOADS[(i+(direction<0?-1:1)+CK_SERIES_S_UNIT_LOADS.length)%CK_SERIES_S_UNIT_LOADS.length];
+ return selectedXboxPerformanceLoad;
+}
+function loadSeriesSPerformanceSave(unitLoad=selectedXboxPerformanceLoad){
+ if(mode!=='title'||window.CK_NET?.isRunning?.()||!CK_SERIES_S_UNIT_LOADS.includes(unitLoad))return false;
  const previous={seedOv,mapLayout,mt,msz,kingdoms,startAge,startRes,startVillagers,
   startArmy,gameMode,vm,cmp,civ,aiCiv,diff,aip};
  try{
@@ -72,8 +79,9 @@ function loadSeriesSPerformanceSave(){
   startAge=3;startRes=5;startVillagers=2;startArmy=0;gameMode=0;
   vm=0;civ=0;aiCiv=1;diff=0;aip=0;
   start();
-  // Two built-out settlements: around 28 buildings and 20-25 units per team.
-  // The screenshot overlay displays totals across the entire map.
+  // Two built-out settlements. Use EXACTLY half the requested units per team
+  // to compare 50, 100 and 200 across the same deterministic map and art.
+  // The screenshot HUD displays total units across the entire map.
   const roster=['house','house','bar','rng','stable','smith',
    'market','tower','house','house','mill','lumber','mine','house','house',
    'bar','rng','stable','house','outpost','house','tower','house',
@@ -103,7 +111,10 @@ function loadSeriesSPerformanceSave(){
     if(!p)throw Error('No room for test '+k);
     addB(t,k,p[0],p[1],true);
    }
-   for(let i=0;i<16;i++){
+   const existing=S.us.filter(u=>u.t===t&&u.hp>0).length;
+   const soldierCount=unitLoad/2-existing;
+   if(soldierCount<0)throw Error('Starting units exceed requested Xbox sample load');
+   for(let i=0;i<soldierCount;i++){
     const k=['mil','spear','arc','knight'][i%4],p=findPlace(1);
     if(!p)throw Error('No room for test soldier');
     const u=addU(t,k,p[0]+.5,p[1]+.5);
@@ -113,6 +124,7 @@ function loadSeriesSPerformanceSave(){
    }
    S.res[t]={f:5000,w:5000,g:5000,s:5000};
   }
+  if(S.us.length!==unitLoad)throw Error('Xbox sample count differs from requested unit load');
   // Show the settlement and preserve normal fog-of-war authority.
   fog();mmUp();const home=S.bs.find(b=>b.t===0&&b.k==='tc');
   ctr(home.x+5,home.y+5);S.sel=[];
@@ -120,8 +132,8 @@ function loadSeriesSPerformanceSave(){
   const saved=saveG(false,CK_SERIES_S_SAMPLE_KEY);
   if(saved){if(!loadG(false,CK_SERIES_S_SAMPLE_KEY))throw Error('Fixture failed save validation')}
   // Xbox browser storage can be blocked; an in-memory sample remains playable.
-  perfTestMatch=1;mode='play';lastAutoSaveAt=0;
-  note(saved?'Xbox FPS test save loaded - Menu: Render layer diagnosis':'Xbox FPS test ready (browser storage unavailable)');
+  perfTestMatch=1;xboxPerformanceUnitLoad=unitLoad;mode='play';lastAutoSaveAt=0;
+  note(saved?'Xbox FPS '+unitLoad+'-unit save loaded - Menu: Render layer diagnosis':'Xbox FPS '+unitLoad+'-unit test ready (storage unavailable)');
   return true;
  }catch(error){
   console.warn('[Crown & Kingdoms] Built-in performance test failed',error);

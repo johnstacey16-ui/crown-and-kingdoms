@@ -19,7 +19,7 @@ test('main menu loads deterministic built-in performance save with completed cit
  assert.equal(one.mode,'play');
  assert.equal(one.perfTestMatch,1);assert.equal(one.perfHud,1);
  assert.equal(one.perfFlatField,0);assert.equal(one.perfLayerMode,0);
- assert.ok(one.units>=45,JSON.stringify(one));
+ assert.equal(one.units,50,'default Xbox benchmark uses exactly fifty total units');
  assert.ok(one.buildings>=50,JSON.stringify(one));
  assert.equal(one.seedW,96);assert.equal(one.seedH,96);
  assert.equal(storage.get('ck_save'),'my-manual-slot');
@@ -61,4 +61,47 @@ test('Xbox performance fixture has a single benchmark owner, not a duplicate in 
  assert.match(benchmark,/loadG\(false,CK_SERIES_S_SAMPLE_KEY\)/);
  assert.doesNotMatch(engine,/function loadSeriesSPerformanceSave\(\)/);
  assert.doesNotMatch(engine,/const CK_SERIES_S_SAMPLE_KEY=/);
+});
+
+test('title-screen D-pad selects exact 50, 100, 200-unit original-art test saves',()=>{
+ const {run,storage}=setup();
+ run('localStorage.setItem("ck_save","owned-manual");localStorage.setItem("ck_autosave","owned-auto")');
+ for(const [expected,key] of [[50,null],[100,15],[200,15],[50,15]]){
+  run('mode="title";ti=7;E=[];E[0]=false');
+  if(key!==null)run('E[15]=true;titleCtl();E=[]');
+  assert.equal(run('selectedXboxPerformanceLoad'),expected);
+  run('E[0]=true;titleCtl();E=[]');
+  const state=details(run);
+  assert.equal(state.units,expected,'actual total entities in '+expected+'-unit sample');
+  assert.equal(run('xboxPerformanceUnitLoad'),expected);
+  assert.equal(state.mode,'play');assert.equal(state.perfTestMatch,1);
+  assert.equal(state.buildings>=50,true);
+  assert.equal(storage.get('ck_save'),'owned-manual');
+  assert.equal(storage.get('ck_autosave'),'owned-auto');
+  assert.equal(JSON.parse(storage.get('ck_series_s_fps_fixture_v1')).us.length,expected);
+  const soldiers=state.unitPositions.filter(u=>u[1]!=='vil');
+  assert.equal(new Set(soldiers.map(u=>u.slice(2).join(','))).size,soldiers.length,
+   'sample soldiers occupy unique legal locations');
+ }
+ run('mode="title";ti=7;E=[];E[14]=true;titleCtl()');
+ assert.equal(run('selectedXboxPerformanceLoad'),200,'left D-pad cycles backward');
+});
+test('performance unit selection is session-local and invalid size or live game cannot replace saves',()=>{
+ const {run,storage}=setup();
+ run('localStorage.setItem("ck_save","manual");localStorage.setItem("ck_autosave","auto")');
+ assert.equal(run('loadSeriesSPerformanceSave(60)'),false);
+ assert.equal(run('mode'), 'title');
+ assert.equal(storage.has('ck_series_s_fps_fixture_v1'),false);
+ run('loadSeriesSPerformanceSave(100)');
+ const before=JSON.parse(run('JSON.stringify([S.us.length,S.bs.length,mode])'));
+ assert.equal(run('loadSeriesSPerformanceSave(200)'),false);
+ assert.deepEqual(JSON.parse(run('JSON.stringify([S.us.length,S.bs.length,mode])')),before);
+ assert.equal(storage.get('ck_save'),'manual');
+ assert.equal(storage.get('ck_autosave'),'auto');
+ const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
+ const menus=readFileSync(new URL('../js/menus.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ assert.match(benchmark,/CK_SERIES_S_UNIT_LOADS=\\[50,100,200\\]/);
+ assert.match(menus,/if\\(ti===7\\)\\{if\\(E\\[14\\]\\)cycleXboxPerformanceLoad\\(-1\\)/);
+ assert.match(ui,/Xbox FPS Test · '\\+selectedXboxPerformanceLoad\\+' units/);
 });
