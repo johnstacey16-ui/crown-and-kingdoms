@@ -113,3 +113,43 @@ test('painted troop art, its pixel budget and unit dispatcher have exactly one o
  }
  assert.ok(render.includes('function drawWorld()'),'original world sort remains in place');
 });
+
+test('native high-quality forward-facing motion frames render at identical absolute coordinates without canvas transforms',()=>{
+ const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);
+ assert.ok(start>=0&&end>start);
+ const frame={width:120,height:170},calls=[];
+ const g={imageSmoothingEnabled:true,imageSmoothingQuality:'high',
+  save(){throw Error('no unnecessary canvas save')},restore(){throw Error('no unnecessary canvas restore')},
+  translate(){throw Error('no unnecessary translate')},scale(){throw Error('no unnecessary scale')},
+  drawImage(...args){calls.push(args)}};
+ const stage={troopFrameTexture:()=>frame,PAINT_SECONDARY:{},paintedSecondaryPose:()=>null,Math,Number};
+ const painter=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
+ const f={x:18,y:19,w:120,h:170,ax:60,ay:165};
+ painter(g,{img:{},f,animated:true,referenceHeight:170},200,320,.5,1,7,false,'mil');
+ assert.equal(calls.length,1);
+ assert.equal(calls[0][0],frame);
+ assert.deepEqual(calls[0].slice(1),[170,237.5,60,85],
+  'cached motion texture retains its original anchor, draw position and rendered dimensions');
+ painter(g,{img:{},f,animated:true,referenceHeight:170},200,320,.5,0,7,false,'mil');
+ assert.deepEqual(calls[1].slice(1),[170,237.5,60,85]);
+});
+test('unprepared frames still use exact original atlas crops on the high-quality direct path',()=>{
+ const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);
+ const calls=[],stage={troopFrameTexture:()=>null,PAINT_SECONDARY:{},paintedSecondaryPose:()=>null,Math,Number};
+ const painter=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
+ const g={imageSmoothingEnabled:true,imageSmoothingQuality:'high',drawImage(...args){calls.push(args)},
+ save(){throw Error('unexpected transform')},restore(){throw Error('unexpected transform')},
+ translate(){throw Error('unexpected transform')},scale(){throw Error('unexpected transform')}};
+ const img={},f={x:12,y:26,w:80,h:96,ax:38,ay:93};
+ painter(g,{img,f,animated:true,referenceHeight:96},100,200,1,0,0,false,'mil');
+ assert.deepEqual(calls[0],[img,12,26,80,96,62,107,80,96]);
+});
+test('Xbox performance HUD reports bounded team tint and original-size troop frame reuse',()=>{
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ assert.match(ui,/TEAM_FRAME_CACHE\.hits/);
+ assert.match(ui,/TEAM_FRAME_CACHE\.creations/);
+ assert.match(ui,/TEAM_FRAME_CACHE\.evictions/);
+ assert.match(ui,/TEAM_FRAME_CACHE\.pixels\*4\/1048576/);
+ assert.match(ui,/TROOP_TEXTURE_LRU\.size/);
+ assert.match(code,/g\.imageSmoothingQuality==='high'/);
+});

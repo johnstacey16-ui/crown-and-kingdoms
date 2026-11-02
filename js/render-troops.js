@@ -105,6 +105,17 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   // Scale the offset with visible body height rather than with the source sheet.
   const unitScale=Math.max(.25,Math.min(2.5,(art.referenceHeight||f.h)*scale/(PAINT_SECONDARY[kind]==='mounted'?60:46)));
   const bob=art.animated?0:motion?motion.dy*unitScale:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
+  // Most animated sprites need no canvas transform when facing forward.
+  // drawWorld() already selects the same high-quality sampling. Avoid 3
+  // save/translate/restore canvas operations for every such visible soldier,
+  // while retaining the exact source crop, anchor, scaling and smoothing.
+  // A different caller/context still uses the original transform-safe path.
+  if(!mirror&&!motion&&(art.animated||(!walk&&!attack))&&g.imageSmoothingEnabled===true&&g.imageSmoothingQuality==='high'){
+    const frame=troopFrameTexture(art);
+    if(frame)g.drawImage(frame,x-f.ax*scale,y-bob-f.ay*scale,f.w*scale,f.h*scale);
+    else g.drawImage(art.img,f.x,f.y,f.w,f.h,x-f.ax*scale,y-bob-f.ay*scale,f.w*scale,f.h*scale);
+    return;
+  }
   g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
   g.translate(x+(motion?motion.dx*unitScale:0),y-bob);
   if(mirror)g.scale(-1,1);
