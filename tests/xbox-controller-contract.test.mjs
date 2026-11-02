@@ -6,6 +6,7 @@ import { headlessGame } from './helpers/headless-game.mjs';
 
 const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+const selectionPolicy=readFileSync(new URL('../js/input-selection.js',import.meta.url),'utf8');
 
 test('Xbox controller module owns haptics and camera zoom without engine duplication',()=>{
  for(const fn of ['rumble','setZoom']){
@@ -20,14 +21,15 @@ test('Xbox controller module owns haptics and camera zoom without engine duplica
 
 test('Xbox interaction state and selection helpers have one controller owner',()=>{
  for(const name of ['cancelSelectionGesture','cancelShortcutGesture','cancelGameplayGestures','nearV','selectedBuilders']){
-  assert.ok(selectionInput.includes('function '+name+'('),name+' is input-owned');
+  assert.ok(selectionPolicy.includes('function '+name+'('),name+' belongs to selection policy');
+  assert.ok(!selectionInput.includes('function '+name+'('),name+' has one owner');
   assert.ok(!selectionEngine.includes('function '+name+'('),name+' is not duplicated in engine');
  }
  for(const variable of ['aDown','boxR','vpWheel','ysc','mmF','mmM','omr','tsc','tcI']){
-  assert.ok(selectionInput.includes(variable),variable+' remains in the input module');
+  assert.ok(selectionPolicy.includes(variable),variable+' remains in the selection policy module');
  }
- assert.match(selectionInput,/const SIEGE=/);
- assert.match(selectionInput,/const bLock=/);
+ assert.match(selectionPolicy,/const SIEGE=/);
+ assert.match(selectionPolicy,/const bLock=/);
  assert.doesNotMatch(selectionEngine,/const SIEGE=/);
 });
 
@@ -49,13 +51,15 @@ test('in-match Xbox controller dispatch is owned by input rather than the frame 
  assert.match(selectionInput,/function playCtl\(dt\)\{/);
  assert.match(selectionInput,/playCtl\(dt\);return;/);
  assert.doesNotMatch(selectionEngine,/function playCtl\(dt\)\{/);
- assert.match(selectionInput,/let aDown=null/);
+ assert.match(selectionPolicy,/let aDown=null/);
+ assert.doesNotMatch(selectionInput,/let aDown=null/);
  assert.doesNotMatch(selectionEngine,/let aDown=null/);
 });
 
 test('Xbox Y shortcut, contextual radial menu and R3 priorities wheel are input-owned',()=>{
  for(const fn of ["yShort","siteMenu","openRadial","openVillagerPriorityWheel","operateVillagerPriorityWheel"]){
-  assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
+  assert.ok(selectionPolicy.includes('function '+fn+'('),fn+' belongs to selection policy');
+  assert.ok(!selectionInput.includes('function '+fn+'('),fn+' must not remain in polling/dispatch');
   assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' must not remain in engine');
  }
  for(const fn of ['yShort','openRadial','operateVillagerPriorityWheel']){
@@ -65,14 +69,15 @@ test('Xbox Y shortcut, contextual radial menu and R3 priorities wheel are input-
 
 test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
  for(const fn of ['quickSelectionChoices','qsel','boxSel','tapA']){
-  assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
+  assert.ok(selectionPolicy.includes('function '+fn+'('),fn+' belongs to selection policy');
+  assert.ok(!selectionInput.includes('function '+fn+'('),fn+' has one owner');
   assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' is not duplicated in engine');
  }
  assert.match(selectionInput,/if\(E\[0\]\)\{if\(cur\.x>=mm\.x/);
  assert.match(selectionInput,/boxSel\(boxR,lt\)/);
  assert.match(selectionInput,/tapA\(aw\[0\],aw\[1\],lt\)/);
  assert.match(selectionInput,/qsel\('idle'\)/);
- assert.ok(selectionInput.includes('controlGroupMembers(S.sel)'), 'selection preserves live ownership checks');
+ assert.ok(selectionPolicy.includes('controlGroupMembers(S.sel)'), 'selection preserves live ownership checks');
 });
 
 function fixture() {

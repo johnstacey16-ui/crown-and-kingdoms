@@ -8,6 +8,7 @@ const commands = readFileSync(new URL('../js/ui-commands.js', import.meta.url), 
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
 const input = readFileSync(new URL('../js/input.js', import.meta.url), 'utf8');
+const policy = readFileSync(new URL('../js/input-selection.js', import.meta.url), 'utf8');
 const picture = readFileSync(new URL('../js/engine-picture.js', import.meta.url), 'utf8');
 
 test('radial menu, control-group and quick-select drawing live only in js/ui-commands.js', () => {
@@ -30,10 +31,12 @@ test('draw loop and command state remain connected to the extracted overlays', (
   assert.match(picture, /try\{drawGameOverlays\(dt\)\}finally\{X=WORLD_X\}/);
   assert.match(picture, /else drawGameOverlays\(dt\)/);
   assert.match(render, /drawXboxHudOverlays\(dt\)/);
-  assert.match(input, /function openRadial\(wx,wy\)\{/);
+  assert.match(policy, /function openRadial\(wx,wy\)\{/);
+  assert.doesNotMatch(input, /function openRadial\(wx,wy\)\{/);
   assert.doesNotMatch(engine, /function openRadial\(wx,wy\)\{/);
   assert.match(input, /function playCtl\(dt\)\{/);
   assert.doesNotMatch(engine, /function playCtl\(dt\)\{/);
-  assert.match(input, /let aDown=null/);
+  assert.match(policy, /let aDown=null/);
+  assert.doesNotMatch(input, /let aDown=null/);
   assert.doesNotMatch(engine, /let aDown=null/);
 });

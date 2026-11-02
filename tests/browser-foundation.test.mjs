@@ -19,6 +19,7 @@ const audio = script('js/audio.js');
 const save = script('js/save.js');
 const engineSource = script('engine.js');
 const input = script('js/input.js');
+const inputSelection=script('js/input-selection.js');
 const render = script('js/render.js');
 const troops = script('js/render-troops.js');
 const resource = script('js/render-resources.js');
@@ -89,6 +90,9 @@ test('the core engine is external and loads before multiplayer integration', () 
   assert.ok(html.indexOf('./js/mapgen.js') < html.indexOf('./js/audio.js'));
   assert.ok(html.indexOf('./js/audio.js') < html.indexOf('./js/save.js'));
   assert.ok(html.indexOf('./js/save.js') < html.indexOf('./js/input.js'));
+  assert.ok(html.indexOf('./js/input.js') < html.indexOf('./js/input-selection.js'));
+  assert.ok(html.indexOf('./js/input-selection.js') < html.indexOf('./js/render.js'));
+  assert.match(inputSelection,/function operateVillagerPriorityWheel\(\)/);
   assert.ok(html.indexOf('./js/input.js') < html.indexOf('./engine.js'));
   assert.ok(html.indexOf('./engine.js') < html.indexOf('./multiplayer.js'));
   assert.ok(engine.length > 200000);
