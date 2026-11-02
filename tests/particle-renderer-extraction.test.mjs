@@ -17,15 +17,15 @@ test('particle drawing belongs to the rendering module and keeps single ownershi
 
 test('particle ownership includes emission, lifetime and sprite warm-up, while engine schedules them', () => {
   for (const fn of ['emit','updP','queueWarm','warm']) {
-    assert.match(render,new RegExp('function '+fn+'\\\\('));
-    assert.doesNotMatch(engine,new RegExp('function '+fn+'\\\\('));
+    assert.ok(render.includes('function '+fn+'('),fn+' must be rendered-owned');
+    assert.ok(!engine.includes('function '+fn+'('),fn+' must not be duplicated in engine');
   }
-  assert.match(render, /const PMAX=\\[100,260,520\\],PT=\\[\\]/);
-  assert.match(render, /let WQ=\\[\\]/);
-  assert.match(engine, /updP\\(dt\\)/);
-  assert.match(engine, /queueWarm\\(\\)/);
-  assert.match(engine, /warm\\(\\)/);
-  assert.match(render, /drawP\\(\\);X\\.lineWidth=2;for\\(const p of S\\.pj\\)/);
+  assert.match(render, /const PMAX=\[100,260,520\],PT=\[\]/);
+  assert.match(render, /let WQ=\[\]/);
+  assert.match(engine, /updP\(dt\)/);
+  assert.match(engine, /queueWarm\(\)/);
+  assert.match(engine, /warm\(\)/);
+  assert.match(render, /drawP\(\);X\.lineWidth=2;for\(const p of S\.pj\)/);
 });
 
 function runtime(){
