@@ -11,7 +11,7 @@ assert.match(policy, /if\(!e\.ld&&!U\[e\.k\]\.sh\)humanArmy\.push\(e\)/,
   'AI land counter-composition must exclude garrisoned units and ships');
 assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
   'AI naval counter-planning must exclude garrisoned, non-combat and malformed ship records');
-assert.match(ai, /!S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&!e\.ld&&U\[e\.k\]\?\.dmg>3/,
+assert.match(policy, /!S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&!e\.ld&&U\[e\.k\]\?\.dmg>3/,
   'AI building-repair threat checks must not crash on malformed enemy records');
 // Preserve unique naval threat-versus-target-selection restrictions in the guarded-roster suite.
 assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,

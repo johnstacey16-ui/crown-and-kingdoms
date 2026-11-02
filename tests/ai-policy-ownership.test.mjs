@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -31,6 +31,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/);
  assert.match(ai,/aiClassifyHostileForces\(t\)/);
  assert.match(ai,/aiTechnologyPriority\(k,techContext\)/);
+ assert.match(ai,/aiRepairImportantBuildings\(t,A,bl,vil\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -471,4 +472,56 @@ test('technology scoring retains villager, monk and damaged town-centre prioriti
  assert.equal(f.score('sanctity',r),55);
  r.bl.push({k:'tc',hp:60,mh:100});
  assert.equal(f.score('mas',r),67,'masonry gets the original damaged town-centre boost');
+});
+
+function buildingRepairFixture({reachable=()=>true}={}){
+ const W=64,H=64,U={mil:{dmg:6},spear:{dmg:3}},S={t:100,bs:[],us:[]};
+ let attempts=0;
+ const ctx=vm.createContext({W,H,U,S,
+  diplomacyRelation:(a,b)=>b===2?'ally':'enemy',
+  isHostile:(a,b)=>a!==b&&b===0,
+  goalNear:b=>b,
+  path:(v,b)=>{attempts++;return reachable(v,b)?[{x:b.x,y:b.y}]:null}});
+ vm.runInContext(policy+'\n;globalThis.buildingRepair=aiRepairImportantBuildings;',ctx);
+ const site=(k='tc',t=1,hp=30,mh=100,x=20,y=20,s=4)=>({k,t,hp,mh,x,y,s,done:true});
+ const worker=(x=20,y=20,o='i')=>({k:'vil',t:1,x,y,hp:100,ld:0,o,tg:null,p:[],rp:0});
+ const A={lastBuildingRepair:0};
+ return {S,A,site,worker,attempts:()=>attempts,run:(bl,vil)=>ctx.buildingRepair(1,A,bl,vil)};
+}
+test('building repair chooses high-priority Town Centre and assigns at most two idle workers',()=>{
+ const f=buildingRepairFixture(),tc=f.site('tc'),house=f.site('house',1,1,100,21,21,2);
+ const v1=f.worker(19,20),v2=f.worker(21,20),v3=f.worker(22,20);
+ f.run([house,tc],[v1,v2,v3]);
+ assert.equal(v1.o,'b');assert.equal(v2.o,'b');assert.equal(v3.o,'i');
+ assert.equal(v1.tg,tc);assert.equal(v2.tg,tc);assert.equal(v1.rp,1);
+ assert.equal(f.A.lastBuildingRepair,100);
+ f.S.t=103;f.run([house,tc],[v1,v2,v3]);
+ assert.equal(v3.o,'i','four-second cooldown prevents repeated assignments');
+ f.S.t=104;f.run([house,tc],[v1,v2,v3]);
+ assert.equal(v3.tg,house,'new repair site is chosen when another site has builders');
+});
+test('building repairs wait for construction and allow qualifying allied buildings',()=>{
+ const f=buildingRepairFixture(),unfinished=f.site('house'),own=f.site('tc'),ally=f.site('castle',2);
+ unfinished.done=false;
+ const v=f.worker();f.S.bs=[ally];
+ f.run([unfinished,own],[v]);assert.equal(v.o,'i');
+ unfinished.hp=0;f.run([unfinished],[v]);
+ assert.equal(v.o,'b');assert.equal(v.tg,ally);
+});
+test('hostile raiders block repair and unreachable paths do not start a cooldown',()=>{
+ const f=buildingRepairFixture({reachable:()=>false}),tc=f.site('tc'),v=f.worker();
+ f.S.us=[null,{k:'mil',t:0,hp:100,x:21,y:21,ld:0}];
+ f.run([tc],[v]);
+ assert.equal(v.o,'i');assert.equal(f.attempts(),0);
+ f.S.us[1].ld=1;f.run([tc],[v]);
+ assert.ok(f.attempts()>0);assert.equal(v.o,'i');
+ assert.equal(f.A.lastBuildingRepair,0);
+});
+test('building repairs reject invalid or distant workers and completed healthy buildings',()=>{
+ const f=buildingRepairFixture(),tc=f.site('tc'),far=f.worker(60,60),
+  invalid=f.worker(NaN,20),healthy=f.site('castle',1,100,100,24,24);
+ f.run([tc,healthy],[far,invalid]);
+ assert.equal(f.attempts(),0);
+ assert.equal(far.o,'i');assert.equal(invalid.o,'i');
+ assert.equal(f.A.lastBuildingRepair,0);
 });
