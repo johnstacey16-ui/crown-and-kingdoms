@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -29,6 +29,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiDisengageDamagedWarships\(my,hostileFleet\)/);
  assert.match(ai,/aiScoutIdleUnits\(scouts\)/);
  assert.match(ai,/aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/);
+ assert.match(ai,/aiClassifyHostileForces\(t\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -388,4 +389,38 @@ test('warships without reachable hostiles or an enemy Town Centre preserve idle 
  assert.equal(ship.o,'i');
  assert.equal(f.shipChecks(),0);
  assert.equal(f.patrolChecks(),0);
+});
+
+function hostileRosterFixture(){
+ const S={us:[]};
+ const U={mil:{dmg:6,sh:0},gal:{dmg:7,sh:1},bomb:{dmg:5,sh:1},
+  fish:{dmg:0,sh:1},trn:{dmg:0,sh:1},cog:{dmg:0,sh:1}};
+ const ctx=vm.createContext({S,U,isHostile:(_team,enemyTeam)=>enemyTeam===0});
+ vm.runInContext(policy+'\n;globalThis.classify=aiClassifyHostileForces;',ctx);
+ const unit=(k,t=0,hp=100,ld=false)=>({k,t,hp,ld,x:10,y:10});
+ return {S,unit,run:()=>ctx.classify(1)};
+}
+test('hostile roster policy counts active military, excludes loaded ships, and preserves trade target distinctions',()=>{
+ const f=hostileRosterFixture();
+ const infantry=f.unit('mil'),galley=f.unit('gal'),bombard=f.unit('bomb'),
+  merchant=f.unit('cog'),transport=f.unit('trn'),fish=f.unit('fish');
+ f.S.us=[infantry,galley,bombard,merchant,transport,fish,
+  f.unit('gal',0,100,true),f.unit('mil',0,100,true)];
+ const found=f.run();
+ assert.deepEqual(Array.from(found.humanArmy),[infantry]);
+ assert.deepEqual(Array.from(found.humanShips),[galley,bombard]);
+ assert.deepEqual(Array.from(found.hostileFleet),[galley,bombard]);
+ assert.deepEqual(Array.from(found.hostileShips),[galley,bombard,merchant,transport]);
+ assert.equal(found.navalThreatCount,2);
+});
+test('hostile roster policy ignores dead, allied, malformed and unknown records',()=>{
+ const f=hostileRosterFixture(),enemy=f.unit('gal');
+ f.S.us=[null,undefined,{k:'gal',t:NaN,hp:100},
+  f.unit('gal',0,0),f.unit('gal',1),f.unit('gal',2),
+  f.unit('ghost'),enemy];
+ const found=f.run();
+ assert.deepEqual(Array.from(found.hostileFleet),[enemy]);
+ assert.deepEqual(Array.from(found.hostileShips),[enemy]);
+ assert.equal(found.navalThreatCount,1);
+ assert.equal(found.humanArmy.length,0);
 });

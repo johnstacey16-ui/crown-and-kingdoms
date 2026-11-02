@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const start = ai.indexOf('function aiTeam(');
-const end = ai.indexOf('\nconst hostileFleet=[]', start);
+const end = ai.indexOf('\nconst {hostileFleet', start);
 assert.ok(start >= 0 && end > start, 'AI team roster classification must be available');
 
 const roster = ai.slice(start, end);
@@ -18,7 +19,8 @@ assert.match(roster, /if\(u\.k==='gal'&&!u\.ld\)galleys\.push\(u\)/,
 
 console.log('ai-live-active-roster: dead and garrisoned units do not inflate AI planning counts');
 
-const threatScan = ai.slice(ai.indexOf('const hostileFleet=[]'), ai.indexOf('\naiShareResources(t,A,R);'));
+const threatScan = policy.slice(policy.indexOf('function aiClassifyHostileForces('));
+assert.match(ai, /aiClassifyHostileForces\(t\)/, 'AI orchestration uses the dedicated hostile roster policy');
 assert.match(threatScan, /for\(const e of S\.us\)/,
   'AI naval threat rosters should be built in a single pass over the unit list');
 assert.match(threatScan, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,

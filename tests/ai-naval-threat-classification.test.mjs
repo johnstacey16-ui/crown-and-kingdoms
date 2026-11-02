@@ -7,9 +7,9 @@ assert.match(policy, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&is
   'the extracted fleet-repair policy must skip null or malformed hostile unit records');
 assert.match(ai, /aiManageFleetRepairs\(t,my\)/,
   'the main AI orchestration must call the dedicated fleet-repair policy');
-assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
+assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'Naval target selection must ignore garrisoned hostile ships');
-assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
+assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
   'AI naval threat assessment must ignore fishing ships, transports and trade cogs');
 assert.match(ai, /if\(k==='navalHull'&&humanShips\.length\)score\+=95/);
 assert.match(policy, /for\(const ship of my\.filter\(u=>u&&U\[u\.k\]\?\.sh&&!\['fish','trn','cog'\]\.includes\(u\.k\)&&U\[u\.k\]\.dmg>=4&&!u\.ld&&u\.hp>0&&u\.hp\/mhp\(u\)<\.32&&\(u\.o==='a'\|\|u\.o==='i'\|\|\(u\.o==='m'&&u\.tg\)\)\)\)/,

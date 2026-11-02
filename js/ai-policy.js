@@ -286,3 +286,11 @@ for(const s of scouts.filter(u=>u.o==='i'&&S.t>=(u.nextScoutRoute||0))){s.nextSc
  * The main AI owns enemy roster filtering; this policy owns tactical orders. */
 function aiAssignWarshipTargets(t,tc,galleys,hostileShips){
 const ptc=S.bs.filter(b=>isHostile(t,b.t)&&b.k==='tc'&&b.hp>0).sort((x,y)=>Math.hypot(x.x-tc.x,x.y-tc.y)-Math.hypot(y.x-tc.x,y.y-tc.y))[0],focusCounts=new Map();for(const u of galleys)if(u.o==='a'&&u.tg)focusCounts.set(u.tg,(focusCounts.get(u.tg)||0)+1);for(const ship of galleys.filter(u=>(u.o==='i'||(u.o==='m'&&!u.tg)||(u.o==='a'&&(!u.tg||u.tg.hp<=0||u.tg.ld||!isHostile(t,u.tg.t))))&&(u.hp/mhp(u)>=.32||S.t>=(u.navalFallbackUntil||0)))){const navalTargetScore=e=>Math.hypot(e.x-ship.x,e.y-ship.y)-(e.k==='gal'?6:0)+(U[e.k].dmg>=4?0:10)-Math.min(3,focusCounts.get(e)||0)*4;let enemy=null;const navalCandidates=S.t>=(ship.nextNavalTargetAt||0)?hostileShips.filter(e=>Math.hypot(e.x-ship.x,e.y-ship.y)<28).sort((a,b)=>navalTargetScore(a)-navalTargetScore(b)):[];for(const candidate of navalCandidates.slice(0,6))if(path(ship,goalNear(candidate,Math.max(1,attackRange(ship))))){enemy=candidate;break}if(!enemy&&navalCandidates.length)ship.nextNavalTargetAt=S.t+8;if(enemy){ship.o='a';ship.tg=enemy;ship.p=[];focusCounts.set(enemy,(focusCounts.get(enemy)||0)+1);continue}if(!ptc)continue;const cx=ptc.x+ptc.s/2,cy=ptc.y+ptc.s/2;if(Math.hypot(ship.x-cx,ship.y-cy)<17)continue;if(S.t<(ship.nextNavalPatrol||0))continue;ship.nextNavalPatrol=S.t+12;const p=path(ship,gp(cx,cy,17));if(p&&p.length>1){ship.o='m';ship.p=p;ship.rp=1}}}
+
+/* Build tactical and economic threat rosters with one guarded pass. Diplomacy,
+ * hitpoints, garrison status, and the separate fishing/trade/combat restrictions
+ * match the prior aiTeam inline scan exactly. */
+function aiClassifyHostileForces(t){
+const hostileFleet=[],hostileShips=[],humanArmy=[],humanShips=[];let navalThreatCount=0;for(const e of S.us){if(!e||!Number.isInteger(e.t)||!isHostile(t,e.t)||e.hp<=0||!U[e.k])continue;if(!e.ld&&!U[e.k].sh)humanArmy.push(e);if(U[e.k].sh){if(!e.ld&&e.k!=='fish')hostileShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4)humanShips.push(e);if(!e.ld&&e.k!=='fish'&&e.k!=='trn'&&e.k!=='cog'&&U[e.k].dmg>=4){navalThreatCount++;hostileFleet.push(e)}}}
+return {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount};
+}
