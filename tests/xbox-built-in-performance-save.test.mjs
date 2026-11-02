@@ -55,11 +55,11 @@ test('the built-in sample is inaccessible from another live match or an online s
 test('Xbox performance fixture has a single benchmark owner, not a duplicate in engine',()=>{
  const benchmark=readFileSync(new URL('../js/engine-graphics-benchmark.js',import.meta.url),'utf8');
  const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
- assert.match(benchmark,/function loadSeriesSPerformanceSave\(\)/);
+ assert.match(benchmark,/function loadSeriesSPerformanceSave\(unitLoad=selectedXboxPerformanceLoad\)/);
  assert.match(benchmark,/const CK_SERIES_S_SAMPLE_KEY='ck_series_s_fps_fixture_v1'/);
  assert.match(benchmark,/saveG\(false,CK_SERIES_S_SAMPLE_KEY\)/);
  assert.match(benchmark,/loadG\(false,CK_SERIES_S_SAMPLE_KEY\)/);
- assert.doesNotMatch(engine,/function loadSeriesSPerformanceSave\(\)/);
+ assert.doesNotMatch(engine,/function loadSeriesSPerformanceSave\(/);
  assert.doesNotMatch(engine,/const CK_SERIES_S_SAMPLE_KEY=/);
 });
 
