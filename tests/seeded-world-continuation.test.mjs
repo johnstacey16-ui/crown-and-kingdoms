@@ -71,10 +71,10 @@ test('AI tactical cooldowns survive real current-version save/load instead of si
  const initial={gu:17.5,lastAllyHelp:25.25,lastBuildingRepair:28.75,
   nextWaveObjectiveAt:35.5,targetRetryAt:41.25};
  f.setAiTimers(initial);
- assert.deepEqual(f.aiTimers(),initial);
+ assert.deepEqual(JSON.parse(JSON.stringify(f.aiTimers())),initial);
  assert.equal(f.save(),true);
  assert.equal(f.load(),true);
- assert.deepEqual(f.aiTimers(),initial,
+ assert.deepEqual(JSON.parse(JSON.stringify(f.aiTimers())),initial,
   'AI garrison, allied help, repairs, idle-wave retarget and target retry preserve timing');
  assert.equal(f.save(),true);
  f.oldSaveWithoutTimers();
