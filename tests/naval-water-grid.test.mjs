@@ -27,7 +27,7 @@ function fixture() {
   section(logistics, 'function transportLandingRoute(', '\nfunction tickTrader(') + '\n' +
   section(production, 'function spawnPos(', '\nconst MILITARY_PRODUCTION_BUILDINGS=') + '\n' +
   section(resource, 'function deployFishTrap(', '\nfunction killNode(') + '\n' +
-  section(policy, 'function aiDockWaterReach(', '\n// The first Feudal push') + '\n' +
+  section(policy, 'function aiDockWaterReach(', '\n/* Preserve the scouting cadence') + '\n' +
   section(campaign, 'function campaignWaterRegions(', '\nfunction raid('), ctx);
  return { S, ctx, run: code => vm.runInContext(code, ctx) };
 }
