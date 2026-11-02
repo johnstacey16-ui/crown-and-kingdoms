@@ -1024,3 +1024,24 @@ test('AI market does not trade stone on buy, or start cooldown after failed orde
  R.f=50;ctx.market(1,A,[market],R);assert.deepEqual(actions,[['f','buy']]);
  assert.equal(A.lastMarketTrade,undefined,'failed trade does not throttle retries');
 });
+
+test('AI personality metadata and seeded army picker are policy-owned without gameplay changes',()=>{
+ const engine=read('engine.js');
+ for(const name of ['PERS','AIPN','AIPD','CATU','PW']){
+  assert.match(policy,new RegExp(name+'='));
+  assert.doesNotMatch(engine,new RegExp('(?:const |,)'+name+'='));
+ }
+ assert.match(policy,/function pickW\(/);
+ assert.doesNotMatch(engine,/function pickW\(/);
+ const start=policy.indexOf('const PERS=[');
+ assert.ok(start>=0);
+ const S={r:()=>.5};
+ const result=vm.runInNewContext(policy.slice(start)+';({PERS,AIPN,AIPD,CATU,PW,pickW})',{S,aip:1});
+ assert.equal(result.PERS.length,7);
+ assert.equal(result.AIPN.length,7);
+ assert.equal(result.AIPD.length,7);
+ assert.equal(result.CATU.knight,'cav');
+ assert.equal(result.PW[1].cav,1.6);
+ assert.equal(result.pickW(['knight','arc']),'knight');
+ assert.equal(result.pickW(['arc','knight']),'knight');
+});
