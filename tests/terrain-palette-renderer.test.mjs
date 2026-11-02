@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
+const troops = readFileSync(new URL('../js/render-troops.js', import.meta.url), 'utf8');
 const terrain = readFileSync(new URL('../js/render-terrain.js', import.meta.url), 'utf8');
 
 test('terrain colour palettes and deterministic tile variation belong to js/render-terrain.js', () => {
@@ -20,9 +21,9 @@ test('terrain colour palettes and deterministic tile variation belong to js/rend
 });
 
 test('units retain a high-contrast team marker at strategic zoom', () => {
-  assert.match(render, /if\(z<\.8\)\{const my=sy\+z\+1;X\.fillStyle='#17130f'/,
+  assert.match(troops, /if\(z<\.8\)\{const my=sy\+z\+1;X\.fillStyle='#17130f'/,
     'A dark outline must keep the zoomed-out unit marker visible against varied terrain');
-  assert.match(render, /X\.fillStyle=teamColor\(u\.t\);X\.beginPath\(\);X\.moveTo\(sx,my-2\)/,
+  assert.match(troops, /X\.fillStyle=teamColor\(u\.t\);X\.beginPath\(\);X\.moveTo\(sx,my-2\)/,
     'The inner marker must use the owning kingdom colour');
 });
 

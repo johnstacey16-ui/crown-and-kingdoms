@@ -204,10 +204,10 @@ test('in-game About copy describes the real asset, audio and verification bounda
 });
 
 test('unit equipment rendering reads technology state and exposes researched armour visually', () => {
-  assert.match(render, /function drawUnit\(u,selectedUnits\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
-  assert.match(render, /T\.armI&&INFARM\.has\(k\)/);
-  assert.match(render, /T\.armR&&ARCHARM\.has\(k\)/);
-  assert.match(render, /Blacksmith armour upgrades receive a small battlefield-visible cue/);
+  assert.match(troops, /function drawUnit\(u,selectedUnits\)\{const k=u\.k,d=U\[k\],T=S\.tech\[u\.t\]\|\|\{\}/);
+  assert.match(troops, /T\.armI&&INFARM\.has\(k\)/);
+  assert.match(troops, /T\.armR&&ARCHARM\.has\(k\)/);
+  assert.match(troops, /Blacksmith armour upgrades receive a small battlefield-visible cue/);
 });
 
 test('audio voice classification tolerates entities without unit definitions', () => {
