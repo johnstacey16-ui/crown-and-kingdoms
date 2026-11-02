@@ -11,7 +11,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiBaseDefenceThreat','aiCanResearchWhileSaving','aiQueuedUnits',
   'aiSiegeTarget','aiAvailableBuilder','aiBuilderCandidates','aiReachableBuilder',
   'aiSavingAgeFood','aiTownTechReady','aiDockWaterReach','aiRebal',
-  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites']){
+  'aiOpeningWaveNeed','aiResumeIdleWave','aiRetreat','aiShareResources','aiTradeEscorts','aiManageFishingShips','aiManageFleetRepairs','aiDisengageDamagedWarships','aiScoutIdleUnits','aiAssignWarshipTargets','aiClassifyHostileForces','aiTechnologyPriority','aiRepairImportantBuildings','aiAssignIdleVillagers','aiEvacuateVillagers','aiDefendTownCentre','aiRelieveAlliedBases','aiDefendEconomicSites','aiAdvanceStagedWave']){
   assert.match(policy,new RegExp('function '+fn+'\\('));
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
@@ -37,6 +37,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiDefendTownCentre\(A,tc,arm,vil,my,nearbyRaiders\)/);
  assert.match(ai,/aiRelieveAlliedBases\(t,A,arm,nearbyRaiders\)/);
  assert.match(ai,/aiDefendEconomicSites\(t,A,arm,bl,nearbyRaiders\)/);
+ assert.match(ai,/aiAdvanceStagedWave\(t,A,tc\)/);
  assert.doesNotMatch(ai,/function aiResumeIdleWave\(/);
  assert.doesNotThrow(()=>new vm.Script(policy));
  assert.doesNotThrow(()=>new vm.Script(construction));
@@ -765,4 +766,67 @@ test('economic-site defence leaves its cooldown untouched when only busy or dama
  f.protect([busy,wounded],[site],[enemy]);
  assert.equal(f.A.lastRaidDefense,0);
  assert.equal(busy.o,'m');assert.equal(wounded.o,'i');
+});
+
+
+function stagedWaveFixture({route=()=>true}={}){
+ const S={t:100,bs:[]},W=64,H=64;
+ const ctx=vm.createContext({S,W,H,isHostile:(t,other)=>other===0,
+  d2:(x,y,b)=>Math.hypot(b.x-x,b.y-y),goalNear:b=>b,
+  path:(u,target)=>route(u,target)?[{x:target.x,y:target.y}]:null});
+ vm.runInContext(policy+'\n;globalThis.advance=aiAdvanceStagedWave;',ctx);
+ const enemy=(k='tc',x=30,y=30,hp=100)=>({k,x,y,t:0,hp});
+ const unit=(k='mil',o='i')=>({k,o,t:1,x:10,y:10,hp:100,ld:0,
+  retreating:false,tg:null,p:[{x:1,y:1}],rp:1});
+ const tc={x:10,y:10};
+ return {S,tc,enemy,unit,run:A=>ctx.advance(1,A,tc)};
+}
+
+test('staged waves preserve marching orders before the timeout and attack when formation arrives',()=>{
+ const f=stagedWaveFixture(),target=f.enemy(),soldier=f.unit(),ram=f.unit('ram'),marcher=f.unit('mil','m');
+ const A={on:1,stg:{tg:target,siegeT:target,t:70},wu:[soldier,ram,marcher]};
+ f.run(A);
+ assert.equal(soldier.o,'i','a marching wave should not begin its assault early');
+ assert.ok(A.stg);
+ marcher.o='i';f.run(A);
+ assert.equal(soldier.o,'a');
+ assert.equal(soldier.tg,target);
+ assert.equal(ram.o,'a');
+ assert.equal(ram.tg,target);
+ assert.equal(A.stg,null);
+});
+
+test('staged waves honour independent siege targets after 50-second staging timeout',()=>{
+ const f=stagedWaveFixture(),target=f.enemy(),siege=f.enemy('castle',32,32),ram=f.unit('ram'),
+  marcher=f.unit('mil','m');
+ const A={on:1,stg:{tg:target,siegeT:siege,t:49},wu:[ram,marcher]};
+ f.run(A);
+ assert.equal(ram.tg,siege,'siege units keep their selected priority target');
+ assert.equal(ram.o,'a');
+ assert.equal(marcher.o,'m','moving soldiers retain their formation orders');
+ assert.equal(A.stg,null);
+});
+
+test('staged waves replace destroyed targets only with reachable enemy structures',()=>{
+ const fallback= {k:'tc',x:25,y:20,t:0,hp:100};
+ const inaccessible={k:'castle',x:11,y:11,t:0,hp:100};
+ const f=stagedWaveFixture({route:(_u,b)=>b!==inaccessible});
+ f.S.bs=[inaccessible,fallback];
+ const dead=f.enemy('tc',32,32,0),soldier=f.unit(),A={on:1,stg:{tg:dead,siegeT:dead,t:10},wu:[soldier]};
+ f.run(A);
+ assert.equal(soldier.o,'a');
+ assert.equal(soldier.tg,fallback);
+ assert.equal(A.stg,null);
+});
+
+test('staged waves cancel without a reachable target and apply their original 90-second retry',()=>{
+ const f=stagedWaveFixture({route:()=>false}),soldier=f.unit('mil','m'),dead=f.enemy('tc',20,20,0);
+ f.S.bs=[f.enemy('tc')];
+ const A={on:1,stg:{tg:dead,t:20},wu:[soldier]};
+ f.run(A);
+ assert.equal(A.on,0);
+ assert.equal(A.nx,190);
+ assert.equal(A.stg,null);
+ assert.equal(soldier.o,'i');
+ assert.equal(soldier.rp,0);
 });
