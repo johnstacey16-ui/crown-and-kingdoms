@@ -51,3 +51,60 @@ test('production world times visible nodes/buildings/troops separately in origin
  assert.match(ui,/BLD '\+perfBuildingMs\.toFixed/);
  assert.match(ui,/UNIT '\+perfUnitMs\.toFixed/);
 });
+
+test('native resource crops evict oldest entries under a global 8 MiB limit',()=>{
+ const cropCalls=[];let allocations=0;
+ const scene=vm.runInNewContext(resource.slice(s,e)+
+  '\n({paintedNodeTexture,NODE_TEXTURE_RECENCY,NODE_TEXTURE_PIXELS:()=>NODE_TEXTURE_PIXELS,NODE_TEXTURE_PIXEL_LIMIT,NODE_TEXTURE_ENTRY_LIMIT})',{
+  document:{createElement:()=>{allocations++;return {width:0,height:0,getContext:()=>({drawImage(...a){cropCalls.push(a)}})}}}
+ });
+ const img={},art=x=>({img,f:{x,y:0,w:120,h:180,ax:45,ay:175},painted:true});
+ const first=scene.paintedNodeTexture(art(0),72);
+ for(let x=1;x<160;x++)assert.ok(scene.paintedNodeTexture(art(x*130),72));
+ assert.ok(scene.NODE_TEXTURE_RECENCY.size<=scene.NODE_TEXTURE_ENTRY_LIMIT);
+ const retained=[...scene.NODE_TEXTURE_RECENCY.values()].reduce((sum,e)=>sum+e.canvas.width*e.canvas.height,0);
+ assert.equal(scene.NODE_TEXTURE_PIXELS(),retained);
+ assert.ok(retained<=scene.NODE_TEXTURE_PIXEL_LIMIT);
+ assert.ok(![...scene.NODE_TEXTURE_RECENCY.values()].some(e=>e.canvas===first));
+ assert.notEqual(scene.paintedNodeTexture(art(0),72),first,'evicted native frame re-crops on demand');
+ assert.equal(allocations,161);
+});
+test('resource LRU promotes hot frames and bypasses invalid or excessive crops',()=>{
+ let created=0;
+ const scene=vm.runInNewContext(resource.slice(s,e)+
+ '\n({paintedNodeTexture,NODE_TEXTURE_RECENCY,NODE_TEXTURE_PIXELS:()=>NODE_TEXTURE_PIXELS})',{
+  document:{createElement:()=>{created++;return {width:0,height:0,getContext:()=>({drawImage(){}})}}}
+ });
+ const img={},f={x:1,y:2,w:120,h:180,ax:60,ay:172};
+ const first=scene.paintedNodeTexture({img,f},72);
+ scene.paintedNodeTexture({img,f:{...f,x:5}},72);
+ assert.equal(scene.paintedNodeTexture({img,f},72),first);
+ assert.equal([...scene.NODE_TEXTURE_RECENCY.values()].at(-1).canvas,first);
+ assert.notEqual(scene.paintedNodeTexture({img:{},f},72),first,'atlas reload does not use stale texture');
+ const before=created;
+ assert.equal(scene.paintedNodeTexture({img,f:{...f,w:4000,h:4000},referenceWidth:120},72),null);
+ assert.equal(scene.paintedNodeTexture({img,f},Infinity),null);
+ assert.equal(created,before,'invalid crops do not allocate backing canvases');
+ assert.equal(scene.NODE_TEXTURE_PIXELS(),[...scene.NODE_TEXTURE_RECENCY.values()].reduce((n,e)=>n+e.canvas.width*e.canvas.height,0));
+});
+test('unmirrored resource frames draw at identical absolute pixels without transforms',()=>{
+ const calls=[],ctx={S:{t:10,vs:new Uint8Array(10000).fill(1)},W:100,zm:1,
+  w2s:(x,y)=>[x*10,y*10],hsh:()=>.9,ASSET:{n:1},
+  paintedEnvironmentFrame:()=>null,
+  paintedResourceFrame:()=>({img:{},f:{x:8,y:9,w:80,h:110,ax:30,ay:106},painted:true}),
+  paintedNodeTexture:()=>({width:108,height:150}),paintedResourceWidth:()=>54,
+  resourceVisualAmount:()=>Infinity,
+  X:{globalAlpha:1,drawImage(...a){calls.push(a)},
+   save(){throw Error('unexpected save')},restore(){throw Error('unexpected restore')},
+   translate(){throw Error('unexpected translate')},scale(){throw Error('unexpected scale')}}
+ };
+ const paint=vm.runInNewContext(resource.slice(resource.indexOf('function drawNode('))+'\n;drawNode;',ctx);
+ paint({x:4,y:6,k:'g',amt:100});
+ assert.equal(calls.length,1);
+ const [img,x,y,w,h]=calls[0];assert.ok(img);
+ assert.ok(Math.abs(x-24.75)<1e-9);
+ assert.ok(Math.abs(y+2.55)<1e-9);
+ assert.ok(Math.abs(w-54)<1e-9);
+ assert.ok(Math.abs(h-74.25)<1e-9);
+ assert.equal(ctx.X.globalAlpha,1);
+});
