@@ -4,8 +4,8 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 function artwork(){
- const source=readFileSync(new URL('../js/render.js',import.meta.url),'utf8'),c={};vm.createContext(c);
- vm.runInContext(source.slice(source.indexOf('const PROJECTILE_STYLES='),source.indexOf('// Fog stays beneath world objects'))+';globalThis.api={style:projectileVisualStyle,heading:projectileVisualHeading,draw:drawProjectileArtwork}',c);return c.api;
+ const source=readFileSync(new URL('../js/render-effects.js',import.meta.url),'utf8'),c={};vm.createContext(c);
+ vm.runInContext(source.slice(source.indexOf('const PROJECTILE_STYLES='),source.indexOf('/* Particle emission, lifetime, rendering and queued procedural warm-up. */'))+';globalThis.api={style:projectileVisualStyle,heading:projectileVisualHeading,draw:drawProjectileArtwork}',c);return c.api;
 }
 test('weapon families are distinct and fixed aim never reads a moving or hidden target',()=>{
  const a=artwork();for(const [kind,style] of [['arc','arrow'],['genoa','bolt'],['scor','heavy-bolt'],['skirm','javelin'],['hcan','bullet'],['bomb','cannon'],['treb','stone'],['axe','axe'],['gbeto','blade']])assert.equal(a.style(kind),style);
@@ -32,4 +32,19 @@ test('team-relative projectile projection copies only visible shot art and fixed
  `,sandbox);
  assert.equal(sandbox.projected.length,1);const p=sandbox.projected[0];assert.equal(p.style,'cannon');assert.equal(p.heading,0);
  assert.deepEqual(Object.keys(p).sort(),['heading','style','x','y']);
+});
+
+test('projectile art uses only the offline effects owner; depth-sorted world draws keep dispatching',()=>{
+ const effects=readFileSync(new URL('../js/render-effects.js',import.meta.url),'utf8');
+ const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
+ for(const name of ['projectileVisualStyle','projectileVisualHeading','drawProjectileArtwork']){
+  assert.ok(effects.includes('function '+name+'('),name+' exists in effects owner');
+  assert.ok(!render.includes('function '+name+'('),name+' is not duplicated in the dispatcher');
+ }
+ assert.ok(html.indexOf('./js/render-troops.js')<html.indexOf('./js/render-effects.js'));
+ assert.ok(html.indexOf('./js/render-effects.js')<html.indexOf('./js/ui.js'));
+ assert.ok(sw.includes("'./js/render-effects.js'"));
+ assert.ok(render.includes('drawProjectileArtwork('),'world renderer keeps rendering projectile variants');
 });

@@ -7,25 +7,30 @@ import {headlessGame} from './helpers/headless-game.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 const render = readFileSync(new URL('../js/render.js', import.meta.url), 'utf8');
+const effects = readFileSync(new URL('../js/render-effects.js', import.meta.url), 'utf8');
 
 test('particle drawing belongs to the rendering module and keeps single ownership', () => {
   assert.ok(html.indexOf('./js/render.js') < html.indexOf('./engine.js'));
-  assert.match(render, /const PMAX=\[100,260,520\],PT=\[\]/);
-  assert.match(render, /function drawP\(\)\{for\(const p of PT\)/);
+  assert.match(effects, /const PMAX=\[100,260,520\],PT=\[\]/);
+  assert.match(effects, /function drawP\(\)\{for\(const p of PT\)/);
   assert.doesNotMatch(engine, /function drawP\(\)/);
 });
 
 test('particle ownership includes emission, lifetime and sprite warm-up, while engine schedules them', () => {
   for (const fn of ['emit','updP','queueWarm','warm']) {
-    assert.ok(render.includes('function '+fn+'('),fn+' must be rendered-owned');
+    assert.ok(effects.includes('function '+fn+'('),fn+' must be effects-owned');
+    assert.ok(!render.includes('function '+fn+'('),fn+' not duplicated in world render');
     assert.ok(!engine.includes('function '+fn+'('),fn+' must not be duplicated in engine');
   }
-  assert.match(render, /const PMAX=\[100,260,520\],PT=\[\]/);
-  assert.match(render, /let WQ=\[\]/);
+  assert.match(effects, /const PMAX=\[100,260,520\],PT=\[\]/);
+  assert.match(effects, /let WQ=\[\]/);
   assert.match(render, /updP\(dt\)/);
   assert.match(engine, /queueWarm\(\)/);
   assert.match(render, /warm\(\)/);
   assert.match(render, /drawP\(\);X\.lineWidth=2;for\(const p of S\.pj\)/);
+  assert.doesNotMatch(render,/const PMAX=|const PROJECTILE_STYLES=|function drawP\(/);
+  assert.match(effects,/function queueWarm\(\)/);
+  assert.match(effects,/function warm\(\)/);
 });
 
 function runtime(){

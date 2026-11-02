@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const from=render.indexOf('function chunkOf(');
-const to=render.indexOf('const PMAX=',from);
+const to=render.indexOf('/* Effects and sprite warm-up: js/render-effects.js. */',from);
 assert.ok(from>=0&&to>from,'test extracts the exact production chunk painter');
 const production=render.slice(from,to);
 

@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v134-troop-art-ownership-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v135-effects-art-ownership-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -82,6 +82,7 @@ const CORE_ASSETS = [
   './js/render-buildings.js',
   './js/render-procedural-units.js',
   './js/render-troops.js',
+  './js/render-effects.js',
   './js/ui.js',
   './js/simulation-combat-bonuses.js',
   './js/simulation-victory.js',
