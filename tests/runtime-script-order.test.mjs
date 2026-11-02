@@ -16,7 +16,8 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.at(-1),'./multiplayer.js');
  assert.ok(scripts.includes('./js/network-webrtc.js'));
  assert.ok(scripts.includes('./js/network-supabase.js'));
- assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render.js')+1);
+ assert.equal(scripts.indexOf('./js/render-terrain.js'),scripts.indexOf('./js/render.js')+1);
+ assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render-terrain.js')+1);
  assert.equal(scripts.indexOf('./js/simulation-logistics.js')+1,scripts.indexOf('./js/simulation-resource-routing.js'));
  assert.equal(scripts.indexOf('./js/simulation-resource-routing.js')+1,scripts.indexOf('./js/simulation-production-queues.js'));
  assert.equal(scripts.indexOf('./js/simulation-production-queues.js')+1,scripts.indexOf('./js/simulation-research.js'));

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-const source=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'utf8');
 function fixture(document){
  const ctx=vm.createContext({document,PAINT:{terrain:{width:1536}},Map});
  vm.runInContext(source.slice(source.indexOf('const TERRAIN_BLEND='),source.indexOf('function paintTerrain(')),ctx);
@@ -39,4 +39,18 @@ test('small terrain textures avoid the former 256-entry thrash within the same p
  c.clearTerrainBlend();assert.equal(vm.runInContext('terrainBlendPixels',c),0);
  for(const ns of neighbors)c.terrainTileTexture(0,0,0,ns,64);
  assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),256,'native solo tiles retain the original pixel cap');
+});
+
+test('painted terrain helpers have one offline runtime owner without touching the viewport cache',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
+ const renderer=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
+ assert.ok(html.indexOf('./js/render.js')<html.indexOf('./js/render-terrain.js'));
+ assert.ok(html.indexOf('./js/render-terrain.js')<html.indexOf('./js/render-procedural-units.js'));
+ assert.ok(sw.includes("'./js/render-terrain.js'"));
+ for(const fn of ['loadPaintedTerrain','terrainBlendResolution','terrainTileTexture','terrainNeighborKinds','paintTerrain','paintedTerrainKind']){
+  assert.ok(source.includes('function '+fn+'('),fn+' stays in the terrain owner');
+  assert.ok(!renderer.includes('function '+fn+'('),fn+' is not duplicated in world renderer');
+ }
+ assert.ok(renderer.includes('const TERRAIN_VIEW='),'existing Xbox viewport caching remains in world renderer');
 });
