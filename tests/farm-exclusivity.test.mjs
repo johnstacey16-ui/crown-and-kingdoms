@@ -9,7 +9,7 @@ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const network=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
-const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const economy=readFileSync(new URL('../js/ai-economy.js',import.meta.url),'utf8');
 const from=resource.indexOf('function farmAvailableTo(u,n){');
 const end=resource.indexOf('function dropoffKey(',from);
 assert.ok(from>=0&&end>from,'production farm occupancy and node selection functions present');
@@ -84,6 +84,6 @@ test('all command surfaces preserve the one-farmer rule',()=>{
  assert.match(engine,/farmAvailableTo\(u,n\)/);
  assert.match(network,/farmAvailableTo\(u,entity\)/);
  assert.match(network,/!!node\.fm&&!farmAvailableTo\(u,node\)/);
- assert.match(policy,/farmAvailableTo\(w,n\)/);
+ assert.match(economy,/farmAvailableTo\(w,n\)/);
  assert.match(unit,/!resourceHasWorksite\(u,tg\)/);
 });
