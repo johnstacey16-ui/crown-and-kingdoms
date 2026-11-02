@@ -76,3 +76,17 @@ test('procedural fallback textures obey an 8 MiB LRU and refresh on demand',()=>
  assert.equal(run('SPC.size'),0);
  assert.equal(run('SPC_PIXELS'),0,'atlas reload clears accounting too');
 });
+
+test('loading a material texture invalidates both fallback sprites and their pixel accounting',()=>{
+ const run=fixture();
+ run('clearProceduralSpriteCache();spr("old-material",400,400,()=>{});globalThis.loadedMaterial=null;globalThis.Image=class {set src(path){globalThis.loadedMaterial=this}};loadCKTexture("stone","test://stone")');
+ assert.equal(run('SPC.size'),1);
+ assert.equal(run('SPC_PIXELS'),640000);
+ run('loadedMaterial.onload()');
+ assert.equal(run('CK_TEX.stone===loadedMaterial'),true,'loaded material is available for replacement art');
+ assert.equal(run('SPC.size'),0,'stale material fallback textures are removed');
+ assert.equal(run('SPC_PIXELS'),0,'evicted pixels do not remain counted after the image loads');
+ run('spr("fresh-material",400,400,()=>{})');
+ assert.equal(run('SPC.size'),1,'fresh textured fallback can enter the cache');
+ assert.equal(run('SPC_PIXELS'),640000,'new fallback accounts for only its own pixels');
+});
