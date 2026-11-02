@@ -1,6 +1,6 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `73425a3` · [GitHub Actions 41391464494](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41391464494) · **936/936 focused**, **5/5 quick**, **0 failures** · offline shell v92. Latest Vercel production deployment is unverified (older `8b262d4` was READY); the full 247-file suite, four expensive isolated regressions and Xbox hardware acceptance remain open.
+**Last green code revision:** `0d335d7` · [GitHub Actions 41392309492](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41392309492) · **942/942 focused**, **5/5 quick**, **0 failures** · offline shell v94. Latest Vercel production deployment is unverified (older `8b262d4` was READY); the full 247-file suite, four expensive isolated regressions and Xbox hardware acceptance remain open.
 
 ## Current footprint and ownership
 
@@ -15,6 +15,7 @@
 
 ## Latest verified incremental work
 
+- `f33665b` / `0d335d7`: moved the original 1,268-character damaged-warship retreat policy and 364-character idle-scout routing from `ai.js` into dedicated functions in `ai-policy.js`, with three behavioural tests for each policy covering warship thresholds/water/cooldowns and scout cooldowns/waypoint retries/blocked paths. Both hosted push validations passed, latest **942/942 focused**. Offline shell v94; no Xbox, campaign or full-suite acceptance implied.
 - `76e1ca4` / `d534ef7` / `73425a3`: moved the unchanged 627-character damaged-fleet repair decision from `ai.js` into `ai-policy.js`, corrected an outdated naval source-owner contract, added two behavioural tests for warship priority, safe repairs and duplicate assignment, and advanced the offline cache to v92. Hosted quick/focused CI **936/936** passed; full simulations and production/Xbox acceptance are still open.
 - `1dc781d` / `81f5e48`: extracted 2,173 characters of trade-cart and trade-cog escort planning into `aiTradeEscorts`; three focused regression cases cover guard assignment, risk/expiry, impassable routes, weak/reserved soldiers, and naval escort eligibility.
 - `a4f6ee3` / `8b262d4`: extracted 1,928 characters of fishing-ship escape, fishing target and fish-trap policy into `aiManageFishingShips`; three added cases cover reachable safe water, cooldowns, reachable grounds and resource-gated traps. Latest CI **934/934**; offline cache v91.
