@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
-assert.match(ai, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,
-  'naval repair threat scans must skip null or malformed unit records before reading their fields');
+const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
+assert.match(policy, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,
+  'the extracted fleet-repair policy must skip null or malformed hostile unit records');
+assert.match(ai, /aiManageFleetRepairs\(t,my\)/,
+  'the main AI orchestration must call the dedicated fleet-repair policy');
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'Naval target selection must ignore garrisoned hostile ships');
 assert.match(ai, /if\(!e\.ld&&e\.k!=='fish'&&e\.k!=='trn'&&e\.k!=='cog'&&U\[e\.k\]\.dmg>=4\)humanShips\.push\(e\)/,
