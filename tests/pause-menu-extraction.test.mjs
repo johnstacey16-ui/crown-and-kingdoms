@@ -28,7 +28,8 @@ test('controller-remap presentation is in js/ui.js and its actions remain in js/
   assert.ok(ui.includes("function drawRemap(){"));
   assert.ok(!engine.includes("const RA="));
   assert.ok(!engine.includes("function drawRemap()"));
-  assert.ok(engine.includes("const sv=()=>"));
+  assert.ok(input.includes("const sv=()=>"));
+  assert.ok(!engine.includes("const sv=()=>"));
   assert.ok(input.includes("BM[RA[ri][0]]=b;rw=0;sv()"));
   assert.ok(input.includes("if(ER[2]){BM={};sv()}"));
   assert.ok(input.includes("if(ER[9]||ER[1])mode=rbk;return"));

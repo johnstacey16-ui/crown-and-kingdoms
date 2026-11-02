@@ -557,13 +557,6 @@ const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan
 const CAVARM=new Set(['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan']);
 Object.assign(MA,{boyar:3,tarkan:2,huskarl:1,kamayuk:1,huszar:1,wagon:1});Object.assign(PRA,{boyar:3,tarkan:2,huskarl:6,kamayuk:2,huszar:2,wagon:3,jaguar:1,gbeto:1});
 
-const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
-const skey=n=>n?'ck_save'+(n+1):'ck_save';let slot=0,sm='load',sb='title',SI=[],deleteSlotTarget=null,overwriteSlotTarget=null;
-function refreshSlots(){SI=[0,1,2].map(n=>{let r=null;try{r=localStorage.getItem(skey(n))}catch(e){}if(!r)return null;try{const j=JSON.parse(r);if(j.v!==1||!Array.isArray(j.us)||!Array.isArray(j.civ))return'bad';return{t:j.t|0,civ:j.civ,w:j.sz,d:cl(j.aiDifficultyVersion===2?(j.diff|0):[1,2,4][cl(j.diff|0,0,2)],0,5),m:j.cmp&&CAMP[j.cmp.i]?CAMP[j.cmp.i].t:null,when:j.when}}catch(e){return'bad'}});try{hs=SI.some(Boolean)||!!localStorage.getItem('ck_autosave')}catch(_){hs=SI.some(Boolean)}}
-function openSlots(m,back){sm=m;sb=back;deleteSlotTarget=null;overwriteSlotTarget=null;refreshSlots();ci=slot;mode='slots';if(window.CK_STORAGE&&typeof window.CK_STORAGE.restoreMissing==='function')window.CK_STORAGE.restoreMissing().then(()=>{refreshSlots();hs=SI.some(Boolean)||!!localStorage.getItem('ck_autosave')}).catch(()=>{})}
-function slotsCtl(){const it=slotItems(),n=it.length;if(overwriteSlotTarget!==null){if(E[1]){overwriteSlotTarget=null;return}if(E[0]){slot=overwriteSlotTarget;overwriteSlotTarget=null;if(saveG()){refreshSlots();mode=sb}}return}if(deleteSlotTarget!==null){if(E[1]||E[15]){deleteSlotTarget=null;return}if(E[0]){deleteSavedGame(deleteSlotTarget);deleteSlotTarget=null;refreshSlots();ci=Math.min(ci,slotItems().length-1)}return}if(E[12])ci=(ci+n-1)%n;if(E[13])ci=(ci+1)%n;if(E[0]&&it[ci].a)it[ci].a();if(E[2]&&sm==='load'&&ci<n-1){const target=ci<3?ci:it[ci].deleteTarget;if(target!==undefined&&target!==null&&(target==='auto'||SI[target]))deleteSlotTarget=target}if(E[1])mode=sb}
-
-
 /* ===== CAMPAIGN: The Crown of Ashford. A scenario is: setup rules + goals + timed or conditional events ===== */
 function draw(dt){X=WORLD_X;
 updateXboxPictureForFrame();

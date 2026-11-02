@@ -43,7 +43,7 @@ test('autosave always uses its own rolling key, not the selected manual slot', (
  assert.match(save,/const key=auto\?'ck_autosave':skey\(slot\)/);
  assert.match(engine,/saveG\(true\)/);
  assert.match(engine,/lastAutoSaveAt=-60000;newGame\(\)/);
- assert.match(engine,/overwriteSlotTarget!==null/);
+ assert.match(save,/overwriteSlotTarget!==null/);
 });
 
 function saveFixture({failPrimary=false, readBackMismatch=false}={}){

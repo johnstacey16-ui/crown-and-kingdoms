@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const save=readFileSync(new URL('../js/save.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
-const code=engine.slice(engine.indexOf('function refreshSlots(){'),engine.indexOf('function slotsCtl(){'));
+const code=save.slice(save.indexOf('function refreshSlots(){'),save.indexOf('function slotsCtl(){'));
 function fixture(){
  const data=new Map();
  const ctx=vm.createContext({localStorage:{getItem:k=>data.get(k)??null},skey:n=>n?'ck_save'+(n+1):'ck_save',SI:[],hs:false,CAMP:[],cl:(v,a,b)=>Math.max(a,Math.min(b,v)),slot:0,mode:'title',window:{CK_STORAGE:{restoreMissing:()=>Promise.resolve(false)}}});

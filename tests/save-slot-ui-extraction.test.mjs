@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const save = readFileSync(new URL('../js/save.js', import.meta.url), 'utf8');
 
 test('save-slot menu model and drawing live in js/ui.js', () => {
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./engine.js'));
@@ -15,13 +16,14 @@ test('save-slot menu model and drawing live in js/ui.js', () => {
 });
 
 test('save-slot orchestration and existing callbacks remain intact', () => {
-  assert.match(engine, /function refreshSlots\(\)\{/);
-  assert.match(engine, /function openSlots\(m,back\)\{/);
-  assert.match(engine, /function slotsCtl\(\)\{const it=slotItems\(\),n=it\.length;if\(overwriteSlotTarget!==null\)/,
+  assert.match(save, /function refreshSlots\(\)\{/);
+  assert.doesNotMatch(engine, /function refreshSlots\(\)\{/);
+  assert.match(save, /function openSlots\(m,back\)\{/);
+  assert.match(save, /function slotsCtl\(\)\{const it=slotItems\(\),n=it\.length;if\(overwriteSlotTarget!==null\)/,
     'Existing slots must require explicit overwrite confirmation');
   assert.match(ui, /if\(sm==='save'\)\{if\(ok&&deleteSlotTarget===null\)\{overwriteSlotTarget=n;return\}slot=n;if\(saveG\(\)\)\{refreshSlots\(\);mode=sb\}\}else if\(ok\)\{slot=n;if\(loadG\(\)\)mode='play'\}/,
     'Save and load callbacks must preserve overwrite confirmation and report successful saves');
-  assert.match(engine, /deleteSavedGame\(deleteSlotTarget\);deleteSlotTarget=null;refreshSlots\(\)/,
+  assert.match(save, /deleteSavedGame\(deleteSlotTarget\);deleteSlotTarget=null;refreshSlots\(\)/,
     'Deleting a slot must explicitly confirm and refresh the listing');
   assert.match(ui, /x==='bad'\?'This slot cannot be read\.'/);
   assert.match(ui, /A: '\+\(sm==='save'\?'save here':'load'\)\+'    X: delete selected save    B: back'/,

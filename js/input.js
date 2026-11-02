@@ -151,6 +151,9 @@ const rumbleOK=()=>!!(pad&&pad.vibrationActuator&&pad.vibrationActuator.playEffe
 function rumble(d,a,b){if(!rmb||!rumbleOK())return;const n=performance.now();if(n-lastRb<150)return;lastRb=n;try{const p=pad.vibrationActuator.playEffect('dual-rumble',{startDelay:0,duration:d,weakMagnitude:b,strongMagnitude:a});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function setZoom(z){if(!Number.isFinite(z))return;z=cl(z,.8,3);const c=S?s2w(CW/2,CH/2):null;zm=z;TW=64*z;TH=32*z;if(c)ctr(c[0],c[1])}
 
+/* Persist controller remap preferences; save slots belong to js/save.js. */
+const sv=()=>{try{localStorage.setItem('ck_map',JSON.stringify(BM))}catch(e){}};
+
 /* Xbox controller interaction state and selection policy helpers.
  * State is kept session-local; no save, command, or button mapping changes. */
 let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,vpWheel=null,yc=0,yDown=false,ysc={vb:'house',tb:{}},mmF=0,mmM=0,omr='pause',tsc=0,tcI=0;

@@ -10,6 +10,6 @@ test('load menu exposes one rolling autosave recovery action separately from man
   assert.match(ui, /localStorage\.getItem\('ck_autosave'\)/);
   assert.match(ui, /Recover Autosave[\s\S]*?loadG\(true\)/);
   assert.match(ui, /const slotItems=\(\)=>\{const items=SI\.map\(/);
-  assert.match(engine, /function openSlots\(m,back\)[\s\S]{0,220}restoreMissing\(\)/);
+  assert.match(save, /function openSlots\(m,back\)[\s\S]{0,220}restoreMissing\(\)/);
   assert.match(save, /const key=auto\?'ck_autosave':skey\(slot\)/);
 });
