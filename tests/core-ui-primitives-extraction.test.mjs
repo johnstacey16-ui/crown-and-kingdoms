@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
+const ui = readFileSync(new URL('../js/ui-screens.js', import.meta.url), 'utf8');
 const engine = readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
 
 test('shared panel, match-result and runtime-error drawing live in js/ui.js', () => {
@@ -17,7 +17,7 @@ test('shared panel, match-result and runtime-error drawing live in js/ui.js', ()
 });
 
 test('game-end presentation is UI-owned while the runtime exception boundary stays in engine.js', () => {
-  assert.match(ui, /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
+  assert.match(readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8'), /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
   assert.doesNotMatch(engine, /if\(mode==='end'\)\{const p=S\.pl;shade\(/);
   assert.match(engine, /let CK_ERR=null;/);
   assert.match(engine, /function frame\(now\)\{requestAnimationFrame\(frame\);try\{frame2\(now\)\}catch\(e\)/);

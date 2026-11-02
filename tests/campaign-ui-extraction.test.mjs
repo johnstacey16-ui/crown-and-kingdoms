@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
+const ui = readFileSync(new URL('../js/ui-screens.js', import.meta.url), 'utf8');
 const campaign = readFileSync(new URL('../js/campaign.js', import.meta.url), 'utf8');
 
 test('campaign list, briefing and objective overlays are presentation-owned by js/ui.js', () => {

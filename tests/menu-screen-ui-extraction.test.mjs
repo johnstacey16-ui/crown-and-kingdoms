@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const ui = readFileSync(new URL('../js/ui.js', import.meta.url), 'utf8');
+const ui = readFileSync(new URL('../js/ui-screens.js', import.meta.url), 'utf8');
 const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 
 test('title, new-game setup and options screens are drawn in js/ui.js', () => {

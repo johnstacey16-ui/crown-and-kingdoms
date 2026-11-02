@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const save=readFileSync(new URL('../js/save.js',import.meta.url),'utf8');
-const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const code=save.slice(save.indexOf('function refreshSlots(){'),save.indexOf('function slotsCtl(){'));
 function fixture(){
