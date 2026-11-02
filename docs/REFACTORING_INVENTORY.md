@@ -40,6 +40,7 @@
 
 ## Validation evidence and remaining blockers
 
+- **Vercel deployment gate (2 November 2026):** production alias `crown-and-kingdoms.vercel.app` currently serves READY commit `1658481` (verified through Vercel deployment metadata), not the newest green code `6491a33`. GitHub's Vercel status on `6491a33` and subsequent docs commit says **Deployment rate limited — retry in 24 hours**. No upgrade or forced release was performed. Recheck live SHA after the free-tier cooldown before testing it as the latest build.
 - [Weekly Chromium 41286089497](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41286089497): **2/2 browser checks** on older `3841ec8`. Not Xbox hardware.
 - [Weekly game suite 41286233568](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41286233568): **19 isolated missions passed**, **243/244 then-existing regressions**; the remaining trade smoke fixture was outdated. Its actual neutral-market cart order was repaired and separately confirmed delivering **54 gold** after **408.7 simulated seconds**, in [hosted 902/902 trial 41297863948](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41297863948). These were not 19 human wins.
 - **OPEN:** full **247/247** latest isolated test run; the three independently scheduled seeded AI games; full human campaign wins; free-tier independent WAN multiplayer acceptance; physical Xbox Series S Edge behaviour, the reported radial crash retest, and 50/100/200-unit graphics/frame-time measurements.
