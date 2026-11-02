@@ -137,3 +137,18 @@ test('pre-restriction save with pending research loads without dropping the play
  assert.equal(c("research(S.bs.find(b=>b.k==='rng'&&b.t===1),'thumb')"),true,
   'the opposing kingdom still has its independent tech tree');
 });
+
+test('the sourced technology matrices and research selection have one kingdom owner',()=>{
+ const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ for(const key of ['CIV_ARCHERY_RESEARCH','CIV_CORE_MILITARY','CIV_FIELD_RESEARCH',
+  'CIV_MONASTERY_RESEARCH','CIV_UNIVERSITY_RESEARCH','CIV_BLACKSMITH_RESEARCH',
+  'CIV_INFANTRY_ARMOR_RESEARCH','CIV_ARCHER_ARMOR_RESEARCH',
+  'CIV_CAVALRY_ARMOR_RESEARCH','CIV_MELEE_RESEARCH']){
+  assert.ok(kingdom.includes('const '+key+'='),key+' needs one kingdom owner');
+  assert.ok(!engine.includes('const '+key+'='),key+' must not be duplicated');
+ }
+ assert.ok(kingdom.includes('const rsOf=(b,civs=S?.civ)=>'));
+ assert.ok(!engine.includes('const rsOf='));
+ assert.ok(engine.includes('const CIV=['),'active civilization roster and IDs remain unchanged');
+});
