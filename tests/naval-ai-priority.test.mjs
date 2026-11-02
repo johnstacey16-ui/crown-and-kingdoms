@@ -9,7 +9,7 @@ assert.match(ai, /aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/,
 
 assert.match(policy, /const hostileFleet=\[\],hostileShips=\[\],humanArmy=\[\],humanShips=\[\];let navalThreatCount=0;for\(const e of S\.us\)/,
   'AI should build hostile naval rosters with one unit-list pass');
-assert.match(maritime, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
+assert.match(policy, /if\(!e\.ld&&e\.k!=='fish'\)hostileShips\.push\(e\)/,
   'naval target candidates must exclude garrisoned ships and fishing boats');
 assert.match(maritime, /focusCounts=new Map\(\);for\(const u of galleys\)if\(u\.o==='a'&&u\.tg\)focusCounts\.set\(u\.tg,\(focusCounts\.get\(u\.tg\)\|\|0\)\+1\)/,
   'AI must track focus fire across its galley fleet');
