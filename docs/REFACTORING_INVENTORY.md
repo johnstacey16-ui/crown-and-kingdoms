@@ -1,13 +1,13 @@
 # Crown & Kingdoms — active refactoring inventory
 
-**Last green code revision:** `ba931db` · [GitHub Actions 41396141505](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41396141505) · **955/955 focused**, **5/5 quick**, **0 failures** · offline shell v98. Latest Vercel production SHA, full 247-file regression, four expensive isolated integrations, seeded AI skirmishes, campaigns, multiplayer and physical Xbox hardware acceptance remain open.
+**Last green code revision:** `09d0dd9` · [GitHub Actions 41397392291](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41397392291) · **964/964 focused**, **5/5 quick**, **0 failures** · offline shell v100. Current Vercel production SHA, all 247 regression files, four expensive integrations, AI skirmishes, campaigns, WAN multiplayer and Xbox Series S hardware acceptance remain open.
 
 ## Current footprint and ownership
 
 | Area | Current live owner and decision |
 |---|---|
 | Browser and headless runtime | `index.html` defines **47** production browser scripts, **34** core and **32** headless scripts. `scripts/runtime-sources.mjs` is the canonical ordered loader; `scripts/check-game.mjs` and `scripts/audit-runtime-graph.mjs` check all source/offline dependencies. |
-| Offline/versioned artwork | `sw.js` shell **v98**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
+| Offline/versioned artwork | `sw.js` shell **v100**, `assets/atlas-manifest.json`, painted WebP atlases and generator inputs are ACTIVE. Do not remove or degrade stone, gold, berry, Fish Trap, terrain, building, troop or procedural fallback resources. |
 | Simulation and AI | `js/simulation*.js` own tick, combat, victory, logistics, production, research, unit state and separation. `js/ai.js` is strategic orchestration; `js/ai-policy.js` owns threat, retreat, builder, wave and **ally resource-sharing, trade escort and fishing vessel** policies; `js/ai-construction.js` owns placement, walls, docks and resource-site building orders. |
 | Acceptance | **247 standalone `tests/*.test.mjs` files**, **243** selected for the fast hosted plan. Four network/simulation integration files remain weekly/manual. Campaign simulations (19), three seeded skirmishes, two Chromium checks and software Xbox contracts use the same check-runner plan. |
 | Multiplayer | Authenticated two-human WebRTC preview and network adapter modules are ACTIVE; reconnect, fallback transport, party scale, WAN and hidden-state/security acceptance remain open. |
@@ -15,6 +15,7 @@
 
 ## Latest verified incremental work
 
+- `f12e0f5` / `09d0dd9`: moved **2,171 characters** of idle-villager construction, resource balancing and farm-placement decisions and **2,054 characters** of emergency evacuation/safe-work resumption into `ai-policy.js`, preserving their original rules. Nine behavioural cases cover priority work, gathering fallback, farm resources, invalid workers, shelter routes and escape states. Both hosted validations green; latest **964/964 focused**, **5/5 quick**, offline shell **v100**. Full-scale simulation and Xbox hardware evidence still needed.
 - `6faa3ac` / `ba931db`: extracted **1,449 characters** of safe repair assignment logic into `aiRepairImportantBuildings` in the existing policy module. Four executable cases cover critical-building ordering, a two-worker limit, allied buildings, construction blocks, hostile troops, cooldowns and reachable worker selection. First push caught a test-fixture worker-proximity assumption; corrected fixture passed hosted **955/955 focused**, **5/5 quick**. Offline shell **v98**. Full regression and real Xbox validation remain open.
 - `017af8f` / `adb0d17`: extracted **3,606 characters** of live, composition-sensitive technology scoring from the main AI loop into `aiTechnologyPriority` in `js/ai-policy.js`. Three executable cases cover naval threat research, infantry/cavalry/ranged armour, villager technology, monks and damaged-Town-Centre research. Two older source-location tests were corrected. Hosted game validation **951/951 focused**, **5/5 quick**, 0 failures; offline shell **v97**. Full regression and physical Xbox acceptance remain open.
 - `436466e` / `ab17a04`: extracted the 1,374-character coordinated naval target/patrol block into `aiAssignWarshipTargets`, retained focus-fire priorities and cooldowns, and updated both older naval source-location checks; four behavioural tests cover reachable priority targets, stale targets, patrol and damaged-ship recovery. Hosted validation: **946/946 focused**, 5/5 quick.
