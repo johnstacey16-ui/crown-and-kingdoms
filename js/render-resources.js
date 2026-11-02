@@ -10,8 +10,8 @@ else{const gold=kind==='g';g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse
 // weakly keys the cache, so reloaded/new art never reuses stale texture pixels.
 // Static crops share one LRU across source atlases. Bound retained native
 // canvases on Xbox Edge without changing rendered dimensions or atlas fallbacks.
-const NODE_TEXTURE_PIXEL_LIMIT=2*1024*1024,NODE_TEXTURE_ENTRY_LIMIT=128; // 8 MiB RGBA
 const NODE_TEXTURE_CACHE=new WeakMap(),NODE_TEXTURE_RECENCY=new Map();
+const NODE_TEXTURE_PIXEL_LIMIT=2*1024*1024,NODE_TEXTURE_ENTRY_LIMIT=128; // 8 MiB RGBA
 let nodeTextureSeq=0,NODE_TEXTURE_PIXELS=0;
 function paintedNodeTexture(painted,width){
  if(!painted?.img||!painted.f||typeof painted.img!=='object')return null;
