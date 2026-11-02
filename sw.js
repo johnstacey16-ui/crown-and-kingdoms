@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v130-painted-terrain-ownership-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v131-terrain-palette-ownership-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',

@@ -300,13 +300,7 @@ const mh=mhp(u);if(u.hp<mh)bar(sx-13*z,sy-(sz[1]-6)*z*.9,26*z,u.hp/mh,'#6e6')}
 function drawRelic(q){const point=q.c||q,P=w2s(point.x,point.y),sx=P[0],y=P[1]-(q.c?24:6),g=.5+.5*Math.sin(gt*3);X.fillStyle='rgba(255,226,102,'+(.15+.15*g)+')';X.beginPath();X.arc(sx,y,13+g*3,0,7);X.fill();if(drawPaintedRelic(X,sx,y+9*zm,(q.c?20:28)*zm))return;X.fillStyle='#ffe066';X.strokeStyle='#a87b12';poly([[sx,y-9],[sx+7,y],[sx,y+9],[sx-7,y]]);X.fill();X.stroke()}
 const CKS=8,TCH=new Map();let CHK=true;
 
-function paintTile(g,x,y,cx,cy){if(paintTerrain(g,paintedTerrainKind(x,y),x,y,cx,cy,64,32,true,terrainNeighborKinds(x,y,paintedTerrainKind,W,H)))return;const i=y*W+x,wv=S.wt[i],hv=hsh(x,y),D=(c,hw,hh)=>{g.beginPath();g.moveTo(cx,cy-hh);g.lineTo(cx+hw,cy);g.lineTo(cx,cy+hh);g.lineTo(cx-hw,cy);g.closePath();g.fillStyle=c;g.fill()};
-if(wv){const sh=wv===2;D(sh?'#68b3cd':hv<.5?'#2a6aa3':'#2c70ab',33,17);if(!sh){if((x>0&&!S.wt[i-1])||(x<W-1&&!S.wt[i+1])||(y>0&&!S.wt[i-W])||(y<H-1&&!S.wt[i+W])){g.strokeStyle='rgba(235,248,255,.5)';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy-15);g.lineTo(cx+30,cy);g.lineTo(cx,cy+15);g.lineTo(cx-30,cy);g.closePath();g.stroke()}}else{g.fillStyle='rgba(240,225,170,.4)';g.fillRect(cx-6+hv*10,cy-1,3,2)}}
-else{const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]===1)||(y<H-1&&S.wt[i+W]===1),dirt=hsh(x>>2,y>>2)<.1,pn=hsh((x>>3)+99,(y>>3)+7),PL=PALS[S.pal|0];D(coast?PL.coast:dirt?PL.dirt[hv<.5?0:1]:(pn<.25?PL.d:pn>.8?PL.l:PL.g)[(hv*6)|0],33,17);
-if(!coast&&!dirt){if(hv>.8){g.strokeStyle='#3e7a30';g.lineWidth=1;g.beginPath();g.moveTo(cx-6,cy+2);g.lineTo(cx-4,cy-3);g.moveTo(cx-3,cy+2);g.lineTo(cx-2,cy-4);g.moveTo(cx+3,cy+3);g.lineTo(cx+4,cy-2);g.stroke()}else if(hv<.03){g.fillStyle=hv<.015?'#f4e04d':'#f2f2f2';g.fillRect(cx+hv*100-1,cy-1,3,3)}}}}
-
-function paintTileDetail(g,x,y,cx,cy){const i=y*W+x,wv=S.wt[i],h=hsh(x*17+31,y*23+7),q=hsh(x*7+83,y*13+41);if(wv){if(wv===1&&h>.57){const ox=(q-.5)*34,oy=(h-.5)*13;g.strokeStyle='rgba(190,226,245,'+(.12+q*.12)+')';g.lineWidth=.7;g.beginPath();g.moveTo(cx+ox-3,cy+oy);g.lineTo(cx+ox+3,cy+oy-1.5);g.stroke()}return}const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]===1)||(y<H-1&&S.wt[i+W]===1);if(coast)return;const ox=(q-.5)*43,oy=(h-.5)*19;if(h>.83){g.strokeStyle='rgba(32,76,28,.62)';g.lineWidth=.85;g.beginPath();g.moveTo(cx+ox-2,cy+oy+2);g.lineTo(cx+ox-1,cy+oy-2);g.moveTo(cx+ox,cy+oy+2);g.lineTo(cx+ox+2,cy+oy-1);g.stroke()}else if(h<.12&&q>.35){g.fillStyle=h<.035?'rgba(229,204,128,.8)':'rgba(110,103,91,.62)';g.beginPath();g.ellipse(cx+ox,cy+oy,1.5+q,0.8,0,0,Math.PI*2);g.fill()}else if(h>.72&&q<.22){g.fillStyle='rgba(231,190,88,.8)';g.fillRect(cx+ox,cy+oy,1.6,1.6);g.fillStyle='rgba(248,233,173,.8)';g.fillRect(cx+ox+.5,cy+oy-.5,.8,.8)}}
-
+/* Isometric tile painting and detail: js/render-terrain.js. */
 function drawHill(o){
  const P=w2s(o.x,o.y),rx=TW*2.8,ry=TH*1.8,z=zm,px=P[0],py=P[1];
  X.save();
@@ -755,14 +749,7 @@ function spr(key,w,h,fn){let c=SPC.get(key);if(!c){c=document.createElement('can
 function blit(c,sx,sy,w,h,flip){X.save();X.translate(sx,sy);if(flip)X.scale(-1,1);X.drawImage(c,-w/2*zm,-(h-8)*zm,w*zm,h*zm);X.restore()}
 function pg(g,a,fill,stroke,lw){g.beginPath();g.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)g.lineTo(a[i][0],a[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.lineWidth=lw||1;g.stroke()}}
 function lin(g,x0,y0,x1,y1,c0,c1){const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,c0);q.addColorStop(1,c1);return q}
-/* Deterministic terrain variation, team foliage colours and tile palettes. */
-const hsh=(x,y)=>{let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296};
-const GC=['#596b3d','#53663b','#607047','#52633b','#5e6e45','#55673d'],SC={};
-const shd=(c,f)=>SC[c+f]||(SC[c+f]=(()=>{const n=parseInt(c.slice(1),16);return 'rgb('+Math.min(255,(n>>16&255)*f|0)+','+Math.min(255,(n>>8&255)*f|0)+','+Math.min(255,(n&255)*f|0)+')'})());
-const GCd=GC.map(c=>shd(c,.86)),GCl=GC.map(c=>shd(c,1.09));
-const PALS=[{g:GC,d:GCd,l:GCl,coast:'#cdbd82',dirt:['#8d7b4c','#867449']}];
-{const mk=(a,c,dk)=>({g:a,d:a.map(x=>shd(x,.9)),l:a.map(x=>shd(x,1.06)),coast:c,dirt:dk});PALS.push(mk(['#d8c48a','#d2bd80','#dcc890','#cdb676','#d6c286','#d0ba7c'],'#e6d8a8',['#b89a60','#b0925a']),mk(['#e8f0f4','#dde8ee','#f0f6f8','#d4e2ea','#e2ecf0','#d9e6ec'],'#c3d0d6',['#8e8a84','#86827c']),mk(['#7f9a62','#789358','#86a068','#718c54','#7c9660','#7a945a'],'#b8b090',['#7d7568','#766e62']))}
-
+/* Deterministic terrain palettes and colour variation: js/render-terrain.js. */
 /* Shared canvas shape and progress primitives used by the renderer and minimap/UI. */
 function bar(x,y,w,f,c){X.fillStyle='#000a';X.fillRect(x,y,w,5);X.fillStyle=c;X.fillRect(x,y,w*cl(f,0,1),5)}
 function dia(cx,cy,hw,hh){X.beginPath();X.moveTo(cx,cy-hh);X.lineTo(cx+hw,cy);X.lineTo(cx,cy+hh);X.lineTo(cx-hw,cy);X.closePath()}
