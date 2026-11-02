@@ -106,7 +106,7 @@ test('frame-pacing benchmark freezes the same world and returns all five measure
 });
 test('the frozen pacing phase skips every canvas draw but leaves normal frame2 draws untouched',()=>{
  const {run}=game();
- run('start();mode="pause";perfTestMatch=1;beginCanvasBenchmark("pacing");globalThis.drawCount=0;draw=()=>{drawCount++};');
+ run('start();mode="pause";perfTestMatch=1;pad={connected:true,buttons:[],axes:[0,0,0,0]};E=[];P=[];readPad=()=>{};beginCanvasBenchmark("pacing");globalThis.drawCount=0;draw=()=>{drawCount++};');
  run('canvasBenchmark.phase=1;setupCanvasBenchmarkStage(canvasBenchmark)');
  run('frame2(1000)');
  assert.equal(run('drawCount'),0,'no Canvas2D operation via the game draw dispatch');
