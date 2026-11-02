@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const picture=readFileSync(new URL('../js/engine-picture.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 function game(){
  const {source,sandbox,storage}=headlessGame();
@@ -80,9 +81,25 @@ test('Xbox pause menu displays adaptive percentage and game saving ignores resol
  assert.equal(run('pmItems().find(x=>x.n==="Xbox picture preset").v()'),'Adaptive 50%');
  assert.match(ui,/40% was removed because it looked too blurry/);
  assert.equal(run('CK_XBOX_PICTURE_PRESETS.length'),4);
- assert.match(engine,/ADAPTIVE_WINDOW_MS=8000/);
+ assert.match(picture,/ADAPTIVE_WINDOW_MS=8000/);
  assert.match(engine,/else sampleAdaptivePicture\(now,rafMs\)/);
  const cfg=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(cfg);
  assert.ok(!cfg[1].includes('adaptivePicture'));
+});
+
+test('adaptive invalid frame intervals and hidden tabs reset the window without changing game resolution',()=>{
+ const {run}=game();
+ run('start();mode="pause";setXboxPicturePreset(3);mode="play"');
+ run('sampleAdaptivePicture(1000,18);sampleAdaptivePicture(3300,18)');
+ assert.equal(run('adaptiveWindowStart'),1000);
+ run('sampleAdaptivePicture(4300,Infinity)');
+ assert.equal(run('adaptiveWindowStart'),null);
+ assert.equal(run('adaptiveSamples.length'),0);
+ assert.equal(run('adaptiveFastWindows'),0);
+ assert.equal(run('perfRenderScale'),.5);
+ run('sampleAdaptivePicture(5000,18);document.hidden=true;sampleAdaptivePicture(7000,18)');
+ assert.equal(run('adaptiveWindowStart'),null);
+ assert.equal(run('perfSharpHud'),1);
+ assert.equal(run('CK_XBOX_PICTURE_PRESETS.length'),4);
 });

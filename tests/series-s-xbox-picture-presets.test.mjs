@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const picture=readFileSync(new URL('../js/engine-picture.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 function game(){
  const {source,sandbox,storage}=headlessGame();
@@ -96,8 +97,8 @@ test('manual graphics diagnostics override a previously selected preset',()=>{
  assert.equal(run('perfRenderScale'),.75,'manual 75 percent choice must not be undone automatically');
 });
 test('no saved state field, source artwork degradation, new controls or hosted services',()=>{
- assert.match(engine,/perfRenderScale=p\.scale;perfSharpHud=p\.sharp/);
- assert.match(engine,/perfFlatField=0;perfLayerMode=0/);
+ assert.match(picture,/perfRenderScale=p\.scale;perfSharpHud=p\.sharp/);
+ assert.match(picture,/perfFlatField=0;perfLayerMode=0/);
  assert.match(ui,/Original 100%, Balanced 75%, Smooth 50%, or optional Adaptive/);
  assert.doesNotMatch(engine,/Extra smooth 40%/);
  const setting=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
