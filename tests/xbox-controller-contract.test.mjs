@@ -4,6 +4,21 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import { headlessGame } from './helpers/headless-game.mjs';
 
+const selectionEngine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
+const selectionInput=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
+
+test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
+ for(const fn of ['quickSelectionChoices','qsel','boxSel','tapA']){
+  assert.ok(selectionInput.includes('function '+fn+'('),fn+' belongs to input');
+  assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' is not duplicated in engine');
+ }
+ assert.match(selectionEngine,/if\(E\[0\]\)\{if\(cur\.x>=mm\.x/);
+ assert.match(selectionEngine,/boxSel\(boxR,lt\)/);
+ assert.match(selectionEngine,/tapA\(aw\[0\],aw\[1\],lt\)/);
+ assert.match(selectionEngine,/qsel\('idle'\)/);
+ assert.ok(selectionInput.includes('controlGroupMembers(S.sel)'), 'selection preserves live ownership checks');
+});
+
 function fixture() {
   const {source,sandbox,listeners}=headlessGame();
   sandbox.fireEvent=(name,event)=>listeners.get(name)?.(event);
