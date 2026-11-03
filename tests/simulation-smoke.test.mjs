@@ -1709,11 +1709,6 @@ const tidewatchPlaythrough = playCampaignScenarioTimed(14, 1200);
 assert.ok(['win', 'lose'].includes(tidewatchPlaythrough.over), 'The Siege of Tidewatch must reach a real victory or defeat transition: '+JSON.stringify(tidewatchPlaythrough));
 console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+tidewatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+tidewatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+tidewatchPlaythrough.objectives.length);
 }
-if(shouldRunCampaignMission(4)){
- const kronburg=playCampaignScenarioTimed(4,900);
- assert.ok(['win','lose',null].includes(kronburg.over),'Kronburg must terminate naturally or reach the simulation timeout');
- console.log('campaign-scripted-playthrough: Siege of Kronburg '+(kronburg.over==='win'?'won':kronburg.over==='lose'?'ended in defeat; simple-bot winnability remains unverified':'timed out; simple-bot winnability remains unverified')+' after '+kronburg.campaignTime.toFixed(1)+' simulated seconds; objectives='+kronburg.objectives.filter(g=>g.complete).length+'/'+kronburg.objectives.length+'; diagnostics='+JSON.stringify(kronburg.kronburg));
-}
 if (shouldRunCampaignMission(6)) {
 const northernWatchPlaythrough = playCampaignScenarioTimed(6, 700);
 assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
@@ -1769,7 +1764,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length);
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; diagnostics='+JSON.stringify(result.kronburg):''));
 }
 
 if (requestedMission === null) {
