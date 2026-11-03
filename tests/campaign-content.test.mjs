@@ -106,13 +106,15 @@ test('Iron Pass starts with enough legal housing for its supplied garrison, with
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
  vm.runInContext(source+"\nstartScenario(18);",sandbox);
- const verify=()=>vm.runInContext('({houses:S.bs.filter(b=>b&&b.t===0&&b.k==="house"&&b.done&&b.hp>0).length,population:popOf(0),capacity:capOf(0),soldiers:cmil(0),goals:CAMP[18].goals.map(g=>g.id),raids:CAMP[18].ev.length})',sandbox);
+ const verify=()=>vm.runInContext('({houses:S.bs.filter(b=>b&&b.t===0&&b.k==="house"&&b.done&&b.hp>0).length,population:popOf(0),capacity:capOf(0),soldiers:cmil(0),goals:CAMP[18].goals.map(g=>g.id),raids:CAMP[18].ev.length,aiWaveAt:S.ai[1].nx,aiRaidAt:S.ai[1].rn})',sandbox);
  const first=verify();
  assert.equal(first.houses,2,'campaign has two completed support Houses at its starting camp');
  assert.ok(first.capacity>=first.population,'starting defenders must not be blocked by housing shortage');
  assert.equal(first.soldiers,14,'opening garrison remains six spears, six archers and two scouts');
  assert.deepEqual(Array.from(first.goals),['towers','army','hold'],'all three real victory conditions remain');
  assert.equal(first.raids,5,'every original enemy attack wave is retained');
+ assert.ok(first.aiWaveAt>540&&first.aiRaidAt>540,
+  'scripted siege waves must not be doubled by the normal AI before the hold goal');
  vm.runInContext('startScenario(18)',sandbox);
  assert.equal(verify().houses,2,'mission retry must build the same starting camp, not stack free Houses');
 });
