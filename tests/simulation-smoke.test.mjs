@@ -116,10 +116,13 @@ globalThis.__CK_TEST__ = {
         }
       }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
-      const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
-      if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
-        if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
-        else train(barracks, 'mil');
+      // Iron Pass is a defensive cavalry-counter mission: reinforce with paid
+      // Feudal Spearmen, not gold-hungry generic Militia that cannot stop Knights.
+      const defenderKind = index === 18 ? 'spear' : 'mil';
+      const queuedDefenders = barracks ? barracks.q.filter(queue => queue.k === defenderKind).length : 0;
+      if (barracks && cmil(0) + queuedDefenders < plan.soldiers && barracks.q.length < 5) {
+        if (S.age[0] < U[defenderKind].age) trainingGate = defenderKind + ' requires a later age';
+        else train(barracks, defenderKind);
       }
       const woodNeeded = index === 2 && S.res[0].w < 350;
       if (woodNeeded) {
