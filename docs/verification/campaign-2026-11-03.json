@@ -1,0 +1,364 @@
+{
+  "date": "2026-11-03",
+  "runtimeCommit": "12a6582ba1cd46f82b6f0a338e10526fedc573d3",
+  "runtimeFileGitBlobs": {
+    "js/campaign.js": "5d782540c896b06dd2cddb9650af7f474559f524",
+    "tests/simulation-smoke.test.mjs": "37356dbc370f29eceed82cf2ef352f09be979659"
+  },
+  "runUrl": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/41614718438",
+  "command": "node scripts/run-checks.mjs --campaigns (19 isolated CK_MISSION processes)",
+  "scope": "Actual deterministic, seeded production-simulation scripted-player mission playthroughs. Test process success is not mission victory. Defeat does not prove a human cannot win. No Chromium or physical Xbox acceptance is implied.",
+  "previousEvidence": "campaign-2026-10-29.json",
+  "summary": {
+    "executed": 19,
+    "wins": 13,
+    "defeats": 6,
+    "timeouts": 0,
+    "assertionFailures": 0
+  },
+  "missions": [
+    {
+      "missionIndex": 0,
+      "missionNumber": 1,
+      "title": "First Hearth",
+      "seed": 11,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a House",
+        "Build a Lumber Camp",
+        "Have 10 villagers",
+        "Build a Barracks",
+        "Train 4 soldiers"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 5,
+      "totalObjectives": 5
+    },
+    {
+      "missionIndex": 1,
+      "missionNumber": 2,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 480,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a Barracks",
+        "Train 8 soldiers",
+        "Survive until 8:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    },
+    {
+      "missionIndex": 2,
+      "missionNumber": 3,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Reach the Feudal Age",
+        "Build 2 Towers",
+        "Build a Market",
+        "Reach the Castle Age"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 4,
+      "totalObjectives": 4
+    },
+    {
+      "missionIndex": 3,
+      "missionNumber": 4,
+      "title": "The Relic Road",
+      "seed": 44,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 133,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a Monastery",
+        "Hold 3 relics in your Monasteries"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 2,
+      "totalObjectives": 2
+    },
+    {
+      "missionIndex": 4,
+      "missionNumber": 5,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Destroy the enemy Castle",
+        "Destroy the enemy Town Centre"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 2,
+      "totalObjectives": 2
+    },
+    {
+      "missionIndex": 5,
+      "missionNumber": 6,
+      "title": "The Last Crown",
+      "seed": 66,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 601,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Slay the enemy King"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 1,
+      "totalObjectives": 1
+    },
+    {
+      "missionIndex": 6,
+      "missionNumber": 7,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 600,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a Watch Tower",
+        "Train 6 ranged soldiers",
+        "Survive until 10:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    },
+    {
+      "missionIndex": 7,
+      "missionNumber": 8,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 480,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a Market",
+        "Build 2 Towers",
+        "Hold the crossing for 8:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    },
+    {
+      "missionIndex": 8,
+      "missionNumber": 9,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 843.5,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Destroy the rival Town Centre"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 1,
+      "totalObjectives": 1
+    },
+    {
+      "missionIndex": 9,
+      "missionNumber": 10,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 729.5,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [],
+      "incompleteObjectives": [
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 0,
+      "totalObjectives": 1
+    },
+    {
+      "missionIndex": 10,
+      "missionNumber": 11,
+      "title": "The King’s Road",
+      "seed": 911,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 480,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build a Market",
+        "Build 2 Towers",
+        "Hold the road for 8:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    },
+    {
+      "missionIndex": 11,
+      "missionNumber": 12,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Return both relics to your Monastery"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 1,
+      "totalObjectives": 1
+    },
+    {
+      "missionIndex": 12,
+      "missionNumber": 13,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 838.6,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [],
+      "incompleteObjectives": [
+        "Build a Dock",
+        "Have 3 War Galleys alive",
+        "Have 12 land soldiers alive",
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 0,
+      "totalObjectives": 4
+    },
+    {
+      "missionIndex": 13,
+      "missionNumber": 14,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 653.6,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [
+        "Build a Monastery",
+        "Hold 2 relics in your Monasteries"
+      ],
+      "incompleteObjectives": [
+        "Destroy the enemy Castle",
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 2,
+      "totalObjectives": 4
+    },
+    {
+      "missionIndex": 14,
+      "missionNumber": 15,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 404.1,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [
+        "Build a Siege Workshop"
+      ],
+      "incompleteObjectives": [
+        "Field 2 Bombard Cannons alive",
+        "Destroy Tidewatch Castle",
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 1,
+      "totalObjectives": 4
+    },
+    {
+      "missionIndex": 15,
+      "missionNumber": 16,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 480,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build 2 completed Towers",
+        "Build 6 completed Wall sections",
+        "Hold Blackwood for 8:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    },
+    {
+      "missionIndex": 16,
+      "missionNumber": 17,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 575.4,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [
+        "Build 2 completed Towers"
+      ],
+      "incompleteObjectives": [
+        "Build a Dock",
+        "Have 3 War Galleys alive",
+        "Destroy the enemy Castle",
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 1,
+      "totalObjectives": 5
+    },
+    {
+      "missionIndex": 17,
+      "missionNumber": 18,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "testExitCode": 0,
+      "outcome": "lose",
+      "campaignTime": 593.4,
+      "defeatReason": "Your Town Centre fell",
+      "completedObjectives": [
+        "Build 2 completed Castles"
+      ],
+      "incompleteObjectives": [
+        "Destroy the enemy Town Centre"
+      ],
+      "objectiveCount": 1,
+      "totalObjectives": 2
+    },
+    {
+      "missionIndex": 18,
+      "missionNumber": 19,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "testExitCode": 0,
+      "outcome": "win",
+      "campaignTime": 540,
+      "defeatReason": null,
+      "completedObjectives": [
+        "Build 2 completed Towers",
+        "Keep 15 land soldiers alive",
+        "Hold the pass for 9:00"
+      ],
+      "incompleteObjectives": [],
+      "objectiveCount": 3,
+      "totalObjectives": 3
+    }
+  ]
+}
