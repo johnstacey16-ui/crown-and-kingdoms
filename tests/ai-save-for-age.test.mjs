@@ -21,6 +21,9 @@ test('AI saves food after reaching a productive village and meeting age requirem
  assert.equal(policy({villagers:30,age:3}),false,'Imperial Age has no next age');
 });
 test('real AI Town Centre training honours age budget decision',()=>{
- assert.match(ai,/!aiSavingAgeFood\(t,vil\.length\)\)train\(tc,'vil'\)/);
+ assert.match(ai,/if\(aiSavingAgeFood\(t,vil\.length\)\)return 0/,
+  'all Town Centres preserve the next-age food budget');
+ assert.match(ai,/if\(centre===tc&&aiTownTechReady\(t,tc,vil\.length\)\)continue/,
+  'primary Centre reserves its research window');
  assert.match(ai,/const savingForAge=/);
 });
