@@ -233,3 +233,41 @@ test('nineteen campaigns have unique playable mission names and deterministic mi
  assert.equal(missions[3].title,'The Relic Road','original relic mission keeps its title');
  assert.equal(missions[11].title,'The Reliquary Trail','the second relic mission is distinguishable');
 });
+
+test('coastal campaign maps retain legal land-reachable Dock sites after exploration',()=>{
+ for(const index of [12,16]){
+  const {source,sandbox}=headlessGame();
+  vm.createContext(sandbox);
+  vm.runInContext(source+'\nstartScenario('+index+')',sandbox);
+  const result=vm.runInContext(`(()=>{
+   const home=tcOf(0),workers=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);
+   const water=campaignWaterRegions(),size=B.dock.s,oldExplored=S.ex;
+   if(!home||!workers.length)return {error:'missing home centre or live workers'};
+   let visible=0;
+   for(let y=1;y<H-size;y++)for(let x=1;x<W-size;x++)
+    if(okPlace(0,'dock',x,y)&&campaignDockAccess(x,y,size,water,4))visible++;
+   S.ex=new Uint8Array(W*H).fill(1); // Diagnostic only: this does NOT complete any campaign objective.
+   const candidates=[];
+   for(let y=1;y<H-size;y++)for(let x=1;x<W-size;x++){
+    if(!okPlace(0,'dock',x,y)||!campaignDockAccess(x,y,size,water,4))continue;
+    candidates.push({x,y,d:Math.hypot(x-home.x,y-home.y)});
+   }
+   candidates.sort((a,b)=>a.d-b.d||a.y-b.y||a.x-b.x);
+   let found=null,routeChecks=0;
+   for(const site of candidates.slice(0,120)){
+    const building={x:site.x,y:site.y,s:size};
+    for(const worker of workers){
+     routeChecks++;
+     if(path(worker,goalNear(building,1))){found=site;break}
+    }
+    if(found)break;
+   }
+   S.ex=oldExplored;
+   return {visible,legal:candidates.length,reachable:found&&{x:found.x,y:found.y},
+    routeChecks,workers:workers.length};
+  })()`,sandbox,{timeout:20000});
+  console.log('campaign-dock-feasibility: mission '+(index+1)+' '+JSON.stringify(result));
+  assert.ok(result.legal>0,'mission '+(index+1)+' must have a legally buildable explored-water Dock footprint: '+JSON.stringify(result));
+  assert.ok(result.reachable,'mission '+(index+1)+' must have a land-worker-accessible Dock near usable water: '+JSON.stringify(result));
+ }
+});
