@@ -1,0 +1,19 @@
+name: Northern Watch one-off campaign audit
+on:
+  push:
+    branches: [fix/northern-watch-archer-population-20261103]
+permissions:
+  contents: read
+jobs:
+  northern-watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate the real Northern Watch campaign
+        run: CK_MISSION=6 node tests/simulation-smoke.test.mjs
