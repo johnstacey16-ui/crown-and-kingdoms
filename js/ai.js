@@ -74,7 +74,7 @@ function aiTownCentreLimit(age,seconds,workers,mode){
 // space for essential Town Centre research and age advancement.
 function aiTrainTownVillagers(t,vil,bl,tc){
  if(aiSavingAgeFood(t,vil.length))return 0;
- const centres=bl.filter(b=>b.k==='tc'&&b.done&&b.hp>0&&Array.isArray(b.q));
+ const centres=bl.filter(b=>b&&b.t===t&&b.k==='tc'&&b.done&&b.hp>0&&Array.isArray(b.q));
  if(!centres.length)return 0;
  const base=([12,18,26,32,38,44][diff]*PERS[aip].v|0);
  const goal=Math.min(60,Math.max(base,S.age[t]>=2?24:0)+
