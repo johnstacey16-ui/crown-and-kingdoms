@@ -96,6 +96,7 @@ globalThis.__CK_TEST__ = {
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
+
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
       if(tick%30===0){
@@ -160,9 +161,17 @@ globalThis.__CK_TEST__ = {
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
+          // Kronburg's rams siege structures while the escort clears hostile
+          // troops. All targets are real living enemies, never artificial kills.
+          const defender=index===4&&unit.k!=='ram'
+            ? S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil')
+              .sort((a,b)=>{
+                const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
+                return priority(a)-priority(b)+Math.hypot(a.x-unit.x,a.y-unit.y)*.12-Math.hypot(b.x-unit.x,b.y-unit.y)*.12;
+              })[0]:null;
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
-            : (enemyKing && !enemyKing.ld ? enemyKing : (enemyCastle || enemyTC));
+            : (defender||(enemyKing && !enemyKing.ld ? enemyKing : (enemyCastle || enemyTC)));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
         }
       }
@@ -184,6 +193,14 @@ globalThis.__CK_TEST__ = {
       enemyRaidsFired: Object.keys(cmp.e||{}).filter(key=>cmp.e[key]).length,
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
+      kronburg:index===4?{
+        castleFlag:cmp.d.cas||0,
+        enemyCastle:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
+        enemyTown:S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
+        playerTroops:Object.fromEntries(['ram','spear','arc','knight'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),
+        enemyTroops:S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.k!=='vil').length,
+        attackers:S.us.filter(u=>u&&u.t===0&&u.hp>0&&['ram','spear','arc','knight'].includes(u.k)).slice(0,30).map(u=>({kind:u.k,order:u.o,target:u.tg?.k||null,targetTeam:u.tg?.t,x:Number(u.x.toFixed(1)),y:Number(u.y.toFixed(1)),hp:Number(u.hp.toFixed(1))}))
+       }:null,
       rangedUnits:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&!U[u.k].sh&&u.k!=='vil').length,
       queuedArchers:S.bs.filter(b=>b&&b.t===0&&b.hp>0).reduce((n,b)=>n+(b.q||[]).filter(q=>q?.k==='arc').length,0),
       buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
@@ -1756,7 +1773,15 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length);
+  if(index===4){
+   assert.equal(result.over,'win','Kronburg must be naturally won by an actual army without a scripted victory: '+JSON.stringify(result.kronburg));
+   assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'Kronburg must destroy both required enemy structures');
+   assert.equal(result.kronburg.enemyCastle.length,0,'enemy Castle must be destroyed');
+   assert.equal(result.kronburg.enemyTown.length,0,'enemy Town Centre must be destroyed');
+   assert.ok(result.townCentreHp>0,'attacking player must retain their starting Town Centre');
+   assert.ok(result.campaignTime>3,'do not bypass the actual objective time conditions');
+  }
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):''));
 }
 
 if (requestedMission === null) {
