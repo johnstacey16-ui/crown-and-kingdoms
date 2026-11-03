@@ -103,6 +103,18 @@ globalThis.__CK_TEST__ = {
         S.us.find(u=>u&&u.t===0&&u.k==='spear'&&u.hp>0&&!u.ld);
       if(!scout||scout.o==='a'&&scout.tg?.hp>0||scout.o==='m'&&scout.p?.length)return;
       const cx=tc.x+tc.s/2,cy=tc.y+tc.s/2;
+      // These are preplanned reconnaissance destinations for the fixed
+      // campaign maps, not unseen water/building scans or an exploration grant.
+      if(coastScoutWaypoint===0){
+        coastScoutWaypoint++;
+        const knownRoute=index===12?[29.5,64.5]:[48.5,76.5];
+        coastScoutProbes++;
+        const route=path(scout,gp(knownRoute[0],knownRoute[1],2));
+        if(route&&route.length){
+          scout.o='m';scout.tg=null;scout.p=route;scout.rp=1;coastScoutMoves++;
+          return;
+        }
+      }
       for(let tries=0;tries<8;tries++){
         const n=coastScoutWaypoint++,radius=13+Math.floor((n%32)/8)*6,
           angle=n%8*Math.PI/4;
