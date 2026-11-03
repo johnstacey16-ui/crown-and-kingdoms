@@ -49,12 +49,16 @@ function seededWorld(seed=123456){
     const ref=e=>e?(ids.get(e)||null):null;
     return {
      time:S.t,rng:S.r.state(),netNext:S.netNext,
-     ai:S.ai.map(a=>({
+     ai:S.ai.slice(1).map(a=>({
       cd:a.cd,wave:a.wave,nx:a.nx,rn:a.rn,
-      gu:a.gu,lastMarketTrade:a.lastMarketTrade,lastTributeAt:a.lastTributeAt,
-      lastRaidDefense:a.lastRaidDefense,lastAllyHelp:a.lastAllyHelp,
-      lastBuildingRepair:a.lastBuildingRepair,nextWaveObjectiveAt:a.nextWaveObjectiveAt,
-      targetRetryAt:a.targetRetryAt,on:a.on,ws:a.ws,
+      // Runtime may leave untouched optional cooldowns undefined; the
+      // loader normalizes them to the documented gameplay defaults.
+      gu:a.gu??0,lastMarketTrade:a.lastMarketTrade??-99,
+      lastTributeAt:a.lastTributeAt??-90,
+      lastRaidDefense:a.lastRaidDefense??-99,lastAllyHelp:a.lastAllyHelp??-99,
+      lastBuildingRepair:a.lastBuildingRepair??-99,
+      nextWaveObjectiveAt:a.nextWaveObjectiveAt??0,
+      targetRetryAt:a.targetRetryAt??0,on:a.on||0,ws:a.ws||0,
       kn:[...(a.kn||[])].map(ref).sort(),wu:(a.wu||[]).map(ref),
       stg:a.stg?{t:a.stg.t,tg:ref(a.stg.tg),siegeT:ref(a.stg.siegeT)}:null,
       rd:a.rd?{t:a.rd.t,u:(a.rd.u||[]).map(ref)}:null
