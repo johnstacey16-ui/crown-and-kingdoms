@@ -72,6 +72,8 @@ function seededWorld(seed=123456){
    setAiTimers:values=>Object.assign(S.ai[1],values),
    aiTimers:()=>Object.fromEntries(['gu','lastAllyHelp','lastBuildingRepair','nextWaveObjectiveAt','targetRetryAt']
     .map(key=>[key,S.ai[1][key]])),
+   waveState:()=>Object.fromEntries(['waveProbeAt','waveProgressAt','waveBestDistance',
+    'waveTargetHP','waveTargetKey','waveRecoveries'].map(k=>[k,S.ai[1][k]])),
    oldSaveWithoutTimers:()=>{
     const key=skey(slot),payload=JSON.parse(localStorage.getItem(key));
     for(const field of ['gu','lastAllyHelp','lastBuildingRepair','nextWaveObjectiveAt'])delete payload.ai[1][field];
@@ -169,4 +171,19 @@ test('live save/load preserves AI knowledge, staged orders, rally and in-flight 
   live.advance(additional);reloaded.advance(additional);
   check('after '+additional+' further ticks',55+additional);
  }
+});
+
+test('AI stalled-wave progress survives save/load and remains part of the world checksum',()=>{
+ const f=seededWorld();
+ f.advance(50);
+ const values={waveProbeAt:85,waveProgressAt:60,waveBestDistance:12.5,
+  waveTargetHP:350,waveTargetKey:'b1',waveRecoveries:2};
+ f.setAiTimers(values);
+ assert.deepEqual(JSON.parse(JSON.stringify(f.waveState())),values);
+ const before=f.hash(50);
+ assert.equal(f.save(),true);
+ assert.equal(f.load(),true);
+ assert.deepEqual(JSON.parse(JSON.stringify(f.waveState())),values,
+  'retry count, progress sample, objective and next probe time are restored');
+ assert.equal(f.hash(50),before,'reload preserves authoritative future AI decisions');
 });
