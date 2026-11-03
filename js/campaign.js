@@ -105,8 +105,8 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2},
  goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:5,do:()=>note('Rams are strong against buildings but weak against melee. Guard them.')},{at:90,do:()=>note('Archers are fragile: keep them behind your spearmen.')}]},
-{t:'The Last Crown',b:'Only two claimants remain. The Viking jarl will not yield, and the crown goes to whichever king survives. Defend your king, break the jarl\'s armies and bring down his king.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
- setup(){S.res[0]={f:400,w:400,g:200,s:100}},
+{t:'The Last Crown',b:'Only two claimants remain. Both kingdoms muster in Castle Age with equal resources. Protect your King, build siege weapons and escort troops, break the jarl\'s Town Centre if he garrisons, then defeat the enemy King.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
+ setup(){S.age[0]=S.age[1]=2;S.res[0]={f:800,w:1200,g:500,s:150};S.res[1]={f:800,w:1200,g:500,s:150}},
  goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)}],
  ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')}]}
 ,

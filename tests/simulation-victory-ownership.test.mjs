@@ -15,7 +15,8 @@ test('victory and score rules have one dedicated owner',()=>{
   assert.match(victory,new RegExp('function '+name+'\\('));
   assert.doesNotMatch(simulation,new RegExp('function '+name+'\\('));
  }
- assert.match(simulation,/if\(vm\)vict\(dt\)/);
+ assert.match(simulation,/if\(vm&&!\(cmp&&cmp\.i===5\)\)vict\(dt\)/,
+  'ordinary Regicide still executes the victory handler; the Last Crown must first save its campaign objective');
  assert.match(simulation,/kingdomScore\(t\)/);
  assert.doesNotThrow(()=>new vm.Script(victory,{filename:'js/simulation-victory.js'}));
  assert.doesNotThrow(()=>new vm.Script(simulation,{filename:'js/simulation.js'}));

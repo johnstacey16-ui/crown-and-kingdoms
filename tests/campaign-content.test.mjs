@@ -167,3 +167,22 @@ test('Kronburg places its declared rams and escort on reachable, unoccupied star
  assert.equal(state.enemyTown,1,'the original enemy Town Centre stays intact at start');
  assert.ok(state.enemyArmy>=10,'the original garrison is preserved');
 });
+
+test('The Last Crown is a symmetric Castle Age Regicide scenario, not a gifted win',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario(5)',sandbox);
+ const initial=vm.runInContext('({mode:vm,ages:S.age.slice(0,2),resources:S.res.slice(0,2).map(r=>({...r})),goals:CAMP[5].goals.map(g=>g.id),kings:[0,1].map(t=>S.us.filter(u=>u&&u.t===t&&u.k==="king"&&u.hp>0).length),towns:[0,1].map(t=>S.bs.filter(b=>b&&b.t===t&&b.k==="tc"&&b.hp>0).length),progress:campDone()[5]||0})',sandbox);
+ assert.equal(initial.mode,3,'Regicide mode remains enabled for the finale');
+ assert.deepEqual(Array.from(initial.ages),[2,2],'both claimants start in Castle Age');
+ assert.deepEqual({...initial.resources[0]},{...initial.resources[1]},
+  'both claimants receive identical starting resources');
+ assert.deepEqual({...initial.resources[0]},{f:800,w:1200,g:500,s:150},
+  'the opening budget is fixed and does not grow by hidden cheats');
+ assert.deepEqual(Array.from(initial.goals),['k'],'the real enemy-King objective is unchanged');
+ assert.deepEqual(Array.from(initial.kings),[1,1],'both Kings begin alive');
+ assert.deepEqual(Array.from(initial.towns),[1,1],'both Town Centres begin intact');
+ assert.equal(initial.progress,0,'starting the scenario cannot award a campaign completion');
+ assert.match(source,/if\(vm&&!\(cmp&&cmp\.i===5\)\)vict\(dt\)/,
+  'mission objective tracking must not be pre-empted by the generic Regicide result');
+});
