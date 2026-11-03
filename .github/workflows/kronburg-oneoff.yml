@@ -1,0 +1,19 @@
+name: Kronburg one-off campaign diagnostic
+on:
+  push:
+    branches: [fix/kronburg-siege-acceptance-20261103]
+permissions:
+  contents: read
+jobs:
+  kronburg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate Siege of Kronburg in the production engine
+        run: CK_MISSION=4 node tests/simulation-smoke.test.mjs
