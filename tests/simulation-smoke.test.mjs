@@ -221,6 +221,7 @@ globalThis.__CK_TEST__ = {
     }
     return {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
+      missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
@@ -1300,9 +1301,13 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
   const result = timed('campaign-playthrough-mission-'+(index+1), () => game.playCampaignScenario(index, maxSeconds));
   const evidence = {
     mission: index,
+    title: result.missionTitle,
+    seed: result.missionSeed,
     outcome: result.over === 'win' ? 'win' : result.over === 'lose' ? 'lose' : 'timeout',
     campaignTime: Number(result.campaignTime.toFixed(1)),
+    reason: result.over === 'lose' ? result.reason : null,
     completedObjectives: result.objectives.filter(objective => objective.complete).map(objective => objective.title),
+    incompleteObjectives: result.objectives.filter(objective => !objective.complete).map(objective => objective.title),
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
     totalObjectives: result.objectives.length
   };
