@@ -58,6 +58,28 @@ assert.equal(resourcesSpent.length, 4);
 townA.hp = 0;
 assert.equal(research(townB, 'age'), true, 'replacement town centre can restart interrupted advancement');
 assert.equal(resourcesSpent.length, 5);
+
+// Official AoE II Xbox guidance: one completed Castle substitutes for
+// two different Castle Age buildings when researching the Imperial Age.
+const configuration = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
+assert.match(configuration,/single:'castle'/,
+ 'the current game rules must retain the Imperial Age Castle exception');
+context.AG[3]={needs:['siege','univ','monastery'],single:'castle',
+ t:190,cost:{f:1000,g:800}};
+const gate=vm.runInContext('ageRequirements',context);
+const building=(k,done=true,hp=500)=>({k,t:0,done,hp});
+assert.equal(gate(0,{age:[2],bs:[building('castle')]}).ready,true,
+ 'one completed Castle legitimately unlocks Imperial Age');
+assert.equal(gate(0,{age:[2],bs:[building('castle',false)]}).ready,false,
+ 'an unfinished Castle never unlocks Imperial Age');
+assert.equal(gate(0,{age:[2],bs:[building('castle',true,0)]}).ready,false,
+ 'a destroyed Castle never unlocks Imperial Age');
+assert.equal(gate(0,{age:[2],bs:[building('siege'),building('univ')]}).ready,true,
+ 'two distinct completed Castle Age buildings also unlock Imperial Age');
+assert.equal(gate(0,{age:[2],bs:[building('siege'),building('siege')]}).ready,false,
+ 'duplicating the same non-Castle building cannot replace the pair');
+assert.equal(gate(0,{age:[2],bs:[building('siege'),building('univ',false)]}).ready,false,
+ 'incomplete prerequisites do not count');
 console.log('research-duplicate-guard: passed');
 
 

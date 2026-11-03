@@ -114,6 +114,7 @@ aiManageMarketTrade(t,A,bl,R);
 aiAdvanceStagedWave(t,A,tc);
 aiRememberEnemySites(t,A,my);
 aiResumeIdleWave(t,A);
+aiRecoverStalledWave(t,A);
 aiMaintainAttackWave(A,tc,diff);
 aiManageEconomicRaids(t,A,arm,tc,diff,aip);
 aiLaunchOffensiveWave(t,A,arm,tc,diff,aip,vm);
