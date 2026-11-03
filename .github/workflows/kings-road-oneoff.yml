@@ -1,0 +1,19 @@
+name: King's Road one-off scripted victory audit
+on:
+  push:
+    branches: [fix/kings-road-stone-objective-20261103]
+permissions:
+  contents: read
+jobs:
+  kings-road:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate actual King's Road mission with scripted villagers
+        run: CK_MISSION=10 node tests/simulation-smoke.test.mjs
