@@ -115,6 +115,10 @@ test('Iron Pass starts with enough legal housing for its supplied garrison, with
  assert.equal(first.raids,5,'every original enemy attack wave is retained');
  assert.ok(first.aiWaveAt>540&&first.aiRaidAt>540,
   'scripted siege waves must not be doubled by the normal AI before the hold goal');
+ assert.match(html,/cmp\?\.i===18&&t===0\?campaignOverflowSpawn\(tc\):null/,
+  'additional campaign troop spawns must be limited to Iron Pass defenders');
  vm.runInContext('startScenario(18)',sandbox);
- assert.equal(verify().houses,2,'mission retry must build the same starting camp, not stack free Houses');
+ const repeat=verify();
+ assert.equal(repeat.houses,2,'mission retry must build the same starting camp, not stack free Houses');
+ assert.equal(repeat.soldiers,14,'retry must restore every supplied opening defender');
 });
