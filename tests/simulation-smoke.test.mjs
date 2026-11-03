@@ -100,7 +100,7 @@ globalThis.__CK_TEST__ = {
     }
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
-    const crownTimeline=[];
+
 
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
@@ -199,17 +199,6 @@ globalThis.__CK_TEST__ = {
         if (unit.o === 'i') assignFood(unit);
       }
       }
-      if(index===5&&tick%3600===0){
-        const ownKing=S.us.find(u=>u&&u.t===0&&u.k==='king'&&u.hp>0);
-        const rival=S.us.find(u=>u&&u.t===1&&u.k==='king'&&u.hp>0);
-        const rivalTC=tcOf(1);
-        crownTimeline.push({t:Number(cmp.t.toFixed(1)),playerKing:ownKing?{x:Number(ownKing.x.toFixed(1)),y:Number(ownKing.y.toFixed(1)),ld:!!ownKing.ld,hp:ownKing.hp}:null,
-          enemyKing:rival?{x:Number(rival.x.toFixed(1)),y:Number(rival.y.toFixed(1)),ld:!!rival.ld,hp:rival.hp,o:rival.o,tg:rival.tg?.k||null}:null,
-          rivalTC:rivalTC?{hp:rivalTC.hp,done:rivalTC.done,passengers:rivalTC.cg?.length||0}:null,
-          player:S.us.filter(u=>u&&u.t===0&&u.hp>0).reduce((n,u)=>(n[u.k]=(n[u.k]||0)+1,n),{}),
-          orders:S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='mil').slice(0,8).map(u=>({o:u.o,tg:u.tg?.k,loaded:!!u.ld})),
-          buildings:S.bs.filter(b=>b&&b.t===0&&b.hp>0&&b.done).map(b=>b.k),resources:{...S.res[0]}})
-      }
       this.tick(1 / 30);
       if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
     }
@@ -217,7 +206,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
-      lastCrown:index===5?crownTimeline:null,
+      lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
       population: popOf(0), populationCapacity: capOf(0),
@@ -1769,8 +1758,12 @@ console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlay
 }
 if (shouldRunCampaignMission(5)) {
 const lastCrownPlaythrough = playCampaignScenarioTimed(5, 2200);
-assert.ok(['win', 'lose', null].includes(lastCrownPlaythrough.over), 'The Last Crown must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(lastCrownPlaythrough));
-console.log('campaign-scripted-playthrough: The Last Crown '+(lastCrownPlaythrough.over === 'win' ? 'won' : lastCrownPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+lastCrownPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+lastCrownPlaythrough.objectives.filter(objective => objective.complete).length+'/'+lastCrownPlaythrough.objectives.length+'; telemetry='+JSON.stringify(lastCrownPlaythrough.lastCrown));
+assert.equal(lastCrownPlaythrough.over,'win','The Last Crown requires a natural completed King elimination: '+JSON.stringify(lastCrownPlaythrough));
+assert.ok(lastCrownPlaythrough.objectives.every(g=>g.complete&&g.predicate),'King kill must complete the actual campaign goal, not just generic Regicide victory');
+assert.equal(lastCrownPlaythrough.lastCrown.enemyKingAlive,false,'enemy King must actually die');
+assert.equal(lastCrownPlaythrough.lastCrown.playerKingAlive,true,'the defending King must survive');
+assert.equal(lastCrownPlaythrough.lastCrown.campaignRecorded,true,'the campaign unlock must be saved through campMark');
+console.log('campaign-scripted-playthrough: The Last Crown '+(lastCrownPlaythrough.over === 'win' ? 'won' : lastCrownPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+lastCrownPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+lastCrownPlaythrough.objectives.filter(objective => objective.complete).length+'/'+lastCrownPlaythrough.objectives.length+'; outcome='+JSON.stringify({enemyKingAlive:lastCrownPlaythrough.lastCrown.enemyKingAlive,playerKingAlive:lastCrownPlaythrough.lastCrown.playerKingAlive,campaignRecorded:lastCrownPlaythrough.lastCrown.campaignRecorded}));
 }
 for (const [index, label, limit] of [
   [10, 'The King’s Road', 700],
