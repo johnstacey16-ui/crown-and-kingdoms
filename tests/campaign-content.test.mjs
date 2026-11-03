@@ -186,3 +186,21 @@ test('The Last Crown is a symmetric Castle Age Regicide scenario, not a gifted w
  assert.match(source,/if\(vm&&!\(cmp&&cmp\.i===5\)\)vict\(dt\)/,
   'mission objective tracking must not be pre-empted by the generic Regicide result');
 });
+
+test('Ashford fields all declared initial soldiers without weakening enemy fortifications',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario(8)',sandbox);
+ const state=vm.runInContext('({player:Object.fromEntries(["knight","arc","ram"].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),positions:S.us.filter(u=>u&&u.t===0&&["knight","arc","ram"].includes(u.k)&&u.hp>0).map(u=>[Math.floor(u.x),Math.floor(u.y)]),goal:CAMP[8].goals.map(g=>g.id),town:S.bs.filter(b=>b&&b.t===1&&b.k==="tc"&&b.hp>0).length,castle:S.bs.filter(b=>b&&b.t===1&&b.k==="castle"&&b.hp>0).length,towers:S.bs.filter(b=>b&&b.t===1&&b.k==="tower"&&b.hp>0).length,resources:{...S.res[0]},workshop:S.bs.filter(b=>b&&b.t===0&&b.k==="siege"&&b.hp>0).length})',sandbox);
+ assert.deepEqual({...state.player},{knight:6,arc:10,ram:3},
+  'all 19 troops named in the mission setup must actually appear on the map');
+ assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,19,
+  'starting army must occupy distinct, usable cells');
+ assert.deepEqual(Array.from(state.goal),['tc'],'the sole victory goal stays the enemy Town Centre');
+ assert.equal(state.town,1,'the hostile Town Centre must be alive initially');
+ assert.equal(state.castle,1,'the hostile Castle must not be removed or weakened');
+ assert.equal(state.towers,2,'both defensive Towers remain intact');
+ assert.deepEqual({...state.resources},{f:900,w:900,g:700,s:500},
+  'all additional reinforcements must use the real starting budget or gathering');
+ assert.equal(state.workshop,0,'the player must construct and pay for the Siege Workshop');
+});

@@ -31,7 +31,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -100,6 +100,7 @@ globalThis.__CK_TEST__ = {
     }
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
+    let ashfordAssaultStarted=false;
 
 
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
@@ -161,6 +162,13 @@ globalThis.__CK_TEST__ = {
         assignMiners('w',3,500);
         assignMiners('g',2,300);
       }
+      if(index===8&&S.res[0].w<320){
+        const loggers=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='w').length;
+        if(loggers<3){
+          const worker=S.us.find(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='f'&&!u.car&&!u.ret);
+          if(worker)assignWood(worker);
+        }
+      }
       if(index===6&&S.res[0].w<500){
         const loggers=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='w').length;
         if(loggers<3){
@@ -176,14 +184,15 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
-      if (plan.attack && Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount)) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+        if(index===8)ashfordAssaultStarted=true; // Do not abandon the capital after siege casualties.
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
-          const defender=(index===4||index===5)&&unit.k!=='ram'
+          const defender=(index===4||index===5||index===8)&&unit.k!=='ram'
             ? S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil')
               .sort((a,b)=>{
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
@@ -206,6 +215,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
+      ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
@@ -1798,6 +1808,14 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
+  if(index===8){
+    assert.equal(result.over,'win','Crown of Ashford requires a naturally destroyed enemy Town Centre, not a timeout: '+JSON.stringify(result.ashford));
+    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Crown of Ashford destruction goal must complete');
+    assert.equal(result.ashford.enemyTownAlive,false,'enemy Town Centre must actually be destroyed');
+    assert.equal(result.ashford.assaultStarted,true,'the paid siege assault must launch and persist after casualties');
+    assert.equal(result.ashford.workshopBuilt,true,'the additional battering rams require a completed, paid Siege Workshop');
+    assert.ok(result.townCentreHp>0,'the attacker must keep its home Town Centre');
+  }
   if(index===4){
    assert.equal(result.over,'win','Kronburg must be naturally won by an actual army without a scripted victory: '+JSON.stringify(result.kronburg));
    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'Kronburg must destroy both required enemy structures');
@@ -1806,7 +1824,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
    assert.ok(result.townCentreHp>0,'attacking player must retain their starting Town Centre');
    assert.ok(result.campaignTime>3,'do not bypass the actual objective time conditions');
   }
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):''));
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):index===8?'; finalAssault='+JSON.stringify(result.ashford):''));
 }
 
 if (requestedMission === null) {
