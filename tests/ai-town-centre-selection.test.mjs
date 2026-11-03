@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import {headlessGame} from './helpers/headless-game.mjs';
 
 // Test the real production helper, not a substring of its current source
 // formatting. This preserves the centre preference across AI refactors.
@@ -64,3 +65,34 @@ function townTraining({age=3,villagers=49,save=false,research=false,centres=3}={
  assert.equal(h.run(),1,'single-centre early game retains normal villager production');
 }
 console.log('ai-town-centre-expansion: age, queue, research and paid-worker gates passed');
+
+{
+ const {source:gameSource,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(gameSource,sandbox,{timeout:15000});
+ const scenario=[
+  "seedOv=123456;msz=0;mt=3;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=3;startRes=3;startArmy=0;startVillagers=1;popLimit=200;diff=2;aip=0;start();",
+  "const home=S.bs.find(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0);if(!home)throw Error('No enemy home Town Centre');",
+  "const secondary=put(1,'tc',home.x-12,home.y-12);if(!secondary)throw Error('No legal second Town Centre site');",
+  "for(let i=0;i<8;i++)put(1,'house',home.x+9+(i%3)*5,home.y+9+Math.floor(i/3)*5);",
+  "let workers=S.us.filter(u=>u&&u.t===1&&u.k==='vil'&&u.hp>0).length;",
+  "for(let radius=3;radius<=25&&workers<36;radius++)for(let dy=-radius;dy<=radius&&workers<36;dy++)for(let dx=-radius;dx<=radius&&workers<36;dx++){",
+  " if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;const x=home.x+dx,y=home.y+dy;if(x<1||y<1||x>=W-1||y>=H-1)continue;",
+  " const p=y*W+x;if(S.g[p]||S.wt[p]||S.nd[p]||S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;",
+  " addU(1,'vil',x+.5,y+.5);workers++;}",
+  "if(workers<36)throw Error('Unable to establish 36 legal Imperial workers');",
+  "S.t=1600;S.age[1]=3;S.res[1]={f:10000,w:10000,g:10000,s:10000};",
+  "const before=S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0).length;",
+  "for(let i=0;i<4;i++){S.ai[1].cd=0;aiTeam(1,.2);S.t+=3;}",
+  "const all=S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0);",
+  "return {before,after:all.length,thirdStarted:all.some(b=>b!==home&&b!==secondary&&!b.done),secondaryQueue:secondary.q.filter(q=>q&&q.k==='vil').length,workers,capacity:capOf(1)};"
+ ].join('\n');
+ const state=vm.runInContext('(function(){'+scenario+'})()',sandbox,{timeout:15000});
+ assert.equal(state.before,2,'test starts with exactly two legitimate centres');
+ assert.equal(state.workers,36,'third-Centre expansion has its normal worker prerequisites');
+ assert.equal(state.after,3,'real Imperial AI constructs a third, reachable Town Centre foundation');
+ assert.equal(state.thirdStarted,true,'new expansion remains under construction and needs real worker time');
+ assert.ok(state.secondaryQueue>0,
+  'completed secondary Centre trains paid villagers during the Imperial economy');
+}
+console.log('ai-town-centre-integration: real Imperial decision builds a third Centre and queues secondary workers');
