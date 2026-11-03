@@ -96,6 +96,7 @@ globalThis.__CK_TEST__ = {
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
+    const kronburgTimeline=[];
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
       if(tick%30===0){
@@ -170,6 +171,17 @@ globalThis.__CK_TEST__ = {
         if (unit.o === 'i') assignFood(unit);
       }
       }
+      if(index===4&&tick%1800===0){
+        kronburgTimeline.push({
+         time:Number(cmp.t.toFixed(1)),
+         castle:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).map(b=>Math.round(b.hp)),
+         enemyTown:S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0).map(b=>Math.round(b.hp)),
+         army:Object.fromEntries(['ram','spear','arc','knight','vil'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),
+         enemyMilitary:S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.k!=='vil').length,
+         stock:{...S.res[0]},
+         ordered:S.us.filter(u=>u&&u.t===0&&u.hp>0&&['ram','spear','arc','knight'].includes(u.k)).slice(0,7).map(u=>({k:u.k,o:u.o,tg:u.tg?.k,team:u.tg?.t}))
+        })
+      }
       this.tick(1 / 30);
       if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
     }
@@ -185,6 +197,7 @@ globalThis.__CK_TEST__ = {
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
       kronburg:index===4?{
+        timeline:kronburgTimeline,
         castleFlag:cmp.d.cas||0,
         enemyCastle:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
         enemyTown:S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
