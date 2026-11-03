@@ -219,3 +219,17 @@ test('Greywatch spawns its full declared army and keeps the enemy stronghold int
  assert.ok(state.defenders.spear>0&&state.defenders.arc>0,'enemy pikes and archers must remain real battlefield threats');
  assert.deepEqual(Array.from(state.goal),['greywatch'],'only destroying the enemy Town Centre completes the mission');
 });
+
+test('nineteen campaigns have unique playable mission names and deterministic mission seeds',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source,sandbox);
+ const missions=Array.from(vm.runInContext('CAMP.map(m=>({title:m.t,seed:m.seed}))',sandbox),
+  m=>({title:m.title,seed:m.seed}));
+ assert.equal(missions.length,19);
+ assert.ok(missions.every(m=>typeof m.title==='string'&&m.title.trim()===m.title&&m.title.length>0),'titles must not be blank or padded');
+ assert.equal(new Set(missions.map(m=>m.title)).size,missions.length,'campaign menu must distinguish all missions by name');
+ assert.ok(missions.every(m=>Number.isSafeInteger(m.seed)&&m.seed>0),'mission seeds are deterministic positive integers');
+ assert.equal(missions[3].title,'The Relic Road','original relic mission keeps its title');
+ assert.equal(missions[11].title,'The Reliquary Trail','the second relic mission is distinguishable');
+});
