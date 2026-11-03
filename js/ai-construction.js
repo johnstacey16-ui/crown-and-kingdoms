@@ -2,7 +2,7 @@
 // Uses earlier-loaded ai-policy builder selection and world placement guards.
 // Original orders, spending and random sampling are retained unchanged.
 function aiBuild(vs,k,t=1){if(k==='tc'&&vm===6)return;const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
-for(let i=0;i<60;i++){const sp=26+Math.min(60,S.bs.length),x=(tc.x+1+(S.r()-.5)*sp)|0,y=(tc.y+1+(S.r()-.5)*sp)|0;if(Math.hypot(x-tc.x,y-tc.y)<4||cor(tc,x,y))continue;
+for(let i=0;i<60;i++){const sp=26+Math.min(60,S.bs.length),x=(tc.x+1+(S.r()-.5)*sp)|0,y=(tc.y+1+(S.r()-.5)*sp)|0;if(Math.hypot(x-tc.x,y-tc.y)<4||cor(tc,x,y))continue;if(k==='tc'&&S.bs.some(b=>b&&b.t===t&&b.k==='tc'&&b.hp>0&&Math.hypot(x-b.x,y-b.y)<12))continue;
 if(okPlace(t,k,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const b=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=b;builder.p=route;return}}}
 const cor=(tc,x,y)=>Math.abs(x-(tc.x+1))<=3||Math.abs(y-(tc.y+1))<=3;
 function aiWall(vs,tc,t=1){if(!can(t,B.wall.cost))return;const cx=tc.x+1,cy=tc.y+1;let n=0;for(let a=-8;a<=8&&n<3;a++)for(const[x,y]of[[cx+a,cy-8],[cx+a,cy+8],[cx-8,cy+a],[cx+8,cy+a]]){if(n>=3)break;if(Math.abs(x-cx)<=2||Math.abs(y-cy)<=2)continue;if(S.bs.some(b=>b.t===t&&b.k==='wall'&&b.hp>0&&b.x===x&&b.y===y))continue;if(!vs.some(aiAvailableBuilder)||!can(t,B.wall.cost))return;if(okPlace(t,'wall',x,y)){const target={x,y,s:B.wall.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const w=addB(t,'wall',x,y,false);pay(t,B.wall.cost);builder.o='b';builder.tg=w;builder.p=route;n++}}}
