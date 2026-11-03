@@ -1,4 +1,4 @@
-name: Ashford one-off siege diagnostic
+name: One-off all 19 campaign simulations
 on:
   push:
     branches: [fix/ashford-siege-winnability-20261103]
@@ -7,7 +7,7 @@ permissions:
 jobs:
   ashford:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,5 +15,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Simulate Crown of Ashford in the production engine
-        run: CK_MISSION=8 node tests/simulation-smoke.test.mjs
+      - name: Run all 19 scripted campaign missions
+        run: node scripts/run-checks.mjs --campaigns
