@@ -74,21 +74,26 @@ function aiRecoverStalledWave(t,A){
  const range=target.s||1;
  const distance=Math.min(...soldiers.map(u=>Math.max(0,
   Math.hypot(u.x-(target.x+range/2),u.y-(target.y+range/2))-range/2)));
- if(!Number.isFinite(A.waveProgressAt))A.waveProgressAt=S.t;
+ if(!Number.isFinite(A.waveProgressAt))A.waveProgressAt=0; // Match the save loader's legacy/unset watchdog default.
  // A retargeted order deliberately resets its distance sample, without
  // granting another retry merely for sampling the new destination.
  if(!Number.isFinite(A.waveBestDistance)||A.waveBestDistance<0){
-  if(A.waveTargetKey!==key&&(A.waveRecoveries||0)===0)A.waveProgressAt=S.t;
+  // Record the newly issued objective, but do not restart the stall clock:
+  // oscillating between structures must never create an endless attack.
   A.waveTargetKey=key;A.waveTargetHP=target.hp;A.waveBestDistance=distance;
   return 0;
  }
  const started=A.waveProgressAt;
- const improved=A.waveTargetKey!==key||
-  target.hp<(Number.isFinite(A.waveTargetHP)?A.waveTargetHP:Infinity)-.01||
-  distance<(Number.isFinite(A.waveBestDistance)&&A.waveBestDistance>=0?A.waveBestDistance:Infinity)-1;
- if(improved){
-  A.waveTargetKey=key;A.waveTargetHP=target.hp;
-  A.waveBestDistance=distance;A.waveProgressAt=S.t;A.waveRecoveries=0;
+ const changedTarget=A.waveTargetKey!==key;
+ const damaged=!changedTarget&&target.hp<(Number.isFinite(A.waveTargetHP)?A.waveTargetHP:Infinity)-.01;
+ const advanced=!changedTarget&&distance<(Number.isFinite(A.waveBestDistance)&&A.waveBestDistance>=0?A.waveBestDistance:Infinity)-1;
+ if(changedTarget){
+  // Distances and HP of different structures cannot be compared as progress.
+  // Preserve previous timeout and retry count across external retargets.
+  A.waveTargetKey=key;A.waveTargetHP=target.hp;A.waveBestDistance=distance;
+ }else if(damaged||advanced){
+  A.waveTargetHP=target.hp;A.waveBestDistance=distance;
+  A.waveProgressAt=S.t;A.waveRecoveries=0;
   return 0;
  }
  if(S.t-started<48)return 0;

@@ -107,3 +107,29 @@ test('repeated retargeting cannot spin indefinitely without measurable progress'
  assert.equal(h.run(),-1,'last exhausted no-progress retry releases the wave');
  assert.equal(h.A.on,0);
 });
+
+test('switching targets without real progress cannot erase the stalled-wave retry budget',()=>{
+ const h=stalledWave({routes:'alternate',recoveries:2});
+ for(const unit of h.units)unit.tg=h.alternative;
+ assert.equal(h.run(),1,'the existing retry budget allows one reachable retarget');
+ assert.equal(h.A.waveRecoveries,3,'a mere target switch is not combat or marching progress');
+ assert.equal(h.A.waveProgressAt,100);
+ h.S.t=112;
+ assert.equal(h.run(),0,'a new objective is sampled without resetting the budget');
+ assert.equal(h.A.waveRecoveries,3);
+ for(const unit of h.units)unit.tg=h.enemyTC;
+ h.S.t=175;
+ assert.equal(h.run(),-1,'the exhausted wave must be cancelled even after another target change');
+ assert.equal(h.A.on,0);
+ assert.equal(h.units.every(u=>u.o==='i'&&!u.tg),true);
+ assert.equal(h.enemyTC.hp,900,'no damage is manufactured to satisfy the watchdog');
+});
+
+test('new building selection does not postpone the no-progress deadline',()=>{
+ const h=stalledWave({routes:'none',recoveries:3,progress:30});
+ for(const unit of h.units)unit.tg=h.alternative;
+ h.S.t=100;
+ assert.equal(h.run(),-1,'a stale assault is released despite changing target at the deadline');
+ assert.equal(h.A.targetRetryAt,130,'the ordinary retry cooldown remains in force');
+ assert.equal(h.probes,2,'recovery only probes the two live hostile structures');
+});
