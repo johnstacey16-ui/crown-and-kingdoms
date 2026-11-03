@@ -101,6 +101,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
+    let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0;
 
 
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
@@ -184,15 +185,16 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&greywatchAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true; // Do not abandon the capital after siege casualties.
+        if(index===9)greywatchAssaultStarted=true; // Retain real escort orders if the starting rams are destroyed.
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
-          const defender=(index===4||index===5||index===8)&&unit.k!=='ram'
+          const defender=(index===4||index===5||index===8||index===9)&&unit.k!=='ram'
             ? S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil')
               .sort((a,b)=>{
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
@@ -201,7 +203,9 @@ globalThis.__CK_TEST__ = {
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
             : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC)));
-          if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
+          if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0;
+            if(index===9){greywatchOrders++;if(!S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))greywatchOrdersAfterRamLoss++}
+          }
         }
       }
       for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld)) {
@@ -216,6 +220,7 @@ globalThis.__CK_TEST__ = {
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
+      greywatch:index===9?{assaultStarted:greywatchAssaultStarted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
@@ -1808,6 +1813,10 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
+  if(index===9){
+    assert.equal(result.greywatch.assaultStarted,true,'Greywatch bot must launch a genuine assault');
+    assert.ok(result.greywatch.ordersIssued>0,'Greywatch bot must issue real troop orders');
+  }
   if(index===8){
     assert.equal(result.over,'win','Crown of Ashford requires a naturally destroyed enemy Town Centre, not a timeout: '+JSON.stringify(result.ashford));
     assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Crown of Ashford destruction goal must complete');
@@ -1824,7 +1833,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
    assert.ok(result.townCentreHp>0,'attacking player must retain their starting Town Centre');
    assert.ok(result.campaignTime>3,'do not bypass the actual objective time conditions');
   }
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):index===8?'; finalAssault='+JSON.stringify(result.ashford):''));
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):index===8?'; finalAssault='+JSON.stringify(result.ashford):index===9?'; finalAssault='+JSON.stringify(result.greywatch):''));
 }
 
 if (requestedMission === null) {
