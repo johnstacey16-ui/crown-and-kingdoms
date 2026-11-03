@@ -1,0 +1,19 @@
+name: Iron Pass one-off simulated playthrough
+on:
+  push:
+    branches: [fix/iron-pass-supply-camp-20261103]
+permissions:
+  contents: read
+jobs:
+  iron-pass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate real Iron Pass campaign with the scripted player
+        run: CK_MISSION=18 node tests/simulation-smoke.test.mjs
