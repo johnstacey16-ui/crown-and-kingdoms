@@ -31,7 +31,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -95,6 +95,7 @@ globalThis.__CK_TEST__ = {
     };
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     let trainingGate = null;
+    let peakRanged=0,peakVillagers=0;
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
       if(tick%30===0){
@@ -140,9 +141,12 @@ globalThis.__CK_TEST__ = {
         const worker=S.us.find(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o!=='b'&&u.ct!=='w'&&u.car===0);
         if(worker)assignStone(worker);
       }
-      if (index === 6 && S.res[0].g < 120 && !S.us.some(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && unit.o === 'g' && unit.ct === 'g')) {
-        const goldWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o === 'g' && unit.ct === 'f');
-        if (goldWorker) assignGold(goldWorker);
+      if(index===6&&S.res[0].w<500){
+        const loggers=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='w').length;
+        if(loggers<3){
+          const worker=S.us.find(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='f'&&!u.car&&!u.ret);
+          if(worker)assignWood(worker);
+        }
       }
       for (const [unitKind, targetCount] of Object.entries(plan.units || {})) {
         if (U[unitKind] && U[unitKind].age > S.age[0]) { trainingGate = unitKind + ' requires age ' + U[unitKind].age; continue; }
@@ -167,17 +171,21 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
     }
     return {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
+      peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
       population: popOf(0), populationCapacity: capOf(0),
       houses: S.bs.filter(b=>b&&b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
       enemyRaidsFired: Object.keys(cmp.e||{}).filter(key=>cmp.e[key]).length,
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
+      rangedUnits:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&!U[u.k].sh&&u.k!=='vil').length,
+      queuedArchers:S.bs.filter(b=>b&&b.t===0&&b.hp>0).reduce((n,b)=>n+(b.q||[]).filter(q=>q?.k==='arc').length,0),
       buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
       unfinished: S.bs.filter(building => building.t === 0 && !building.done && building.hp > 0).map(building => ({ kind: building.k, x: building.x, y: building.y, progress: building.pr, builder: S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.tg === building)?.o || null })),
       workerOrders: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).map(unit => ({ order: unit.o, target: unit.tg?.k || null, loaded: !!unit.ld })),
@@ -1694,10 +1702,15 @@ assert.ok(['win', 'lose'].includes(tidewatchPlaythrough.over), 'The Siege of Tid
 console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+tidewatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+tidewatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+tidewatchPlaythrough.objectives.length);
 }
 if (shouldRunCampaignMission(6)) {
-const northernWatchPlaythrough = playCampaignScenarioTimed(6, 600);
+const northernWatchPlaythrough = playCampaignScenarioTimed(6, 700);
 assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
-assert.ok(['win', 'lose', null].includes(northernWatchPlaythrough.over), 'The Northern Watch must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(northernWatchPlaythrough));
-console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length);
+assert.equal(northernWatchPlaythrough.over,'win','Northern Watch must win by building a Tower, training six live ranged soldiers and holding until ten minutes: '+JSON.stringify(northernWatchPlaythrough));
+assert.equal(northernWatchPlaythrough.objectives.filter(o=>o.complete).length,3,'Northern Watch must complete all three real victory objectives');
+assert.ok(northernWatchPlaythrough.rangedUnits>=6,'six living ranged soldiers are required by the actual mission predicate');
+assert.ok(northernWatchPlaythrough.townCentreHp>0,'the original Town Centre must survive the Northern Watch hold');
+assert.equal(northernWatchPlaythrough.enemyRaidsFired,3,'all three Northern Watch scripted raids must run');
+assert.ok(northernWatchPlaythrough.buildings.includes('bar')&&northernWatchPlaythrough.buildings.includes('rng'),'Barracks and Range must be constructed through normal orders');
+console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length+'; diagnostics='+JSON.stringify({objectives:northernWatchPlaythrough.objectives,reason:northernWatchPlaythrough.reason,ranged:northernWatchPlaythrough.rangedUnits,peakRanged:northernWatchPlaythrough.peakRanged,peakVillagers:northernWatchPlaythrough.peakVillagers,queuedArchers:northernWatchPlaythrough.queuedArchers,population:northernWatchPlaythrough.population,capacity:northernWatchPlaythrough.populationCapacity,houses:northernWatchPlaythrough.houses,buildings:northernWatchPlaythrough.buildings,unfinished:northernWatchPlaythrough.unfinished,resources:northernWatchPlaythrough.resources,workers:northernWatchPlaythrough.workerOrders}));
 }
 if (shouldRunCampaignMission(7)) {
 const redwaterPlaythrough = playCampaignScenarioTimed(7, 600);

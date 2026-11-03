@@ -110,7 +110,7 @@ const CAMP=[
  goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)}],
  ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')}]}
 ,
-{t:'The Northern Watch',b:'The first snows have arrived, and raiders are gathering beyond the pine forests. Fortify the northern approach, train a dependable force of archers and spearmen, and hold your settlement until the raiding season passes.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
+{t:'The Northern Watch',b:'The first snows have arrived, and raiders are gathering beyond the pine forests. Build a Watch Tower, protect it with Spearmen and ranged troops, and hold your settlement until the raiding season passes. Build Houses to support your army: a Barracks unlocks the Archery Range, and Skirmishers can defend without spending gold.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:600,w:600,g:250,s:150}},
  goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>aliveUnits(0).filter(u=>U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
  ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching!')},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!')}]},

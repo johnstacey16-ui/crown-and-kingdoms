@@ -135,3 +135,19 @@ test('King’s Road starts with a genuine stone shortfall, not two free Towers',
  assert.deepEqual(Array.from(actual.goals),['roadmarket','roadtowers','roadtime']);
  assert.equal(actual.raids,3,'all three enemy attack events remain unchanged');
 });
+
+test('Northern Watch retains three real raids and requires living ranged defenders',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario(6)',sandbox);
+ const state=vm.runInContext('({age:S.age[0],resources:{...S.res[0]},goals:CAMP[6].goals.map(g=>g.id),raids:CAMP[6].ev.length,towers:S.bs.filter(b=>b.t===0&&b.k==="tower"&&b.hp>0).length,rangeRequires:B.rng.req,skirmisherRange:U.skirm.rng,spearBonus:U.spear.bn.scout})',sandbox);
+ assert.equal(state.age,1,'Feudal Age is the playable starting age');
+ assert.deepEqual({...state.resources},{f:600,w:600,g:250,s:150},
+  'the campaign starts with its original resources, not gifted troops or extra gold');
+ assert.deepEqual(Array.from(state.goals),['t','a','s'],'all actual Tower, live ranged and hold goals remain');
+ assert.equal(state.raids,3,'all three original attack waves remain scheduled');
+ assert.equal(state.towers,0,'players must pay and build their own Watch Tower');
+ assert.equal(state.rangeRequires,'bar','a Barracks precedes a legal Archery Range');
+ assert.ok(state.skirmisherRange>=4,'paid Skirmishers fulfil the real ranged-unit goal');
+ assert.ok(state.spearBonus>0,'Spearmen counter the attacking Scout Cavalry');
+});
