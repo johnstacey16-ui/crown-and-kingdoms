@@ -1,5 +1,24 @@
 const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(b=>b.t===t&&b.k===k&&b.done&&b.hp>0).length,cu=(k,t=0)=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&(!k||u.k===k)).length,cmil=t=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&U[u.k]&&u.k!=='vil'&&u.k!=='mon'&&u.k!=='king'&&u.k!=='cart'&&U[u.k].dmg>0&&!U[u.k].sh).length,aliveUnits=(t,k)=>S.us.filter(u=>u&&Number.isInteger(u.t)&&u.t===t&&u.hp>0&&U[u.k]&&(!k||u.k===k));
-const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:spawnPos(tc);if(!p)break;addU(t,k,p[0],p[1])}};
+// The normal production spawn is restricted to the Town Centre perimeter.
+// Campaigns deliberately start with bigger armies; place overflow soldiers in
+// nearby *reachable* open cells instead of silently dropping the final troops.
+function campaignOverflowSpawn(tc){
+ const anchor=S.us.find(u=>u&&u.t===tc.t&&u.k==='vil'&&u.hp>0&&!u.ld);
+ const cx=tc.x+(tc.s>>1),cy=tc.y+(tc.s>>1);
+ for(let radius=tc.s+1;radius<=11;radius++)
+  for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
+   if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+   const x=cx+dx,y=cy+dy;
+   if(x<1||y<1||x>=W-1||y>=H-1)continue;
+   const cell=y*W+x;
+   if(S.g[cell]||S.wt[cell]===1||S.nd[cell])continue;
+   if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+   if(anchor&&!path(anchor,gp(x+.5,y+.5,.75)))continue;
+   return [x+.5,y+.5];
+  }
+ return null;
+}
+const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:(spawnPos(tc)||(cmp?.i===18&&t===0?campaignOverflowSpawn(tc):null));if(!p)break;addU(t,k,p[0],p[1])}};
 // Ship paths treat resources as obstacles and forbid diagonal corner cutting.
 // Rebuild this small placement-only graph on demand so harvested fish and changed
 // map cells never leave stale connectivity in a save or simulation entity.
@@ -140,8 +159,9 @@ const CAMP=[
  goals:[{id:'castles',t:'Build 2 completed Castles',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length>=2},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('The Crown Holds the Crossing: use the starting army to protect villagers while you establish two forward Castles.')},{at:110,do:()=>raid(7,['knight','knight','xbow','spear','ram','xbow','spear'],'The rival is testing the first crossing with a mixed assault!')},{at:260,do:()=>raid(9,['ram','ram','bomb','knight','knight','xbow','spear','xbow','knight'],'Heavy siege is advancing. Keep Bombard Cannons protected and repair damaged Castles.')},{at:440,do:()=>raid(10,['bomb','ram','ram','knight','knight','xbow','spear','gal','gal','xbow'],'The enemy commits its final reserve to break your fortified line!')}]}
 ,
-{t:'The Iron Pass',b:'The mountain pass is the only road through which the royal supply wagons can reach the frontier. An enemy host is gathering beyond the ridge. Build a layered defence, keep your army alive and hold the pass until the royal convoy escapes.',civ:5,en:2,mt:5,msz:1,seed:919,diff:2,aip:6,vm:0,
- setup(){S.age[0]=1;S.res[0]={f:900,w:850,g:350,s:250};grp(0,'spear',6);grp(0,'arc',6);grp(0,'scout',2);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:900,w:650,g:300,s:150};grp(1,'scout',3);grp(1,'spear',5)}},
+{t:'The Iron Pass',b:'The mountain pass is the only road through which the royal supply wagons can reach the frontier. An enemy host is gathering beyond the ridge. Build a layered defence, keep your army alive and hold the pass until the royal convoy escapes. Your forward camp starts with two Houses; extend your housing if you need to reinforce the garrison.',civ:5,en:2,mt:5,msz:1,seed:919,diff:2,aip:6,vm:0,
+ setup(){S.age[0]=1;S.res[0]={f:900,w:850,g:350,s:250};grp(0,'spear',6);grp(0,'arc',6);grp(0,'scout',2);const home=tcOf(0);if(home){put(0,'house',home.x-8,home.y+5);put(0,'house',home.x+8,home.y+5)}// This hold mission already sends four timed scripted assaults; avoid piling the normal autonomous waves over them before the convoy escapes.
+ const enemyStrategy=S.ai[1];if(enemyStrategy){enemyStrategy.nx=Math.max(enemyStrategy.nx||0,600);enemyStrategy.rn=Math.max(enemyStrategy.rn||0,600)}const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:900,w:650,g:300,s:150};grp(1,'scout',3);grp(1,'spear',5)}},
  goals:[{id:'towers',t:'Build 2 completed Towers',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'army',t:'Keep 15 land soldiers alive',ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon','cart','cog'].includes(u.k)).length>=15},{id:'hold',t:'Hold the pass for 9:00',ok:()=>cmp.t>=540}],
  ev:[{at:20,do:()=>note('The Iron Pass: place Towers to cover the approach, but keep soldiers nearby to stop siege units.')},{at:95,do:()=>raid(5,['scout','spear','scout','arc','spear'],'Enemy scouts have found the pass!')},{at:205,do:()=>raid(7,['spear','arc','scout','spear','arc','scout','ram'],'The first serious assault is advancing. Protect your Towers from the ram!')},{at:325,do:()=>raid(9,['knight','spear','arc','knight','spear','arc','ram','scout','arc'],'Enemy cavalry and siege are attacking together!')},{at:440,do:()=>raid(10,['ram','ram','knight','knight','spear','arc','spear','arc','scout','knight'],'The final host is here. Hold the pass until the convoy clears the road!')}]}
 ]; 

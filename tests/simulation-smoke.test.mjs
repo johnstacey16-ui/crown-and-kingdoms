@@ -31,7 +31,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 || index === 8 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 9 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { mil: 8 }, attack: true } : index === 6 ? { buildings: [{ kind: 'tower', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 0, ages: 1, units: { arc: 6 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -116,10 +116,13 @@ globalThis.__CK_TEST__ = {
         }
       }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
-      const queuedMilitia = barracks ? barracks.q.filter(queue => queue.k === 'mil').length : 0;
-      if (barracks && cmil(0) + queuedMilitia < plan.soldiers && barracks.q.length < 5) {
-        if (S.age[0] < U.mil.age) trainingGate = 'Militia require Feudal Age, but this mission starts below that age';
-        else train(barracks, 'mil');
+      // Iron Pass is a defensive cavalry-counter mission: reinforce with paid
+      // Feudal Spearmen, not gold-hungry generic Militia that cannot stop Knights.
+      const defenderKind = index === 18 ? 'spear' : 'mil';
+      const queuedDefenders = barracks ? barracks.q.filter(queue => queue.k === defenderKind).length : 0;
+      if (barracks && cmil(0) + queuedDefenders < plan.soldiers && barracks.q.length < 5) {
+        if (S.age[0] < U[defenderKind].age) trainingGate = defenderKind + ' requires a later age';
+        else train(barracks, defenderKind);
       }
       const woodNeeded = index === 2 && S.res[0].w < 350;
       if (woodNeeded) {
@@ -159,9 +162,13 @@ globalThis.__CK_TEST__ = {
       this.tick(1 / 30);
     }
     return {
-      over: S.over, time: S.t, campaignTime: cmp.t, mode,
+      over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
+      townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
+      population: popOf(0), populationCapacity: capOf(0),
+      houses: S.bs.filter(b=>b&&b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
+      enemyRaidsFired: Object.keys(cmp.e||{}).filter(key=>cmp.e[key]).length,
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
       buildings: S.bs.filter(building => building.t === 0 && building.done && building.hp > 0).map(building => building.k),
@@ -1709,7 +1716,15 @@ for (const [index, label, limit] of [
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   const completed = result.objectives.filter(objective => objective.complete).length;
   const total = result.objectives.length;
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|'));
+  if(index===18){
+    assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
+    assert.equal(completed,total,'all three defensive objectives must be completed');
+    assert.ok(result.soldiers>=15,'at least fifteen living land soldiers must survive the timed assaults');
+    assert.ok(result.townCentreHp>0,'the home Town Centre must remain standing');
+    assert.equal(result.enemyRaidsFired,5,'all five timed campaign events must run');
+  }
+  const diagnostics=index===18?'; diagnostics='+JSON.stringify({reason:result.reason,tcHp:result.townCentreHp,pop:result.population,cap:result.populationCapacity,houses:result.houses,soldiers:result.soldiers,unfinished:result.unfinished,buildings:result.buildings,resources:result.resources,raidEvents:result.enemyRaidsFired}):'';
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|')+diagnostics);
 }
 for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'], [9, 'Siege of Greywatch']]) {
   if (!shouldRunCampaignMission(index)) continue;
