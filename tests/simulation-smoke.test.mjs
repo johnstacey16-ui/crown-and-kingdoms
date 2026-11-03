@@ -100,7 +100,6 @@ globalThis.__CK_TEST__ = {
     }
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
-    const ashfordTimeline=[];
     let ashfordAssaultStarted=false;
 
 
@@ -209,16 +208,6 @@ globalThis.__CK_TEST__ = {
         if (unit.o === 'i') assignFood(unit);
       }
       }
-      if(index===8&&tick%1800===0){
-       const enemyTC=tcOf(1),castle=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0);
-       ashfordTimeline.push({time:Number(cmp.t.toFixed(1)),
-        enemyTC:enemyTC?.hp||0,enemyCastle:castle?.hp||0,
-        player:Object.fromEntries(['ram','arc','knight','vil'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),
-        enemyArmy:S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.k!=='vil').length,
-        resources:{...S.res[0]},
-        orders:S.us.filter(u=>u&&u.t===0&&['ram','arc','knight'].includes(u.k)&&u.hp>0).slice(0,12).map(u=>({k:u.k,o:u.o,tg:u.tg?.k||null,hp:Math.round(u.hp),x:+u.x.toFixed(1),y:+u.y.toFixed(1)}))
-       });
-      }
       this.tick(1 / 30);
       if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
     }
@@ -226,7 +215,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
-      ashford:index===8?ashfordTimeline:null,
+      ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
@@ -1819,6 +1808,14 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
+  if(index===8){
+    assert.equal(result.over,'win','Crown of Ashford requires a naturally destroyed enemy Town Centre, not a timeout: '+JSON.stringify(result.ashford));
+    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Crown of Ashford destruction goal must complete');
+    assert.equal(result.ashford.enemyTownAlive,false,'enemy Town Centre must actually be destroyed');
+    assert.equal(result.ashford.assaultStarted,true,'the paid siege assault must launch and persist after casualties');
+    assert.equal(result.ashford.workshopBuilt,true,'the additional battering rams require a completed, paid Siege Workshop');
+    assert.ok(result.townCentreHp>0,'the attacker must keep its home Town Centre');
+  }
   if(index===4){
    assert.equal(result.over,'win','Kronburg must be naturally won by an actual army without a scripted victory: '+JSON.stringify(result.kronburg));
    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'Kronburg must destroy both required enemy structures');
@@ -1827,7 +1824,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
    assert.ok(result.townCentreHp>0,'attacking player must retain their starting Town Centre');
    assert.ok(result.campaignTime>3,'do not bypass the actual objective time conditions');
   }
-  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):index===8?'; telemetry='+JSON.stringify(result.ashford):''));
+  console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+result.objectives.filter(objective => objective.complete).length+'/'+result.objectives.length+(index===4?'; finalSiege='+JSON.stringify({remainingRams:result.kronburg.playerTroops.ram,enemyCastle:result.kronburg.enemyCastle,enemyTown:result.kronburg.enemyTown}):index===8?'; finalAssault='+JSON.stringify(result.ashford):''));
 }
 
 if (requestedMission === null) {
