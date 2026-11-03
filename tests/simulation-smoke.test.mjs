@@ -183,7 +183,7 @@ globalThis.__CK_TEST__ = {
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
-          const defender=index===4&&unit.k!=='ram'
+          const defender=(index===4||index===5)&&unit.k!=='ram'
             ? S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil')
               .sort((a,b)=>{
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
@@ -191,7 +191,7 @@ globalThis.__CK_TEST__ = {
               })[0]:null;
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
-            : (defender||(enemyKing && !enemyKing.ld ? enemyKing : (enemyCastle || enemyTC)));
+            : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC)));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
         }
       }
