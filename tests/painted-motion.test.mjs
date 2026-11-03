@@ -35,6 +35,27 @@ test('render poses freeze with game time, ignore route retry timers and never wr
  assert.notEqual(run('unitVisualPose(actor,4).time'),run('unitVisualPose(actor,3).time'));
 });
 
+test('repeated troop renders reuse pose history and only rehash changed identities',()=>{
+ const run=fixture();
+ run("globalThis.actor={k:'mil',netId:'u:stable',x:12,y:15,p:[[13,15]],o:'m',cd:0}");
+ const original=run('JSON.stringify(actor)');
+ const first=run('JSON.stringify(unitVisualPose(actor,10))');
+ run('globalThis.history=PAINT.motion.get(actor)');
+ for(let i=0;i<25;i++)assert.equal(run('JSON.stringify(unitVisualPose(actor,10))'),first,
+  'a paused frame keeps exactly the same animation and direction');
+ assert.equal(run('PAINT.motion.get(actor)===history'),true,'hot-path pose history object is reused');
+ assert.equal(run('JSON.stringify(actor)'),original,'presentation does not modify saved unit data');
+ run('actor.x+=.2');
+ assert.equal(run('unitVisualPose(actor,10.1).state'),1,'real movement still advances the walking pose');
+ run('actor.p=[]');
+ assert.equal(run('unitVisualPose(actor,10.2).state'),0,'clearing the path returns to the idle pose');
+ const previousTime=run('unitVisualPose(actor,10.2).time');
+ run("actor.netId='u:changed'");
+ assert.notEqual(run('unitVisualPose(actor,10.2).time'),previousTime,
+  'network identity replacement invalidates its old presentation phase');
+ assert.equal(run('PAINT.motion.get(actor)===history'),true,'identity change does not allocate history');
+});
+
 test('missing motion sheets fall through to the original painted poses',()=>{
  const run=fixture(),base=pack.atlases.find(a=>a.id==='painted-forces');run(`regAtlas('base',{},${JSON.stringify(base.meta)})`);
  assert.equal(run("assetFrame('knight',1,1,0,0).animated"),false);

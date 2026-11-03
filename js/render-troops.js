@@ -11,9 +11,22 @@ function unitVisualPose(u,time){
  // A queued path alone does not mean a villager is moving. Stop walking poses
  // once displacement ceases; presentation history never enters saved game state.
  const prev=PAINT.motion.get(u);
- const moved=!!(prev&&Math.hypot(u.x-prev.x,u.y-prev.y)>.01);
+ const dx=prev?u.x-prev.x:0,dy=prev?u.y-prev.y:0;
+ const moved=!!(prev&&dx*dx+dy*dy>.0001);
  const moveTime=routed&&(moved||!prev?.routed||now<prev.time)?now:(prev?.moveTime??-Infinity);
- PAINT.motion.set(u,{x:u.x,y:u.y,time:now,routed,moveTime});
+ // Reuse presentation history rather than allocating one record per visible
+ // unit per frame. Refresh the phase seed only if the identity changes (e.g.
+ // when a network preview acquires its authoritative ID).
+ const phaseKey=u.netId||u.id||u.k||'';
+ let phaseHash=prev&&prev.phaseKey===phaseKey?prev.phaseHash:null;
+ if(phaseHash===null){
+  phaseHash=0;
+  for(const c of String(phaseKey))phaseHash=(phaseHash*31+c.charCodeAt(0))%997;
+ }
+ if(prev){
+  prev.x=u.x;prev.y=u.y;prev.time=now;prev.routed=routed;prev.moveTime=moveTime;
+  prev.phaseKey=phaseKey;prev.phaseHash=phaseHash;
+ }else PAINT.motion.set(u,{x:u.x,y:u.y,time:now,routed,moveTime,phaseKey,phaseHash});
  const target=['a','g','b','rep','v'].includes(u.o)&&u.tg&&Number.isFinite(u.tg.x)&&Number.isFinite(u.tg.y)?u.tg:null;
  const work=!!(target&&((((u.o==='g'&&!u.ret)||u.o==='b')&&d2(u.x,u.y,target)<=1.1)||(u.o==='rep'&&d2(u.x,u.y,target)<=1.5)));
  const casting=u.k==='mon'&&u.o==='v'&&Number.isFinite(u.cv)&&u.cv>0;
@@ -24,8 +37,7 @@ function unitVisualPose(u,time){
  if(tx!==null)PAINT.facing.set(u,heading);
  const state=walking?1:casting?3:attacking?2:work?3:0;
  const duration=typeof U!=='undefined'&&U[u.k]?.cd>0?U[u.k].cd:1;
- let offset=0;for(const c of String(u.netId||u.id||u.k||''))offset=(offset*31+c.charCodeAt(0))%997;
- return {state,heading,time:now+offset/997,
+ return {state,heading,time:now+phaseHash/997,
   phase:state===2?Math.max(0,Math.min(1,1-u.cd/duration)):undefined};
 }
 // Base portraits retain light fallback movement/recoil when motion is missing.
