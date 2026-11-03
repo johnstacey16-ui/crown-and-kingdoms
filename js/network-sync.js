@@ -365,6 +365,9 @@
         cooldown:a.cd, wave:a.wave, nextAttack:a.nx, strategy:a.rn,
         lastMarketTrade:a.lastMarketTrade ?? -99, lastTributeAt:a.lastTributeAt ?? -90,
         defenseAt:a.lastRaidDefense ?? -99, retryAt:a.targetRetryAt ?? 0,
+        waveProbeAt:a.waveProbeAt ?? 0, waveProgressAt:a.waveProgressAt ?? 0,
+        waveBestDistance:a.waveBestDistance ?? -1, waveTargetHP:a.waveTargetHP ?? -1,
+        waveTargetKey:a.waveTargetKey ?? '', waveRecoveries:a.waveRecoveries ?? 0,
         on:a.on || 0, workers:a.ws || 0,
         workerIds:(a.wu || []).map(ref), knownTargets:[...(a.kn || [])].map(ref).sort()
       }))
