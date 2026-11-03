@@ -1,21 +1,14 @@
-# Hosting policy update — free only
+# Local relay and multiplayer test harness
 
-The owner has chosen free-only hosting. Follow [FREE_HOSTING.md](../FREE_HOSTING.md).
-The Node relay below remains available for local development, but is not the
-approved paid hosting path. Railway has not been fully shut down: permanent
-service deletion was blocked by automatic approval review. Its sleep/no-restart
-and restricted build-watch configuration is saved; this does not stop the current
-deployment. The authenticated Supabase replacement is not configured or live yet.
+**Current hosting policy (3 November 2026):** Railway and Docker are retired from this project's supported deployment setup. The publicly playable game is on [Vercel](https://crown-and-kingdoms.vercel.app/). The Node server documented here is a **local test harness**, not an approved external deployment destination. Never deploy to or reconnect Railway; do not provision paid hosting. See [FREE_HOSTING.md](../FREE_HOSTING.md).
 
 # Authenticated battlefield relay prototype
-
-**Deployment note — 21 October 2026:** camera/group-focus/expanded-minimap code `d7a169d999db4c18bc752aa43cec9ff81e080e24` passed all CI, but is **not live yet**. Railway source-connect retries returned `Deploys have been paused temporarily`. The latest successful live release remains control-group code `f1240f8641cd66f677e848313017a9cfbf0c2aab` (deployment `e45c0f31-b149-4165-86ef-bb93abb5828b`). Reconnect the existing service to main when the platform accepts deployments again; no new project or service is needed.
 
 Run `node server/transport.mjs` (Node 22+; no dependencies). The default listener
 is `127.0.0.1:8787`; `PORT` overrides the port. Test with
 `node --test tests/server-transport.test.mjs`.
 
-The combined game/relay prototype is [deployed on Railway](https://crown-and-kingdoms-production.up.railway.app). The game now includes an
+The opt-in authenticated battlefield prototype includes an
 opt-in authenticated room setup screen that verifies the opening world. The
 existing Supabase marker room is unchanged. The opt-in battlefield connects gathering, construction, training/research, movement, combat and rally orders to a shared, acknowledged simulation clock. It is still a prototype requiring full browser/hardware match acceptance.
 
@@ -197,43 +190,21 @@ and focuses the stopped-room controls. Full objectives, chat/diplomacy,
 technology-tree and options pages are still outstanding; this is not a complete
 Xbox pause-menu reproduction.
 
-## Combined Railway host
+## Local combined game-and-relay test server
 
-The repository includes `Dockerfile` and
-`server/app.mjs` for a single game-and-relay origin. Start locally with
-`node server/app.mjs` and open `http://localhost:8787`. Railway supplies
-`PORT`; the combined host binds `0.0.0.0` by default. Optional `HOST`
-overrides the interface for local use.
+Run `node server/app.mjs` using Node.js 22+ for local development, then visit `http://localhost:8787`. Optional `HOST` and `PORT` environment variables adjust the local listener. The `server/app.mjs` module is **retained** because existing Node and Chromium tests import `createApplication()` directly. Do not remove it without replacing that shared test harness.
 
-The healthcheck is `GET /healthz`. Public files are restricted to the
-game shell, browser JavaScript, styles and local art. Server source,
-tests, repository metadata and deployment configuration return 404.
-The authenticated API remains at `/api/multiplayer/*` and is never
-cached. The container runs as the unprivileged Node user and has no
-third-party runtime dependencies.
+The health check is `GET /healthz`. Public paths are restricted to the game shell, browser JavaScript, styles and original local art. Server source, tests, repository metadata and forbidden deployment paths return 404. The authenticated API remains under `/api/multiplayer/*` and is never cached. Runtime state exists in process memory: restarts end rooms, and reconnect/durable recovery are not implemented.
 
-Deploy the **main** branch with the Dockerfile and use one replica.
-Configure the service with Dockerfile `Dockerfile`, start command `node server/app.mjs`, healthcheck `/healthz`, healthcheck timeout 30 seconds, restart policy `ON_FAILURE` with three retries, one replica and sleeping disabled. These settings have been applied to the production service through the Railway API. The former `railway.json` was removed: [Config as Code is deprecated](https://docs.railway.com/config-as-code) and new services cannot opt into it. A future checked-in platform configuration should use Railway's supported Infrastructure as Code workflow.
-Do not enable sleeping or scale to multiple replicas while rooms and
-sessions live in process memory. Deployments, restarts and process
-failures end active matches; reconnect and durable room storage remain
-separate delivery tasks. Use the same public Railway game URL on both
-devices; invitations are scoped to that service instance.
-
-`tests/server-app.test.mjs` checks actual HTTP game/assets delivery,
-private-path rejection, readiness, uncached responses, anonymous session
-creation, two-player room join and authenticated message identity through
-the combined host.
+`tests/server-app.test.mjs` checks game/assets HTTP delivery, private-path rejection, health/readiness, uncached responses, anonymous session creation, room join and trusted authenticated messages. `tests/server-transport.test.mjs` checks the standalone relay. Keep these regression tests even though no Docker image or Railway deployment is used.
 
 ## Original atlas catalogue extension
 
 Trade carts/cogs, twelve unique troops and palisades now have original local vector atlases. All runtime unit keys resolve to frames; the castle attack proxy reuses castle art, and farms remain resource tiles. The generator and catalogue tests are documented in [GRAPHICS_ACCEPTANCE.md](../GRAPHICS_ACCEPTANCE.md). HTTP metadata revalidation and `ck-shell-v10` migrate stale cached artwork; the Chromium suite exercises an old HTTP manifest and old shell cache before reload.
 
-## Production status — 21 October 2026
+## Prototype acceptance boundaries
 
-[Play Crown & Kingdoms](https://crown-and-kingdoms-production.up.railway.app). The existing production service is connected to `johnstacey16-ui/crown-and-kingdoms@main`; future pushes deploy automatically. Deployment `18a93b9c-8b96-4714-aab3-e9f1443a33c8` at `d3952c28e994c2dc11e877d7d84b8eb4c61a62fa` reached SUCCESS. The earlier GitHub App permission blocker is resolved. HTTPS `/` and `/healthz` returned 200, and two anonymous sessions created/joined one private room with teams 0/1; smoke-test credentials were revoked afterward.
-
-Public deployment is not full-match acceptance. Independent human browser/controller play, prolonged latency/disconnect testing and Xbox performance remain open. The current reliability increment adds renewable idle leases and bounded safe gateway retries; it does not implement reconnect, persistence or host failover. Targeted transport/live-session tests pass locally (42 checks), including idle peer expiry, rejected-request non-renewal, retry bounds, no repeated gameplay callback after a lost receipt response, and no automatic retry of gameplay submissions.
+Local HTTP and browser tests are not a claim of fully working public multiplayer. Independent human browser/controller play, long-running latency/disconnect tests, reconnect, persistence, host failover and Xbox performance remain unverified. Successful bounded retry and transport checks do not make the local Node test server a supported production backend.
 
 ## Authenticated military Line/Split shortcut
 
