@@ -1,5 +1,24 @@
 const tcOf=t=>S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0),cb=(k,t=0)=>S.bs.filter(b=>b.t===t&&b.k===k&&b.done&&b.hp>0).length,cu=(k,t=0)=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&(!k||u.k===k)).length,cmil=t=>S.us.filter(u=>u&&u.hp>0&&u.t===t&&U[u.k]&&u.k!=='vil'&&u.k!=='mon'&&u.k!=='king'&&u.k!=='cart'&&U[u.k].dmg>0&&!U[u.k].sh).length,aliveUnits=(t,k)=>S.us.filter(u=>u&&Number.isInteger(u.t)&&u.t===t&&u.hp>0&&U[u.k]&&(!k||u.k===k));
-const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:spawnPos(tc);if(!p)break;addU(t,k,p[0],p[1])}};
+// The normal production spawn is restricted to the Town Centre perimeter.
+// Campaigns deliberately start with bigger armies; place overflow soldiers in
+// nearby *reachable* open cells instead of silently dropping the final troops.
+function campaignOverflowSpawn(tc){
+ const anchor=S.us.find(u=>u&&u.t===tc.t&&u.k==='vil'&&u.hp>0&&!u.ld);
+ const cx=tc.x+(tc.s>>1),cy=tc.y+(tc.s>>1);
+ for(let radius=tc.s+1;radius<=11;radius++)
+  for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
+   if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+   const x=cx+dx,y=cy+dy;
+   if(x<1||y<1||x>=W-1||y>=H-1)continue;
+   const cell=y*W+x;
+   if(S.g[cell]||S.wt[cell]===1||S.nd[cell])continue;
+   if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+   if(anchor&&!path(anchor,gp(x+.5,y+.5,.75)))continue;
+   return [x+.5,y+.5];
+  }
+ return null;
+}
+const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:(spawnPos(tc)||campaignOverflowSpawn(tc));if(!p)break;addU(t,k,p[0],p[1])}};
 // Ship paths treat resources as obstacles and forbid diagonal corner cutting.
 // Rebuild this small placement-only graph on demand so harvested fish and changed
 // map cells never leave stale connectivity in a save or simulation entity.
