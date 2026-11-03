@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
-assert.ok(ai.includes("vil.length+tc.q.filter(q=>q&&q.k==='vil').length<"),
+assert.ok(ai.includes("centres.reduce((n,b)=>n+b.q.filter(q=>q&&q.k==='vil').length,0)"),
   'AI worker target counts only queued villagers, not queued military units');
 assert.ok(ai.includes("popOf(t)+5>capOf(t)"),
   'AI housing includes all queued units');
