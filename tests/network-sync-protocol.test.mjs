@@ -107,3 +107,54 @@ test('network protocol is isolated from gameplay and cannot accidentally run una
   assert.doesNotMatch(source, /\beval\s*\(/);
   assert.equal(typeof sync.createInbox, 'function');
 });
+
+test('seeded malformed network packets cannot throw, advance sequence, or enter the command queue',()=>{
+ // Reproducible JSON-shape adversarial inputs. Do not rely on nondeterministic
+ // Math.random or live network access in the free hosted validation job.
+ let seed=0x6a09e667;
+ const next=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
+ const choice=xs=>xs[next()%xs.length];
+ const badSid=[null,false,0,'','x','ab','x'.repeat(81),'host\u0000-user',[],{}];
+ const badCounter=[null,false,0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'1',[],{}];
+ const badFrame=[null,-1,1.5,Number.MAX_SAFE_INTEGER+1,'8',false,[],{}];
+ const badTeam=[null,-1,8,0.25,'0',false,[],{}];
+ const badEntities=[null,[],['u10','u10'],['u0'],['n10'],['u10',7],
+  ['u10',null],[{}],Array(97).fill('u10'),'u10',{}];
+ const badPoint=[null,[],{}, {x:-1,y:4},{x:128,y:4},
+  {x:Infinity,y:4},{x:NaN,y:4},{x:'4',y:4},
+  {x:4},{x:4,y:4,z:1},{x:4.5,y:null}];
+ const badType=[null,0,'','warp','MOVE','__proto__','move\n',false,[],{}];
+ const cases=[
+  ()=>({...packet(1,8),v:choice([null,0,1,'2',false,[]])}),
+  ()=>packet(1,8,{sid:choice(badSid)}),
+  ()=>packet(choice(badCounter),8),
+  ()=>packet(1,choice(badFrame)),
+  ()=>packet(1,8,{team:choice(badTeam)}),
+  ()=>packet(1,8,{order:{...order,entities:choice(badEntities)}}),
+  ()=>packet(1,8,{order:{...order,point:choice(badPoint)}}),
+  ()=>packet(1,8,{order:{...order,type:choice(badType)}}),
+  ()=>packet(1,8,{order:{...order,debug:{persist:false}}}),
+  ()=>({...packet(1,8),extra:choice([null,1,'x',[],{}])}),
+  ()=>packet(1,8,{order:choice([null,false,[],{},'move',42])}),
+  ()=>packet(1,8,{order:{...order,entities:['u10','u11'],count:5}}),
+  ()=>packet(1,8,{order:{...order,point:JSON.parse('{"x":4,"y":5,"__proto__":{"polluted":true}}')}}),
+  ()=>Object.assign(Object.create(null),packet(1,8),{__proto__:{debug:true}})
+ ];
+ const inbox=makeInbox();
+ for(let i=0;i<560;i++){
+  const malicious=cases[i%cases.length]();
+  let accepted;
+  assert.doesNotThrow(()=>{accepted=sync.validPacket(malicious,128)},
+   'validator must not throw on malformed packet #'+i);
+  assert.equal(accepted,false,'invalid packet admitted at corpus index '+i);
+  let response;
+  assert.doesNotThrow(()=>{response=inbox.receive(malicious,'host-user',2)},
+   'trusted inbox must reject malformed packet #'+i+' without throwing');
+  assert.equal(response.ok,false,'malformed packet queued at corpus index '+i);
+  assert.equal(inbox.pending(),0,'malformed packet must never reach the frame queue');
+ }
+ assert.equal(inbox.receive(packet(1,8),'host-user',2).ok,true,
+  'malformed traffic must not consume the first valid sender sequence');
+ assert.equal(inbox.drain(8).length,1);
+ assert.equal(inbox.pending(),0);
+});
