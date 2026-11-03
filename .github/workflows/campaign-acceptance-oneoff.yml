@@ -1,0 +1,19 @@
+name: One-off campaign audit (removed before merge)
+on:
+  push:
+    branches: [audit/campaign-acceptance-20261103]
+permissions:
+  contents: read
+jobs:
+  campaign-playthroughs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run existing 19 isolated scripted campaign simulations
+        run: node scripts/run-checks.mjs --campaigns
