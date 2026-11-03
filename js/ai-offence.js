@@ -74,7 +74,15 @@ function aiRecoverStalledWave(t,A){
  const range=target.s||1;
  const distance=Math.min(...soldiers.map(u=>Math.max(0,
   Math.hypot(u.x-(target.x+range/2),u.y-(target.y+range/2))-range/2)));
- const started=Number.isFinite(A.waveProgressAt)?A.waveProgressAt:S.t;
+ if(!Number.isFinite(A.waveProgressAt))A.waveProgressAt=S.t;
+ // A retargeted order deliberately resets its distance sample, without
+ // granting another retry merely for sampling the new destination.
+ if(!Number.isFinite(A.waveBestDistance)||A.waveBestDistance<0){
+  if(A.waveTargetKey!==key&&(A.waveRecoveries||0)===0)A.waveProgressAt=S.t;
+  A.waveTargetKey=key;A.waveTargetHP=target.hp;A.waveBestDistance=distance;
+  return 0;
+ }
+ const started=A.waveProgressAt;
  const improved=A.waveTargetKey!==key||
   target.hp<(Number.isFinite(A.waveTargetHP)?A.waveTargetHP:Infinity)-.01||
   distance<(Number.isFinite(A.waveBestDistance)&&A.waveBestDistance>=0?A.waveBestDistance:Infinity)-1;
