@@ -18,7 +18,7 @@ function campaignOverflowSpawn(tc){
   }
  return null;
 }
-const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:(spawnPos(tc)||(cmp?.i===18&&t===0?campaignOverflowSpawn(tc):null));if(!p)break;addU(t,k,p[0],p[1])}};
+const grp=(t,k,n)=>{const tc=tcOf(t);if(!tc||!U[k])return;const naval=U[k].sh?raidShipPositions(tc,n,t):null;for(let i=0;i<n;i++){const p=naval?naval[i]:(spawnPos(tc)||(cmp?.i===18&&t===0?campaignOverflowSpawn(tc):null)||(cmp?.i===4&&t===0?campaignOverflowSpawn(tc):null));if(!p)break;addU(t,k,p[0],p[1])}};
 // Ship paths treat resources as obstacles and forbid diagonal corner cutting.
 // Rebuild this small placement-only graph on demand so harvested fish and changed
 // map cells never leave stale connectivity in a save or simulation entity.
