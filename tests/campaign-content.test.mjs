@@ -151,3 +151,19 @@ test('Northern Watch retains three real raids and requires living ranged defende
  assert.ok(state.skirmisherRange>=4,'paid Skirmishers fulfil the real ranged-unit goal');
  assert.ok(state.spearBonus>0,'Spearmen counter the attacking Scout Cavalry');
 });
+
+test('Kronburg places its declared rams and escort on reachable, unoccupied starting tiles',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario(4)',sandbox);
+ const state=vm.runInContext('({player:Object.fromEntries(["ram","spear","arc","knight"].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),enemyArmy:S.us.filter(u=>u&&u.t===1&&u.k!=="vil"&&u.hp>0).length,objectives:CAMP[4].goals.map(g=>g.id),enemyCastle:S.bs.filter(b=>b&&b.t===1&&b.k==="castle"&&b.hp>0).length,enemyTown:S.bs.filter(b=>b&&b.t===1&&b.k==="tc"&&b.hp>0).length,positions:S.us.filter(u=>u&&u.t===0&&["ram","spear","arc","knight"].includes(u.k)&&u.hp>0).map(u=>[Math.floor(u.x),Math.floor(u.y)])})',sandbox);
+ assert.deepEqual({...state.player},{ram:3,spear:8,arc:8,knight:4},
+  'normal scenario start must not silently drop the archer and cavalry escort');
+ assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,23,
+  'all 23 supplied soldiers occupy distinct starting tiles');
+ assert.deepEqual(Array.from(state.objectives),['c','t'],
+  'destroying the real Castle and Town Centre remains required');
+ assert.equal(state.enemyCastle,1,'the original enemy Castle stays intact at start');
+ assert.equal(state.enemyTown,1,'the original enemy Town Centre stays intact at start');
+ assert.ok(state.enemyArmy>=10,'the original garrison is preserved');
+});
