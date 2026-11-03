@@ -372,8 +372,8 @@ test('minimap overlay and controller help advertise Y for camera focus',()=>{
     globalThis.helpText=[];X.fillText=s=>helpText.push(String(s));
     minimapDraw=()=>{};S.teamN=2;drawOv();drawInfo2();
   `,c);
-  assert.ok(c.helpText.some(s=>s.includes('Y: jump camera')));
-  assert.ok(c.helpText.some(s=>s.includes('Y jumps there')));
+  assert.ok(c.helpText.some(s=>s.includes('Y: focus')),'overview labels the actual Y focus action');
+  assert.ok(c.helpText.some(s=>s.includes('Y focuses')),'controller help explains minimap Y focus');
   assert.equal(c.helpText.some(s=>s.includes('A: jump camera')||s.includes('A or Y jumps there')),false);
 });
 
