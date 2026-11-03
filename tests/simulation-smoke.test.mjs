@@ -129,7 +129,14 @@ globalThis.__CK_TEST__ = {
         const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b' && (unit.ct==='w'||unit.car===0));
         if (woodWorker) assignWood(woodWorker);
       }
-      if(index===2&&S.res[0].s<200&&!S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='s')){
+      // Feudal Frontier and King's Road both require more stone than their
+      // starting supply. Use real villager mining instead of granting resources
+      // or silently allowing an unfunded defensive Tower.
+      const neededStone=index===2?200:index===10&&
+        S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.hp>0).length<2
+          ?B.tower.cost.s:0;
+      if(neededStone>0&&S.res[0].s<neededStone&&
+         !S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='s')){
         const worker=S.us.find(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o!=='b'&&u.ct!=='w'&&u.car===0);
         if(worker)assignStone(worker);
       }
@@ -1716,6 +1723,12 @@ for (const [index, label, limit] of [
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   const completed = result.objectives.filter(objective => objective.complete).length;
   const total = result.objectives.length;
+  if(index===10){
+    assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
+    assert.equal(completed,total,'King\u2019s Road must complete all three real objectives');
+    assert.ok(result.townCentreHp>0,'King\u2019s Road Town Centre must survive');
+    assert.equal(result.enemyRaidsFired,3,"every scripted King's Road raid must execute");
+  }
   if(index===18){
     assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
     assert.equal(completed,total,'all three defensive objectives must be completed');
@@ -1723,7 +1736,7 @@ for (const [index, label, limit] of [
     assert.ok(result.townCentreHp>0,'the home Town Centre must remain standing');
     assert.equal(result.enemyRaidsFired,5,'all five timed campaign events must run');
   }
-  const diagnostics=index===18?'; diagnostics='+JSON.stringify({reason:result.reason,tcHp:result.townCentreHp,pop:result.population,cap:result.populationCapacity,houses:result.houses,soldiers:result.soldiers,unfinished:result.unfinished,buildings:result.buildings,resources:result.resources,raidEvents:result.enemyRaidsFired}):'';
+  const diagnostics=(index===18||index===10)?'; diagnostics='+JSON.stringify({reason:result.reason,tcHp:result.townCentreHp,pop:result.population,cap:result.populationCapacity,houses:result.houses,soldiers:result.soldiers,unfinished:result.unfinished,buildings:result.buildings,resources:result.resources,raidEvents:result.enemyRaidsFired,workers:result.workerOrders}):'';
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|')+diagnostics);
 }
 for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'], [9, 'Siege of Greywatch']]) {

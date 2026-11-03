@@ -122,3 +122,16 @@ test('Iron Pass starts with enough legal housing for its supplied garrison, with
  assert.equal(repeat.houses,2,'mission retry must build the same starting camp, not stack free Houses');
  assert.equal(repeat.soldiers,14,'retry must restore every supplied opening defender');
 });
+
+test('King’s Road starts with a genuine stone shortfall, not two free Towers',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario(10)',sandbox);
+ const actual=vm.runInContext('({stone:S.res[0].s,towerStone:B.tower.cost.s,market:!!B.market,goals:CAMP[10].goals.map(x=>x.id),towers:S.bs.filter(b=>b.t===0&&b.k==="tower"&&b.hp>0).length,raids:CAMP[10].ev.length})',sandbox);
+ assert.equal(actual.stone,150,'mission must start with its defined 150 stone');
+ assert.equal(actual.towerStone,100,'real tower price is charged per building');
+ assert.ok(actual.stone<2*actual.towerStone,'the second tower must be funded by mining/trading');
+ assert.equal(actual.towers,0,'the mission does not grant pre-built towers');
+ assert.deepEqual(Array.from(actual.goals),['roadmarket','roadtowers','roadtime']);
+ assert.equal(actual.raids,3,'all three enemy attack events remain unchanged');
+});
