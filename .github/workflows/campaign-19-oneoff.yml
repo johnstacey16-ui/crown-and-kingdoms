@@ -1,0 +1,21 @@
+name: One-time 19 campaign acceptance (temporary)
+on:
+  push:
+    branches:
+      - audit/campaign-19-verification-20261103
+permissions:
+  contents: read
+concurrency:
+  group: oneoff-campaign-19-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  campaign-playthroughs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run canonical nineteen isolated campaign simulations
+        run: node scripts/run-checks.mjs --campaigns
