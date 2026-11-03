@@ -93,6 +93,30 @@ globalThis.__CK_TEST__ = {
       worker.o = 'b'; worker.tg = building; worker.p = []; worker.rp = 0;
       return true;
     };
+    // Coastal campaign bots must discover shorelines using real movement and
+    // normal fog-of-war. Never reveal the map or grant a free Dock/unit.
+    let coastScoutMoves=0,coastScoutProbes=0,coastScoutWaypoint=0;
+    const scoutCoast = () => {
+      if(index!==12&&index!==16)return;
+      if(S.bs.some(b=>b&&b.t===0&&b.k==='dock'&&b.hp>0))return;
+      const scout=S.us.find(u=>u&&u.t===0&&u.k==='knight'&&u.hp>0&&!u.ld)||
+        S.us.find(u=>u&&u.t===0&&u.k==='spear'&&u.hp>0&&!u.ld);
+      if(!scout||scout.o==='a'&&scout.tg?.hp>0||scout.o==='m'&&scout.p?.length)return;
+      const cx=tc.x+tc.s/2,cy=tc.y+tc.s/2;
+      for(let tries=0;tries<8;tries++){
+        const n=coastScoutWaypoint++,radius=13+Math.floor((n%32)/8)*6,
+          angle=n%8*Math.PI/4;
+        const x=Math.max(2,Math.min(W-3,Math.round(cx+Math.cos(angle)*radius))),
+          y=Math.max(2,Math.min(H-3,Math.round(cy+Math.sin(angle)*radius)));
+        if(S.ex[y*W+x])continue;
+        coastScoutProbes++;
+        const route=path(scout,gp(x+.5,y+.5,2));
+        if(!route||!route.length)continue;
+        scout.o='m';scout.tg=null;scout.p=route;scout.rp=1;
+        coastScoutMoves++;
+        break;
+      }
+    };
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     if(index===5){
       const king=S.us.find(u=>u&&u.t===0&&u.k==='king'&&u.hp>0&&!u.ld);
@@ -114,6 +138,7 @@ globalThis.__CK_TEST__ = {
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
       const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
       if (plan.villagers > 0 && villagers + queuedVillagers < plan.villagers && tc.q.length < 5) train(tc, 'vil');
+      scoutCoast();
       for (const entry of plan.buildings) {
         const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0).length;
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
@@ -225,6 +250,7 @@ globalThis.__CK_TEST__ = {
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
+      coastal:(index===12||index===16)?{scoutMoves:coastScoutMoves,scoutProbes:coastScoutProbes,explored:S.ex.reduce((a,n)=>a+(n?1:0),0),dockCount:S.bs.filter(b=>b&&b.t===0&&b.k==='dock'&&b.done&&b.hp>0).length,galleyCount:S.us.filter(u=>u&&u.t===0&&u.k==='gal'&&u.hp>0).length}:null,
       greywatch:index===9?{assaultStarted:greywatchAssaultStarted,peakRams:greywatchPeakRams,workshopCompleted:greywatchWorkshopCompleted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
@@ -1311,6 +1337,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
     totalObjectives: result.objectives.length
   };
+  if(result.coastal)evidence.coastal=result.coastal;
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));
   return result;
