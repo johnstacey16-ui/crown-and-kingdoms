@@ -44,7 +44,10 @@ function step(dt){
   sep();
   WL(dt);
   if(cmp)cmpTick(dt);
-  if(vm)vict(dt);
+  // The Last Crown uses the real Regicide combat rules, but its own King
+  // objective must record completion and campaign progress before the generic
+  // Regicide result can end the match (vict runs every tick; cmpTick every 15).
+  if(vm&&!(cmp&&cmp.i===5))vict(dt);
   if(!cmp&&S.vt%30===0)elim();
   if(S.vt%150===0){
     for(const q of S.px)for(const k in q)q[k]+=q[k]<100?1:q[k]>100?-1:0;
