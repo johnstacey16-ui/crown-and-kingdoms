@@ -1,0 +1,23 @@
+name: One-time Greywatch campaign strategy test
+on:
+  push:
+    branches:
+      - fix/greywatch-persistent-siege-orders-20261103
+permissions:
+  contents: read
+concurrency:
+  group: oneoff-greywatch-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  mission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original Greywatch mission setup
+        run: node --test tests/campaign-content.test.mjs
+      - name: Test honest complete Greywatch mission simulation
+        run: CK_MISSION=9 node tests/simulation-smoke.test.mjs
