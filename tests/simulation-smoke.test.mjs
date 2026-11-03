@@ -1704,7 +1704,12 @@ console.log('campaign-scripted-playthrough: The Siege of Tidewatch '+(tidewatchP
 if (shouldRunCampaignMission(6)) {
 const northernWatchPlaythrough = playCampaignScenarioTimed(6, 700);
 assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
-assert.ok(['win', 'lose', null].includes(northernWatchPlaythrough.over), 'The Northern Watch must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(northernWatchPlaythrough));
+assert.equal(northernWatchPlaythrough.over,'win','Northern Watch must win by building a Tower, training six live ranged soldiers and holding until ten minutes: '+JSON.stringify(northernWatchPlaythrough));
+assert.equal(northernWatchPlaythrough.objectives.filter(o=>o.complete).length,3,'Northern Watch must complete all three real victory objectives');
+assert.ok(northernWatchPlaythrough.rangedUnits>=6,'six living ranged soldiers are required by the actual mission predicate');
+assert.ok(northernWatchPlaythrough.townCentreHp>0,'the original Town Centre must survive the Northern Watch hold');
+assert.equal(northernWatchPlaythrough.enemyRaidsFired,3,'all three Northern Watch scripted raids must run');
+assert.ok(northernWatchPlaythrough.buildings.includes('bar')&&northernWatchPlaythrough.buildings.includes('rng'),'Barracks and Range must be constructed through normal orders');
 console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length+'; diagnostics='+JSON.stringify({objectives:northernWatchPlaythrough.objectives,reason:northernWatchPlaythrough.reason,ranged:northernWatchPlaythrough.rangedUnits,peakRanged:northernWatchPlaythrough.peakRanged,peakVillagers:northernWatchPlaythrough.peakVillagers,queuedArchers:northernWatchPlaythrough.queuedArchers,population:northernWatchPlaythrough.population,capacity:northernWatchPlaythrough.populationCapacity,houses:northernWatchPlaythrough.houses,buildings:northernWatchPlaythrough.buildings,unfinished:northernWatchPlaythrough.unfinished,resources:northernWatchPlaythrough.resources,workers:northernWatchPlaythrough.workerOrders}));
 }
 if (shouldRunCampaignMission(7)) {
