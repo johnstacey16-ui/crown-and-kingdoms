@@ -138,7 +138,7 @@ test('seeded malformed network packets cannot throw, advance sequence, or enter 
   ()=>packet(1,8,{order:choice([null,false,[],{},'move',42])}),
   ()=>packet(1,8,{order:{...order,entities:['u10','u11'],count:5}}),
   ()=>packet(1,8,{order:{...order,point:JSON.parse('{"x":4,"y":5,"__proto__":{"polluted":true}}')}}),
-  ()=>Object.assign(Object.create(null),packet(1,8),{__proto__:{debug:true}})
+  ()=>Object.assign(Object.create(null),packet(1,8),JSON.parse('{"__proto__":{"debug":true}}'))
  ];
  const inbox=makeInbox();
  for(let i=0;i<560;i++){
