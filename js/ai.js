@@ -63,6 +63,32 @@ for(const b of bl)if(b.done&&b.hp>0&&rsOf(b).length&&!b.rs&&(!Array.isArray(b.q)
  if(choices.length)research(b,choices[0])
 }
 }
+// Allow one paid economic expansion in Castle Age and a third in Imperial.
+// Town Centres still obey real building costs, available builders and terrain.
+function aiTownCentreLimit(age,seconds,workers,mode){
+ if(mode===6||age<2||seconds<900||workers<24)return 1;
+ return age>=3&&seconds>=1500&&workers>=36?3:2;
+}
+// Count queued villagers across *all* completed centres before scheduling.
+// Secondary centres may grow the economy in parallel while the primary saves
+// space for essential Town Centre research and age advancement.
+function aiTrainTownVillagers(t,vil,bl,tc){
+ if(aiSavingAgeFood(t,vil.length))return 0;
+ const centres=bl.filter(b=>b.k==='tc'&&b.done&&b.hp>0&&Array.isArray(b.q));
+ if(!centres.length)return 0;
+ const base=([12,18,26,32,38,44][diff]*PERS[aip].v|0);
+ const goal=Math.min(60,Math.max(base,S.age[t]>=2?24:0)+
+  (centres.length>=2?12:0)+(centres.length>=3?12:0));
+ let total=vil.length+centres.reduce((n,b)=>n+b.q.filter(q=>q&&q.k==='vil').length,0);
+ let trained=0;
+ for(const centre of centres){
+  if(total>=goal||!can(t,U.vil.cost))break;
+  if(centre.rs||centre.q.length>=2)continue;
+  if(centre===tc&&aiTownTechReady(t,tc,vil.length))continue;
+  if(train(centre,'vil')){total++;trained++}
+ }
+ return trained;
+}
 function aiTeam(t,dt){if(!S||!Number.isInteger(t)||t<=0||t>=S.teamN||!Number.isFinite(dt)||dt<=0||!S.res?.[t])return;const A=S.ai[t]||(S.ai[t]={cd:1,wave:0,nx:0,kn:new Set()});A.cd-=dt;if(A.cd>0)return;A.cd=([4.5,3.2,2.4,1.8,1.35,1.05][diff])*(1+(t-1)*.05);const R=S.res[t],{my,vil,arm,fish,scouts,galleys,bl,tc}=aiTeamRoster(t);if(!tc)return;
 const {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount}=aiClassifyHostileForces(t);
 aiShareResources(t,A,R);
@@ -71,12 +97,12 @@ aiTradeEscorts(A,my,arm,galleys,hostileFleet,humanArmy);
 aiManageFleetRepairs(t,my);
 const cnt=k=>bl.filter(b=>b.k===k&&b.hp>0).length;
 if(popOf(t)+5>capOf(t)&&bl.filter(b=>b.k==='house'&&b.hp>0&&!b.done).length<1+(vil.length>=18)+(vil.length>=28))aiBuild(vil,'house',t);
-if(tc.done&&!tc.rs&&Array.isArray(tc.q)&&!aiTownTechReady(t,tc,vil.length)&&vil.length+tc.q.filter(q=>q&&q.k==='vil').length<([12,18,26,32,38,44][diff]*PERS[aip].v|0)&&tc.q.length<2&&!aiSavingAgeFood(t,vil.length))train(tc,'vil');
+aiTrainTownVillagers(t,vil,bl,tc);
 if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
-// A second, fully paid centre is a late Castle-Age economic expansion, not a free spawn.
-if(vm!==6&&S.age[t]>=2&&S.t>=900&&vil.length>=24&&cnt('tc')<2&&can(t,B.tc.cost))aiBuild(vil,'tc',t);
+// Paid Castle/Imperial expansions stop at two/three live centres, including foundations.
+if(cnt('tc')<aiTownCentreLimit(S.age[t],S.t,vil.length,vm)&&can(t,B.tc.cost))aiBuild(vil,'tc',t);
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall'&&b.hp>0).length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
 if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||navalThreatCount>0)&&(navalThreatCount>0||S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24)))aiDock(vil,tc,t);
 aiManageFishingShips(fish,hostileFleet,R);
