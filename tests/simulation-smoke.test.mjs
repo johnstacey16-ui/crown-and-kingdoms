@@ -94,6 +94,10 @@ globalThis.__CK_TEST__ = {
       return true;
     };
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
+    if(index===5){
+      const king=S.us.find(u=>u&&u.t===0&&u.k==='king'&&u.hp>0&&!u.ld);
+      if(king){king.o='B';king.tg=tc;king.p=[];king.rp=0}
+    }
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     const crownTimeline=[];
@@ -165,6 +169,7 @@ globalThis.__CK_TEST__ = {
         }
       }
       for (const [unitKind, targetCount] of Object.entries(plan.units || {})) {
+        if(index===5&&S.age[0]<2)continue; // Save the real 800 food and 200 gold for Castle Age before siege training.
         if (U[unitKind] && U[unitKind].age > S.age[0]) { trainingGate = unitKind + ' requires age ' + U[unitKind].age; continue; }
         const live = S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length;
         const producer = S.bs.find(building => building.t === 0 && building.done && building.hp > 0 && Array.isArray(B[building.k].tr) && B[building.k].tr.includes(unitKind));
@@ -1763,7 +1768,7 @@ assert.ok(redwaterPlaythrough.objectives.every(objective => objective.complete),
 console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlaythrough.over === 'win' ? 'won' : redwaterPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+redwaterPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+redwaterPlaythrough.objectives.filter(objective => objective.complete).length+'/'+redwaterPlaythrough.objectives.length);
 }
 if (shouldRunCampaignMission(5)) {
-const lastCrownPlaythrough = playCampaignScenarioTimed(5, 1200);
+const lastCrownPlaythrough = playCampaignScenarioTimed(5, 2200);
 assert.ok(['win', 'lose', null].includes(lastCrownPlaythrough.over), 'The Last Crown must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(lastCrownPlaythrough));
 console.log('campaign-scripted-playthrough: The Last Crown '+(lastCrownPlaythrough.over === 'win' ? 'won' : lastCrownPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+lastCrownPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+lastCrownPlaythrough.objectives.filter(objective => objective.complete).length+'/'+lastCrownPlaythrough.objectives.length+'; telemetry='+JSON.stringify(lastCrownPlaythrough.lastCrown));
 }
