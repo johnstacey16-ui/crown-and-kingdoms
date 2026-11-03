@@ -120,3 +120,23 @@ test('AI cannot place extra Town Centres in Sudden Death',()=>{
  assert.equal(h.placed.length,0);
  assert.equal(h.charges.length,0);
 });
+
+test('Imperial AI third Town Centre must pay real cost and have safe settlement spacing',()=>{
+ const h=makeWorld();
+ h.S.age[1]=3;
+ h.S.bs.push({t:1,k:'tc',hp:900,done:true,x:48,y:48});
+ h.aiBuild([h.builder],'tc',1);
+ assert.equal(h.placed.length,1,'valid third Centre receives a normal foundation');
+ assert.equal(h.charges.length,1,'only one paid building is constructed');
+ assert.deepEqual({...h.charges[0].cost},{w:275,s:100});
+ assert.ok(Math.hypot(h.placed[0].x-h.tc.x,h.placed[0].y-h.tc.y)>=12,
+  'expansion is outside the initial Town Centre settlement footprint');
+});
+test('AI does not spend stone on a crowded Town Centre placement',()=>{
+ const h=makeWorld();
+ h.S.age[1]=3;
+ h.S.r=()=>.72; // All sixty deterministic candidates would be too close.
+ h.aiBuild([h.builder],'tc',1);
+ assert.equal(h.placed.length,0,'no adjacent duplicate Town Centre is founded');
+ assert.equal(h.charges.length,0,'failed placements cost nothing');
+});
