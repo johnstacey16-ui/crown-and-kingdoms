@@ -40,7 +40,7 @@ These are status descriptions, **not release claims**. [ROADMAP.md](ROADMAP.md) 
 
 ## Play and multiplayer preview
 
-The existing public game is hosted on **Vercel under the free-only policy**, at the link above. Do not restart or redeploy the historical Railway service, or incur paid credits or overages. Read [FREE_HOSTING.md](FREE_HOSTING.md) before infrastructure changes.
+The public game is hosted **only on Vercel** under the free-only policy. Railway and Docker are **not approved or needed for deployment**, and their retired setup must not be reactivated. The local Node relay remains solely as a browser/security test harness, not a production host. Removing deployment files does not terminate any historical external service or revoke account credentials. Read [FREE_HOSTING.md](FREE_HOSTING.md) before infrastructure changes.
 
 For multiplayer, choose **Multiplayer → Two-player battlefield preview**; the host creates a private invitation, the guest pastes it to join, and the host verifies the map before starting. Menu opens local options without pausing the online game. LB gives eight local control-group slots and RB opens the expanded minimap. Invitation text entry still needs controller-only UX work. Not all networks can establish direct connections.
 

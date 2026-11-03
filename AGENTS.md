@@ -37,7 +37,7 @@ Per-push [game-validation](.github/workflows/game-validation.yml) runs quick and
 
 Read [XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md) before changing input. Keep context, tap/hold/release, modifiers, radial menus and help text aligned with the official Xbox controls. Never invent mappings or substitute PC/AoE IV buttons; test refocus behaviour. The owner-reported radial menu `undefined[0]` crash has a source fix, but repeated physical-hardware acceptance is outstanding.
 
-**Free-only hosting is mandatory.** Read [FREE_HOSTING.md](FREE_HOSTING.md) before changes to Vercel/Supabase/WebRTC/Railway. Never turn on paid overages, trials or billing. The two-player authenticated WebRTC preview has unfinished reconnection, wider-party/fallback transport and WAN acceptance; the Supabase SQL relay is not established as the active gameplay fallback.
+**Free-only hosting is mandatory.** Vercel is the only approved public game host; Railway and Docker deployment are retired by owner decision (3 November 2026) and must not be reintroduced. Read [FREE_HOSTING.md](FREE_HOSTING.md) before changes to Vercel, Supabase or WebRTC. Never turn on paid overages, trials or billing. The two-player authenticated WebRTC preview has unfinished reconnection, wider-party/fallback transport and WAN acceptance; the Supabase SQL relay is not established as the active gameplay fallback.
 
 Pre-release **older-build** save compatibility is not required until final delivery. Current-build save/load, malformed-input rejection, deterministic simulation, controller UX, replay and multiplayer security tests remain required.
 

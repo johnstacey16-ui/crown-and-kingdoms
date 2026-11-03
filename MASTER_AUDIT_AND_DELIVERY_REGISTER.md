@@ -1,3 +1,7 @@
+# Historical engineering register — archived evidence
+
+**Current hosting override (3 November 2026):** Railway/Docker deployment is retired by owner decision. Earlier entries, URLs, deployment successes and instructions describing Railway are dated historical evidence **only** and must never be followed. The live game uses Vercel, while Node HTTP services remain in the repository solely for local regression/browser tests. See [FREE_HOSTING.md](FREE_HOSTING.md) and [ROADMAP.md](ROADMAP.md) for the current rules. This archive does not establish that any old external Railway service/account has been disabled.
+
 ## 31 October 2026 — Logistics split from simulation runtime (cleanup-only)
 
 Moved `transportLandingRoute()` and `tickTrader()` unchanged from `js/simulation.js` to `js/simulation-logistics.js`, loaded immediately before simulation in HTML and v56 offline cache. Verified both moved source bytes and remaining simulation source are **byte-for-byte identical** to prior `feaa0e0`. The existing trade, transport and naval-water-grid behavioral tests now use the new source location. The source checker validates the dependency boundary; the new ownership test asserts input rejection and safe pause of missing-depot trade orders. At `862d877` the dependency counts are 35/22/20 (browser/core/headless) and 235 standalone tests. Focused V8 source guard checks passed; hosted Actions still ended before starting any steps and no full Node/Chromium/Xbox test acceptance is claimed. No graphics, controls, save layout, protocol or gameplay tuning changed.

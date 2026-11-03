@@ -1,8 +1,15 @@
 # Free-only hosting requirement
 
-The owner chose free-only hosting on 21 October 2026. This supersedes earlier
-Railway deployment instructions and is a constraint on future work, not a claim
-that multiplayer migration is already complete.
+The owner chose free-only hosting on 21 October 2026 and explicitly retired
+Railway/Docker deployment on 3 November 2026. The approved playable site is hosted
+on Vercel, with the existing Supabase components used only within free-tier limits.
+The Node HTTP/relay modules are retained for local development and browser/security
+regressions; they are **not** an approved externally deployed backend.
+
+The dated transport/deployment observations below are historical engineering
+evidence, **not instructions to revive Railway**. Removing GitHub deployment
+configuration does not stop an external service, disconnect GitHub authorizations,
+rotate exposed tokens or prove that an outside account is secure.
 
 ## Cost rules
 
@@ -13,28 +20,16 @@ that multiplayer migration is already complete.
 - If a free quota is reached, stop/restrict the feature rather than enable paid
   overages. Measure message, connection, database and egress usage before making
   claims about player capacity or uninterrupted free operation.
-- Do not redeploy/re-enable the Railway game service without explicit owner approval.
-  Its GitHub repo is the source of truth; keep working directly on main.
+- Do not connect to, deploy to or reactivate Railway for this project. Keep
+  source and production changes on GitHub/Vercel under the free-only policy.
 
-## Current state and shutdown
+## Retired infrastructure and account safety
 
-The Railway service is still present. A zero-replica request was rejected because
-Railway requires at least one replica. Permanent service deletion was blocked by
-automatic approval review: stopping the service/free-only hosting was authorized,
-but permanent removal of domains, deployments, variables and triggers was not
-explicitly authorized. No deletion occurred.
+**Railway is not an approved host.** The project's `Dockerfile` and `.dockerignore` are removed. The public game continues through Vercel. The old container/HTTP service is not required for that deployment, but its Node source remains in the repository for local/browser tests.
 
-The production config now has a nonmatching build watch pattern,
-`/__railway_disabled_free_only__/**`, `sleepApplication: true` and restart policy
-`NEVER`. These were read back successfully. They do not prove the current process
-has stopped; deploy-time settings require a deployment, which is not being started.
-The existing host may continue consuming trial credits until it is actually stopped
-or the owner explicitly authorizes deleting this standalone service.
+**Historical status (21 October 2026, not reverified here):** A Railway project/service still existed after a zero-replica request and permanent deletion were blocked. Restrictive build-watch, sleep and restart settings were saved, but those settings did not prove that the then-running process was stopped. Removing repository files does **not** deactivate that service. Do not assume external services, tokens, linked GitHub access, domains or billing have been disabled.
 
-Service: `5d37d197-7064-4a88-9ce7-39f8851f07d1`; project:
-`c9182bd4-8f96-4f39-82f4-7e86756b5729`; production environment:
-`cefb9e69-2d18-4760-bb2d-c461d940903e`. There are no attached volumes,
-no database, and no service variables. The application code remains on GitHub.
+If the external account or deployment may have been compromised, the owner should review/revoke Railway's GitHub App and OAuth access in their account security settings, rotate any credentials shared with it, and close the outside service/account using the provider's security or support controls. **Do not reconnect to Railway or submit new secrets.** No external service or account was deleted as part of the repository cleanup.
 
 ## Supabase migration requirements
 

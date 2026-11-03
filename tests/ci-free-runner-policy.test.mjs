@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync,readdirSync} from 'node:fs';
 const read=name=>readFileSync(new URL('../.github/workflows/'+name+'.yml',import.meta.url),'utf8');
 test('hosted expensive workflows remain manually dispatchable and weekly, not triggered by every commit',()=>{
  for(const name of ['game-regression','battlefield-browser']){
@@ -42,4 +42,21 @@ test('trusted manual Windows self-hosted workflow offers full Node, AI and Chrom
  assert.match(source,/node scripts\/run-checks\.mjs --full/);
  assert.match(source,/node scripts\/run-checks\.mjs --browser/);
  assert.doesNotMatch(source,/\n  push:|\n  pull_request:/);
+});
+
+test('unsupported Docker and Railway deployments stay retired without losing local HTTP tests',()=>{
+ assert.equal(existsSync(new URL('../Dockerfile',import.meta.url)),false,
+  'Dockerfile is not needed by the Vercel site or the local Node tests');
+ assert.equal(existsSync(new URL('../.dockerignore',import.meta.url)),false,
+  'the retired container build context should not be recreated');
+ const workflows=new URL('../.github/workflows/',import.meta.url);
+ for(const name of readdirSync(workflows).filter(name=>/\.ya?ml$/.test(name))){
+  const source=readFileSync(new URL(name,workflows),'utf8');
+  assert.doesNotMatch(source,/\bDockerfile\b|docker\s+(?:build|push)|railway\.app|railway\s+(?:up|deploy|run)/i,
+   name+' must not reactivate an unsupported container or Railway deployment');
+ }
+ const localServer=readFileSync(new URL('../server/README.md',import.meta.url),'utf8');
+ assert.match(localServer,/node server\/app\.mjs/,'local HTTP test harness remains available');
+ assert.doesNotMatch(localServer,/up\.railway\.app/i,
+  'local test documentation must not direct users to the retired external host');
 });
