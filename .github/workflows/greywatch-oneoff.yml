@@ -1,0 +1,30 @@
+name: Greywatch one-off siege acceptance
+
+on:
+  push:
+    branches:
+      - work/greywatch-siege-verification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: greywatch-siege-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Greywatch original roster
+        run: node --test tests/campaign-content.test.mjs
+      - name: Play full Greywatch siege with legitimate training and combat
+        run: CK_MISSION=9 node tests/simulation-smoke.test.mjs
