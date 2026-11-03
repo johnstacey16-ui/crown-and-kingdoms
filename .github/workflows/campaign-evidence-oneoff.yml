@@ -1,0 +1,21 @@
+name: Temporary campaign evidence with seeds and defeat causes
+on:
+  push:
+    branches:
+      - fix/greywatch-persistent-siege-orders-20261103
+permissions:
+  contents: read
+concurrency:
+  group: oneoff-campaign-evidence-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  all-missions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run all 19 isolated missions under the production simulation
+        run: node scripts/run-checks.mjs --campaigns
