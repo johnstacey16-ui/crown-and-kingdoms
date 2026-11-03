@@ -1716,6 +1716,13 @@ for (const [index, label, limit] of [
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   const completed = result.objectives.filter(objective => objective.complete).length;
   const total = result.objectives.length;
+  if(index===18){
+    assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
+    assert.equal(completed,total,'all three defensive objectives must be completed');
+    assert.ok(result.soldiers>=15,'at least fifteen living land soldiers must survive the timed assaults');
+    assert.ok(result.townCentreHp>0,'the home Town Centre must remain standing');
+    assert.equal(result.enemyRaidsFired,5,'all five timed campaign events must run');
+  }
   const diagnostics=index===18?'; diagnostics='+JSON.stringify({reason:result.reason,tcHp:result.townCentreHp,pop:result.population,cap:result.populationCapacity,houses:result.houses,soldiers:result.soldiers,unfinished:result.unfinished,buildings:result.buildings,resources:result.resources,raidEvents:result.enemyRaidsFired}):'';
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|')+diagnostics);
 }
