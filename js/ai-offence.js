@@ -74,7 +74,7 @@ function aiRecoverStalledWave(t,A){
  const range=target.s||1;
  const distance=Math.min(...soldiers.map(u=>Math.max(0,
   Math.hypot(u.x-(target.x+range/2),u.y-(target.y+range/2))-range/2)));
- if(!Number.isFinite(A.waveProgressAt))A.waveProgressAt=S.t;
+ if(!Number.isFinite(A.waveProgressAt))A.waveProgressAt=0; // Match the save loader's legacy/unset watchdog default.
  // A retargeted order deliberately resets its distance sample, without
  // granting another retry merely for sampling the new destination.
  if(!Number.isFinite(A.waveBestDistance)||A.waveBestDistance<0){
