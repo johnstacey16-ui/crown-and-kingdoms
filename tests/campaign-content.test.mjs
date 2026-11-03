@@ -210,8 +210,8 @@ test('Greywatch spawns its full declared army and keeps the enemy stronghold int
  vm.createContext(sandbox);
  vm.runInContext(source+'\nstartScenario(9)',sandbox);
  const state=vm.runInContext('({army:Object.fromEntries(["knight","arc","ram"].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),positions:S.us.filter(u=>u&&u.t===0&&["knight","arc","ram"].includes(u.k)&&u.hp>0).map(u=>[Math.floor(u.x),Math.floor(u.y)]),town:S.bs.filter(b=>b&&b.t===1&&b.k==="tc"&&b.hp>0).length,castle:S.bs.filter(b=>b&&b.t===1&&b.k==="castle"&&b.hp>0).length,towers:S.bs.filter(b=>b&&b.t===1&&b.k==="tower"&&b.hp>0).length,defenders:{spear:S.us.filter(u=>u&&u.t===1&&u.k==="spear"&&u.hp>0).length,arc:S.us.filter(u=>u&&u.t===1&&u.k==="arc"&&u.hp>0).length},goal:CAMP[9].goals.map(g=>g.id)})',sandbox);
- assert.deepEqual({...state.army},{knight:5,arc:8,ram:2},'all fifteen declared starting troops must spawn');
- assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,15,'starting troops must occupy separate cells');
+ assert.deepEqual({...state.army},{knight:5,arc:8,ram:4},'all seventeen declared starting troops must spawn');
+ assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,17,'starting troops must occupy separate cells');
  assert.equal(state.town,1,'enemy Town Centre must remain intact at mission start');
  assert.equal(state.castle,1,'the Castle remains a real defensive obstacle');
  assert.equal(state.towers,1,'the defending Tower must remain intact');
