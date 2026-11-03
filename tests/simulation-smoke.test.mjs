@@ -192,7 +192,7 @@ globalThis.__CK_TEST__ = {
               })[0]:null;
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
-            : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC)));
+            : (index===8&&unit.k==='ram'&&enemyTC?enemyTC:(index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC))));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0; }
         }
       }
