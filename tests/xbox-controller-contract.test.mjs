@@ -372,8 +372,8 @@ test('minimap overlay and controller help advertise Y for camera focus',()=>{
     globalThis.helpText=[];X.fillText=s=>helpText.push(String(s));
     minimapDraw=()=>{};S.teamN=2;drawOv();drawInfo2();
   `,c);
-  assert.ok(c.helpText.some(s=>s.includes('Y: jump camera')));
-  assert.ok(c.helpText.some(s=>s.includes('Y jumps there')));
+  assert.ok(c.helpText.some(s=>s.includes('Y: focus')),'overview labels the actual Y focus action');
+  assert.ok(c.helpText.some(s=>s.includes('Y focuses')),'controller help explains minimap Y focus');
   assert.equal(c.helpText.some(s=>s.includes('A: jump camera')||s.includes('A or Y jumps there')),false);
 });
 
@@ -652,4 +652,36 @@ test('an obsolete villager shortcut cannot expose another building through Y',()
     assert.equal(f.state().place?.k,'house',obsolete);
     assert.equal(f.state().wood,1000,obsolete);
   }
+});
+
+
+test('on-screen controller help matches centre-reticle, minimap and close controls',()=>{
+  const uiSource=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+  const seen=[];
+  const context={
+    CW:1280,CH:720,S:{teamN:2},inf:'c',
+    X:{fillRect(){},fillStyle:''},minimapDraw(){},
+    tx:(label)=>seen.push(String(label))
+  };
+  const infoStart=uiSource.indexOf('function drawInfo2()');
+  const infoEnd=uiSource.indexOf('/* Pause-menu model',infoStart);
+  assert.ok(infoStart>=0&&infoEnd>infoStart,'controller help must be available to render');
+  vm.runInNewContext(uiSource.slice(infoStart,infoEnd)+'\ndrawInfo2()',context);
+  const help=seen.join('\n');
+  assert.match(help,/Pan camera to aim the centre reticle/);
+  assert.match(help,/Minimap cursor speed/);
+  assert.match(help,/Camera speed changes normal panning/);
+  assert.match(help,/B\/RB\/View closes/);
+  assert.match(help,/View opens objectives; Menu pauses/);
+  seen.length=0;
+  const ovStart=uiSource.indexOf('const ovr=()=>');
+  const ovEnd=uiSource.indexOf('/* Technology tree, objectives',ovStart);
+  assert.ok(ovStart>=0&&ovEnd>ovStart,'minimap help must render');
+  vm.runInNewContext(uiSource.slice(ovStart,ovEnd)+'\ndrawOv()',context);
+  const overview=seen.join('\n');
+  assert.match(overview,/LS: cursor/);
+  assert.match(overview,/Y: focus/);
+  assert.match(overview,/B \/ RB \/ View: close/);
+  assert.match(uiSource,/\{n:'Minimap cursor speed'/,'options must distinguish the overview pointer from camera speed');
+  assert.doesNotMatch(uiSource,/Nothing selected - left stick moves the cursor/);
 });

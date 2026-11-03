@@ -83,7 +83,8 @@ test('First Hearth live tutorial A/RT instructions agree with controller release
  const guidance=Array.from(vm.runInContext(
   "CAMP[0].ev.slice(0,3).map(event=>{notes.length=0;event.do();return notes.at(-1)?.s})",
   sandbox));
- assert.match(guidance[0],/press A on a villager to select it/);
+ assert.match(guidance[0],/left stick.*reticle.*press A to select/i,'first tutorial describes camera panning and centre-reticle selection');
+ assert.doesNotMatch(guidance[0],/move the cursor with the left stick/i,'ordinary gameplay must not describe the overview cursor');
  assert.match(guidance[1],/aim at a tree and press A to send them chopping/);
  assert.match(guidance[2],/Hold RT for the command menu/);
  assert.doesNotMatch(guidance.join(' '),/press X to (chop|gather)/i);
