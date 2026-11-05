@@ -116,8 +116,6 @@ test('Iron Pass starts with enough legal housing for its supplied garrison, with
  assert.equal(first.raids,5,'every original enemy attack wave is retained');
  assert.ok(first.aiWaveAt>540&&first.aiRaidAt>540,
   'scripted siege waves must not be doubled by the normal AI before the hold goal');
- assert.match(html,/cmp\?\.i===18&&t===0\?campaignOverflowSpawn\(tc\):null/,
-  'additional campaign troop spawns must be limited to Iron Pass defenders');
  vm.runInContext('startScenario(18)',sandbox);
  const repeat=verify();
  assert.equal(repeat.houses,2,'mission retry must build the same starting camp, not stack free Houses');
@@ -270,4 +268,62 @@ test('coastal campaign maps retain legal land-reachable Dock sites after explora
   assert.ok(result.legal>0,'mission '+(index+1)+' must have a legally buildable explored-water Dock footprint: '+JSON.stringify(result));
   assert.ok(result.reachable,'mission '+(index+1)+' must have a land-worker-accessible Dock near usable water: '+JSON.stringify(result));
  }
+});
+
+// Explicit scenario rosters are independent expectations; no injected troops or
+// altered setup functions can make a truncated army pass these runtime checks.
+test('campaign overflow preserves the declared late-campaign armies for both kingdoms',()=>{
+ const rosters=[
+  [12,{spear:6,arc:5},{spear:7,arc:5,ram:2}],
+  [13,{mon:2,spear:7,arc:6},{spear:7,arc:6}],
+  [14,{knight:5,xbow:10,spear:6,ram:2},{knight:6,xbow:8,bomb:2}],
+  [15,{mil:6,spear:6,arc:7},{spear:6,arc:5}],
+  [16,{knight:4,spear:6,arc:8,ram:2},{knight:5,spear:6,arc:8,ram:2}],
+  [17,{knight:6,xbow:10,spear:8,bomb:2},{knight:7,xbow:10,spear:8,ram:3,bomb:2}]
+ ];
+ for(const [mission,...armies] of rosters){
+  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+  vm.runInContext(source+'\nstartScenario('+mission+')',sandbox);
+  const result=JSON.parse(vm.runInContext(`JSON.stringify([0,1].map(team=>{
+   const troops=S.us.filter(u=>u.t===team&&u.hp>0&&!u.ld&&!U[u.k].sh&&u.k!=='vil');
+   const worker=S.us.find(u=>u.t===team&&u.k==='vil'&&u.hp>0);
+   return {counts:Object.fromEntries([...new Set(troops.map(u=>u.k))].map(k=>[k,troops.filter(u=>u.k===k).length])),
+    distinct:new Set(troops.map(u=>(u.y|0)*W+(u.x|0))).size,
+    total:troops.length,valid:troops.every(u=>!S.g[(u.y|0)*W+(u.x|0)]&&S.wt[(u.y|0)*W+(u.x|0)]!==1&&!S.nd[(u.y|0)*W+(u.x|0)]),
+    reachable:troops.every(u=>!!path(worker,gp(u.x,u.y,.75)))}
+  }))`,sandbox,{timeout:15000}));
+  for(const [team,expected] of armies.entries()){
+   const state=result[team],label='mission '+(mission+1)+' team '+team;
+   assert.deepEqual(state.counts,expected,label+' receives every declared land troop');
+   assert.equal(state.distinct,state.total,label+' has no overlapping troop cells');
+   assert.equal(state.valid,true,label+' starts on usable land');
+   assert.equal(state.reachable,true,label+' remains reachable from its settlement');
+  }
+  const roundTrip=vm.runInContext(`(()=>{
+   const before=JSON.stringify(S.us.map(u=>[u.netId,u.t,u.k,u.x,u.y,u.hp]));
+   const saved=saveG(),loaded=loadG();
+   return {saved,loaded,same:before===JSON.stringify(S.us.map(u=>[u.netId,u.t,u.k,u.x,u.y,u.hp]))};
+  })()`,sandbox);
+  assert.equal(roundTrip.saved,true,'expanded army can be saved');
+  assert.equal(roundTrip.loaded,true,'current-build expanded army can be restored');
+  assert.equal(roundTrip.same,true,'reload preserves every original troop and position');
+ }
+});
+
+test('overflow is campaign-only and stops when no usable cells remain',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nglobalThis.run=code=>eval(code);startScenario(18)',sandbox);
+ const ordinary=JSON.parse(sandbox.run(`(()=>{
+  const home=tcOf(0);cmp=null;
+  for(let i=0;i<100;i++){const p=spawnPos(home);if(!p)break;addU(0,'mil',p[0],p[1])}
+  const before=S.us.length;grp(0,'mil',3);
+  return JSON.stringify({blocked:spawnPos(home)===null,before,after:S.us.length});
+ })()`));
+ assert.equal(ordinary.blocked,true,'test actually fills the normal production perimeter');
+ assert.equal(ordinary.after,ordinary.before,'ordinary skirmish groups cannot use campaign overflow');
+ const full=JSON.parse(sandbox.run(`(()=>{
+  cmp={i:18};S.g.fill(1);const before=S.us.length;grp(0,'mil',3);
+  return JSON.stringify({before,after:S.us.length});
+ })()`));
+ assert.equal(full.after,full.before,'an exhausted campaign stops instead of stacking troops or clearing terrain');
 });

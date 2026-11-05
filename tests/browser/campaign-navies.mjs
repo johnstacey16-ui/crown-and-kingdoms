@@ -21,6 +21,19 @@ export async function checkCampaignNavies(browser,origin,output){
   assert.equal(result.allMain,true);assert.equal(result.allReachable,true);assert.equal(result.enemyDock,true);
   assert.equal(result.before,result.after,'connectivity inspection and presentation do not mutate simulation');
   await page.locator('#c').screenshot({path:output+'/golden-coast-connected-navy.png'});
-  return result;
+  const tidewatch=await page.evaluate(()=>{
+   startScenario(14);fog();mode='pause';
+   const home=tcOf(0);ctr(home.x+home.s/2,home.y+home.s/2);
+   const counts=team=>Object.fromEntries(['knight','xbow','spear','ram','bomb'].map(k=>
+    [k,S.us.filter(u=>u.t===team&&u.k===k&&u.hp>0).length]));
+   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+   draw(0);
+   return {player:counts(0),enemy:counts(1),before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  });
+  assert.deepEqual(tidewatch.player,{knight:5,xbow:10,spear:6,ram:2,bomb:0});
+  assert.deepEqual(tidewatch.enemy,{knight:6,xbow:8,spear:0,ram:0,bomb:2});
+  assert.equal(tidewatch.before,tidewatch.after,'rendering expanded armies preserves simulation state');
+  await page.locator('#c').screenshot({path:output+'/tidewatch-complete-starting-armies.png'});
+  return {...result,tidewatch};
  }finally{await page.close()}
 }
