@@ -56,3 +56,21 @@ test('painted terrain helpers have one offline runtime owner without touching th
  assert.ok(!renderer.includes('const TERRAIN_VIEW='),'world renderer never duplicates the viewport cache');
  assert.ok(renderer.includes('function drawWorld()'),'world composition remains in its original owner');
 });
+
+test('lost blend textures rebuild before reuse and invalidate terrain baked from missing pixels',()=>{
+ const c=fixture({createElement(){const cv={width:0,height:0,lost:false,events:{},addEventListener(n,fn){this.events[n]=fn},getContext(){return g}},g={isContextLost:()=>cv.lost,drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}};return cv}});
+ c.TCH=new Map([['stale',{}]]);let invalidations=0;c.invalidateTerrainViewport=()=>invalidations++;
+ const first=c.terrainTileTexture(0,0,0,[1,-1,-1,-1]);first.lost=true;
+ const rebuilt=c.terrainTileTexture(0,0,0,[1,-1,-1,-1]);assert.notEqual(rebuilt,first);
+ assert.equal(c.TCH.size,0);assert.equal(invalidations,1);assert.equal(vm.runInContext('terrainBlendPixels',c),4096);
+ first.events.contextlost();assert.equal(vm.runInContext('terrainBlendPixels',c),4096,'a late loss cannot remove its replacement');
+ rebuilt.events.contextlost();assert.equal(vm.runInContext('terrainBlendPixels',c),0);assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),0);assert.equal(invalidations,2);
+});
+
+test('unavailable base and temporary blend contexts never enter the texture cache',()=>{
+ for(const lostAt of [1,2]){
+  let allocations=0;const c=fixture({createElement(){const number=++allocations;return {width:0,height:0,getContext(){return {isContextLost:()=>number===lostAt,drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}}}}}});
+  assert.equal(c.terrainTileTexture(0,0,0,[1,-1,-1,-1]),null);
+  assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),0);assert.equal(vm.runInContext('terrainBlendPixels',c),0);
+ }
+});

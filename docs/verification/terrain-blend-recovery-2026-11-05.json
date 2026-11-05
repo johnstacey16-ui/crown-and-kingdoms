@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "c7e111abe41d1e5952992b0b7374ab3bdaa655d3",
+  "ownerReport": "FPS much better; brief loading/large-fight/zoom stutter that settles; audio now seems fine; one transient total black screen recovered; repeated black rings around textured dirt remain in the supplied photo. No numerical FPS claim is inferred from the cropped image.",
+  "method": "Native Chromium with original painted terrain. A controlled probe blanks the cached blend canvases and injects their loss flags. A retained-stale-texture control reproduces holes; the production lookup rebuilds textures before reuse. Synthetic canvas-loss events verify full recovery and saved-state isolation. This is not physical GPU-loss injection.",
+  "nativeTerrainRecovery": {
+    "blankedTextures": 28,
+    "broken": {
+      "differences": 87475,
+      "blackPixels": 27904
+    },
+    "repaired": {
+      "differences": 0,
+      "blackPixels": 0
+    },
+    "lateEventsPreserveReplacement": true
+  },
+  "worldHashBefore": "fnv1a32-1f3db9d5-3b046",
+  "worldHashAfter": "fnv1a32-1f3db9d5-3b046",
+  "fullBrowserRecovery": {
+    "terrainBlendBeforeLoss": 167,
+    "blendReset": true,
+    "views": [
+      {
+        "zoom": 0.8,
+        "coloured": 13833,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 8.800000000046566,
+        "tileTotalMs": 9.099999999976717
+      },
+      {
+        "zoom": 3,
+        "coloured": 12080,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 0,
+        "tileTotalMs": 0.09999999997671694
+      }
+    ],
+    "paused": true,
+    "restorationAllowed": true,
+    "statusVisible": true,
+    "restored": true,
+    "terrainRebuilt": true,
+    "before": "fnv1a32-1f3db9d5-3b046",
+    "after": "fnv1a32-1f3db9d5-3b046",
+    "savesUnchanged": true,
+    "stillPaused": true
+  },
+  "unitRegression": {
+    "before": {
+      "passed": 5,
+      "failed": 2
+    },
+    "after": {
+      "passed": 7,
+      "failed": 0
+    }
+  },
+  "sourceSha256": {
+    "js/render-terrain.js": "86e0f643af634c2ee8bbb35e5c5ece78614f4525b73b02291e6902f1823b5cd3",
+    "js/engine-picture.js": "49a297afb68ab72bdd124ad4c622006d62c36d9a9912175d4faf5f0077233591",
+    "sw.js": "b6a21e3dfdc5b8e0f47e28bff9464ac3fa1f0eac7bd850b46a56cd23f422ddbc"
+  },
+  "limits": [
+    "The controlled reproduction closely matches the reported shape but does not establish the physical Xbox root cause.",
+    "The fix rebuilds lost base/temporary blend surfaces and invalidates terrain chunks/viewport snapshots that may contain blank copies.",
+    "User-reported audio improvement is recorded, not independently certified by headless audio playback.",
+    "Loading/zoom stutters and the transient whole-screen blackout remain open; no new Xbox FPS or GPU-memory claim."
+  ],
+  "validation": {
+    "quick": "5/5 passed",
+    "focused": "1132/1132 assertions passed",
+    "isolatedRegressionFiles": "247/247 passed",
+    "chromium": "2/2 passed",
+    "finalTargetedTerrainAssertions": "15/15 passed",
+    "finalNativeDirtProbe": "4x4 dirt patch: exact healthy-reference recovery",
+    "browser": "Chromium 141.0.7390.37 via Playwright 1.56.1",
+    "node": "v24.22.1"
+  },
+  "productionCheckpointBeforeThisFix": {
+    "date": "2026-11-05",
+    "alias": "crown-and-kingdoms.vercel.app",
+    "projectId": "prj_N8KwgIrHAXefpAtb71LTs4hMcUok",
+    "deploymentId": "dpl_EWnsmWk75oQQaSMhtUC8xTN5Vapj",
+    "state": "READY",
+    "target": "production",
+    "commit": "c7e111abe41d1e5952992b0b7374ab3bdaa655d3",
+    "verification": "Authenticated Vercel alias and deployment records match; this predates the blend recovery change and does not assert the newer code is live."
+  }
+}

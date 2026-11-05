@@ -20,6 +20,22 @@ export async function checkTerrainBlending(page,output){
    bounded=TERRAIN_BLEND.size<=256;
    PAINT.terrain=original;reloaded=terrainTileTexture(0,0,0,[1,-1,-1,-1])!==a;
   }finally{PAINT.terrain=original;clearTerrainBlend()}
+  // Controlled offscreen loss: blank the actual cached canvases and expose the
+  // loss flag before event delivery. The old reuse path leaves black transition
+  // tiles; the production recovery path must recreate the exact original pixels.
+  const texture=terrainTileTexture,recorded=new Map(),retired=new Set();let recovery;
+  const probe=()=>{const c=document.createElement('canvas');c.width=640;c.height=384;const g=c.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,c.width,c.height);const kindAt=(x,y)=>x>=3&&x<=6&&y>=3&&y<=6?1:0;for(let y=0;y<9;y++)for(let x=0;x<9;x++)paintTerrain(g,kindAt(x,y),x,y,320+(x-y)*32,48+(x+y)*16,64,32,true,terrainNeighborKinds(x,y,kindAt,9,9));return c};
+  try{
+   clearTerrainBlend();terrainTileTexture=(...args)=>{const tile=texture(...args);if(tile)recorded.set(JSON.stringify(args),tile);return tile};
+   const healthy=probe(),expected=healthy.getContext('2d').getImageData(0,0,640,384).data;
+   for(const tile of recorded.values()){const g=tile.getContext('2d');g.clearRect(0,0,tile.width,tile.height);g.isContextLost=()=>true;retired.add(tile)}
+   terrainTileTexture=(...args)=>recorded.get(JSON.stringify(args))||null;
+   const broken=probe();terrainTileTexture=texture;const repaired=probe();
+   const compare=c=>{const data=c.getContext('2d').getImageData(0,0,640,384).data;let differences=0,blackPixels=0;for(let i=0;i<data.length;i++){if(data[i]!==expected[i])differences++;if(i%4===0&&expected[i]+expected[i+1]+expected[i+2]>30&&data[i]+data[i+1]+data[i+2]===0)blackPixels++}return {differences,blackPixels}};
+   const pixels=terrainBlendPixels,entries=TERRAIN_BLEND.size;
+   for(const tile of retired)tile.dispatchEvent(new Event('contextlost'));
+   recovery={blankedTextures:retired.size,broken:compare(broken),repaired:compare(repaired),lateEventsPreserveReplacement:pixels===terrainBlendPixels&&entries===TERRAIN_BLEND.size,brokenImage:broken.toDataURL(),repairedImage:repaired.toDataURL()};
+  }finally{terrainTileTexture=texture;clearTerrainBlend()}
   // Original art, same world geometry: a clear visual comparison in both projections.
   const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=720;
   const g=canvas.getContext('2d');g.fillStyle='#111c24';g.fillRect(0,0,1200,720);
@@ -33,7 +49,7 @@ export async function checkTerrainBlending(page,output){
    }
   }
   const data=canvas.toDataURL();
-  return {edges,cacheHit,bounded,reloaded,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data};
+  return {recovery,edges,cacheHit,bounded,reloaded,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data};
  });
  assert.equal(result.before,result.after,'drawing preserves the world checkpoint');
  for(const {edge,pixels,center}of result.edges){
@@ -42,7 +58,13 @@ export async function checkTerrainBlending(page,output){
   else assert.deepEqual(pixels[i],[224,32,32,255],'other edges remain unchanged');
  }
  assert.ok(result.cacheHit&&result.bounded&&result.reloaded,'bounded texture reuse and image invalidation');
+ assert.ok(result.recovery.blankedTextures>0&&result.recovery.broken.blackPixels>100,'controlled loss reproduces black holes around dirt');
+ assert.equal(result.recovery.repaired.differences,0,'recovered transitions match original terrain exactly');
+ assert.equal(result.recovery.repaired.blackPixels,0);assert.equal(result.recovery.lateEventsPreserveReplacement,true);
  const {writeFile}=await import('node:fs/promises');
  await writeFile(output+'/terrain-transitions.png',Buffer.from(result.data.split(',')[1],'base64'));
+ await writeFile(output+'/terrain-blend-loss-before.png',Buffer.from(result.recovery.brokenImage.split(',')[1],'base64'));
+ await writeFile(output+'/terrain-blend-loss-after.png',Buffer.from(result.recovery.repairedImage.split(',')[1],'base64'));
+ delete result.recovery.brokenImage;delete result.recovery.repairedImage;
  delete result.data;return result;
 }

@@ -93,7 +93,7 @@ function resetGraphicsDiagnostics(){
 // Discard only derived pixels. Observation/age/damage knowledge, game state,
 // saves and source images are deliberately retained across canvas restoration.
 function clearGraphicsSurfaces(){
- clearFogMaskCache();
+ clearFogMaskCache();clearTerrainBlend();
  TCH.clear();TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];
  TEAM_FRAME_CACHE.entries.clear();TEAM_FRAME_CACHE.pixels=0;
  for(const atlas of Object.values(ASSET.atl))delete atlas.teams;

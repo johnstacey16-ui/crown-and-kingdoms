@@ -10,6 +10,14 @@ function loadPaintedTerrain(src){
 const TERRAIN_BLEND=new Map();
 let terrainBlendImage=null,terrainBlendPixels=0;
 function clearTerrainBlend(){TERRAIN_BLEND.clear();terrainBlendPixels=0}
+// A lost blend must never be reused as a transparent terrain tile. Chunks may
+// have copied it before the loss event arrived, so discard their derived pixels.
+function discardTerrainBlend(key,canvas){
+ if(TERRAIN_BLEND.get(key)!==canvas)return;
+ TERRAIN_BLEND.delete(key);terrainBlendPixels-=canvas.width*canvas.height;
+ if(typeof TCH!=='undefined')TCH.clear();
+ if(typeof invalidateTerrainViewport==='function')invalidateTerrainViewport();
+}
 function terrainBlendResolution(displayPixels){
  if(!Number.isFinite(displayPixels)||displayPixels<=0)return 64;
  return Math.min(64,2**Math.ceil(Math.log2(Math.max(4,displayPixels*3))));
@@ -21,14 +29,18 @@ function terrainTileTexture(kind,x,y,neighbors,resolution=64){
  const tx=((x*source)%side+side)%side,ty=((y*source)%side+side)%side;
  const key=[kind,tx,ty,sample,...neighbors].join('/');
  let cv=TERRAIN_BLEND.get(key);
+ if(cv){
+  let ready=false;try{const g=cv.getContext('2d');ready=!!g&&!g.isContextLost?.()}catch(_){}
+  if(!ready){discardTerrainBlend(key,cv);cv=null}
+ }
  if(cv){TERRAIN_BLEND.delete(key);TERRAIN_BLEND.set(key,cv);return cv}
  try{
   cv=document.createElement('canvas');cv.width=cv.height=sample;
-  const g=cv.getContext('2d');if(!g)return null;
+  const g=cv.getContext('2d');if(!g||g.isContextLost?.())return null;
   const draw=(ctx,k)=>ctx.drawImage(image,(k%3)*side+tx,Math.floor(k/3)*side+ty,source,source,0,0,sample,sample);
   draw(g,kind);
   const layer=document.createElement('canvas');layer.width=layer.height=sample;
-  const c=layer.getContext('2d');if(!c)return null;
+  const c=layer.getContext('2d');if(!c||c.isContextLost?.())return null;
   for(let edge=0;edge<4;edge++){
    const other=neighbors[edge];if(!Number.isInteger(other)||other<0||other===kind)continue;
    // A short wet edge keeps land/water ownership legible. Wider soil edges
@@ -40,7 +52,9 @@ function terrainTileTexture(kind,x,y,neighbors,resolution=64){
    c.globalCompositeOperation='destination-in';c.fillStyle=mask;c.fillRect(0,0,sample,sample);
    g.drawImage(layer,0,0);
   }
+  if(g.isContextLost?.()||c.isContextLost?.())return null;
   TERRAIN_BLEND.set(key,cv);terrainBlendPixels+=sample*sample;
+  cv.addEventListener?.('contextlost',()=>discardTerrainBlend(key,cv));
   while(terrainBlendPixels>1024*1024||TERRAIN_BLEND.size>4096){
    const oldest=TERRAIN_BLEND.keys().next().value,old=TERRAIN_BLEND.get(oldest);
    TERRAIN_BLEND.delete(oldest);terrainBlendPixels-=old.width*old.height;

@@ -45,14 +45,15 @@ export async function checkGraphicsRecovery(page){
    for(let y=80;y<Math.floor(cv.height*.6);y+=2)for(let x=20;x<Math.floor(cv.width*.65);x+=2){const i=(y*cv.width+x)*4;if(data[i]+data[i+1]+data[i+2]>90)coloured++}
    views.push({zoom,coloured,units:S.us.length,buildings:S.bs.length,fogMs:perfFogMs,tileTotalMs:perfTilesMs});
   }
+  terrainTileTexture(0,0,0,[1,-1,-1,-1]);const terrainBlendBeforeLoss=TERRAIN_BLEND.size;
   mode='play';const lost=new Event('contextlost',{cancelable:true});cv.dispatchEvent(lost);
   const paused=mode==='pause',restorationAllowed=!lost.defaultPrevented,statusVisible=!!document.querySelector('[role="status"]');
-  cv.dispatchEvent(new Event('contextrestored'));draw(0);draw(0);
-  return {views,paused,restorationAllowed,statusVisible,restored:GRAPHICS_RECOVERY.lost.size===0&&!GRAPHICS_RECOVERY.status,terrainRebuilt:TCH.size>0&&!!TERRAIN_VIEW.key,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,savesUnchanged:saves===JSON.stringify(Object.entries(localStorage)),stillPaused:mode==='pause'};
+  cv.dispatchEvent(new Event('contextrestored'));const blendReset=TERRAIN_BLEND.size===0&&terrainBlendPixels===0;draw(0);draw(0);
+  return {terrainBlendBeforeLoss,blendReset,views,paused,restorationAllowed,statusVisible,restored:GRAPHICS_RECOVERY.lost.size===0&&!GRAPHICS_RECOVERY.status,terrainRebuilt:TCH.size>0&&!!TERRAIN_VIEW.key,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,savesUnchanged:saves===JSON.stringify(Object.entries(localStorage)),stillPaused:mode==='pause'};
  });
  for(const view of result.views){assert.equal(view.units,372);assert.equal(view.buildings,238);assert.ok(view.fogMs>=0&&view.fogMs<=view.tileTotalMs,'fog time is a subset of tile time');assert.ok(view.coloured>1000,'large battle draws world pixels at zoom '+view.zoom)}
- for(const key of ['paused','restorationAllowed','statusVisible','restored','terrainRebuilt','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
- assert.equal(result.before,result.after);return result;
+ for(const key of ['blendReset','paused','restorationAllowed','statusVisible','restored','terrainRebuilt','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
+ assert.ok(result.terrainBlendBeforeLoss>0);assert.equal(result.before,result.after);return result;
 }
 
 export async function checkFogMask(page){
