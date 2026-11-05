@@ -154,3 +154,8 @@ test('long-match soak is bounded, included in full and excluded from focused CI'
  assert.equal(options.timeout,180000);
  assert.deepEqual(result.failed,[jobs[0].label]);
 });
+
+test('matched browser profiling is bounded and manual without extending hosted/full acceptance jobs',()=>{
+ const jobs=checkPlan('browser-profile');assert.equal(jobs.length,1);assert.equal(jobs[0].file,'scripts/profile-battlefield.mjs');assert.equal(jobs[0].timeoutMs,600000);
+ assert.ok(!checkPlan('full',['tests/sample.test.mjs']).some(j=>j.file==='scripts/profile-battlefield.mjs'));
+});

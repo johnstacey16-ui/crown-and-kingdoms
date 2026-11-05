@@ -21,6 +21,48 @@ function paintFogLayer(points,halfWidth,halfHeight,colour){
  X.fillStyle=colour;X.fill();
 }
 
+// Unknown land is often unchanged while hundreds of troops fight inside already
+// explored ground. Cache only its opaque-black mask, at backing resolution.
+// Keep the original painter for dim fog, moving views and unsupported contexts.
+// One surface, at most 16 MiB RGBA; no extra full-atlas or per-team copies.
+const FOG_MASK_CACHE={canvas:null,key:null,points:[],ready:false,hits:0,builds:0};
+function clearFogMaskCache(){
+ if(FOG_MASK_CACHE.canvas)FOG_MASK_CACHE.canvas.width=FOG_MASK_CACHE.canvas.height=1;
+ FOG_MASK_CACHE.canvas=null;FOG_MASK_CACHE.key=null;FOG_MASK_CACHE.points=[];FOG_MASK_CACHE.ready=false;
+}
+function drawWorldFog(points,halfWidth,halfHeight,colour){
+ if(colour!=='#000'){paintFogLayer(points,halfWidth,halfHeight,colour);return}
+ if(!points.length){clearFogMaskCache();return}
+ const transform=X.getTransform?.(),w=X.canvas?.width,h=X.canvas?.height;
+ if(points.length<128||points.length>16384||!w||!h||w*h>4000000||!transform||transform.a<=0||transform.a!==transform.d||transform.b||transform.c||transform.e||transform.f||X.globalAlpha!==1||X.globalCompositeOperation!=='source-over'||X.shadowBlur||X.shadowOffsetX||X.shadowOffsetY||X.filter&&X.filter!=='none'){
+  clearFogMaskCache();paintFogLayer(points,halfWidth,halfHeight,colour);return;
+ }
+ const cache=FOG_MASK_CACHE,key=[w,h,transform.a,halfWidth,halfHeight].join('|');
+ if(cache.key!==key||cache.points.length!==points.length||!cache.points.every((n,i)=>n===points[i])){
+  // Do not build an additional surface on each camera/visibility change.
+  // First paint directly; cache only after the exact mask repeats.
+  cache.key=key;cache.points=points.slice();cache.ready=false;
+  paintFogLayer(points,halfWidth,halfHeight,colour);return;
+ }
+ try{
+  if(cache.canvas?.getContext('2d')?.isContextLost?.())throw Error('Fog mask context lost');
+  if(!cache.ready){
+   const canvas=cache.canvas||(cache.canvas=document.createElement('canvas'));
+   if(!canvas.ckFogRecovery){canvas.ckFogRecovery=true;canvas.addEventListener?.('contextlost',()=>{if(cache.canvas===canvas)clearFogMaskCache()})}
+   if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;
+   const g=canvas.getContext('2d');if(!g||g.isContextLost?.())throw Error('Fog mask unavailable');
+   g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);g.setTransform(transform.a,0,0,transform.d,0,0);
+   const world=X;X=g;
+   try{paintFogLayer(points,halfWidth,halfHeight,colour)}finally{X=world}
+   if(g.isContextLost?.())throw Error('Fog mask context lost');
+   cache.ready=true;cache.builds++;
+  }else cache.hits++;
+  // Physical 1:1 copy preserves the established rasterizer's edge coverage.
+  X.fillStyle=colour;X.save();
+  try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cache.canvas,0,0)}finally{X.restore()}
+ }catch(_){clearFogMaskCache();paintFogLayer(points,halfWidth,halfHeight,colour)}
+}
+
 function drawWorld(){const selectedUnits=new Set(S.sel);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';const cs4=[[0,0],[CW,0],[0,CH],[CW,CH]].map(p=>s2w(p[0],p[1])),xs=cs4.map(p=>p[0]),ys=cs4.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs))-1),x1=Math.min(W-1,Math.ceil(Math.max(...xs))+1),y0=Math.max(0,Math.floor(Math.min(...ys))-1),y1=Math.min(H-1,Math.ceil(Math.max(...ys))+1),hw=TW/2,hh2=TH/2,L=[],fogHidden=[],fogExplored=[],timed=!!perfHud,startChunk=timed?performance.now():0;const useChunks=CHK&&perfLayerMode!==2&&drawChunks(x0,x1,y0,y1)!==false;
 if(timed)perfChunksMs=performance.now()-startChunk;
 const startTiles=timed?performance.now():0;
@@ -34,8 +76,8 @@ if(!coast&&!dirt){if(hv>.8){X.strokeStyle='#3e7a30';X.lineWidth=1;X.beginPath();
 if(!S.ex[i]){if(perfLayerMode!==2)fogHidden.push(cx,cy)}else{if(!S.vs[i]&&perfLayerMode!==2)fogExplored.push(cx,cy);const n=S.nd[i];if(n&&n.amt>0)L.push([x+y+1,0,n])}}
 const startFog=timed?performance.now():0;
 if(perfLayerMode!==2){
- paintFogLayer(fogHidden,hw+1.5,hh2+1.5,'#000');
- paintFogLayer(fogExplored,hw+1,hh2+1,'rgba(0,0,0,.42)');
+ drawWorldFog(fogHidden,hw+1.5,hh2+1.5,'#000');
+ drawWorldFog(fogExplored,hw+1,hh2+1,'rgba(0,0,0,.42)');
 }
 if(timed){perfFogMs=perfLayerMode===2?0:performance.now()-startFog;perfTilesMs=performance.now()-startTiles;}
 if(perfLayerMode===1){perfNodeMs=perfBuildingMs=perfUnitMs=perfOtherWorldMs=0;perfNodeCount=perfBuildingCount=perfUnitCount=0;if(timed){perfObjectsMs=0;perfEffectsMs=0}return}

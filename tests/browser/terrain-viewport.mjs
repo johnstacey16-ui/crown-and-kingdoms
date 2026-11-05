@@ -50,3 +50,29 @@ export async function checkGraphicsRecovery(page){
  for(const key of ['paused','restorationAllowed','statusVisible','restored','terrainRebuilt','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
  assert.equal(result.before,result.after);return result;
 }
+
+export async function checkFogMask(page){
+ const result=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,savedX=X,cases=[];
+  try{
+   for(const dpr of [.6,.9,1,1.2])for(const zoom of [.8,1.96,3])for(const pan of [0,.35]){
+    clearFogMaskCache();const unknown=[],dim=[];
+    for(let y=0;y<24;y++)for(let x=0;x<24;x++){
+     const list=(y*24+x)%3===0?unknown:(y*24+x)%3===1?dim:null;
+     if(list)list.push((x-y)*32*zoom+192+pan,(x+y)*16*zoom-96-pan);
+    }
+    const canvas=()=>{const c=document.createElement('canvas');c.width=Math.round(384*dpr);c.height=Math.round(256*dpr);return c};
+    const reference=canvas(),actual=canvas();
+    const paint=fn=>{X.setTransform(1,0,0,1,0,0);X.clearRect(0,0,X.canvas.width,X.canvas.height);X.setTransform(dpr,0,0,dpr,0,0);const gradient=X.createLinearGradient(0,0,384,256);gradient.addColorStop(0,'#548ec9');gradient.addColorStop(1,'#9d8047');X.fillStyle=gradient;X.fillRect(0,0,384,256);fn(unknown,32*zoom+1.5,16*zoom+1.5,'#000');fn(dim,32*zoom+1,16*zoom+1,'rgba(0,0,0,.42)')};
+    X=reference.getContext('2d');paint(paintFogLayer);const expected=X.getImageData(0,0,reference.width,reference.height).data;
+    X=actual.getContext('2d');paint(drawWorldFog);paint(drawWorldFog);paint(drawWorldFog);
+    const pixels=X.getImageData(0,0,actual.width,actual.height).data;let changed=0;
+    for(let i=0;i<pixels.length;i++)if(pixels[i]!==expected[i])changed++;
+    cases.push({dpr,zoom,pan,changed,ready:FOG_MASK_CACHE.ready,maskPixels:FOG_MASK_CACHE.canvas?.width*FOG_MASK_CACHE.canvas?.height});
+   }
+  }finally{X=savedX;clearFogMaskCache()}
+  return {cases,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+ });
+ assert.equal(result.before,result.after);for(const c of result.cases){assert.equal(c.changed,0,'fog mask changed pixels: '+JSON.stringify(c));assert.equal(c.ready,true);assert.ok(c.maskPixels<=4000000)}
+ return result;
+}

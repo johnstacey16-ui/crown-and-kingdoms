@@ -2,7 +2,7 @@
  * Keep each regression and campaign in its own process to isolate global game state.
  * Full suites run on request or weekly: never on every hosted push.
  * Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files |
- *   --skirmishes | --campaigns | --stability | --browser | --xbox-contracts | --full]
+ *   --skirmishes | --campaigns | --stability | --browser | --browser-profile | --xbox-contracts | --full]
  */
 import {readdirSync,appendFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
@@ -307,7 +307,7 @@ const XBOX=[
 const STABILITY=[{label:'Thirty-minute destruction/cache soak (3 seeds/maps)',
  file:'tests/long-match-stability.mjs',args:[],timeoutMs:180000}];
 const MODES=['quick','focused','regressions','regression-files','skirmishes','campaigns',
- 'browser','xbox-contracts','stability','full'];
+ 'browser','browser-profile','xbox-contracts','stability','full'];
 
 export function checkPlan(mode='quick',testFiles=[]){
  if(!MODES.includes(mode))throw Error('Unknown check mode: '+mode);
@@ -328,6 +328,7 @@ export function checkPlan(mode='quick',testFiles=[]){
  if(mode==='campaigns'||mode==='full')jobs.push(...CAMPAIGNS);
  if(mode==='stability'||mode==='full')jobs.push(...STABILITY);
  if(mode==='browser')jobs.push(...BROWSER);
+ if(mode==='browser-profile')jobs.push({label:'Matched battlefield browser profile (manual)',file:'scripts/profile-battlefield.mjs',args:[],timeoutMs:600000});
  if(mode==='xbox-contracts')jobs.push(...XBOX.map(file=>({label:file,file,args:[],
   env:{CK_SKIP_CAMPAIGN:'1'}})));
  return jobs;
@@ -374,7 +375,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   ?args[0].slice(2):null;
  const mode=MODES.includes(requested)?requested:null;
  if(!mode){
-  console.error('Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files | --skirmishes | --campaigns | --stability | --browser | --xbox-contracts | --full]');
+  console.error('Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files | --skirmishes | --campaigns | --stability | --browser | --browser-profile | --xbox-contracts | --full]');
   process.exitCode=2;
  }else{
   try{const result=runChecks({mode});if(result.failed.length)process.exitCode=1}

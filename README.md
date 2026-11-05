@@ -57,6 +57,7 @@ node scripts/run-checks.mjs --regression-files # All 247 standalone regression f
 node scripts/run-checks.mjs --stability        # Bounded 30-minute lifecycle soak, three seeds/maps
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions
+node scripts/run-checks.mjs --browser-profile  # Manual matched zoom/CPU profile + live audio runs
 node scripts/run-checks.mjs --xbox-contracts   # Xbox controller/graphics software checks
 node scripts/run-checks.mjs --regressions      # Quick gates + every standalone test
 node scripts/run-checks.mjs --full             # Quick + all regressions + AI + campaigns
