@@ -33,7 +33,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 4 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -52,6 +52,14 @@ globalThis.__CK_TEST__ = {
     const assignWood = unit => assignResource(unit, 'w');
     const assignGold = unit => assignResource(unit, 'g');
     const assignStone = unit => assignResource(unit, 's');
+    const assignMiners=(resource,target,threshold)=>{
+      if(S.res[0][resource]>=threshold)return;
+      let count=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===resource).length;
+      for(const u of S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='f'&&!u.car&&!u.ret)){
+        if(count>=target)break;
+        if(assignResource(u,resource))count++;
+      }
+    };
     const builder = createCampaignBuilder(tc);
     const placeBuilding = builder.place;
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
@@ -64,7 +72,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
-    let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false;
+    let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false,greywatchGuardOrders=0,greywatchAssaultTime=null;
 
 
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
@@ -137,16 +145,15 @@ globalThis.__CK_TEST__ = {
       // Regicide's final assault must pay for Castle Age, a Siege Workshop,
       // rams and escort. Train the economy through ordinary worker gathering.
       if(index===5){
-        const assignMiners=(resource,target,threshold)=>{
-          if(S.res[0][resource]>=threshold)return;
-          let count=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct===resource).length;
-          for(const u of S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='f'&&!u.car&&!u.ret)){
-            if(count>=target)break;
-            if(assignResource(u,resource))count++;
-          }
-        };
         assignMiners('w',3,500);
         assignMiners('g',2,300);
+      }
+      // Greywatch must fund its replacements and muster a paid escort, rather
+      // than send the fast cavalry ahead of two unsupported starting rams.
+      if(index===9){
+        const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
+        if(range&&!range.rs&&!S.tech[0].xbow)research(range,'xbow');
+        assignMiners('w',5,800);assignMiners('g',3,500);
       }
       if(index===8&&S.res[0].w<320){
         const loggers=S.us.filter(u=>u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='g'&&u.ct==='w').length;
@@ -170,9 +177,9 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&(greywatchAssaultStarted||S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length>=2)||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&greywatchAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true; // Do not abandon the capital after siege casualties.
-        if(index===9)greywatchAssaultStarted=true; // Retain real escort orders if the starting rams are destroyed.
+        if(index===9){if(!greywatchAssaultStarted)greywatchAssaultTime=S.t;greywatchAssaultStarted=true} // Persist after siege casualties.
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
@@ -185,6 +192,17 @@ globalThis.__CK_TEST__ = {
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
                 return priority(a)-priority(b)+Math.hypot(a.x-unit.x,a.y-unit.y)*.12-Math.hypot(b.x-unit.x,b.y-unit.y)*.12;
               })[0]:null;
+          if(index===9&&unit.k!=='ram'){
+            const ram=S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0)
+              .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
+            if(ram){
+              if(!((unit.o==='G'&&unit.tg===ram)||(unit.o==='a'&&unit.guardTarget===ram))){
+                const selected=S.sel;S.sel=[unit];
+                try{if(orderGuardFollow(ram.x,ram.y,'G'))greywatchGuardOrders++}finally{S.sel=selected}
+              }
+              continue;
+            }
+          }
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
             : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC)));
@@ -209,7 +227,7 @@ globalThis.__CK_TEST__ = {
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
-      greywatch:index===9?{assaultStarted:greywatchAssaultStarted,peakRams:greywatchPeakRams,workshopCompleted:greywatchWorkshopCompleted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
+      greywatch:index===9?{guardOrders:greywatchGuardOrders,assaultTime:greywatchAssaultTime,campaignRecorded:campDone()[9]===1,assaultStarted:greywatchAssaultStarted,peakRams:greywatchPeakRams,workshopCompleted:greywatchWorkshopCompleted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
@@ -1295,7 +1313,8 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
     totalObjectives: result.objectives.length,
     constructionOrders: result.constructionOrders,
-    productionPeak: result.productionPeak
+    productionPeak: result.productionPeak,
+    ...(index===9?{siegeAssault:result.greywatch}:{})
   };
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));
@@ -1809,6 +1828,13 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   const result = playCampaignScenarioTimed(index, 900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   if(index===9){
+    assert.equal(result.over,'win','Greywatch requires a naturally destroyed Town Centre: '+JSON.stringify(result.greywatch));
+    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Greywatch objective must complete');
+    assert.equal(result.greywatch.enemyTownHp,0);assert.equal(result.greywatch.enemyCastleHp,0);
+    assert.equal(result.greywatch.campaignRecorded,true,'the victory must enter normal campaign progression');
+    assert.ok(result.townCentreHp>0,'the player must retain its own Town Centre');
+    assert.ok(result.greywatch.guardOrders>0,'the escort uses the production Guard command');
+    assert.equal(result.greywatch.workshopCompleted,true,'siege replacements require a completed paid workshop');
     assert.equal(result.greywatch.assaultStarted,true,'Greywatch bot must launch a genuine assault');
     assert.ok(result.greywatch.ordersIssued>0,'Greywatch bot must issue real troop orders');
   }
