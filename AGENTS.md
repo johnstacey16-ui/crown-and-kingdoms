@@ -22,8 +22,8 @@ The end goal is an original browser RTS with full *Age of Empires II: Definitive
 Use the central `scripts/run-checks.mjs` rather than new handwritten workflow test lists:
 
 - `--quick`: five source, runtime/offline, civilization, atlas and graphics gates.
-- `--focused`: currently **243 of 247** standalone files in fast hosted CI; never call this the full suite.
-- `--regression-files`: **all 247 isolated standalone regressions**, including the four expensive network/simulation tests.
+- `--focused`: currently **244 of 247** standalone files in fast hosted CI; never call this the full suite.
+- `--regression-files`: **all 247 isolated standalone regressions**, including the three expensive network/simulation tests.
 - `--skirmishes`: three seeded production-AI scenarios; `--campaigns`: 19 isolated campaign simulations.
 - `--browser`: Chromium game/room checks after Playwright installation; `--xbox-contracts`: software/controller tests, **not physical Xbox results**. `--full` is the expensive local combined plan.
 

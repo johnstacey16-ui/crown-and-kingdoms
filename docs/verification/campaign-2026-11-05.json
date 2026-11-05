@@ -1,14 +1,18 @@
 {
   "date": "2026-11-05",
-  "baseCommit": "cfc5d9648bdd8b9770e996aa78b878ca7865d965",
+  "baseCommit": "0316a453d922afaa8536e21cf2298a0de710589d",
   "runtimeFileGitBlobs": {
     "js/campaign.js": "87cf34b0e873be827791bdcfe100553b55a6c9c3",
-    "tests/simulation-smoke.test.mjs": "37356dbc370f29eceed82cf2ef352f09be979659"
+    "js/input-selection.js": "1a72ab684f6b319367d2b7b628841dce04f31486",
+    "js/simulation-unit-behaviour.js": "c7a848a2943d389b488853dd99ce49b58a853fb8",
+    "tests/simulation-smoke.test.mjs": "274d63a6cac324374f189d5287294321474d3508",
+    "tests/helpers/campaign-construction.mjs": "424508eb9563fd369e19ac9bb9bae2e8f11810e6"
   },
   "command": "node scripts/run-checks.mjs --campaigns",
   "environment": "Local Node 24.22.1; 19 isolated CK_MISSION processes",
-  "scope": "Seeded production-simulation scripted-player outcomes after restoring both sides declared campaign rosters. Process success is not mission victory or human/controller completion. Scripted placement does not currently enforce the player UI building prerequisites; legal human win-path acceptance remains open. No forced kills, victory flags or extra resource grants.",
+  "scope": "Seeded production-simulation scripted-player outcomes with live player bLock construction gates, paid prerequisite chains and real contextual relic-return orders. Every placed foundation records its prerequisite and completed home identity. Process success is not mission victory, human/controller completion or full multiplayer acceptance. No forced kills, victory flags or extra resource grants.",
   "previousEvidence": "campaign-2026-11-03.json",
+  "supersedesEvidenceAtCommit": "0316a453d922afaa8536e21cf2298a0de710589d",
   "summary": {
     "executed": 19,
     "wins": 13,
@@ -35,7 +39,27 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 5,
-      "totalObjectives": 5
+      "totalObjectives": 5,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "lumber",
+          "time": 27.0000000000005,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 43.00000000000012,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 1,
@@ -53,7 +77,21 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 29.0000000000006,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 2,
@@ -72,7 +110,51 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 4,
-      "totalObjectives": 4
+      "totalObjectives": 4,
+      "constructionOrders": [
+        {
+          "kind": "lumber",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "mill",
+          "time": 32.000000000000746,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 47.99999999999984,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "market",
+          "time": 178.9999999999924,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 233.99999999998929,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 307.0000000000286,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "rng",
+          "time": 463.00000000015274,
+          "prerequisite": "bar",
+          "prerequisiteId": "b1412"
+        }
+      ]
     },
     {
       "missionIndex": 3,
@@ -81,7 +163,7 @@
       "seed": 44,
       "testExitCode": 0,
       "outcome": "win",
-      "campaignTime": 133,
+      "campaignTime": 174,
       "defeatReason": null,
       "completedObjectives": [
         "Build a Monastery",
@@ -89,7 +171,21 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 2,
-      "totalObjectives": 2
+      "totalObjectives": 2,
+      "constructionOrders": [
+        {
+          "kind": "bar",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "monastery",
+          "time": 29.0000000000006,
+          "prerequisite": "bar",
+          "prerequisiteId": "b642"
+        }
+      ]
     },
     {
       "missionIndex": 4,
@@ -106,7 +202,8 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 2,
-      "totalObjectives": 2
+      "totalObjectives": 2,
+      "constructionOrders": []
     },
     {
       "missionIndex": 5,
@@ -122,7 +219,51 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 1,
-      "totalObjectives": 1
+      "totalObjectives": 1,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 21.000000000000203,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "rng",
+          "time": 45.99999999999995,
+          "prerequisite": "bar",
+          "prerequisiteId": "b456"
+        },
+        {
+          "kind": "siege",
+          "time": 77.99999999999814,
+          "prerequisite": "bar",
+          "prerequisiteId": "b456"
+        },
+        {
+          "kind": "house",
+          "time": 107.99999999999643,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 131.99999999999508,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 146.99999999999423,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 6,
@@ -140,7 +281,45 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "rng",
+          "time": 53.999999999999496,
+          "prerequisite": "bar",
+          "prerequisiteId": "b671"
+        },
+        {
+          "kind": "tower",
+          "time": 79.99999999999802,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 105.99999999999655,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 118.99999999999581,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 7,
@@ -158,7 +337,33 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "market",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 29.0000000000006,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 58.99999999999921,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 79.99999999999802,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 8,
@@ -174,7 +379,45 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 1,
-      "totalObjectives": 1
+      "totalObjectives": 1,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 31.0000000000007,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 49.99999999999972,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 62.999999999998984,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "siege",
+          "time": 87.99999999999757,
+          "prerequisite": "bar",
+          "prerequisiteId": "b1167"
+        }
+      ]
     },
     {
       "missionIndex": 9,
@@ -190,7 +433,39 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 0,
-      "totalObjectives": 1
+      "totalObjectives": 1,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 17.000000000000004,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 34.00000000000063,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 46.99999999999989,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "siege",
+          "time": 83.9999999999978,
+          "prerequisite": "bar",
+          "prerequisiteId": "b1487"
+        }
+      ]
     },
     {
       "missionIndex": 10,
@@ -208,7 +483,33 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "market",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 29.0000000000006,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 48.99999999999978,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 217.9999999999902,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 11,
@@ -224,7 +525,8 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 1,
-      "totalObjectives": 1
+      "totalObjectives": 1,
+      "constructionOrders": []
     },
     {
       "missionIndex": 12,
@@ -233,7 +535,7 @@
       "seed": 913,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 830.7,
+      "campaignTime": 827.7,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build a Dock"
@@ -244,7 +546,39 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 1,
-      "totalObjectives": 4
+      "totalObjectives": 4,
+      "constructionOrders": [
+        {
+          "kind": "bar",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 30.00000000000065,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "siege",
+          "time": 92.99999999999729,
+          "prerequisite": "bar",
+          "prerequisiteId": "b417"
+        },
+        {
+          "kind": "dock",
+          "time": 404.0000000001058,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 405.0000000001066,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 13,
@@ -253,7 +587,7 @@
       "seed": 914,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 660.3,
+      "campaignTime": 664.3,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build a Monastery",
@@ -264,7 +598,27 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 2,
-      "totalObjectives": 4
+      "totalObjectives": 4,
+      "constructionOrders": [
+        {
+          "kind": "bar",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "monastery",
+          "time": 30.00000000000065,
+          "prerequisite": "bar",
+          "prerequisiteId": "b498"
+        },
+        {
+          "kind": "siege",
+          "time": 62.999999999998984,
+          "prerequisite": "bar",
+          "prerequisiteId": "b498"
+        }
+      ]
     },
     {
       "missionIndex": 14,
@@ -273,7 +627,7 @@
       "seed": 915,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 589.7,
+      "campaignTime": 592.2,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build a Siege Workshop"
@@ -284,7 +638,21 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 1,
-      "totalObjectives": 4
+      "totalObjectives": 4,
+      "constructionOrders": [
+        {
+          "kind": "bar",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "siege",
+          "time": 28.00000000000055,
+          "prerequisite": "bar",
+          "prerequisiteId": "b481"
+        }
+      ]
     },
     {
       "missionIndex": 15,
@@ -302,7 +670,57 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "tower",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 26.00000000000045,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 45.99999999999995,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 56.999999999999325,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 60.9999999999991,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 64.99999999999888,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 68.99999999999865,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "wall",
+          "time": 73.99999999999837,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 16,
@@ -323,7 +741,33 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 2,
-      "totalObjectives": 5
+      "totalObjectives": 5,
+      "constructionOrders": [
+        {
+          "kind": "tower",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 26.00000000000045,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 322.00000000004053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 569.0000000001398,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     },
     {
       "missionIndex": 17,
@@ -332,7 +776,7 @@
       "seed": 918,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 303.9,
+      "campaignTime": 405.6,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build 2 completed Castles"
@@ -341,7 +785,33 @@
         "Destroy the enemy Town Centre"
       ],
       "objectiveCount": 1,
-      "totalObjectives": 2
+      "totalObjectives": 2,
+      "constructionOrders": [
+        {
+          "kind": "castle",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "castle",
+          "time": 76.9999999999982,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 138.99999999999469,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "siege",
+          "time": 174.99999999999264,
+          "prerequisite": "bar",
+          "prerequisiteId": "b577"
+        }
+      ]
     },
     {
       "missionIndex": 18,
@@ -359,7 +829,39 @@
       ],
       "incompleteObjectives": [],
       "objectiveCount": 3,
-      "totalObjectives": 3
+      "totalObjectives": 3,
+      "constructionOrders": [
+        {
+          "kind": "house",
+          "time": 0,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 45.99999999999995,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 66.99999999999876,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 86.99999999999763,
+          "prerequisite": null,
+          "prerequisiteId": null
+        }
+      ]
     }
   ]
 }

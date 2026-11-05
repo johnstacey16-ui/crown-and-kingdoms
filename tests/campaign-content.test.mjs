@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {campaignConstruction} from './helpers/campaign-construction.mjs';
 
 // Assert against the same HTML-ordered browser module graph used by production.
 const html=loadCoreGameSource({includeUI:true});
@@ -326,4 +327,96 @@ test('overflow is campaign-only and stops when no usable cells remain',()=>{
   return JSON.stringify({before,after:S.us.length});
  })()`));
  assert.equal(full.after,full.before,'an exhausted campaign stops instead of stacking troops or clearing terrain');
+});
+
+function constructionFixture(){
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\n'+campaignConstruction+`
+  startScenario(0);S.age[0]=2;
+  globalThis.builder=createCampaignBuilder(tcOf(0));
+  globalThis.observed=[];
+  const originalAddB=addB;
+  addB=(team,kind,x,y,done)=>{
+   if(team===0)observed.push({kind,lock:bLock(kind),time:S.t});
+   return originalAddB(team,kind,x,y,done);
+  };
+  globalThis.run=code=>eval(code);
+ `,sandbox);
+ return sandbox.run;
+}
+
+test('scripted construction pays for and completes the full player prerequisite chain',()=>{
+ const run=constructionFixture();
+ const first=JSON.parse(run(`(()=>{
+  const before={...S.res[0]},placed=builder.place('univ');
+  const after={...S.res[0]},again=builder.place('univ');
+  return JSON.stringify({placed,again,before,after,afterRetry:S.res[0],kinds:builder.orders.map(o=>o.kind)});
+ })()`));
+ assert.equal(first.placed,true,'University request starts its real Barracks dependency');
+ assert.equal(first.again,false,'an unfinished prerequisite blocks further foundations');
+ assert.deepEqual(first.kinds,['bar']);
+ assert.equal(first.after.w,first.before.w-150,'only the Barracks price is paid first');
+ assert.deepEqual(first.afterRetry,first.after,'retry cannot spend again while construction is active');
+ const completed=JSON.parse(run(`(()=>{
+  let peakFoundations=0;
+  for(let tick=0;tick<9000&&!S.bs.some(b=>b.t===0&&b.k==='univ'&&b.hp>0&&b.done);tick++){
+   if(tick%30===0)builder.place('univ');
+   step(1/30);
+   peakFoundations=Math.max(peakFoundations,S.bs.filter(b=>b.t===0&&b.hp>0&&!b.done).length);
+  }
+  return JSON.stringify({done:S.bs.some(b=>b.t===0&&b.k==='univ'&&b.done&&b.hp>0),
+   orders:builder.orders,observed,peakFoundations,resources:S.res[0]});
+ })()`));
+ assert.equal(completed.done,true,'the real worker finishes University through production simulation');
+ assert.deepEqual(completed.orders.map(o=>o.kind),['bar','smith','univ']);
+ assert.deepEqual(completed.orders.map(o=>o.prerequisite),[null,'bar','smith']);
+ assert.ok(completed.orders.slice(1).every(o=>typeof o.prerequisiteId==='string'),'orders identify completed owned prerequisites');
+ assert.ok(completed.observed.every(o=>o.lock===''),'every actual foundation is legal under the production player menu');
+ assert.equal(completed.peakFoundations,1,'serial construction remains intact');
+ assert.equal(completed.resources.w,100,'Barracks, Blacksmith and University each charge their full wood cost');
+ assert.equal(completed.resources.s,50,'University charges its real stone cost');
+});
+
+test('scripted construction cannot unlock parents through dead, hostile or unfinished prerequisites',()=>{
+ for(const state of ['dead','hostile','unfinished','complete']){
+  const run=constructionFixture();
+  const result=JSON.parse(run(`(()=>{
+   const dependency=addB(${state==='hostile'?1:0},'bar',2,2,${state!=='unfinished'});
+   ${state==='dead'?'dependency.hp=0;':''}
+   observed.length=0;const before={...S.res[0]},placed=builder.place('monastery');
+   return JSON.stringify({placed,before,after:S.res[0],orders:builder.orders,observed});
+  })()`));
+  if(state==='unfinished'){
+   assert.equal(result.placed,false);
+   assert.deepEqual(result.after,result.before,'unfinished Barracks cannot spend the Monastery budget');
+   assert.equal(result.orders.length,0);
+  }else{
+   assert.equal(result.placed,true);
+   assert.deepEqual(result.orders.map(o=>o.kind),[state==='complete'?'monastery':'bar'],state+' prerequisite policy');
+   assert.ok(result.observed.every(o=>o.lock===''),state+' never bypasses the real player gate');
+  }
+ }
+});
+
+test('blocked scripted orders preserve resources and never create unpaid foundations',()=>{
+ const cases=[
+  ["S.age[0]=0",'siege'],
+  ["S.res[0].w=0",'monastery'],
+  ["for(const u of S.us)if(u.t===0&&u.k==='vil')u.ld={}",'monastery'],
+  ["S.ex.fill(0)",'monastery'],
+  ["vm=0",'wonder'],
+  ["vm=6",'tc',2],
+  ["B.bar.req='siege'",'siege'],
+  ['', 'missing']
+ ];
+ for(const [setup,kind,count=1] of cases){
+  const run=constructionFixture();
+  const result=JSON.parse(run(`(()=>{
+   ${setup};const before={...S.res[0]},count=S.bs.length,placed=builder.place('${kind}',${count});
+   return JSON.stringify({placed,before,after:S.res[0],count,afterCount:S.bs.length});
+  })()`));
+  assert.equal(result.placed,false,setup+' blocks '+kind);
+  assert.deepEqual(result.after,result.before,setup+' never spends on a blocked '+kind);
+  assert.equal(result.afterCount,result.count,setup+' never places an illegal foundation');
+ }
 });

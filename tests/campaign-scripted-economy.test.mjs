@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 
 const source=readFileSync(new URL('./simulation-smoke.test.mjs',import.meta.url),'utf8');
 const start=source.indexOf('    const assignResource =');
-const end=source.indexOf('    const placeBuilding =',start);
+const end=source.indexOf('    const builder = createCampaignBuilder',start);
 assert.ok(start>=0&&end>start);
 function bot(nodes){
  const context={S:{nodes}};vm.createContext(context);

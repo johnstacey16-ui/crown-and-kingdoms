@@ -43,6 +43,7 @@ if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  u.o='i';u.tg=null;u.p=[];continue
 }
 if(tg&&tg.t>0){if(u.st===4){u.o='i';u.tg=null;u.p=[];noAttackBlocked++;continue}if(u.st===2)u.st=0;if(u.k==='mon'){if(!beginConversion([u],tg)){u.o='i';u.tg=null;resetConversion(u);note('Cannot convert that target; check research and faith');}continue}u.o='a';u.tg=tg}
+else if(u.k==='mon'&&u.rel&&tg&&tg.k==='monastery'&&tg.t===u.t&&tg.hp>0&&tg.done){u.o='r';u.tg=tg}
 else if(tg&&tg.rl&&u.k==='mon'&&!tg.c&&!tg.m){u.o='r';u.tg=tg}
 else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){
   // Group-clicking one farm never makes every selected villager work it.

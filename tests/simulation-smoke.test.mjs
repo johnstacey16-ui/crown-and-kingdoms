@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {campaignConstruction} from './helpers/campaign-construction.mjs';
 const {source,sandbox,storage,listeners}=headlessGame();
 assert.ok(source.length > 200000, 'The external real game engine must be present');
 
 const harness = `
+${campaignConstruction}
 let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
@@ -50,49 +52,8 @@ globalThis.__CK_TEST__ = {
     const assignWood = unit => assignResource(unit, 'w');
     const assignGold = unit => assignResource(unit, 'g');
     const assignStone = unit => assignResource(unit, 's');
-    const placeBuilding = (kind, count = 1) => {
-      // Serial construction avoids placing several foundations across the same
-      // narrow approach while other workers are travelling through it.
-      if(S.bs.some(b=>b.t===0&&b.hp>0&&!b.done))return false;
-      const existing = S.bs.filter(building => building.t === 0 && building.k === kind && building.hp > 0);
-      if (existing.length >= count || existing.some(building => !building.done)) return true;
-      if ((B[kind].age || 0) > S.age[0]) return false;
-      if (!can(0, B[kind].cost)) return false;
-      const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
-      const available = workers.filter(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
-      available.sort((a, b) => Math.hypot(a.x - (tc.x + tc.s / 2), a.y - (tc.y + tc.s / 2)) - Math.hypot(b.x - (tc.x + tc.s / 2), b.y - (tc.y + tc.s / 2)));
-      let worker = null, site = null;
-      const water=kind==='dock'?campaignWaterRegions():null;
-      const originX = Math.floor(tc.x + tc.s / 2), originY = Math.floor(tc.y + tc.s / 2);
-      const dockSites=[];
-      if(water){
-        for(let y=1;y<H-B[kind].s;y++)for(let x=1;x<W-B[kind].s;x++){
-          const radius=Math.max(Math.abs(x-originX),Math.abs(y-originY));
-          if(radius>=3&&campaignDockAccess(x,y,B[kind].s,water,4)&&okPlace(0,kind,x,y))dockSites.push({x,y,radius});
-        }
-        dockSites.sort((a,b)=>a.radius-b.radius||a.y-b.y||a.x-b.x);
-      }
-      for(const candidateWorker of available){
-        if(water){
-          for(const candidate of dockSites)if(path(candidateWorker,goalNear({...candidate,s:B[kind].s},1))){site=[candidate.x,candidate.y];break}
-        }else{
-          for (let radius = 3; radius <= 18 && !site; radius++) {
-            for (let dy = -radius; dy <= radius && !site; dy++) for (let dx = -radius; dx <= radius && !site; dx++) {
-              if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
-              const x = originX + dx, y = originY + dy;
-              const candidate = { x, y, s: B[kind].s };
-              if (okPlace(0, kind, x, y) && path(candidateWorker, goalNear(candidate, 1))) site = [x, y];
-            }
-          }
-        }
-        if(site){worker=candidateWorker;break}
-      }
-      if (!site) return false;
-      pay(0, B[kind].cost);
-      const building = addB(0, kind, site[0], site[1], false);
-      worker.o = 'b'; worker.tg = building; worker.p = []; worker.rp = 0;
-      return true;
-    };
+    const builder = createCampaignBuilder(tc);
+    const placeBuilding = builder.place;
     for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0)) assignFood(unit);
     if(index===5){
       const king=S.us.find(u=>u&&u.t===0&&u.k==='king'&&u.hp>0&&!u.ld);
@@ -123,7 +84,16 @@ globalThis.__CK_TEST__ = {
         const monks = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'mon' && unit.hp > 0 && !unit.ld);
         const reserved = new Set(monks.filter(unit => unit.o === 'r' && unit.tg && !unit.rel && !unit.tg.c && !unit.tg.m).map(unit => unit.tg));
         for (const monk of monks) {
-          if (monk.rel || (monk.o === 'r' && monk.tg && !monk.tg.c && !monk.tg.m)) continue;
+          if (monk.rel) {
+            const home = S.bs.find(b => b.t === 0 && b.k === 'monastery' && b.done && b.hp > 0);
+            if (home && monk.o !== 'r') {
+              const selection = S.sel;S.sel = [monk];
+              orderSel(home, home.x + home.s / 2, home.y + home.s / 2);
+              S.sel = selection;
+            }
+            continue;
+          }
+          if (monk.o === 'r' && monk.tg && !monk.tg.c && !monk.tg.m) continue;
           const relic = S.rel.find(item => item.rl && !item.c && !item.m && !reserved.has(item));
           if (relic) { monk.o = 'r'; monk.tg = relic; monk.p = []; monk.rp = 0; reserved.add(relic); }
         }
@@ -222,6 +192,7 @@ globalThis.__CK_TEST__ = {
     return {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
+      constructionOrders: builder.orders,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
@@ -1309,7 +1280,8 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     completedObjectives: result.objectives.filter(objective => objective.complete).map(objective => objective.title),
     incompleteObjectives: result.objectives.filter(objective => !objective.complete).map(objective => objective.title),
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
-    totalObjectives: result.objectives.length
+    totalObjectives: result.objectives.length,
+    constructionOrders: result.constructionOrders
   };
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));

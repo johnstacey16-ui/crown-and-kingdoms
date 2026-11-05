@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {campaignConstruction} from '../helpers/campaign-construction.mjs';
 
 export async function checkCampaignNavies(browser,origin,output){
  const page=await browser.newPage({viewport:{width:960,height:850}});
@@ -34,6 +35,35 @@ export async function checkCampaignNavies(browser,origin,output){
   assert.deepEqual(tidewatch.enemy,{knight:6,xbow:8,spear:0,ram:0,bomb:2});
   assert.equal(tidewatch.before,tidewatch.after,'rendering expanded armies preserves simulation state');
   await page.locator('#c').screenshot({path:output+'/tidewatch-complete-starting-armies.png'});
-  return {...result,tidewatch};
+  await page.evaluate('(() => {\n'+campaignConstruction+'\nwindow.createCampaignBuilder=createCampaignBuilder;})()');
+  const relicReturn=await page.evaluate(()=>{
+   startScenario(3);mode='pause';
+   const monk=S.us.find(u=>u.t===0&&u.k==='mon'),relic=S.rel
+    .filter(r=>!r.c&&!r.m&&path(monk,goalNear(r,.8)))
+    .sort((a,b)=>Math.hypot(a.x-monk.x,a.y-monk.y)-Math.hypot(b.x-monk.x,b.y-monk.y))[0];
+   if(!relic)throw Error('No reachable relic in the seeded mission');
+   S.sel=[monk];orderSel(relic,relic.x,relic.y);
+   for(let i=0;i<6000&&!monk.rel;i++)step(1/30);
+   step(1/30);
+   const waiting=monk.rel===relic&&monk.o==='i';
+   const builder=createCampaignBuilder(tcOf(0));
+   let home=null;
+   for(let i=0;i<5400&&!home;i++){
+    if(i%30===0)builder.place('monastery');
+    step(1/30);
+    home=S.bs.find(b=>b.t===0&&b.k==='monastery'&&b.done&&b.hp>0);
+   }
+   if(!home)throw Error('Paid prerequisite construction did not finish');
+   S.sel=[monk];orderSel(home,home.x+home.s/2,home.y+home.s/2);
+   const resumed=monk.o==='r'&&monk.tg===home;
+   for(let i=0;i<6000&&!relic.m;i++)step(1/30);
+   return {waiting,resumed,delivered:relic.m===home&&relic.c===null&&monk.rel===null,
+    orders:builder.orders.map(o=>o.kind)};
+  });
+  assert.equal(relicReturn.waiting,true,'real pickup waits when no completed home exists');
+  assert.equal(relicReturn.resumed,true,'contextual Monastery order resumes delivery in Chromium');
+  assert.equal(relicReturn.delivered,true,'the same relic reaches the paid completed home');
+  assert.deepEqual(relicReturn.orders,['bar','monastery']);
+  return {...result,tidewatch,relicReturn};
  }finally{await page.close()}
 }

@@ -114,3 +114,44 @@ test('controller contextual A and RT Convert submit typed orders without local c
  c.run('map.refresh(S,0,W,H,true)');arm();map.control({1:true},{1:true});map.control({},{});assert.equal(orders.length,2);
  map.choose({x:20.5,y:20.5});arm();c.run('map.refresh(S,0,W,H,false)');map.choose({x:23.5,y:20.5});assert.equal(orders.length,2);
 });
+
+test('a relic carrier can resume delivery to the selected completed Monastery after waiting without a home',()=>{
+ const c=fixture();
+ c.run(`
+  S.us=[monk];S.bs=[];
+  globalThis.relic={rl:1,x:monk.x,y:monk.y,c:null,m:null};S.rel=[relic];
+  S.sel=[monk];orderSel(relic,relic.x,relic.y);upU(monk,1/30);upU(monk,1/30);
+ `);
+ assert.equal(c.run('monk.rel===relic&&relic.c===monk'),true,'the real pickup gives the monk the relic');
+ assert.equal(c.run('monk.o'),'i','the monk waits when there is no completed home');
+ c.run(`
+  globalThis.nearHome=addB(0,'monastery',16,18,true);
+  globalThis.chosenHome=addB(0,'monastery',30,30,true);
+  S.sel=[monk];orderSel(chosenHome,31,31);
+ `);
+ assert.equal(c.run('monk.o'),'r','contextual A orders resume relic delivery');
+ assert.equal(c.run('monk.tg===chosenHome'),true,'the selected home is the explicit target');
+ assert.equal(c.run('saveG()&&loadG()'),true,'current-build saves restore an active delivery order');
+ c.run("monk=S.us.find(u=>u.k==='mon'&&u.t===0);relic=S.rel[0];chosenHome=S.bs.find(b=>b.x===30);nearHome=S.bs.find(b=>b.x===16)");
+ assert.equal(c.run('monk.tg===chosenHome&&monk.rel===relic&&relic.c===monk'),true,'reload preserves the target and both relic links');
+ c.run('for(let i=0;i<3600&&!relic.m;i++)upU(monk,1/30)');
+ assert.equal(c.run('relic.m===chosenHome'),true,'the carrier delivers through real movement to the requested home');
+ assert.equal(c.run('relic.m===nearHome'),false,'a closer home cannot override the player order');
+ assert.equal(c.run('monk.rel===null&&relic.c===null'),true,'delivery clears both carrier links');
+});
+
+test('contextual relic delivery never garrisons into an enemy, dead or unfinished Monastery',()=>{
+ for(const state of ['enemy','dead','unfinished']){
+  const c=fixture();
+  c.run(`
+   S.us=[monk];S.bs=[];
+   globalThis.relic={rl:1,x:monk.x,y:monk.y,c:monk,m:null};S.rel=[relic];monk.rel=relic;
+   globalThis.home=addB(${state==='enemy'?1:0},'monastery',24,20,${state!=='unfinished'});
+   ${state==='dead'?'home.hp=0;':''}
+   S.sel=[monk];orderSel(home,25,21);
+   for(let i=0;i<1200&&!relic.m;i++)upU(monk,1/30);
+  `);
+  assert.equal(c.run('relic.m'),null,state+' Monastery cannot accept the relic');
+  assert.equal(c.run('monk.rel===relic&&relic.c===monk'),true,'invalid delivery preserves the relic');
+ }
+});
