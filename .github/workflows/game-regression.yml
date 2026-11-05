@@ -22,6 +22,7 @@ jobs:
         run: node scripts/run-checks.mjs --campaigns
   node-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,6 +30,9 @@ jobs:
           node-version: 22
       - name: Run every standalone regression test
         run: node scripts/run-checks.mjs --regression-files
+      - name: Run bounded long-match lifecycle soak
+        if: ${{ !cancelled() }}
+        run: node scripts/run-checks.mjs --stability
   seeded-skirmishes:
     name: Seeded AI skirmishes (3 production simulations)
     runs-on: ubuntu-latest

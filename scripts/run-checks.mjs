@@ -2,7 +2,7 @@
  * Keep each regression and campaign in its own process to isolate global game state.
  * Full suites run on request or weekly: never on every hosted push.
  * Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files |
- *   --skirmishes | --campaigns | --browser | --xbox-contracts | --full]
+ *   --skirmishes | --campaigns | --stability | --browser | --xbox-contracts | --full]
  */
 import {readdirSync,appendFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
@@ -304,8 +304,10 @@ const XBOX=[
  'tests/series-s-resource-sprite-cache.test.mjs',
  'tests/series-s-painted-troop-frame-cache.test.mjs'
 ];
+const STABILITY=[{label:'Thirty-minute destruction/cache soak (3 seeds/maps)',
+ file:'tests/long-match-stability.mjs',args:[],timeoutMs:180000}];
 const MODES=['quick','focused','regressions','regression-files','skirmishes','campaigns',
- 'browser','xbox-contracts','full'];
+ 'browser','xbox-contracts','stability','full'];
 
 export function checkPlan(mode='quick',testFiles=[]){
  if(!MODES.includes(mode))throw Error('Unknown check mode: '+mode);
@@ -324,6 +326,7 @@ export function checkPlan(mode='quick',testFiles=[]){
   file:'--test',args:[...FOCUSED],env:{CK_SKIP_CAMPAIGN:'1'}});
  if(mode==='skirmishes'||mode==='full')jobs.push(...SKIRMISHES);
  if(mode==='campaigns'||mode==='full')jobs.push(...CAMPAIGNS);
+ if(mode==='stability'||mode==='full')jobs.push(...STABILITY);
  if(mode==='browser')jobs.push(...BROWSER);
  if(mode==='xbox-contracts')jobs.push(...XBOX.map(file=>({label:file,file,args:[],
   env:{CK_SKIP_CAMPAIGN:'1'}})));
@@ -349,7 +352,8 @@ export function runChecks({mode='quick',root=ROOT,log=console,spawn=spawnSync,
   if(grouped)log.log('::group::'+job.label);
   log.log('['+(i+1)+'/'+jobs.length+'] '+job.label);
   const result=spawn(process.execPath,[job.file,...job.args],{
-   cwd:root,env:{...process.env,...job.env},stdio:'inherit'
+   cwd:root,env:{...process.env,...job.env},stdio:'inherit',
+   ...(job.timeoutMs?{timeout:job.timeoutMs}:{})
   });
   if(result.error||result.status!==0){
    failures.push(job.label);
@@ -370,7 +374,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   ?args[0].slice(2):null;
  const mode=MODES.includes(requested)?requested:null;
  if(!mode){
-  console.error('Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files | --skirmishes | --campaigns | --browser | --xbox-contracts | --full]');
+  console.error('Usage: node scripts/run-checks.mjs [--focused | --regressions | --regression-files | --skirmishes | --campaigns | --stability | --browser | --xbox-contracts | --full]');
   process.exitCode=2;
  }else{
   try{const result=runChecks({mode});if(result.failed.length)process.exitCode=1}

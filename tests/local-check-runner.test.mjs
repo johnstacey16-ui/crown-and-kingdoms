@@ -20,7 +20,7 @@ test('regression mode sorts test files and keeps campaigns isolated',()=>{
 });
 test('full mode includes three seeded skirmishes and all nineteen isolated campaigns',()=>{
  const jobs=checkPlan('full',['tests/sample.test.mjs']);
- assert.equal(jobs.length,5+1+3+19);
+ assert.equal(jobs.length,5+1+3+19+1);
  assert.equal(jobs.filter(x=>x.file==='scripts/run-skirmish.mjs').length,3);
  const campaigns=jobs.filter(x=>x.label.startsWith('Campaign '));
  assert.deepEqual(campaigns.map(x=>x.env.CK_MISSION),Array.from({length:19},(_,i)=>String(i)));
@@ -68,7 +68,7 @@ test('standalone hosted acceptance modes share one plan without repeating expens
  assert.ok(xbox.some(x=>x.file==='tests/xbox-controller-contract.test.mjs'));
  assert.ok(xbox.some(x=>x.file==='tests/gamepad-focus-edges.test.mjs'));
  assert.equal(checkPlan('full',files).length,
-  checkPlan('quick').length+standalone.length+skirmishes.length+campaigns.length);
+  checkPlan('quick').length+standalone.length+skirmishes.length+campaigns.length+checkPlan('stability').length);
 });
 test('hosted jobs group failures and write an accurate summary without aborting later checks',()=>{
  const messages=[],writes=[],calls=[];
@@ -138,4 +138,19 @@ test('active scripted skirmish unlocks Castle Age and stops buying away its age 
   'Castle Age still builds a workshop instead of changing victory rules');
  assert.match(scriptedPlayer,/S\.sel=ready;orderSel\(target,/,
   'the acceptance driver must still use real target/attack orders');
+});
+
+// The soak remains separate from fast push validation and has a real process
+// deadline, so a stalled lifecycle cannot consume unlimited hosted minutes.
+test('long-match soak is bounded, included in full and excluded from focused CI',()=>{
+ const jobs=checkPlan('stability');
+ assert.equal(jobs.length,1);
+ assert.equal(jobs[0].file,'tests/long-match-stability.mjs');
+ assert.equal(jobs[0].timeoutMs,180000);
+ assert.ok(!checkPlan('focused')[0].args.includes(jobs[0].file));
+ let options;
+ const result=runChecks({mode:'stability',spawn:(_exe,_args,opts)=>{options=opts;return {status:null,error:Error('timed out')}},
+  log:{log(){},error(){}},summaryPath:null});
+ assert.equal(options.timeout,180000);
+ assert.deepEqual(result.failed,[jobs[0].label]);
 });
