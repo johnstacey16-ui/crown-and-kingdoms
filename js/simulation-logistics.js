@@ -158,13 +158,19 @@ function townBell(t){
  * Classic globals stay callable from input, controller menus and network orders. */
 function stopSel(){for(const u of S.sel)if(!u.q){u.o='i';u.p=[];u.tg=null;u.pt=null;u.autoWorker=0;u.guardTarget=null;if(u.k==='cart'||u.k==='cog'){u.tradePaused=true;u.manualTradeMove=false;}}note('Stopped')}
 function regroup(){const us=S.sel.filter(u=>!u.q);if(!us.length)return;orderSel(null,us.reduce((a,u)=>a+u.x,0)/us.length,us.reduce((a,u)=>a+u.y,0)/us.length);note('Regrouping')}
+// Buildings do not have a unit movement type. Land troops keep their existing
+// building targets; ships may protect completed naval buildings such as Docks.
+function guardTargetCompatible(u,target){
+ if(!u||!target||!U[u.k])return false;
+ return target.q?!!B[target.k]&&(!U[u.k].sh||!!B[target.k].wat):!!U[target.k]&&!!U[u.k].sh===!!U[target.k].sh;
+}
 function orderGuardFollow(wx,wy,kind){
  const target=pick(wx,wy),ship=!!(target&&U[target.k]&&U[target.k].sh);
  if(!target||(!U[target.k]&&!target.q)||target.hp<=0||(target.q&&!target.done)||(target.t!==0&&diplomacyRelation(0,target.t)!=='ally')){
   note('Choose a living friendly unit or completed building');return false;
  }
- const units=S.sel.filter(u=>!u.q&&u.t===0&&u.hp>0&&!u.ld&&u!==target&&u.k!=='vil'&&u.k!=='cart'&&u.k!=='cog'&&!!(U[u.k]&&U[u.k].sh)===ship);
- if(!units.length){note(ship?'Select ships to guard/follow a friendly ship':'Select military units to guard/follow a friendly unit or building');return false}
+ const units=S.sel.filter(u=>!u.q&&u.t===0&&u.hp>0&&!u.ld&&u!==target&&u.k!=='vil'&&u.k!=='cart'&&u.k!=='cog'&&guardTargetCompatible(u,target));
+ if(!units.length){note(target.q&&B[target.k]?.wat?'Select military units or ships for a friendly Dock':ship?'Select ships to guard/follow a friendly ship':'Select military units to guard/follow a friendly unit or building');return false}
  for(const u of units){u.o=kind;u.tg=target;u.guardTarget=null;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.rp=0}
  note((kind==='F'?'Following ':'Guarding ')+(U[target.k]?.n||B[target.k]?.n||'target')+' with '+units.length+' unit'+(units.length===1?'':'s'));
  return true;

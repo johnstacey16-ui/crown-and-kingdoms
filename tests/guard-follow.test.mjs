@@ -7,11 +7,11 @@ assert.match(html, /function orderGuardFollow\(wx,wy,kind\)\{/,
   'Guard and Follow must use a shared controller-order handler');
 assert.match(html, /target\.t!==0&&diplomacyRelation\(0,target\.t\)!=='ally'/,
   'Guard/Follow targets must be owned by the player or an ally');
-assert.match(html, /u\.k!=='vil'&&u\.k!=='cart'&&u\.k!=='cog'&&!!\(U\[u\.k\]&&U\[u\.k\]\.sh\)===ship/,
+assert.match(html, /u\.k!=='vil'&&u\.k!=='cart'&&u\.k!=='cog'&&guardTargetCompatible\(u,target\)/,
   'Guard/Follow must exclude villagers/traders and keep land/ship movement types compatible');
 assert.match(html, /if\(u\.o==='F'\|\|u\.o==='G'\)\{const target=u\.tg;/,
   'Guard/Follow orders must be processed continuously by the simulation');
-assert.match(html, /if\(u\.o==='G'&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&d2\(target\.x,target\.y,e\)<=5\)/,
+assert.match(html, /if\(u\.o==='G'&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&d2\(e\.x,e\.y,target\)<=5\)/,
   'Guard must engage hostile units only around the protected target and respect No Attack');
 assert.match(html, /const spacing=u\.o==='F'\?1\.25:2,dist=d2\(u\.x,u\.y,target\)/,
   'Follow and Guard must maintain separate target distances');
@@ -31,3 +31,39 @@ assert.match(html, /function stopSel\(\)\{[\s\S]{0,200}u\.guardTarget=null/,
   'Stop must clear guard/follow behavior');
 
 console.log('guard-follow: all 13 source regression assertions passed');
+
+// Execute production orders and movement, rather than only inspecting source.
+const {default: test}=await import('node:test');
+const {default: vm}=await import('node:vm');
+const {headlessGame}=await import('./helpers/headless-game.mjs');
+function coast(){
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+';globalThis.run=code=>eval(code);',sandbox);
+ sandbox.run("kingdoms=2;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.wt.fill(0);S.g.fill(0);S.gt.fill(0);S.ex.fill(1);S.vs.fill(1);for(let y=38;y<44;y++)for(let x=1;x<W-1;x++)S.wt[y*W+x]=1;globalThis.home=addB(0,'dock',40,36,true);globalThis.ship=addU(0,'gal',50.5,40.5);globalThis.land=addU(0,'knight',35.5,35.5);S.sel=[ship];foeGridDirty=true;");
+ return sandbox.run;
+}
+test('warships guard and follow a completed friendly Dock through the production movement loop',()=>{
+ for(const action of ['G','F']){
+  const run=coast();assert.equal(run(`orderGuardFollow(41,37,'${action}')`),true);
+  run('for(let i=0;i<900;i++)upU(ship,1/30)');
+  assert.equal(run('ship.tg===home'),true);assert.equal(run('ship.o'),action);
+  assert.ok(run('d2(ship.x,ship.y,home)')<=(action==='G'?2:1.25));
+  run('home.hp=0;upU(ship,1/30)');assert.equal(run('ship.o'),'i');assert.equal(run('ship.tg'),null);
+ }
+});
+test('Dock compatibility retains ownership, completion and unit-family restrictions',()=>{
+ const run=coast();run("globalThis.enemy=addB(1,'dock',60,36,true);globalThis.unfinished=addB(0,'dock',70,36,false);globalThis.castle=addB(0,'castle',80,30,true)");
+ for(const point of [[61,37],[71,37],[82,32],[35.5,35.5]])assert.equal(run(`orderGuardFollow(${point},'G')`),false);
+ run("S.dip[0][1]='ally'");assert.equal(run("orderGuardFollow(61,37,'G')"),true,'allied completed Docks are valid');
+ run("S.dip[0][1]='neutral'");assert.equal(run("orderGuardFollow(61,37,'G')"),false);run('upU(ship,1/30)');assert.equal(run('ship.o'),'i','a revoked alliance cancels guarding');
+ run('S.sel=[land]');assert.equal(run("orderGuardFollow(ship.x,ship.y,'G')"),false,'land troops cannot follow a ship');
+ assert.equal(run("orderGuardFollow(41,37,'G')"),true,'land troops can still guard their own Dock');
+ run("ship.ld=home;S.sel=[ship]");assert.equal(run("orderGuardFollow(41,37,'G')"),false,'loaded units cannot receive a new order');
+});
+test('Dock guards respect No Attack, intercept perimeter threats and return after combat',()=>{
+ const run=coast();assert.equal(run("orderGuardFollow(41,37,'G')"),true);
+ run("for(let i=0;i<900;i++)upU(ship,1/30);globalThis.raider=addU(1,'gal',ship.x+1,ship.y);foeGridDirty=true;ship.st=4;upU(ship,1/30)");
+ assert.equal(run('ship.o'),'G','No Attack preserves the guard station without engaging');
+ run('ship.st=0;upU(ship,1/30)');assert.equal(run('ship.o'),'a');assert.equal(run('ship.tg===raider&&ship.guardTarget===home'),true);
+ run('raider.hp=0;upU(ship,1/30)');assert.equal(run('ship.o'),'G');assert.equal(run('ship.tg===home'),true);
+});

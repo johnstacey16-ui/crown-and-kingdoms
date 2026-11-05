@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "30a02df71a8167182162af435cf4cc223e0e076d",
+  "scope": "Solo Guard/Follow can protect completed owned/allied naval buildings, retaining family compatibility for unit targets. Building guard threat distance uses the protected footprint. Buttons, stance policy, save format, multiplayer order authority and campaign objectives/armies are unchanged.",
+  "nativeControllerProbe": {
+    "applied": true,
+    "arrived": true,
+    "intercepted": true,
+    "returned": true,
+    "distance": 1.9531256932477685
+  },
+  "unitRegression": {
+    "before": {
+      "behavioralTests": 2,
+      "failed": 2
+    },
+    "after": {
+      "behavioralTests": 3,
+      "passed": 3
+    },
+    "retainedSourceContracts": 13
+  },
+  "covered": [
+    "Guard and Follow move a warship to a completed friendly Dock",
+    "Guard intercepts a perimeter raider and resumes protecting the Dock afterward",
+    "No Attack does not engage",
+    "enemy/neutral/unfinished targets and loaded units reject",
+    "alliance revocation cancels guarding",
+    "land/ship unit targets stay incompatible; land guarding of a Dock still works"
+  ],
+  "sourceSha256": {
+    "js/simulation-logistics.js": "94d510e55f29b4efdf5f66e95bdeb0cb265d2a8ae0a68f68738b69354af5f48f",
+    "js/simulation-unit-behaviour.js": "942a687f5ff1f45f872c402f15f4bc7084891673305217b3ca07ceb593c64f9d",
+    "js/input-selection.js": "7c914112d55e72dc733b302860d5feeb3f418059d9908ebfcef62f0e0c581636",
+    "sw.js": "3f4cfb71683772902ea1ff518a9aec1df0bb735b08f439b7336d79e767279be8"
+  },
+  "causewayInvestigation": {
+    "results": [
+      {
+        "variant": "baseline",
+        "outcome": "lose",
+        "campaignTime": 608.4,
+        "completedObjectives": [
+          "Build 2 completed Towers"
+        ],
+        "productionPeak": {
+          "gal": 0,
+          "ram": 2
+        },
+        "dockFoundationTimes": [
+          435.0,
+          436.0,
+          438.0,
+          530.0,
+          531.0,
+          532.0
+        ]
+      },
+      {
+        "variant": "scout",
+        "outcome": "lose",
+        "campaignTime": 607.9,
+        "completedObjectives": [
+          "Build 2 completed Towers"
+        ],
+        "productionPeak": {
+          "gal": 0,
+          "ram": 2
+        },
+        "dockFoundationTimes": [
+          115.0,
+          241.0,
+          242.0,
+          244.0,
+          245.0,
+          390.0
+        ]
+      },
+      {
+        "variant": "guard",
+        "outcome": "lose",
+        "campaignTime": 1094.1,
+        "completedObjectives": [
+          "Build a Dock",
+          "Build 2 completed Towers"
+        ],
+        "productionPeak": {
+          "gal": 3,
+          "ram": 2,
+          "xbow": 10,
+          "knight": 4
+        },
+        "dockFoundationTimes": [
+          169.0,
+          901.0
+        ]
+      },
+      {
+        "variant": "forward",
+        "outcome": "lose",
+        "campaignTime": 609.4,
+        "completedObjectives": [
+          "Build a Dock",
+          "Build 2 completed Towers"
+        ],
+        "productionPeak": {
+          "gal": 2,
+          "ram": 2
+        },
+        "dockFoundationTimes": [
+          80.0,
+          81.0,
+          82.0,
+          84.0
+        ]
+      },
+      {
+        "variant": "fleet",
+        "outcome": "lose",
+        "campaignTime": 642.6,
+        "completedObjectives": [
+          "Build 2 completed Towers"
+        ],
+        "productionPeak": {
+          "gal": 0,
+          "ram": 2,
+          "xbow": 0,
+          "knight": 4
+        },
+        "dockFoundationTimes": [
+          152.0,
+          153.0,
+          154.0,
+          156.0,
+          226.0,
+          228.0,
+          230.0,
+          345.0,
+          434.0,
+          527.0
+        ]
+      }
+    ],
+    "finding": "The original scripted builder reaches the coast late; scouting places foundations earlier but long worker travel leaves fragile foundations exposed. Guarded funded tests can complete a Dock and field ships but still lose. The virtual fleet variant was an experimental composition, not a verified win. No experimental helper or mission-balance changes are retained.",
+    "limits": "These scripted-player defeats do not establish human impossibility. Last complete campaign matrix remains 14 wins, 5 defeats and 0 timeouts."
+  },
+  "limits": [
+    "Native controller-path tests use synthetic button edges, not physical Xbox acceptance.",
+    "The probe creates a controlled coastline and completed Dock; it does not claim campaign construction or victory.",
+    "Guard/Follow remain outside the authenticated multiplayer command surface; no protocol/authority expansion is included."
+  ],
+  "validation": {
+    "quick": "5/5 passed",
+    "focused": "1134/1134 assertions passed",
+    "chromium": "2/2 passed after the footprint correction",
+    "seededAI": "3/3 passed",
+    "targetedGuard": "3/3 behavioural tests passed; 13 source/controller contracts retained",
+    "fullIsolatedRegressionFiles": "247/247 passed on the final source",
+    "node": "v24.22.1",
+    "browser": "Chromium 141.0.7390.37 via Playwright 1.56.1"
+  }
+}
