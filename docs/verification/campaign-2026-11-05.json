@@ -1,18 +1,18 @@
 {
   "date": "2026-11-05",
-  "baseCommit": "0316a453d922afaa8536e21cf2298a0de710589d",
+  "baseCommit": "f6b97f145458df3f04f279d7731c8054888877e2",
   "runtimeFileGitBlobs": {
     "js/campaign.js": "87cf34b0e873be827791bdcfe100553b55a6c9c3",
-    "js/input-selection.js": "1a72ab684f6b319367d2b7b628841dce04f31486",
-    "js/simulation-unit-behaviour.js": "c7a848a2943d389b488853dd99ce49b58a853fb8",
-    "tests/simulation-smoke.test.mjs": "274d63a6cac324374f189d5287294321474d3508",
-    "tests/helpers/campaign-construction.mjs": "424508eb9563fd369e19ac9bb9bae2e8f11810e6"
+    "js/simulation-production-queues.js": "7662c5ef4ccd3390d7120dd514949f265f6dbe1c",
+    "tests/simulation-smoke.test.mjs": "d37565b59c0a2fa4150bc82e206849f139247c61",
+    "tests/helpers/campaign-construction.mjs": "4318eb65003482ccc24d4c8255a6a4bc03a2e0bd"
   },
   "command": "node scripts/run-checks.mjs --campaigns",
   "environment": "Local Node 24.22.1; 19 isolated CK_MISSION processes",
-  "scope": "Seeded production-simulation scripted-player outcomes with live player bLock construction gates, paid prerequisite chains and real contextual relic-return orders. Every placed foundation records its prerequisite and completed home identity. Process success is not mission victory, human/controller completion or full multiplayer acceptance. No forced kills, victory flags or extra resource grants.",
+  "scope": "Seeded production-simulation scripted-player outcomes with paid prerequisite chains and capacity planning for coastal attack reinforcements. Houses use actual wood prices, real builders, completed capacity and the existing queued-population ledger. Objectives, enemy armies and population rules are unchanged. No forced kills, victory flags or extra resource grants. Process success is not mission victory, human/controller completion or full multiplayer acceptance.",
+  "productionPeakSampling": "Initial live unit counts and once per simulated second. Includes starting armies; these observations do not complete a victory predicate.",
   "previousEvidence": "campaign-2026-11-03.json",
-  "supersedesEvidenceAtCommit": "0316a453d922afaa8536e21cf2298a0de710589d",
+  "supersedesEvidenceAtCommit": "f6b97f145458df3f04f279d7731c8054888877e2",
   "summary": {
     "executed": 19,
     "wins": 13,
@@ -59,7 +59,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 1,
@@ -91,7 +92,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 2,
@@ -154,7 +156,8 @@
           "prerequisite": "bar",
           "prerequisiteId": "b1412"
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 3,
@@ -185,7 +188,8 @@
           "prerequisite": "bar",
           "prerequisiteId": "b642"
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 4,
@@ -203,7 +207,10 @@
       "incompleteObjectives": [],
       "objectiveCount": 2,
       "totalObjectives": 2,
-      "constructionOrders": []
+      "constructionOrders": [],
+      "productionPeak": {
+        "ram": 3
+      }
     },
     {
       "missionIndex": 5,
@@ -263,7 +270,12 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {
+        "ram": 3,
+        "spear": 8,
+        "skirm": 6
+      }
     },
     {
       "missionIndex": 6,
@@ -319,7 +331,11 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {
+        "spear": 6,
+        "skirm": 10
+      }
     },
     {
       "missionIndex": 7,
@@ -363,7 +379,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 8,
@@ -417,7 +434,10 @@
           "prerequisite": "bar",
           "prerequisiteId": "b1167"
         }
-      ]
+      ],
+      "productionPeak": {
+        "ram": 8
+      }
     },
     {
       "missionIndex": 9,
@@ -465,7 +485,10 @@
           "prerequisite": "bar",
           "prerequisiteId": "b1487"
         }
-      ]
+      ],
+      "productionPeak": {
+        "ram": 2
+      }
     },
     {
       "missionIndex": 10,
@@ -509,7 +532,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 11,
@@ -526,7 +550,8 @@
       "incompleteObjectives": [],
       "objectiveCount": 1,
       "totalObjectives": 1,
-      "constructionOrders": []
+      "constructionOrders": [],
+      "productionPeak": {}
     },
     {
       "missionIndex": 12,
@@ -535,7 +560,7 @@
       "seed": 913,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 827.7,
+      "campaignTime": 819.3,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build a Dock"
@@ -549,36 +574,46 @@
       "totalObjectives": 4,
       "constructionOrders": [
         {
-          "kind": "bar",
+          "kind": "house",
           "time": 0,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
+          "kind": "house",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 31.0000000000007,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
           "kind": "dock",
-          "time": 30.00000000000065,
+          "time": 49.99999999999972,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 117.99999999999586,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
           "kind": "siege",
-          "time": 92.99999999999729,
+          "time": 143.9999999999944,
           "prerequisite": "bar",
-          "prerequisiteId": "b417"
-        },
-        {
-          "kind": "dock",
-          "time": 404.0000000001058,
-          "prerequisite": null,
-          "prerequisiteId": null
-        },
-        {
-          "kind": "dock",
-          "time": 405.0000000001066,
-          "prerequisite": null,
-          "prerequisiteId": null
+          "prerequisiteId": "b431"
         }
-      ]
+      ],
+      "productionPeak": {
+        "gal": 3,
+        "ram": 1
+      }
     },
     {
       "missionIndex": 13,
@@ -587,7 +622,7 @@
       "seed": 914,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 664.3,
+      "campaignTime": 614.1,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
         "Build a Monastery",
@@ -601,24 +636,58 @@
       "totalObjectives": 4,
       "constructionOrders": [
         {
-          "kind": "bar",
+          "kind": "house",
           "time": 0,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
+          "kind": "house",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 36.00000000000052,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 50.999999999999666,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
           "kind": "monastery",
-          "time": 30.00000000000065,
+          "time": 81.99999999999791,
           "prerequisite": "bar",
-          "prerequisiteId": "b498"
+          "prerequisiteId": "b508"
         },
         {
           "kind": "siege",
-          "time": 62.999999999998984,
+          "time": 111.9999999999962,
           "prerequisite": "bar",
-          "prerequisiteId": "b498"
+          "prerequisiteId": "b508"
+        },
+        {
+          "kind": "house",
+          "time": 445.0000000001384,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 468.0000000001567,
+          "prerequisite": null,
+          "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {
+        "ram": 0,
+        "gal": 3
+      }
     },
     {
       "missionIndex": 14,
@@ -627,32 +696,59 @@
       "seed": 915,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 592.2,
+      "campaignTime": 471.2,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
-        "Build a Siege Workshop"
+        "Build a Siege Workshop",
+        "Field 2 Bombard Cannons alive"
       ],
       "incompleteObjectives": [
-        "Field 2 Bombard Cannons alive",
         "Destroy Tidewatch Castle",
         "Destroy the enemy Town Centre"
       ],
-      "objectiveCount": 1,
+      "objectiveCount": 2,
       "totalObjectives": 4,
       "constructionOrders": [
         {
-          "kind": "bar",
+          "kind": "house",
           "time": 0,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
+          "kind": "house",
+          "time": 17.000000000000004,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 30.00000000000065,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 46.99999999999989,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "bar",
+          "time": 59.999999999999154,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
           "kind": "siege",
-          "time": 28.00000000000055,
+          "time": 87.99999999999757,
           "prerequisite": "bar",
-          "prerequisiteId": "b481"
+          "prerequisiteId": "b492"
         }
-      ]
+      ],
+      "productionPeak": {
+        "bomb": 2
+      }
     },
     {
       "missionIndex": 15,
@@ -720,7 +816,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     },
     {
       "missionIndex": 16,
@@ -729,45 +826,97 @@
       "seed": 917,
       "testExitCode": 0,
       "outcome": "lose",
-      "campaignTime": 598,
+      "campaignTime": 608.4,
       "defeatReason": "Your Town Centre fell",
       "completedObjectives": [
-        "Build a Dock",
         "Build 2 completed Towers"
       ],
       "incompleteObjectives": [
+        "Build a Dock",
         "Have 3 War Galleys alive",
         "Destroy the enemy Castle",
         "Destroy the enemy Town Centre"
       ],
-      "objectiveCount": 2,
+      "objectiveCount": 1,
       "totalObjectives": 5,
       "constructionOrders": [
         {
-          "kind": "tower",
+          "kind": "house",
           "time": 0,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
+          "kind": "house",
+          "time": 18.000000000000053,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 31.0000000000007,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "house",
+          "time": 49.99999999999972,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
           "kind": "tower",
-          "time": 26.00000000000045,
+          "time": 62.999999999998984,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "tower",
+          "time": 82.99999999999785,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
           "kind": "dock",
-          "time": 322.00000000004053,
+          "time": 435.00000000013046,
           "prerequisite": null,
           "prerequisiteId": null
         },
         {
-          "kind": "tower",
-          "time": 569.0000000001398,
+          "kind": "dock",
+          "time": 436.00000000013125,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 438.00000000013284,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 530.0000000001753,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 531.0000000001744,
+          "prerequisite": null,
+          "prerequisiteId": null
+        },
+        {
+          "kind": "dock",
+          "time": 532.0000000001735,
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {
+        "gal": 0,
+        "ram": 2
+      }
     },
     {
       "missionIndex": 17,
@@ -811,7 +960,10 @@
           "prerequisite": "bar",
           "prerequisiteId": "b577"
         }
-      ]
+      ],
+      "productionPeak": {
+        "bomb": 2
+      }
     },
     {
       "missionIndex": 18,
@@ -861,7 +1013,8 @@
           "prerequisite": null,
           "prerequisiteId": null
         }
-      ]
+      ],
+      "productionPeak": {}
     }
   ]
 }

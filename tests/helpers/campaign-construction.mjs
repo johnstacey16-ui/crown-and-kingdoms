@@ -57,6 +57,15 @@ function createCampaignBuilder(tc) {
       prerequisiteId: prerequisite ? prerequisite.netId : null});
     return true;
   };
-  return {place: placeBuilding, orders};
+  const houseFor = (slots = 1) => {
+    if (!Number.isInteger(slots) || slots < 1) return false;
+    // popOf already reserves every live production queue. Only build the
+    // missing capacity, using real Houses and the configured population limit.
+    const deficit = Math.min(popLimit, popOf(0) + slots) - capOf(0);
+    if (deficit <= 0) return false;
+    const houses = S.bs.filter(b => b.t === 0 && b.k === 'house' && b.hp > 0 && b.done).length;
+    return placeBuilding('house', houses + Math.ceil(deficit / 5));
+  };
+  return {place: placeBuilding, houseFor, orders};
 }
 `;

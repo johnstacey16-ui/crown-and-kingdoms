@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import test from 'node:test';
+import vm from 'node:vm';
+import {headlessGame} from './helpers/headless-game.mjs';
 import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
 const html = loadCoreGameSource({includeUI:true,includeAssets:true});
@@ -23,3 +26,46 @@ assert.match(html, /const a=\[50,100,150,200,250,300,400,500\];popLimit=a\[\(a\.
   'Left should cycle backwards through every supported population limit');
 assert.match(html, /const a=\[50,100,150,200,250,300,400,500\];popLimit=a\[\(a\.indexOf\(popLimit\)\+1\)%a\.length\]/,
   'Right should cycle forwards through every supported population limit');
+
+
+function trainingWorld(mission){
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nstartScenario('+mission+');globalThis.run=code=>eval(code);',sandbox);
+ return sandbox.run;
+}
+
+test('over-cap campaign training explains the actual paid housing deficit without spending',()=>{
+ const run=trainingWorld(14);
+ const result=JSON.parse(run(`(()=>{
+  const home=tcOf(0),before={...S.res[0]},queue=home.q.length;
+  const accepted=train(home,'vil');
+  return JSON.stringify({accepted,before,after:S.res[0],queue,afterQueue:home.q.length,
+   population:popOf(0),capacity:capOf(0),message:notes.at(-1).s});
+ })()`));
+ assert.equal(result.population,28);assert.equal(result.capacity,10);
+ assert.equal(result.accepted,false);
+ assert.equal(result.message,'Population full (28/10): build 4 Houses');
+ assert.deepEqual(result.after,result.before,'a blocked training order never charges the unit');
+ assert.equal(result.afterQueue,result.queue,'a blocked order never reserves another slot');
+});
+
+test('training feedback counts queue reservations and never recommends Houses past the match limit',()=>{
+ const run=trainingWorld(0);
+ const queued=JSON.parse(run(`(()=>{
+  const home=tcOf(0);for(let i=0;i<5;i++)train(home,'vil');
+  const before={...S.res[0]},accepted=train(home,'vil');
+  return JSON.stringify({accepted,population:popOf(0),message:notes.at(-1).s,before,after:S.res[0]});
+ })()`));
+ assert.equal(queued.population,10,'live workers and paid queues use the same housing ledger');
+ assert.equal(queued.accepted,false);
+ assert.equal(queued.message,'Population full (10/10): build 1 House');
+ assert.deepEqual(queued.after,queued.before);
+ const capped=JSON.parse(run(`(()=>{
+  tcOf(0).q=[];for(let i=0;i<45;i++)addU(0,'mil',20+i%8,20+Math.floor(i/8));
+  popLimit=50;const before={...S.res[0]},accepted=train(tcOf(0),'vil');
+  return JSON.stringify({accepted,message:notes.at(-1).s,before,after:S.res[0]});
+ })()`));
+ assert.equal(capped.accepted,false);
+ assert.equal(capped.message,'Population limit reached (50/50)');
+ assert.deepEqual(capped.after,capped.before,'the hard limit does not charge or suggest wasted housing');
+});

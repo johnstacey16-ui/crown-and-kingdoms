@@ -420,3 +420,41 @@ test('blocked scripted orders preserve resources and never create unpaid foundat
   assert.equal(result.afterCount,result.count,setup+' never places an illegal foundation');
  }
 });
+
+test('over-cap campaign armies fund enough real Houses before training reinforcements',()=>{
+ const run=constructionFixture();
+ run("for(let i=0;i<23;i++)addU(0,'mil',20+i%6,20+Math.floor(i/6))");
+ const before=JSON.parse(run('JSON.stringify({population:popOf(0),capacity:capOf(0),wood:S.res[0].w})'));
+ assert.equal(before.population,28);assert.equal(before.capacity,10);
+ const after=JSON.parse(run(`(()=>{
+  for(let tick=0;tick<9000&&capOf(0)<30;tick++){
+   if(tick%30===0)builder.houseFor(2);
+   step(1/30);
+  }
+  const wood=S.res[0].w,extra=builder.houseFor(2);
+  return JSON.stringify({capacity:capOf(0),wood,afterRetry:S.res[0].w,extra,
+    orders:builder.orders.map(o=>o.kind),legal:observed.every(o=>!o.lock)});
+ })()`));
+ assert.equal(after.capacity,30,'four completed Houses support the army plus two reinforcements');
+ assert.equal(after.wood,before.wood-100,'all four Houses consume their real 25-wood cost');
+ assert.deepEqual(after.orders,['house','house','house','house']);
+ assert.equal(after.legal,true,'every House uses the live player construction gate');
+ assert.equal(after.extra,false,'adequate capacity never starts an unnecessary fifth House');
+ assert.equal(after.afterRetry,after.wood,'retry cannot spend beyond the actual deficit');
+});
+
+test('campaign housing counts queued population and respects the configured maximum',()=>{
+ const run=constructionFixture();
+ assert.equal(run("train(tcOf(0),'vil')&&train(tcOf(0),'vil')&&train(tcOf(0),'vil')"),true);
+ const ready=JSON.parse(run(`JSON.stringify({population:popOf(0),built:builder.houseFor(2),orders:builder.orders.length})`));
+ assert.equal(ready.population,8,'three paid queue reservations count alongside five live workers');
+ assert.equal(ready.built,false,'two more slots fit in the existing capacity');
+ assert.equal(ready.orders,0);
+ assert.equal(run('builder.houseFor(3)'),true,'a ninth through eleventh planned population needs a paid House');
+ assert.equal(run('S.res[0].w'),575);
+ for(const slots of [0,-1,1.5,NaN,Infinity])assert.equal(run('builder.houseFor('+String(slots)+')'),false);
+ const capped=constructionFixture();
+ assert.equal(capped('popLimit=10;builder.houseFor(20)'),false,'houses cannot grow the configured cap');
+ assert.equal(capped('builder.orders.length'),0);
+ assert.equal(capped('S.res[0].w'),600,'a hard cap never wastes the starting wood');
+});

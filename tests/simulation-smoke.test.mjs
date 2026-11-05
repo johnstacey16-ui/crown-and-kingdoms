@@ -59,6 +59,8 @@ globalThis.__CK_TEST__ = {
       const king=S.us.find(u=>u&&u.t===0&&u.k==='king'&&u.hp>0&&!u.ld);
       if(king){king.o='B';king.tg=tc;king.p=[];king.rp=0}
     }
+    const productionPeak = Object.fromEntries(Object.keys(plan.units || {}).map(kind =>
+      [kind, S.us.filter(u => u.t === 0 && u.k === kind && u.hp > 0).length]));
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
@@ -75,6 +77,15 @@ globalThis.__CK_TEST__ = {
       const villagers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length;
       const queuedVillagers = tc.q.filter(queue => queue.k === 'vil').length;
       if (plan.villagers > 0 && villagers + queuedVillagers < plan.villagers && tc.q.length < 5) train(tc, 'vil');
+      if (index >= 12 && index <= 17 && plan.attack) {
+        const neededSlots = Object.entries(plan.units || {}).reduce((sum, [kind, target]) => {
+          const live = S.us.filter(u => u.t === 0 && u.k === kind && u.hp > 0).length;
+          const queued = S.bs.filter(b => b.t === 0 && b.hp > 0)
+            .reduce((n, b) => n + (b.q || []).filter(q => q.k === kind).length, 0);
+          return sum + Math.max(0, target - live - queued);
+        }, 0);
+        builder.houseFor(neededSlots);
+      }
       for (const entry of plan.buildings) {
         const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0).length;
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
@@ -187,12 +198,14 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(tick%30===0)for(const kind of Object.keys(productionPeak))
+        productionPeak[kind]=Math.max(productionPeak[kind],S.us.filter(u=>u.t===0&&u.k===kind&&u.hp>0).length);
       if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
     }
     return {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
-      constructionOrders: builder.orders,
+      constructionOrders: builder.orders, productionPeak,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
@@ -1281,7 +1294,8 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     incompleteObjectives: result.objectives.filter(objective => !objective.complete).map(objective => objective.title),
     objectiveCount: result.objectives.filter(objective => objective.complete).length,
     totalObjectives: result.objectives.length,
-    constructionOrders: result.constructionOrders
+    constructionOrders: result.constructionOrders,
+    productionPeak: result.productionPeak
   };
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));
