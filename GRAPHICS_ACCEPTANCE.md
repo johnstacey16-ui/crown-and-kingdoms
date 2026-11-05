@@ -1,3 +1,18 @@
+## 5 November 2026 — Hardware follow-up: wide-view slowdown remains
+
+Two additional owner photos include the new `LOSS` and `ZOOM` fields, confirming the updated diagnostic UI reached the console. They show rendered terrain, but do not establish that intermittent black screens/audio problems have stopped:
+
+| Photo | Total units / buildings | Zoom | Displayed FPS | SIM / DRAW | TILE / UNIT | Main-canvas LOSS |
+| --- | --- | --- | --- | --- | --- | --- |
+| Wide | 201 / 240 | 0.80 | 9 | 24.8 / 21.4 ms | 11.0 / 1.8 ms | 0 |
+| Closer | 336 / 240 | 1.96 | 60 | 0.3 / 5.2 ms | 0.2 / 1.7 ms | 0 |
+
+The runs are at different battle stages and are not a controlled zoom-only comparison. The wide shot records a draw peak of **1,621.7 ms**; its header says 133.6 ms while its RAF row says 66.9 ms. Do not reconstruct a single consistent frame from that photograph or treat smoothed FPS as a benchmark median. `LOSS 0` means no main/HUD Canvas2D loss event was counted, not proof against all offscreen/GPU/scheduling problems. A low SIM reading can include a frame with no fixed tick; a slow frame may process several ticks.
+
+Shell **v163** adds an actual completed-tick count beside SIM and a separate **FOG** CPU timer. FOG is a **subset of TILE**, not an extra amount to add to DRAW. These session-only counters do not alter the 30 Hz accumulator, world/save format, source artwork or rendering. Flat-field/object-only diagnostics clear fog time and new fixtures reset both fields.
+
+A reusable `Path2D` experiment was rejected before publication: Chromium found 333 differing colour components in the first fractional-DPR fog-edge comparison. The established painter remains intact; no reduced-quality shortcut or unverified FPS improvement is being shipped. Local Node 24.22.1 passed **247/247** isolated files, **1,120/1,120** focused assertions, quick **5/5** and Chromium **2/2**; [follow-up evidence](docs/verification/canvas-recovery-2026-11-05.json) retains both hardware readings and runtime hashes. Physical Xbox wide-view performance, startup stalls, intermittent blanking and audio remain **UNVERIFIED**.
+
 ## 5 November 2026 — Xbox black-screen report and canvas recovery
 
 **PARTIAL — hardware cause and performance improvement remain unverified.** The owner supplied ten physical-console photos and reported intermittent total black screens, continuing audio, audio cut-outs and slow large-battle startup. Close and wide shots are separate frames, not a controlled benchmark:

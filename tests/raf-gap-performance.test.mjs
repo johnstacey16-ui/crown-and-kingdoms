@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {headlessGame} from './helpers/headless-game.mjs';
 import {readFileSync} from 'node:fs';
 
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
@@ -40,4 +41,14 @@ test('performance overlay distinguishes input/control CPU work from the non-game
  assert.match(ui,/document\.hasFocus/);
  assert.match(ui,/CHUNK '\+perfChunksMs/);
  assert.match(ui,/WORLD '\+perfObjectsMs/);
+});
+
+test('RAF telemetry counts actual completed fixed ticks, including catch-up, without dropping simulation work',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nglobalThis.run=code=>eval(code);',sandbox);const run=sandbox.run;
+ run('start();perfHud=1;perfTestMatch=1;readPad=()=>{};ctl=()=>{};draw=()=>{};globalThis.actualTicks=0;step=()=>actualTicks++;last=1000;acc=0;gs=1;');
+ run('frame2(1016.7)');assert.equal(run('perfStepCount'),0);assert.equal(run('actualTicks'),0);
+ run('frame2(1033.4)');assert.equal(run('perfStepCount'),1);assert.equal(run('actualTicks'),1);
+ run('frame2(1166.8)');assert.equal(run('perfStepCount'),4);assert.equal(run('actualTicks'),5);
+ run('mode="pause";frame2(1266.8)');assert.equal(run('perfStepCount'),0);assert.equal(run('actualTicks'),5);
 });

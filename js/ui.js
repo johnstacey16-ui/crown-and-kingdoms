@@ -6,8 +6,8 @@ function drawPerfOverlay(dt){
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+frameMs.toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
  const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
  let xx=x+9;for(let t=0;t<S.teamN;t++){const label=names[t]+' '+teamCounts[t];tx(label,xx,y+36,12,teamColor(t));xx+=label.length*7.2+17}
- tx('SIM '+perfStepMs.toFixed(2)+' ms (peak '+perfStepPeak.toFixed(2)+')  |  DRAW '+perfDrawMs.toFixed(2)+' ms (peak '+perfDrawPeak.toFixed(2)+')',x+9,y+54,11,'#cbd5e1');
- tx('CHUNK '+perfChunksMs.toFixed(1)+'  TILE '+perfTilesMs.toFixed(1)+'  WORLD '+perfObjectsMs.toFixed(1)+'  FX '+perfEffectsMs.toFixed(1)+'  UI '+perfUiMs.toFixed(1)+' ms',x+9,y+72,11,'#cbd5e1');
+ tx('SIM '+perfStepMs.toFixed(2)+' ms / '+perfStepCount+' ticks (peak '+perfStepPeak.toFixed(2)+')  |  DRAW '+perfDrawMs.toFixed(2)+' ms (peak '+perfDrawPeak.toFixed(2)+')',x+9,y+54,11,'#cbd5e1');
+ tx('CHUNK '+perfChunksMs.toFixed(1)+'  TILE '+perfTilesMs.toFixed(1)+'  FOG '+perfFogMs.toFixed(1)+'  WORLD '+perfObjectsMs.toFixed(1)+'  FX '+perfEffectsMs.toFixed(1)+'  UI '+perfUiMs.toFixed(1)+' ms',x+9,y+72,11,'#cbd5e1');
  tx('NODE '+perfNodeMs.toFixed(1)+' ('+perfNodeCount+')  BLD '+perfBuildingMs.toFixed(1)+' ('+perfBuildingCount+')  UNIT '+perfUnitMs.toFixed(1)+' ('+perfUnitCount+') ms',x+9,y+90,11,'#f8e6b5');
  tx('LOOP '+perfLoopMs.toFixed(1)+'  PAD '+perfPadMs.toFixed(1)+'  CTL '+perfControlMs.toFixed(1)+'  GAP '+perfGapMs.toFixed(1)+' ms',x+9,y+108,11,'#cbd5e1');
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';

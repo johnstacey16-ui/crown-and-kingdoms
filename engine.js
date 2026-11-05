@@ -115,11 +115,11 @@ function frame2(now){
   const controlStart=timing?performance.now():0;
   ctl(dt);
   if(timing)perfControlMs=performance.now()-controlStart;
-  const simStart=performance.now();
+  const simStart=performance.now();perfStepCount=0;
   if(mode==='play'){
    acc+=dt*gs;
    while(acc>=DT&&mode==='play'){
-    step(DT);if(window.CK_NET&&typeof window.CK_NET.onSimulationStep==='function')window.CK_NET.onSimulationStep();acc-=DT;
+    step(DT);perfStepCount++;if(window.CK_NET&&typeof window.CK_NET.onSimulationStep==='function')window.CK_NET.onSimulationStep();acc-=DT;
    }
    if(S&&!perfTestMatch&&!(window.CK_NET&&window.CK_NET.isRunning())&&now-lastAutoSaveAt>=60000){lastAutoSaveAt=now;saveG(true)}
   }

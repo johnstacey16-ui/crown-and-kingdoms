@@ -86,7 +86,7 @@ if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pa
 // Reset measurements between fixtures; never carry a prior battle's peak into
 // a new 50/100/200-unit comparison. This changes no simulation or saved setting.
 function resetGraphicsDiagnostics(){
- perfFps=0;perfStepPeak=0;perfDrawPeak=0;
+ perfFps=0;perfStepPeak=0;perfDrawPeak=0;perfStepCount=0;perfFogMs=0;
  perfFrameIntervalMs=0;perfGapMs=0;perfLoopMs=0;
  perfFlatField=0;perfLayerMode=0;perfObjectPass=0;perfUnitPass=0;
 }

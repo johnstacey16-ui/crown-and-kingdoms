@@ -126,13 +126,16 @@ test('canvas recovery never pauses or changes multiplayer simulation authority',
  assert.equal(run('mode'),'play');events.get('contextrestored')();assert.equal(run('mode'),'play');assert.equal(run('JSON.stringify(S)'),state);
 });
 test('fresh performance fixtures reset prior peaks and all isolation passes',()=>{
- const {run}=game();run('perfStepPeak=208;perfDrawPeak=3427;perfObjectPass=3;perfUnitPass=3;perfFrameIntervalMs=500');
+ const {run}=game();run('perfStepPeak=208;perfDrawPeak=3427;perfStepCount=5;perfFogMs=11;perfObjectPass=3;perfUnitPass=3;perfFrameIntervalMs=500');
  assert.equal(run('loadSeriesSPerformanceSave(50)'),true);
- assert.equal(run('perfStepPeak+perfDrawPeak+perfObjectPass+perfUnitPass+perfFrameIntervalMs'),0);
+ assert.equal(run('perfStepPeak+perfDrawPeak+perfStepCount+perfFogMs+perfObjectPass+perfUnitPass+perfFrameIntervalMs'),0);
 });
 
 test('performance display reports unclamped RAF time through a one-second stall',()=>{
  const {run}=game();run('start();perfHud=1;perfFrameIntervalMs=1000;perfFps=0;globalThis.perfLabels=[];tx=text=>perfLabels.push(text);drawPerfOverlay(.25)');
  assert.match(run('perfLabels[0]'),/1 FPS  1000.0 ms/);
+ assert.match(run('perfLabels.find(text=>text.startsWith("RAF"))'),/^RAF 1000.0 ms/,'one overlay draw reports the same frame interval in both rows');
+ assert.match(run('perfLabels.find(text=>text.startsWith("SIM"))'),/0 ticks/);
+ assert.match(run('perfLabels.find(text=>text.startsWith("CHUNK"))'),/FOG 0.0/);
  assert.match(run('perfLabels.find(text=>text.startsWith("CANVAS"))'),/ZOOM/);
 });

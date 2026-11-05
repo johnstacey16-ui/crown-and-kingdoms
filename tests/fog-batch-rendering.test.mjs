@@ -45,7 +45,7 @@ test('production world batches unexplored fog and never leaks hidden resource no
  const calls=run('JSON.parse(JSON.stringify(fogCalls))');
  assert.equal(calls.length,1,'all unexplored diamonds share a single black pass');
  assert.equal(calls[0].colour,'#000');assert.ok(calls[0].tiles>=20);
- assert.equal(run('Number.isFinite(perfTilesMs)&&Number.isFinite(perfChunksMs)'),true);
+ assert.equal(run('Number.isFinite(perfTilesMs)&&Number.isFinite(perfChunksMs)&&perfFogMs>=0&&perfFogMs<=perfTilesMs'),true);
 });
 test('explored fog and mixed sight retain exactly their intended two visibility layers',()=>{
  const run=game();

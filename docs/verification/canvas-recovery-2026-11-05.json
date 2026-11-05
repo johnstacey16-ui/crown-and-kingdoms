@@ -54,5 +54,82 @@
     "js/render.js": "ea4c3e3a0149c66ee22c33184181251661d45da898eb24969f9c62192e6b2e86",
     "js/ui.js": "a00aca567e5b26c6d32654e0eea7aa00a98b97d8b8b5d6838c033ac825cbe654",
     "sw.js": "c60434b6505836efdd01fe0f781fb0c937e55290ce303295474137d9e9928692"
+  },
+  "hardwareFollowUp": {
+    "baselineCommit": "df2753484a62ff660cab1cba274e80aa89d93bdb",
+    "scope": "Two owner photos at different battle stages, not a controlled zoom-only test. No physical FPS improvement is claimed. LOSS counts main/HUD events only.",
+    "photos": [
+      {
+        "filename": "1000001149.jpg",
+        "zoom": 0.8,
+        "displayedFPS": 9,
+        "units": 201,
+        "buildings": 240,
+        "simMs": 24.8,
+        "drawMs": 21.4,
+        "tileMs": 11,
+        "unitMs": 1.8,
+        "losses": 0,
+        "drawPeakMs": 1621.7,
+        "headerMs": 133.6,
+        "rafRowMs": 66.9
+      },
+      {
+        "filename": "1000001150.jpg",
+        "zoom": 1.96,
+        "displayedFPS": 60,
+        "units": 336,
+        "buildings": 240,
+        "simMs": 0.3,
+        "drawMs": 5.2,
+        "tileMs": 0.2,
+        "unitMs": 1.7,
+        "losses": 0
+      }
+    ],
+    "change": "Completed fixed ticks per RAF and FOG CPU timing as a subset of TILE. Original fog painter and 30Hz stepping preserved.",
+    "rejectedExperiment": {
+      "type": "Reusable Path2D fog geometry",
+      "reason": "Changed antialiased fog-edge components at fractional DPR; discarded before publication",
+      "firstCaseChangedComponents": 333
+    },
+    "checks": {
+      "quick": 5,
+      "focusedAssertions": 1120,
+      "standaloneRegressionFiles": 247,
+      "chromiumSuites": 2,
+      "completedTickSequences": [
+        0,
+        1,
+        4,
+        0
+      ]
+    },
+    "browserRecoveryViews": [
+      {
+        "zoom": 0.8,
+        "coloured": 13835,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 0,
+        "tileTotalMs": 0.2000000011175871
+      },
+      {
+        "zoom": 3,
+        "coloured": 12076,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 0,
+        "tileTotalMs": 0.09999999962747097
+      }
+    ],
+    "runtimeSHA256": {
+      "engine.js": "29e74245048d7e9ad1a980c4c63de855e1b1812b20db568ce940dcebca79f012",
+      "js/state.js": "6c19189b1bfaf3e7bb21fe891ebbea4027cd3f147783d8d6358dbe1d6fe9dcfe",
+      "js/render.js": "cf82895dd3a7b42bae350f38d613208e3d3360f110dfd1643cb356eae8ec314e",
+      "js/engine-picture.js": "0b77f302024c4aa62ccc3c9676611c1a8ba5e567373da040a0f33a30b67bad74",
+      "js/ui.js": "bf1dfdd8dbea045ba059b8ac69e5f0799e598b7acd3cf76b24945b8485931b6b",
+      "sw.js": "63dde9ef626b4eb0155fa233c826729a7a1118a2aee5f42ca99e5e6fddf93f9e"
+    }
   }
 }
