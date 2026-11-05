@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "e0343a9306225bf9422506e37e047851efe5fef9",
+  "runtime": "Node 24.22.1; Playwright 1.56.1 Chromium",
+  "scope": "Local software evidence; synthetic Canvas2D loss/restoration events do not reproduce physical GPU loss. Xbox performance, black screens, audio and production alias identity remain unverified.",
+  "checks": {
+    "quick": 5,
+    "focusedAssertions": 1119,
+    "standaloneRegressionFiles": 247,
+    "chromiumSuites": 2,
+    "softwareXboxContracts": 8
+  },
+  "graphicsRecovery": {
+    "views": [
+      {
+        "zoom": 0.8,
+        "coloured": 13832,
+        "units": 372,
+        "buildings": 238
+      },
+      {
+        "zoom": 3,
+        "coloured": 12080,
+        "units": 372,
+        "buildings": 238
+      }
+    ],
+    "paused": true,
+    "restorationAllowed": true,
+    "statusVisible": true,
+    "restored": true,
+    "terrainRebuilt": true,
+    "before": "fnv1a32-1f3db9d5-3b046",
+    "after": "fnv1a32-1f3db9d5-3b046",
+    "savesUnchanged": true,
+    "stillPaused": true
+  },
+  "paletteComparison": {
+    "atlases": 51,
+    "frames": 3320,
+    "components": 824729056,
+    "nativeDifferences": 0,
+    "scaledDifferences": 0,
+    "peakRetainedPixels": 33554429,
+    "retainedPixelLimit": 33554432,
+    "warmAllocations": 0
+  },
+  "runtimeSHA256": {
+    "engine.js": "9beea086117e1e9373a33e709fbfa5d671fb4edc14c544ba88b6ca3080736104",
+    "js/assets.js": "ce5cab9b4604ef213db6299d05e4810228273e588b14347aaed9856c5f080b79",
+    "js/engine-picture.js": "502dbfdacc65eea5fadf204cdd0d326b617fd2907fa14952d0e3afe37c229412",
+    "js/engine-graphics-benchmark.js": "eb84d2abc0d0c50a81e026e104dd6274162572e3176b2ad0fdb0ac611ea07874",
+    "js/render-terrain.js": "fab82ee052719a8384edb87530d6cbe7daca4c7315fc29df23eef0cc15e76415",
+    "js/render.js": "ea4c3e3a0149c66ee22c33184181251661d45da898eb24969f9c62192e6b2e86",
+    "js/ui.js": "a00aca567e5b26c6d32654e0eea7aa00a98b97d8b8b5d6838c033ac825cbe654",
+    "sw.js": "c60434b6505836efdd01fe0f781fb0c937e55290ce303295474137d9e9928692"
+  }
+}

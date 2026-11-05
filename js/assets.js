@@ -25,13 +25,14 @@ function rebuildAssetAnimationIndex(){
 // The neutral stone, skin, steel, timber and terrain pixels remain unchanged.
 function paintedTeamImage(atlas,team){
  if(!atlas.meta.painted||atlas.meta.neutral)return atlas.img;
- atlas.teams=atlas.teams||{};if(atlas.teams[team])return atlas.teams[team];
+ atlas.teams=atlas.teams||{};const prior=atlas.teams[team];if(prior){if(!prior.getContext?.('2d')?.isContextLost?.())return prior;delete atlas.teams[team]}
  try{
   const canvas=document.createElement('canvas');canvas.width=atlas.img.naturalWidth||atlas.img.width||atlas.meta.width;canvas.height=atlas.img.naturalHeight||atlas.img.height||atlas.meta.height;
-  const ctx=canvas.getContext('2d');ctx.drawImage(atlas.img,0,0);
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx||ctx.isContextLost?.())return atlas.img;ctx.drawImage(atlas.img,0,0);
   const pixels=ctx.getImageData(0,0,canvas.width,canvas.height),p=pixels.data,n=parseInt(teamColor(team).slice(1),16),target=[n>>16&255,n>>8&255,n&255];
   for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2];if(p[i+3]>8&&b-r>26&&b-g>8&&b>r*1.25){const light=Math.max(.25,Math.min(1.35,(r*.21+g*.52+b*.27)/110));for(let k=0;k<3;k++)p[i+k]=Math.min(255,target[k]*light)}}
-  ctx.putImageData(pixels,0,0);canvas.paintedAtlas=true;canvas.paintedTeam=team;atlas.teams[team]=canvas;
+  ctx.putImageData(pixels,0,0);if(ctx.isContextLost?.())return atlas.img;canvas.paintedAtlas=true;canvas.paintedTeam=team;atlas.teams[team]=canvas;
+  canvas.addEventListener?.('contextlost',()=>{if(atlas.teams?.[team]===canvas)delete atlas.teams[team]});
  }catch(_){atlas.teams[team]=atlas.img}
  return atlas.teams[team];
 }
@@ -49,16 +50,18 @@ function paintedTeamFrame(atlas,team,f){
  let id=TEAM_FRAME_CACHE.ids.get(atlas.img);if(!id){id=TEAM_FRAME_CACHE.next++;TEAM_FRAME_CACHE.ids.set(atlas.img,id)}
  const color=teamColor(team),key=[id,team,color,f.x,f.y,f.w,f.h].join('/'),cache=TEAM_FRAME_CACHE.entries;
  let canvas=cache.get(key);
+ if(canvas?.getContext('2d')?.isContextLost?.()){cache.delete(key);TEAM_FRAME_CACHE.pixels-=canvas.width*canvas.height;canvas=null}
  if(canvas){cache.delete(key);cache.set(key,canvas);TEAM_FRAME_CACHE.hits++}
  else try{
   canvas=document.createElement('canvas');canvas.width=f.w;canvas.height=f.h;
-  const ctx=canvas.getContext('2d');if(!ctx)return {img:atlas.img,f};
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx||ctx.isContextLost?.())return {img:atlas.img,f};
   ctx.drawImage(atlas.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);
   const pixels=ctx.getImageData(0,0,f.w,f.h),p=pixels.data,n=parseInt(color.slice(1),16),target=[n>>16&255,n>>8&255,n&255];
   for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2];if(p[i+3]>8&&b-r>26&&b-g>8&&b>r*1.25){const light=Math.max(.25,Math.min(1.35,(r*.21+g*.52+b*.27)/110));for(let k=0;k<3;k++)p[i+k]=Math.min(255,target[k]*light)}}
-  ctx.putImageData(pixels,0,0);canvas.paintedAtlas=true;canvas.paintedTeam=team;
+  ctx.putImageData(pixels,0,0);if(ctx.isContextLost?.())return {img:atlas.img,f};canvas.paintedAtlas=true;canvas.paintedTeam=team;
   canvas.paintedSourceFrame={x:f.x,y:f.y,w:f.w,h:f.h};TEAM_FRAME_CACHE.creations++;
   const count=f.w*f.h;
+  canvas.addEventListener?.('contextlost',()=>{if(cache.get(key)===canvas){cache.delete(key);TEAM_FRAME_CACHE.pixels-=count}});
   if(count<=TEAM_FRAME_CACHE.limit){cache.set(key,canvas);TEAM_FRAME_CACHE.pixels+=count;
    while(TEAM_FRAME_CACHE.pixels>TEAM_FRAME_CACHE.limit){const oldest=cache.keys().next().value,entry=cache.get(oldest);cache.delete(oldest);TEAM_FRAME_CACHE.pixels-=entry.width*entry.height;TEAM_FRAME_CACHE.evictions++}
   }

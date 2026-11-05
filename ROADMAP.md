@@ -4,6 +4,8 @@
 
 ## Starting position — verify again when beginning new work
 
+- **5 November hardware blocker takes priority:** owner photos show roughly 60 FPS close / 19 FPS wide in the 200-unit fixture, missing scenery in large battles, a historical draw peak around 3.43 seconds, and reported black screens/audio interruptions. Cached terrain/tint context-loss recovery and offline pause on main-canvas loss are now covered in software; see [graphics acceptance](GRAPHICS_ACCEPTANCE.md). This does **not** establish the hardware cause or a Series S performance improvement. Re-test wide/close views and Large Battle after updating; record zoom, raw RAF and the new main-canvas `LOSS` counter. Campaign expansion waits behind this blocker.
+
 - **Latest measured 5 November checkpoint:** [19 isolated local campaign simulations](docs/verification/campaign-2026-11-05.json) yielded 13 scripted wins, six player defeats and no timeouts after restoring the declared starting armies for both kingdoms. Causeway Muster now completes its Dock objective but still loses. The helper now enforces live player construction prerequisites and costs; contextual relic returns and save/load are covered. Human/controller win-path acceptance remains open. Exact source blobs and Node version are in the evidence. Production alias identity still needs independent verification; no paid upgrade or Railway reactivation is authorised.
 
 - **Previous production alignment checkpoint (early 3 November 2026):** The READY public alias previously matched `main` at [`f1ef5f5`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/f1ef5f5bac1667219a5191b928457ac79924ce0e). This is historical; always re-check the exact running SHA after later merges.

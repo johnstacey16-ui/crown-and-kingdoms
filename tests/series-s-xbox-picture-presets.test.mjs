@@ -9,12 +9,15 @@ const picture=readFileSync(new URL('../js/engine-picture.js',import.meta.url),'u
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 function game(){
  const {source,sandbox,storage}=headlessGame();
+ const events=new Map();sandbox.document.getElementById('c').addEventListener=(name,fn)=>events.set(name,fn);
+ const create=sandbox.document.createElement;sandbox.document.createElement=tag=>tag==='div'?{style:{},setAttribute(){},remove(){}}:create(tag);
+ sandbox.document.body={appendChild(){}};
  sandbox.diplomacyMenuItems=()=>[];
  sandbox.tributeMenuItems=()=>[];
  sandbox.villagerPriorityMenuItems=()=>[];
  vm.createContext(sandbox);
- vm.runInContext(source+'\n'+ui+'\nglobalThis.evalGame=code=>eval(code);',sandbox);
- return {run:sandbox.evalGame,storage};
+ vm.runInContext(readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+'\n'+source+'\n'+ui+'\nglobalThis.evalGame=code=>eval(code);',sandbox);
+ return {run:sandbox.evalGame,storage,events};
 }
 const snap=run=>JSON.parse(run('JSON.stringify({scale:perfRenderScale,sharp:perfSharpHud,dpr:DPR,canvas:[cv.width,cv.height],logical:[CW,CH],mode,selected:currentXboxPicturePreset()})'));
 
@@ -104,4 +107,32 @@ test('no saved state field, source artwork degradation, new controls or hosted s
  const setting=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(setting);
  for(const word of ['perfSharpHud','perfRenderScale','xboxPicturePreset'])assert.ok(!setting[1].includes(word));
+});
+
+test('world canvas loss pauses offline play, clears derived pixels on restoration and preserves game and saves',()=>{
+ const {run,storage,events}=game();run('start();perfHud=1;perfStepPeak=208;perfDrawPeak=3427;acc=.1');
+ const state=run('JSON.stringify(S)'),saved=JSON.stringify([...storage]);let prevented=false;
+ events.get('contextlost')({preventDefault(){prevented=true}});
+ assert.equal(prevented,false,'Canvas2D restoration must remain enabled');assert.equal(run('mode'),'pause');assert.equal(run('acc'),0);assert.equal(run('GRAPHICS_RECOVERY.lost.size'),1);
+ run('frame2(last+1000)');assert.equal(run('JSON.stringify(S)'),state);assert.equal(JSON.stringify([...storage]),saved);
+ run('TCH.set(1,{});TEAM_FRAME_CACHE.entries.set("fake",{});TEAM_FRAME_CACHE.pixels=42');
+ events.get('contextrestored')();
+ assert.equal(run('GRAPHICS_RECOVERY.lost.size'),0);assert.equal(run('GRAPHICS_RECOVERY.status'),null);assert.equal(run('TCH.size+TEAM_FRAME_CACHE.entries.size+TEAM_FRAME_CACHE.pixels'),0);
+ assert.equal(run('perfStepPeak+perfDrawPeak'),0);assert.equal(run('mode'),'pause');assert.equal(run('JSON.stringify(S)'),state);assert.equal(JSON.stringify([...storage]),saved);
+});
+test('canvas recovery never pauses or changes multiplayer simulation authority',()=>{
+ const {run,events}=game();run('start();window.CK_NET={isRunning:()=>true};');
+ const state=run('JSON.stringify(S)');events.get('contextlost')({preventDefault(){}});
+ assert.equal(run('mode'),'play');events.get('contextrestored')();assert.equal(run('mode'),'play');assert.equal(run('JSON.stringify(S)'),state);
+});
+test('fresh performance fixtures reset prior peaks and all isolation passes',()=>{
+ const {run}=game();run('perfStepPeak=208;perfDrawPeak=3427;perfObjectPass=3;perfUnitPass=3;perfFrameIntervalMs=500');
+ assert.equal(run('loadSeriesSPerformanceSave(50)'),true);
+ assert.equal(run('perfStepPeak+perfDrawPeak+perfObjectPass+perfUnitPass+perfFrameIntervalMs'),0);
+});
+
+test('performance display reports unclamped RAF time through a one-second stall',()=>{
+ const {run}=game();run('start();perfHud=1;perfFrameIntervalMs=1000;perfFps=0;globalThis.perfLabels=[];tx=text=>perfLabels.push(text);drawPerfOverlay(.25)');
+ assert.match(run('perfLabels[0]'),/1 FPS  1000.0 ms/);
+ assert.match(run('perfLabels.find(text=>text.startsWith("CANVAS"))'),/ZOOM/);
 });

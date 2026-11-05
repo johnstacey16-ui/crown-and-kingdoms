@@ -82,3 +82,47 @@ if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pa
  try{drawGameOverlays(dt)}finally{X=WORLD_X}
 }else drawGameOverlays(dt);
 }
+
+// Reset measurements between fixtures; never carry a prior battle's peak into
+// a new 50/100/200-unit comparison. This changes no simulation or saved setting.
+function resetGraphicsDiagnostics(){
+ perfFps=0;perfStepPeak=0;perfDrawPeak=0;
+ perfFrameIntervalMs=0;perfGapMs=0;perfLoopMs=0;
+ perfFlatField=0;perfLayerMode=0;perfObjectPass=0;perfUnitPass=0;
+}
+// Discard only derived pixels. Observation/age/damage knowledge, game state,
+// saves and source images are deliberately retained across canvas restoration.
+function clearGraphicsSurfaces(){
+ TCH.clear();TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];
+ TEAM_FRAME_CACHE.entries.clear();TEAM_FRAME_CACHE.pixels=0;
+ for(const atlas of Object.values(ASSET.atl))delete atlas.teams;
+ TROOP_TEXTURE_LRU.clear();troopTexturePixels=0;
+ for(const entry of NODE_TEXTURE_RECENCY.values())entry.frames.delete(entry.key);
+ NODE_TEXTURE_RECENCY.clear();NODE_TEXTURE_PIXELS=0;
+ BUILDING_DAMAGE_CACHE.entries.clear();BUILDING_DAMAGE_CACHE.pixels=0;
+ clearProceduralSpriteCache();
+}
+const GRAPHICS_RECOVERY={lost:new Set(),losses:0,status:null};
+function installCanvasRecovery(canvas){
+ if(!canvas)return;
+ canvas.addEventListener('contextlost',()=>{
+  // Canvas2D restores by default; cancelling this event would block recovery.
+  GRAPHICS_RECOVERY.lost.add(canvas);GRAPHICS_RECOVERY.losses++;
+  if(mode==='play'&&!window.CK_NET?.isRunning?.()){
+   cancelGameplayGestures();mode='pause';pm=0;acc=0;
+  }
+  if(!GRAPHICS_RECOVERY.status){
+   const status=document.createElement('div');status.setAttribute('role','status');
+   status.style.cssText='position:fixed;inset:35% 10% auto;padding:20px;background:#10141f;color:#fff;border:2px solid #c9a24a;z-index:999;text-align:center;font:18px sans-serif';
+   status.textContent='Graphics interrupted. Waiting for the browser to restore the picture.';
+   document.body.appendChild(status);GRAPHICS_RECOVERY.status=status;
+  }
+ });
+ canvas.addEventListener('contextrestored',()=>{
+  GRAPHICS_RECOVERY.lost.delete(canvas);
+  if(GRAPHICS_RECOVERY.lost.size)return;
+  clearGraphicsSurfaces();rs();resetGraphicsDiagnostics();
+  GRAPHICS_RECOVERY.status?.remove();GRAPHICS_RECOVERY.status=null;
+  note(mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.');
+ });
+}

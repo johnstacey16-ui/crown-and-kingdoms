@@ -159,3 +159,13 @@ test('zoom changes, resolution changes and terrain invalidation remain safe',()=
  }
 });
 
+
+test('unavailable or lost terrain chunks request tile fallback and can rebuild on the next frame',()=>{
+ const s=scene(),rect=s.view();s.draw(rect);
+ const first=s.TCH.values().next().value,ctx={isContextLost:()=>true};first.cv.getContext=()=>ctx;
+ assert.equal(s.fake.drawChunks(...rect),true);assert.ok(![...s.TCH.values()].includes(first),'lost cached chunk was replaced');
+ s.TCH.clear();s.fake.document.createElement=()=>({width:0,height:0,getContext:()=>null});
+ assert.equal(s.fake.drawChunks(...rect),false,'drawWorld must paint its existing tile fallback');assert.equal(s.TCH.size,0);
+ s.fake.document.createElement=()=>{throw Error('out of canvas storage')};
+ assert.equal(s.fake.drawChunks(...rect),false,'allocation failure cannot leave a valid blank terrain cache');
+});

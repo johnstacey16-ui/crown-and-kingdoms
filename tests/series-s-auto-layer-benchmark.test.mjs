@@ -125,7 +125,7 @@ test('new pacing diagnostic is opt-in, labelled and never persists or intercepts
  assert.match(ui,/FROZEN FULL /);
  assert.match(ui,/FROZEN FLAT /);
  assert.match(source,/CK_PACING_BENCH_STAGES=\[/);
- assert.match(source,/if\(frozenCanvas\)perfDrawMs=0/);
+ assert.match(source,/if\(frozenCanvas\|\|GRAPHICS_RECOVERY.lost.size\)perfDrawMs=0/);
  assert.match(source,/else\{draw\(dt\);perfDrawMs=performance\.now\(\)-drawStart/);
  const {run}=game();
  run('start();mode="pause"');

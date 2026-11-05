@@ -1,3 +1,19 @@
+## 5 November 2026 — Xbox black-screen report and canvas recovery
+
+**PARTIAL — hardware cause and performance improvement remain unverified.** The owner supplied ten physical-console photos and reported intermittent total black screens, continuing audio, audio cut-outs and slow large-battle startup. Close and wide shots are separate frames, not a controlled benchmark:
+
+| Observation | What it establishes |
+| --- | --- |
+| 200-unit / 56-building fixture: close about 60 FPS, wide about 19 FPS; wide RAF about 66.8 ms while DRAW about 6.2 ms | Wide-view slowdown includes substantial time outside the measured JavaScript loop. It does not identify GPU, compositor or scheduling as the cause. |
+| Heavy scene: about 7–10 FPS; recorded DRAW peak about 3,427 ms; nominal tint-cache pixels about 74–116 MiB | Severe stalls and a significant retained surface working set. This is not measured browser/GPU resident memory. |
+| Black terrain with visible sprites/bars; intermittent full black screen reported | Rendering acceptance fails. Fog and diagnostic isolation are possible contributors in individual frames, but do not explain away the owner's total-screen report. |
+
+The renderer now discards lost terrain chunks and flattened viewport surfaces, rebuilding them or using the established tile fallback when allocation fails. Lost tinted sheets/frames are evicted with correct budget accounting; recolouring requests `willReadFrequently` on its pixel-read canvases, retaining original dimensions, anchors and palettes. A main world/HUD context loss shows a DOM status message, pauses offline play without overwriting saves, and rebuilds only derived graphics after browser restoration. Restoration leaves the game paused; multiplayer simulation authority is not paused by this handler. The handler deliberately does not cancel Canvas2D's `contextlost` event, so browser restoration remains enabled ([HTML context-loss specification](https://html.spec.whatwg.org/multipage/webappapis.html)). Fog observation/architecture memory and source artwork survive recovery.
+
+Performance fixtures reset their peaks/isolation passes; FPS and milliseconds use the raw RAF interval rather than the simulation's 250 ms clamp. The overlay includes zoom and a cumulative main-canvas `LOSS` count. Shell v162 refreshes code without changing art bytes or paid hosting.
+
+Chromium covers a real 372-unit / 238-building fixture at zoom 0.8 and 3, visible world pixels, synthetic loss/restoration events, rebuilt terrain, unchanged world hash and untouched save entries. Synthetic events test application recovery logic; they do not force or reproduce Xbox GPU loss. The existing exhaustive palette comparison checks 3,320 frame/palette cases and 824,729,056 native components, with zero native/scaled differences. [Local verification evidence](docs/verification/canvas-recovery-2026-11-05.json) records the exact runtime hashes and checks. Physical Series S startup, sustained wide-view FPS, intermittent blanking and audio remain open; do not call them fixed from software checks.
+
 ## 29 October 2026 — Bounded native troop palettes
 
 **CK-032 / CK-041 remain PARTIAL.** Animated troop tinting now retains only requested native frames in a global 128 MiB nominal RGBA pixel budget. Image/palette identity and LRU eviction prevent stale or unbounded retained troop copies, and prepared crops draw without a second texture copy. Buildings/base fallbacks keep their established sampling; neutral resources are unchanged. Canonical source rectangles remain available as `sourceFrame`, with original dimensions/anchors/scale intact. No art/manifest bytes, gameplay, controls, saves or protocol changed; shell v42 refreshes code.

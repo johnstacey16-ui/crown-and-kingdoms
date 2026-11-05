@@ -1,9 +1,9 @@
 function drawPerfOverlay(dt){
  if(!perfHud||mode!=='play'||!S)return;
- const instant=dt>0?1/dt:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
+ const frameMs=perfFrameIntervalMs>0?perfFrameIntervalMs:dt*1000,instant=frameMs>0?1000/frameMs:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
  const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?190:172)+(canvasBenchmark?23:canvasBenchSummary?(canvasBenchSummary.kind==='layers'||canvasBenchSummary.kind==='pacing'||canvasBenchSummary.kind==='objects'||canvasBenchSummary.kind==='units')?68:46:0);
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
- tx('PERF  '+perfFps.toFixed(0)+' FPS  '+(dt*1000).toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
+ tx('PERF  '+perfFps.toFixed(0)+' FPS  '+frameMs.toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
  const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
  let xx=x+9;for(let t=0;t<S.teamN;t++){const label=names[t]+' '+teamCounts[t];tx(label,xx,y+36,12,teamColor(t));xx+=label.length*7.2+17}
  tx('SIM '+perfStepMs.toFixed(2)+' ms (peak '+perfStepPeak.toFixed(2)+')  |  DRAW '+perfDrawMs.toFixed(2)+' ms (peak '+perfDrawPeak.toFixed(2)+')',x+9,y+54,11,'#cbd5e1');
@@ -11,8 +11,8 @@ function drawPerfOverlay(dt){
  tx('NODE '+perfNodeMs.toFixed(1)+' ('+perfNodeCount+')  BLD '+perfBuildingMs.toFixed(1)+' ('+perfBuildingCount+')  UNIT '+perfUnitMs.toFixed(1)+' ('+perfUnitCount+') ms',x+9,y+90,11,'#f8e6b5');
  tx('LOOP '+perfLoopMs.toFixed(1)+'  PAD '+perfPadMs.toFixed(1)+'  CTL '+perfControlMs.toFixed(1)+'  GAP '+perfGapMs.toFixed(1)+' ms',x+9,y+108,11,'#cbd5e1');
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';
- tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus,x+9,y+126,11,'#cbd5e1');
- tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2),x+9,y+144,11,'#f8e6b5');
+ tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus+'  LOSS '+GRAPHICS_RECOVERY.losses,x+9,y+126,11,'#cbd5e1');
+ tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2),x+9,y+144,11,'#f8e6b5');
  tx('TINT  HIT '+TEAM_FRAME_CACHE.hits+'  NEW '+TEAM_FRAME_CACHE.creations+'  EVICT '+TEAM_FRAME_CACHE.evictions+'  CACHE '+(TEAM_FRAME_CACHE.pixels*4/1048576).toFixed(1)+' MiB  |  TROOP CROPS '+TROOP_TEXTURE_LRU.size,x+9,y+162,11,'#cbd5e1');
  if(!canvasBenchmark){
   if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+180,11,'#fbd38d');

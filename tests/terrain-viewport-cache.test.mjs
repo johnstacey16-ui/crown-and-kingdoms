@@ -7,12 +7,12 @@ const source=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'ut
 const production=source.slice(source.indexOf('const TERRAIN_VIEW='),source.length);
 function scene(){
  const builds=[],blits=[],transforms=[];
- const g={setTransform(...a){transforms.push(a)},fillRect(){},drawImage(...a){builds.push(a)}};
- const cv={width:0,height:0,getContext(){return g}};
+ const events={};let lost=false;const g={isContextLost(){return lost},setTransform(...a){transforms.push(a)},fillRect(){},drawImage(...a){builds.push(a)}};
+ const cv={width:0,height:0,getContext(){return g},addEventListener(name,fn){events[name]=fn}};
  const sandbox={CW:1280,CH:720,DPR:.6,zm:1.4,cam:{x:.3,y:.7},document:{createElement(){return cv}},X:{save(){},restore(){},setTransform(){},drawImage(...a){blits.push(a)}}};
  vm.createContext(sandbox);vm.runInContext(production+';globalThis.cache=TERRAIN_VIEW;',sandbox);
  const chunks=[{cv:{id:1},ox:1,oy:2,w:512,h:256},{cv:{id:2},ox:3,oy:4,w:512,h:256}];
- return {sandbox,cv,builds,blits,transforms,chunks,draw:()=>sandbox.drawTerrainViewport(chunks),warm:()=>{sandbox.drawTerrainViewport(chunks);blits.length=0;sandbox.drawTerrainViewport(chunks)}};
+ return {sandbox,cv,events,setLost(v){lost=v},builds,blits,transforms,chunks,draw:()=>sandbox.drawTerrainViewport(chunks),warm:()=>{sandbox.drawTerrainViewport(chunks);blits.length=0;sandbox.drawTerrainViewport(chunks)}};
 }
 test('stationary terrain uses one physical-pixel copy with no repeated chunk resampling',()=>{
  const s=scene();s.warm();assert.equal(s.builds.length,2);
@@ -44,4 +44,12 @@ test('moving camera never builds an intermediate viewport surface',()=>{
 test('canvas allocation failure retains original terrain and restores no stale cache',()=>{
  const s=scene();s.sandbox.document.createElement=()=>{throw Error('allocation unavailable')};s.draw();s.blits.length=0;s.draw();
  assert.equal(s.blits.length,2);assert.equal(s.blits[0][0],s.chunks[0].cv);assert.equal(s.sandbox.cache.key,null);
+});
+
+test('lost stationary viewport is discarded and rebuilt instead of reusing a valid key for blank terrain',()=>{
+ const s=scene();s.warm();s.setLost(true);s.blits.length=0;s.draw();
+ assert.equal(s.sandbox.cache.canvas,null);assert.equal(s.sandbox.cache.key,null);
+ assert.equal(s.blits[0][0],s.chunks[0].cv,'direct chunks keep the world visible during loss');
+ s.setLost(false);s.draw();assert.equal(s.builds.length,4);assert.equal(s.blits.at(-1)[0],s.cv);
+ s.events.contextlost();assert.equal(s.sandbox.cache.canvas,null);s.draw();assert.equal(s.builds.length,6);
 });

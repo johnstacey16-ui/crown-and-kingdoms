@@ -111,6 +111,7 @@ function frame2(now){
    if(E[0]||E[1]){if(window.CK_NET&&window.CK_NET.snapshot().roomCode)window.CK_NET.leaveToTitle();else mode='title';menu=place=null;CK_ERR=null;acc=0}
    drawError();return;
   }
+  if(GRAPHICS_RECOVERY.lost.size&&!window.CK_NET?.isRunning?.()){acc=0;return}
   const controlStart=timing?performance.now():0;
   ctl(dt);
   if(timing)perfControlMs=performance.now()-controlStart;
@@ -128,7 +129,7 @@ function frame2(now){
   // whether slow callbacks persist without any game canvas redraw/presentation.
   const frozenCanvas=canvasBenchmark?.kind==='pacing'&&CK_PACING_BENCH_STAGES[canvasBenchmark.phase]?.skip;
   const drawStart=performance.now();
-  if(frozenCanvas)perfDrawMs=0;
+  if(frozenCanvas||GRAPHICS_RECOVERY.lost.size)perfDrawMs=0;
   else{draw(dt);perfDrawMs=performance.now()-drawStart;perfDrawPeak=Math.max(perfDrawPeak,perfDrawMs)}
  }finally{if(timing)perfLoopMs=performance.now()-loopStart}
 }
@@ -149,3 +150,4 @@ setInterval(()=>{try{aTick()}catch(e){if(!recordAsyncGameFailure(e))console.erro
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if(aInit()&&AC.state==='suspended')AC.resume().catch(()=>{})},{passive:true}));
 requestAnimationFrame(frame);
 
+installCanvasRecovery(cv);installCanvasRecovery(hudCanvas);

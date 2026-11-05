@@ -167,7 +167,7 @@ function loadSeriesSPerformanceSave(unitLoad=selectedXboxPerformanceLoad){
   // Show the settlement and preserve normal fog-of-war authority.
   fog();mmUp();const home=S.bs.find(b=>b.t===0&&b.k==='tc');
   ctr(home.x+5,home.y+5);S.sel=[];
-  perfHud=1;perfFps=0;perfFlatField=0;perfLayerMode=0;
+  perfHud=1;resetGraphicsDiagnostics();
   const saved=saveG(false,CK_SERIES_S_SAMPLE_KEY);
   if(saved){if(!loadG(false,CK_SERIES_S_SAMPLE_KEY))throw Error('Fixture failed save validation')}
   // Xbox browser storage can be blocked; an in-memory sample remains playable.
@@ -277,7 +277,7 @@ function loadSeriesSLargeBattleSave(){
    }
   }
   fog();mmUp();ctr(W/2,H/2);S.sel=[];
-  perfHud=1;perfFps=0;perfFlatField=0;perfLayerMode=0;
+  perfHud=1;resetGraphicsDiagnostics();
   const saved=saveG(false,CK_SERIES_S_BATTLE_KEY);
   if(saved&&!loadG(false,CK_SERIES_S_BATTLE_KEY))throw Error('Battle test save failed validation');
   // Never resume the combat until the owner presses A/B on Resume.

@@ -26,3 +26,27 @@ export async function checkTerrainViewport(page){
  for(const r of results){assert.ok(r.coloured>1000,'comparison includes visible painted terrain');assert.equal(r.changed,0,'pixel-identical terrain at scale/zoom '+r.scale+'/'+r.zoom)}
  return results;
 }
+
+// Dispatching events verifies the recovery contract, not physical GPU loss.
+export async function checkGraphicsRecovery(page){
+ const result=await page.evaluate(()=>{
+  snd=mus=0;mode='title';
+  if(!loadSeriesSLargeBattleSave())throw Error('Large battle fixture failed');
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,saves=JSON.stringify(Object.entries(localStorage)),views=[];
+  const home=S.bs.find(b=>b.t===0&&b.k==='tc');
+  for(const zoom of [.8,3]){
+   zm=zoom;TW=64*zm;TH=32*zm;ctr(home.x+5,home.y+5);mode='pause';draw(0);draw(0);
+   const data=WORLD_X.getImageData(0,0,cv.width,cv.height).data;let coloured=0;
+   // Exclude the HUD, minimap and menus; the middle of the world must render.
+   for(let y=80;y<Math.floor(cv.height*.6);y+=2)for(let x=20;x<Math.floor(cv.width*.65);x+=2){const i=(y*cv.width+x)*4;if(data[i]+data[i+1]+data[i+2]>90)coloured++}
+   views.push({zoom,coloured,units:S.us.length,buildings:S.bs.length});
+  }
+  mode='play';const lost=new Event('contextlost',{cancelable:true});cv.dispatchEvent(lost);
+  const paused=mode==='pause',restorationAllowed=!lost.defaultPrevented,statusVisible=!!document.querySelector('[role="status"]');
+  cv.dispatchEvent(new Event('contextrestored'));draw(0);draw(0);
+  return {views,paused,restorationAllowed,statusVisible,restored:GRAPHICS_RECOVERY.lost.size===0&&!GRAPHICS_RECOVERY.status,terrainRebuilt:TCH.size>0&&!!TERRAIN_VIEW.key,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,savesUnchanged:saves===JSON.stringify(Object.entries(localStorage)),stillPaused:mode==='pause'};
+ });
+ for(const view of result.views){assert.equal(view.units,372);assert.equal(view.buildings,238);assert.ok(view.coloured>1000,'large battle draws world pixels at zoom '+view.zoom)}
+ for(const key of ['paused','restorationAllowed','statusVisible','restored','terrainRebuilt','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
+ assert.equal(result.before,result.after);return result;
+}

@@ -55,7 +55,7 @@ test('Xbox menu exposes layer test and displays which graphics are hidden',()=>{
  assert.match(uiSrc,/TEST: TERRAIN ONLY/);
  assert.match(uiSrc,/TEST: OBJECTS ONLY/);
  assert.match(uiSrc,/perfFlatField=0;perfHud=1;perfFps=0/);
- assert.match(renderSrc,/if\(CHK&&perfLayerMode!==2\)drawChunks/);
+ assert.match(renderSrc,/const useChunks=CHK&&perfLayerMode!==2&&drawChunks/);
 });
 
 test('Xbox object benchmark selects only the requested render category and restores it',()=>{

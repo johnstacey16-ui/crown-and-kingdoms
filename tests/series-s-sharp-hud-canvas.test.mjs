@@ -13,7 +13,7 @@ const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 function game(){
  const {source,sandbox,storage}=headlessGame();
  const renders={hud:0,world:0};const drawContexts=[];
- const hud={width:1,height:1,style:{},getContext(){return proxy}};
+ const hud={width:1,height:1,style:{},addEventListener(){},getContext(){return proxy}};
  const proxy=new Proxy({setTransform(){},clearRect(){renders.hud++}},{
   get(t,k){return k in t?t[k]:()=>{}},
   set(t,k,v){t[k]=v;return true}
