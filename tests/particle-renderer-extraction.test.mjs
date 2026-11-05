@@ -64,3 +64,11 @@ test('sprite warming retains player-civilization filtering and only processes qu
  assert.equal(run('warmed[0]'),'mil|1|0|0');
 });
 
+
+test('warm-up skips ready atlas poses, observes late readiness and retains missing-image fallbacks',()=>{
+ const run=runtime();
+ run('globalThis.warmed=[];globalThis.probes=[];spr=(key)=>{warmed.push(key);return {}};performance.now=()=>0;hasReadyAssetPose=(k,t,s)=>{probes.push([k,t,s]);return k==="mil"};WQ=[["mil",0,0,0],["arc",1,1,2]];warm()');
+ assert.deepEqual(JSON.parse(run('JSON.stringify(warmed)')),['arc|1|1|2']);assert.equal(run('WQ.length'),0);
+ run('WQ=[["arc",1,1,2]];hasReadyAssetPose=()=>true;warm()');assert.equal(run('warmed.length'),1,'newly loaded art is observed after queue creation');
+ run('WQ=[["arc",1,1,2]];hasReadyAssetPose=()=>false;warm()');assert.equal(run('warmed.length'),2,'missing art can still warm the original fallback');
+});

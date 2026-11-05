@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "f216369ffa2044b0ebe93bfa4714861906a3f66b",
+  "method": "Real Chromium, loaded original atlases; compare the same queued procedural warm-up with readiness bypass disabled/enabled. Drain bounded warm batches synchronously for work-count isolation. Timings describe this probe, not live frame time.",
+  "spriteWarmup": {
+    "covered": 480,
+    "results": [
+      {
+        "skipReady": false,
+        "jobs": 480,
+        "paintCalls": 480,
+        "cpuMs": 126,
+        "retainedPixels": 2091456,
+        "batches": 39
+      },
+      {
+        "skipReady": true,
+        "jobs": 480,
+        "paintCalls": 0,
+        "cpuMs": 25,
+        "retainedPixels": 0,
+        "batches": 2
+      }
+    ],
+    "tintsCreated": 0,
+    "before": "fnv1a32-39044603-91bc",
+    "after": "fnv1a32-39044603-91bc"
+  },
+  "frameTints": {
+    "atlases": 51,
+    "frames": 3320,
+    "components": 824729056,
+    "nativeDifferences": 0,
+    "scaledDifferences": 0,
+    "legacyTotalCanvasPixels": 545936672,
+    "retainedPixelLimit": 33554432,
+    "peakRetainedPixels": 33554429,
+    "retainedPixels": 33500229,
+    "newCanvases": 3024,
+    "evictions": 2540,
+    "warmAllocations": 0,
+    "legacyMotionCopiesRetained": 0,
+    "before": "fnv1a32-39044603-91bc",
+    "after": "fnv1a32-39044603-91bc"
+  },
+  "fallbackColours": 695,
+  "sourceSha256": {
+    "js/assets.js": "df391d4436f5486999653cebda0fa4da6ed9f57d92f7207e7c1a449bcf43f601",
+    "js/render-effects.js": "59d7ec1d73c5dfc8f168cd5687b3eda1f0515001ea1b8afc51eb05db1ba8c526",
+    "sw.js": "b1fdd77f219cd79fa521b13257b667b93db3dac03404da1cb83e63fc98a20922"
+  },
+  "limits": [
+    "Software-rendered Chromium does not establish physical Xbox performance or audible audio quality.",
+    "No claim that total startup latency, sustained live-battle FPS or black screens are resolved.",
+    "Procedural fallback remains available on demand and warms when assets are unavailable or incomplete."
+  ],
+  "validation": {
+    "quick": "5/5 passed",
+    "focused": "1128/1128 assertions passed",
+    "isolatedRegressionFiles": "247/247 passed",
+    "chromium": "2/2 passed",
+    "finalTargeted": "14/14 assertions passed across readiness, warm-up and documentation inventory",
+    "node": "v24.22.1",
+    "browser": "Chromium 141.0.7390.37, Playwright 1.56.1, software ANGLE Vulkan SwiftShader"
+  }
+}

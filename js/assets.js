@@ -21,6 +21,18 @@ function rebuildAssetAnimationIndex(){
  }
 }
 
+// Readiness only: warming must never create tints or sample image pixels.
+// Require every declared direction/frame so partial external packs remain
+// conservatively eligible for procedural warm-up.
+function hasReadyAssetPose(kind,team,state){
+ const key=kind+'/'+STN[state]+'/'+team;
+ return (ASSET_ANIM_INDEX.get(key)||[]).some(atlas=>{
+  if(!atlas.ok||!atlas.img)return false;
+  const animation=atlas.meta?.anims?.[key],lists=animation?.dirs||(animation?.frames?[animation.frames]:[]);
+  return Array.isArray(lists)&&lists.length>0&&lists.every(frames=>Array.isArray(frames)&&frames.length>0&&frames.every(f=>f&&[f.x,f.y,f.w,f.h,f.ax,f.ay].every(Number.isFinite)&&f.w>0&&f.h>0));
+ });
+}
+
 // Recolour only the painted blue cloth/heraldry, retaining its light and texture.
 // The neutral stone, skin, steel, timber and terrain pixels remain unchanged.
 function paintedTeamImage(atlas,team){

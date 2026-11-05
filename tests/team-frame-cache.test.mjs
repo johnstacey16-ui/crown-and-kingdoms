@@ -39,3 +39,19 @@ test('lost palette surfaces are evicted and rebuilt without retaining blank pixe
  const create=f.document.createElement;f.document.createElement=()=>{const cv=create();cv.lost=true;return cv};
  const fallback=f.draw(a,1,frame);assert.equal(fallback.img,a.img);assert.equal(fallback.f,frame);assert.equal(f.cache.pixels,6);
 });
+
+test('asset readiness probes complete poses without allocating or tinting and tracks replacements/failures',()=>{
+ const f=fixture(),image={},frame={x:0,y:0,w:2,h:2,ax:1,ay:2},key='mil/walk/1';
+ assert.equal(f.hasReadyAssetPose('mil',1,1),false);
+ f.regAtlas('partial',image,{painted:true,motion:true,anims:{[key]:{dirs:[[frame],[]]}}});
+ assert.equal(f.hasReadyAssetPose('mil',1,1),false,'partial directions retain procedural warm-up');
+ f.regAtlas('ready',image,{painted:true,motion:true,anims:{[key]:{dirs:[[frame],[frame]]}}});
+ assert.equal(f.hasReadyAssetPose('mil',1,1),true);assert.equal(f.hasReadyAssetPose('mil',0,1),false);assert.equal(f.hasReadyAssetPose('mil',1,0),false);
+ assert.equal(f.canvases.length,0);assert.equal(f.cache.creations,0,'readiness must not prepare palettes');
+ f.loadAtlas('ready','missing.webp',{anims:{[key]:{frames:[frame]}}});
+ assert.equal(f.hasReadyAssetPose('mil',1,1),false,'failed replacement loading restores procedural warm-up');
+ f.regAtlas('ready',image,{anims:{[key]:{frames:[frame]}}});assert.equal(f.hasReadyAssetPose('mil',1,1),true,'valid flat frame lists can become ready again');
+ f.regAtlas('ready',{}, {painted:true,motion:true,anims:{[key]:{frames:[]}}});
+ assert.equal(f.hasReadyAssetPose('mil',1,1),false,'replacement metadata invalidates readiness');
+ f.regAtlas('ready',{}, {anims:{[key]:{dirs:'invalid'}}});assert.equal(f.hasReadyAssetPose('mil',1,1),false,'malformed external directions cannot interrupt warming');
+});

@@ -37,3 +37,25 @@ export async function checkFrameTints(page,output){
  assert.ok(result.peakRetainedPixels<=result.retainedPixelLimit);assert.equal(result.warmAllocations,0);assert.equal(result.legacyMotionCopiesRetained,0);
  await writeFile(output+'/frame-tints.json',JSON.stringify(result,null,2));return result;
 }
+
+export async function checkSpriteWarmup(page){
+ const result=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,ready=hasReadyAssetPose,original=spr,oldQueue=WQ.slice(),tints=TEAM_FRAME_CACHE.creations;
+  const results=[];let calls=0;spr=(...args)=>{calls++;return original(...args)};
+  try{
+   queueWarm();const covered=WQ.filter(q=>ready(q[0],q[1],q[2])).length;
+   for(const skip of [false,true]){
+    hasReadyAssetPose=skip?ready:()=>false;clearProceduralSpriteCache();queueWarm();const jobs=WQ.length;calls=0;
+    const start=performance.now();let batches=0;
+    while(WQ.length&&batches++<10000)warm();if(WQ.length)throw Error('Warm-up did not terminate');
+    results.push({skipReady:skip,jobs,paintCalls:calls,cpuMs:performance.now()-start,retainedPixels:SPC_PIXELS,batches});
+   }
+   return {covered,results,tintsCreated:TEAM_FRAME_CACHE.creations-tints,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  }finally{spr=original;hasReadyAssetPose=ready;WQ=oldQueue;clearProceduralSpriteCache()}
+ });
+ assert.equal(result.before,result.after);assert.equal(result.tintsCreated,0);assert.ok(result.covered>0);
+ assert.equal(result.results[0].paintCalls,result.results[0].jobs);
+ assert.equal(result.results[1].paintCalls,result.results[1].jobs-result.covered);
+ for(const r of result.results)assert.ok(r.retainedPixels<=2*1024*1024);
+ return result;
+}

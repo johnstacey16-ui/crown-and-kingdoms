@@ -1,3 +1,9 @@
+## 5 November 2026 — Skip unused procedural sprite preparation
+
+**VERIFIED browser work reduction / PARTIAL startup and hardware acceptance.** The warm-up queue now checks complete atlas pose readiness before painting a procedural replacement. The check creates no canvases or tints and performs no pixel reads. Missing, partial, replaced or subsequently failed assets remain eligible for warming; normal on-demand fallback is unchanged. The existing three-millisecond batch budget and artwork are retained.
+
+In the loaded native Chromium fixture, the same 480-job queue makes **480 → 0 procedural paint calls**, retains **2,091,456 → 0 procedural pixels**, and leaves the world checksum unchanged. Isolated queue-drain time was 126 → 25 ms; this is a work-count probe, not a live-frame or Xbox benchmark. The existing full-art pixel comparison still reports zero native/scaled differences, and the Chromium suite passes with blocked external artwork. [Exact evidence](docs/verification/sprite-warmup-2026-11-05.json) includes runtime hashes. Shell **v166**. Sustained battle hitches, black screens and audible physical Xbox output remain open.
+
 ## 5 November 2026 — Music recovery after a delayed callback
 
 **VERIFIED software scheduling / PARTIAL audible hardware acceptance.** Further local live-battle investigation reproduced long frames. Renderer experiments were rejected for lacking reliable gains or altering edge pixels; the renderer from `8ad2150` is retained. The separate music investigation found a reproducible scheduler defect after shorter callback delays.
