@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "071c2afb42cd94979fb16edae98bc66e88a6f209",
+  "scope": "Read-only selected-building production queue feedback. No changes to production, payment, population, spawn, save or input rules. Offline shell v171.",
+  "nativeChromium": {
+    "waiting": true,
+    "previousCaption": "Dock  HP 600/600  Training W (0s)",
+    "caption": "Dock  HP 600/600  Training W (Exit blocked)",
+    "hint": "Clear space around this building to release trained units.  RT Command menu",
+    "unchanged": true,
+    "released": true,
+    "paidOnce": true
+  },
+  "classifierCoverage": [
+    "Active training does not inspect exits",
+    "Housing and hard population limits take precedence over exit scanning",
+    "Blocked terrain and occupied exits are reported",
+    "Docks require a clear water exit",
+    "Clearing an exit removes the wait reason",
+    "Malformed, dead, unfinished and empty queues have no wait reason",
+    "Classification changes no queue, terrain or unit state"
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focusedAssertions": {
+      "passed": 1134,
+      "total": 1134
+    },
+    "chromium": {
+      "passed": 2,
+      "total": 2
+    },
+    "isolatedRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    },
+    "seededSkirmishes": {
+      "passed": 3,
+      "total": 3
+    }
+  },
+  "campaignStatus": {
+    "lastFullMatrix": "campaign-2026-11-05.json",
+    "scriptedWins": 14,
+    "defeats": 5,
+    "timeouts": 0,
+    "thisChange": "Further ignored Causeway construction/economy/escort trials still lose; none were retained. A controlled early-Dock route trial completed three of five objectives but ended in defeat. No new campaign victory is claimed."
+  },
+  "limits": [
+    "Controlled Dock obstruction verifies UI and normal queue release, not a campaign win",
+    "Physical Xbox performance/controller acceptance remains open",
+    "No fresh 19-mission matrix is claimed for this UI-only change"
+  ]
+}

@@ -44,3 +44,23 @@ assert.deepEqual(Array.from(spawnPos(dock)), [4.5, 3.5], 'ships spawn on navigab
 S.nd[3 * W + 4] = { k: 'fish' };
 assert.equal(spawnPos(dock), null, 'ships cannot spawn on occupied resource tiles');
 console.log('production-spawn-terrain: passed');
+
+const queues=readFileSync(new URL('../js/simulation-production-queues.js',import.meta.url),'utf8');
+let live=5,capacity=10,spawnChecks=0;
+S.tech=[{}];
+const waits={S,U:{vil:{}},popLimit:20,livePopulation:()=>live,capOf:()=>capacity,
+ spawnPos:b=>{spawnChecks++;return spawnPos(b)}};
+vm.createContext(waits);vm.runInContext(queues.slice(queues.indexOf('function productionQueueWait(')),waits);
+const selected={...tc,t:0,hp:900,done:true,q:[{k:'vil',t:4}]};
+assert.equal(waits.productionQueueWait(selected),null);assert.equal(spawnChecks,0,'active training never scans exits');
+selected.q[0].t=0;live=10;assert.equal(waits.productionQueueWait(selected).label,'Housing needed');assert.equal(spawnChecks,0);
+live=20;assert.equal(waits.productionQueueWait(selected).label,'Population limit');assert.equal(spawnChecks,0);
+live=5;S.g.fill(1);S.wt.fill(0);S.nd.fill(null);
+const before=JSON.stringify({S,selected});assert.equal(waits.productionQueueWait(selected).label,'Exit blocked');
+assert.equal(JSON.stringify({S,selected}),before,'classification changes no queue, terrain or units');
+S.g[3*W+4]=0;assert.equal(waits.productionQueueWait(selected),null,'clearing a real exit removes the hint');
+S.us=[{hp:40,x:4.5,y:3.5}];assert.equal(waits.productionQueueWait(selected).label,'Exit blocked','nearby units can block the final exit');
+S.us=[];const naval={...selected,k:'dock'};assert.equal(waits.productionQueueWait(naval).label,'Exit blocked','a Dock needs clear water');
+S.wt[3*W+4]=1;assert.equal(waits.productionQueueWait(naval),null);
+for(const bad of [null,{...selected,done:false},{...selected,hp:0},{...selected,q:[]},{...selected,q:[{k:'bad',t:0}]}])assert.equal(waits.productionQueueWait(bad),null);
+console.log('production-queue-wait: ready, housing, hard limit, terrain/occupancy and read-only checks passed');

@@ -85,6 +85,27 @@ export async function checkCampaignNavies(browser,origin,output){
    return {applied,arrived,intercepted,returned,distance:d2(ship.x,ship.y,dock)};
   });
   for(const key of ['applied','arrived','intercepted','returned'])assert.equal(dockGuard[key],true,'native Dock Guard '+key);
-  return {...result,tidewatch,relicReturn,dockGuard};
+  const productionWait=await page.evaluate(()=>{
+   // Controlled exit obstruction, not a campaign victory/construction fixture.
+   S.us=[];const dock=S.bs.find(b=>b.k==='dock'&&b.t===0);for(let i=0;i<6;i++)addB(0,'house',10+i*3,10,true);
+   if(!train(dock,'gal'))throw Error('Could not pay for the queued Galley');
+   const paid=JSON.stringify(S.res[0]),blocked=[];const cells=new Set();
+   for(let i=-1;i<=dock.s;i++)for(const [x,y]of [[dock.x+i,dock.y-1],[dock.x+i,dock.y+dock.s],[dock.x-1,dock.y+i],[dock.x+dock.s,dock.y+i]]){
+    const key=y*W+x;if(!cells.has(key)&&S.wt[key]){cells.add(key);blocked.push(addU(0,'gal',x+.5,y+.5))}
+   }
+   upB(dock,U.gal.t+1);S.sel=[dock];
+   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,old=productionQueueWait;
+   const capture=()=>{const original=tx,text=[];tx=(s,...args)=>{text.push(String(s));return original(s,...args)};try{hud()}finally{tx=original}return text};
+   let previous;
+   try{productionQueueWait=()=>null;previous=capture()}finally{productionQueueWait=old}
+   const current=capture(),unchanged=before===CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+   const waiting=dock.q.length===1&&dock.q[0].t===0;
+   blocked[0].y+=3;upB(dock,1/30);
+   return {waiting,previousCaption:previous.find(t=>t.includes('Training ')),caption:current.find(t=>t.includes('Training ')),hint:current.find(t=>t.includes('Clear space')),unchanged,released:dock.q.length===0,paidOnce:paid===JSON.stringify(S.res[0])};
+  });
+  assert.equal(productionWait.waiting,true);assert.match(productionWait.previousCaption,/0s/);
+  assert.match(productionWait.caption,/Exit blocked/);assert.ok(productionWait.hint);
+  for(const key of ['unchanged','released','paidOnce'])assert.equal(productionWait[key],true,key);
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait};
  }finally{await page.close()}
 }
