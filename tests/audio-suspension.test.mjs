@@ -83,3 +83,27 @@ test('missing and thrown browser resume functions never interrupt game input',()
  assert.equal(h.requests(),0);
  assert.equal(h.status().queued,'u_note');
 });
+
+function musicFixture(){
+ const calls=[],AC={state:'running',currentTime:10},sandbox={AC,snd:1,mus:1,mode:'play',S:{},gt:0,civ:0,calls};
+ vm.createContext(sandbox);vm.runInContext(audio+"\nAUD.ok=1;aSt=()=> 'combat';aStep=(at,d,state)=>calls.push({at,d,state,phase:AUD.sp});globalThis.schedule=()=>aMus();globalThis.position=()=>({next:AUD.nt,phase:AUD.sp});",sandbox);
+ return {AC,calls,schedule:()=>sandbox.schedule(),position:()=>sandbox.position()};
+}
+test('music resumes a future beat after a short scheduler stall without replaying overdue beats',()=>{
+ const h=musicFixture();h.schedule();const first=h.position(),initial=h.calls.length;h.AC.currentTime+=.7;h.schedule();const resumed=h.calls.slice(initial);
+ assert.ok(resumed.length>0&&resumed.length<=2,'only the lookahead window is scheduled');
+ assert.ok(resumed.every(c=>c.at>=h.AC.currentTime),'overdue notes must not be sent to WebAudio');
+ assert.ok(resumed[0].phase>first.phase,'missed beats advance musical phase instead of forming a burst');
+ const duration=60/112/2;for(const c of resumed)assert.ok(Math.abs((c.at-10.1)/duration-c.phase)<1e-9,'resume stays on the original beat grid');
+});
+test('normal cadence and very long stalls keep music scheduling bounded and phase-consistent',()=>{
+ const h=musicFixture();
+ for(let i=0;i<100;i++){
+  h.AC.currentTime=10+i*.12;const before=h.calls.length;h.schedule();const added=h.calls.slice(before);
+  assert.ok(added.every(c=>c.at>=h.AC.currentTime));assert.ok(added.length<=2);
+ }
+ assert.deepEqual(h.calls.map(c=>c.phase),Array.from({length:h.calls.length},(_,i)=>i),'normal 120ms callbacks do not skip any beats');
+ assert.equal(h.calls[0].at,10.1);
+ const oldPhase=h.position().phase;h.AC.currentTime+=3600;const before=h.calls.length;h.schedule();const added=h.calls.slice(before);
+ assert.ok(added.length<=2);assert.ok(added.every(c=>c.at>=h.AC.currentTime));assert.ok(h.position().phase>oldPhase+10000,'large backlog is skipped arithmetically');
+});

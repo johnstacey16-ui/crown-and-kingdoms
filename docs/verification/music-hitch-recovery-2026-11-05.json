@@ -1,0 +1,262 @@
+{
+  "date": "2026-11-05",
+  "baselineRevision": "8ad21506e5030d4a032c82d2d2f8a66042b457b8",
+  "scope": "Actual Chromium WebAudio with original synthesizer, controlled delayed scheduler callbacks. Requested delay differs from audio-clock elapsed time under load. Scheduling timestamps and phase are verified; audible Xbox output and rendering performance are not established.",
+  "before": {
+    "state": "running",
+    "cases": [
+      {
+        "delay": 120,
+        "clock": 0.16253968253968254,
+        "steps": [
+          {
+            "scheduled": 0.3997845804988662,
+            "now": 0.16253968253968254,
+            "phase": 1
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 350,
+        "clock": 0.5108390022675737,
+        "steps": [
+          {
+            "scheduled": 0.5303968253968254,
+            "now": 0.5108390022675737,
+            "phase": 1
+          },
+          {
+            "scheduled": 0.7982539682539682,
+            "now": 0.5108390022675737,
+            "phase": 2
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 700,
+        "clock": 1.1522902494331067,
+        "steps": [
+          {
+            "scheduled": 0.8786961451247166,
+            "now": 1.1522902494331067,
+            "phase": 1
+          },
+          {
+            "scheduled": 1.1465532879818594,
+            "now": 1.1522902494331067,
+            "phase": 2
+          },
+          {
+            "scheduled": 1.4144104308390022,
+            "now": 1.1522902494331067,
+            "phase": 3
+          }
+        ],
+        "late": 2
+      },
+      {
+        "delay": 950,
+        "clock": 2.10140589569161,
+        "steps": [
+          {
+            "scheduled": 1.5201473922902495,
+            "now": 2.10140589569161,
+            "phase": 1
+          },
+          {
+            "scheduled": 1.7880045351473923,
+            "now": 2.10140589569161,
+            "phase": 2
+          },
+          {
+            "scheduled": 2.0558616780045353,
+            "now": 2.10140589569161,
+            "phase": 3
+          },
+          {
+            "scheduled": 2.323718820861678,
+            "now": 2.10140589569161,
+            "phase": 4
+          }
+        ],
+        "late": 3
+      },
+      {
+        "delay": 1500,
+        "clock": 2.861859410430839,
+        "steps": [
+          {
+            "scheduled": 2.47797052154195,
+            "now": 2.861859410430839,
+            "phase": 1
+          },
+          {
+            "scheduled": 2.745827664399093,
+            "now": 2.861859410430839,
+            "phase": 2
+          },
+          {
+            "scheduled": 3.0136848072562357,
+            "now": 2.861859410430839,
+            "phase": 3
+          }
+        ],
+        "late": 2
+      }
+    ]
+  },
+  "after": {
+    "state": "running",
+    "cases": [
+      {
+        "delay": 120,
+        "clock": 0.1509297052154195,
+        "steps": [
+          {
+            "scheduled": 0.38236961451247165,
+            "now": 0.1509297052154195,
+            "phase": 1
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 350,
+        "clock": 0.5021315192743764,
+        "steps": [
+          {
+            "scheduled": 0.7866439909297052,
+            "now": 0.5021315192743764,
+            "phase": 2
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 700,
+        "clock": 1.2103401360544217,
+        "steps": [
+          {
+            "scheduled": 1.4057029478458047,
+            "now": 1.2103401360544217,
+            "phase": 3
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 950,
+        "clock": 2.162358276643991,
+        "steps": [
+          {
+            "scheduled": 2.381768707482993,
+            "now": 2.162358276643991,
+            "phase": 4
+          }
+        ],
+        "late": 0
+      },
+      {
+        "delay": 1500,
+        "clock": 3.660045351473923,
+        "steps": [
+          {
+            "scheduled": 3.869501133786848,
+            "now": 3.660045351473923,
+            "phase": 6
+          }
+        ],
+        "late": 0
+      }
+    ]
+  },
+  "baselineUnitResult": "The two new scheduler regressions failed before the change and all seven audio tests passed after it.",
+  "rejectedRenderingExperiments": [
+    "GPU copies of tinted sprites: no reliable gain",
+    "Shared source-pixel cache: fewer reads but slower paired drawing",
+    "Pixel-aligned health bars: no reliable gain",
+    "Mirrored draw shortcut: changed edge pixels",
+    "Opaque main canvas: no consistent paired improvement"
+  ],
+  "audioBaselineSHA256": "97bad54b108a3b35f2ae56a358d6ca6ee79ea098d25ea5cb6889266e5b6b8d8c",
+  "fixedSHA256": {
+    "js/audio.js": "fb7b64566ce4492d283b041422f0dc9bbf8796b865ace8f1407478a7ce82071c",
+    "sw.js": "ac49f96bc799e19f13ad1ea0c1c784fdb9b9e27f141f8879157938aa576866b2",
+    "tests/audio-suspension.test.mjs": "24f5eb6f74c36fa57b7e41a9b00816062b72930e39f0b8120eb6857a3ab232fb",
+    "tests/browser/audio-scheduling.mjs": "797d7a00b6cce356a6d4e47cece4ddd9981a7e0cbdcc4616dd68aad60d518b36"
+  },
+  "browserSuiteProbe": {
+    "state": "running",
+    "cases": [
+      {
+        "delay": 120,
+        "audioElapsed": 0.1219047619047619,
+        "scheduled": [
+          {
+            "at": 0.4201020408163265,
+            "now": 0.18285714285714286,
+            "phase": 1
+          }
+        ]
+      },
+      {
+        "delay": 350,
+        "audioElapsed": 0.23510204081632655,
+        "scheduled": [
+          {
+            "at": 0.5507142857142857,
+            "now": 0.4179591836734694,
+            "phase": 1
+          }
+        ]
+      },
+      {
+        "delay": 700,
+        "audioElapsed": 0.7198185941043085,
+        "scheduled": [
+          {
+            "at": 1.321530612244898,
+            "now": 1.172607709750567,
+            "phase": 3
+          }
+        ]
+      },
+      {
+        "delay": 950,
+        "audioElapsed": 0.9491156462585035,
+        "scheduled": [
+          {
+            "at": 2.3440362811791386,
+            "now": 2.110113378684807,
+            "phase": 4
+          }
+        ]
+      },
+      {
+        "delay": 1500,
+        "audioElapsed": 1.4889795918367343,
+        "scheduled": [
+          {
+            "at": 3.8288662131519278,
+            "now": 3.610702947845805,
+            "phase": 6
+          }
+        ]
+      }
+    ]
+  },
+  "softwareChecks": {
+    "quickGatesPassed": 5,
+    "focusedAssertionsPassed": 1126,
+    "chromiumSuitesPassed": 2,
+    "fullStandaloneRun": {
+      "files": 247,
+      "initialFailure": "repository-evidence-inventory: current register exceeded size limit",
+      "resolution": "consolidated repeated history from 21 KB to under 14 KB; all four inventory assertions passed on targeted rerun"
+    },
+    "audioFinalTargetedAssertionsPassed": 7,
+    "verifiedStandaloneFilesAfterRerun": 247
+  }
+}

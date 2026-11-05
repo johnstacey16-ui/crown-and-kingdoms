@@ -84,7 +84,12 @@ if(pl&&ff>.05&&pal!==2&&Math.random()<.05){const c=s2w(CW/2+R1(-CW*.4,CW*.4),CH/
 const SCS={w:[0,2,3,5,7,9,10],e:[0,2,4,7,9],m:[0,1,4,5,7,8,10]},CSC=['w','w','e','m','m','w','w','w','m','m','e','e','e','m','m','w','w','e','w','e','e','e','m','m','e','m'],PRG=[[0,3,4,0],[0,5,3,4],[0,2,3,4],[0,4,5,3]],MST={peace:{pad:.55,bass:0,arp:.5,drum:0,drone:0,bpm:64},tension:{pad:.6,bass:.45,arp:.2,drum:.3,drone:.45,bpm:82},combat:{pad:.4,bass:.55,arp:0,drum:1,drone:.3,bpm:112}};
 function aSt(){if(mode!=='play'||!S)return'peace';if(gt-AUD.lc<6)return'combat';if(S.ping&&S.t-S.ping.t<25)return'tension';return'peace'}
 function aMus(){if(AUD.ok<1||AC.state!=='running')return;const ok=snd&&mus&&['play','pause','title','setup','opts','info','obj','tree','remap','camp','brief','slots'].includes(mode),st=ok?aSt():'peace',T=MST[st];AUD.st=st;for(const k in AUD.lv)AUD.lv[k]+=((ok?T[k]:0)-AUD.lv[k])*.12;if(!ok){AUD.nt=0;return}
-const now=AC.currentTime;if(!AUD.nt||AUD.nt<now-1)AUD.nt=now+.1;const sd=60/T.bpm/2;while(AUD.nt<now+.3){aStep(AUD.nt,sd,st);AUD.nt+=sd;AUD.sp++}}
+const now=AC.currentTime,sd=60/T.bpm/2;if(!AUD.nt)AUD.nt=now+.1;
+// A late callback must not replay notes whose start times have already passed.
+// Advance phase on the existing beat grid, then schedule only future notes.
+const earliest=now+.02;
+if(AUD.nt<earliest){const missed=Math.ceil((earliest-AUD.nt)/sd);AUD.nt+=missed*sd;AUD.sp+=missed}
+while(AUD.nt<now+.3){aStep(AUD.nt,sd,st);AUD.nt+=sd;AUD.sp++}}
 function aStep(t,sd,st){const sc=SCS[CSC[civ]||'w'],L=sc.length,sp=AUD.sp,q=sp&15,prog=PRG[(civ>>1)%4],deg=prog[(sp>>4)&3]%L,fq=d=>{const n=((d%L)+L)%L;return 110*Math.pow(2,(sc[n]+12*Math.floor(d/L))/12)},B=AUD.b.mu,lv=AUD.lv;
 if(q===0){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=700;lp.connect(B);if(lv.pad>.03)for(const d of[deg,deg+2,deg+4])pd(lp,t,sd*16+.6,fq(d)*(1+R1(-.004,.004)),.03*lv.pad);if(lv.drone>.03){const l2=AC.createBiquadFilter();l2.type='lowpass';l2.frequency.value=260;l2.connect(B);pd(l2,t,sd*16+.6,fq(deg)/2,.06*lv.drone);if(st==='combat')pd(l2,t,sd*16+.6,fq(deg)/2*1.06,.04*lv.drone)}}
 if(lv.bass>.03&&q%4===0)tn(B,t,sd*3.6,'sine',fq(deg)/2,0,.16*lv.bass,.01);
