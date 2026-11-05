@@ -53,3 +53,25 @@ test('lost stationary viewport is discarded and rebuilt instead of reusing a val
  s.setLost(false);s.draw();assert.equal(s.builds.length,4);assert.equal(s.blits.at(-1)[0],s.cv);
  s.events.contextlost();assert.equal(s.sandbox.cache.canvas,null);s.draw();assert.equal(s.builds.length,6);
 });
+
+test('invalidated moving views release old chunk references without dropping the live chunk cache',()=>{
+ const s=scene();s.warm();const old=s.chunks.slice();assert.equal(s.sandbox.cache.chunks.length,2);
+ for(let i=0;i<20;i++){
+  s.chunks[0]={cv:{id:10+i*2},ox:i,oy:i,w:512,h:256};s.chunks[1]={cv:{id:11+i*2},ox:i+1,oy:i+1,w:512,h:256};
+  s.sandbox.cam.x++;s.draw();
+  assert.equal(s.sandbox.cache.chunks.length,0,'an unusable flattened view must not pin chunks retired by the LRU');
+ }
+ assert.equal(s.builds.length,2,'panning does not rebuild the flattened surface');
+ assert.equal(old.some(c=>s.sandbox.cache.chunks.includes(c)),false);
+ s.draw();assert.equal(s.sandbox.cache.chunks[0],s.chunks[0]);assert.equal(s.sandbox.cache.chunks[1],s.chunks[1]);
+ assert.equal(s.builds.length,4,'the stopped view rebuilds from the current chunks');
+});
+
+test('context loss and failed rebuilds release stale terrain references before direct fallback',()=>{
+ const s=scene();s.warm();s.setLost(true);s.draw();assert.equal(s.sandbox.cache.chunks.length,0);
+ s.setLost(false);s.draw();assert.equal(s.sandbox.cache.chunks.length,2);
+ s.events.contextlost();assert.equal(s.sandbox.cache.chunks.length,0);
+ s.draw();assert.equal(s.sandbox.cache.chunks.length,2);
+ s.cv.getContext().drawImage=()=>{throw Error('upload unavailable')};s.chunks[0]={...s.chunks[0],cv:{id:99}};s.blits.length=0;s.draw();
+ assert.equal(s.sandbox.cache.key,null);assert.equal(s.sandbox.cache.chunks.length,0);assert.equal(s.blits[0][0],s.chunks[0].cv);
+});

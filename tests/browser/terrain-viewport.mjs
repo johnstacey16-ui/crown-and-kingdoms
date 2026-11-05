@@ -18,12 +18,16 @@ export async function checkTerrainViewport(page){
     X.fillStyle='#000';X.fillRect(0,0,CW,CH);drawTerrainViewport=cached;drawChunks(0,W-1,0,H-1);X.fillStyle='#000';X.fillRect(0,0,CW,CH);drawChunks(0,W-1,0,H-1);
     const actual=X.getImageData(0,0,canvas.width,canvas.height).data;
     let changed=0,coloured=0;for(let i=0;i<actual.length;i++){if(actual[i]!==original[i])changed++;if(i%4!==3&&original[i]>0)coloured++}
-    out.push({scale,zoom,changed,coloured});
+    const retainedChunkReferences=TERRAIN_VIEW.chunks.length,chunkCacheBeforePan=TCH.size;
+    cam.x+=.25;drawChunks(0,W-1,0,H-1);
+    const invalidatedChunkReferences=TERRAIN_VIEW.chunks.length,chunkCacheAfterPan=TCH.size;
+    cam.x-=.25;
+    out.push({scale,zoom,changed,coloured,retainedChunkReferences,invalidatedChunkReferences,chunkCacheBeforePan,chunkCacheAfterPan});
    }
   }finally{S.ex.set(saved.explored);X=saved.X;CW=saved.CW;CH=saved.CH;DPR=saved.DPR;zm=saved.zm;Object.assign(cam,saved.cam);drawTerrainViewport=saved.drawTerrainViewport;TERRAIN_VIEW.key=null}
   return out;
  });
- for(const r of results){assert.ok(r.coloured>1000,'comparison includes visible painted terrain');assert.equal(r.changed,0,'pixel-identical terrain at scale/zoom '+r.scale+'/'+r.zoom)}
+ for(const r of results){assert.ok(r.coloured>1000,'comparison includes visible painted terrain');assert.equal(r.changed,0,'pixel-identical terrain at scale/zoom '+r.scale+'/'+r.zoom);assert.ok(r.retainedChunkReferences>0);assert.equal(r.invalidatedChunkReferences,0,'panning releases invalid viewport references');assert.ok(r.chunkCacheAfterPan>=r.chunkCacheBeforePan,'the live terrain chunk cache is retained')}
  return results;
 }
 

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "82254e8c040ef188b6e85541902c4afce795c574",
+  "method": "Production terrain viewport code: fail-before/pass-after unit regressions for 20 moving views, context loss and failed rebuilds; native Chromium compares the original chunk painter against the cached terrain at three resolution scales and three zooms, then invalidates by panning.",
+  "terrainViewport": [
+    {
+      "scale": 1,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 2239484,
+      "retainedChunkReferences": 28,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 28,
+      "chunkCacheAfterPan": 28
+    },
+    {
+      "scale": 1,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 2239488,
+      "retainedChunkReferences": 12,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 33,
+      "chunkCacheAfterPan": 33
+    },
+    {
+      "scale": 1,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 2239488,
+      "retainedChunkReferences": 7,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.75,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 1259712,
+      "retainedChunkReferences": 28,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.75,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 1259712,
+      "retainedChunkReferences": 12,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.75,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 1259712,
+      "retainedChunkReferences": 7,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.5,
+      "zoom": 0.8,
+      "changed": 0,
+      "coloured": 559872,
+      "retainedChunkReferences": 28,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.5,
+      "zoom": 1.4,
+      "changed": 0,
+      "coloured": 559872,
+      "retainedChunkReferences": 12,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    },
+    {
+      "scale": 0.5,
+      "zoom": 2,
+      "changed": 0,
+      "coloured": 559872,
+      "retainedChunkReferences": 7,
+      "invalidatedChunkReferences": 0,
+      "chunkCacheBeforePan": 34,
+      "chunkCacheAfterPan": 34
+    }
+  ],
+  "unitRegression": {
+    "before": {
+      "passed": 6,
+      "failed": 2
+    },
+    "after": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "sourceSha256": {
+    "js/render-terrain.js": "9ef671a68393abf92cfb2bb129b1abf7ab73a5a19fc736fa5cbf4b334d5b2ee8",
+    "sw.js": "6832ba25a76ae5a4cb49f6d837cf0a3e9d655eec57bf3572d92f5df4242a62f9"
+  },
+  "limits": [
+    "Clearing stale viewport descriptors lets LRU-retired chunks become eligible for garbage collection; the live TCH chunk cache remains intact.",
+    "Reference counts do not measure process/GPU memory, garbage collection timing or an Xbox FPS improvement.",
+    "Reported physical Xbox black screens and audible interruptions remain open."
+  ],
+  "rejectedExperiment": {
+    "name": "Partial repaint of changed unexplored fog mask",
+    "casesPerVariant": 30,
+    "variants": [
+      {
+        "probe": "fog-patch-pixels.log",
+        "changedComponentsAcrossAllSteps": 136850
+      },
+      {
+        "probe": "fog-patch-full-pixels.log",
+        "changedComponentsAcrossAllSteps": 123385
+      }
+    ],
+    "reason": "Clipped repaint changed antialiased edge pixels; all experimental fog source changes were reverted."
+  },
+  "validation": {
+    "quick": "5/5 passed",
+    "focused": "1130/1130 assertions passed",
+    "isolatedRegressionFiles": "247/247 passed",
+    "chromium": "2/2 passed",
+    "terrainPixelComparisons": "9/9 exact matches",
+    "node": "v24.22.1",
+    "browser": "Chromium 141.0.7390.37, Playwright 1.56.1; software rendering is not Xbox hardware acceptance"
+  }
+}

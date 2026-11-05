@@ -118,7 +118,7 @@ function drawHill(o){
 }
 function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){const cached=c.cv.getContext('2d');if(cached&&!cached.isContextLost?.()){TCH.delete(key);TCH.set(key,c);return c}TCH.delete(key)}
 const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');if(!g||g.isContextLost?.())return null;
-cv2.addEventListener?.('contextlost',()=>{if(TCH.get(key)?.cv===cv2)TCH.delete(key);TERRAIN_VIEW.key=null});
+cv2.addEventListener?.('contextlost',()=>{if(TCH.get(key)?.cv===cv2)TCH.delete(key);invalidateTerrainViewport()});
 for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
 if(g.isContextLost?.())return null;
 c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);return c}
@@ -159,25 +159,29 @@ function drawChunks(x0,x1,y0,y1){
 // surface avoids resampling overlapping transparent chunk textures each frame.
 // Fog, waves and all world objects are still painted live by drawWorld().
 const TERRAIN_VIEW={canvas:null,key:null,pending:null,chunks:[]};
+// Once invalid, the flattened view cannot use its old chunk descriptors. Drop
+// those references so chunks retired by the LRU are eligible for collection
+// even while the camera keeps moving or a canvas rebuild keeps failing.
+function invalidateTerrainViewport(){TERRAIN_VIEW.key=null;TERRAIN_VIEW.chunks=[]}
 function drawTerrainViewport(chunks){
  const dpr=typeof DPR==='number'?DPR:1,w=Math.round(CW*dpr),h=Math.round(CH*dpr);
  const direct=()=>{for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)};
  // At most 16 MiB of additional pixels. Oversized views keep the original path.
  if(w<1||h<1||w*h>4000000){
   if(TERRAIN_VIEW.canvas){TERRAIN_VIEW.canvas.width=TERRAIN_VIEW.canvas.height=1}
-  TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];direct();return;
+  invalidateTerrainViewport();TERRAIN_VIEW.pending=null;direct();return;
  }
  const key=[cam.x,cam.y,zm,CW,CH,w,h,dpr].join('|');
  // While panning/zooming use the original path. Flatten only after the view
  // remains stable for a second frame, avoiding an extra full-screen pass per pan.
- if(TERRAIN_VIEW.pending!==key){TERRAIN_VIEW.pending=key;TERRAIN_VIEW.key=null;direct();return}
+ if(TERRAIN_VIEW.pending!==key){TERRAIN_VIEW.pending=key;invalidateTerrainViewport();direct();return}
  try{
   const cv=TERRAIN_VIEW.canvas||(TERRAIN_VIEW.canvas=document.createElement('canvas'));
   const g=cv.getContext('2d',{alpha:false});
-  if(!g||g.isContextLost?.()){TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;direct();return}
-  if(!cv.ckTerrainRecovery){cv.ckTerrainRecovery=true;cv.addEventListener?.('contextlost',()=>{if(TERRAIN_VIEW.canvas===cv){TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null}})}
+  if(!g||g.isContextLost?.()){TERRAIN_VIEW.canvas=null;invalidateTerrainViewport();direct();return}
+  if(!cv.ckTerrainRecovery){cv.ckTerrainRecovery=true;cv.addEventListener?.('contextlost',()=>{if(TERRAIN_VIEW.canvas===cv){TERRAIN_VIEW.canvas=null;invalidateTerrainViewport()}})}
   if(TERRAIN_VIEW.key!==key||chunks.length!==TERRAIN_VIEW.chunks.length||chunks.some((c,i)=>c!==TERRAIN_VIEW.chunks[i])){
-   TERRAIN_VIEW.key=null;
+   invalidateTerrainViewport();
    if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
    g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#000';g.fillRect(0,0,CW,CH);
    g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
@@ -187,5 +191,5 @@ function drawTerrainViewport(chunks){
   }
   // Copy physical pixels 1:1, including fractional-DPR edge rounding.
   X.save();try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cv,0,0)}finally{X.restore()}
- }catch(_){TERRAIN_VIEW.key=null;direct()}
+ }catch(_){invalidateTerrainViewport();direct()}
 }

@@ -1,3 +1,9 @@
+## 5 November 2026 — Release invalid terrain-view chunk references
+
+**VERIFIED reference lifetime / PARTIAL hardware performance.** The flattened terrain view retained its previous chunk array after a pan invalidated its key, and after context loss or a failed rebuild. Those stale references could keep chunks alive after the LRU retired them, until a later successful stationary rebuild. A shared invalidator now clears both key and descriptors immediately. It leaves the live chunk cache, original pixel resolution, painting order and on-demand fallback unchanged.
+
+Two regressions fail before/pass after, covering 20 consecutive moving views, viewport loss and failed uploads. All nine native Chromium zoom/resolution combinations preserve exact terrain pixels; each releases its invalid view references (7–28 previously cached descriptors) without removing live chunk-cache entries. This demonstrates reference eligibility, **not** measured process/GPU memory recovery, garbage collection timing or an Xbox FPS gain. [Exact evidence](docs/verification/terrain-reference-release-2026-11-05.json). Shell **v167**. A partial fog-repaint experiment was rejected because it changed antialiased pixels; no experimental fog code is retained. Black screens, sustained Xbox FPS and audible hardware output remain open.
+
 ## 5 November 2026 — Skip unused procedural sprite preparation
 
 **VERIFIED browser work reduction / PARTIAL startup and hardware acceptance.** The warm-up queue now checks complete atlas pose readiness before painting a procedural replacement. The check creates no canvases or tints and performs no pixel reads. Missing, partial, replaced or subsequently failed assets remain eligible for warming; normal on-demand fallback is unchanged. The existing three-millisecond batch budget and artwork are retained.
