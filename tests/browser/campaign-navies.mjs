@@ -187,6 +187,26 @@ export async function checkCampaignNavies(browser,origin,output){
   for(const key of ['applied','arrived','deferred','executed','updated'])assert.equal(groupRally[key],true,'group rally '+key);
   assert.equal(groupRally.selection.length,2);assert.deepEqual(groupRally.order.entities,groupRally.selection);assert.equal(groupRally.order.type,'rally');
   await page.locator('#group-rally-map').screenshot({path:output+'/group-rally.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally};
+  const fishingRally=await page.evaluate(()=>{
+   // Cleared water fixture; actual A release, paid Dock queues and delivery.
+   startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(1);S.ex.fill(1);S.vs.fill(1);
+   const docks=[addB(0,'dock',20,20,true),addB(0,'dock',36,20,true)];S.res[0].w=1000;S.res[0].f=1000;
+   const fish={netId:nextNetworkEntityId('n'),k:'f',x:30,y:30,s:1,amt:200,fi:1};S.nodes.push(fish);S.nd[fish.y*W+fish.x]=fish;
+   S.sel=docks;cancelGameplayGestures();ctr(30.5,30.5);cur={x:CW/2,y:CH/2};
+   E=[];RE=[];P=[];E[0]=P[0]=true;playCtl(1/30);E=[];P=[];RE[0]=true;playCtl(1/30);RE=[];
+   const sharedResource=docks.every(b=>b.rally?.t===fish);
+   for(const b of docks){if(!train(b,'fish'))throw Error('Fishing ship training failed');upB(b,U.fish.t+1)}
+   const dispatched=S.us.length===2&&S.us.every(u=>u.o==='g'&&u.tg===fish),paid=1000-S.res[0].w;
+   for(let i=0;i<2400;i++)for(const u of S.us)upU(u,1/30);
+   const harvested=200-fish.amt,delivered=S.res[0].f-1000,saved=saveG(),loaded=saved&&loadG();mode='pause';
+   const restored=S.bs.every(b=>b.rally.t===S.nodes[0])&&S.us.every(u=>u.tg===S.nodes[0]);
+   S.sel=S.bs.slice();cmp=null;notes.length=0;ctr(30,26);mode='play';draw(0);
+   const proof=document.createElement('canvas');proof.id='fishing-rally-proof';proof.width=CW;proof.height=CH;proof.getContext('2d').drawImage(document.getElementById('c'),0,0);document.body.append(proof);mode='pause';
+   return {sharedResource,dispatched,paid,expectedCost:2*U.fish.cost.w,harvested,delivered,saved,loaded,restored};
+  });
+  for(const key of ['sharedResource','dispatched','saved','loaded','restored'])assert.equal(fishingRally[key],true,'fishing rally '+key);
+  assert.equal(fishingRally.paid,fishingRally.expectedCost);assert.ok(fishingRally.harvested>0);assert.ok(fishingRally.delivered>0);
+  await page.locator('#fishing-rally-proof').screenshot({path:output+'/fishing-resource-rally.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally};
  }finally{await page.close()}
 }

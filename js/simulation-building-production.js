@@ -3,6 +3,21 @@ function spawnPos(b){const occupied=new Set();for(const u of S.us)if(u.hp>0&&!u.
 const MILITARY_PRODUCTION_BUILDINGS=new Set(['bar','rng','stable','siege','castle','monastery','dock']);
 function trainRate(b,k){return S.tech[b.t]&&S.tech[b.t].cons&&MILITARY_PRODUCTION_BUILDINGS.has(b.k)&&!['vil','cart','fish','trn','cog'].includes(k)?4/3:1}
 
+/* Newly trained workers can use a live compatible resource rally. Keep ordinary
+ * ground rallies and the normal gathering/path retry policy for other cases. */
+function applyProductionRally(u,rally){
+ if(!rally)return;
+ if(u.k==='vil')u.autoWorker=0;
+ u.o='i';u.p=[];u.tg=null;u.ct=null;u.ret=0;
+ const n=rally.t,worker=n&&((u.k==='vil'&&!n.fi)||(u.k==='fish'&&n.fi&&n.k==='f'));
+ if(worker&&n.amt>0&&S.nd[n.y*W+n.x]===n&&knownResource(u,n)&&
+   (!n.fm||n.t===u.t)&&(!n.trap||n.t===u.t)){
+  u.o='g';u.tg=n;u.ct=n.k;return;
+ }
+ const route=path(u,gp(rally.x,rally.y,1.5));
+ if(route){u.o='m';u.p=route}
+}
+
 /* Construction placement and occupied-ground protection, unchanged from simulation.js. */
 function okPlace(t,k,x,y){if(!S||!B[k]||!Number.isInteger(t)||!S.tech[t]||!Number.isInteger(x)||!Number.isInteger(y))return false;if(vm===6&&k==='tc')return false;const s=B[k].s;if(x<1||y<1||x+s>W-1||y+s>H-1)return false;
 // A solid foundation or farm would strand any unit already on these tiles:

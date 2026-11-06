@@ -1,0 +1,1172 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "ba6dcc54dd3ab86b40bdbd0314ccf37bcb682752",
+  "scope": "Dock resource rallies dispatch newly trained Fishing Ships to gather and deliver. Rally initialization now has one production owner. Existing land-worker, military, payment, controller, save and multiplayer ground-rally behaviour is retained.",
+  "singleBoatReproduction": {
+    "fixture": "One paid Fishing Ship; Dock at 20,20, live fish at 30,28 on cleared water, 2400 production unit ticks at 1/30 second. Baseline swaps only the original upB function from the stated commit.",
+    "before": {
+      "ordered": true,
+      "paid": true,
+      "order": "i",
+      "food": 0,
+      "car": 0,
+      "remaining": 100,
+      "position": [
+        28.921233446231035,
+        27.36854351665474
+      ]
+    },
+    "after": {
+      "ordered": true,
+      "paid": true,
+      "order": "g",
+      "food": 20.00933333333319,
+      "car": 4.056333333333357,
+      "remaining": 75.93433333332182,
+      "position": [
+        29.2340266539093,
+        27.23435126789068
+      ]
+    }
+  },
+  "nativeChromium": {
+    "sharedResource": true,
+    "dispatched": true,
+    "paid": 150,
+    "expectedCost": 150,
+    "harvested": 48.604333333308404,
+    "delivered": 40.01866666666615,
+    "saved": true,
+    "loaded": true,
+    "restored": true
+  },
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1156,
+      "total": 1156,
+      "files": 244
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    },
+    "seededAi": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "campaignSimulations": {
+      "passed": 19,
+      "total": 19
+    }
+  },
+  "invalidResourceChecks": [
+    "Foreign Fish Trap",
+    "Land resource for a boat",
+    "Exhausted fish patch",
+    "Removed resource node",
+    "Water resource for a villager",
+    "Foreign farm",
+    "Military units never become gatherers"
+  ],
+  "hostedTransportBootstrap": {
+    "previousRun": 42155307961,
+    "previousOutcome": "cancelled before the native browser test executed",
+    "cause": "Extra font packs took 8 minutes 40 seconds to download. The runner logs reported existing shared Chromium runtime libraries.",
+    "change": "Install the same pinned Chromium without downloading redundant OS font packs. The existing eight-minute deadline and path-scoped trigger remain unchanged.",
+    "verified": {
+      "commit": "ba6dcc54dd3ab86b40bdbd0314ccf37bcb682752",
+      "workflowRun": 42190353223,
+      "job": 127800541297,
+      "scope": "Two native Chromium contexts with local authenticated signaling fixtures; not WAN acceptance",
+      "results": {
+        "status": "passed",
+        "results": [
+          {
+            "case": "native ordered channel",
+            "messages": 120,
+            "elapsedMs": 263,
+            "messagesPerSecond": 457,
+            "gameplayRpcCalls": 0
+          },
+          {
+            "case": "sender",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "gap",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "role",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "oversize",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "overflow",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "second-channel",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "replay",
+            "closedBeforeGameplay": true
+          },
+          {
+            "case": "send backpressure",
+            "closed": true
+          },
+          {
+            "case": "disconnect",
+            "closed": true
+          }
+        ]
+      }
+    }
+  },
+  "offlineShell": "v176-fishing-rally",
+  "networkCompatibility": "ck-live-preview-14 unchanged; network rally commands remain ground-only and resource-target semantics were not added to the protocol.",
+  "campaigns": {
+    "summary": {
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "missions": [
+      {
+        "mission": 0,
+        "title": "First Hearth",
+        "seed": 11,
+        "outcome": "win",
+        "campaignTime": 163.5,
+        "reason": null,
+        "completedObjectives": [
+          "Build a House",
+          "Build a Lumber Camp",
+          "Have 10 villagers",
+          "Build a Barracks",
+          "Train 4 soldiers"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 5,
+        "totalObjectives": 5,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "lumber",
+            "time": 27.0000000000005,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 43.00000000000012,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 1,
+        "title": "Raiders at the Ford",
+        "seed": 22,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Barracks",
+          "Train 8 soldiers",
+          "Survive until 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 2,
+        "title": "The Feudal Frontier",
+        "seed": 33,
+        "outcome": "win",
+        "campaignTime": 671.5,
+        "reason": null,
+        "completedObjectives": [
+          "Reach the Feudal Age",
+          "Build 2 Towers",
+          "Build a Market",
+          "Reach the Castle Age"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 4,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "lumber",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "mill",
+            "time": 32.000000000000746,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 47.99999999999984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "market",
+            "time": 178.9999999999924,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 233.99999999998929,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 307.0000000000286,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 463.00000000015274,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1412"
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 3,
+        "title": "The Relic Road",
+        "seed": 44,
+        "outcome": "win",
+        "campaignTime": 174,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Monastery",
+          "Hold 3 relics in your Monasteries"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 2,
+        "totalObjectives": 2,
+        "constructionOrders": [
+          {
+            "kind": "bar",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "monastery",
+            "time": 29.0000000000006,
+            "prerequisite": "bar",
+            "prerequisiteId": "b642"
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 4,
+        "title": "Siege of Kronburg",
+        "seed": 55,
+        "outcome": "win",
+        "campaignTime": 202.5,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 2,
+        "totalObjectives": 2,
+        "constructionOrders": [],
+        "productionPeak": {
+          "ram": 3
+        }
+      },
+      {
+        "mission": 5,
+        "title": "The Last Crown",
+        "seed": 66,
+        "outcome": "win",
+        "campaignTime": 589,
+        "reason": null,
+        "completedObjectives": [
+          "Slay the enemy King"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 21.000000000000203,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 45.99999999999995,
+            "prerequisite": "bar",
+            "prerequisiteId": "b456"
+          },
+          {
+            "kind": "siege",
+            "time": 77.99999999999814,
+            "prerequisite": "bar",
+            "prerequisiteId": "b456"
+          },
+          {
+            "kind": "house",
+            "time": 107.99999999999643,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 131.99999999999508,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 146.99999999999423,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "ram": 3,
+          "spear": 8,
+          "skirm": 6
+        }
+      },
+      {
+        "mission": 6,
+        "title": "The Northern Watch",
+        "seed": 77,
+        "outcome": "win",
+        "campaignTime": 600,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Watch Tower",
+          "Train 6 ranged soldiers",
+          "Survive until 10:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 53.999999999999496,
+            "prerequisite": "bar",
+            "prerequisiteId": "b671"
+          },
+          {
+            "kind": "tower",
+            "time": 79.99999999999802,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 105.99999999999655,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 118.99999999999581,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "spear": 6,
+          "skirm": 10
+        }
+      },
+      {
+        "mission": 7,
+        "title": "Crossing at Redwater",
+        "seed": 88,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Market",
+          "Build 2 Towers",
+          "Hold the crossing for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "market",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 58.99999999999921,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 79.99999999999802,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 8,
+        "title": "Crown of Ashford",
+        "seed": 99,
+        "outcome": "win",
+        "campaignTime": 857,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the rival Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 62.999999999998984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 87.99999999999757,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1167"
+          }
+        ],
+        "productionPeak": {
+          "ram": 8
+        }
+      },
+      {
+        "mission": 9,
+        "title": "Siege of Greywatch",
+        "seed": 910,
+        "outcome": "win",
+        "campaignTime": 905,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the enemy Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 44.000000000000064,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 61.99999999999904,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 74.99999999999831,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 106.99999999999649,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          },
+          {
+            "kind": "rng",
+            "time": 143.9999999999944,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          },
+          {
+            "kind": "stable",
+            "time": 261.9999999999928,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          }
+        ],
+        "productionPeak": {
+          "ram": 4,
+          "xbow": 10,
+          "knight": 5
+        },
+        "siegeAssault": {
+          "guardOrders": 152,
+          "assaultTime": 270.99999999999994,
+          "campaignRecorded": true,
+          "assaultStarted": true,
+          "peakRams": 4,
+          "workshopCompleted": true,
+          "ordersIssued": 118,
+          "ordersWithoutRams": 0,
+          "enemyTownHp": 0,
+          "enemyCastleHp": 0,
+          "enemyDefenders": 13,
+          "playerTroops": {
+            "ram": 1,
+            "knight": 1,
+            "arc": 0
+          },
+          "resources": {
+            "f": 992.4889999999191,
+            "w": 446.0109999998625,
+            "g": 15.279000000006887,
+            "s": 450
+          }
+        }
+      },
+      {
+        "mission": 10,
+        "title": "The King’s Road",
+        "seed": 911,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Market",
+          "Build 2 Towers",
+          "Hold the road for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "market",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 48.99999999999978,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 217.9999999999902,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 11,
+        "title": "The Reliquary Trail",
+        "seed": 912,
+        "outcome": "win",
+        "campaignTime": 179.5,
+        "reason": null,
+        "completedObjectives": [
+          "Return both relics to your Monastery"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [],
+        "productionPeak": {}
+      },
+      {
+        "mission": 12,
+        "title": "The Golden Coast",
+        "seed": 913,
+        "outcome": "lose",
+        "campaignTime": 819.3,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Dock"
+        ],
+        "incompleteObjectives": [
+          "Have 3 War Galleys alive",
+          "Have 12 land soldiers alive",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 117.99999999999586,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 143.9999999999944,
+            "prerequisite": "bar",
+            "prerequisiteId": "b431"
+          }
+        ],
+        "productionPeak": {
+          "gal": 3,
+          "ram": 1
+        }
+      },
+      {
+        "mission": 13,
+        "title": "The Strait's Last Relic",
+        "seed": 914,
+        "outcome": "lose",
+        "campaignTime": 614.1,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Monastery",
+          "Hold 2 relics in your Monasteries"
+        ],
+        "incompleteObjectives": [
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 2,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 36.00000000000052,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 50.999999999999666,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "monastery",
+            "time": 81.99999999999791,
+            "prerequisite": "bar",
+            "prerequisiteId": "b508"
+          },
+          {
+            "kind": "siege",
+            "time": 111.9999999999962,
+            "prerequisite": "bar",
+            "prerequisiteId": "b508"
+          },
+          {
+            "kind": "house",
+            "time": 445.0000000001384,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 468.0000000001567,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "ram": 0,
+          "gal": 3
+        }
+      },
+      {
+        "mission": 14,
+        "title": "The Siege of Tidewatch",
+        "seed": 915,
+        "outcome": "lose",
+        "campaignTime": 468.2,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Siege Workshop",
+          "Field 2 Bombard Cannons alive"
+        ],
+        "incompleteObjectives": [
+          "Destroy Tidewatch Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 2,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 17.000000000000004,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 30.00000000000065,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 46.99999999999989,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 59.999999999999154,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 87.99999999999757,
+            "prerequisite": "bar",
+            "prerequisiteId": "b492"
+          }
+        ],
+        "productionPeak": {
+          "bomb": 2
+        }
+      },
+      {
+        "mission": 15,
+        "title": "The Bridge at Blackwood",
+        "seed": 916,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build 2 completed Towers",
+          "Build 6 completed Wall sections",
+          "Hold Blackwood for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "tower",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 26.00000000000045,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 45.99999999999995,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 56.999999999999325,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 60.9999999999991,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 64.99999999999888,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 68.99999999999865,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 73.99999999999837,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 16,
+        "title": "The Causeway Muster",
+        "seed": 917,
+        "outcome": "lose",
+        "campaignTime": 616.1,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build 2 completed Towers"
+        ],
+        "incompleteObjectives": [
+          "Build a Dock",
+          "Have 3 War Galleys alive",
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 5,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 62.999999999998984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 82.99999999999785,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 435.00000000013046,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 436.00000000013125,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 438.00000000013284,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 530.0000000001753,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 531.0000000001744,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 532.0000000001735,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "gal": 0,
+          "ram": 2
+        }
+      },
+      {
+        "mission": 17,
+        "title": "The Crown Holds the Crossing",
+        "seed": 918,
+        "outcome": "lose",
+        "campaignTime": 405.6,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build 2 completed Castles"
+        ],
+        "incompleteObjectives": [
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 2,
+        "constructionOrders": [
+          {
+            "kind": "castle",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "castle",
+            "time": 76.9999999999982,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 138.99999999999469,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 174.99999999999264,
+            "prerequisite": "bar",
+            "prerequisiteId": "b577"
+          }
+        ],
+        "productionPeak": {
+          "bomb": 2
+        }
+      },
+      {
+        "mission": 18,
+        "title": "The Iron Pass",
+        "seed": 919,
+        "outcome": "win",
+        "campaignTime": 540,
+        "reason": null,
+        "completedObjectives": [
+          "Build 2 completed Towers",
+          "Keep 15 land soldiers alive",
+          "Hold the pass for 9:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 45.99999999999995,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 66.99999999999876,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 86.99999999999763,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      }
+    ]
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "8ee770441349e53a99a017d3b6b909bfa141344d",
+    "docs/REFACTORING_INVENTORY.md": "b2473478225e34ca24cd0ff6d12bfc02a4489119",
+    "js/simulation-building-production.js": "ad9e41237e727e3eff0efdc6d5b0a7c619caa68f",
+    "js/simulation-building-updates.js": "4d1169253fa745f5a2f733f7b088903b99aa2e1f",
+    "sw.js": "3c55c6edc8bb95f4580898c2ace5be0d506e3fd2",
+    "tests/browser/campaign-navies.mjs": "21478f3603081ce53da1fa9b020f4ad97c73a50d",
+    "tests/fishing-economy.test.mjs": "6cd2390b22ab9f5def615b53a4c9a5b0fb6c6687"
+  },
+  "limits": [
+    "Cleared-water browser and Node fixtures are not campaign victories or physical Xbox benchmarks.",
+    "Hosted native WebRTC uses local authenticated signaling fixtures; independent WAN, NAT fallback and physical Xbox acceptance remain open.",
+    "Five campaign bot defeats are not proof of impossible human completion.",
+    "No paid service, new infrastructure or increased hosted job deadline was introduced."
+  ]
+}
