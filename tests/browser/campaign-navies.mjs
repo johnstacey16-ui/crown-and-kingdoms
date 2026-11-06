@@ -133,6 +133,19 @@ export async function checkCampaignNavies(browser,origin,output){
    }finally{goal.t=title}
   });
   for(const key of ['completed','loaded','restored','visible','recompleted'])assert.equal(objectivePolicy[key],true,'maintained objective '+key);
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy};
+  const minimumRange=await page.evaluate(()=>{
+   const results=[];
+   for(const [kind,gap]of [['treb',1],['skirm',.5]]){
+    // Controlled combat fixture: command and simulation, not campaign victory.
+    startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);
+    const actor=addU(0,kind,20.5,20.5),target=addU(1,'mil',20.5+gap,20.5);S.sel=[actor];
+    const applied=orderSel(target,target.x,target.y),before=d2(actor.x,actor.y,target);
+    for(let i=0;i<300;i++)upU(actor,1/30);
+    results.push({kind,applied,before,distance:d2(actor.x,actor.y,target),minimum:U[kind].minR,projectiles:S.pj.length,retained:actor.o==='a'&&actor.tg===target});
+   }
+   return results;
+  });
+  for(const r of minimumRange){assert.equal(r.applied,true);assert.equal(r.retained,true);assert.ok(r.distance>r.before+.3);assert.ok(r.distance>=r.minimum);assert.ok(r.projectiles>0)}
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange};
  }finally{await page.close()}
 }

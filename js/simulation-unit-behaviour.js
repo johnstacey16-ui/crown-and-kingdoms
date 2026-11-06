@@ -80,7 +80,7 @@ if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTa
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
 const dist=d2(u.x,u.y,tg),minR=d.minR||0,range=attackRange(u);
 if(u.wind>0&&(u.windTarget!==tg.netId||dist>range||minR&&dist<minR)){u.wind=0;u.windTarget=null}
-if(minR&&dist<minR){if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,minR+.5));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
+if(minR&&dist<minR){if(u.st===2){u.p=[];return}if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,Math.max(minR+.5,range-.4),minR));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(dist<=range){u.p=[];
  if(u.wind>0){
   u.wind=Math.max(0,u.wind-dt);
