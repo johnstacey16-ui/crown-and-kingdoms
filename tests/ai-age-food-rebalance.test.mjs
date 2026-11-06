@@ -19,7 +19,7 @@ function scenario({age=0,ready=true,food=100,wood=400,foragers=6,workers=16}={})
   S,AG:[{}, {cost:{f:500}},{cost:{f:800,g:200}}],W:40,H:40,
   PERS:[{tw:0,wl:0}],aip:0,
   ageRequirements:()=>({ready}),
-  farmAvailableTo:()=>true,
+  resourceHasWorksite:()=>true,
   goalNear:n=>n,
   path:()=>{attempted++;return [[11.5,11.5],[12.5,12.5]]}
  });

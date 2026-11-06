@@ -572,7 +572,7 @@ function idleVillagerFixture({canFarm=false,route=()=>true,nodes=[]}={}){
  const W=48,H=48,paid=[],built=[],checked=[];
  const S={age:[0,1],nodes,wt:new Uint8Array(W*H),r:()=>.75};
  const B={farm:{cost:{w:60}}};
- const ctx=vm.createContext({S,B,W,H,findNode:(v,k)=>nodes.find(n=>n.k===k&&n.amt>0)||null,
+ const ctx=vm.createContext({S,B,W,H,resourceHasWorksite:()=>true,findNode:(v,k)=>nodes.find(n=>n.k===k&&n.amt>0)||null,
   can:()=>canFarm,cor:()=>false,okPlace:()=>true,
   gp:(x,y,r)=>({x,y,r,kind:'place'}),goalNear:(target,r)=>target,
   path:(v,target)=>{checked.push(target);return route(v,target)?[{x:target.x,y:target.y}]:null},
@@ -1044,4 +1044,40 @@ test('AI personality metadata and seeded army picker are policy-owned without ga
  assert.equal(result.PW[1].cav,1.6);
  assert.equal(result.pickW(['knight','arc']),'knight');
  assert.equal(result.pickW(['arc','knight']),'knight');
+});
+
+test('AI route fallback skips foreign farms, occupied farms and full resource worksites',async()=>{
+ const {headlessGame}=await import('./helpers/headless-game.mjs');
+ for(const occupied of ['foreign','farm','mine']){
+  const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source+`;globalThis.run=code=>eval(code);
+   kingdoms=2;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.age[1]=1;S.res[1].w=0;
+   globalThis.blocked=addN('f',12,10,100);globalThis.bad=addN('${occupied==='mine'?'g':'f'}',13,10,100,${occupied==='mine'?0:1});bad.t=${occupied==='foreign'?0:1};
+   globalThis.wood=addN('w',17,10,100);
+   ${occupied==='foreign'?'':"globalThis.claimant=addU(1,'vil',13.5,11.5);claimant.o='g';claimant.tg=bad;claimant.ct=bad.k;"}
+   ${occupied==='mine'?"for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if((dx||dy)&&!(dx===0&&dy===1))S.g[(bad.y+dy)*W+bad.x+dx]=1;":''}
+   globalThis.actor=addU(1,'vil',10.5,10.5);addB(1,'tc',20,20,true);
+   const ordinaryPath=path;path=(u,goal)=>goal.hx===blocked.x+.5&&goal.hy===blocked.y+.5?null:ordinaryPath(u,goal);
+   aiAssignIdleVillagers(1,[actor],[],[],{x:20,y:20},S.res[1],()=>0);
+  `,sandbox);
+  assert.equal(sandbox.run('actor.tg===wood'),true,occupied+' must not be assigned as a fallback');
+  assert.equal(sandbox.run("actor.o==='g'&&actor.ct==='w'&&actor.p.length>0"),true);
+  sandbox.run('for(let i=0;i<2400;i++)upU(actor,1/30)');
+  assert.ok(sandbox.run('S.res[1].w')>=10,'the selected legal resource produces a real delivery');
+ }
+});
+
+
+test('AI rebalancing routes a miner past a full worksite to an available deposit',async()=>{
+ const {headlessGame}=await import('./helpers/headless-game.mjs');
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+`;globalThis.run=code=>eval(code);
+ kingdoms=2;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.age[1]=1;
+ globalThis.full=addN('g',13,10,100);globalThis.free=addN('g',20,10,100);
+ globalThis.claimant=addU(1,'vil',13.5,11.5);claimant.o='g';claimant.tg=full;claimant.ct='g';
+ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if((dx||dy)&&!(dx===0&&dy===1))S.g[(full.y+dy)*W+full.x+dx]=1;
+ globalThis.actor=addU(1,'vil',10.5,10.5);actor.o='g';actor.ct='w';actor.car=actor.ret=0;
+ aiRebal([actor],{f:600,w:900,g:0,s:400},1);
+ `,sandbox);
+ assert.equal(sandbox.run('actor.tg===free'),true);
+ assert.equal(sandbox.run("actor.ct==='g'&&actor.p.length>0&&claimant.tg===full"),true);
 });

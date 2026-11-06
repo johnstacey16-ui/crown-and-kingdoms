@@ -86,6 +86,6 @@ test('all command surfaces preserve the one-farmer rule',()=>{
  assert.doesNotMatch(engine,/farmAvailableTo\(u,n\)/);
  assert.match(network,/farmAvailableTo\(u,entity\)/);
  assert.match(network,/!!node\.fm&&!farmAvailableTo\(u,node\)/);
- assert.match(economy,/farmAvailableTo\(w,n\)/);
+ assert.match(economy,/resourceHasWorksite\(w,n\)/,'AI rebalancing shares farm ownership and node capacity policy');
  assert.match(unit,/!resourceHasWorksite\(u,tg\)/);
 });

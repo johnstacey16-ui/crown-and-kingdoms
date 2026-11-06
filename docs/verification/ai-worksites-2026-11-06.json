@@ -1,0 +1,227 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "cd2dabfbf000f5d867b89d6d45fd98a84a858e3c",
+  "scope": "Shared AI economic routing in all modes that run AI teams. Human commands and ordinary resource legality retain the same rules.",
+  "beforeAfter": {
+    "before": "When a primary resource route fails, idle-worker fallback may choose a foreign farm, occupied farm or full adjacent worksite. Rebalancing likewise skips capacity checks on nonfarm sites.",
+    "after": "Both searches call the existing resourceHasWorksite policy before trying a route. Real workers choose legal alternatives and deliver harvested wood."
+  },
+  "behaviouralCases": [
+    "foreign farm rejected in blocked-route fallback",
+    "occupied owned farm rejected in blocked-route fallback",
+    "full mining worksite rejected in blocked-route fallback",
+    "all fallback cases complete real wood delivery",
+    "rebalancing retains an existing miner and routes the new miner to an available deposit"
+  ],
+  "compatibility": {
+    "shell": "v180-ai-worksites",
+    "liveSessionAndChannel": "ck-live-preview-18"
+  },
+  "limits": [
+    "This fixes shared AI target legality, not the campaign test player strategy.",
+    "Golden Coast muster experiment lost and was not retained in game or test code. No additional campaign win claimed.",
+    "Physical Xbox, WAN reconnect and full multiplayer acceptance remain open."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1183,
+      "total": 1183,
+      "files": 244
+    },
+    "targetedPolicy": {
+      "passed": 69,
+      "total": 69
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "isolatedCampaigns": {
+      "executed": 19,
+      "total": 19,
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    }
+  },
+  "campaignOutcomes": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "reason": null
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "reason": null
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 174,
+      "reason": null
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "reason": null
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 589,
+      "reason": null
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "reason": null
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 857,
+      "reason": null
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 905,
+      "reason": null
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "reason": null
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "lose",
+      "campaignTime": 819.3,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "lose",
+      "campaignTime": 614.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "lose",
+      "campaignTime": 468.2,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "lose",
+      "campaignTime": 616.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "lose",
+      "campaignTime": 405.6,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "reason": null
+    }
+  ],
+  "fileGitBlobs": {
+    "ROADMAP.md": "643d35a6bb050e48e97ddfb9bf357cabed74b795",
+    "docs/REFACTORING_INVENTORY.md": "766ceaa92d91e3e6551ad1070fe5a2fa419d742f",
+    "js/ai-economy.js": "494a33b789d161757eb078f07f1082fe621b57fe",
+    "js/network-session.js": "6810761b9b8b6eddaa4b34283c3efcffa93b626f",
+    "js/network-webrtc.js": "e9408541b1a45227bbec36c0060664864e7004e3",
+    "sw.js": "2bfcff21dd6add984ea26dd16307154d33068f83",
+    "tests/ai-age-food-rebalance.test.mjs": "725a45d6e031d74d371a3f341b7c3f1c2311d144",
+    "tests/ai-policy-ownership.test.mjs": "b5e8afa3515f562e835716b3a648ddb7a312cab4",
+    "tests/browser/webrtc-transport.mjs": "03f3a7c8bae6c7f3997c17ed3cad93018c822816",
+    "tests/farm-exclusivity.test.mjs": "318145d18e0aeff30910b013c93828e51ee180d1",
+    "tests/network-live-session.test.mjs": "5fad6db5dd1f1d5b4af44544bfe60b40657539f3",
+    "tests/webrtc-transport.test.mjs": "b27e76fa363e98ef6445204b65e2b45be68317fa"
+  }
+}
