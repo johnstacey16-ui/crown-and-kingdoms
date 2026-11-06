@@ -30,6 +30,8 @@ for(const [a,b] of [
  ['./js/entities.js','./js/campaign.js'],
  ['./js/assets.js','./js/engine-graphics-benchmark.js'],
  ['./js/engine-graphics-benchmark.js','./engine.js'],
+ ['./js/engine-picture.js','./js/civilizations.js'],
+ ['./js/civilizations.js','./engine.js'],
  ['./engine.js','./js/network-sync.js'],
  ['./js/network-sync.js','./js/network-commands.js'],
  ['./js/network-commands.js','./js/network-delivery.js'],

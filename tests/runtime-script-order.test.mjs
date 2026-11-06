@@ -41,7 +41,8 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/ai-offence.js')+1,scripts.indexOf('./js/ai-construction.js'));
  assert.equal(scripts.indexOf('./js/ai-construction.js')+1,scripts.indexOf('./js/ai.js'));
  assert.equal(scripts.indexOf('./js/engine-graphics-benchmark.js')+1,scripts.indexOf('./js/engine-picture.js'));
- assert.equal(scripts.indexOf('./js/engine-picture.js')+1,scripts.indexOf('./engine.js'));
+ assert.equal(scripts.indexOf('./js/engine-picture.js')+1,scripts.indexOf('./js/civilizations.js'));
+ assert.equal(scripts.indexOf('./js/civilizations.js')+1,scripts.indexOf('./engine.js'));
  assert.equal(scripts.indexOf('./js/simulation-combat-bonuses.js'),scripts.indexOf('./js/simulation-victory.js')-1);
  assert.throws(()=>browserScriptPaths('<script src="../secret.js"></script>'),/Unsafe browser script path/);
  assert.throws(()=>browserScriptPaths('<script src="./engine.js"></script><script src="./engine.js"></script>'),/Duplicate browser script reference/);

@@ -150,5 +150,7 @@ test('the sourced technology matrices and research selection have one kingdom ow
  }
  assert.ok(kingdom.includes('const rsOf=(b,civs=S?.civ)=>'));
  assert.ok(!engine.includes('const rsOf='));
- assert.ok(engine.includes('const CIV=['),'active civilization roster and IDs remain unchanged');
+ assert.ok(!engine.includes('const CIV=['),'engine orchestration must not duplicate the roster');
+ const roster=readFileSync(new URL('../js/civilizations.js',import.meta.url),'utf8');
+ assert.ok(roster.includes('const CIV=['),'the shared civilization module owns the active roster');
 });

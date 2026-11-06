@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "24c950e42d23a7ea663359334961c106669d401e",
+  "scope": "Extract the existing live civilization roster and unique-technology registration into one ordered classic-script module. Research matrices/selectors remain in kingdom.js.",
+  "sourceIdentity": {
+    "unchangedCharacters": 5861,
+    "sha256": "a8189083be19e73502e2bcbfc98187759e9f65a8eafc190b6e32c8649bbfc4f0",
+    "verified": "New module body equals the baseline engine block exactly, including registration."
+  },
+  "seededStateComparison": {
+    "seed": 123456,
+    "civilizations": 26,
+    "matchedStartingWorlds": 26,
+    "matchedUniqueTechnologyWorlds": 26,
+    "rows": [
+      {
+        "id": 0,
+        "name": "Franks",
+        "uniqueUnit": "axe",
+        "uniqueTechnology": "ut0",
+        "startHash": "fnv1a32-9d61b6a1-a47f",
+        "uniqueTechHash": "fnv1a32-7a8e73d4-a49b"
+      },
+      {
+        "id": 1,
+        "name": "Britons",
+        "uniqueUnit": "lbow",
+        "uniqueTechnology": "ut1",
+        "startHash": "fnv1a32-645bb8e9-a487",
+        "uniqueTechHash": "fnv1a32-d0013b30-a498"
+      },
+      {
+        "id": 2,
+        "name": "Mongols",
+        "uniqueUnit": "mgd",
+        "uniqueTechnology": "ut2",
+        "startHash": "fnv1a32-8db533ab-a46d",
+        "uniqueTechHash": "fnv1a32-30883046-a48f"
+      },
+      {
+        "id": 3,
+        "name": "Byzantines",
+        "uniqueUnit": "cata",
+        "uniqueTechnology": "ut3",
+        "startHash": "fnv1a32-2e127f82-a452",
+        "uniqueTechHash": "fnv1a32-1330b215-a461"
+      },
+      {
+        "id": 4,
+        "name": "Persians",
+        "uniqueUnit": "ele",
+        "uniqueTechnology": "ut4",
+        "startHash": "fnv1a32-fe8e99cd-a452",
+        "uniqueTechHash": "fnv1a32-d1d26532-a474"
+      },
+      {
+        "id": 5,
+        "name": "Teutons",
+        "uniqueUnit": "tk",
+        "uniqueTechnology": "ut5",
+        "startHash": "fnv1a32-d6cd1415-a491",
+        "uniqueTechHash": "fnv1a32-78bb0012-a4a9"
+      },
+      {
+        "id": 6,
+        "name": "Celts",
+        "uniqueUnit": "woad",
+        "uniqueTechnology": "ut6",
+        "startHash": "fnv1a32-76650aa1-a4ae",
+        "uniqueTechHash": "fnv1a32-9c0cc655-a4b6"
+      },
+      {
+        "id": 7,
+        "name": "Vikings",
+        "uniqueUnit": "bers",
+        "uniqueTechnology": "ut7",
+        "startHash": "fnv1a32-cb6cd122-a481",
+        "uniqueTechHash": "fnv1a32-aa140f4d-a4ad"
+      },
+      {
+        "id": 8,
+        "name": "Saracens",
+        "uniqueUnit": "mamel",
+        "uniqueTechnology": "ut8",
+        "startHash": "fnv1a32-b4e505b4-a47f",
+        "uniqueTechHash": "fnv1a32-471286cc-a492"
+      },
+      {
+        "id": 9,
+        "name": "Turks",
+        "uniqueUnit": "jan",
+        "uniqueTechnology": "ut9",
+        "startHash": "fnv1a32-7cafff9e-a46e",
+        "uniqueTechHash": "fnv1a32-3319758a-a499"
+      },
+      {
+        "id": 10,
+        "name": "Chinese",
+        "uniqueUnit": "chuko",
+        "uniqueTechnology": "ut10",
+        "startHash": "fnv1a32-5f56a048-a46f",
+        "uniqueTechHash": "fnv1a32-932fa973-a47e"
+      },
+      {
+        "id": 11,
+        "name": "Japanese",
+        "uniqueUnit": "saml",
+        "uniqueTechnology": "ut11",
+        "startHash": "fnv1a32-31458b8b-a47f",
+        "uniqueTechHash": "fnv1a32-8fa214cc-a48f"
+      },
+      {
+        "id": 12,
+        "name": "Khmer",
+        "uniqueUnit": "ele",
+        "uniqueTechnology": "ut12",
+        "startHash": "fnv1a32-01bbfd34-a46c",
+        "uniqueTechHash": "fnv1a32-93693630-a486"
+      },
+      {
+        "id": 13,
+        "name": "Indians",
+        "uniqueUnit": "eled",
+        "uniqueTechnology": "ut13",
+        "startHash": "fnv1a32-297ec58e-a462",
+        "uniqueTechHash": "fnv1a32-1dca96f1-a486"
+      },
+      {
+        "id": 14,
+        "name": "Spanish",
+        "uniqueUnit": "conq",
+        "uniqueTechnology": "ut14",
+        "startHash": "fnv1a32-f9f91b30-a473",
+        "uniqueTechHash": "fnv1a32-75e1db3f-a49e"
+      },
+      {
+        "id": 15,
+        "name": "Italians",
+        "uniqueUnit": "genoa",
+        "uniqueTechnology": "ut15",
+        "startHash": "fnv1a32-e1bcba16-a473",
+        "uniqueTechHash": "fnv1a32-f4552ed2-a49a"
+      },
+      {
+        "id": 16,
+        "name": "Slavs",
+        "uniqueUnit": "boyar",
+        "uniqueTechnology": "ut16",
+        "startHash": "fnv1a32-b5341861-a47b",
+        "uniqueTechHash": "fnv1a32-fa848397-a4a3"
+      },
+      {
+        "id": 17,
+        "name": "Huns",
+        "uniqueUnit": "tarkan",
+        "uniqueTechnology": "ut17",
+        "startHash": "fnv1a32-69783ca6-a49d",
+        "uniqueTechHash": "fnv1a32-f0d3ae07-a4c6"
+      },
+      {
+        "id": 18,
+        "name": "Goths",
+        "uniqueUnit": "huskarl",
+        "uniqueTechnology": "ut18",
+        "startHash": "fnv1a32-90498a0a-a47d",
+        "uniqueTechHash": "fnv1a32-a6a4fd61-a49b"
+      },
+      {
+        "id": 19,
+        "name": "Aztecs",
+        "uniqueUnit": "jaguar",
+        "uniqueTechnology": "ut19",
+        "startHash": "fnv1a32-333d8ae2-a478",
+        "uniqueTechHash": "fnv1a32-46d8a573-a4a9"
+      },
+      {
+        "id": 20,
+        "name": "Mayans",
+        "uniqueUnit": "plumed",
+        "uniqueTechnology": "ut20",
+        "startHash": "fnv1a32-1b6e1b14-a488",
+        "uniqueTechHash": "fnv1a32-e5b878ff-a4af"
+      },
+      {
+        "id": 21,
+        "name": "Incas",
+        "uniqueUnit": "kamayuk",
+        "uniqueTechnology": "ut21",
+        "startHash": "fnv1a32-41038385-a465",
+        "uniqueTechHash": "fnv1a32-ae2f21eb-a48f"
+      },
+      {
+        "id": 22,
+        "name": "Ethiopians",
+        "uniqueUnit": "shotel",
+        "uniqueTechnology": "ut22",
+        "startHash": "fnv1a32-f54f7dd4-a46d",
+        "uniqueTechHash": "fnv1a32-e68235f8-a49d"
+      },
+      {
+        "id": 23,
+        "name": "Malians",
+        "uniqueUnit": "gbeto",
+        "uniqueTechnology": "ut23",
+        "startHash": "fnv1a32-192bb5ad-a48e",
+        "uniqueTechHash": "fnv1a32-9167580f-a4b4"
+      },
+      {
+        "id": 24,
+        "name": "Koreans",
+        "uniqueUnit": "wagon",
+        "uniqueTechnology": "ut24",
+        "startHash": "fnv1a32-a19f5368-a48a",
+        "uniqueTechHash": "fnv1a32-a71075ba-a4b1"
+      },
+      {
+        "id": 25,
+        "name": "Magyars",
+        "uniqueUnit": "huszar",
+        "uniqueTechnology": "ut25",
+        "startHash": "fnv1a32-cedf1188-a47b",
+        "uniqueTechHash": "fnv1a32-76cce057-a4a3"
+      }
+    ]
+  },
+  "loaderInventory": {
+    "browser": 61,
+    "core": 48,
+    "headless": 44,
+    "standaloneRegressionFiles": 247,
+    "markdownDocuments": 28
+  },
+  "compatibility": {
+    "shell": "v183-civilization-module",
+    "liveSessionAndChannel": "ck-live-preview-20",
+    "reason": "IDs, effects, registration and matched simulation states are unchanged; no protocol bump is needed for this extraction."
+  },
+  "limits": [
+    "This is shared-data groundwork. No new civilizations, balance, research effects or DLC content are added.",
+    "Catalogue JSON remains a validation inventory; it does not replace the live JavaScript rules yet.",
+    "Physical Xbox and WAN/reconnect acceptance remain open."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1192,
+      "total": 1192,
+      "files": 244
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "targetedCatalogueProductionLoadOrder": {
+      "passed": 21,
+      "total": 21
+    },
+    "isolatedCampaigns": {
+      "executed": 19,
+      "total": 19,
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "campaignOutcomes": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "reason": null
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "reason": null
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 174,
+      "reason": null
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "reason": null
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 589,
+      "reason": null
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "reason": null
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 857,
+      "reason": null
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 905,
+      "reason": null
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "reason": null
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "lose",
+      "campaignTime": 819.3,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "lose",
+      "campaignTime": 614.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "lose",
+      "campaignTime": 468.2,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "lose",
+      "campaignTime": 616.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "lose",
+      "campaignTime": 405.6,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "reason": null
+    }
+  ],
+  "fileGitBlobs": {
+    "README.md": "2263402a6c571b86c96c3fb50f0527d07ae0cb35",
+    "ROADMAP.md": "3a5bef2b7a73bfa163b8dbd4f8a28cf040837038",
+    "docs/REFACTORING_INVENTORY.md": "0990ac37530c202d75d60a0d549b3637ff8a7993",
+    "engine.js": "79be1c7112b2e5fa958765f2173e0eec3a2bb2d4",
+    "index.html": "7501b539f6798ce3e06107bd1446f223c5833762",
+    "scripts/check-civilization-catalogue.mjs": "d2c859bb3dc4ded97affba06e7183f2073098734",
+    "scripts/check-game.mjs": "d0ee4f3aa9023c16683caceeaeedae84ef2a6a2e",
+    "sw.js": "fb78ed4f9da5c1f41ab464079c88ebdb074bab92",
+    "tests/aoe2-de-civilization-archery-tech.test.mjs": "98cd98810ae3c6799930bbdf930f43c19b94dfd6",
+    "tests/audit-critical-balance.test.mjs": "955414c3657560018f42e094ca0cce61171d7839",
+    "tests/civilization-catalogue-validation.test.mjs": "a22b3e842c73dcee3cb9a89104e6a4e1ac0696ed",
+    "tests/engine-graphics-benchmark-ownership.test.mjs": "0288387cc23e47006038dcdce26df3db05aa220c",
+    "tests/runtime-script-order.test.mjs": "eb63dc4a2d883a0f7382883570779e158653cbad",
+    "js/civilizations.js": "2c6767f86f3f072d39f7e7ea4b6f698a6945bbaa"
+  }
+}

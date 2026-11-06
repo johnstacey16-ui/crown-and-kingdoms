@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v182-ranged-guards-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v183-civilization-module-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -98,6 +98,7 @@ const CORE_ASSETS = [
   './js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js','./js/entities.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js', './js/assets.js',
   './js/engine-graphics-benchmark.js',
   './js/engine-picture.js',
+  './js/civilizations.js',
   './engine.js',
   './persistence.js',
   './js/network-sync.js',

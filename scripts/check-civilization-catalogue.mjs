@@ -1,15 +1,15 @@
 /* Current active roster inventory and DLC-data schema validation.
- * No gameplay content is loaded from JSON yet; engine.js remains authoritative
+ * No gameplay content is loaded from JSON yet; js/civilizations.js remains authoritative
  * until the runtime data migration has tests for saves, production and peers. */
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const readHere=relative=>readFileSync(new URL(relative,import.meta.url),'utf8');
 
-export function currentCivilizationRuntime(engine=readHere('../engine.js'),config=readHere('../js/config.js')){
- const from=engine.indexOf('const CIV=['),to=engine.indexOf('];\nCIV.forEach(',from);
+export function currentCivilizationRuntime(roster=readHere('../js/civilizations.js'),config=readHere('../js/config.js')){
+ const from=roster.indexOf('const CIV=['),to=roster.indexOf('];\nCIV.forEach(',from);
  if(from<0||to<from)throw Error('Active CIV roster was moved without updating the catalogue checker');
- const civScript=engine.slice(from,to+2);
+ const civScript=roster.slice(from,to+2);
  const civilians=vm.runInNewContext('const hpbF=()=>{},atkbF=()=>{};\n'+civScript+
   '\nCIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut}))');
  const definitions=vm.runInNewContext(config+'\n({U,B,TE,REGIONAL_UNIT_ACCESS})');

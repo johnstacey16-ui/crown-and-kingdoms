@@ -36,7 +36,8 @@ test('benchmark is loaded exactly once after assets, before engine, and precache
   assert.equal(paths.indexOf('./js/engine-graphics-benchmark.js'),
     paths.indexOf('./js/engine-picture.js')-1);
   assert.equal(paths.filter(p=>p==='./js/engine-graphics-benchmark.js').length,1);
-  assert.equal(paths.indexOf('./js/engine-picture.js'),paths.indexOf('./engine.js')-1);
+  assert.equal(paths.indexOf('./js/engine-picture.js'),paths.indexOf('./js/civilizations.js')-1);
+  assert.equal(paths.indexOf('./js/civilizations.js'),paths.indexOf('./engine.js')-1);
   assert.equal(paths.filter(p=>p==='./js/engine-picture.js').length,1);
  }
  assert.match(sw,/['"]\.\/js\/engine-graphics-benchmark\.js['"]/);
