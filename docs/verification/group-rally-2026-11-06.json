@@ -1,0 +1,1392 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "26613eee46ef6c25046d39dfd89740db8cb85cf8",
+  "scope": "One existing A action sets a shared rally destination for selected completed production buildings, in solo and the authenticated two-human preview. No new bindings, costs, balance, mission goals or save fields.",
+  "behaviour": {
+    "solo": "Filters distinct eligible living owned production buildings in the current world; each stores a separate rally record and retains resource-target behaviour.",
+    "authenticated": "One bounded command; host validates ownership and completion before admission and the entire production group again before execution. Invalid groups make no partial change. Ground-only target semantics remain.",
+    "training": "Real paid queues and spawn/rally paths; units trained at both buildings reach the solo destination. Both HTTP human teams train five across two towns and maintain equal frame/world checkpoints.",
+    "compatibility": "Live session and ordered WebRTC channel advance to ck-live-preview-14; prior v13 is rejected. Both peers must refresh. Shell v175-group-rally preserves the artwork revision."
+  },
+  "nativeChromium": {
+    "applied": true,
+    "arrived": true,
+    "selection": [
+      "b217",
+      "b218"
+    ],
+    "order": {
+      "type": "rally",
+      "entities": [
+        "b217",
+        "b218"
+      ],
+      "point": {
+        "x": 50,
+        "y": 42
+      }
+    },
+    "deferred": true,
+    "executed": true,
+    "updated": true
+  },
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1153,
+      "total": 1153,
+      "files": 244
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    },
+    "finalLiveSessionAndTransport": {
+      "passed": 34,
+      "total": 34
+    },
+    "seededAi": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "campaignSimulations": {
+      "passed": 19,
+      "total": 19
+    }
+  },
+  "directWebrtcRetest": {
+    "status": "BLOCKED",
+    "diagnostic": {
+      "lastDiagnostics": [
+        {
+          "phase": "closed",
+          "stage": "closed",
+          "failure": "connection-timeout",
+          "channelState": "closed",
+          "bufferedAmount": 0,
+          "helloSent": false,
+          "helloReceived": false,
+          "helloAcknowledged": false,
+          "pc": "closed",
+          "ice": "closed",
+          "gather": "gathering",
+          "signaling": "closed",
+          "localType": "offer"
+        },
+        {
+          "phase": "closed",
+          "stage": "closed",
+          "failure": "connection-timeout",
+          "channelState": "none",
+          "bufferedAmount": 0,
+          "helloSent": false,
+          "helloReceived": false,
+          "helloAcknowledged": false,
+          "pc": "closed",
+          "ice": "closed",
+          "gather": "new",
+          "signaling": "closed"
+        },
+        {
+          "offerPresent": false,
+          "answerPresent": false,
+          "members": 2,
+          "alive": false
+        }
+      ],
+      "results": []
+    },
+    "limit": "Real native ICE gathering timed out before an offer/answer was published. Mock channel and authenticated HTTP replication pass; this is not a verified native WebRTC or WAN result."
+  },
+  "campaigns": {
+    "summary": {
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "missions": [
+      {
+        "mission": 0,
+        "title": "First Hearth",
+        "seed": 11,
+        "outcome": "win",
+        "campaignTime": 163.5,
+        "reason": null,
+        "completedObjectives": [
+          "Build a House",
+          "Build a Lumber Camp",
+          "Have 10 villagers",
+          "Build a Barracks",
+          "Train 4 soldiers"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 5,
+        "totalObjectives": 5,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "lumber",
+            "time": 27.0000000000005,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 43.00000000000012,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 1,
+        "title": "Raiders at the Ford",
+        "seed": 22,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Barracks",
+          "Train 8 soldiers",
+          "Survive until 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 2,
+        "title": "The Feudal Frontier",
+        "seed": 33,
+        "outcome": "win",
+        "campaignTime": 671.5,
+        "reason": null,
+        "completedObjectives": [
+          "Reach the Feudal Age",
+          "Build 2 Towers",
+          "Build a Market",
+          "Reach the Castle Age"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 4,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "lumber",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "mill",
+            "time": 32.000000000000746,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 47.99999999999984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "market",
+            "time": 178.9999999999924,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 233.99999999998929,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 307.0000000000286,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 463.00000000015274,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1412"
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 3,
+        "title": "The Relic Road",
+        "seed": 44,
+        "outcome": "win",
+        "campaignTime": 174,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Monastery",
+          "Hold 3 relics in your Monasteries"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 2,
+        "totalObjectives": 2,
+        "constructionOrders": [
+          {
+            "kind": "bar",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "monastery",
+            "time": 29.0000000000006,
+            "prerequisite": "bar",
+            "prerequisiteId": "b642"
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 4,
+        "title": "Siege of Kronburg",
+        "seed": 55,
+        "outcome": "win",
+        "campaignTime": 202.5,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 2,
+        "totalObjectives": 2,
+        "constructionOrders": [],
+        "productionPeak": {
+          "ram": 3
+        }
+      },
+      {
+        "mission": 5,
+        "title": "The Last Crown",
+        "seed": 66,
+        "outcome": "win",
+        "campaignTime": 589,
+        "reason": null,
+        "completedObjectives": [
+          "Slay the enemy King"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 21.000000000000203,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 45.99999999999995,
+            "prerequisite": "bar",
+            "prerequisiteId": "b456"
+          },
+          {
+            "kind": "siege",
+            "time": 77.99999999999814,
+            "prerequisite": "bar",
+            "prerequisiteId": "b456"
+          },
+          {
+            "kind": "house",
+            "time": 107.99999999999643,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 131.99999999999508,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 146.99999999999423,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "ram": 3,
+          "spear": 8,
+          "skirm": 6
+        }
+      },
+      {
+        "mission": 6,
+        "title": "The Northern Watch",
+        "seed": 77,
+        "outcome": "win",
+        "campaignTime": 600,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Watch Tower",
+          "Train 6 ranged soldiers",
+          "Survive until 10:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "rng",
+            "time": 53.999999999999496,
+            "prerequisite": "bar",
+            "prerequisiteId": "b671"
+          },
+          {
+            "kind": "tower",
+            "time": 79.99999999999802,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 105.99999999999655,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 118.99999999999581,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "spear": 6,
+          "skirm": 10
+        }
+      },
+      {
+        "mission": 7,
+        "title": "Crossing at Redwater",
+        "seed": 88,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Market",
+          "Build 2 Towers",
+          "Hold the crossing for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "market",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 58.99999999999921,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 79.99999999999802,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 8,
+        "title": "Crown of Ashford",
+        "seed": 99,
+        "outcome": "win",
+        "campaignTime": 857,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the rival Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 62.999999999998984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 87.99999999999757,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1167"
+          }
+        ],
+        "productionPeak": {
+          "ram": 8
+        }
+      },
+      {
+        "mission": 9,
+        "title": "Siege of Greywatch",
+        "seed": 910,
+        "outcome": "win",
+        "campaignTime": 905,
+        "reason": null,
+        "completedObjectives": [
+          "Destroy the enemy Town Centre"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 44.000000000000064,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 61.99999999999904,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 74.99999999999831,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 106.99999999999649,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          },
+          {
+            "kind": "rng",
+            "time": 143.9999999999944,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          },
+          {
+            "kind": "stable",
+            "time": 261.9999999999928,
+            "prerequisite": "bar",
+            "prerequisiteId": "b1491"
+          }
+        ],
+        "productionPeak": {
+          "ram": 4,
+          "xbow": 10,
+          "knight": 5
+        },
+        "siegeAssault": {
+          "guardOrders": 152,
+          "assaultTime": 270.99999999999994,
+          "campaignRecorded": true,
+          "assaultStarted": true,
+          "peakRams": 4,
+          "workshopCompleted": true,
+          "ordersIssued": 118,
+          "ordersWithoutRams": 0,
+          "enemyTownHp": 0,
+          "enemyCastleHp": 0,
+          "enemyDefenders": 13,
+          "playerTroops": {
+            "ram": 1,
+            "knight": 1,
+            "arc": 0
+          },
+          "resources": {
+            "f": 992.4889999999191,
+            "w": 446.0109999998625,
+            "g": 15.279000000006887,
+            "s": 450
+          }
+        }
+      },
+      {
+        "mission": 10,
+        "title": "The King’s Road",
+        "seed": 911,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build a Market",
+          "Build 2 Towers",
+          "Hold the road for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "market",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 29.0000000000006,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 48.99999999999978,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 217.9999999999902,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 11,
+        "title": "The Reliquary Trail",
+        "seed": 912,
+        "outcome": "win",
+        "campaignTime": 179.5,
+        "reason": null,
+        "completedObjectives": [
+          "Return both relics to your Monastery"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 1,
+        "totalObjectives": 1,
+        "constructionOrders": [],
+        "productionPeak": {}
+      },
+      {
+        "mission": 12,
+        "title": "The Golden Coast",
+        "seed": 913,
+        "outcome": "lose",
+        "campaignTime": 819.3,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Dock"
+        ],
+        "incompleteObjectives": [
+          "Have 3 War Galleys alive",
+          "Have 12 land soldiers alive",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 117.99999999999586,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 143.9999999999944,
+            "prerequisite": "bar",
+            "prerequisiteId": "b431"
+          }
+        ],
+        "productionPeak": {
+          "gal": 3,
+          "ram": 1
+        }
+      },
+      {
+        "mission": 13,
+        "title": "The Strait's Last Relic",
+        "seed": 914,
+        "outcome": "lose",
+        "campaignTime": 614.1,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Monastery",
+          "Hold 2 relics in your Monasteries"
+        ],
+        "incompleteObjectives": [
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 2,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 36.00000000000052,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 50.999999999999666,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "monastery",
+            "time": 81.99999999999791,
+            "prerequisite": "bar",
+            "prerequisiteId": "b508"
+          },
+          {
+            "kind": "siege",
+            "time": 111.9999999999962,
+            "prerequisite": "bar",
+            "prerequisiteId": "b508"
+          },
+          {
+            "kind": "house",
+            "time": 445.0000000001384,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 468.0000000001567,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "ram": 0,
+          "gal": 3
+        }
+      },
+      {
+        "mission": 14,
+        "title": "The Siege of Tidewatch",
+        "seed": 915,
+        "outcome": "lose",
+        "campaignTime": 468.2,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build a Siege Workshop",
+          "Field 2 Bombard Cannons alive"
+        ],
+        "incompleteObjectives": [
+          "Destroy Tidewatch Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 2,
+        "totalObjectives": 4,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 17.000000000000004,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 30.00000000000065,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 46.99999999999989,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 59.999999999999154,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 87.99999999999757,
+            "prerequisite": "bar",
+            "prerequisiteId": "b492"
+          }
+        ],
+        "productionPeak": {
+          "bomb": 2
+        }
+      },
+      {
+        "mission": 15,
+        "title": "The Bridge at Blackwood",
+        "seed": 916,
+        "outcome": "win",
+        "campaignTime": 480,
+        "reason": null,
+        "completedObjectives": [
+          "Build 2 completed Towers",
+          "Build 6 completed Wall sections",
+          "Hold Blackwood for 8:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "tower",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 26.00000000000045,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 45.99999999999995,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 56.999999999999325,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 60.9999999999991,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 64.99999999999888,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 68.99999999999865,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "wall",
+            "time": 73.99999999999837,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      },
+      {
+        "mission": 16,
+        "title": "The Causeway Muster",
+        "seed": 917,
+        "outcome": "lose",
+        "campaignTime": 616.1,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build 2 completed Towers"
+        ],
+        "incompleteObjectives": [
+          "Build a Dock",
+          "Have 3 War Galleys alive",
+          "Destroy the enemy Castle",
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 5,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 31.0000000000007,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 49.99999999999972,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 62.999999999998984,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 82.99999999999785,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 435.00000000013046,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 436.00000000013125,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 438.00000000013284,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 530.0000000001753,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 531.0000000001744,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "dock",
+            "time": 532.0000000001735,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {
+          "gal": 0,
+          "ram": 2
+        }
+      },
+      {
+        "mission": 17,
+        "title": "The Crown Holds the Crossing",
+        "seed": 918,
+        "outcome": "lose",
+        "campaignTime": 405.6,
+        "reason": "Your Town Centre fell",
+        "completedObjectives": [
+          "Build 2 completed Castles"
+        ],
+        "incompleteObjectives": [
+          "Destroy the enemy Town Centre"
+        ],
+        "objectiveCount": 1,
+        "totalObjectives": 2,
+        "constructionOrders": [
+          {
+            "kind": "castle",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "castle",
+            "time": 76.9999999999982,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 138.99999999999469,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "siege",
+            "time": 174.99999999999264,
+            "prerequisite": "bar",
+            "prerequisiteId": "b577"
+          }
+        ],
+        "productionPeak": {
+          "bomb": 2
+        }
+      },
+      {
+        "mission": 18,
+        "title": "The Iron Pass",
+        "seed": 919,
+        "outcome": "win",
+        "campaignTime": 540,
+        "reason": null,
+        "completedObjectives": [
+          "Build 2 completed Towers",
+          "Keep 15 land soldiers alive",
+          "Hold the pass for 9:00"
+        ],
+        "incompleteObjectives": [],
+        "objectiveCount": 3,
+        "totalObjectives": 3,
+        "constructionOrders": [
+          {
+            "kind": "house",
+            "time": 0,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "bar",
+            "time": 18.000000000000053,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 45.99999999999995,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "tower",
+            "time": 66.99999999999876,
+            "prerequisite": null,
+            "prerequisiteId": null
+          },
+          {
+            "kind": "house",
+            "time": 86.99999999999763,
+            "prerequisite": null,
+            "prerequisiteId": null
+          }
+        ],
+        "productionPeak": {}
+      }
+    ]
+  },
+  "seededAiRuns": [
+    {
+      "type": "complete",
+      "seed": 123456,
+      "difficulty": 2,
+      "reloaded": false,
+      "seconds": 1572.93333333256,
+      "result": "lose",
+      "mode": "end",
+      "reason": "Your Town Centre fell",
+      "playerOrders": {
+        "trained": 0,
+        "buildOrders": 0,
+        "ageOrders": 0,
+        "attackOrders": 0
+      },
+      "projectiles": 1,
+      "age": [
+        0,
+        1
+      ],
+      "teams": [
+        {
+          "team": 0,
+          "resources": {
+            "f": 200,
+            "w": 200,
+            "g": 100,
+            "s": 0
+          },
+          "units": 0,
+          "villagers": 0,
+          "buildings": 0,
+          "queuedUnits": 0,
+          "activeResearch": 0,
+          "movingUnits": 0,
+          "population": 0,
+          "capacity": 10,
+          "wave": 0,
+          "townCentreHP": 0
+        },
+        {
+          "team": 1,
+          "resources": {
+            "f": 33.428999999745294,
+            "w": 15.515666666309286,
+            "g": 222.30933333334153,
+            "s": 0.3279999999974432
+          },
+          "units": 67,
+          "villagers": 26,
+          "buildings": 67,
+          "queuedUnits": 1,
+          "activeResearch": 0,
+          "movingUnits": 9,
+          "population": 68,
+          "capacity": 70,
+          "wave": 2,
+          "townCentreHP": 900
+        }
+      ],
+      "paths": {
+        "requests": 16421,
+        "expanded": 504951,
+        "found": 16271,
+        "exhausted": 2,
+        "invalid": 148,
+        "peakOpen": 694,
+        "maxExpanded": 4651,
+        "routeWaypoints": 117523,
+        "maxWaypoints": 68,
+        "formationOrders": 0,
+        "formationUnits": 0,
+        "formationReuse": 0,
+        "fallbackReuse": 0,
+        "validRequests": 16273,
+        "averageExpanded": 31.02998832421803,
+        "averageWaypoints": 7.222850470161637,
+        "successRate": 0.9998770970318933
+      }
+    },
+    {
+      "type": "complete",
+      "seed": 123456,
+      "difficulty": 3,
+      "reloaded": true,
+      "seconds": 1715.8666666657634,
+      "result": "lose",
+      "mode": "end",
+      "reason": "Your Town Centre fell",
+      "playerOrders": {
+        "trained": 0,
+        "buildOrders": 0,
+        "ageOrders": 0,
+        "attackOrders": 0
+      },
+      "projectiles": 0,
+      "age": [
+        0,
+        1
+      ],
+      "teams": [
+        {
+          "team": 0,
+          "resources": {
+            "f": 200,
+            "w": 200,
+            "g": 100,
+            "s": 0
+          },
+          "units": 0,
+          "villagers": 0,
+          "buildings": 0,
+          "queuedUnits": 0,
+          "activeResearch": 0,
+          "movingUnits": 0,
+          "population": 0,
+          "capacity": 10,
+          "wave": 0,
+          "townCentreHP": 0
+        },
+        {
+          "team": 1,
+          "resources": {
+            "f": 162.92413333305882,
+            "w": 17.732266666323987,
+            "g": 770.7372000000124,
+            "s": 80.37013333331959
+          },
+          "units": 65,
+          "villagers": 32,
+          "buildings": 64,
+          "queuedUnits": 0,
+          "activeResearch": 1,
+          "movingUnits": 21,
+          "population": 65,
+          "capacity": 65,
+          "wave": 2,
+          "townCentreHP": 900
+        }
+      ],
+      "paths": {
+        "requests": 26176,
+        "expanded": 19202961,
+        "found": 21995,
+        "exhausted": 3994,
+        "invalid": 187,
+        "peakOpen": 653,
+        "maxExpanded": 4654,
+        "routeWaypoints": 164025,
+        "maxWaypoints": 72,
+        "formationOrders": 0,
+        "formationUnits": 0,
+        "formationReuse": 0,
+        "fallbackReuse": 0,
+        "validRequests": 25989,
+        "averageExpanded": 738.8880295509639,
+        "averageWaypoints": 7.457376676517391,
+        "successRate": 0.8463195967524721
+      }
+    },
+    {
+      "type": "complete",
+      "seed": 123456,
+      "difficulty": 3,
+      "reloaded": true,
+      "seconds": 2008.2999999988308,
+      "result": "lose",
+      "mode": "end",
+      "reason": "Your Town Centre fell",
+      "playerOrders": {
+        "trained": 82,
+        "buildOrders": 26,
+        "ageOrders": 1,
+        "attackOrders": 42
+      },
+      "projectiles": 0,
+      "age": [
+        1,
+        1
+      ],
+      "teams": [
+        {
+          "team": 0,
+          "resources": {
+            "f": 12.263666666213247,
+            "w": 2.3449999996861735,
+            "g": 140.23000000001332,
+            "s": 0
+          },
+          "units": 0,
+          "villagers": 0,
+          "buildings": 10,
+          "queuedUnits": 0,
+          "activeResearch": 0,
+          "movingUnits": 0,
+          "population": 0,
+          "capacity": 40,
+          "wave": 0,
+          "townCentreHP": 0
+        },
+        {
+          "team": 1,
+          "resources": {
+            "f": 20.528599999497267,
+            "w": 32.249999999677264,
+            "g": 1069.884600000012,
+            "s": 0.27133333330892917
+          },
+          "units": 69,
+          "villagers": 32,
+          "buildings": 54,
+          "queuedUnits": 1,
+          "activeResearch": 0,
+          "movingUnits": 24,
+          "population": 70,
+          "capacity": 80,
+          "wave": 2,
+          "townCentreHP": 900
+        }
+      ],
+      "paths": {
+        "requests": 55779,
+        "expanded": 2440394,
+        "found": 55332,
+        "exhausted": 72,
+        "invalid": 375,
+        "peakOpen": 691,
+        "maxExpanded": 4628,
+        "routeWaypoints": 417043,
+        "maxWaypoints": 64,
+        "formationOrders": 875,
+        "formationUnits": 990,
+        "formationReuse": 0,
+        "fallbackReuse": 0,
+        "validRequests": 55404,
+        "averageExpanded": 44.04725290592737,
+        "averageWaypoints": 7.537103303694065,
+        "successRate": 0.9987004548408057
+      }
+    }
+  ],
+  "fileGitBlobs": {
+    "ROADMAP.md": "f4119a565df078293f553c4984ac537596c8a894",
+    "XBOX_CONTROLLER_PARITY.md": "92e7d2106738a153088702c290531640f36616e0",
+    "docs/REFACTORING_INVENTORY.md": "92dcfd326833358e89b1de0f7728653f05e8dc66",
+    "js/input-selection.js": "1ad7d51d5504e42dcd5210cdfaf6394f52196315",
+    "js/network-commands.js": "687815ffed8a70b866d59f64c835a7b7c4a20cd8",
+    "js/network-session.js": "2e0f7786e21a9d0da19743dd5bf0c37296a6ce41",
+    "js/network-sync.js": "3f4ef2fa277017e39b62b88eb8cb8477e3aad9c8",
+    "js/network-unit-map.js": "637291f398078234b989eb8cca334863349271af",
+    "js/network-webrtc.js": "0d5039ea6ae1cd4c8612dcfa838bc724dd241e07",
+    "js/ui.js": "d13664310015a37739b0d43471e0efd2a8fc54bf",
+    "sw.js": "59bf37033ad570d027e6d2aeb3ced34032ab8adf",
+    "tests/browser/campaign-navies.mjs": "dda4e4411df06b05f355b482b40d13d2e2321634",
+    "tests/browser/webrtc-transport.mjs": "40d9c226c31714993f8d9b61d3ca5f96728d69a2",
+    "tests/network-live-session.test.mjs": "6f394d4898ce6c75eb06f61ab74536af4a40292e",
+    "tests/network-production-commands.test.mjs": "6743e969119e5a7a8b9d0b4c4a6e94a82790c5cc",
+    "tests/network-unit-map.test.mjs": "c076678a9a976d4e34e78de8df5aff0caf7c9f44",
+    "tests/selected-building-training.test.mjs": "392aa99bcf95f8ad103d3a5aedc544ca8359e225",
+    "tests/webrtc-transport.test.mjs": "cc3ac20b0c343e78be5b99c65ddc6940528e9fa0"
+  },
+  "limits": [
+    "Physical Xbox Series S input/performance acceptance remains open.",
+    "Five bot defeats do not establish impossible human completion.",
+    "The native browser fixture uses cleared terrain and is not a campaign victory or sustained FPS benchmark.",
+    "No new paid service, hosting configuration or hosted workflow schedule was introduced."
+  ]
+}

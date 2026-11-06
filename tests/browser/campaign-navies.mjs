@@ -163,6 +163,30 @@ export async function checkCampaignNavies(browser,origin,output){
   });
   for(const key of ['reassigned','completed','paidOnce','reserved','resumedAfterUnload'])assert.equal(constructionRecovery[key],true,'construction recovery '+key);
   assert.deepEqual(constructionRecovery.orders,['house','house']);
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery};
+  const groupRally=await page.evaluate(()=>{
+   // Controlled cleared terrain; real A press/release and production movement.
+   startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);
+   const a=addB(0,'tc',20,20,true),b=addB(0,'tc',35,20,true);S.sel=[a,b];S.res[0].f=1000;
+   cancelGameplayGestures();ctr(40,40);cur={x:CW/2,y:CH/2};const xy=s2w(cur.x,cur.y),point={x:xy[0],y:xy[1]};
+   E=[];RE=[];P=[];E[0]=P[0]=true;playCtl(1/30);
+   E=[];P=[];RE[0]=true;playCtl(1/30);RE=[];
+   const applied=[a,b].every(t=>t.rally?.x===point.x&&t.rally.y===point.y);
+   train(a,'vil');train(b,'vil');upB(a,U.vil.t+1);upB(b,U.vil.t+1);
+   for(let i=0;i<1800;i++)for(const u of S.us)upU(u,1/30);
+   const arrived=S.us.length===2&&S.us.every(u=>u.o==='i'&&!u.autoWorker&&Math.hypot(u.x-point.x,u.y-point.y)<2.2);
+   const canvas=document.createElement('canvas');canvas.id='group-rally-map';canvas.width=680;canvas.height=500;document.body.append(canvas);
+   const description=document.createElement('p');document.body.append(description);const orders=[];
+   const map=CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return {ok:true}}});
+   map.refresh(S,0,W,H,true);map.choose({x:a.x+1,y:a.y+1});
+   const tap=()=>{map.control({0:true},{0:true});map.control({},{});};tap();tap();
+   const selection=map.selection(),before=JSON.stringify(S.bs.map(t=>t.rally));map.choose({x:50,y:42});
+   const deferred=before===JSON.stringify(S.bs.map(t=>t.rally));mode='play';
+   const executed=orders.length===1&&CK_GAME_COMMANDS.execute(orders[0],0,1);mode='pause';map.refresh(S,0,W,H,true);
+   return {applied,arrived,selection,order:orders[0],deferred,executed,updated:S.bs.every(t=>t.rally?.x===50&&t.rally.y===42&&t.rally.t===null)};
+  });
+  for(const key of ['applied','arrived','deferred','executed','updated'])assert.equal(groupRally[key],true,'group rally '+key);
+  assert.equal(groupRally.selection.length,2);assert.deepEqual(groupRally.order.entities,groupRally.selection);assert.equal(groupRally.order.type,'rally');
+  await page.locator('#group-rally-map').screenshot({path:output+'/group-rally.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally};
  }finally{await page.close()}
 }

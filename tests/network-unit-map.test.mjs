@@ -539,12 +539,13 @@ test('double A selects visible completed owned town centres and submits the full
   f.map.refresh(source,1,32,32,true);time+=100;tap(f.map);
   assert.deepEqual(Array.from(f.map.selection()),['b2','b3']);
   assert.match(f.description.textContent,/2 town centres/);assert.equal(f.stopButton.disabled,true);
-  f.map.choose({x:30,y:30});assert.equal(f.orders.length,0,'unverified group rally stays unavailable');
-  assert.match(f.description.textContent,/Group rally orders/);
   f.map.control({7:true});f.map.control({0:true},{6:true,7:true});
   assert.equal(JSON.stringify(f.orders),JSON.stringify([{type:'train',entities:['b2','b3'],value:'vil',count:5}]));
   f.map.control({0:true},{6:true,7:true});assert.equal(f.orders.length,1,'pending request blocks repeats');
   assert.equal(JSON.stringify(source),before,'UI selection and training never mutate the world');
+  f.map.control({},{});f.map.refresh(source,1,32,32,true);f.map.choose({x:30,y:30});
+  assert.deepEqual(JSON.parse(JSON.stringify(f.orders[1])),{type:'rally',entities:['b2','b3'],point:{x:30,y:30}});
+  assert.equal(JSON.stringify(source),before,'group rally is submitted without optimistic changes');
   source.bs[1].hp=0;f.map.refresh(source,1,32,32,false);
   assert.deepEqual(Array.from(f.map.selection()),['b3']);assert.match(f.description.textContent,/town centre/);
   assert.deepEqual(Array.from(f.orders[0].entities),['b2','b3']);

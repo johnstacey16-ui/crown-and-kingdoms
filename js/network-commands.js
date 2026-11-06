@@ -215,8 +215,15 @@
       return unload(b) === true;
     }
 
-    if (order.type === 'train' || order.type === 'research' ||
-        order.type === 'rally' || order.type === 'cancel') {
+    if (order.type === 'rally') {
+      // Validate the complete group before changing any building's rally.
+      if (!activeBuildings(entities) || order.target != null ||
+          entities.some(b=>!Array.isArray(B[b.k].tr)||!B[b.k].tr.length)) return false;
+      for (const b of entities) b.rally={x:order.point.x,y:order.point.y,t:null};
+      return true;
+    }
+
+    if (order.type === 'train' || order.type === 'research' || order.type === 'cancel') {
       if (!activeBuildings(entities) || order.type !== 'train' && entities.length !== 1) return false;
       const b = entities[0];
       if (order.type === 'train') {
@@ -236,10 +243,7 @@
       }
       if (order.type === 'research') return research(b, order.value) === true;
       if (order.type === 'cancel') return cancelQ(b) === true;
-      if (!Array.isArray(B[b.k].tr) || !B[b.k].tr.length || order.target != null)
-        return false;
-      b.rally = { x: order.point.x, y: order.point.y, t: null };
-      return true;
+      return false;
     }
 
     if (!activeUnits(entities)) return false;

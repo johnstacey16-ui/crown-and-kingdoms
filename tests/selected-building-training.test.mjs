@@ -93,3 +93,23 @@ test('military command-wheel production spreads across matching selected buildin
  assert.equal(f.state().food[0],f.run('2000-5*U.mil.cost.f'));
  assert.equal(f.run('S.res[0].g'),f.run('2000-5*U.mil.cost.g'));
 });
+
+test('one rally action updates every distinct eligible selected production building',()=>{
+ const f=fixture();
+ f.run("const house={...a,k:'house',netId:'house',q:[]},enemy={...a,t:1,netId:'enemy'},dead={...a,hp:0,netId:'dead'},unfinished={...a,done:false,netId:'unfinished'},stale={...a,netId:'stale'};S.bs.push(house,enemy,dead,unfinished);S.sel=[house,a,b,a,enemy,dead,unfinished,stale];globalThis.deposit={k:'w',amt:100,x:30,y:30}");
+ const before=f.run('JSON.stringify(S.res)');assert.equal(f.run('orderSel(deposit,30.5,30.5)'),true);
+ assert.equal(f.run('a.rally.x===30.5&&b.rally.x===30.5&&a.rally.t===deposit&&b.rally.t===deposit'),true);
+ assert.equal(f.run('a.rally===b.rally'),false,'each building stores its own rally record');
+ assert.equal(f.run('[house,enemy,dead,unfinished,stale].some(b=>b.rally)'),false);
+ assert.equal(f.run('JSON.stringify(S.res)'),before);
+});
+test('units trained at grouped rally buildings travel to the shared destination and rally records survive reload',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ const run=code=>vm.runInContext(code,sandbox);run(source);
+ run("kingdoms=2;start();S.bs=[];S.us=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);globalThis.a=addB(0,'tc',20,20,true);globalThis.b=addB(0,'tc',35,20,true);S.sel=[a,b];S.res[0].f=1000;orderSel(null,28.5,32.5)");
+ assert.equal(run('!!a.rally&&!!b.rally'),true);
+ run("train(a,'vil');train(b,'vil');upB(a,U.vil.t+1);upB(b,U.vil.t+1);for(let i=0;i<1200;i++)for(const u of S.us)upU(u,1/30)");
+ assert.equal(run('S.us.length'),2);assert.equal(run("S.us.every(u=>Math.hypot(u.x-28.5,u.y-32.5)<2.2&&u.o==='i'&&!u.autoWorker)"),true);
+ assert.equal(run('saveG()'),true);assert.equal(run('loadG()'),true);
+ assert.equal(run('S.bs.filter(b=>b.k===\'tc\').every(b=>b.rally?.x===28.5&&b.rally.y===32.5)'),true);
+});

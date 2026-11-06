@@ -148,7 +148,7 @@ test('selected building training balances a total batch with stable ties and res
   }
 });
 
-test('multi-building ownership is checked for every member and other building orders remain single-building',()=>{
+test('multi-building ownership is checked for every member and research and cancellation remain single-building',()=>{
   for(const stale of [false,true]){
     const out=world(`
       const a=S.bs.find(b=>b.t===1&&b.k==='tc'),b=addB(1,'tc',2,2,true);
@@ -159,14 +159,14 @@ test('multi-building ownership is checked for every member and other building or
       if(${stale})b.t=0;
       const result=${stale} ? host.applyFrame(6)[0] : null;
       b.t=1;
-      const otherTypes=[{type:'cancel'}, {type:'research',value:'age'}, {type:'rally',point:{x:4,y:4}}];
+      const otherTypes=[{type:'cancel'}, {type:'research',value:'age'}];
       const others=otherTypes.map(order=>host.receive(packet('guest-session',1,2,8,{...order,entities:[a.netId,b.netId]}),'guest-session',2).ok);
       return {received:received.ok,result:result&&result.ok,queues:[a.q.length,b.q.length],
         sameFood:S.res[1].f===before,others};
     `);
     assert.equal(out.received,stale);if(stale)assert.equal(out.result,false);
     assert.deepEqual(Array.from(out.queues),[0,0]);assert.equal(out.sameFood,true);
-    assert.deepEqual(Array.from(out.others),[false,false,false]);
+    assert.deepEqual(Array.from(out.others),[false,false]);
   }
 });
 
@@ -303,4 +303,28 @@ test('the production command executor is loaded but never consumes untrusted Sup
   assert.match(sw,/\.\/js\/network-commands\.js/);
   assert.match(transport,/synchronizedWorld: false/);
   assert.doesNotMatch(transport,/CK_GAME_COMMANDS\.execute/);
+});
+
+test('group rally is scheduled once and atomically updates every owned production building',()=>{
+ const out=world(`
+  const a=S.bs.find(b=>b.t===1&&b.k==='tc'),b=addB(1,'bar',2,2,true),point={x:25.5,y:25.5},before=JSON.stringify(S.res);
+  const command={type:'rally',entities:[a.netId,b.netId],point};
+  const accepted=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+  const untouched=!a.rally&&!b.rally,early=host.applyFrame(5).length,result=host.applyFrame(6);
+  return {accepted:accepted.ok,untouched,early,ok:result[0]?.ok,matched:[a,b].every(b=>b.rally?.x===point.x&&b.rally.y===point.y),distinct:a.rally!==b.rally,sameResources:JSON.stringify(S.res)===before};
+ `);
+ for(const k of ['accepted','untouched','ok','matched','distinct','sameResources'])assert.equal(out[k],true,k);assert.equal(out.early,0);
+});
+test('invalid group rally members and ownership changes reject without partial mutation',()=>{
+ for(const scenario of ['enemy','dead','unfinished','non-production','stale']){
+  const out=world(`
+   const a=S.bs.find(b=>b.t===1&&b.k==='tc'),b=addB(1,'tc',2,2,true);a.rally={x:4,y:4,t:null};b.rally={x:5,y:5,t:null};
+   if('${scenario}'==='enemy')b.t=0;if('${scenario}'==='dead')b.hp=0;if('${scenario}'==='unfinished')b.done=false;if('${scenario}'==='non-production')b.k='house';
+   const before=JSON.stringify([a.rally,b.rally]),command={type:'rally',entities:[a.netId,b.netId],point:{x:25,y:25}},received=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+   if('${scenario}'==='stale')b.t=0;
+   const result=received.ok?host.applyFrame(6):[];
+   return {received:received.ok,executed:result[0]?.ok||false,unchanged:before===JSON.stringify([a.rally,b.rally])};
+  `);
+  assert.equal(out.executed,false,scenario);assert.equal(out.unchanged,true,scenario);
+ }
 });

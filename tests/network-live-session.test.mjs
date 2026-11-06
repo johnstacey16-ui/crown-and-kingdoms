@@ -1,4 +1,5 @@
 import test from 'node:test';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { pair, attachDOM, eventually } from './helpers/authenticated-game.mjs';
 
@@ -15,6 +16,7 @@ async function livePair(t, defaults = true, extraTown = false) {
     const initial=preparation.prepare(config);
     if(!extraTown)return initial;
     game.testAddTown(1);
+    if(extraTown==='both'){game.testAddTown(0);vm.runInContext('S.res.forEach(r=>r.f=1000)',game);}
     return game.CK_SIM_SYNC.checksum({initial,expanded:game.testHash()});
   };
   const hs=hostGame.CK_MATCH_STARTUP.create({transport:host,validateConfig:hostGame.CK_AUTH_LOBBY.validConfig,prepare:prepare(hostGame,hp)});
@@ -81,7 +83,7 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.hostGame.testTeam(1).food,before.food);
 });
 
-for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7','ck-live-preview-8','ck-live-preview-9','ck-live-preview-10','ck-live-preview-11','ck-live-preview-12'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
+for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7','ck-live-preview-8','ck-live-preview-9','ck-live-preview-10','ck-live-preview-11','ck-live-preview-12','ck-live-preview-13'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
   const p=await livePair(t);
   await p.host.send('run',{v:version,hash:p.openingHash});
   await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
@@ -479,5 +481,25 @@ test('DOM preview runs after verification and routes the guest training button t
   assert.equal(hostGame.testWorld().time,frozen);
 });
 
-
-
+test('both humans rally and train from complete town-centre groups over HTTP with matching worlds',async t=>{
+ const p=await livePair(t,true,'both');await p.hostLive.begin();await p.cycle();await p.cycle();
+ const towns=[0,1].map(team=>Array.from(p.hostGame.testTowns(team),b=>b.id));
+ const points=[p.hostGame.testRallyPoint(0),p.hostGame.testRallyPoint(1)],oldUnits=[p.hostGame.testUnit(0),p.hostGame.testUnit(1)],before=p.hostGame.testHash();
+ const initialIds=[0,1].map(team=>Array.from(p.hostGame.testUnits(team),u=>u.id));
+ for(const [team,session]of [[0,p.hostLive],[1,p.guestLive]])assert.equal(session.submit({type:'rally',entities:towns[team],point:points[team]}).ok,true);
+ assert.equal(p.hostGame.testHash(),before,'submitted group requests do not optimistically change the host world');
+ const rallies=(game,team)=>vm.runInContext(`JSON.stringify(S.bs.filter(b=>b.t===${team}&&b.k==='tc').map(b=>b.rally))`,game);
+ for(let i=0;i<10;i++)await p.cycle();
+ for(const team of [0,1]){
+  assert.deepEqual(JSON.parse(rallies(p.hostGame,team)),towns[team].map(()=>({...points[team],t:null})));
+  assert.equal(rallies(p.hostGame,team),rallies(p.guestGame,team));assert.equal(p.hostGame.testUnit(team).order,oldUnits[team].order);
+ }
+ p.hostGame.testFastTraining();p.guestGame.testFastTraining();
+ for(const [team,session]of [[0,p.hostLive],[1,p.guestLive]])assert.equal(session.submit({type:'train',entities:towns[team],value:'vil',count:5}).ok,true);
+ for(let i=0;i<30;i++)await p.cycle();
+ for(const team of [0,1]){
+  const snapshot=game=>vm.runInContext(`JSON.stringify(S.us.filter(u=>u.t===${team}&&u.k==='vil'&&!${JSON.stringify(initialIds[team])}.includes(u.netId)).map(u=>({id:u.netId,x:u.x,y:u.y,o:u.o,p:u.p,auto:u.autoWorker})))`,game);
+  const units=JSON.parse(snapshot(p.hostGame));assert.equal(units.length,5);assert.equal(snapshot(p.hostGame),snapshot(p.guestGame));
+  for(const u of units){assert.equal(u.auto,0);assert.ok(u.o==='m'&&u.p.length>0||u.o==='i'&&Math.hypot(u.x-points[team].x,u.y-points[team].y)<2.2)}
+ }
+});

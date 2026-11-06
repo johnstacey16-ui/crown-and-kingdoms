@@ -289,7 +289,7 @@
         for(const b of view.buildings){context.fillStyle=chosen.has(b.id)?'#ffe78a':'#c9a24a';context.fillRect(b.x*sx,b.y*sy,b.size*sx,b.size*sy);}
         for(const u of view.units){context.fillStyle=chosen.has(u.id)?'#ffe78a':'#73c9ff';context.beginPath();context.arc(u.x*sx,u.y*sy,chosen.has(u.id)?6:4,0,Math.PI*2);context.fill();}
       }
-      for(const b of view.buildings)if(b.id===selected&&b.rally){
+      for(const b of view.buildings)if(chosen.has(b.id)&&b.rally){
         context.strokeStyle='#ffe78a';context.beginPath();context.moveTo((b.x+b.size/2)*sx,(b.y+b.size/2)*sy);
         context.lineTo(b.rally.x*sx,b.rally.y*sy);context.stroke();context.fillStyle='#ffe78a';context.fillRect(b.rally.x*sx-3,b.rally.y*sy-3,6,6);
       }
@@ -419,13 +419,13 @@
         const double=controller&&!add&&previousTap&&previousTap.id===town.id&&previousTap.kind===town.kind&&at>=previousTap.at&&at-previousTap.at<=350;
         setSelection(double?view.buildings.filter(b=>selectable(b)&&b.kind===town.kind&&onScreen(b)).map(b=>b.id):[town.id]);
         if(controller&&!add&&!double)lastTap={id:town.id,kind:town.kind,at};
-        description.textContent=view.battlefield?(town.label+' selected. Hold RT and choose training or research with the left stick. A sets a rally point for production buildings. B deselects.'):selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). Select one town centre to set a rally point. B deselects.':
+        description.textContent=view.battlefield?((selection.length>1?selection.length+' production buildings':town.label)+' selected. Hold RT and choose training or research with the left stick. A sets a rally point for production buildings. B deselects.'):selection.length>1?selection.length+' town centres selected. Hold RT for balanced training (A: one; LT+A: five). A sets a rally point for the group. B deselects.':
           'Town centre selected. Double A selects visible completed town centres. A sets a rally point. Hold RT for training (A: one; LT+A: five). B deselects.';
       }
       else if(add){description.textContent='LT+A adds an owned unit at the cursor; it does not issue a move order.';}
       else if(selected&&enabled){
         const rally=view.buildings.some(b=>b.id===selected&&b.rallyable);
-        if(rally&&selection.length>1){description.textContent='Group rally orders are not available in this preview. Select one town centre to set its rally point.';draw();return;}
+        if(rally&&!selection.every(id=>view.buildings.some(b=>b.id===id&&b.rallyable))){description.textContent='Select completed production buildings together to set a group rally point.';draw();return;}
         const enemy=view.battlefield?.enemies.find(e=>e.hostile!==false&&(e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius));
         const deposit=view.battlefield?.tiles.find(t=>t.index===Math.floor(point.y)*view.width+Math.floor(point.x))?.node;
         const gathering=!rally&&deposit?.id&&(!deposit.farm||deposit.owner===view.team)&&selection.every(id=>view.battlefield.gatherers[id]===(deposit.fish?'fish':'vil'));
