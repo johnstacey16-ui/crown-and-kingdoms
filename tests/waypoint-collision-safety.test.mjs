@@ -6,7 +6,7 @@ const source = readFileSync(new URL('../js/simulation-separation.js', import.met
 const mvStart = source.indexOf('const mv=(u,dx,dy)=>');
 const mvEnd = source.indexOf('\n/* A* waypoints are tile-centred', mvStart);
 const axisStart = source.indexOf('function walkAxisSlide(');
-const walkStart = source.indexOf('function walk(u,dt){');
+const walkStart = source.indexOf('function walk(u,dt,precise=false){');
 const walkEnd = source.indexOf('\n/* Local spatial grid for unit separation.', walkStart);
 assert.ok(mvStart >= 0 && mvEnd > mvStart && axisStart >= 0 && walkStart > axisStart && walkEnd > walkStart);
 const W = 12, H = 12;

@@ -207,6 +207,32 @@ export async function checkCampaignNavies(browser,origin,output){
   for(const key of ['sharedResource','dispatched','saved','loaded','restored'])assert.equal(fishingRally[key],true,'fishing rally '+key);
   assert.equal(fishingRally.paid,fishingRally.expectedCost);assert.ok(fishingRally.harvested>0);assert.ok(fishingRally.delivered>0);
   await page.locator('#fishing-rally-proof').screenshot({path:output+'/fishing-resource-rally.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally};
+  const merchantRally=await page.evaluate(()=>{
+   const rows=[];
+   for(const kind of ['cart','cog']){
+    // Controlled two-depot economy, using real A release, queues and trade ticks.
+    startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(kind==='cog'?1:0);S.ex.fill(1);S.vs.fill(1);S.age.fill(3);setDiplomacy(0,1,'neutral');
+    const k=kind==='cart'?'market':'dock',homes=[addB(0,k,20,20,true),addB(0,k,20,34,true)],partner=addB(1,k,44,26,true);
+    if(kind==='cog')for(const b of S.bs)for(let y=b.y;y<b.y+b.s;y++)for(let x=b.x;x<b.x+b.s;x++)S.wt[y*W+x]=0;
+    S.res[0]={f:1000,w:1000,g:1000,s:1000};S.sel=homes;cancelGameplayGestures();ctr(45.5,27.5);cur={x:CW/2,y:CH/2};
+    E=[];RE=[];P=[];E[0]=P[0]=true;playCtl(1/30);E=[];P=[];RE[0]=true;playCtl(1/30);RE=[];
+    const assigned=homes.every(b=>b.rally?.t===partner);
+    for(const b of homes){if(!train(b,kind))throw Error('Merchant training failed');upB(b,U[kind].t+1)}
+    const sources=S.us.every((u,i)=>u.tradeFromKey===[0,k,homes[i].x,homes[i].y].join(':'));
+    const paidGold=1000-S.res[0].g,paidWood=1000-S.res[0].w,bank=S.res[0].g;
+    const advance=()=>{for(const u of S.us)upU(u,1/30)};
+    for(let i=0;i<3600&&!S.us.some(u=>u.tradeReturning);i++)advance();
+    const outgoingUnpaid=S.res[0].g===bank,loaded=saveG()&&loadG();mode='pause';
+    const restored=S.bs.filter(b=>b.t===0).every(b=>b.rally.t===S.bs.find(b=>b.t===1));
+    for(let i=0;i<6000;i++)advance();
+    rows.push({kind,assigned,sources,spawned:S.us.length,paidGold,paidWood,expectedGold:2*(U[kind].cost.g||0),expectedWood:2*(U[kind].cost.w||0),outgoingUnpaid,loaded,restored,goldEarned:S.res[0].g-bank});
+   }
+   cmp=null;notes.length=0;S.sel=S.bs.filter(b=>b.t===0);setZoom(.8);ctr(32,27);mode='play';draw(0);
+   const proof=document.createElement('canvas');proof.id='merchant-rally-proof';proof.width=CW;proof.height=CH;proof.getContext('2d').drawImage(document.getElementById('c'),0,0);document.body.append(proof);mode='pause';
+   return rows;
+  });
+  for(const row of merchantRally){for(const key of ['assigned','sources','outgoingUnpaid','loaded','restored'])assert.equal(row[key],true,row.kind+' '+key);assert.equal(row.spawned,2);assert.equal(row.paidGold,row.expectedGold);assert.equal(row.paidWood,row.expectedWood);assert.ok(row.goldEarned>0)}
+  await page.locator('#merchant-rally-proof').screenshot({path:output+'/merchant-trade-rally.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally};
  }finally{await page.close()}
 }

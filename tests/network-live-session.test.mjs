@@ -14,6 +14,14 @@ async function livePair(t, defaults = true, extraTown = false) {
   const hp=hostGame.CK_AUTH_LOBBY.preparation(),gp=guestGame.CK_AUTH_LOBBY.preparation();
   const prepare=(game,preparation)=>config=>{
     const initial=preparation.prepare(config);
+    if(extraTown==='merchant-rally'){
+      vm.runInContext(`S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.age.fill(3);S.res.forEach(r=>{r.f=r.w=r.g=r.s=1000});U.cart.t=.1;
+       for(const team of [0,1]){const x=team?W-24:20;addB(team,'tc',x,10,true);addB(team,'market',x,20,true)}
+       globalThis.merchantMarket=team=>S.bs.find(b=>b.t===team&&b.k==='market').netId;
+       globalThis.merchantPoint=team=>({x:(team?W-24:20)+7.5,y:27.5});
+       globalThis.merchantState=team=>JSON.stringify(S.us.filter(u=>u.t===team&&u.k==='cart').map(u=>({id:u.netId,x:u.x,y:u.y,order:u.o,paused:u.tradePaused,destination:u.tradeDestKey||null})));`,game);
+      return game.CK_SIM_SYNC.checksum({initial,expanded:game.testHash()});
+    }
     if(!extraTown)return initial;
     game.testAddTown(1);
     if(extraTown==='both'){game.testAddTown(0);vm.runInContext('S.res.forEach(r=>r.f=1000)',game);}
@@ -83,7 +91,7 @@ test('population-blocked training reports rejection to the guest without chargin
   assert.equal(p.hostGame.testTeam(1).food,before.food);
 });
 
-for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7','ck-live-preview-8','ck-live-preview-9','ck-live-preview-10','ck-live-preview-11','ck-live-preview-12','ck-live-preview-13'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
+for(const version of ['ck-live-preview-4','ck-live-preview-5','ck-live-preview-6','ck-live-preview-7','ck-live-preview-8','ck-live-preview-9','ck-live-preview-10','ck-live-preview-11','ck-live-preview-12','ck-live-preview-13','ck-live-preview-14'])test(version+' run is rejected even with the correct verified opening hash',async t=>{
   const p=await livePair(t);
   await p.host.send('run',{v:version,hash:p.openingHash});
   await assert.rejects(p.guestLive.pump(),/Wrong preview start/);
@@ -501,5 +509,19 @@ test('both humans rally and train from complete town-centre groups over HTTP wit
   const snapshot=game=>vm.runInContext(`JSON.stringify(S.us.filter(u=>u.t===${team}&&u.k==='vil'&&!${JSON.stringify(initialIds[team])}.includes(u.netId)).map(u=>({id:u.netId,x:u.x,y:u.y,o:u.o,p:u.p,auto:u.autoWorker})))`,game);
   const units=JSON.parse(snapshot(p.hostGame));assert.equal(units.length,5);assert.equal(snapshot(p.hostGame),snapshot(p.guestGame));
   for(const u of units){assert.equal(u.auto,0);assert.ok(u.o==='m'&&u.p.length>0||u.o==='i'&&Math.hypot(u.x-points[team].x,u.y-points[team].y)<2.2)}
+ }
+});
+
+
+test('both HTTP humans train carts that finish ground rallies with matching worlds',async t=>{
+ const p=await livePair(t,true,'merchant-rally');await p.hostLive.begin();await p.cycle();await p.cycle();
+ for(const [team,session]of [[0,p.hostLive],[1,p.guestLive]]){const request=session.submit({type:'rally',entities:[p.hostGame.merchantMarket(team)],point:p.hostGame.merchantPoint(team)});assert.equal(request.ok,true,JSON.stringify({team,reason:request.reason,phase:session.snapshot().phase}));}
+ for(let i=0;i<10;i++)await p.cycle();
+ for(const [team,session]of [[0,p.hostLive],[1,p.guestLive]])assert.equal(session.submit({type:'train',entities:[p.hostGame.merchantMarket(team)],value:'cart'}).ok,true);
+ for(let i=0;i<900;i++)await p.cycle();
+ for(const team of [0,1]){
+  const units=JSON.parse(p.hostGame.merchantState(team)),point=p.hostGame.merchantPoint(team);assert.equal(units.length,1);
+  assert.equal(p.hostGame.merchantState(team),p.guestGame.merchantState(team));assert.equal(units[0].order,'i');assert.equal(units[0].paused,true);assert.equal(units[0].destination,null);
+  assert.ok(Math.hypot(units[0].x-point.x,units[0].y-point.y)<2.2);assert.equal(vm.runInContext('S.res['+team+'].g',p.hostGame),1000);
  }
 });

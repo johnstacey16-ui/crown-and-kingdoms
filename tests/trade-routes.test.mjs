@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import {headlessGame} from './helpers/headless-game.mjs';
 
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'utf8');
@@ -91,5 +92,61 @@ test('trade deliveries preserve fractional gold already earned from gathering or
   const {S,trader,tickTrader}=setup(kind);S.res[0].g=100.125;
   trader.x=17;tickTrader(trader,1/30);trader.x=1;tickTrader(trader,1/30);
   assert.equal(S.res[0].g,106.125);assert.equal(trader.tradeCargo,0);
+ }
+});
+
+
+function rallyWorld(kind='cart',group=false){
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source,sandbox);
+ const run=code=>vm.runInContext(code,sandbox);
+ run(`kingdoms=2;startAge=3;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(${kind==='cog'?1:0});S.ex.fill(1);S.vs.fill(1);setDiplomacy(0,1,'neutral');
+  globalThis.homes=[addB(0,'${kind==='cog'?'dock':'market'}',20,20,true)];${group?"homes.push(addB(0,'"+(kind==='cog'?'dock':'market')+"',20,34,true));":''}
+  globalThis.partner=addB(1,'${kind==='cog'?'dock':'market'}',44,26,true);if('${kind}'==='cog')for(const b of S.bs)for(let y=b.y;y<b.y+b.s;y++)for(let x=b.x;x<b.x+b.s;x++)S.wt[y*W+x]=0;S.res[0]={f:1000,w:1000,g:1000,s:1000};S.sel=homes.slice();
+  globalThis.produce=()=>{for(const b of homes){if(!train(b,'${kind}'))throw Error('Training rejected');upB(b,U['${kind}'].t+1)}};
+  globalThis.advance=n=>{for(let i=0;i<n;i++)for(const u of S.us)upU(u,1/30)};
+ `);
+ return {run};
+}
+for(const kind of ['cart','cog']){
+ test(kind+' follows a production ground rally and remains idle at its destination',()=>{
+  const f=rallyWorld(kind);f.run('orderSel(null,32.5,32.5);produce();advance(2400)');
+  assert.equal(f.run("S.us[0].o==='i'&&Math.hypot(S.us[0].x-32.5,S.us[0].y-32.5)<2.2"),true);
+  assert.equal(f.run('S.us[0].tradePaused'),true);assert.equal(f.run('S.us[0].tradeDestKey||null'),null);
+ });
+ test(kind+' group production rally starts paid trade from each producing depot and restores saved targets',()=>{
+  const f=rallyWorld(kind,true);f.run('orderSel(partner,partner.x+1,partner.y+1)');
+  assert.equal(f.run('homes.every(b=>b.rally.t===partner)'),true);
+  f.run('produce()');assert.equal(f.run('S.us.length'),2);
+  assert.equal(f.run("S.us.every((u,i)=>u.tradeFromKey===[0,homes[i].k,homes[i].x,homes[i].y].join(':')&&u.tradeDestKey===[1,partner.k,partner.x,partner.y].join(':'))"),true);
+  const paidGold=f.run('S.res[0].g'),partnerGold=f.run('S.res[1].g');assert.equal(paidGold,f.run(`1000-2*(U['${kind}'].cost.g||0)`));
+  assert.equal(f.run('S.res[0].w'),f.run(`1000-2*(U['${kind}'].cost.w||0)`));
+  f.run('for(let i=0;i<3600&&!S.us.some(u=>u.tradeReturning);i++)advance(1)');
+  assert.equal(f.run('S.res[0].g'),paidGold,'outgoing cargo is not paid until delivered home');
+  assert.equal(f.run('saveG()&&loadG()'),true);
+  assert.equal(f.run("S.bs.filter(b=>b.t===0).every(b=>b.rally.t===S.bs.find(q=>q.t===1))"),true);
+  f.run('advance(6000)');assert.ok(f.run('S.res[0].g')>paidGold);assert.equal(f.run('S.res[1].g'),partnerGold,'partner resources are not charged');
+ });
+}
+
+test('trade rally dispatch rechecks ownership, life, completion, world membership and reachability',()=>{
+ for(const kind of ['cart','cog'])for(const change of ["partner.hp=0","partner.done=false","partner.t=0","setDiplomacy(0,1,'enemy')","S.bs=S.bs.filter(b=>b!==partner)","for(let y=0;y<H;y++)for(let x=34;x<38;x++)S.wt[y*W+x]="+(kind==='cog'?'0':'1')]){
+  const f=rallyWorld(kind);f.run('orderSel(partner,45,27);'+change+';produce();advance(1200)');
+  assert.equal(f.run('S.us[0].tradeDestKey||null'),null,kind+' '+change);
+  assert.equal(f.run('S.us[0].tradeCargo||0'),0);assert.equal(f.run('S.res[0].g'),f.run(`1000-(U['${kind}'].cost.g||0)`));
+ }
+});
+
+
+test('trade-rally saves reject unit, unrelated building and out-of-range references before world replacement',()=>{
+ const f=rallyWorld();f.run("addB(0,'house',10,10,true);orderSel(partner,45,27);produce();saveG()");
+ const results=f.run(`(()=>{const original=JSON.parse(localStorage.getItem(skey(slot))),before=JSON.stringify([S.us,S.bs.map(b=>[b.netId,b.hp,b.rally&&b.rally.t?.netId])]);return ['u0','b2','b999','n999','r0'].map(ref=>{const payload=JSON.parse(JSON.stringify(original));payload.bs[0].rally.t=ref;localStorage.setItem(skey(slot),JSON.stringify(payload));return !loadG()&&JSON.stringify([S.us,S.bs.map(b=>[b.netId,b.hp,b.rally&&b.rally.t?.netId])])===before})})()`);
+ assert.ok(Array.from(results).every(Boolean));
+});
+
+test('direct merchant commands retain explicit routing to reachable neutral and allied depots',()=>{
+ for(const kind of ['cart','cog'])for(const relation of ['neutral','ally']){
+  const f=rallyWorld(kind);f.run(`setDiplomacy(0,1,'${relation}');produce();S.sel=S.us.slice();orderSel(partner,45,27)`);
+  assert.equal(f.run("S.us[0].tradeDestKey===[1,partner.k,partner.x,partner.y].join(':')&&!S.us[0].manualTradeMove&&!S.us[0].tradePaused"),true);
+  const paid=f.run('S.res[0].g');f.run('advance(6000)');assert.ok(f.run('S.res[0].g')>paid);
  }
 });

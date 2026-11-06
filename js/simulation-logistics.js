@@ -1,5 +1,5 @@
-/* Existing transport landing and trade route logic, moved without edits.
- * Loaded before simulation.js; no unit, save or command semantics changed. */
+/* Transport landing, explicit trade route admission and trade simulation.
+ * Loaded before simulation.js; classic scripts share the same runtime. */
 // Find accessible water staging beside a free beach with one multi-goal A* search.
 function transportLandingRoute(u,x,y){
  if(!S||!u||u.k!=='trn'||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(x)||!Number.isFinite(y)||x<0||y<0||x>=W||y>=H)return null;
@@ -29,6 +29,27 @@ function transportLandingRoute(u,x,y){
  if(!route||!route.length)return null;
  const end=route[route.length-1],tile=staging.get((end[1]|0)*W+(end[0]|0));
  return tile?{route,beach:[tile.bx,tile.by]}:null;
+}
+/* Direct orders and production rallies share route admission and initialization. */
+function validTradePartner(team,target,endpoint=null){
+ return !!(target&&S.bs.includes(target)&&Array.isArray(target.q)&&target.done&&target.hp>0&&
+  (target.k==='market'||target.k==='dock')&&(!endpoint||target.k===endpoint)&&
+  Number.isInteger(target.t)&&target.t>=0&&target.t<S.teamN&&target.t!==team&&!isHostile(team,target.t));
+}
+function assignTradeRoute(u,target,producer=null){
+ if(!u||u.hp<=0||u.ld||!['cart','cog'].includes(u.k))return false;
+ const endpoint=u.k==='cart'?'market':'dock';
+ if(!validTradePartner(u.t,target,endpoint))return false;
+ const dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
+ const sources=producer?(S.bs.includes(producer)?[producer]:[]):S.bs;
+ const homes=sources.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).map(b=>({b,d:dist2(b)})).sort((a,b)=>a.d-b.d);
+ let home=null;for(let j=0;j<Math.min(24,homes.length);j++){const candidate=homes[j].b;if(path(u,goalNear(candidate,1))){home=candidate;break}}
+ const route=home?path(u,goalNear(target,1)):null;
+ if(!route)return false;
+ const key=b=>[b.t,b.k,b.x,b.y].join(':');
+ u.tradeFromKey=key(home);u.tradeDestKey=key(target);u.tradeReturning=false;u.tradeCargo=0;
+ u.tradePaused=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.tg=null;u.o='m';u.p=route;u.rp=1;
+ return true;
 }
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
@@ -86,7 +107,8 @@ function tickTrader(u,dt){
   if(!p){if(u.tradeReturning){u.tradeFromKey=null;u.tradeCargo=0;u.tradeReturning=false}else u.tradeDestKey=null;u.p=[];u.rp=0;u.trWait=5;u.o='i';return}
   u.p=p;
  }
- u.o='m';walk(u,dt)
+ // Trade delivery uses a tighter footprint range than ordinary ground moves.
+ u.o='m';walk(u,dt,true)
 }
 
 /* Garrison healing, safe unloading and Town Bell shelter reservations:

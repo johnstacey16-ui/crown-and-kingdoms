@@ -1,11 +1,11 @@
 /* Xbox selection, shortcut, and contextual radial policy.
- * Extracted verbatim from js/input.js; polling, mappings, and per-frame dispatch
+ * Shared contextual order policy; polling, mappings and per-frame dispatch
  * remain in js/input.js. Classic scripts share the same lexical environment. */
 function pick(wx,wy){if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return null;let b=null,bd=.9;for(const u of S.us)if(u&&u.hp>0&&vis(u)&&!u.ld){const d=Math.hypot(u.x-wx,u.y-wy);if(d<bd){bd=d;b=u}}if(b)return b;
 for(const q of S.bs)if(q&&q.hp>0&&(q.t===0||S.ex[q.y*W+q.x])&&wx>=q.x-.3&&wx<=q.x+q.s+.3&&wy>=q.y-.3&&wy<=q.y+q.s+.3)return q;
 const i=(wy|0)*W+(wx|0),n=S.nd[i];if(n&&S.ex[i]&&n.amt>0)return n;return S.rel.find(q=>!q.m&&!q.c&&S.ex[(q.y|0)*W+(q.x|0)]&&Math.hypot(q.x-wx,q.y-wy)<.9)||null}
-function orderSel(tg,wx,wy){if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return false;const us=S.sel.filter(e=>e&&!e.q&&e.hp>0&&!e.ld&&e.t===0);if(!us.length){const buildings=[...new Set(S.sel.filter(b=>b&&S.bs.includes(b)&&b.hp>0&&b.t===0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length))];if(!buildings.length)return false;for(const b of buildings)b.rally={x:wx,y:wy,t:tg&&tg.amt>0?tg:null};fx.push({x:wx,y:wy,l:.5,k:'p'});note(buildings.length>1?'Rally point set for '+buildings.length+' buildings':'Rally point set');return true}
-const tradeTarget=!!(tg&&tg.q&&tg.done&&tg.hp>0&&(tg.k==='market'||tg.k==='dock')&&Number.isInteger(tg.t)&&tg.t>0&&tg.t<S.teamN&&!isHostile(0,tg.t));
+function orderSel(tg,wx,wy){if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return false;const us=S.sel.filter(e=>e&&!e.q&&e.hp>0&&!e.ld&&e.t===0);if(!us.length){const buildings=[...new Set(S.sel.filter(b=>b&&S.bs.includes(b)&&b.hp>0&&b.t===0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length))];if(!buildings.length)return false;const rallyTarget=tg&&(tg.amt>0||validTradePartner(0,tg))?tg:null;for(const b of buildings)b.rally={x:wx,y:wy,t:rallyTarget};fx.push({x:wx,y:wy,l:.5,k:'p'});note(buildings.length>1?'Rally point set for '+buildings.length+' buildings':'Rally point set');return true}
+const tradeTarget=validTradePartner(0,tg);
 /* A foreign trade order is only valid for a selection of matching merchants. */
 const tradeOnly=tradeTarget&&us.every(u=>u.k===(tg.k==='market'?'cart':'cog'));
 if(tg&&tg.t>0&&(tg.q||U[tg.k])&&!isHostile(0,tg.t)&&!tradeOnly){
@@ -29,13 +29,8 @@ const cachedGoal=(cache,x,y,r)=>{const key=x+','+y+','+r;let goal=cache.get(key)
 let landIndex=0,navalIndex=0;
 let noAttackBlocked=0,noRouteCount=0,fallbackCount=0;for(const u of us){const unitIndex=u.sh?navalIndex++:landIndex++;u.p=[];u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;
 if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
- const endpoint=tg.k,dist2=b=>{const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-b.x-sz),dy=Math.max(b.y-u.y,0,u.y-b.y-sz);return dx*dx+dy*dy};
- const homes=S.bs.filter(b=>b.t===u.t&&b.k===endpoint&&b.done&&b.hp>0).map(b=>({b,d:dist2(b)})).sort((a,b)=>a.d-b.d);
- let home=null;for(let j=0;j<Math.min(24,homes.length);j++){const candidate=homes[j].b;if(path(u,goalNear(candidate,1))){home=candidate;break}}
- const route=home?path(u,goalNear(tg,1)):null;
- if(!route){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;continue}
- const key=b=>[b.t,b.k,b.x,b.y].join(':');
- u.tradeFromKey=key(home);u.tradeDestKey=key(tg);u.tradeReturning=false;u.tradeCargo=0;u.tradePaused=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.o='m';u.p=route;u.rp=1;continue
+ if(!assignTradeRoute(u,tg)){note('Merchant needs a reachable home depot and foreign trading partner');u.o='i';u.tg=null;}
+ continue
 }
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
  if(u.k==='vil'&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
