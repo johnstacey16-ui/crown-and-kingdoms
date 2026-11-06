@@ -95,7 +95,7 @@ globalThis.__CK_TEST__ = {
         builder.houseFor(neededSlots);
       }
       for (const entry of plan.buildings) {
-        const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0).length;
+        const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0 && building.done).length;
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
       }
       if (S.age[0] < plan.ages && !tc.rs) research(tc, 'age');

@@ -484,3 +484,24 @@ test('the existing campaign catalogue retains exactly its nine maintained goals'
  vm.runInContext(source+';globalThis.liveGoals=CAMP.flatMap((sc,i)=>sc.goals.filter(g=>g.sustained===true).map(g=>[i,g.id]));',sandbox);
  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[14,'bombards'],[16,'fleet'],[18,'army']]);
 });
+
+test('scripted construction resumes the same paid foundation after its builder is lost',()=>{
+ const run=constructionFixture();run("builder.place('house');globalThis.foundation=S.bs.find(b=>b.t===0&&b.k==='house'&&!b.done);globalThis.original=S.us.find(u=>u.o==='b'&&u.tg===foundation);original.hp=0;globalThis.paid=JSON.stringify(S.res[0]);globalThis.count=S.bs.length");
+ assert.equal(run("builder.place('lumber')"),false,'finish the existing foundation before placing another building');
+ assert.equal(run("S.us.some(u=>u.hp>0&&u.o==='b'&&u.tg===foundation)"),true,'another living worker resumes the real foundation');
+ run('for(let i=0;i<2400&&!foundation.done;i++)step(1/30)');
+ assert.equal(run('foundation.done'),true);assert.equal(run('JSON.stringify(S.res[0])===paid'),true,'resuming never charges the construction cost twice');
+ assert.equal(run('S.bs.length'),run('count'));assert.equal(run('builder.orders.length'),1);
+});
+test('scripted construction respects Town Bell reservations and resumes after unloading',()=>{
+ const waiting=constructionFixture();waiting('townBell(0);globalThis.before=JSON.stringify(S.res[0])');
+ assert.equal(waiting("builder.place('house')"),false,'new construction cannot steal a reserved worker');
+ assert.equal(waiting('JSON.stringify(S.res[0])===before'),true);assert.equal(waiting('builder.orders.length'),0);
+ const run=constructionFixture();run("builder.place('house');globalThis.foundation=S.bs.find(b=>b.t===0&&b.k==='house'&&!b.done);globalThis.paid=JSON.stringify(S.res[0]);townBell(0)");
+ assert.equal(run("builder.place('house')"),false);
+ assert.equal(run("S.us.some(u=>u.o==='b'&&u.tg===foundation)"),false,'do not steal workers en route to shelter');
+ run("for(let i=0;i<1200;i++)step(1/30);unload(tcOf(0));builder.place('house')");
+ assert.equal(run("S.us.some(u=>u.o==='b'&&u.tg===foundation)"),true);
+ run('for(let i=0;i<2400&&!foundation.done;i++)step(1/30)');
+ assert.equal(run('foundation.done'),true);assert.equal(run('JSON.stringify(S.res[0])===paid'),true);assert.equal(run('builder.orders.length'),1);
+});

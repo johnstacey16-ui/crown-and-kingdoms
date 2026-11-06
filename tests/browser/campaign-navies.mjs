@@ -146,6 +146,23 @@ export async function checkCampaignNavies(browser,origin,output){
    return results;
   });
   for(const r of minimumRange){assert.equal(r.applied,true);assert.equal(r.retained,true);assert.ok(r.distance>r.before+.3);assert.ok(r.distance>=r.minimum);assert.ok(r.projectiles>0)}
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange};
+  const constructionRecovery=await page.evaluate(()=>{
+   startScenario(0);mode='pause';const tc=tcOf(0),builder=createCampaignBuilder(tc);
+   if(!builder.place('house'))throw Error('House placement failed');
+   const foundation=S.bs.find(b=>b.t===0&&b.k==='house'&&!b.done),incumbent=S.us.find(u=>u.o==='b'&&u.tg===foundation),id=foundation.netId;
+   incumbent.hp=0;const paid=JSON.stringify(S.res[0]),count=S.bs.length;
+   builder.place('house');const reassigned=S.us.some(u=>u.hp>0&&u.o==='b'&&u.tg===foundation);
+   const work=()=>{for(const u of S.us)if(u.hp>0&&u.k==='vil')upU(u,1/30)};
+   for(let i=0;i<2400&&!foundation.done;i++)work();
+   const completed=foundation.done&&foundation.netId===id,paidOnce=paid===JSON.stringify(S.res[0])&&count===S.bs.length;
+   builder.place('house',2);const next=S.bs.find(b=>b.t===0&&b.k==='house'&&!b.done);townBell(0);builder.place('house',2);
+   const reserved=!S.us.some(u=>u.hp>0&&u.o==='b'&&u.tg===next);
+   for(let i=0;i<1200;i++)work();unload(tc);builder.place('house',2);
+   for(let i=0;i<2400&&!next.done;i++)work();
+   return {reassigned,completed,paidOnce,reserved,resumedAfterUnload:next.done,orders:builder.orders.map(o=>o.kind)};
+  });
+  for(const key of ['reassigned','completed','paidOnce','reserved','resumedAfterUnload'])assert.equal(constructionRecovery[key],true,'construction recovery '+key);
+  assert.deepEqual(constructionRecovery.orders,['house','house']);
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery};
  }finally{await page.close()}
 }

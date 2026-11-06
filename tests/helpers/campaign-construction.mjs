@@ -7,7 +7,19 @@ function createCampaignBuilder(tc) {
     if (!B[kind] || !Number.isInteger(count) || count < 1 || chain.has(kind)) return false;
     // Serial construction avoids placing several foundations across the same
     // narrow approach while other workers are travelling through it.
-    if(S.bs.some(b=>b.t===0&&b.hp>0&&!b.done))return false;
+    const pending = S.bs.find(b=>b.t===0&&b.hp>0&&!b.done);
+    if (pending) {
+      const assigned=S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o==='b'&&u.tg===pending);
+      if (!assigned) {
+        const workers=S.us.filter(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld);
+        const choice=aiReachableBuilder(workers,pending);
+        if (choice) {
+          choice.builder.o='b';choice.builder.tg=pending;
+          choice.builder.p=choice.route;choice.builder.rp=1;
+        }
+      }
+      return false;
+    }
     const existing = S.bs.filter(building => building.t === 0 && building.k === kind && building.hp > 0);
     if (existing.length >= count || existing.some(building => !building.done)) return true;
     if ((B[kind].age || 0) > S.age[0]) return false;
@@ -21,7 +33,7 @@ function createCampaignBuilder(tc) {
     // Use the live player menu policy, including age, Wonder and mode locks.
     if (bLock(kind) || !can(0, B[kind].cost)) return false;
     const workers = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld);
-    const available = workers.filter(unit => unit.o !== 'b' || !unit.tg || unit.tg.done);
+    const available = workers.filter(unit => unit.o !== 'B' && (unit.o !== 'b' || !unit.tg || unit.tg.done));
     available.sort((a, b) => Math.hypot(a.x - (tc.x + tc.s / 2), a.y - (tc.y + tc.s / 2)) - Math.hypot(b.x - (tc.x + tc.s / 2), b.y - (tc.y + tc.s / 2)));
     let worker = null, site = null;
     const water=kind==='dock'?campaignWaterRegions():null;
