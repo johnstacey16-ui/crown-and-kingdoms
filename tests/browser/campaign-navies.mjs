@@ -116,6 +116,23 @@ export async function checkCampaignNavies(browser,origin,output){
   assert.equal(productionWait.waiting,true);assert.match(productionWait.previousCaption,/0s/);
   assert.match(productionWait.caption,/Exit blocked/);assert.ok(productionWait.hint);
   for(const key of ['unchanged','released','paidOnce'])assert.equal(productionWait[key],true,key);
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait};
+  const objectivePolicy=await page.evaluate(()=>{
+   // Controlled objective lifecycle, not a paid campaign victory fixture.
+   startScenario(0);mode='pause';const goal=CAMP[0].goals.find(g=>g.id==='v'),title=goal.t;
+   try{
+    while(cu('vil')<10)addU(0,'vil',tcOf(0).x+5,tcOf(0).y+5);
+    for(let i=0;i<15;i++)cmpTick(1/30);const completed=cmp.d.v===1;
+    goal.t='Maintain the village population';S.us.find(u=>u.t===0&&u.k==='vil').hp=0;
+    const saved=saveG(),loaded=saved&&loadG();mode='pause';
+    for(let i=0;i<15;i++)cmpTick(1/30);
+    const text=[],original=tx;tx=(s,...args)=>{text.push(String(s));return original(s,...args)};
+    try{cmpHud()}finally{tx=original}
+    const restored=cmp.d.v===0,visible=text.some(t=>t.includes(goal.t));
+    addU(0,'vil',tcOf(0).x+5,tcOf(0).y+5);for(let i=0;i<15;i++)cmpTick(1/30);
+    return {completed,loaded,restored,visible,recompleted:cmp.d.v===1};
+   }finally{goal.t=title}
+  });
+  for(const key of ['completed','loaded','restored','visible','recompleted'])assert.equal(objectivePolicy[key],true,'maintained objective '+key);
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy};
  }finally{await page.close()}
 }

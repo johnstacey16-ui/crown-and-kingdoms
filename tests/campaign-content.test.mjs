@@ -458,3 +458,29 @@ test('campaign housing counts queued population and respects the configured maxi
  assert.equal(capped('builder.orders.length'),0);
  assert.equal(capped('S.res[0].w'),600,'a hard cap never wastes the starting wood');
 });
+
+test('a maintained objective remains live when its display wording changes',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+`;startScenario(0);globalThis.goal=CAMP[0].goals.find(g=>g.id==='v');
+ while(cu('vil')<10)addU(0,'vil',tcOf(0).x+5,tcOf(0).y+5);
+ for(let i=0;i<15;i++)cmpTick(1/30);`,sandbox);
+ assert.equal(vm.runInContext('cmp.d.v',sandbox),1,'ten living villagers complete the real predicate');
+ vm.runInContext("goal.t='Maintain the village population';S.us.find(u=>u.t===0&&u.k==='vil').hp=0;for(let i=0;i<15;i++)cmpTick(1/30)",sandbox);
+ assert.equal(vm.runInContext('cmp.d.v',sandbox),0,'losing a villager must restore the requirement after a wording edit');
+ vm.runInContext("addU(0,'vil',tcOf(0).x+5,tcOf(0).y+5);for(let i=0;i<15;i++)cmpTick(1/30)",sandbox);
+ assert.equal(vm.runInContext('cmp.d.v',sandbox),1,'restoring the live count completes it again');
+});
+
+test('a completed one-time objective stays recorded when its wording starts with Have',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+`;startScenario(0);globalThis.house=addB(0,'house',tcOf(0).x+8,tcOf(0).y+8,true);
+ for(let i=0;i<15;i++)cmpTick(1/30);`,sandbox);
+ assert.equal(vm.runInContext('cmp.d.h',sandbox),1);
+ vm.runInContext("CAMP[0].goals.find(g=>g.id==='h').t='Have built a House';house.hp=0;for(let i=0;i<15;i++)cmpTick(1/30)",sandbox);
+ assert.equal(vm.runInContext('cmp.d.h',sandbox),1,'a completed construction milestone does not turn into a maintained goal');
+});
+test('the existing campaign catalogue retains exactly its nine maintained goals',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+';globalThis.liveGoals=CAMP.flatMap((sc,i)=>sc.goals.filter(g=>g.sustained===true).map(g=>[i,g.id]));',sandbox);
+ assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[14,'bombards'],[16,'fleet'],[18,'army']]);
+});
