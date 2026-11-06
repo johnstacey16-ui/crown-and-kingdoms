@@ -233,6 +233,41 @@ export async function checkCampaignNavies(browser,origin,output){
   });
   for(const row of merchantRally){for(const key of ['assigned','sources','outgoingUnpaid','loaded','restored'])assert.equal(row[key],true,row.kind+' '+key);assert.equal(row.spawned,2);assert.equal(row.paidGold,row.expectedGold);assert.equal(row.paidWood,row.expectedWood);assert.ok(row.goldEarned>0)}
   await page.locator('#merchant-rally-proof').screenshot({path:output+'/merchant-trade-rally.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally};
+  const networkEscorts=await page.evaluate(()=>{
+   const rows=[];
+   for(const naval of [false,true])for(const type of ['follow','guard']){
+    // Controlled groups; actual RT, stick selection and A press/release.
+    startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(naval?1:0);S.ex.fill(1);S.vs.fill(1);
+    const actors=[addU(0,naval?'gal':'mil',23.5,24.5),addU(0,naval?'gal':'mil',25.5,24.5)],target=addU(0,naval?'fish':'vil',31.5,29.5);actors.forEach(u=>u.st=4);
+    const canvas=document.createElement('canvas');canvas.id='escort-map-'+naval+'-'+type;document.body.append(canvas);const description=document.createElement('p');document.body.append(description);const orders=[];
+    const map=CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return {ok:true}}});map.refresh(S,0,W,H,true);map.choose(actors[0]);map.choose(actors[1],true);
+    const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,items=CK_GAME_COMMANDS.unitOptions(S,0,actors[0]),angle=items.findIndex(o=>o.type===type)*Math.PI*2/items.length;
+    map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+    let cursor={x:actors[1].x,y:actors[1].y};
+    for(let i=0;i<20&&Math.hypot(cursor.x-target.x,cursor.y-target.y)>.001;i++){
+     const v=map.viewport(),sx=v.width*.6*.1,sy=v.height*.6*.1,ax=Math.max(-1,Math.min(1,(target.x-cursor.x)/sx)),ay=Math.max(-1,Math.min(1,(target.y-cursor.y)/sy));
+     map.control({},{},[ax,ay],.1);cursor.x+=ax*sx;cursor.y+=ay*sy;
+    }
+    map.control({0:true},{0:true});map.control({},{});
+    const deferred=orders.length===1&&CK_SIM_SYNC.worldCheckpoint(S,1).hash===before,correctTarget=orders[0]?.target===target.netId;
+    mode='play';const applied=orders.length===1&&CK_GAME_COMMANDS.execute(orders[0],0,1);mode='pause';
+    for(let i=0;i<1500;i++)for(const u of actors)upU(u,1/30);
+    const spacing=type==='follow'?1.4:2.2,arrived=actors.every(u=>d2(u.x,u.y,target)<spacing);
+    target.x+=3;target.y+=2;for(let i=0;i<1500;i++)for(const u of actors)upU(u,1/30);
+    const tracked=actors.every(u=>u.tg===target&&d2(u.x,u.y,target)<spacing);
+    let intercepted=null,resumed=null;
+    if(type==='guard'){
+     const enemy=addU(1,naval?'gal':'mil',target.x+1,target.y);actors[0].st=0;foeGridDirty=true;upU(actors[0],1/30);
+     intercepted=actors[0].o==='a'&&actors[0].tg===enemy&&actors[0].guardTarget===target;
+     enemy.x+=12;enemy.y+=12;foeGridDirty=true;upU(actors[0],1/30);resumed=actors[0].o==='G'&&actors[0].tg===target&&actors[0].guardTarget===null;
+    }
+    map.refresh(S,0,W,H,true);map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);
+    rows.push({type,naval,deferred,correctTarget,applied,arrived,tracked,intercepted,resumed});
+   }
+   return rows;
+  });
+  for(const row of networkEscorts){for(const key of ['deferred','correctTarget','applied','arrived','tracked'])assert.equal(row[key],true,row.type+' '+key);if(row.type==='guard'){assert.equal(row.intercepted,true);assert.equal(row.resumed,true)}}
+  await page.locator('#escort-map-true-guard').screenshot({path:output+'/network-guard-command.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts};
  }finally{await page.close()}
 }

@@ -280,3 +280,30 @@ test('authenticated Atonement and monk conversion revoke old ownership with matc
  await p.cycle();
 
 });
+
+
+test('both human RT menus submit Follow and Guard for owned groups with matching HTTP target tracking',async t=>{
+ const p=await battlefieldPair(t,false,false,true);
+ const targetFor=(game,team)=>p.eval(game,'S.us.find(u=>u.t==='+team+"&&u.k==='vil')");
+ for(const [team,live]of [[0,p.hostLive],[1,p.guestLive]])assert.equal(live.submit({type:'stop',entities:[targetFor(p.hostGame,team).netId]}).ok,true);
+ for(let i=0;i<12;i++)await p.cycle();
+ for(const type of ['follow','guard']){
+  for(const [game,live,team]of [[p.hostGame,p.hostLive,0],[p.guestGame,p.guestLive,1]]){
+   const orders=[],canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
+   const map=game.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:order=>{orders.push(order);return live.submit(order)}});
+   const ranks=p.eval(game,'fixtureRanks['+team+']');game.testRefreshMap(map,team);map.choose(ranks[0]);map.choose(ranks[1],true);assert.equal(map.selection().length,2);
+   const before=game.testHash(),items=game.CK_GAME_COMMANDS.unitOptions(p.eval(game,'S'),team,ranks[0]),angle=items.findIndex(o=>o.type===type)*Math.PI*2/items.length;
+   map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+   assert.equal(orders.length,0);map.choose(targetFor(game,team));assert.equal(orders.length,1);assert.equal(orders[0].type,type);assert.equal(game.testHash(),before,'targeting waits for the authoritative frame');
+  }
+  for(let i=0;i<16;i++)await p.cycle();
+  for(const team of [0,1])for(const game of [p.hostGame,p.guestGame])assert.equal(p.eval(game,`fixtureRanks[${team}].every(u=>u.o==='${type==='follow'?'F':'G'}'&&u.tg===S.us.find(v=>v.t===${team}&&v.k==='vil'))`),true);
+  const starts=[0,1].map(team=>({x:targetFor(p.hostGame,team).x,y:targetFor(p.hostGame,team).y}));
+  for(const [team,live]of [[0,p.hostLive],[1,p.guestLive]])assert.equal(live.submit({type:'move',entities:[targetFor(p.hostGame,team).netId],point:{x:starts[team].x+2,y:starts[team].y+3}}).ok,true);
+  for(let i=0;i<36;i++)await p.cycle();
+  for(const team of [0,1]){
+   const target=targetFor(p.hostGame,team);assert.ok(Math.hypot(target.x-starts[team].x,target.y-starts[team].y)>1);
+   assert.equal(p.eval(p.hostGame,`fixtureRanks[${team}].every(u=>u.o==='${type==='follow'?'F':'G'}'&&u.tg.netId==='${target.netId}')`),true);
+  }
+ }
+});

@@ -365,15 +365,16 @@ test('strict shelter protocol rejects extra fields and battlefield target mode s
   assert.equal(c.CK_SIM_SYNC.validOrder({...order,value:'forged'},72),false);
   assert.equal(c.CK_SIM_SYNC.validOrder({...order,point:{x:NaN,y:0}},72),false);
  }
+ const entries=c.run('CK_GAME_COMMANDS.unitOptions(S,0,soldier)'),angle=entries.findIndex(o=>o.type==='garrison')*Math.PI*2/entries.length,axes=[Math.sin(angle),-Math.cos(angle)];
  f.map.choose({x:23.5,y:22.5});
  f.map.control({7:true},{7:true});
- f.map.control({}, {7:true},[1,0]);f.map.control({0:true},{7:true,0:true});
+ f.map.control({}, {7:true},axes);f.map.control({0:true},{7:true,0:true});
  assert.equal(f.orders.length,0,'RT chooses garrison target mode without issuing an order');
  f.refresh();f.map.control({},{});f.map.choose({x:25,y:28});
  assert.equal(f.orders.length,1);assert.equal(f.orders[0].type,'garrison');
  assert.equal(f.orders[0].target,c.run('shelter.netId'));
  assert.deepEqual(Array.from(f.orders[0].entities),[c.ids.soldier]);
- f.refresh();f.map.control({7:true},{7:true});f.map.control({}, {7:true},[1,0]);
+ f.refresh();f.map.control({7:true},{7:true});f.map.control({}, {7:true},axes);
  f.map.control({0:true},{7:true,0:true});f.map.control({1:true},{1:true});f.map.control({},{});
  f.map.choose({x:25,y:28});assert.equal(f.orders.length,1,'B cancels target mode, allowing ordinary building selection');
  assert.equal(f.map.selected(),c.run('shelter.netId'));

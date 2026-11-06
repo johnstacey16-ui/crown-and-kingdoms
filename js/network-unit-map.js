@@ -387,6 +387,7 @@
         const target=candidates.find(e=>e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius);
         const ground=['disembark','patrol','attack-move'].includes(targetAction.type);
         if(!ground&&!target){description.textContent=targetAction.type==='convert'?'Choose a visible hostile target; B cancels.':'Choose a visible friendly target; B cancels.';draw();return;}
+        if(['follow','guard'].includes(targetAction.type)&&selection.includes(target?.id)){description.textContent='Choose a friendly target outside the selected group; B cancels.';draw();return;}
         const result=submit({type:targetAction.type,entities:selection.slice(),...(ground?{point:{...point}}:{target:target.id})});
         description.textContent=result.ok?targetAction.label+' submitted. The host rechecks the target, capacity and route.':'Order not submitted. Wait for the previous order.';
         if(result.ok){enabled=false;targetAction=null;}draw();return;

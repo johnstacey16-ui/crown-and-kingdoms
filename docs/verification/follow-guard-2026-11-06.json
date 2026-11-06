@@ -1,0 +1,174 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "3d7a26dd0d9c3fe19cd816aa164b77ad6101affa",
+  "scope": "Authenticated two-human Follow and Guard commands through existing RT/A targeting. Existing solo simulation, AI, campaign, save and original artwork sources are unchanged.",
+  "behaviour": {
+    "menu": "Military units and warships append Follow/Guard after the existing command entries. RT and the left stick choose an action, A release confirms a friendly target, and B/focus/selection resets cancel targeting. Selecting a target within the ordered group is blocked locally.",
+    "host": "Bounded unit/building target IDs only. Trusted sender ownership is checked on receipt and execution. The simulation adapter rechecks the complete military group, current friendly target, current sight, completed buildings, land/naval compatibility and every route before any mutation.",
+    "simulation": "Orders initialize the existing F/G states. Existing No Attack, local Guard interception/resumption and saved entity-reference rules continue to apply.",
+    "rejectionCases": [
+      "Malformed or extra payload fields",
+      "Duplicate actors",
+      "Hostile, dead, garrisoned or removed targets",
+      "Self/group targets",
+      "Nonmilitary or foreign actors",
+      "Invalid actor coordinates",
+      "Incompatible movement types",
+      "Any failed group route",
+      "Wrong authenticated sender",
+      "Target ownership changed before execution"
+    ]
+  },
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1175,
+      "total": 1175,
+      "files": 244
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "targetedTwoHumanHttp": {
+      "passed": 1,
+      "total": 1,
+      "flow": "Both players stop their own worker, arm RT Follow and Guard for a two-soldier group, confirm that worker, then move it through an authenticated command. Frame and world hashes agree on every relay cycle; local selection/targeting never changes the world before host execution."
+    }
+  },
+  "nativeChromium": [
+    {
+      "type": "follow",
+      "naval": false,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": null,
+      "resumed": null
+    },
+    {
+      "type": "guard",
+      "naval": false,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": true,
+      "resumed": true
+    },
+    {
+      "type": "follow",
+      "naval": true,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": null,
+      "resumed": null
+    },
+    {
+      "type": "guard",
+      "naval": true,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": true,
+      "resumed": true
+    }
+  ],
+  "coreRuntimeUnchanged": {
+    "count": 47,
+    "blobs": {
+      "js/config.js": "7413a590f295940dab2a8779245c12b630134961",
+      "js/state.js": "c7c07095f321999c14832526d3f3c7dfcfbfb385",
+      "js/mapgen.js": "d869abf6b3329ee67dfc29f67cf0691104a7df37",
+      "js/audio.js": "8a27b6b4363684bae13a3982f08c16502818ad40",
+      "js/save.js": "9778ef33fc0710a9544dce9307cd3679093ab01a",
+      "js/input.js": "afc1df89bc0e5686aa56b5f7b0b4891d6816b69f",
+      "js/input-selection.js": "33a8373b933951aa9c9960da897456baf2f44d82",
+      "js/render.js": "5edd3310d85c3423df0b7d45f854d1a1e76e8bc8",
+      "js/render-terrain.js": "2adcc76132e47372d90be1afc38654d483d6f539",
+      "js/render-resources.js": "fa9ae7cef2ab4c3e79e935816a582db177499290",
+      "js/render-buildings.js": "6c3e45780793b3addfe79e1c3e6f3936b94f0d1f",
+      "js/render-procedural-units.js": "c05679a2098a14ef5fd81ea98a90c295e86e8fca",
+      "js/render-troops.js": "e4576328c8773ff8b751f9f42b1fae25914536ae",
+      "js/render-effects.js": "4b0ed001caeddc5e5ce54423ca4d48449bb59267",
+      "js/ui.js": "d13664310015a37739b0d43471e0efd2a8fc54bf",
+      "js/ui-commands.js": "db3e337222330ee847f7cce581d25a74cccbd857",
+      "js/ui-screens.js": "d98cdd6f2a60911f7b3deae77b0b28f61eae7bc1",
+      "js/simulation-combat-bonuses.js": "e5840d133fe95e3f84b7c492a96c4b8061d66ea4",
+      "js/simulation-victory.js": "85b0164d524b16fb77d23325733751ed64c7acd2",
+      "js/simulation-logistics.js": "3242f8294213d8a353b3614be95a9ced73da2408",
+      "js/simulation-resource-routing.js": "134aa596783d912d7ada5998d6a55cb145179c29",
+      "js/simulation-production-queues.js": "9625749721d333d7ef4b6f01de3521ef19c27e1a",
+      "js/simulation-research.js": "8793cae0bb3b729ac9a2fc5b73eb159987ba994a",
+      "js/simulation-building-production.js": "f9a520a37568e5278a744a3b9871957904a236a4",
+      "js/simulation-building-updates.js": "d9f3cec8ddfc2498605e84f1d4be7cd80fad3336",
+      "js/simulation.js": "f003ddc21e0b8539b250d14d4d13a6650a8cfdae",
+      "js/simulation-unit-behaviour.js": "a902a08105894fb712744645bc3bcba56af96606",
+      "js/simulation-separation.js": "1cb4ec90d96653dd133de0389dea602c75340cd1",
+      "js/ai-policy.js": "39bbe5b29e54f560b0eca00a43f23867e1a677be",
+      "js/ai-economy.js": "c53110f460b0736a419046ffd9ed8dcce042d457",
+      "js/ai-defence.js": "607daa962cd471ae4119f3a271bb956c5bd82ae0",
+      "js/ai-maritime.js": "25d964744f215ad5de22a2ddcf644c59eec9af7a",
+      "js/ai-offence.js": "57ffcce879426c086d0b464b138aaad9d8daacf4",
+      "js/ai-construction.js": "e58f9b7028d8a79a52cee9a602a8e812d9ac38e0",
+      "js/ai.js": "9e412edf2ba7b6e993f92f74fe8681d405b358b8",
+      "js/pathfinding.js": "7df37669aca9ed8bd6a5734aa49f6276ba52195b",
+      "js/kingdom.js": "554c5af107052b8fbc486a226d842f4973336449",
+      "js/entities.js": "7cefa3b04b536309625c7dcf0a2ee4e21084ca3f",
+      "js/campaign.js": "64bc28374f74acc9953006d693b0e0c28ff5f5f3",
+      "js/economy.js": "e8e331cac8b3c4590e34baa1cf74a79fb45cae2f",
+      "js/formations.js": "a4c55ea5910d67a2f8ef2990ba03694bbbdd3706",
+      "js/menus.js": "bc6a5e97bd25fc026f5d58aefbc850fa88e46bf1",
+      "js/minimap.js": "943b19c89f29f22405b663f9b4a238266604f6a2",
+      "js/assets.js": "20e592fc48cfecdd8fce6366f246eabb7bdd2301",
+      "js/engine-graphics-benchmark.js": "9dfbb14538a17f2891a1fa59819aca48503f27c9",
+      "js/engine-picture.js": "a3f1951b1b580624eb96eb967ce06455c051f0ec",
+      "engine.js": "b0b7930a6eb1e5a6c18903314c7680e15b461d93"
+    },
+    "acceptance": "Seeded AI and 19-campaign runs were not repeated because all 47 core runtime files exactly match the tested baseline. The prior campaign matrix remains 14 wins / 5 simple-bot defeats / 0 timeouts; this change does not establish new mission victories."
+  },
+  "compatibility": {
+    "shell": "v178-follow-guard",
+    "liveSessionAndChannel": "ck-live-preview-16",
+    "reason": "The live command vocabulary adds follow/guard. Previous live v15 peers are rejected before gameplay; both peers must refresh. Existing packet byte/entity bounds and protocol version 2 remain intact."
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "e4ea9dc737bf6e9e028546e57d40185ace543f40",
+    "XBOX_CONTROLLER_PARITY.md": "ede6046412bb83f08745843c4051f506b7a65b00",
+    "docs/REFACTORING_INVENTORY.md": "db1f4c5864c01d3b4170b1fb11af3a7bdfc01ee8",
+    "js/network-commands.js": "49a1e84aa71a8877eded650280e5b6895dbbe9d8",
+    "js/network-session.js": "2eb4872e54485458136511edf3e5f4c3e65122f1",
+    "js/network-sync.js": "a691b60c486b8b6b2e6d57c7144c3c466d0eb271",
+    "js/network-unit-map.js": "ce2d0d211af8c8ce6aa1be6612aedbe0ed83235d",
+    "js/network-webrtc.js": "8d13611bc4cebb0293daafd9288d0f31c6e9d525",
+    "sw.js": "3f3717477f4c70577a45bb8f002217a2fddd4d00",
+    "tests/browser/campaign-navies.mjs": "92281dedf6eeeff6a40adf93eef7c34527b2ec13",
+    "tests/browser/webrtc-transport.mjs": "4ff600f8eb7dbe6f1527725fbf0b943b01cf96e1",
+    "tests/network-battlefield-live.test.mjs": "86c17e1e55ffee58aca4b56c6cb5a0db357d5f74",
+    "tests/network-battlefield.test.mjs": "10fe37e15d9c84cc99eab3c8b48ea336d53603a8",
+    "tests/network-live-session.test.mjs": "d15f14fea4c73faa584f2825d85b4c328abc1575",
+    "tests/network-patrol.test.mjs": "28c086f7c1ad41864bb115f50d0d6fd51a9ec302",
+    "tests/webrtc-transport.test.mjs": "214d90a806cbd6a8f64489930abf889040d7d6bc"
+  },
+  "limits": [
+    "Native and HTTP fixtures are controlled software tests, not physical Xbox input/performance acceptance.",
+    "Public multiplayer remains a two-human preview; WAN/NAT fallback and reconnect/resume acceptance remain open.",
+    "Exact Xbox radial sectors still require physical reference comparison.",
+    "No paid services, new infrastructure, hosted workflow schedule or CI deadline changes were introduced."
+  ]
+}

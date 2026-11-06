@@ -79,7 +79,9 @@
       options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
     if (militaryUnit(unit)) options.push(
       {type:'patrol',label:'Patrol',targeted:true,cost:{},locked:''},
-      {type:'attack-move',label:'Attack Move',targeted:true,cost:{},locked:''});
+      {type:'attack-move',label:'Attack Move',targeted:true,cost:{},locked:''},
+      {type:'follow',label:'Follow',targeted:true,cost:{},locked:''},
+      {type:'guard',label:'Guard',targeted:true,cost:{},locked:''});
     return options;
   }
 
@@ -253,6 +255,27 @@
       return moveUnits(entities,null,order.value);
     }
 
+
+    if (order.type === 'follow' || order.type === 'guard') {
+      const target=lookup(order.target),building=target&&S.bs.includes(target);
+      if (!target || !Number.isFinite(target.hp) || target.hp<=0 || target.ld || entities.includes(target) ||
+          !Number.isFinite(target.x) || !Number.isFinite(target.y) || target.x<0 || target.y<0 || target.x>=W || target.y>=H ||
+          (building ? !target.done || !B[target.k] : !U[target.k]) ||
+          (target.t!==team && S.dip?.[team]?.[target.t]!=='ally') ||
+          !inSight(target,visibility(S,team,W,H),W,H) ||
+          entities.some(u=>!militaryUnit(u)||!guardTargetCompatible(u,target))) return false;
+      const spacing=order.type==='follow'?1.25:2;
+      // Validate every path before replacing any selected unit's order.
+      const routes=entities.map(u=>path(u,goalNear(target,spacing)));
+      if (routes.some(route=>!route)) return false;
+      entities.forEach((u,i)=>{
+        u.o=order.type==='follow'?'F':'G';u.tg=target;u.p=routes[i].slice();u.rp=.6;
+        u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;u.ret=0;u.wind=0;u.windTarget=null;
+        u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.retreatRouteRetryAt=0;
+        u.ut=null;u.unloadBeach=null;u.unloadRouteRetryAt=0;
+      });
+      return true;
+    }
 
     if (order.type === 'garrison' || order.type === 'repair') {
       const target=lookup(order.target),building=target&&S.bs.includes(target);
