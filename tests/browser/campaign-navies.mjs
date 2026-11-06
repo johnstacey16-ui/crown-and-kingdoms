@@ -71,20 +71,30 @@ export async function checkCampaignNavies(browser,origin,output){
   const dockGuard=await page.evaluate(()=>{
    startScenario(16);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.wt.fill(0);S.g.fill(0);S.gt.fill(0);S.ex.fill(1);S.vs.fill(1);
    for(let y=38;y<44;y++)for(let x=1;x<W-1;x++)S.wt[y*W+x]=1;
-   const dock=addB(0,'dock',40,36,true),ship=addU(0,'gal',50.5,40.5);S.sel=[ship];foeGridDirty=true;
+   let dock=addB(0,'dock',40,36,true),ship=addU(0,'gal',50.5,40.5);S.sel=[ship];foeGridDirty=true;
    ctr(41,37);cur={x:CW/2,y:CH/2};openMenu();
    const item=menu.items.find(o=>o.l==='Guard friendly target');if(!item)throw Error('No Guard command for ships');item.fn();
    E=[];P=[];E[0]=true;playCtl(1/30);E=[];
    const applied=ship.o==='G'&&ship.tg===dock&&pat===0;
    for(let i=0;i<900;i++)upU(ship,1/30);
    const arrived=ship.o==='G'&&ship.tg===dock&&d2(ship.x,ship.y,dock)<=2;
-   const enemy=addU(1,'gal',ship.x+1,ship.y);foeGridDirty=true;upU(ship,1/30);
+   let enemy=addU(1,'gal',ship.x+1,ship.y);foeGridDirty=true;upU(ship,1/30);
    const intercepted=ship.o==='a'&&ship.tg===enemy&&ship.guardTarget===dock;
+   const shipId=ship.netId,enemyId=enemy.netId;
+   const saved=saveG(),loaded=saved&&loadG();mode='pause';
+   ship=S.us.find(u=>u.netId===shipId);enemy=S.us.find(u=>u.netId===enemyId);dock=S.bs.find(b=>b.t===0&&b.k==='dock');
+   const restored=loaded&&ship.guardTarget===dock&&ship.tg===enemy;
+   enemy.x+=20;upU(ship,1/30);
+   const escaped=enemy.hp>0&&ship.o==='G'&&ship.tg===dock&&ship.guardTarget===null;
+   foeGridDirty=true;for(let i=0;i<600;i++)upU(ship,1/30);
+   const resumed=d2(ship.x,ship.y,dock)<=2;
+   enemy.x=ship.x+1;foeGridDirty=true;upU(ship,1/30);
+   const reintercepted=ship.o==='a'&&ship.guardTarget===dock;
    enemy.hp=0;upU(ship,1/30);
    const returned=ship.o==='G'&&ship.tg===dock;
-   return {applied,arrived,intercepted,returned,distance:d2(ship.x,ship.y,dock)};
+   return {applied,arrived,intercepted,restored,escaped,resumed,reintercepted,returned,distance:d2(ship.x,ship.y,dock)};
   });
-  for(const key of ['applied','arrived','intercepted','returned'])assert.equal(dockGuard[key],true,'native Dock Guard '+key);
+  for(const key of ['applied','arrived','intercepted','restored','escaped','resumed','reintercepted','returned'])assert.equal(dockGuard[key],true,'native Dock Guard '+key);
   const productionWait=await page.evaluate(()=>{
    // Controlled exit obstruction, not a campaign victory/construction fixture.
    S.us=[];const dock=S.bs.find(b=>b.k==='dock'&&b.t===0);for(let i=0;i<6;i++)addB(0,'house',10+i*3,10,true);

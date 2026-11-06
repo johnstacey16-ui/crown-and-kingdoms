@@ -1825,7 +1825,9 @@ for (const [index, label, limit] of [
 }
 for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'], [9, 'Siege of Greywatch']]) {
   if (!shouldRunCampaignMission(index)) continue;
-  const result = playCampaignScenarioTimed(index, 900);
+  // Guard returns to its escort after a raider escapes. Allow the same
+  // 20-minute diagnostic budget as the coastal sieges; victory stays strict.
+  const result = playCampaignScenarioTimed(index, index===9?1200:900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   if(index===9){
     assert.equal(result.over,'win','Greywatch requires a naturally destroyed Town Centre: '+JSON.stringify(result.greywatch));
