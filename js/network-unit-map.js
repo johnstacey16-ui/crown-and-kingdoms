@@ -65,7 +65,11 @@
       if(b)return b.commands||[{type:'train',value:'vil',label:'Train villager',cost:{},locked:''}];
       if(view?.battlefield&&selection.length){
         const units=selection.map(id=>view.units.find(u=>u.id===id));
-        const commands=(units[0]?.commands||[]).filter(option=>units.every(u=>u?.commands?.some(o=>o.type===option.type)));
+        const commands=(units[0]?.commands||[]).filter(option=>units.every(u=>u?.commands?.some(o=>o.type===option.type&&o.value===option.value))).map(option=>{
+          if(option.type!=='stance')return option;
+          const active=units.every(u=>u.commands.some(o=>o.type==='stance'&&o.value===option.value&&o.active));
+          return {...option,active,label:option.label+(active?' (current)':'')};
+        });
         if(selection.every(id=>view.battlefield.builders.includes(id)))return buildPage===0?view.battlefield.construction[0].concat(commands):view.battlefield.construction[1];
         return commands;
       }

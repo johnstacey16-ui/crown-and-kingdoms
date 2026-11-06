@@ -1,0 +1,316 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "1abbf11a4da41768ccc43353dfc2cf8317085fa3",
+  "scope": "Existing five combat stances exposed through authenticated military RT commands; shared solo/network No Attack transition preserves valid Guard/Patrol intent.",
+  "beforeAfter": {
+    "regression": "Real solo setStance(4) during Guard interception",
+    "before": "idle, protected target lost",
+    "after": "Guard resumes, pending attack windup cleared"
+  },
+  "behaviour": {
+    "authority": "Existing bounded stance values and host frame/ownership checks; full group validated before mutation. No optimistic simulation mutation from RT input.",
+    "groupLabel": "Current stance annotated only when all selected military units agree.",
+    "noAttack": "Cancel direct attacks and conversions. Resume a valid guarded target or patrol after interception; retain existing cooldown and launched projectiles."
+  },
+  "compatibility": {
+    "shell": "v179-combat-stances",
+    "liveSessionAndChannel": "ck-live-preview-17",
+    "packetProtocol": 2
+  },
+  "limits": [
+    "Physical Xbox input, performance and exact radial layout remain unverified.",
+    "Two-human preview: WAN/reconnect/fallback acceptance remains open.",
+    "Campaign scripted defeats remain unresolved; no mission difficulty or victory rules changed."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1181,
+      "total": 1181,
+      "files": 244
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "twoHumanHTTP": {
+      "passed": 1,
+      "total": 1,
+      "flow": "Both authenticated players submit each stance from RT for two soldiers; local world hashes remain unchanged until the host frame, and both replicas agree each cycle."
+    },
+    "isolatedCampaigns": {
+      "executed": 19,
+      "total": 19,
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "nativeChromium": [
+    {
+      "naval": false,
+      "value": "aggressive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": false,
+      "value": "defensive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": false,
+      "value": "stand-ground",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": false,
+      "value": "passive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": false,
+      "value": "no-attack",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": true,
+      "value": "aggressive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": true,
+      "value": "defensive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": true,
+      "value": "stand-ground",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": true,
+      "value": "passive",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    },
+    {
+      "naval": true,
+      "value": "no-attack",
+      "deferred": true,
+      "applied": true,
+      "correct": true,
+      "guardPreserved": true
+    }
+  ],
+  "campaignOutcomes": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "reason": null
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "reason": null
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 174,
+      "reason": null
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "reason": null
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 589,
+      "reason": null
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "reason": null
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 857,
+      "reason": null
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 905,
+      "reason": null
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "reason": null
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "lose",
+      "campaignTime": 819.3,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "lose",
+      "campaignTime": 614.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "lose",
+      "campaignTime": 468.2,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "lose",
+      "campaignTime": 616.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "lose",
+      "campaignTime": 405.6,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "reason": null
+    }
+  ],
+  "fileGitBlobs": {
+    "ROADMAP.md": "929ff4afa38a4e5bbf62928beae502ae7aeb5d40",
+    "XBOX_CONTROLLER_PARITY.md": "294f7d517c1a86d8776d36d8558c8c97a05cbe51",
+    "docs/REFACTORING_INVENTORY.md": "8ee57b631bf99c8901c23446fc2ace1fbae194f9",
+    "js/network-commands.js": "c11c95eb5572e984836a4897e2802c471259c005",
+    "js/network-session.js": "6fe77963c3a22b091475999159ae12ca47610068",
+    "js/network-unit-map.js": "fe30e6605b7e1701d4e1d06e54cf2caea4ca7e1a",
+    "js/network-webrtc.js": "2d390bbcad416f7c8789cf04581074f920ff9519",
+    "js/simulation-logistics.js": "12447a66ed28dd9135a050360d46c38d4bafc9f7",
+    "sw.js": "eae72b4e9f8e26c703fac7d7d0eef4b72f42c306",
+    "tests/browser/campaign-navies.mjs": "150d7fdd91ec4a366fc38071ff6d6eaff4047817",
+    "tests/browser/webrtc-transport.mjs": "e8f15ecf6ecb591054f5077261412bbf724f5b31",
+    "tests/guard-follow.test.mjs": "e4f1539448243f4eb576aed21f4a188112682e1f",
+    "tests/network-battlefield-live.test.mjs": "4771e48587e2b1e7646e319a509d604b2d5af363",
+    "tests/network-live-session.test.mjs": "0d93abd965f298c033cfb09b6b0c21c12903f7b1",
+    "tests/network-patrol.test.mjs": "e2a6bf5a1e652e9ca2c0d7c039cbbd5cad270549",
+    "tests/no-attack-stance.test.mjs": "c772f009cb0ce5b5852fb725b2345152b80f8bea",
+    "tests/simulation-logistics-ownership.test.mjs": "1895a89b7085ee98a18107f169faa7830a0f0bcc",
+    "tests/webrtc-transport.test.mjs": "03bd9988a1b41aaedf56e231b74c5ddd8fbcb070"
+  }
+}

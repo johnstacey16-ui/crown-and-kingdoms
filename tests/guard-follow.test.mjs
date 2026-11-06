@@ -42,6 +42,30 @@ function coast(){
  sandbox.run("kingdoms=2;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.wt.fill(0);S.g.fill(0);S.gt.fill(0);S.ex.fill(1);S.vs.fill(1);for(let y=38;y<44;y++)for(let x=1;x<W-1;x++)S.wt[y*W+x]=1;globalThis.home=addB(0,'dock',40,36,true);globalThis.ship=addU(0,'gal',50.5,40.5);globalThis.land=addU(0,'knight',35.5,35.5);S.sel=[ship];foeGridDirty=true;");
  return sandbox.run;
 }
+test('No Attack cancels an interception windup without dropping the protected target',()=>{
+ const run=coast();
+ run("ship.o='a';ship.guardTarget=home;ship.tg=addU(1,'gal',ship.x+1,ship.y);ship.wind=1;ship.windTarget=ship.tg;setStance(4)");
+ assert.equal(run('ship.o'),'G');assert.equal(run('ship.tg===home'),true);
+ assert.equal(run('ship.guardTarget'),null);assert.equal(run('ship.wind'),0);assert.equal(run('ship.windTarget'),null);
+ run('upU(ship,1/30)');assert.equal(run('ship.o'),'G');
+});
+test('No Attack preserves patrol endpoints and cancels direct attacks and conversions',()=>{
+ for(const order of ['a','v']){
+  const run=coast();run(`ship.o='${order}';ship.tg=home;ship.wind=1;ship.windTarget=home;ship.cd=2;setStance(4)`);
+  assert.equal(run('ship.o'),'i');assert.equal(run('ship.tg'),null);assert.equal(run('ship.wind'),0);assert.equal(run('ship.cd'),2);
+ }
+ const run=coast();run("ship.o='a';ship.tg=home;ship.pt={a:[50.5,40.5],b:[55.5,40.5],to:1,once:false};setStance(4)");
+ assert.equal(run('ship.o'),'p');assert.equal(run('ship.pt.b[0]'),55.5);
+ for(const change of ['home.hp=0','home.done=false','home.t=1;S.dip[0][1]=\'neutral\'','S.bs=[]']){
+  const r=coast();r("ship.o='a';ship.guardTarget=home;ship.tg=home;"+change+';setStance(4)');assert.equal(r('ship.o'),'i');
+ }
+});
+test('solo stance selection ignores stale, foreign, loaded and dead actors',()=>{
+ const run=coast();run("globalThis.other=addU(1,'gal',60.5,40.5);other.st=0;globalThis.stale={k:'gal',t:0,hp:10,st:0};ship.st=0;land.st=0;land.hp=0;S.sel=[ship,ship,land,other,stale];setStance(4)");
+ assert.equal(run('ship.st'),4);assert.equal(run('land.st'),0);assert.equal(run('other.st'),0);assert.equal(run('stale.st'),0);
+ run('ship.st=0;ship.ld=home;setStance(4)');assert.equal(run('ship.st'),0);
+ assert.equal(run('setStance(99)'),false);assert.equal(run('ship.st'),0);
+});
 test('warships guard and follow a completed friendly Dock through the production movement loop',()=>{
  for(const action of ['G','F']){
   const run=coast();assert.equal(run(`orderGuardFollow(41,37,'${action}')`),true);

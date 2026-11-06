@@ -10,7 +10,7 @@
 
 - **Production rally completion (6 November):** Fishing Ships use live fish/trap rallies. Solo merchant rallies retain their producing home; carts/cogs finish ground rallies, and precise trade approaches prevent stalled deliveries. Validated targets survive save/load. [Fishing](docs/verification/fishing-rally-2026-11-06.json) and [trade](docs/verification/trade-rally-2026-11-06.json) evidence preserve costs, gold rules and buttons. Network rallies remain ground-only.
 
-- **Authenticated Follow/Guard (6 November):** Military groups and warships can use the existing RT menu, then A on a friendly target. The host checks every actor, target and route atomically; existing pursuit, No Attack and saved-target rules apply. [Evidence](docs/verification/follow-guard-2026-11-06.json). Shell **v178**, preview **v16**; refresh both peers. Physical Xbox/WAN acceptance remains open.
+- **Authenticated military commands (6 November):** RT/A offers Follow/Guard and all five existing stances. Host checks remain atomic. No Attack now cancels windup while retaining a valid Guard/Patrol order in solo and multiplayer. [Escorts](docs/verification/follow-guard-2026-11-06.json), [stances](docs/verification/combat-stances-2026-11-06.json). Shell **v179**, preview **v17**; refresh both peers. Physical Xbox/WAN acceptance remains open.
 
 - **Minimum-range movement fix:** The retreat path now seeks a legal firing band rather than accepting the current too-close tile. Trebuchets and Skirmishers can back away and resume firing; Stand ground stays stationary. Existing two-argument path goals, unit stats, costs and buttons remain unchanged. [Evidence](docs/verification/minimum-range-2026-11-06.json). Shell **v174**; physical Xbox acceptance remains open.
 

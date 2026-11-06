@@ -81,7 +81,8 @@
       {type:'patrol',label:'Patrol',targeted:true,cost:{},locked:''},
       {type:'attack-move',label:'Attack Move',targeted:true,cost:{},locked:''},
       {type:'follow',label:'Follow',targeted:true,cost:{},locked:''},
-      {type:'guard',label:'Guard',targeted:true,cost:{},locked:''});
+      {type:'guard',label:'Guard',targeted:true,cost:{},locked:''},
+      ...Object.entries(STANCES).map(([value,stance])=>({type:'stance',value,label:'Stance: '+unitStanceName(stance),active:stance===(unit.st|0),cost:{},locked:''})));
     return options;
   }
 
@@ -390,12 +391,7 @@
       if (!Object.prototype.hasOwnProperty.call(STANCES, order.value) ||
           entities.some(u => u.k === 'vil')) return false;
       const stance = STANCES[order.value];
-      for (const u of entities) {
-        u.st = stance;
-        if (stance === 4 && (u.o === 'a' || u.o === 'v')) {
-          u.o = 'i'; u.tg = null; u.p = [];
-        }
-      }
+      for (const u of entities) applyUnitStance(u,stance);
       return true;
     }
     return false;
@@ -405,7 +401,7 @@
     lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);

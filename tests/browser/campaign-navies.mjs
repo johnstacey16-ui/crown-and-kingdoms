@@ -268,6 +268,35 @@ export async function checkCampaignNavies(browser,origin,output){
   });
   for(const row of networkEscorts){for(const key of ['deferred','correctTarget','applied','arrived','tracked'])assert.equal(row[key],true,row.type+' '+key);if(row.type==='guard'){assert.equal(row.intercepted,true);assert.equal(row.resumed,true)}}
   await page.locator('#escort-map-true-guard').screenshot({path:output+'/network-guard-command.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts};
+  const combatStances=await page.evaluate(()=>{
+   const rows=[];
+   for(const naval of [false,true]){
+    startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(naval?1:0);S.ex.fill(1);S.vs.fill(1);
+    const actors=[addU(0,naval?'gal':'mil',23.5,24.5),addU(0,naval?'gal':'mil',25.5,24.5)],target=addU(0,naval?'fish':'vil',24.5,25.5);
+    const canvas=document.createElement('canvas');canvas.id='stances-map-'+naval;document.body.append(canvas);const description=document.createElement('p');document.body.append(description);const orders=[];
+    const map=CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return {ok:true}}});map.refresh(S,0,W,H,true);map.choose(actors[0]);map.choose(actors[1],true);
+    for(const [stance,value]of ['aggressive','defensive','stand-ground','passive','no-attack'].entries()){
+     if(value==='no-attack'){
+      mode='play';CK_GAME_COMMANDS.execute({type:'guard',entities:actors.map(u=>u.netId),target:target.netId},0,1);mode='pause';
+      const enemy=addU(1,naval?'gal':'mil',target.x+1,target.y);actors[0].st=0;foeGridDirty=true;upU(actors[0],1/30);
+      if(actors[0].o!=='a'||actors[0].guardTarget!==target)throw Error('Guard interception fixture did not engage');
+      actors[0].wind=1;actors[0].windTarget=enemy;
+     }
+     map.refresh(S,0,W,H,true);
+     const items=CK_GAME_COMMANDS.unitOptions(S,0,actors[0]),angle=items.findIndex(o=>o.type==='stance'&&o.value===value)*Math.PI*2/items.length,before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,count=orders.length;
+     map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+     const deferred=orders.length===count+1&&orders.at(-1).value===value&&orders.at(-1).entities.length===2&&CK_SIM_SYNC.worldCheckpoint(S,1).hash===before;
+     mode='play';const applied=CK_GAME_COMMANDS.execute(orders.at(-1),0,1);mode='pause';
+     const guardPreserved=value!=='no-attack'||actors[0].o==='G'&&actors[0].tg===target&&actors[0].wind===0&&actors[0].windTarget===null;
+     rows.push({naval,value,deferred,applied,correct:actors.every(u=>u.st===stance),guardPreserved});
+     map.refresh(S,0,W,H,true);map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({},{});
+    }
+    map.control({7:true},{7:true});const items=CK_GAME_COMMANDS.unitOptions(S,0,actors[0]),a=(items.length-1)*Math.PI*2/items.length;map.control({},{7:true},[Math.sin(a),-Math.cos(a)]);
+   }
+   return rows;
+  });
+  for(const row of combatStances)for(const key of ['deferred','applied','correct','guardPreserved'])assert.equal(row[key],true,row.value+' '+key);
+  await page.locator('#stances-map-true').screenshot({path:output+'/network-combat-stances.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances};
  }finally{await page.close()}
 }

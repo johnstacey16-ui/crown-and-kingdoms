@@ -138,3 +138,30 @@ test('RT Follow and Guard targeting defers simulation changes and respects B and
  c.run('map.refresh(S,0,W,H,true)');arm('follow');map.control({1:true},{1:true});map.control({},{});map.choose({x:23.5,y:24.5});assert.equal(orders.length,1,'B cancels targeting');
  arm('follow');c.run('map.refresh(S,0,W,H,false)');map.choose({x:31.5,y:29.5});assert.equal(orders.length,1,'pending command blocks another submission');
 });
+
+for(const team of [0,1])test(`team ${team} stance group commands validate atomically and preserve patrol interception`,()=>{
+ const c=fixture(team),ids=Array.from(c.ids);
+ for(const [value,stance]of Object.entries({aggressive:0,defensive:1,'stand-ground':2,passive:3,'no-attack':4})){
+  assert.equal(c.act({type:'stance',entities:ids,value}),true);assert.equal(c.run(`ranks.every(u=>u.st===${stance})`),true);
+ }
+ c.run("ranks[0].o='a';ranks[0].pt={a:[23.5,24.5],b:[30.5,25.5],to:1,once:false};ranks[0].wind=1;ranks[0].windTarget=ranks[1]");
+ assert.equal(c.act({type:'stance',entities:ids,value:'no-attack'}),true);
+ assert.equal(c.run("ranks[0].o==='p'&&ranks[0].wind===0&&ranks[0].windTarget===null"),true);
+ for(const value of ['unknown',4,null]){const before=c.hash();assert.equal(c.act({type:'stance',entities:ids,value}),false);assert.equal(c.hash(),before);}
+ c.run(`ranks[1].t=${1-team}`);const before=c.hash();assert.equal(c.act({type:'stance',entities:ids,value:'aggressive'}),false);assert.equal(c.hash(),before);
+});
+
+test('RT stances distinguish each value and mark current only for a unanimous group',()=>{
+ const c=fixture(),orders=[],labels=[],description={textContent:''};
+ const canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({fillText:s=>labels.push(s)},{get:(o,k)=>o[k]||(()=>{})})};
+ const map=c.CK_UNIT_MAP.create({canvas,description,submit:o=>{orders.push(o);return{ok:true}},leave(){}});c.map=map;
+ c.run('ranks[0].st=0;ranks[1].st=4;map.refresh(S,0,W,H,true)');map.choose({x:23.5,y:24.5});map.choose({x:25.5,y:24.5},true);
+ const optionCount=c.run('CK_GAME_COMMANDS.unitOptions(S,0,ranks[0]).length');map.control({7:true},{7:true});for(let i=0;i<optionCount;i++){const a=i*Math.PI*2/optionCount;map.control({},{7:true},[Math.sin(a),-Math.cos(a)])}assert.equal(labels.some(s=>/\(current\)/.test(s)),false,'mixed group has no misleading current label');map.control({},{});
+ c.run('ranks[0].st=4;map.refresh(S,0,W,H,true)');labels.length=0;map.control({7:true},{7:true});const a=(optionCount-1)*Math.PI*2/optionCount;map.control({},{7:true},[Math.sin(a),-Math.cos(a)]);assert.ok(labels.includes('Stance: No Attack (current)'));map.control({},{});
+ for(const value of ['aggressive','defensive','stand-ground','passive','no-attack']){
+  c.run('map.refresh(S,0,W,H,true)');const items=c.run('CK_GAME_COMMANDS.unitOptions(S,0,ranks[0])'),angle=items.findIndex(o=>o.type==='stance'&&o.value===value)*Math.PI*2/items.length,before=c.hash();
+  map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+  assert.equal(orders.at(-1).value,value);assert.deepEqual(Array.from(orders.at(-1).entities),Array.from(c.ids));assert.equal(c.hash(),before);
+  const count=orders.length;map.control({7:true},{7:true});map.control({0:true},{7:true,0:true});map.control({},{});assert.equal(orders.length,count,'pending authority blocks repeats');
+ }
+});

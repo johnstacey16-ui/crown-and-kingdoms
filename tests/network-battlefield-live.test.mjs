@@ -307,3 +307,19 @@ test('both human RT menus submit Follow and Guard for owned groups with matching
   }
  }
 });
+
+test('both human RT menus apply all five stances only through matching authoritative HTTP frames',async t=>{
+ const p=await battlefieldPair(t,false,false,true);
+ for(const [stance,value]of ['aggressive','defensive','stand-ground','passive','no-attack'].entries()){
+  for(const [game,live,team]of [[p.hostGame,p.hostLive,0],[p.guestGame,p.guestLive,1]]){
+   const orders=[],canvas={style:{},setAttribute(){},addEventListener(){},focus(){},getContext:()=>new Proxy({},{get:()=>()=>{}})};
+   const map=game.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:o=>{orders.push(o);return live.submit(o)}}),ranks=p.eval(game,'fixtureRanks['+team+']');
+   game.testRefreshMap(map,team);map.choose(ranks[0]);map.choose(ranks[1],true);
+   const items=game.CK_GAME_COMMANDS.unitOptions(p.eval(game,'S'),team,ranks[0]),angle=items.findIndex(o=>o.type==='stance'&&o.value===value)*Math.PI*2/items.length,before=game.testHash();
+   map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+   assert.equal(orders.length,1);assert.equal(orders[0].value,value);assert.equal(orders[0].entities.length,2);assert.equal(game.testHash(),before);
+  }
+  for(let i=0;i<12;i++)await p.cycle();
+  for(const game of [p.hostGame,p.guestGame])for(const team of [0,1])assert.equal(p.eval(game,`fixtureRanks[${team}].every(u=>u.st===${stance})`),true);
+ }
+});
