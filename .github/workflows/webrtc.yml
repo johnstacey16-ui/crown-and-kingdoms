@@ -21,7 +21,9 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-save --package-lock=false playwright@1.56.1
-      - run: npx playwright install --with-deps chromium
+      # Ubuntu runner logs confirm Chromium libraries are already installed.
+      # Avoid downloading unrelated font packs inside the eight-minute budget.
+      - run: npx playwright install chromium
       - run: node tests/browser/webrtc-transport.mjs
       - uses: actions/upload-artifact@v4
         if: always()
