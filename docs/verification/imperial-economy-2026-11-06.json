@@ -1,0 +1,239 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "c07d6b1e195c48464a985a375ecfe8f23b8585da",
+  "scope": "Shared AI food-workforce rebalancing while saving for Imperial Age. Applies to AI teams using the common simulation.",
+  "change": "Extend the existing 55-percent food saving policy from Feudal to Castle economies with at least 24 available workers and completed advancement prerequisites. Redirect at most one reachable empty-handed gatherer per AI decision. Earlier-age policy, costs, research time and unit statistics are unchanged.",
+  "controlledComparison": [
+    {
+      "version": "before",
+      "shifted": 0,
+      "foodWorkers": 6,
+      "funded": false,
+      "fundingSeconds": 360,
+      "ordered": false,
+      "foodAfterOrder": 600.093333333338,
+      "goldPaid": 0,
+      "finalAge": 2
+    },
+    {
+      "version": "after",
+      "shifted": 8,
+      "foodWorkers": 14,
+      "funded": true,
+      "fundingSeconds": 270.2,
+      "ordered": true,
+      "foodAfterOrder": 0.20000000000823093,
+      "goldPaid": 800,
+      "finalAge": 3
+    }
+  ],
+  "interpretation": "In the same six-minute controlled economy, baseline remains at Castle Age with 600.09 food; the new policy funds 1000 food at 270.2 simulated seconds, pays 800 gold and completes the normal Imperial research. This is a controlled economy fixture, not a complete campaign victory or universal timing guarantee.",
+  "compatibility": {
+    "shell": "v181-imperial-economy",
+    "liveSessionAndChannel": "ck-live-preview-19"
+  },
+  "limits": [
+    "Campaign and independent-network/hardware acceptance remain separate.",
+    "No resources, damage bonuses or free technology are granted during the measured economy. Initial fixture buildings/workers/resources are identical in both versions."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1186,
+      "total": 1186,
+      "files": 244
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "targetedAgeEconomy": {
+      "passed": 7,
+      "total": 7
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "isolatedCampaigns": {
+      "executed": 19,
+      "total": 19,
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "campaignOutcomes": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "reason": null
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "reason": null
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 174,
+      "reason": null
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "reason": null
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 589,
+      "reason": null
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "reason": null
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 857,
+      "reason": null
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 905,
+      "reason": null
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "reason": null
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "lose",
+      "campaignTime": 819.3,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "lose",
+      "campaignTime": 614.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "lose",
+      "campaignTime": 468.2,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "lose",
+      "campaignTime": 616.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "lose",
+      "campaignTime": 405.6,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "reason": null
+    }
+  ],
+  "fileGitBlobs": {
+    "ROADMAP.md": "ec1299d818eed34b81ead62374e8c5ceb32b2a3a",
+    "docs/REFACTORING_INVENTORY.md": "60f3536ddb3a8ac2712b5f59410205cf10cc556f",
+    "js/ai-economy.js": "37bda726a3d15da5f752f08434e5031844c1bb2e",
+    "js/network-session.js": "ae4251b6a390466fd1727c0a241fffabfe3e6744",
+    "js/network-webrtc.js": "a0e2b21281c2d555fd53135c8be93f92b5a26227",
+    "sw.js": "0867ccfdebae3c1e7c9ae12524f2202d0cdc97ec",
+    "tests/ai-age-food-rebalance.test.mjs": "1eafba7216ee7b6c940b92580e6505abe51b10aa",
+    "tests/browser/webrtc-transport.mjs": "d3d7d8312edf4c010388997fbcd47e6f56f47170",
+    "tests/network-live-session.test.mjs": "7dcf948afaf41bc2a744830578339cb4e964591d",
+    "tests/webrtc-transport.test.mjs": "9bddb6ec0e842f3b78bd7f19b8be344d9891fde7"
+  }
+}

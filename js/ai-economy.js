@@ -36,9 +36,9 @@ function aiRebal(vil,R,t=1){
  if(S.age[t]===0&&nv>=12&&ageRequirements(t).ready&&R.f<AG[1].cost.f&&assigned.f<Math.ceil(nv*.7)){
   if(move('f',['g','w']))return;
  }
- // Sustain a Castle Age saving phase with sufficient food gatherers; only
+ // Fund Castle and Imperial advancement with sufficient food gatherers. Only
  // one reachable, empty-handed worker changes jobs per AI decision tick.
- if(S.age[t]===1&&nv>=22&&ageRequirements(t).ready&&R.f<AG[2].cost.f&&assigned.f<Math.ceil(nv*.55)){
+ if((S.age[t]===1||S.age[t]===2)&&nv>=(S.age[t]===1?22:24)&&ageRequirements(t).ready&&R.f<AG[S.age[t]+1].cost.f&&assigned.f<Math.ceil(nv*.55)){
   if(move('f',['g','w']))return;
  }
  if(R.w>800){
