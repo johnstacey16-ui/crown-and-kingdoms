@@ -1,0 +1,286 @@
+{
+  "date": "2026-11-06",
+  "baselineCommit": "36352a7ad5fd39311da817a218baa9253dda3ed3",
+  "scope": "Shared Guard threat policy used by solo, campaign, AI and authenticated multiplayer simulation.",
+  "beforeAfter": {
+    "reproduced": "A nearby hostile War Galley attacks a completed friendly Dock from 5.82 tiles away, within its six-tile weapon range.",
+    "before": "The guarding ship ignores the shooter because it is outside the five-tile protection perimeter.",
+    "after": "The guarding ship intercepts and retains its protected Dock; it returns when the attacker moves beyond its own firing range or stops targeting the Dock."
+  },
+  "rules": {
+    "awareness": "The existing six-tile Guard acquisition search is unchanged. This does not grant global enemy awareness.",
+    "boundary": "Ordinary threats retain the five-tile boundary. A living ungarrisoned hostile unit actively attacking the protected target qualifies out to its own attack range plus 0.1 tile.",
+    "stances": "No Attack still blocks interception; Stand ground only accepts targets within the guard unit weapon range.",
+    "persistence": "A current-build save restores the shooter/protected-target entity references and the interception continues."
+  },
+  "campaignInvestigation": "Resource-camp, earlier-Dock and land-priority Golden Coast strategy probes still lost and are not shipped. They exposed the shared Guard gap; no new mission victory is claimed.",
+  "compatibility": {
+    "shell": "v182-ranged-guards",
+    "liveSessionAndChannel": "ck-live-preview-20"
+  },
+  "limits": [
+    "No unit stats, prices, campaign objectives, starting armies, sensing radius or controller bindings changed.",
+    "Physical Xbox and independent-network acceptance remain open."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1190,
+      "total": 1190,
+      "files": 244
+    },
+    "targetedGuard": {
+      "passed": 15,
+      "total": 15
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "isolatedCampaigns": {
+      "executed": 19,
+      "total": 19,
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "nativeGuardCases": [
+    {
+      "type": "guard",
+      "naval": false,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": true,
+      "resumed": true,
+      "rangedIntercepted": true,
+      "rangedHeld": true,
+      "rangedResumed": true
+    },
+    {
+      "type": "guard",
+      "naval": true,
+      "deferred": true,
+      "correctTarget": true,
+      "applied": true,
+      "arrived": true,
+      "tracked": true,
+      "intercepted": true,
+      "resumed": true,
+      "rangedIntercepted": true,
+      "rangedHeld": true,
+      "rangedResumed": true
+    }
+  ],
+  "additionalStrategyTrial": {
+    "mission": 12,
+    "outcome": "lose",
+    "campaignTime": 1531.233333332598,
+    "reason": "Your Town Centre fell",
+    "objectives": [
+      {
+        "title": "Build a Dock",
+        "complete": true,
+        "predicate": false
+      },
+      {
+        "title": "Have 3 War Galleys alive",
+        "complete": false,
+        "predicate": false
+      },
+      {
+        "title": "Have 12 land soldiers alive",
+        "complete": false,
+        "predicate": false
+      },
+      {
+        "title": "Destroy the enemy Town Centre",
+        "complete": false,
+        "predicate": false
+      }
+    ],
+    "retained": false
+  },
+  "campaignOutcomes": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "reason": null
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "reason": null
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 174,
+      "reason": null
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 202.5,
+      "reason": null
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 589,
+      "reason": null
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "reason": null
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 857,
+      "reason": null
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 905,
+      "reason": null
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 179.5,
+      "reason": null
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "lose",
+      "campaignTime": 819.3,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "lose",
+      "campaignTime": 614.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "lose",
+      "campaignTime": 468.2,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "reason": null
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "lose",
+      "campaignTime": 616.1,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "lose",
+      "campaignTime": 405.6,
+      "reason": "Your Town Centre fell"
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "reason": null
+    }
+  ],
+  "fileGitBlobs": {
+    "ROADMAP.md": "c4fbb8829138867214a46b4328b4ef45ea7fd6b2",
+    "docs/REFACTORING_INVENTORY.md": "44562fea535bc512a0482415dc330602736e66e2",
+    "js/network-session.js": "3f8796052ba1b7887f2d274f8b57131a9adf8836",
+    "js/network-webrtc.js": "148806c05d73299addd693b34637ac88ad338d66",
+    "js/simulation-combat-bonuses.js": "4ac37bdc46f8e4da356b9d2aeb76821e67d337d2",
+    "js/simulation-unit-behaviour.js": "f4dd454a117476029feecf950d26cdc037be3376",
+    "sw.js": "d41c9c738fa05a44375934487227cb5da63d39a9",
+    "tests/browser/campaign-navies.mjs": "9b48a91473b440d0145d214a992529de8b920de1",
+    "tests/browser/webrtc-transport.mjs": "a06fa024265e3ad6682e6d56bc195b74a850f010",
+    "tests/guard-follow.test.mjs": "ea2d5893684b7807c3749706faa3fcb9b0506562",
+    "tests/network-live-session.test.mjs": "5264b0a5c70f4e01ff97af7c06b6a270373858ba",
+    "tests/webrtc-transport.test.mjs": "8d03d3c3f542a8de83a0be15cd71cfb075125311"
+  }
+}

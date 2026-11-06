@@ -255,18 +255,23 @@ export async function checkCampaignNavies(browser,origin,output){
     const spacing=type==='follow'?1.4:2.2,arrived=actors.every(u=>d2(u.x,u.y,target)<spacing);
     target.x+=3;target.y+=2;for(let i=0;i<1500;i++)for(const u of actors)upU(u,1/30);
     const tracked=actors.every(u=>u.tg===target&&d2(u.x,u.y,target)<spacing);
-    let intercepted=null,resumed=null;
+    let intercepted=null,resumed=null,rangedIntercepted=null,rangedHeld=null,rangedResumed=null;
     if(type==='guard'){
      const enemy=addU(1,naval?'gal':'mil',target.x+1,target.y);actors[0].st=0;foeGridDirty=true;upU(actors[0],1/30);
      intercepted=actors[0].o==='a'&&actors[0].tg===enemy&&actors[0].guardTarget===target;
      enemy.x+=12;enemy.y+=12;foeGridDirty=true;upU(actors[0],1/30);resumed=actors[0].o==='G'&&actors[0].tg===target&&actors[0].guardTarget===null;
+     const shooter=addU(1,naval?'gal':'bomb',target.x+(naval?5.8:8.8),target.y);shooter.o='a';shooter.tg=target;
+     actors[0].x=target.x+3;actors[0].y=target.y;actors[0].o='G';actors[0].tg=target;actors[0].guardTarget=null;actors[0].p=[];foeGridDirty=true;
+     upU(actors[0],1/30);rangedIntercepted=actors[0].o==='a'&&actors[0].tg===shooter&&actors[0].guardTarget===target;
+     upU(actors[0],1/30);rangedHeld=actors[0].o==='a'&&actors[0].tg===shooter;
+     shooter.x+=12;foeGridDirty=true;upU(actors[0],1/30);rangedResumed=actors[0].o==='G'&&actors[0].tg===target&&actors[0].guardTarget===null;
     }
     map.refresh(S,0,W,H,true);map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);
-    rows.push({type,naval,deferred,correctTarget,applied,arrived,tracked,intercepted,resumed});
+    rows.push({type,naval,deferred,correctTarget,applied,arrived,tracked,intercepted,resumed,rangedIntercepted,rangedHeld,rangedResumed});
    }
    return rows;
   });
-  for(const row of networkEscorts){for(const key of ['deferred','correctTarget','applied','arrived','tracked'])assert.equal(row[key],true,row.type+' '+key);if(row.type==='guard'){assert.equal(row.intercepted,true);assert.equal(row.resumed,true)}}
+  for(const row of networkEscorts){for(const key of ['deferred','correctTarget','applied','arrived','tracked'])assert.equal(row[key],true,row.type+' '+key);if(row.type==='guard'){assert.equal(row.intercepted,true);assert.equal(row.resumed,true);for(const key of ['rangedIntercepted','rangedHeld','rangedResumed'])assert.equal(row[key],true,row.type+' '+key)}}
   await page.locator('#escort-map-true-guard').screenshot({path:output+'/network-guard-command.png'});
   const combatStances=await page.evaluate(()=>{
    const rows=[];

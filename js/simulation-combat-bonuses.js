@@ -253,6 +253,14 @@ function nearestFoeUnit(u,r){
  }
  return b
 }
+// Guards retain their local patrol boundary, but also defend against a nearby
+// shooter currently firing at the protected target from its own weapon range.
+function guardThreatensTarget(u,enemy,target){
+ if(!u||!enemy||!target||enemy.hp<=0||enemy.ld||!isHostile(u.t,enemy.t))return false;
+ if(u.st===2&&d2(u.x,u.y,enemy)>attackRange(u))return false;
+ const distance=d2(enemy.x,enemy.y,target);
+ return distance<=5||!!U[enemy.k]&&U[enemy.k].dmg>0&&enemy.o==='a'&&enemy.tg===target&&distance<=attackRange(enemy)+.1;
+}
 function foe(u,r,building){
  if(building)return defenceTarget(building,u,r);
  let b=null,bd2=r*r;

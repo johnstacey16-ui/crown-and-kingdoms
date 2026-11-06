@@ -11,8 +11,8 @@ assert.match(html, /u\.k!=='vil'&&u\.k!=='cart'&&u\.k!=='cog'&&guardTargetCompat
   'Guard/Follow must exclude villagers/traders and keep land/ship movement types compatible');
 assert.match(html, /if\(u\.o==='F'\|\|u\.o==='G'\)\{const target=u\.tg;/,
   'Guard/Follow orders must be processed continuously by the simulation');
-assert.match(html, /if\(u\.o==='G'&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&d2\(e\.x,e\.y,target\)<=5\)/,
-  'Guard must engage hostile units only around the protected target and respect No Attack');
+assert.match(html, /if\(u\.o==='G'&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&guardThreatensTarget\(u,e,target\)\)/,
+  'Guard must apply its shared threat boundary and respect No Attack');
 assert.match(html, /const spacing=u\.o==='F'\?1\.25:2,dist=d2\(u\.x,u\.y,target\)/,
   'Follow and Guard must maintain separate target distances');
 assert.match(html, /const guard=u\.guardTarget&&u\.guardTarget\.hp>0\?u\.guardTarget:null;u\.o=guard\?'G'/,
@@ -42,6 +42,29 @@ function coast(){
  sandbox.run("kingdoms=2;start();S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.wt.fill(0);S.g.fill(0);S.gt.fill(0);S.ex.fill(1);S.vs.fill(1);for(let y=38;y<44;y++)for(let x=1;x<W-1;x++)S.wt[y*W+x]=1;globalThis.home=addB(0,'dock',40,36,true);globalThis.ship=addU(0,'gal',50.5,40.5);globalThis.land=addU(0,'knight',35.5,35.5);S.sel=[ship];foeGridDirty=true;");
  return sandbox.run;
 }
+test('Dock guards intercept a nearby War Galley firing from beyond the five-tile perimeter',()=>{
+ const run=coast();run('ship.x=44;ship.y=39');
+ assert.equal(run("orderGuardFollow(41,37,'G')"),true);
+ run("globalThis.raider=addU(1,'gal',47.8,38.5);raider.o='a';raider.tg=home;foeGridDirty=true;upU(ship,1/30)");
+ assert.equal(run('ship.o'),'a');assert.equal(run('ship.tg===raider&&ship.guardTarget===home'),true);
+ run('upU(ship,1/30)');assert.equal(run('ship.o'),'a','the guard must not immediately abandon the ranged interception');
+ run('raider.x+=3;foeGridDirty=true;upU(ship,1/30)');
+ assert.equal(run('ship.o'),'G');assert.equal(run('ship.tg===home'),true,'a shooter leaving its own firing range cannot pull the escort away');
+});
+test('the extended boundary requires a hostile shooter attacking the protected target',()=>{
+ for(const change of ["raider.o='m'","raider.tg=land","S.dip[0][1]='ally'","raider.ld=home"]){
+  const run=coast();run("ship.x=44;ship.y=39;orderGuardFollow(41,37,'G');globalThis.raider=addU(1,'gal',47.8,38.5);raider.o='a';raider.tg=home;"+change+';foeGridDirty=true;upU(ship,1/30)');
+  assert.equal(run('ship.o'),'G',change);
+ }
+ const run=coast();run("ship.x=44;ship.y=39;orderGuardFollow(41,37,'G');globalThis.raider=addU(1,'gal',47.8,38.5);raider.o='a';raider.tg=home;foeGridDirty=true;upU(ship,1/30);raider.tg=land;upU(ship,1/30)");
+ assert.equal(run('ship.o'),'G');assert.equal(run('ship.tg===home'),true);
+});
+test('a ranged Guard interception retains its protected target through a current-build save',()=>{
+ const run=coast();run("ship.x=44;ship.y=39;orderGuardFollow(41,37,'G');globalThis.raider=addU(1,'gal',47.8,38.5);raider.o='a';raider.tg=home;foeGridDirty=true;upU(ship,1/30);globalThis.shipId=ship.netId;globalThis.raiderId=raider.netId;globalThis.homeId=home.netId");
+ assert.equal(run('saveG()'),true);assert.equal(run('loadG()'),true);
+ run('ship=S.us.find(u=>u.netId===shipId);raider=S.us.find(u=>u.netId===raiderId);home=S.bs.find(b=>b.netId===homeId);upU(ship,1/30)');
+ assert.equal(run("ship.o==='a'&&ship.tg===raider&&ship.guardTarget===home&&raider.tg===home"),true);
+});
 test('No Attack cancels an interception windup without dropping the protected target',()=>{
  const run=coast();
  run("ship.o='a';ship.guardTarget=home;ship.tg=addU(1,'gal',ship.x+1,ship.y);ship.wind=1;ship.windTarget=ship.tg;setStance(4)");
@@ -136,4 +159,11 @@ test('a guarded moving unit with reciprocal combat targets saves without circula
  assert.equal(run('land.guardTarget===ram'),true);assert.equal(run('saveG()'),true,'combat cycles use references instead of embedded entities');
  assert.equal(run('loadG()'),true);run('land=S.us.find(u=>u.netId===landId);ram=S.us.find(u=>u.netId===ramId)');
  assert.equal(run('land.guardTarget===ram'),true);
+});
+
+
+test('Stand ground escorts retain Guard rather than pursuing an out-of-range shooter',()=>{
+ const run=coast();run("land.x=35;land.y=35;globalThis.protectedUnit=addU(0,'vil',32,35);globalThis.shooter=addU(1,'bomb',40.8,35);shooter.o='a';shooter.tg=protectedUnit;land.st=2;S.sel=[land];orderGuardFollow(protectedUnit.x,protectedUnit.y,'G');foeGridDirty=true;upU(land,1/30)");
+ assert.equal(run('land.o'),'G');assert.equal(run('land.tg===protectedUnit'),true);
+ assert.equal(run('land.guardTarget'),null);
 });
