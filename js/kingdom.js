@@ -338,34 +338,35 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  * regional replacement is implemented so campaigns/saves remain playable.
  * This matrix does not cover all cavalry/unique-unit/tech exceptions. */
 // Paladin d: unit 569 / upgrade 265, aoe2techtree e56728e76b7d08301fba7b18d5f16bc8554c109a.
+// Hussar u: unit 441 / upgrade 428 in the same pinned source.
 // Persians use Savar in that source; the replacement remains unimplemented.
 const CIV_CORE_MILITARY=Object.freeze({
  'Franks':'mltcphvaeskd',
  'Britons':'mltcphvaesk',
- 'Mongols':'mltcpvaesk',
- 'Byzantines':'mltcphvaeskd',
- 'Persians':'mlphvaesk',
+ 'Mongols':'mltcpvaesku',
+ 'Byzantines':'mltcphvaeskdu',
+ 'Persians':'mlphvaesku',
  'Teutons':'mltcphaeskd',
- 'Celts':'mltcphvaeskd',
+ 'Celts':'mltcphvaeskdu',
  'Vikings':'mltcpvaesk',
- 'Saracens':'mltcpvesk',
- 'Turks':'mltcvask',
+ 'Saracens':'mltcpvesku',
+ 'Turks':'mltcvasku',
  'Chinese':'mltcphvaesk',
  'Japanese':'mltcphvaesk',
- 'Khmer':'mltphvaesk',
- 'Indians':'mltcpves',
- 'Spanish':'mltcphvaeskd',
- 'Italians':'mltcpvaesk',
- 'Slavs':'mltcphvaesk',
- 'Huns':'mltphvaeskd',
- 'Goths':'mltcphvaesk',
+ 'Khmer':'mltphvaesku',
+ 'Indians':'mltcpvesu',
+ 'Spanish':'mltcphvaeskdu',
+ 'Italians':'mltcpvaesku',
+ 'Slavs':'mltcphvaesku',
+ 'Huns':'mltphvaeskdu',
+ 'Goths':'mltcphvaesku',
  'Aztecs':'mltcpe',
  'Mayans':'mltphe',
  'Incas':'mltcphe',
- 'Ethiopians':'mltphvaesk',
+ 'Ethiopians':'mltphvaesku',
  'Malians':'mltcpvaesk',
- 'Koreans':'mltcphvaesk',
- 'Magyars':'mltcphvaeskd'
+ 'Koreans':'mltcphvaesku',
+ 'Magyars':'mltcphvaeskdu'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -641,7 +642,7 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Magyars':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
-const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',elsk:'e'});
+const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
 const CORE_MILITARY_UNIT_KEYS=Object.freeze({scout:'s',knight:'k'});
 const ARCHERY_RESEARCH_KEYS=new Set(['xbow','arb','thumb']);
 const rsOf=(b,civs=S?.civ)=>{

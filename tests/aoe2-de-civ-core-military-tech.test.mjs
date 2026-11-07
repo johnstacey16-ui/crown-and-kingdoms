@@ -10,22 +10,23 @@ import {headlessGame} from './helpers/headless-game.mjs';
 // India is currently the older C&K name for Hindustanis. Incas deliberately
 // retain the game's existing militia line until the regional replacement
 // (Champi Warriors in the current data) has been implemented and tested.
+// Hussar u: unit 441 / upgrade 428 in the same pinned data snapshot.
 // Paladin d adds unit 569 / upgrade 265 from e56728e76b7d08301fba7b18d5f16bc8554c109a.
 const EXPECTED=Object.freeze({
- Franks:'mltcphvaeskd',Britons:'mltcphvaesk',Mongols:'mltcpvaesk',
- Byzantines:'mltcphvaeskd',Persians:'mlphvaesk',Teutons:'mltcphaeskd',
- Celts:'mltcphvaeskd',Vikings:'mltcpvaesk',Saracens:'mltcpvesk',
- Turks:'mltcvask',Chinese:'mltcphvaesk',Japanese:'mltcphvaesk',
- Khmer:'mltphvaesk',Indians:'mltcpves',Spanish:'mltcphvaeskd',
- Italians:'mltcpvaesk',Slavs:'mltcphvaesk',Huns:'mltphvaeskd',
- Goths:'mltcphvaesk',Aztecs:'mltcpe',Mayans:'mltphe',
- Incas:'mltcphe',Ethiopians:'mltphvaesk',Malians:'mltcpvaesk',
- Koreans:'mltcphvaesk',Magyars:'mltcphvaeskd'
+ Franks:'mltcphvaeskd',Britons:'mltcphvaesk',Mongols:'mltcpvaesku',
+ Byzantines:'mltcphvaeskdu',Persians:'mlphvaesku',Teutons:'mltcphaeskd',
+ Celts:'mltcphvaeskdu',Vikings:'mltcpvaesk',Saracens:'mltcpvesku',
+ Turks:'mltcvasku',Chinese:'mltcphvaesk',Japanese:'mltcphvaesk',
+ Khmer:'mltphvaesku',Indians:'mltcpvesu',Spanish:'mltcphvaeskdu',
+ Italians:'mltcpvaesku',Slavs:'mltcphvaesku',Huns:'mltphvaeskdu',
+ Goths:'mltcphvaesku',Aztecs:'mltcpe',Mayans:'mltphe',
+ Incas:'mltcphe',Ethiopians:'mltphvaesku',Malians:'mltcpvaesk',
+ Koreans:'mltcphvaesku',Magyars:'mltcphvaeskdu'
 });
 const TECHS=Object.freeze({
  man:['m','bar'],longs:['l','bar'],twohand:['t','bar'],champ:['c','bar'],
  pike:['p','bar'],halb:['h','bar'],lcav:['v','stable'],
- cavl:['a','stable'],pala:['d','stable'],elsk:['e','rng']
+ cavl:['a','stable'],pala:['d','stable'],huss:['u','stable'],elsk:['e','rng']
 });
 const UNITS=Object.freeze({scout:'s',knight:'k'});
 
@@ -60,7 +61,7 @@ test('all 26 civilizations have source-pinned infantry, skirmisher and cavalry t
  const flags=Object.values(TECHS).map(([flag])=>flag).concat(Object.values(UNITS));
  assert.equal(new Set(flags).size,flags.length,'unit-line capability flags must be unique');
  for(const [name,tier] of Object.entries(EXPECTED)){
-  assert.match(tier,/^[mltcphvaeskd]*$/,name+' has an undocumented capability flag');
+  assert.match(tier,/^[mltcphvaeskdu]*$/,name+' has an undocumented capability flag');
   assert.equal(new Set(tier).size,tier.length,name+' has no duplicate capability');
  }
  assert.ok(!EXPECTED.Aztecs.includes('k')&&!EXPECTED.Mayans.includes('s')&&!EXPECTED.Incas.includes('k'),
@@ -103,6 +104,7 @@ test('research() never charges for forbidden tier; allowed tiers still cost and 
   for(const [key,[flag,building]] of Object.entries(TECHS)){
    c(`S.tech[0]={};S.bs.forEach(b=>{if(b.t===0){b.rs=null;b.q=[]}});S.res[0]={f:10000,w:10000,g:10000,s:10000}`);
    if(key==='pala')c('S.tech[0].cavl=1');
+   if(key==='huss')c('S.tech[0].lcav=1');
    if(key==='longs')c('S.tech[0].man=1');
    if(key==='twohand')c('S.tech[0].longs=1');
    if(key==='champ')c('S.tech[0].twohand=1');
@@ -206,4 +208,45 @@ test('AI waits for four Knights before buying the expensive Paladin upgrade',()=
  const c=fixture();c("S.civ[1]=0;S.tech[1]={cavl:1,blood:1,husb:1,lcav:1};S.age[1]=3;globalThis.army=[0,1,2].map(i=>addU(1,'knight',60.5+i,30.5));globalThis.plan=()=>aiPlanResearch(1,{my:army,vil:[],arm:army,bl:[structures.enemyStable],tc:structures.enemyStable,R:S.res[1],humanShips:[],composition:{humanCav:0,humanInf:0,humanRanged:0,humanSiege:0}});plan()");
  assert.equal(c('structures.enemyStable.rs==null'),true);
  c("army.push(addU(1,'knight',63.5,30.5));plan()");assert.equal(c('structures.enemyStable.rs.k'),'pala');
+});
+
+test('paid Light Cavalry to Hussar preserves damage, costs and the scout identity for all soldiers',()=>{
+ const c=fixture();c("S.civ[0]=2;globalThis.rider=addU(0,'scout',16.5,30.5);rider.hp=30;globalThis.dead=addU(0,'scout',18.5,30.5);dead.hp=0;globalThis.foreign=addU(1,'scout',20.5,30.5)");
+ assert.equal(c("research(structures.stable,'huss')"),false,'Light Cavalry is required');
+ assert.equal(c("research(structures.stable,'lcav')"),true);c('upB(structures.stable,45)');
+ assert.equal(c('rider.hp'),45);assert.equal(c('mhp(rider)'),60);
+ assert.equal(c("research(structures.stable,'huss')"),true);c('upB(structures.stable,49)');
+ assert.equal(c("unitName('scout',0)"),'Light Cavalry');c('upB(structures.stable,1)');
+ assert.equal(c("unitName('scout',0)"),'Hussar');assert.equal(c('rider.hp'),60);assert.equal(c('mhp(rider)'),75);
+ assert.equal(c('dead.hp'),0);assert.equal(c('foreign.hp'),45);assert.equal(c('attackReload(rider)'),1.9);assert.equal(c('attackReload(foreign)'),2);assert.equal(c('unitSpeed(rider)'),1.5);
+ assert.equal(c('S.res[0].f'),9350);assert.equal(c('S.res[0].g'),9350);
+ c("globalThis.monk=addU(1,'mon',24.5,30.5);monk.hp=1000;dmgT(rider,monk)");assert.equal(c('1000-monk.hp'),19,'seven base attack plus twelve anti-Monk bonus');
+ c("globalThis.victim=addU(1,'vil',26.5,30.5);victim.hp=1000;dmgT(rider,victim)");assert.equal(c('1000-victim.hp'),7,'Hussar retains Light Cavalry attack against other units');
+ c("globalThis.newRider=addU(0,'scout',28.5,30.5)");assert.equal(c('newRider.hp'),75);
+ assert.equal(c("research(structures.stable,'blood')"),true);c('upB(structures.stable,40)');assert.equal(c('mhp(rider)'),95);assert.equal(c("addU(0,'scout',30.5,30.5).hp"),95,'Bloodlines stacks for future Hussars');
+ assert.equal(c('rider.k'),'scout');assert.equal(c('foreign.k'),'scout');
+});
+
+test('Hussar research enforces Imperial Age, affordability and duplicate-research gates',()=>{
+ const c=fixture();c('S.civ[0]=2;S.tech[0].lcav=1;S.age[0]=2');const before=c('JSON.stringify(S.res)');
+ assert.equal(c("research(structures.stable,'huss')"),false);assert.equal(c('JSON.stringify(S.res)'),before);
+ c('S.age[0]=3;S.res[0].f=499');assert.equal(c("research(structures.stable,'huss')"),false);
+ c('S.res[0].f=500;S.res[0].g=599');assert.equal(c("research(structures.stable,'huss')"),false);
+ c('S.res[0].g=600');assert.equal(c("research(structures.stable,'huss')"),true);
+ const paid=c('JSON.stringify(S.res)');assert.equal(c("research(structures.stable,'huss')"),false);assert.equal(c('JSON.stringify(S.res)'),paid);
+ c('upB(structures.stable,50)');assert.equal(c("research(structures.stable,'huss')"),false);
+});
+
+test('active Hussar research and completed stats survive current-build save/load',()=>{
+ const c=fixture();c("S.civ[0]=2;S.tech[0]={lcav:1,hpb:{scout:15},atkb:{scout:2}};globalThis.rider=addU(0,'scout',16.5,30.5);globalThis.stableId=structures.stable.netId;globalThis.riderId=rider.netId;research(structures.stable,'huss');upB(structures.stable,20)");
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);
+ c('structures.stable=S.bs.find(b=>b.netId===stableId);rider=S.us.find(u=>u.netId===riderId)');assert.equal(c('structures.stable.rs.t'),30);
+ c('upB(structures.stable,30)');assert.equal(c('mhp(rider)'),75);assert.equal(c("unitName('scout',0)"),'Hussar');assert.equal(c('attackReload(rider)'),1.9);
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);assert.equal(c('S.tech[0].hpb.scout'),30);assert.equal(c('S.tech[0].atkb.scout'),2);
+});
+
+test('AI waits for four fielded Scouts before buying Hussar',()=>{
+ const c=fixture();c("S.civ[1]=2;S.tech[1]={cavl:1,hcamel:1,blood:1,husb:1,lcav:1};S.age[1]=3;globalThis.army=[0,1,2].map(i=>addU(1,'scout',60.5+i,30.5));globalThis.plan=()=>aiPlanResearch(1,{my:army,vil:[],arm:army,bl:[structures.enemyStable],tc:structures.enemyStable,R:S.res[1],humanShips:[],composition:{humanCav:0,humanInf:0,humanRanged:0,humanSiege:0}});plan()");
+ assert.equal(c('structures.enemyStable.rs==null'),true);
+ c("army.push(addU(1,'scout',63.5,30.5));plan()");assert.equal(c('structures.enemyStable.rs.k'),'huss');
 });

@@ -36,7 +36,7 @@ function camelLineBonus(a,t){
  return U.camel.bn?.[key]||U.camel.bn?.[alias]||0;
 }
 function scoutLineBonus(a,t){
- return t.k==='mon'?(S.tech[a.t]?.lcav?10:6):0;
+ return t.k==='mon'?(S.tech[a.t]?.huss?12:S.tech[a.t]?.lcav?10:6):0;
 }
 function skirmisherBonus(a,t){
  const tech=S.tech[a.t]||{},elite=!!tech.elsk,k=t.k;
@@ -148,7 +148,7 @@ function rangedAccuracy(a){
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
 function attackReload(u){
- const base=u.k==='knight'&&S.tech[u.t]?.pala?1.9:U[u.k]?.cd||2;
+ const base=(u.k==='knight'&&S.tech[u.t]?.pala)||(u.k==='scout'&&S.tech[u.t]?.huss)?1.9:U[u.k]?.cd||2;
  if(!S.tech[u.t]?.thumb)return base;
  if(u.k==='chuko')return base*.8;
  if(THUMB_MOUNTED_ARCHERS.has(u.k))return base*.9;

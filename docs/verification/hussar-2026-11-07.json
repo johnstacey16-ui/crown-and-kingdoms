@@ -1,0 +1,313 @@
+{
+  "date": "2026-11-07",
+  "baselineCommit": "d6a325edf54ab0c8b19f942a1d54f53966012282",
+  "scope": "Playable Hussar upgrade for 16 eligible currently represented civilizations; shared solo, campaign, AI and authenticated multiplayer rules.",
+  "reference": {
+    "repository": "SiegeEngineers/aoe2techtree",
+    "commit": "e56728e76b7d08301fba7b18d5f16bc8554c109a",
+    "url": "https://github.com/SiegeEngineers/aoe2techtree/blob/e56728e76b7d08301fba7b18d5f16bc8554c109a/data/data.json",
+    "sha256": "e21b3d22d5101257a62fc6298377314852f929c12b0c997a9e986919658fd460",
+    "upgrade": {
+      "Cost": {
+        "Food": 500,
+        "Gold": 600
+      },
+      "ID": 428,
+      "ResearchTime": 50,
+      "internal_name": "Hussar"
+    },
+    "lightCavalry": {
+      "HP": 60,
+      "Attack": 7,
+      "MeleeArmor": 0,
+      "PierceArmor": 2,
+      "ReloadTime": 2,
+      "Speed": 1.5,
+      "TrainTime": 30,
+      "Cost": {
+        "Food": 80
+      }
+    },
+    "hussar": {
+      "HP": 75,
+      "Attack": 7,
+      "MeleeArmor": 0,
+      "PierceArmor": 2,
+      "ReloadTime": 1.9,
+      "Speed": 1.5,
+      "TrainTime": 30,
+      "Cost": {
+        "Food": 80
+      }
+    },
+    "antiMonkBonus": 12
+  },
+  "eligibleCivilizations": [
+    {
+      "id": 2,
+      "name": "Mongols"
+    },
+    {
+      "id": 3,
+      "name": "Byzantines"
+    },
+    {
+      "id": 4,
+      "name": "Persians"
+    },
+    {
+      "id": 6,
+      "name": "Celts"
+    },
+    {
+      "id": 8,
+      "name": "Saracens"
+    },
+    {
+      "id": 9,
+      "name": "Turks"
+    },
+    {
+      "id": 12,
+      "name": "Khmer"
+    },
+    {
+      "id": 13,
+      "name": "Indians"
+    },
+    {
+      "id": 14,
+      "name": "Spanish"
+    },
+    {
+      "id": 15,
+      "name": "Italians"
+    },
+    {
+      "id": 16,
+      "name": "Slavs"
+    },
+    {
+      "id": 17,
+      "name": "Huns"
+    },
+    {
+      "id": 18,
+      "name": "Goths"
+    },
+    {
+      "id": 22,
+      "name": "Ethiopians"
+    },
+    {
+      "id": 24,
+      "name": "Koreans"
+    },
+    {
+      "id": 25,
+      "name": "Magyars"
+    }
+  ],
+  "behavior": {
+    "research": "Stable, Imperial Age, Light Cavalry prerequisite; 500 food, 600 gold, 50 seconds.",
+    "effects": "Adds 15 HP to the existing Scout/Light Cavalry health ledger; 1.9-second reload and 12 anti-Monk bonus. Ordinary attack remains seven before other research.",
+    "AI": "Considers the paid upgrade only with at least four fielded Scouts.",
+    "presentation": "Shared Hussar label and original Scout artwork with the original rank crest; existing scout entity ID remains stable.",
+    "persistence": "Current-build active research and completed owner-specific upgrades survive save/load.",
+    "compatibility": "Shell v186-hussar and live session/channel ck-live-preview-22."
+  },
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1210,
+      "total": 1210,
+      "files": 244
+    },
+    "targetedMilitaryAndAuthenticatedOrders": {
+      "passed": 30,
+      "total": 30
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "limits": [
+    "Civilization bonuses and full technology trees remain partial, including automatic/free research exceptions; this does not establish complete civilization parity.",
+    "Hussar retains original Scout artwork and the existing line\u2019s sight/melee wind-up model; dedicated artwork and full animation/reference parity remain open.",
+    "Magyar Huszar remains its distinct existing unique unit; Winged Hussar and additional unrepresented civilizations are not implemented by this change.",
+    "Physical Xbox and independent-network acceptance remain open."
+  ],
+  "nativeHussar": {
+    "deferred": true,
+    "applied": true,
+    "waiting": true,
+    "name": "Hussar",
+    "hp": 75,
+    "maxHP": 75,
+    "reload": 1.9,
+    "stats": "Atk 3+4  Armor 0/2",
+    "food": 9350,
+    "gold": 9350,
+    "painted": true,
+    "screenshotSha256": "314d7fa868f3f8d92e3b89b3007046c45469fd3a8f41e4d05667e739671a5811"
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "8e0b4c724da8fccf1cf9a1176272321ed227fc63",
+    "data/civilizations.json": "7afeff965575947e631bea2d3acd80c47d23049c",
+    "docs/REFACTORING_INVENTORY.md": "28acb1af4697ff762f544dd675a50ab86c4776e9",
+    "js/ai-policy.js": "0d251621b2dc89422af8612d1303416c9ae54e1b",
+    "js/ai.js": "052f045119f197ed33aed91fa88defcff45e646c",
+    "js/config.js": "9e4587025d86529e0d419ee2ef2a16dd9cd63d11",
+    "js/kingdom.js": "7e3843e521126001703c9f0e0cf7102aaa277ef4",
+    "js/network-session.js": "a770dc3e091c2479f22aeddb133bf7a8ce1adce1",
+    "js/network-webrtc.js": "c0aca4b46979580544c0ce67ff3a28ab34e8a306",
+    "js/render-troops.js": "f9ee7262de55542e223fe934d4abd96448ef3b28",
+    "js/simulation-combat-bonuses.js": "402b99142ee27e66410f580d0181c4b40f215756",
+    "js/state.js": "ad7ca3fe7e815b9eb47612ab739fa6dfb9a88375",
+    "sw.js": "297919c5d3838cdfa864e98f36c3fa8aac580395",
+    "tests/aoe2-de-civ-core-military-tech.test.mjs": "b727883ccbb668851d0e4a20469503674b404fc5",
+    "tests/browser/campaign-navies.mjs": "24eb1e1fc0d89899ced5594c560cd4bd156fac47",
+    "tests/browser/webrtc-transport.mjs": "ecc5e4fa716818ca0184661d6e909302a69b5c6e",
+    "tests/network-live-session.test.mjs": "a15c1a6dbe49fadcc4fa1fbe7230586e8b0af96c",
+    "tests/network-production-commands.test.mjs": "856a568b54cf4918d7f0a65584f60baa31dd58fd",
+    "tests/technology-effects.test.mjs": "81087608dd652fdce777dc9ca3d4e6ffb6a16a51",
+    "tests/technology-research-integrity.test.mjs": "681715e2e4b930994d20d447e911621ea18ea026",
+    "tests/unit-label-ownership.test.mjs": "9fadf3b8ddc81b4630b643c2ac38b1e6272399ad",
+    "tests/webrtc-transport.test.mjs": "32f4c8e87d9fd248446a80c94dca231c4b6238e8"
+  },
+  "campaigns": {
+    "executed": 19,
+    "wins": 14,
+    "defeats": 5,
+    "timeouts": 0,
+    "outcomes": [
+      {
+        "mission": 0,
+        "title": "First Hearth",
+        "outcome": "win",
+        "campaignTime": 163.5
+      },
+      {
+        "mission": 1,
+        "title": "Raiders at the Ford",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 2,
+        "title": "The Feudal Frontier",
+        "outcome": "win",
+        "campaignTime": 671.5
+      },
+      {
+        "mission": 3,
+        "title": "The Relic Road",
+        "outcome": "win",
+        "campaignTime": 174
+      },
+      {
+        "mission": 4,
+        "title": "Siege of Kronburg",
+        "outcome": "win",
+        "campaignTime": 202.5
+      },
+      {
+        "mission": 5,
+        "title": "The Last Crown",
+        "outcome": "win",
+        "campaignTime": 589
+      },
+      {
+        "mission": 6,
+        "title": "The Northern Watch",
+        "outcome": "win",
+        "campaignTime": 600
+      },
+      {
+        "mission": 7,
+        "title": "Crossing at Redwater",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 8,
+        "title": "Crown of Ashford",
+        "outcome": "win",
+        "campaignTime": 857
+      },
+      {
+        "mission": 9,
+        "title": "Siege of Greywatch",
+        "outcome": "win",
+        "campaignTime": 905
+      },
+      {
+        "mission": 10,
+        "title": "The King\u2019s Road",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 11,
+        "title": "The Reliquary Trail",
+        "outcome": "win",
+        "campaignTime": 179.5
+      },
+      {
+        "mission": 12,
+        "title": "The Golden Coast",
+        "outcome": "lose",
+        "campaignTime": 819.3
+      },
+      {
+        "mission": 13,
+        "title": "The Strait's Last Relic",
+        "outcome": "lose",
+        "campaignTime": 614.1
+      },
+      {
+        "mission": 14,
+        "title": "The Siege of Tidewatch",
+        "outcome": "lose",
+        "campaignTime": 468.2
+      },
+      {
+        "mission": 15,
+        "title": "The Bridge at Blackwood",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 16,
+        "title": "The Causeway Muster",
+        "outcome": "lose",
+        "campaignTime": 616.1
+      },
+      {
+        "mission": 17,
+        "title": "The Crown Holds the Crossing",
+        "outcome": "lose",
+        "campaignTime": 405.6
+      },
+      {
+        "mission": 18,
+        "title": "The Iron Pass",
+        "outcome": "win",
+        "campaignTime": 540
+      }
+    ],
+    "note": "All 19 simulations completed. Five missions still lose under the simple test player; full campaign acceptance remains open."
+  }
+}

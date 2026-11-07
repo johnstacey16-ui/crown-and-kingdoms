@@ -13,6 +13,7 @@ function unitName(k,t){
  if(k==='spear'&&tech.pike)return 'Pikeman';
  if(k==='xbow'&&tech.arb)return 'Arbalester';
  if(k==='skirm'&&tech.elsk)return 'Elite Skirmisher';
+ if(k==='scout'&&tech.huss)return 'Hussar';
  if(k==='scout'&&tech.lcav)return 'Light Cavalry';
  if(k==='knight'&&tech.pala)return 'Paladin';
  if(k==='knight'&&tech.cavl)return 'Cavalier';

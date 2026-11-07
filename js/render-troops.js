@@ -226,8 +226,8 @@ if(!af?.painted){
   X.save();X.translate(sx,sy);X.scale(z,z);X.strokeStyle='#f0c35e';X.lineWidth=1.4;X.strokeRect(-8,-15,16,4);X.fillStyle='#d8c49a';X.fillRect(-6,-15,2,2);X.fillRect(4,-15,2,2);X.restore()
  }
 }
-/* A small original rank crest also identifies painted Paladins. */
-if(k==='knight'&&T.pala){
+/* A small original rank crest identifies upgraded painted cavalry. */
+if((k==='knight'&&T.pala)||(k==='scout'&&T.huss)){
  X.save();X.translate(sx,sy-(sz[1]-6)*z*.9-7*z);X.scale(z,z);
  X.fillStyle='#f0c35e';X.strokeStyle='#302315';X.lineWidth=1;
  X.beginPath();X.moveTo(0,-4);X.lineTo(3,0);X.lineTo(0,4);X.lineTo(-3,0);X.closePath();X.fill();X.stroke();X.restore();

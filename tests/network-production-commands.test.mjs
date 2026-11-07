@@ -346,3 +346,21 @@ test('both authenticated players research Paladin only at the host frame and pay
  assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,true]);
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[700,250],[700,250]]);assert.deepEqual(Array.from(out.hp),[160,160]);assert.deepEqual(Array.from(out.names),['Paladin','Paladin']);
 });
+
+test('both authenticated players research Hussar only at the host frame and pay their own budgets',()=>{
+ const out=world(`
+  S.civ=[2,3];S.age=[3,3];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+  S.tech=[{lcav:1,hpb:{scout:15},atkb:{scout:2}},{lcav:1,hpb:{scout:15},atkb:{scout:2}}];
+  S.res=S.res.map(()=>({f:2000,w:1000,g:1000,s:0}));
+  const stables=[addB(0,'stable',20,20,true),addB(1,'stable',30,20,true)];
+  const riders=[addU(0,'scout',24.5,20.5),addU(1,'scout',34.5,20.5)];
+  const before=JSON.stringify(S.res),accepted=[];
+  accepted.push(host.receive(packet('host-session',0,1,6,{type:'research',entities:[stables[0].netId],value:'huss'}),'host-session',2).ok);
+  accepted.push(host.receive(packet('guest-session',1,1,6,{type:'research',entities:[stables[1].netId],value:'huss'}),'guest-session',2).ok);
+  const deferred=JSON.stringify(S.res)===before&&stables.every(b=>!b.rs),results=host.applyFrame(6);
+  for(const b of stables)upB(b,50);
+  return {accepted,deferred,results:results.map(r=>r.ok),paid:S.res.map(r=>[r.f,r.g]),hp:riders.map(u=>u.hp),names:riders.map(u=>unitName(u.k,u.t))};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,true]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[1500,400],[1500,400]]);assert.deepEqual(Array.from(out.hp),[75,75]);assert.deepEqual(Array.from(out.names),['Hussar','Hussar']);
+});
