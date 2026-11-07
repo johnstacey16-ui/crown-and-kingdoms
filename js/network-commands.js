@@ -220,9 +220,21 @@
 
     if (order.type === 'rally') {
       // Validate the complete group before changing any building's rally.
-      if (!activeBuildings(entities) || order.target != null ||
+      if (!activeBuildings(entities) ||
           entities.some(b=>!Array.isArray(B[b.k].tr)||!B[b.k].tr.length)) return false;
-      for (const b of entities) b.rally={x:order.point.x,y:order.point.y,t:null};
+      let target=null;
+      if(order.target!=null){
+        target=lookup(order.target);
+        const sight=visibility(S,team,W,H);
+        if(!root.CK_SIM_SYNC.validResourceId(order.target)||!target||!(target.amt>0)||
+            !Number.isInteger(target.x)||!Number.isInteger(target.y)||target.x<0||target.y<0||target.x>=W||target.y>=H||
+            S.nd[target.y*W+target.x]!==target||!sight[target.y*W+target.x]||
+            !['w','f','g','s'].includes(target.k)||target.fi&&target.k!=='f'||
+            (target.fm||target.trap)&&target.t!==team||
+            Math.floor(order.point.x)!==target.x||Math.floor(order.point.y)!==target.y||
+            entities.some(b=>!trOf(b).includes(target.fi?'fish':'vil')))return false;
+      }
+      for (const b of entities) b.rally={x:order.point.x,y:order.point.y,t:target};
       return true;
     }
 

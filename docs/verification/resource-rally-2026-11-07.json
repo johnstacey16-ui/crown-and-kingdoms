@@ -1,0 +1,316 @@
+{
+  "date": "2026-11-07",
+  "baselineCommit": "d7384c0be24276d62426102359b3b3b1bb141186",
+  "scope": "Authenticated multiplayer resource rallies for new Villagers and Fishing Ships, using the same production dispatcher as solo.",
+  "behavior": {
+    "authority": "Commands remain deferred until the authenticated host frame; full groups validate before any building rally is changed.",
+    "targets": "Only live resource IDs currently visible to the issuing kingdom, still occupying their registered node cell, with matching resource coordinates. Farms/traps must belong to the issuing kingdom.",
+    "compatibility": "Every producer must train the relevant worker kind. Ordinary ground rallies and original unit costs are preserved.",
+    "production": "Uses unchanged applyProductionRally. A trained guest Villager gathers and delivers wood; a trained Fishing Ship inherits fish orders.",
+    "persistence": "Existing save/load reconnects resource references to restored live nodes.",
+    "protocol": "Existing bounded optional rally target field now admits resource IDs; packet version 2 and byte limits unchanged. Live channel/session v23 prevents mixed runtime peers; shell v187-resource-rally."
+  },
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1213,
+      "total": 1213,
+      "files": 244
+    },
+    "targetedProductionAndMap": {
+      "passed": 55,
+      "total": 55
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "priorSoloAcceptance": {
+    "commit": "d7384c0be24276d62426102359b3b3b1bb141186",
+    "seededAI": 3,
+    "campaigns": {
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "note": "Not rerun for a network-only change; all 48 canonical game runtime files are byte-identical to this tested baseline.",
+    "coreFileIdentity": [
+      {
+        "path": "js/config.js",
+        "identical": true,
+        "sha256": "ea9e8ee9b99da8ca4e7053e51fe2782940bbd053ea2f58332b8fdf07de16206f"
+      },
+      {
+        "path": "js/state.js",
+        "identical": true,
+        "sha256": "7fb0c27641934990283ef5c0bbb48610ba6f2a6fb764962e4b38a137a78bcf8d"
+      },
+      {
+        "path": "js/mapgen.js",
+        "identical": true,
+        "sha256": "ec9fdada57dc7ee126aa38005cc604ace27848fd1a935c77b40eb1f741b8f22d"
+      },
+      {
+        "path": "js/audio.js",
+        "identical": true,
+        "sha256": "fb7b64566ce4492d283b041422f0dc9bbf8796b865ace8f1407478a7ce82071c"
+      },
+      {
+        "path": "js/save.js",
+        "identical": true,
+        "sha256": "5171370d09d01da00e569a276c51a770e9902b581fb30d7addc42930de215612"
+      },
+      {
+        "path": "js/input.js",
+        "identical": true,
+        "sha256": "0988b13a5441b13f93755ea2e2cc2b678599376d8c68bc08831907382c6dbb1a"
+      },
+      {
+        "path": "js/input-selection.js",
+        "identical": true,
+        "sha256": "37d2bdfa67f88da56179a7f5915ab0faefa37375d7c38312c00660686503f3c3"
+      },
+      {
+        "path": "js/render.js",
+        "identical": true,
+        "sha256": "90b0ade9e8e4ba3c5c5397c547f5d050f2eadcf5ddef05a653165a07a9988b20"
+      },
+      {
+        "path": "js/render-terrain.js",
+        "identical": true,
+        "sha256": "86e0f643af634c2ee8bbb35e5c5ece78614f4525b73b02291e6902f1823b5cd3"
+      },
+      {
+        "path": "js/render-resources.js",
+        "identical": true,
+        "sha256": "ae294126c4c40099f881dca140330b26ede21029947550e91c482b8ac77609e7"
+      },
+      {
+        "path": "js/render-buildings.js",
+        "identical": true,
+        "sha256": "ddb06f80428ea6579a0c45b41ba321622cc45ab800087143ac2be4a0956f6521"
+      },
+      {
+        "path": "js/render-procedural-units.js",
+        "identical": true,
+        "sha256": "e2cd54331f17ed52f0e2bbc4fd9c634d9b7702b44236113ed6f1126168bdcd39"
+      },
+      {
+        "path": "js/render-troops.js",
+        "identical": true,
+        "sha256": "4dc610b9c44108b4f1ca9ed458d31e008a0dec627d65f8883990e3ea9793568d"
+      },
+      {
+        "path": "js/render-effects.js",
+        "identical": true,
+        "sha256": "59d7ec1d73c5dfc8f168cd5687b3eda1f0515001ea1b8afc51eb05db1ba8c526"
+      },
+      {
+        "path": "js/ui.js",
+        "identical": true,
+        "sha256": "ef41ee80b1cda4b3833a9ae0df4304f92193a96034ccd97deac8a1535151ffed"
+      },
+      {
+        "path": "js/ui-commands.js",
+        "identical": true,
+        "sha256": "2ee6dcefbcb5bc5065dee79e97f5d0924fac27db668c75f0d58d61b6f474c112"
+      },
+      {
+        "path": "js/ui-screens.js",
+        "identical": true,
+        "sha256": "020de02ba5bca8c81e5b4623247519c93070698942f36108a647bf06d262a221"
+      },
+      {
+        "path": "js/simulation-combat-bonuses.js",
+        "identical": true,
+        "sha256": "2846c0ceba742a26cbd6bfbded1b8ba2d6a17e395210fc95e7fe501662b24fae"
+      },
+      {
+        "path": "js/simulation-victory.js",
+        "identical": true,
+        "sha256": "646bb75faa71e42ac0430b103b1e4319665df82d75f38f3c937f0077feda8320"
+      },
+      {
+        "path": "js/simulation-logistics.js",
+        "identical": true,
+        "sha256": "b3e76a97205c76ca3a11f20eac95c6f70abfd1bc2bf882ed9fe901f026db665f"
+      },
+      {
+        "path": "js/simulation-resource-routing.js",
+        "identical": true,
+        "sha256": "0e58eeb99bda35b2e8957aaf430a77639d916c84774bdde0ca96b168d2ed3f9f"
+      },
+      {
+        "path": "js/simulation-production-queues.js",
+        "identical": true,
+        "sha256": "8c98d239040fecb36c30bc1551115f137be1b1cb99ba13a9d60a778506db482a"
+      },
+      {
+        "path": "js/simulation-research.js",
+        "identical": true,
+        "sha256": "b383bdf90a87d04afa7c52482d99c05e574c8ef0b55d784f9ea45fadf1936eb8"
+      },
+      {
+        "path": "js/simulation-building-production.js",
+        "identical": true,
+        "sha256": "b6eb3dbb45f513ef8a6bb5d9dbf743220b5a8c452e584437c444a78e8b7647c9"
+      },
+      {
+        "path": "js/simulation-building-updates.js",
+        "identical": true,
+        "sha256": "4f8d68cdac601069e46f2b4c9f530896c1ebcc6788f054cc32f06af12abee851"
+      },
+      {
+        "path": "js/simulation.js",
+        "identical": true,
+        "sha256": "7dae805b9a96e2b3e63ea5c9aa3ef6feb4c32cce9c4f49fc2c8188ef03eca8bf"
+      },
+      {
+        "path": "js/simulation-unit-behaviour.js",
+        "identical": true,
+        "sha256": "47409f52b76e4560354d02110c2d402f8203a764c96a709048cf9c33a2ab1a5f"
+      },
+      {
+        "path": "js/simulation-separation.js",
+        "identical": true,
+        "sha256": "c8957fdd5fbae1713e16d22213237400b1d3bbefd21d64562e80497bc66f1c64"
+      },
+      {
+        "path": "js/ai-policy.js",
+        "identical": true,
+        "sha256": "282af85405030171bb2e2610adea70b73b306abb7d244157162291b5e2f7ecd8"
+      },
+      {
+        "path": "js/ai-economy.js",
+        "identical": true,
+        "sha256": "eaecfb0fe8e1d073d6704b0e89d52c56e68eef9b370615e02e8ba8a118b51321"
+      },
+      {
+        "path": "js/ai-defence.js",
+        "identical": true,
+        "sha256": "80e4ff7095270fd89a637280c34ab368c4eb0e2c89724e02bc3a8fce2654b196"
+      },
+      {
+        "path": "js/ai-maritime.js",
+        "identical": true,
+        "sha256": "64e0ee1e36dcc20b38edf6f940997e6ac2e67902fee79df0cebf5904d7f45802"
+      },
+      {
+        "path": "js/ai-offence.js",
+        "identical": true,
+        "sha256": "2a14ab16aac8d25f24890f9c703e0f8d9c279c5f905c33022baac3590a344fe3"
+      },
+      {
+        "path": "js/ai-construction.js",
+        "identical": true,
+        "sha256": "2a56b94b3e09e89124b16cda4de9210c82ae01fe391de52c777f01fddeb5366d"
+      },
+      {
+        "path": "js/ai.js",
+        "identical": true,
+        "sha256": "c94efc6f1daf026f7f5ba1a5facf9c36e2cfb24e99ccd421d90202230b296f70"
+      },
+      {
+        "path": "js/pathfinding.js",
+        "identical": true,
+        "sha256": "c61dc459995b61ac47cac421c24d413ee85e7e405b8393ae8a6122e55862b979"
+      },
+      {
+        "path": "js/kingdom.js",
+        "identical": true,
+        "sha256": "806528d1095360a5ee13039cea8f5ba9158f0eb290f30e3f6bec617585bf4bdc"
+      },
+      {
+        "path": "js/entities.js",
+        "identical": true,
+        "sha256": "164475ab9ba2ea5f9189a32afebee875a1916c43c6bdf77972705cb72d2c1bb5"
+      },
+      {
+        "path": "js/campaign.js",
+        "identical": true,
+        "sha256": "98ef55353c68a1dc2a65f64a1cd12271947f96b0d10f9dbd8540a37dc8451f3b"
+      },
+      {
+        "path": "js/economy.js",
+        "identical": true,
+        "sha256": "7d02c766bfc7ae9c87072824b23d321a84e3425a9baf5ad4534e3e4503e99c90"
+      },
+      {
+        "path": "js/formations.js",
+        "identical": true,
+        "sha256": "99b68080daad48cd634c7debe0fa5f5fee614266b498b2bdfd3ea381eb1849dc"
+      },
+      {
+        "path": "js/menus.js",
+        "identical": true,
+        "sha256": "f219ba6b59d7486931704ca8b842dbaee93c3d8a0ebbc863936bb3ecc4f259ef"
+      },
+      {
+        "path": "js/minimap.js",
+        "identical": true,
+        "sha256": "34babe79dcfdf36d82549ae7093c23881693ce77b4a5ca342190b51f304ce6c3"
+      },
+      {
+        "path": "js/assets.js",
+        "identical": true,
+        "sha256": "df391d4436f5486999653cebda0fa4da6ed9f57d92f7207e7c1a449bcf43f601"
+      },
+      {
+        "path": "js/engine-graphics-benchmark.js",
+        "identical": true,
+        "sha256": "eb84d2abc0d0c50a81e026e104dd6274162572e3176b2ad0fdb0ac611ea07874"
+      },
+      {
+        "path": "js/engine-picture.js",
+        "identical": true,
+        "sha256": "49a297afb68ab72bdd124ad4c622006d62c36d9a9912175d4faf5f0077233591"
+      },
+      {
+        "path": "js/civilizations.js",
+        "identical": true,
+        "sha256": "050238bc7b1a903718e6060365a7c81f6cf147b060516800856ee2adb0a96b10"
+      },
+      {
+        "path": "engine.js",
+        "identical": true,
+        "sha256": "0a20a0c268c22404da7fe93483e3bb7a505ee99a26d0d9048e535f6984e31a1e"
+      }
+    ]
+  },
+  "limits": [
+    "Explicit merchant market/dock target rallies remain solo-only; multiplayer merchant ground rallies are retained.",
+    "A resource rally is not a guarantee of a reachable or unoccupied future worksite; existing shared worker routing and retry rules apply.",
+    "Multiplayer remains a two-player preview; WAN, reconnect and physical Xbox acceptance remain open."
+  ],
+  "nativeResourceRally": {
+    "deferred": true,
+    "applied": true,
+    "dispatched": true,
+    "referenced": true,
+    "food": 950,
+    "screenshotSha256": "4adda3aaf79b3e3a544a7ccfd6a22b610a57df6dd8a217d74c6c7acbbc91d447"
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "77a438a1349ebac9a4f132148af880dfb8dbf044",
+    "docs/REFACTORING_INVENTORY.md": "4b1c3fa762949c69ef1df74c94b4aa017a259a01",
+    "js/network-commands.js": "3d00bea9c2d00250e641bc42d85c1c41f1cc6888",
+    "js/network-session.js": "820d5897385daa0c98e926c539097b4443cf263b",
+    "js/network-sync.js": "f72e7483e7dc9a5e3d619b9b3d9e1171a29e7e22",
+    "js/network-unit-map.js": "1d40bbe34c18db302ccf4a3303469acaa0beb3fb",
+    "js/network-webrtc.js": "4e3f1a36e7b9d5f40734de441eb64eb10958caff",
+    "sw.js": "286babfd3403e0a267d8d2e28d502c53119cd31e",
+    "tests/browser/campaign-navies.mjs": "29cd95dc98f1a84fc712d79832932042799b1761",
+    "tests/browser/webrtc-transport.mjs": "bbdd320e7443ea732c9fc9ac500ddecc3ae64cf0",
+    "tests/network-live-session.test.mjs": "86d40157e653c9dcd973b85c3bc0d2c1d7a1f3b6",
+    "tests/network-production-commands.test.mjs": "fe8b12d45b1c03ac917581e22a101f1e5e9bbd9b",
+    "tests/webrtc-transport.test.mjs": "80fa7b75c786c86cbffbd427f13599785e6c3008"
+  }
+}

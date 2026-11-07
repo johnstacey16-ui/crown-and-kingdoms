@@ -434,11 +434,13 @@
         const enemy=view.battlefield?.enemies.find(e=>e.hostile!==false&&(e.size?point.x>=e.x&&point.x<e.x+e.size&&point.y>=e.y&&point.y<e.y+e.size:Math.hypot(e.x-point.x,e.y-point.y)<=radius));
         const deposit=view.battlefield?.tiles.find(t=>t.index===Math.floor(point.y)*view.width+Math.floor(point.x))?.node;
         const gathering=!rally&&deposit?.id&&(!deposit.farm||deposit.owner===view.team)&&selection.every(id=>view.battlefield.gatherers[id]===(deposit.fish?'fish':'vil'));
+        const resourceRally=rally&&deposit?.id&&(!deposit.farm&&!deposit.trap||deposit.owner===view.team)&&
+          selection.every(id=>view.buildings.find(b=>b.id===id)?.commands?.some(o=>o.type==='train'&&o.value===(deposit.fish?'fish':'vil')));
         const conversion=enemy&&!rally&&selection.every(id=>view.units.find(u=>u.id===id)?.kind==='mon');
         const attack=enemy&&!rally&&selection.every(id=>view.battlefield.attackers.includes(id));
         if(enemy&&!rally&&!attack&&!conversion){description.textContent='Selected units cannot attack this target.';draw();return;}
         if(isBuilding(selected)&&!rally){description.textContent='This building has no rally point. Hold RT for its available commands.';draw();return;}
-        const result=submit(conversion?{type:'convert',entities:selection.slice(),target:enemy.id}:gathering?{type:'gather',entities:selection.slice(),target:deposit.id}:attack?{type:'attack',entities:selection.slice(),target:enemy.id}:{type:rally?'rally':'move',entities:selection.slice(),point:{...point}});
+        const result=submit(conversion?{type:'convert',entities:selection.slice(),target:enemy.id}:gathering?{type:'gather',entities:selection.slice(),target:deposit.id}:attack?{type:'attack',entities:selection.slice(),target:enemy.id}:{type:rally?'rally':'move',entities:selection.slice(),point:{...point},...(resourceRally?{target:deposit.id}:{})});
         description.textContent=result.ok?(conversion?'Conversion submitted.':gathering?'Gathering submitted.':attack?'Attack submitted.':rally?'Rally point submitted.':'Move submitted.')+' Changes apply only after host execution.':'Order not submitted. Select fewer units if the group is too large, or wait for the previous order.';
         if(result.ok)enabled=false;
       }else if(selected)description.textContent='Wait for the previous order to execute.';

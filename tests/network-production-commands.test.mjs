@@ -364,3 +364,57 @@ test('both authenticated players research Hussar only at the host frame and pay 
  assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,true]);
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[1500,400],[1500,400]]);assert.deepEqual(Array.from(out.hp),[75,75]);assert.deepEqual(Array.from(out.names),['Hussar','Hussar']);
 });
+
+test('authenticated group resource rally stays deferred and newly trained guest Villager gathers at its live target',()=>{
+ const out=world(`
+  S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.wt.fill(0);S.ex.fill(0);S.res[1]={f:1000,w:1000,g:1000,s:1000};
+  const a=addB(1,'tc',20,20,true),b=addB(1,'tc',28,20,true),node=addN('w',25,24,100);
+  const command={type:'rally',entities:[a.netId,b.netId],point:{x:25.5,y:24.5},target:node.netId};
+  const before=JSON.stringify(S.res),received=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+  const deferred=!a.rally&&!b.rally,executed=host.applyFrame(6)[0]?.ok;
+  const unchanged=JSON.stringify(S.res)===before;train(a,'vil');upB(a,30);
+  const worker=S.us.find(u=>u.t===1&&u.k==='vil'),dispatched=worker?.o==='g'&&worker.tg===node&&worker.ct==='w',wood=S.res[1].w;
+  for(let i=0;i<450;i++){S.t+=.2;gt=S.t;upU(worker,.2)}
+  return {received:received.ok,deferred,executed,unchanged,matched:[a,b].every(b=>b.rally?.t===node),distinct:a.rally!==b.rally,worker:dispatched,delivered:S.res[1].w>wood&&node.amt<100,food:S.res[1].f};
+ `);
+ for(const k of ['received','deferred','executed','unchanged','matched','distinct','worker','delivered'])assert.equal(out[k],true,k);
+ assert.equal(out.food,950,'training retains its normal cost');
+});
+
+test('resource rally rejects stale, hidden, foreign, mismatched or incompatible targets atomically',()=>{
+ for(const scenario of ['hidden','depleted','removed','foreign-farm','foreign-trap','point','military','building']){
+  const out=world(`
+   S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.wt.fill(0);
+   const a=addB(1,'tc',20,20,true),b=addB(1,'tc',28,20,true),node=addN('f',25,24,100);
+   a.rally={x:4,y:4,t:null};b.rally={x:5,y:5,t:null};
+   const command={type:'rally',entities:[a.netId,b.netId],point:{x:25.5,y:24.5},target:node.netId};
+   if('${scenario}'==='military')b.k='bar';
+   if('${scenario}'==='building')command.target=a.netId;
+   const before=JSON.stringify([a.rally,b.rally,S.res]),received=host.receive(packet('guest-session',1,1,6,command),'guest-session',2);
+   if('${scenario}'==='hidden'){a.x=2;a.y=2;b.x=6;b.y=2;}
+   if('${scenario}'==='depleted')node.amt=0;
+   if('${scenario}'==='removed')S.nd[node.y*W+node.x]=null;
+   if('${scenario}'==='foreign-farm'){node.fm=1;node.t=0;}
+   if('${scenario}'==='foreign-trap'){node.trap=1;node.t=0;}
+   if('${scenario}'==='point')node.x++;
+   const result=received.ok?host.applyFrame(6):[];
+   return {executed:result[0]?.ok||false,unchanged:before===JSON.stringify([a.rally,b.rally,S.res])};
+  `);
+  assert.equal(out.executed,false,scenario);assert.equal(out.unchanged,true,scenario);
+ }
+});
+
+test('Dock resource rally sends a trained Fishing Ship to fish and persists its live reference through save/load',()=>{
+ const out=world(`
+  S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.wt.fill(1);S.ex.fill(1);S.res[1]={f:1000,w:1000,g:1000,s:1000};
+  const dock=addB(1,'dock',20,20,true),node=addN('f',24,22,100);
+  // Fish nodes are created on water by map generation, not the land-only addN factory.
+  const fish=node||{netId:nextNetworkEntityId('n'),k:'f',x:24,y:22,amt:100,fi:1};fish.fi=1;if(!node){S.nodes.push(fish);S.nd[fish.y*W+fish.x]=fish;}
+  const order={type:'rally',entities:[dock.netId],point:{x:24.5,y:22.5},target:fish.netId};
+  const accepted=host.receive(packet('guest-session',1,1,6,order),'guest-session',2).ok,result=host.applyFrame(6)[0]?.ok;
+  train(dock,'fish');upB(dock,40);const worker=S.us.find(u=>u.k==='fish');
+  const dispatched=worker?.o==='g'&&worker.tg===fish,saved=saveG(),loaded=loadG(),restored=S.bs.find(b=>b.netId===dock.netId);
+  return {accepted,result,dispatched,saved,loaded,reference:restored?.rally?.t===S.nodes.find(n=>n.netId===fish.netId)};
+ `);
+ for(const [k,v] of Object.entries(out))assert.equal(v,true,k);
+});

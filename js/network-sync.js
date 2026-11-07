@@ -34,7 +34,7 @@
     if (order.type === 'formation' && (order.entities.length < 2 || !['line','split'].includes(order.value))) return false;
     if (['build', 'train', 'research', 'stance'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-zA-Z0-9_-]{0,39}$/.test(order.value))) return false;
-    if (order.type === 'rally' && order.target != null && !validId(order.target)) return false;
+    if (order.type === 'rally' && order.target != null && !validId(order.target) && !validResourceId(order.target)) return false;
     // Training admits only the ordinary request and the Xbox five-unit batch.
     if (Object.hasOwn(order, 'count') &&
         (order.type !== 'train' || ![1, 5].includes(order.count))) return false;

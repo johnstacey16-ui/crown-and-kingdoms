@@ -347,6 +347,21 @@ export async function checkCampaignNavies(browser,origin,output){
   for(const key of ['deferred','applied','waiting','painted'])assert.equal(hussar[key],true,'Hussar '+key);
   assert.match(hussar.stats,/Armor 0\/2/);assert.equal(hussar.name,'Hussar');assert.equal(hussar.hp,75);assert.equal(hussar.maxHP,75);assert.equal(hussar.reload,1.9);assert.equal(hussar.food,9350);assert.equal(hussar.gold,9350);
   await page.locator('#hussar-preview').screenshot({path:output+'/hussar.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances,paladin,combatStats,hussar};
+  const resourceRally=await page.evaluate(()=>{
+   startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.res[0]={f:1000,w:1000,g:1000,s:1000};
+   const town=addB(0,'tc',40,40,true),node=addN('w',45,44,100),orders=[];
+   const canvas=document.createElement('canvas'),description=document.createElement('p');document.body.append(canvas,description);
+   const map=CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return {ok:true}}});map.refresh(S,0,W,H,true);
+   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;map.choose({x:41,y:41});map.choose({x:45.5,y:44.5});
+   const deferred=orders.length===1&&orders[0].target===node.netId&&CK_SIM_SYNC.worldCheckpoint(S,1).hash===before;
+   mode='play';const applied=orders.length===1&&CK_GAME_COMMANDS.execute(orders[0],0,1);train(town,'vil');upB(town,30);
+   const worker=S.us.find(u=>u.k==='vil'),dispatched=worker?.o==='g'&&worker.tg===node;
+   S.sel=[town];menu=null;zm=2;TW=64*zm;TH=32*zm;ctr(town.x+2,town.y+2);draw(0);
+   const capture=document.createElement('canvas');capture.id='resource-rally-preview';capture.width=cv.width;capture.height=cv.height;capture.getContext('2d').drawImage(cv,0,0);document.body.append(capture);mode='pause';
+   return {deferred,applied,dispatched,referenced:town.rally?.t===node,food:S.res[0].f};
+  });
+  for(const k of ['deferred','applied','dispatched','referenced'])assert.equal(resourceRally[k],true,'resource rally '+k);assert.equal(resourceRally.food,950);
+  await page.locator('#resource-rally-preview').screenshot({path:output+'/resource-rally.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances,paladin,combatStats,hussar,resourceRally};
  }finally{await page.close()}
 }
