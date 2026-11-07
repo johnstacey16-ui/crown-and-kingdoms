@@ -66,3 +66,64 @@ test('reference rulesets are explicit and cannot be marked verified by adding na
  assert.ok(altered(c=>c.rulesets.pop()).some(e=>/Missing reference ruleset/.test(e)));
  assert.ok(altered(c=>{c.rulesets[0].implementation='done'}).some(e=>/Invalid ruleset/.test(e)));
 });
+
+test('all ten technology restriction groups are versioned for every civilization',()=>{
+ assert.equal(catalogue.schemaVersion,2);
+ assert.equal(runtime.researchGroups.length,10);
+ for(const entry of catalogue.civilizations){
+  assert.equal(Object.keys(entry.researchFlags).length,10);
+  for(const group of runtime.researchGroups)assert.equal(entry.researchFlags[group.id],group.flags[entry.name]);
+ }
+ assert.ok(altered(c=>{delete c.civilizations[0].researchFlags}).some(e=>/Research catalogue differs/.test(e)));
+ assert.ok(altered(c=>{c.civilizations[0].researchFlags.archery='xa'}).some(e=>/Research catalogue differs/.test(e)));
+ assert.ok(altered(c=>{c.civilizations[0].researchFlags.invented='x'}).some(e=>/Unknown catalogue research group/.test(e)));
+});
+
+const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url),'utf8');
+const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
+const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+test('a missing live research row is rejected before permissive fallback can hide it',()=>{
+ const missing=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace(" 'Franks':'x',",''));
+ assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing research row archery for Franks/.test(e)));
+ const unknown=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace('const CIV_ARCHERY_RESEARCH=Object.freeze({',"const CIV_ARCHERY_RESEARCH=Object.freeze({'Invented':'x',"));
+ assert.ok(inspectCivilizationCatalogue(catalogue,unknown).some(e=>/Unknown civilization row Invented/.test(e)));
+});
+
+test('invalid and duplicate live research flags fail even when the inventory copies them',()=>{
+ for(const flags of ['xz','xx']){
+  const bad=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace("'Franks':'x'",`'Franks':'${flags}'`));
+  const copied=structuredClone(catalogue);copied.civilizations[0].researchFlags.archery=flags;
+  assert.ok(inspectCivilizationCatalogue(copied,bad).some(e=>/Invalid research flags archery for Franks/.test(e)));
+ }
+});
+
+test('compiled technology access must include each available upgrades prerequisite',()=>{
+ const bad=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace("'Franks':'x'","'Franks':'a'"));
+ const copied=structuredClone(catalogue);copied.civilizations[0].researchFlags.archery='a';
+ assert.ok(inspectCivilizationCatalogue(copied,bad).some(e=>/Unavailable research prerequisite xbow for Franks \/ arb/.test(e)));
+ const unknown=currentCivilizationRuntime(rosterSource,configSource.replace("pre:'xbow'","pre:'missing-tech'"),kingdomSource);
+ assert.ok(inspectCivilizationCatalogue(catalogue,unknown).some(e=>/Unavailable research prerequisite missing-tech/.test(e)));
+});
+
+
+test('live flag mappings must use distinct single-character codes and real research keys',()=>{
+ const invalid=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace("forging:'f'","forging:''"));
+ assert.ok(inspectCivilizationCatalogue(catalogue,invalid).some(e=>/Invalid research flag mapping in melee/.test(e)));
+ const unknown=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace("forging:'f'","missingForge:'f'"));
+ assert.ok(inspectCivilizationCatalogue(catalogue,unknown).some(e=>/Unknown research technology missingForge/.test(e)));
+});
+
+test('research prerequisite graphs reject cycles and later-age dependencies',()=>{
+ const cyclic=currentCivilizationRuntime(rosterSource,configSource.replace("pre:'xbow'","pre:'arb'"),kingdomSource);
+ assert.ok(inspectCivilizationCatalogue(catalogue,cyclic).some(e=>/Cyclic research prerequisite at arb/.test(e)));
+ const later=currentCivilizationRuntime(rosterSource,configSource.replace("pre:'atkR'","pre:'atkR2'"),kingdomSource);
+ assert.ok(inspectCivilizationCatalogue(catalogue,later).some(e=>/Later-age research prerequisite atkR2/.test(e)));
+});
+
+
+test('a technology can depend on research available at another building in the same civilization',()=>{
+ const crossBuilding=currentCivilizationRuntime(rosterSource.replace("k:'ut0',n:'Chivalry'","k:'ut0',pre:'forging',n:'Chivalry'"),configSource,kingdomSource);
+ assert.ok(crossBuilding.researchAvailability[0].smith.includes('forging'));
+ assert.ok(!crossBuilding.researchAvailability[0].castle.includes('forging'));
+ assert.deepEqual(inspectCivilizationCatalogue(catalogue,crossBuilding),[],'prerequisites use the shared kingdom technology state');
+});

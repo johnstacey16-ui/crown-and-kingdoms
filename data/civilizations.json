@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "inventoryVersion": "ck-current-medieval-roster-26-v1",
+  "schemaVersion": 2,
+  "inventoryVersion": "ck-current-medieval-roster-26-v2",
   "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
   "rulesets": [
     {
@@ -46,7 +46,19 @@
       "uniqueUnit": "axe",
       "uniqueTechnology": "ut0",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mltcphvaesk",
+        "field": "h",
+        "monastery": "dfhsvbitm",
+        "university": "msgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "l",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 1,
@@ -54,7 +66,19 @@
       "uniqueUnit": "lbow",
       "uniqueTechnology": "ut1",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rh",
+        "monastery": "dfsvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 2,
@@ -62,7 +86,19 @@
       "uniqueUnit": "mgd",
       "uniqueTechnology": "ut2",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesk",
+        "field": "rbh",
+        "monastery": "dfhavm",
+        "university": "mgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "l",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 3,
@@ -70,7 +106,19 @@
       "uniqueUnit": "cata",
       "uniqueTechnology": "ut3",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rh",
+        "monastery": "dfhrasvbit",
+        "university": "sgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fi"
+      }
     },
     {
       "id": 4,
@@ -78,7 +126,19 @@
       "uniqueUnit": "ele",
       "uniqueTechnology": "ut4",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mlphvaesk",
+        "field": "bh",
+        "monastery": "dfvbtm",
+        "university": "mgcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 5,
@@ -86,7 +146,19 @@
       "uniqueUnit": "tk",
       "uniqueTechnology": "ut5",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mltcphaesk",
+        "field": "b",
+        "monastery": "dfhrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 6,
@@ -94,7 +166,19 @@
       "uniqueUnit": "woad",
       "uniqueTechnology": "ut6",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mltcphvaesk",
+        "field": "h",
+        "monastery": "dfhsvm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 7,
@@ -102,7 +186,19 @@
       "uniqueUnit": "bers",
       "uniqueTechnology": "ut7",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcpvaesk",
+        "field": "r",
+        "monastery": "dfhavb",
+        "university": "msgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 8,
@@ -110,7 +206,19 @@
       "uniqueUnit": "mamel",
       "uniqueTechnology": "ut8",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvesk",
+        "field": "rbh",
+        "monastery": "dfhrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 9,
@@ -118,7 +226,19 @@
       "uniqueUnit": "jan",
       "uniqueTechnology": "ut9",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltcvask",
+        "field": "rbh",
+        "monastery": "dfhrasvt",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 10,
@@ -126,7 +246,19 @@
       "uniqueUnit": "chuko",
       "uniqueTechnology": "ut10",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 11,
@@ -134,7 +266,19 @@
       "uniqueUnit": "saml",
       "uniqueTechnology": "ut11",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 12,
@@ -142,7 +286,19 @@
       "uniqueUnit": "ele",
       "uniqueTechnology": "ut12",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphvaesk",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "mgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 13,
@@ -150,7 +306,19 @@
       "uniqueUnit": "eled",
       "uniqueTechnology": "ut13",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltcpves",
+        "field": "rbh",
+        "monastery": "dfrsvbitm",
+        "university": "mgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 14,
@@ -158,7 +326,19 @@
       "uniqueUnit": "conq",
       "uniqueTechnology": "ut14",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "t",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfhrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 15,
@@ -166,7 +346,19 @@
       "uniqueUnit": "genoa",
       "uniqueTechnology": "ut15",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesk",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 16,
@@ -174,7 +366,19 @@
       "uniqueUnit": "boyar",
       "uniqueTechnology": "ut16",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mltcphvaesk",
+        "field": "bh",
+        "monastery": "dfrasbitm",
+        "university": "mgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 17,
@@ -182,7 +386,19 @@
       "uniqueUnit": "tarkan",
       "uniqueTechnology": "ut17",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltphvaesk",
+        "field": "rbh",
+        "monastery": "dfhasvi",
+        "university": "mcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "l",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     },
     {
       "id": 18,
@@ -190,7 +406,19 @@
       "uniqueUnit": "huskarl",
       "uniqueTechnology": "ut18",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfsvitm",
+        "university": "mcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 19,
@@ -198,7 +426,19 @@
       "uniqueUnit": "jaguar",
       "uniqueTechnology": "ut19",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcpe",
+        "field": "r",
+        "monastery": "dfhrasvbitm",
+        "university": "sgfcbh",
+        "blacksmith": "ir",
+        "infantryArmor": "cp",
+        "archerArmor": "l",
+        "cavalryArmor": "",
+        "melee": "fib"
+      }
     },
     {
       "id": 20,
@@ -206,7 +446,19 @@
       "uniqueUnit": "plumed",
       "uniqueTechnology": "ut20",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltphe",
+        "field": "r",
+        "monastery": "dfhasvbtm",
+        "university": "mgkfcbh",
+        "blacksmith": "ir",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "",
+        "melee": "fib"
+      }
     },
     {
       "id": 21,
@@ -214,7 +466,19 @@
       "uniqueUnit": "kamayuk",
       "uniqueTechnology": "ut21",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphe",
+        "field": "r",
+        "monastery": "dfhrsbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "ir",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "",
+        "melee": "fib"
+      }
     },
     {
       "id": 22,
@@ -222,7 +486,19 @@
       "uniqueUnit": "shotel",
       "uniqueTechnology": "ut22",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltphvaesk",
+        "field": "rh",
+        "monastery": "dfhasvitm",
+        "university": "mgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
     },
     {
       "id": 23,
@@ -230,7 +506,19 @@
       "uniqueUnit": "gbeto",
       "uniqueTechnology": "ut23",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesk",
+        "field": "bh",
+        "monastery": "dfhrasvbtm",
+        "university": "mgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fi"
+      }
     },
     {
       "id": 24,
@@ -238,7 +526,19 @@
       "uniqueUnit": "wagon",
       "uniqueTechnology": "ut24",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rh",
+        "monastery": "dfsvbtm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fi"
+      }
     },
     {
       "id": 25,
@@ -246,7 +546,19 @@
       "uniqueUnit": "huszar",
       "uniqueTechnology": "ut25",
       "rulepack": "medieval",
-      "status": "partial"
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dhsvbitm",
+        "university": "mgcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     }
   ]
 }

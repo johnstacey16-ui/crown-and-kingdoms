@@ -6,19 +6,30 @@ import vm from 'node:vm';
 
 const readHere=relative=>readFileSync(new URL(relative,import.meta.url),'utf8');
 
-export function currentCivilizationRuntime(roster=readHere('../js/civilizations.js'),config=readHere('../js/config.js')){
- const from=roster.indexOf('const CIV=['),to=roster.indexOf('];\nCIV.forEach(',from);
- if(from<0||to<from)throw Error('Active CIV roster was moved without updating the catalogue checker');
- const civScript=roster.slice(from,to+2);
- const civilians=vm.runInNewContext('const hpbF=()=>{},atkbF=()=>{};\n'+civScript+
-  '\nCIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut}))');
- const definitions=vm.runInNewContext(config+'\n({U,B,TE,REGIONAL_UNIT_ACCESS})');
- return {civilizations:civilians,units:definitions.U,buildings:definitions.B,technologies:definitions.TE,regionalUnitAccess:definitions.REGIONAL_UNIT_ACCESS};
+export function currentCivilizationRuntime(roster=readHere('../js/civilizations.js'),config=readHere('../js/config.js'),kingdom=readHere('../js/kingdom.js')){
+ // Evaluate the live definitions/selectors, rather than a copied tech tree.
+ return vm.runInNewContext(config+'\n'+kingdom+'\n'+roster+`\n({
+  civilizations:CIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut})),
+  units:U,buildings:B,technologies:TE,regionalUnitAccess:REGIONAL_UNIT_ACCESS,
+  researchGroups:[
+   ['archery',CIV_ARCHERY_RESEARCH,{xbow:'x',arb:'a',thumb:'t'}],
+   ['coreMilitary',CIV_CORE_MILITARY,CORE_MILITARY_RESEARCH_KEYS,CORE_MILITARY_UNIT_KEYS],
+   ['field',CIV_FIELD_RESEARCH,FIELD_RESEARCH_KEYS],
+   ['monastery',CIV_MONASTERY_RESEARCH,MONASTERY_RESEARCH_KEYS],
+   ['university',CIV_UNIVERSITY_RESEARCH,UNIVERSITY_RESEARCH_KEYS],
+   ['blacksmith',CIV_BLACKSMITH_RESEARCH,BLACKSMITH_RESEARCH_KEYS],
+   ['infantryArmor',CIV_INFANTRY_ARMOR_RESEARCH,INFANTRY_ARMOR_RESEARCH_KEYS],
+   ['archerArmor',CIV_ARCHER_ARMOR_RESEARCH,ARCHER_ARMOR_RESEARCH_KEYS],
+   ['cavalryArmor',CIV_CAVALRY_ARMOR_RESEARCH,CAVALRY_ARMOR_RESEARCH_KEYS],
+   ['melee',CIV_MELEE_RESEARCH,MELEE_RESEARCH_KEYS]
+  ].map(([id,flags,techKeys,unitKeys={}])=>({id,flags,techKeys,unitKeys})),
+  researchAvailability:CIV.map((c,id)=>Object.fromEntries(Object.keys(B).map(kind=>[kind,rsOf({k:kind,t:0},[id])])) )
+ })`,{}, {timeout:1000});
 }
 
 export function inspectCivilizationCatalogue(catalogue,runtime){
  const errors=[],civs=runtime?.civilizations,units=runtime?.units,buildings=runtime?.buildings;
- if(!catalogue||catalogue.schemaVersion!==1)errors.push('Unknown civilization catalogue schema');
+ if(!catalogue||catalogue.schemaVersion!==2)errors.push('Unknown civilization catalogue schema');
  if(!Array.isArray(civs)||!civs.length||!units||!buildings)errors.push('Invalid active runtime catalogue');
  if(!Array.isArray(catalogue?.civilizations)||!catalogue.civilizations.length)errors.push('Missing civilization records');
  if(!Array.isArray(catalogue?.rulesets)||!catalogue.rulesets.length)errors.push('Missing ruleset status registry');
@@ -53,6 +64,62 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
   if(!ruleIds.has(entry.rulepack)||entry.rulepack!=='medieval')errors.push('Unimplemented or invalid current ruleset for '+entry.name);
   if(entry.status!=='partial')errors.push('Current content must not be falsely marked complete for '+entry.name);
  }
+ // Every represented civilization must have an explicit row in each live
+ // restriction table. The runtime's permissive legacy fallback is not proof
+ // that a newly added civilization has a complete, intentional technology tree.
+ const groups=runtime.researchGroups,technologies=runtime.technologies;
+ if(!Array.isArray(groups)||groups.length!==10||!technologies)errors.push('Missing research restriction groups');
+ else{
+  const groupIds=new Set();
+  for(const group of groups){
+   if(!group||typeof group.id!=='string'||groupIds.has(group.id)||!group.flags||!group.techKeys||!group.unitKeys){errors.push('Invalid research restriction group');continue}
+   groupIds.add(group.id);
+   const codes=[...Object.values(group.techKeys),...Object.values(group.unitKeys)],alphabet=new Set(codes);
+   if(codes.some(code=>typeof code!=='string'||code.length!==1)||alphabet.size!==codes.length)errors.push('Invalid research flag mapping in '+group.id);
+   for(const key of Object.keys(group.techKeys))if(!technologies[key])errors.push('Unknown research technology '+key+' in '+group.id);
+   for(const key of Object.keys(group.unitKeys))if(!units[key])errors.push('Unknown restricted unit '+key+' in '+group.id);
+   for(const name of Object.keys(group.flags))if(!civs.some(c=>c.name===name))errors.push('Unknown civilization row '+name+' in '+group.id);
+   for(let id=0;id<civs.length;id++){
+    const civ=civs[id],flags=group.flags[civ.name],listed=catalogue.civilizations[id]?.researchFlags;
+    if(typeof flags!=='string'){errors.push('Missing research row '+group.id+' for '+civ.name);continue}
+    if(new Set(flags).size!==flags.length||[...flags].some(flag=>!alphabet.has(flag)))errors.push('Invalid research flags '+group.id+' for '+civ.name);
+    if(!listed||listed[group.id]!==flags)errors.push('Research catalogue differs for '+civ.name+' / '+group.id);
+   }
+  }
+  for(const entry of catalogue.civilizations)if(entry?.researchFlags&&Object.keys(entry.researchFlags).some(key=>!groupIds.has(key)))errors.push('Unknown catalogue research group for '+entry.name);
+ }
+ if(technologies){
+  const checked=new Set(),checking=new Set();
+  const visit=key=>{
+   if(checking.has(key)){errors.push('Cyclic research prerequisite at '+key);return}
+   if(checked.has(key))return;
+   checking.add(key);
+   const tech=technologies[key],parent=tech?.pre;
+   if(parent!==undefined){
+    if(typeof parent!=='string'||!parent||!Object.prototype.hasOwnProperty.call(technologies,parent)||!technologies[parent])errors.push('Unknown research prerequisite '+parent+' for '+key);
+    else{
+     if((technologies[parent].age??0)>(tech.age??0))errors.push('Later-age research prerequisite '+parent+' for '+key);
+     visit(parent);
+    }
+   }
+   checking.delete(key);checked.add(key);
+  };
+  for(const key of Object.keys(technologies))visit(key);
+ }
+ if(!Array.isArray(runtime.researchAvailability)||runtime.researchAvailability.length!==civs.length)errors.push('Missing compiled research availability');
+ else for(let id=0;id<civs.length;id++){
+  const availability=runtime.researchAvailability[id];
+  const accessible=new Set(Object.values(availability||{}).flatMap(list=>Array.isArray(list)?list:[]));
+  for(const kind of Object.keys(buildings)){
+   const list=availability?.[kind];
+   if(!Array.isArray(list)||new Set(list).size!==list.length){errors.push('Invalid compiled research list for '+civs[id].name+' / '+kind);continue}
+   for(const key of list){
+    const tech=technologies?.[key];
+    if(!tech)errors.push('Unknown compiled research '+key+' for '+civs[id].name);
+    else if(tech.pre&&!accessible.has(tech.pre))errors.push('Unavailable research prerequisite '+tech.pre+' for '+civs[id].name+' / '+key);
+   }
+  }
+ }
  const regional=catalogue.regionalUnitAccess;
  if(!regional||!statuses.has(regional.implementation)||!Array.isArray(regional.entries)){
   errors.push('Invalid regional-unit access registry');
@@ -79,10 +146,12 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
 
 function main(){
  const catalogue=JSON.parse(readHere('../data/civilizations.json'));
- const errors=inspectCivilizationCatalogue(catalogue,currentCivilizationRuntime());
+ const runtime=currentCivilizationRuntime(),errors=inspectCivilizationCatalogue(catalogue,runtime);
  if(errors.length){for(const error of errors)console.error('[civilization catalogue] '+error);process.exitCode=1;return}
  console.log('Civilization catalogue valid:',catalogue.civilizations.length,
   'current civs,',catalogue.rulesets.length,'ruleset status families,',
-  catalogue.regionalUnitAccess.entries.length,'implemented regional-unit entries');
+  catalogue.regionalUnitAccess.entries.length,'implemented regional-unit entries,',
+  runtime.researchGroups.length*runtime.civilizations.length,'restriction rows,',
+  runtime.researchAvailability.reduce((n,entry)=>n+Object.keys(entry).length,0),'compiled research contexts');
 }
 if(process.argv[1]&&new URL('file://'+process.argv[1]).pathname===new URL(import.meta.url).pathname)main();

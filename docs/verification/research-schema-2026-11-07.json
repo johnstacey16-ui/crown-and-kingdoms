@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-07",
+  "baselineCommit": "b5d8a80c6fd7fb67b3b8a061868642a5c1aa8aee",
+  "scope": "Versioned civilization research inventory and build-time validation. All runtime code, controls, graphics, simulation and offline resources are unchanged.",
+  "schema": {
+    "version": 2,
+    "civilizations": 26,
+    "groups": 10,
+    "restrictionRows": 260,
+    "compiledBuildingContexts": 572
+  },
+  "validation": [
+    "Explicit row for each civilization in every research restriction table",
+    "Exact match between inventory and running restriction flags",
+    "Distinct valid flag codes and existing technology/unit IDs",
+    "Every compiled upgrade retains an available prerequisite",
+    "No missing, cyclic or later-age prerequisite dependencies"
+  ],
+  "runtimeUnchanged": {
+    "browserScripts": 61,
+    "coreScripts": 48,
+    "files": {
+      "persistence.js": "b5b2aa6ce90317fa497332224964a3a6be0d2608",
+      "js/config.js": "7413a590f295940dab2a8779245c12b630134961",
+      "js/state.js": "c7c07095f321999c14832526d3f3c7dfcfbfb385",
+      "js/mapgen.js": "d869abf6b3329ee67dfc29f67cf0691104a7df37",
+      "js/audio.js": "8a27b6b4363684bae13a3982f08c16502818ad40",
+      "js/save.js": "9778ef33fc0710a9544dce9307cd3679093ab01a",
+      "js/input.js": "afc1df89bc0e5686aa56b5f7b0b4891d6816b69f",
+      "js/input-selection.js": "33a8373b933951aa9c9960da897456baf2f44d82",
+      "js/render.js": "5edd3310d85c3423df0b7d45f854d1a1e76e8bc8",
+      "js/render-terrain.js": "2adcc76132e47372d90be1afc38654d483d6f539",
+      "js/render-resources.js": "fa9ae7cef2ab4c3e79e935816a582db177499290",
+      "js/render-buildings.js": "6c3e45780793b3addfe79e1c3e6f3936b94f0d1f",
+      "js/render-procedural-units.js": "c05679a2098a14ef5fd81ea98a90c295e86e8fca",
+      "js/render-troops.js": "e4576328c8773ff8b751f9f42b1fae25914536ae",
+      "js/render-effects.js": "4b0ed001caeddc5e5ce54423ca4d48449bb59267",
+      "js/ui.js": "d13664310015a37739b0d43471e0efd2a8fc54bf",
+      "js/ui-commands.js": "db3e337222330ee847f7cce581d25a74cccbd857",
+      "js/ui-screens.js": "d98cdd6f2a60911f7b3deae77b0b28f61eae7bc1",
+      "js/simulation-combat-bonuses.js": "4ac37bdc46f8e4da356b9d2aeb76821e67d337d2",
+      "js/simulation-victory.js": "85b0164d524b16fb77d23325733751ed64c7acd2",
+      "js/simulation-logistics.js": "12447a66ed28dd9135a050360d46c38d4bafc9f7",
+      "js/simulation-resource-routing.js": "134aa596783d912d7ada5998d6a55cb145179c29",
+      "js/simulation-production-queues.js": "9625749721d333d7ef4b6f01de3521ef19c27e1a",
+      "js/simulation-research.js": "8793cae0bb3b729ac9a2fc5b73eb159987ba994a",
+      "js/simulation-building-production.js": "f9a520a37568e5278a744a3b9871957904a236a4",
+      "js/simulation-building-updates.js": "d9f3cec8ddfc2498605e84f1d4be7cd80fad3336",
+      "js/simulation.js": "f003ddc21e0b8539b250d14d4d13a6650a8cfdae",
+      "js/simulation-unit-behaviour.js": "f4dd454a117476029feecf950d26cdc037be3376",
+      "js/simulation-separation.js": "1cb4ec90d96653dd133de0389dea602c75340cd1",
+      "js/ai-policy.js": "39bbe5b29e54f560b0eca00a43f23867e1a677be",
+      "js/ai-economy.js": "37bda726a3d15da5f752f08434e5031844c1bb2e",
+      "js/ai-defence.js": "607daa962cd471ae4119f3a271bb956c5bd82ae0",
+      "js/ai-maritime.js": "25d964744f215ad5de22a2ddcf644c59eec9af7a",
+      "js/ai-offence.js": "57ffcce879426c086d0b464b138aaad9d8daacf4",
+      "js/ai-construction.js": "e58f9b7028d8a79a52cee9a602a8e812d9ac38e0",
+      "js/ai.js": "9e412edf2ba7b6e993f92f74fe8681d405b358b8",
+      "js/pathfinding.js": "7df37669aca9ed8bd6a5734aa49f6276ba52195b",
+      "js/kingdom.js": "554c5af107052b8fbc486a226d842f4973336449",
+      "js/entities.js": "7cefa3b04b536309625c7dcf0a2ee4e21084ca3f",
+      "js/campaign.js": "64bc28374f74acc9953006d693b0e0c28ff5f5f3",
+      "js/economy.js": "e8e331cac8b3c4590e34baa1cf74a79fb45cae2f",
+      "js/formations.js": "a4c55ea5910d67a2f8ef2990ba03694bbbdd3706",
+      "js/menus.js": "bc6a5e97bd25fc026f5d58aefbc850fa88e46bf1",
+      "js/minimap.js": "943b19c89f29f22405b663f9b4a238266604f6a2",
+      "js/assets.js": "20e592fc48cfecdd8fce6366f246eabb7bdd2301",
+      "js/engine-graphics-benchmark.js": "9dfbb14538a17f2891a1fa59819aca48503f27c9",
+      "js/engine-picture.js": "a3f1951b1b580624eb96eb967ce06455c051f0ec",
+      "js/civilizations.js": "2c6767f86f3f072d39f7e7ea4b6f698a6945bbaa",
+      "engine.js": "79be1c7112b2e5fa958765f2173e0eec3a2bb2d4",
+      "js/network-sync.js": "a691b60c486b8b6b2e6d57c7144c3c466d0eb271",
+      "js/network-commands.js": "c11c95eb5572e984836a4897e2802c471259c005",
+      "js/network-delivery.js": "706834d0ea0180c3d072fd1a318251936dda547c",
+      "js/network-uplink.js": "95733c9ae2fd8515e2af9df77a5d33715491a28e",
+      "js/network-transport.js": "9ef49b25122afbe7169d2eabfb949e1f0301a855",
+      "js/network-supabase.js": "b665e3e760cf36a3d9b96d2274fa7494710054dc",
+      "js/network-webrtc.js": "148806c05d73299addd693b34637ac88ad338d66",
+      "js/network-startup.js": "80d736a330c5e7860a1de4bad357b671a74e15ea",
+      "js/network-session.js": "3f8796052ba1b7887f2d274f8b57131a9adf8836",
+      "js/network-unit-map.js": "fe30e6605b7e1701d4e1d06e54cf2caea4ca7e1a",
+      "js/network-lobby.js": "d9108679d5d47cf1bd6e6a2386afb6a9c49076cd",
+      "multiplayer.js": "d6a727077d1e163671fedc03fb6d3c165ca8c3b1",
+      "index.html": "7501b539f6798ce3e06107bd1446f223c5833762",
+      "sw.js": "fb78ed4f9da5c1f41ab464079c88ebdb074bab92",
+      "styles.css": "e282391f96f92a72de35751d2565e569e164c2f6"
+    }
+  },
+  "priorRuntimeAcceptance": {
+    "commit": "b5d8a80c6fd7fb67b3b8a061868642a5c1aa8aee",
+    "seededAI": 3,
+    "chromiumGameAndRoom": 2,
+    "campaigns": {
+      "wins": 14,
+      "defeats": 5,
+      "timeouts": 0
+    },
+    "note": "These runtime-only suites are carried forward from the identical tested runtime, not rerun for a validation-only change."
+  },
+  "limits": [
+    "Catalogue JSON remains a validation inventory, not a new gameplay data loader.",
+    "No civilizations, technologies or official parity claims are added.",
+    "Physical Xbox and independent-network acceptance remain open."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1199,
+      "total": 1199,
+      "files": 244
+    },
+    "targetedCatalogueAndDefinitions": {
+      "passed": 16,
+      "total": 16
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "beforeAfter": {
+    "case": "Missing Franks archery restriction row",
+    "beforeErrors": [],
+    "afterErrors": [
+      "Missing research row archery for Franks"
+    ]
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "2e119423bf524fe70cf0ce5c2fd59b954cf9689a",
+    "data/civilizations.json": "91da0356e7df249b281dff92202d880afdf1d27b",
+    "docs/REFACTORING_INVENTORY.md": "34ef2c3000d02d4ac487b96b663bb3138d94e572",
+    "scripts/check-civilization-catalogue.mjs": "58cd621d9fedfe7282ea0d6c3c3c89f9759e968f",
+    "tests/civilization-catalogue-validation.test.mjs": "37831d66b44966a9784419209ae61e8bcec82cf4"
+  }
+}
