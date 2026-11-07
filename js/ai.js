@@ -56,7 +56,7 @@ const techPriority=k=>aiTechnologyPriority(k,techContext);
 const nextAge=AG[S.age[t]+1],agePrereqs=nextAge&&ageRequirements(t).ready;
 const savingForAge=!!(nextAge&&agePrereqs&&vil.length>=10&&!tc.rs&&S.age[t]<3);
 for(const b of bl)if(b.done&&b.hp>0&&rsOf(b).length&&!b.rs&&(!Array.isArray(b.q)||!b.q.length)){
- const choices=rsOf(b).filter(k=>{const e=TE[k];if(!e||S.tech[t][k]||bl.some(other=>other.rs&&other.rs.k===k)||e.age>S.age[t]||(e.pre&&!S.tech[t][e.pre])||!can(t,researchCost(b,k)))return false;
+ const choices=rsOf(b).filter(k=>{const e=TE[k];if(k==='pala'&&arm.filter(u=>u.k==='knight').length<4)return false;if(!e||S.tech[t][k]||bl.some(other=>other.rs&&other.rs.k===k)||e.age>S.age[t]||(e.pre&&!S.tech[t][e.pre])||!can(t,researchCost(b,k)))return false;
  if(savingForAge&&k!=='loom'&&k!=='gath'&&k!=='wheel'&&k!=='axe'&&k!=='saw'){return aiCanResearchWhileSaving(R,researchCost(b,k),nextAge.cost)}
  return true});
  choices.sort((a,b)=>techPriority(b)-techPriority(a));

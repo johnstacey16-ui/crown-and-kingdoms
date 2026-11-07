@@ -14,6 +14,7 @@ function unitName(k,t){
  if(k==='xbow'&&tech.arb)return 'Arbalester';
  if(k==='skirm'&&tech.elsk)return 'Elite Skirmisher';
  if(k==='scout'&&tech.lcav)return 'Light Cavalry';
+ if(k==='knight'&&tech.pala)return 'Paladin';
  if(k==='knight'&&tech.cavl)return 'Cavalier';
  if(k==='camel'&&tech.hcamel)return 'Heavy Camel Rider';
  return U[k]?U[k].n:k;

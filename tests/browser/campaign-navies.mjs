@@ -302,6 +302,23 @@ export async function checkCampaignNavies(browser,origin,output){
   });
   for(const row of combatStances)for(const key of ['deferred','applied','correct','guardPreserved'])assert.equal(row[key],true,row.value+' '+key);
   await page.locator('#stances-map-true').screenshot({path:output+'/network-combat-stances.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances};
+  const paladin=await page.evaluate(()=>{
+   startScenario(0);mode='pause';S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.civ[0]=0;S.age[0]=3;S.tech[0]={};S.res[0]={f:10000,w:10000,g:10000,s:10000};
+   const stable=addB(0,'stable',40,40,true),rider=addU(0,'knight',44.5,44.5);
+   research(stable,'cavl');upB(stable,80);
+   const canvas=document.createElement('canvas'),description=document.createElement('p'),orders=[];document.body.append(canvas,description);
+   const map=CK_UNIT_MAP.create({canvas,description,submit:order=>{orders.push(order);return {ok:true}}});map.refresh(S,0,W,H,true);map.choose({x:41,y:41});
+   const items=CK_GAME_COMMANDS.buildingOptions(S,0,stable),angle=items.findIndex(o=>o.value==='pala')*Math.PI*2/items.length,before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+   map.control({7:true},{7:true});map.control({},{7:true},[Math.sin(angle),-Math.cos(angle)]);map.control({0:true},{7:true,0:true});map.control({},{});
+   const deferred=orders.length===1&&orders[0].value==='pala'&&CK_SIM_SYNC.worldCheckpoint(S,1).hash===before;
+   mode='play';const applied=orders.length===1&&CK_GAME_COMMANDS.execute(orders[0],0,1);upB(stable,169);const waiting=!S.tech[0].pala;upB(stable,1);
+   S.sel=[rider];menu=null;place=null;zm=2;TW=64*zm;TH=32*zm;ctr(rider.x,rider.y);draw(0);
+   const capture=document.createElement('canvas');capture.id='paladin-preview';capture.width=cv.width;capture.height=cv.height;capture.getContext('2d').drawImage(cv,0,0);document.body.append(capture);mode='pause';
+   return {deferred,applied,waiting,name:unitName('knight',0),hp:rider.hp,maxHP:mhp(rider),reload:attackReload(rider),stats:stt(rider),food:S.res[0].f,gold:S.res[0].g,painted:!!ASSET.n};
+  });
+  for(const key of ['deferred','applied','waiting','painted'])assert.equal(paladin[key],true,'Paladin '+key);
+  assert.match(paladin.stats,/Armor 2\/3/);assert.equal(paladin.name,'Paladin');assert.equal(paladin.hp,160);assert.equal(paladin.maxHP,160);assert.equal(paladin.reload,1.9);assert.equal(paladin.food,8400);assert.equal(paladin.gold,8950);
+  await page.locator('#paladin-preview').screenshot({path:output+'/paladin.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances,paladin};
  }finally{await page.close()}
 }

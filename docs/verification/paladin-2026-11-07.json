@@ -1,0 +1,279 @@
+{
+  "date": "2026-11-07",
+  "baselineCommit": "d3f921179a101f233fa660a0634853d5b81b1350",
+  "scope": "Playable Paladin upgrade for seven eligible represented civilizations, shared across solo, campaigns, AI and authenticated multiplayer commands.",
+  "reference": {
+    "repository": "SiegeEngineers/aoe2techtree",
+    "commit": "e56728e76b7d08301fba7b18d5f16bc8554c109a",
+    "url": "https://github.com/SiegeEngineers/aoe2techtree/blob/e56728e76b7d08301fba7b18d5f16bc8554c109a/data/data.json",
+    "sha256": "e21b3d22d5101257a62fc6298377314852f929c12b0c997a9e986919658fd460",
+    "upgrade": {
+      "Cost": {
+        "Food": 1300,
+        "Gold": 750
+      },
+      "ID": 265,
+      "ResearchTime": 170,
+      "internal_name": "Paladin"
+    },
+    "cavalier": {
+      "HP": 120,
+      "Attack": 12,
+      "MeleeArmor": 2,
+      "PierceArmor": 2,
+      "ReloadTime": 1.8,
+      "Speed": 1.35,
+      "TrainTime": 30,
+      "Cost": {
+        "Food": 60,
+        "Gold": 75
+      }
+    },
+    "paladin": {
+      "HP": 160,
+      "Attack": 14,
+      "MeleeArmor": 2,
+      "PierceArmor": 3,
+      "ReloadTime": 1.9,
+      "Speed": 1.35,
+      "TrainTime": 30,
+      "Cost": {
+        "Food": 60,
+        "Gold": 75
+      }
+    }
+  },
+  "eligibleCivilizations": [
+    {
+      "id": 0,
+      "name": "Franks"
+    },
+    {
+      "id": 3,
+      "name": "Byzantines"
+    },
+    {
+      "id": 5,
+      "name": "Teutons"
+    },
+    {
+      "id": 6,
+      "name": "Celts"
+    },
+    {
+      "id": 14,
+      "name": "Spanish"
+    },
+    {
+      "id": 17,
+      "name": "Huns"
+    },
+    {
+      "id": 25,
+      "name": "Magyars"
+    }
+  ],
+  "behaviour": {
+    "research": "Stable, Imperial Age, Cavalier prerequisite, 1300 food / 750 gold / 170 seconds.",
+    "effects": "Add 40 HP and 2 attack to the existing Cavalier ledger; add 1 base pierce armor and use a 1.9 second reload. All changes are owner-specific; future units inherit the completed tier.",
+    "AI": "Existing paid research policy considers Paladin only when at least four Knights are fielded.",
+    "presentation": "Shared Paladin label and a small original gold crest over retained Knight artwork.",
+    "persistence": "The existing knight entity ID remains stable; both in-flight research and completed stats use current save serialization."
+  },
+  "compatibility": {
+    "shell": "v184-paladin",
+    "liveSessionAndChannel": "ck-live-preview-21"
+  },
+  "limits": [
+    "Civilizations retain their existing partial bonuses and technology trees; this does not establish full faction parity.",
+    "Persians are excluded because the source replaces their Paladin with Savar, which remains unimplemented.",
+    "Original Knight artwork and the existing melee wind-up/sight model are retained; dedicated Paladin artwork and full animation parity remain open.",
+    "Physical Xbox and independent-network acceptance remain open."
+  ],
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1204,
+      "total": 1204,
+      "files": 244
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "campaigns": {
+    "executed": 19,
+    "wins": 14,
+    "defeats": 5,
+    "timeouts": 0,
+    "outcomes": [
+      {
+        "mission": 0,
+        "title": "First Hearth",
+        "outcome": "win",
+        "campaignTime": 163.5
+      },
+      {
+        "mission": 1,
+        "title": "Raiders at the Ford",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 2,
+        "title": "The Feudal Frontier",
+        "outcome": "win",
+        "campaignTime": 671.5
+      },
+      {
+        "mission": 3,
+        "title": "The Relic Road",
+        "outcome": "win",
+        "campaignTime": 174
+      },
+      {
+        "mission": 4,
+        "title": "Siege of Kronburg",
+        "outcome": "win",
+        "campaignTime": 202.5
+      },
+      {
+        "mission": 5,
+        "title": "The Last Crown",
+        "outcome": "win",
+        "campaignTime": 589
+      },
+      {
+        "mission": 6,
+        "title": "The Northern Watch",
+        "outcome": "win",
+        "campaignTime": 600
+      },
+      {
+        "mission": 7,
+        "title": "Crossing at Redwater",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 8,
+        "title": "Crown of Ashford",
+        "outcome": "win",
+        "campaignTime": 857
+      },
+      {
+        "mission": 9,
+        "title": "Siege of Greywatch",
+        "outcome": "win",
+        "campaignTime": 905
+      },
+      {
+        "mission": 10,
+        "title": "The King\u2019s Road",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 11,
+        "title": "The Reliquary Trail",
+        "outcome": "win",
+        "campaignTime": 179.5
+      },
+      {
+        "mission": 12,
+        "title": "The Golden Coast",
+        "outcome": "lose",
+        "campaignTime": 819.3
+      },
+      {
+        "mission": 13,
+        "title": "The Strait's Last Relic",
+        "outcome": "lose",
+        "campaignTime": 614.1
+      },
+      {
+        "mission": 14,
+        "title": "The Siege of Tidewatch",
+        "outcome": "lose",
+        "campaignTime": 468.2
+      },
+      {
+        "mission": 15,
+        "title": "The Bridge at Blackwood",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 16,
+        "title": "The Causeway Muster",
+        "outcome": "lose",
+        "campaignTime": 616.1
+      },
+      {
+        "mission": 17,
+        "title": "The Crown Holds the Crossing",
+        "outcome": "lose",
+        "campaignTime": 405.6
+      },
+      {
+        "mission": 18,
+        "title": "The Iron Pass",
+        "outcome": "win",
+        "campaignTime": 540
+      }
+    ],
+    "note": "The simple test player still loses five missions; all 19 missions are not accepted as complete."
+  },
+  "nativePaladin": {
+    "deferred": true,
+    "applied": true,
+    "waiting": true,
+    "name": "Paladin",
+    "hp": 160,
+    "maxHP": 160,
+    "reload": 1.9,
+    "stats": "Atk 10+4  Armor 2/3",
+    "food": 8400,
+    "gold": 8950,
+    "painted": true,
+    "screenshotSha256": "19cff7f2c47981fa5debf644fb18129dc03de7f8136bc63e57ed8519095ef189"
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "18630f809cd32cde442d9c309ea98a4800d40b3f",
+    "data/civilizations.json": "69504bbed4ad9ea394140074bd6e8f994d2e7a58",
+    "docs/REFACTORING_INVENTORY.md": "a2994737dda71331ca6728d25d3a3dd902dc524b",
+    "js/ai-policy.js": "c7714db799c318af8c4697492e00649bb72d2640",
+    "js/ai.js": "ff261a66fda5caa3e35dfb61c4679bfd9f14a652",
+    "js/config.js": "f7d9530bd88b4f09e8eb2d6f733855a0d4ca88ff",
+    "js/kingdom.js": "db66b6d0f922770247c8829d38d277464ccd041a",
+    "js/network-session.js": "438dba57a95b81b3a90be972e1b5588fe968920f",
+    "js/network-webrtc.js": "4231da6cfda53adf51b4f4201bac7fa09396bab4",
+    "js/render-troops.js": "eb74d0235039736064ca3509a05d27402b6a92eb",
+    "js/simulation-combat-bonuses.js": "52653910d8734c9fe7ed194f4a0e40f598e47815",
+    "js/state.js": "9e3f7458550545b79c3ab9e8078210e347af4096",
+    "js/ui-commands.js": "b8f84d1a9ff388eb0b469b230efe185219b67512",
+    "js/ui.js": "7095ff537cec83826f18f38a44802f7eedef2f0c",
+    "sw.js": "a48ff9aebaa7285947e6a3b240a2f6ccf2968895",
+    "tests/aoe2-de-civ-core-military-tech.test.mjs": "7a58d50609c0990b6afc4548721db052ba1b5747",
+    "tests/browser/campaign-navies.mjs": "0b196b5fd58d226a069f7171978ff5c31b993866",
+    "tests/browser/webrtc-transport.mjs": "4e6fa4ae4134c8312c69fe9012d7dce390dc6b85",
+    "tests/network-live-session.test.mjs": "571d9c0e6849a5b6b7e560fe77aa9ad5dc735150",
+    "tests/network-production-commands.test.mjs": "ad564a3a03fea333830d5f9559bd038a8f9f265a",
+    "tests/technology-effects.test.mjs": "baa97c3d74f2cdac579f2f8b777ff46956d326ca",
+    "tests/technology-research-integrity.test.mjs": "50737776f121bb68f92cddaf79cbd683cc23c849",
+    "tests/unit-label-ownership.test.mjs": "9aa79da48f0f4849afa1156ba91119fc5f4f2345",
+    "tests/webrtc-transport.test.mjs": "622b5adb205bf3f853bd51e3dd95240a50227921"
+  }
+}

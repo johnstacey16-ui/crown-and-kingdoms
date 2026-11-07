@@ -10,21 +10,22 @@ import {headlessGame} from './helpers/headless-game.mjs';
 // India is currently the older C&K name for Hindustanis. Incas deliberately
 // retain the game's existing militia line until the regional replacement
 // (Champi Warriors in the current data) has been implemented and tested.
+// Paladin d adds unit 569 / upgrade 265 from e56728e76b7d08301fba7b18d5f16bc8554c109a.
 const EXPECTED=Object.freeze({
- Franks:'mltcphvaesk',Britons:'mltcphvaesk',Mongols:'mltcpvaesk',
- Byzantines:'mltcphvaesk',Persians:'mlphvaesk',Teutons:'mltcphaesk',
- Celts:'mltcphvaesk',Vikings:'mltcpvaesk',Saracens:'mltcpvesk',
+ Franks:'mltcphvaeskd',Britons:'mltcphvaesk',Mongols:'mltcpvaesk',
+ Byzantines:'mltcphvaeskd',Persians:'mlphvaesk',Teutons:'mltcphaeskd',
+ Celts:'mltcphvaeskd',Vikings:'mltcpvaesk',Saracens:'mltcpvesk',
  Turks:'mltcvask',Chinese:'mltcphvaesk',Japanese:'mltcphvaesk',
- Khmer:'mltphvaesk',Indians:'mltcpves',Spanish:'mltcphvaesk',
- Italians:'mltcpvaesk',Slavs:'mltcphvaesk',Huns:'mltphvaesk',
+ Khmer:'mltphvaesk',Indians:'mltcpves',Spanish:'mltcphvaeskd',
+ Italians:'mltcpvaesk',Slavs:'mltcphvaesk',Huns:'mltphvaeskd',
  Goths:'mltcphvaesk',Aztecs:'mltcpe',Mayans:'mltphe',
  Incas:'mltcphe',Ethiopians:'mltphvaesk',Malians:'mltcpvaesk',
- Koreans:'mltcphvaesk',Magyars:'mltcphvaesk'
+ Koreans:'mltcphvaesk',Magyars:'mltcphvaeskd'
 });
 const TECHS=Object.freeze({
  man:['m','bar'],longs:['l','bar'],twohand:['t','bar'],champ:['c','bar'],
  pike:['p','bar'],halb:['h','bar'],lcav:['v','stable'],
- cavl:['a','stable'],elsk:['e','rng']
+ cavl:['a','stable'],pala:['d','stable'],elsk:['e','rng']
 });
 const UNITS=Object.freeze({scout:'s',knight:'k'});
 
@@ -59,7 +60,7 @@ test('all 26 civilizations have source-pinned infantry, skirmisher and cavalry t
  const flags=Object.values(TECHS).map(([flag])=>flag).concat(Object.values(UNITS));
  assert.equal(new Set(flags).size,flags.length,'unit-line capability flags must be unique');
  for(const [name,tier] of Object.entries(EXPECTED)){
-  assert.match(tier,/^[mltcphvaesk]*$/,name+' has an undocumented capability flag');
+  assert.match(tier,/^[mltcphvaeskd]*$/,name+' has an undocumented capability flag');
   assert.equal(new Set(tier).size,tier.length,name+' has no duplicate capability');
  }
  assert.ok(!EXPECTED.Aztecs.includes('k')&&!EXPECTED.Mayans.includes('s')&&!EXPECTED.Incas.includes('k'),
@@ -101,6 +102,7 @@ test('research() never charges for forbidden tier; allowed tiers still cost and 
   c(`S.civ[0]=${i};S.age[0]=3;S.tech[0]={};S.res[0]={f:10000,w:10000,g:10000,s:10000}`);
   for(const [key,[flag,building]] of Object.entries(TECHS)){
    c(`S.tech[0]={};S.bs.forEach(b=>{if(b.t===0){b.rs=null;b.q=[]}});S.res[0]={f:10000,w:10000,g:10000,s:10000}`);
+   if(key==='pala')c('S.tech[0].cavl=1');
    if(key==='longs')c('S.tech[0].man=1');
    if(key==='twohand')c('S.tech[0].longs=1');
    if(key==='champ')c('S.tech[0].twohand=1');
@@ -165,4 +167,43 @@ test('pre-restriction army and research in old save remain loadable but cannot b
  assert.equal(c("S.bs.some(b=>b.t===0&&b.k==='bar'&&b.rs?.k==='halb')"),true,'old research remains in progress');
  assert.equal(c("rsOf(S.bs.find(b=>b.t===0&&b.k==='bar')).includes('halb')"),false);
  assert.equal(c("trOf(S.bs.find(b=>b.t===0&&b.k==='stable')).includes('knight')"),false);
+});
+
+test('paid Cavalier to Paladin upgrades existing and newly trained units without affecting other teams',()=>{
+ const c=fixture();c("globalThis.rider=addU(0,'knight',16.5,30.5);rider.hp=80;globalThis.dead=addU(0,'knight',18.5,30.5);dead.hp=0;globalThis.foreign=addU(1,'knight',20.5,30.5)");
+ assert.equal(c("research(structures.stable,'pala')"),false,'Cavalier is required');
+ assert.equal(c("research(structures.stable,'cavl')"),true);c('upB(structures.stable,80)');
+ assert.equal(c('rider.hp'),100);assert.equal(c('mhp(rider)'),120);
+ assert.equal(c("research(structures.stable,'pala')"),true);c('upB(structures.stable,169)');
+ assert.equal(c("unitName('knight',0)"),'Cavalier');c('upB(structures.stable,1)');
+ assert.equal(c("unitName('knight',0)"),'Paladin');assert.equal(c('rider.hp'),140);assert.equal(c('mhp(rider)'),160);
+ assert.equal(c('dead.hp'),0);assert.equal(c('foreign.hp'),100);assert.equal(c('attackReload(rider)'),1.9);assert.equal(c('unitSpeed(rider)'),1.35);
+ c("globalThis.newRider=addU(0,'knight',22.5,30.5)");assert.equal(c('newRider.hp'),160);
+ assert.equal(c('S.res[0].f'),8400);assert.equal(c('S.res[0].g'),8950);
+ c("globalThis.victim=addU(1,'vil',24.5,30.5);victim.hp=1000;dmgT(rider,victim)");assert.equal(c('1000-victim.hp'),14);
+ c("globalThis.bow=addU(1,'arc',26.5,30.5);rider.hp=1000;dmgT(bow,rider)");assert.equal(c('1000-rider.hp'),1,'Paladin has three base pierce armor');
+ c('foreign.t=0;S.tech[0].pala=0;foreign.hp=1000;dmgT(bow,foreign)');assert.equal(c('1000-foreign.hp'),2,'Cavalier retains two base pierce armor');
+});
+
+test('Paladin research keeps its age, affordability and duplicate-research gates',()=>{
+ const c=fixture();c('S.tech[0].cavl=1;S.age[0]=2');const before=c('JSON.stringify(S.res)');
+ assert.equal(c("research(structures.stable,'pala')"),false);assert.equal(c('JSON.stringify(S.res)'),before);
+ c('S.age[0]=3;S.res[0].f=1299');assert.equal(c("research(structures.stable,'pala')"),false);
+ c('S.res[0].f=1300;S.res[0].g=750');assert.equal(c("research(structures.stable,'pala')"),true);
+ const paid=c('JSON.stringify(S.res)');assert.equal(c("research(structures.stable,'pala')"),false);assert.equal(c('JSON.stringify(S.res)'),paid);
+ c('upB(structures.stable,170)');assert.equal(c("research(structures.stable,'pala')"),false);
+});
+
+test('in-progress Paladin research and completed unit stats survive current-build save/load',()=>{
+ const c=fixture();c("S.tech[0].cavl=1;S.tech[0].hpb={knight:20};S.tech[0].atkb={knight:2};globalThis.rider=addU(0,'knight',16.5,30.5);globalThis.stableId=structures.stable.netId;globalThis.riderId=rider.netId;research(structures.stable,'pala');upB(structures.stable,60)");
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);
+ c('structures.stable=S.bs.find(b=>b.netId===stableId);rider=S.us.find(u=>u.netId===riderId)');assert.equal(c('structures.stable.rs.t'),110);
+ c('upB(structures.stable,110)');assert.equal(c('mhp(rider)'),160);assert.equal(c("unitName('knight',0)"),'Paladin');
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);assert.equal(c('S.tech[0].hpb.knight'),60);assert.equal(c('S.tech[0].atkb.knight'),4);
+});
+
+test('AI waits for four Knights before buying the expensive Paladin upgrade',()=>{
+ const c=fixture();c("S.civ[1]=0;S.tech[1]={cavl:1,blood:1,husb:1,lcav:1};S.age[1]=3;globalThis.army=[0,1,2].map(i=>addU(1,'knight',60.5+i,30.5));globalThis.plan=()=>aiPlanResearch(1,{my:army,vil:[],arm:army,bl:[structures.enemyStable],tc:structures.enemyStable,R:S.res[1],humanShips:[],composition:{humanCav:0,humanInf:0,humanRanged:0,humanSiege:0}});plan()");
+ assert.equal(c('structures.enemyStable.rs==null'),true);
+ c("army.push(addU(1,'knight',63.5,30.5));plan()");assert.equal(c('structures.enemyStable.rs.k'),'pala');
 });

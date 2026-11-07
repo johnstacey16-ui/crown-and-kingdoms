@@ -328,3 +328,21 @@ test('invalid group rally members and ownership changes reject without partial m
   assert.equal(out.executed,false,scenario);assert.equal(out.unchanged,true,scenario);
  }
 });
+
+test('both authenticated players research Paladin only at the host frame and pay their own budgets',()=>{
+ const out=world(`
+  S.civ=[0,14];S.age=[3,3];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+  S.tech=[{cavl:1,hpb:{knight:20},atkb:{knight:2}},{cavl:1,hpb:{knight:20},atkb:{knight:2}}];
+  S.res=S.res.map(()=>({f:2000,w:1000,g:1000,s:0}));
+  const stables=[addB(0,'stable',20,20,true),addB(1,'stable',30,20,true)];
+  const riders=[addU(0,'knight',24.5,20.5),addU(1,'knight',34.5,20.5)];
+  const before=JSON.stringify(S.res),accepted=[];
+  accepted.push(host.receive(packet('host-session',0,1,6,{type:'research',entities:[stables[0].netId],value:'pala'}),'host-session',2).ok);
+  accepted.push(host.receive(packet('guest-session',1,1,6,{type:'research',entities:[stables[1].netId],value:'pala'}),'guest-session',2).ok);
+  const deferred=JSON.stringify(S.res)===before&&stables.every(b=>!b.rs),results=host.applyFrame(6);
+  for(const b of stables)upB(b,170);
+  return {accepted,deferred,results:results.map(r=>r.ok),paid:S.res.map(r=>[r.f,r.g]),hp:riders.map(u=>u.hp),names:riders.map(u=>unitName(u.k,u.t))};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,true]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[700,250],[700,250]]);assert.deepEqual(Array.from(out.hp),[160,160]);assert.deepEqual(Array.from(out.names),['Paladin','Paladin']);
+});
