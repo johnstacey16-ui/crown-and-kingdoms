@@ -1,0 +1,204 @@
+{
+  "date": "2026-11-07",
+  "baselineCommit": "ea9361395b0448df447f9d0ea1482982241030ce",
+  "scope": "Accurate selected-unit attack and armor, using shared combat armor without changing damage results.",
+  "beforeAfter": {
+    "unitKinds": 50,
+    "buildingKinds": 2,
+    "techCombinations": 4096,
+    "damageClasses": 3,
+    "comparisons": 638976,
+    "before": "Atk 10+4  Armor 2/3",
+    "after": "Atk 10+8  Armor 5/7"
+  },
+  "behavior": {
+    "armor": "Read-only combatArmor is used by dmgT and the selected-unit panel for melee and pierce armor; unit classes, all three Blacksmith tiers and line bonuses retain the existing simulation formula.",
+    "attack": "The panel uses meleeResearchAttackBonus, existing ranged arrowBonus, owner-specific attack ledger and Scout age bonus.",
+    "ownership": "Reads the inspected unit\u2019s kingdom, rather than the local player\u2019s research.",
+    "inspection": "No spending, command submission or saved/simulated state mutation.",
+    "compatibility": "Shell v185-combat-stats; live session/channel remains ck-live-preview-21 because damage outcomes, command protocol and save data are unchanged."
+  },
+  "equivalenceMethod": "Compared baseline dmgT from the named parent against the refactored production dmgT for every combination of nine armor research flags plus Paladin, Elite Skirmisher and Long Swordsman, on all 50 unit kinds and two building kinds, using melee, pierce and siege attackers. All 638976 HP outcomes match.",
+  "checks": {
+    "quick": {
+      "passed": 5,
+      "total": 5
+    },
+    "focused": {
+      "passed": 1205,
+      "total": 1205,
+      "files": 244
+    },
+    "targetedArmorAndHud": {
+      "passed": 24,
+      "total": 24
+    },
+    "finalHud": {
+      "passed": 3,
+      "total": 3
+    },
+    "chromiumGameAndRoom": {
+      "passed": 2,
+      "total": 2
+    },
+    "seededAI": {
+      "passed": 3,
+      "total": 3
+    },
+    "standaloneRegressionFiles": {
+      "passed": 247,
+      "total": 247
+    }
+  },
+  "limits": [
+    "This fixes display accuracy for the currently implemented combat model; it does not establish full reference-game armor-class or civilization-bonus parity.",
+    "Physical Xbox and independent-network acceptance remain open."
+  ],
+  "nativeChromium": {
+    "before": "Atk 10+4  Armor 2/3",
+    "after": "Atk 10+8  Armor 5/7",
+    "foreign": "Atk 10  Armor 2/2",
+    "readOnly": true,
+    "paid": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "screenshotSha256": "82a78b56a112582e525d5a786f6ed4fcec9c6934dbd1f9aa930360f5fdec6e45"
+  },
+  "fileGitBlobs": {
+    "ROADMAP.md": "9c0b1d9bdd847daa3b25160de403540e9ea94285",
+    "docs/REFACTORING_INVENTORY.md": "12ac2acd147a7f7cada2d918ea34bec2c027b758",
+    "js/simulation-combat-bonuses.js": "4024f68fe9495c79a5dd26eefd34d2a900bfb0b6",
+    "js/ui-commands.js": "97d4db711673436523b565b3fd64b4a6241a7e70",
+    "sw.js": "b0960bf6a403e7c440213f76aa41d27a0fe52459",
+    "tests/browser/campaign-navies.mjs": "4288d576f3848dd6143361440312991fa4884e5d",
+    "tests/command-overlay-ui-extraction.test.mjs": "148bdaf04bd43751fb4d93a1266493e6e3302940"
+  },
+  "campaigns": {
+    "executed": 19,
+    "wins": 14,
+    "defeats": 5,
+    "timeouts": 0,
+    "outcomes": [
+      {
+        "mission": 0,
+        "title": "First Hearth",
+        "outcome": "win",
+        "campaignTime": 163.5
+      },
+      {
+        "mission": 1,
+        "title": "Raiders at the Ford",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 2,
+        "title": "The Feudal Frontier",
+        "outcome": "win",
+        "campaignTime": 671.5
+      },
+      {
+        "mission": 3,
+        "title": "The Relic Road",
+        "outcome": "win",
+        "campaignTime": 174
+      },
+      {
+        "mission": 4,
+        "title": "Siege of Kronburg",
+        "outcome": "win",
+        "campaignTime": 202.5
+      },
+      {
+        "mission": 5,
+        "title": "The Last Crown",
+        "outcome": "win",
+        "campaignTime": 589
+      },
+      {
+        "mission": 6,
+        "title": "The Northern Watch",
+        "outcome": "win",
+        "campaignTime": 600
+      },
+      {
+        "mission": 7,
+        "title": "Crossing at Redwater",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 8,
+        "title": "Crown of Ashford",
+        "outcome": "win",
+        "campaignTime": 857
+      },
+      {
+        "mission": 9,
+        "title": "Siege of Greywatch",
+        "outcome": "win",
+        "campaignTime": 905
+      },
+      {
+        "mission": 10,
+        "title": "The King\u2019s Road",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 11,
+        "title": "The Reliquary Trail",
+        "outcome": "win",
+        "campaignTime": 179.5
+      },
+      {
+        "mission": 12,
+        "title": "The Golden Coast",
+        "outcome": "lose",
+        "campaignTime": 819.3
+      },
+      {
+        "mission": 13,
+        "title": "The Strait's Last Relic",
+        "outcome": "lose",
+        "campaignTime": 614.1
+      },
+      {
+        "mission": 14,
+        "title": "The Siege of Tidewatch",
+        "outcome": "lose",
+        "campaignTime": 468.2
+      },
+      {
+        "mission": 15,
+        "title": "The Bridge at Blackwood",
+        "outcome": "win",
+        "campaignTime": 480
+      },
+      {
+        "mission": 16,
+        "title": "The Causeway Muster",
+        "outcome": "lose",
+        "campaignTime": 616.1
+      },
+      {
+        "mission": 17,
+        "title": "The Crown Holds the Crossing",
+        "outcome": "lose",
+        "campaignTime": 405.6
+      },
+      {
+        "mission": 18,
+        "title": "The Iron Pass",
+        "outcome": "win",
+        "campaignTime": 540
+      }
+    ],
+    "note": "Unchanged 14-win/5-defeat scripted matrix; no new mission victory or full campaign acceptance claim."
+  }
+}

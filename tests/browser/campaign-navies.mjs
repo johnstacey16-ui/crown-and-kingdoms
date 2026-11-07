@@ -319,6 +319,17 @@ export async function checkCampaignNavies(browser,origin,output){
   for(const key of ['deferred','applied','waiting','painted'])assert.equal(paladin[key],true,'Paladin '+key);
   assert.match(paladin.stats,/Armor 2\/3/);assert.equal(paladin.name,'Paladin');assert.equal(paladin.hp,160);assert.equal(paladin.maxHP,160);assert.equal(paladin.reload,1.9);assert.equal(paladin.food,8400);assert.equal(paladin.gold,8950);
   await page.locator('#paladin-preview').screenshot({path:output+'/paladin.png'});
-  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances,paladin};
+  const combatStats=await page.evaluate(()=>{
+   mode='play';const rider=S.sel[0],before=stt(rider),smith=addB(0,'smith',34,40,true),paid=[];
+   for(const k of ['forging','ironCasting','blastFurnace','armC','armC2','armC3']){paid.push(research(smith,k));upB(smith,TE[k].t)}
+   const enemy=addU(1,'knight',46.5,44.5),hash=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+   const after=stt(rider),foreign=stt(enemy),readOnly=CK_SIM_SYNC.worldCheckpoint(S,1).hash===hash;
+   draw(0);const capture=document.createElement('canvas');capture.id='combat-stats-preview';capture.width=cv.width;capture.height=cv.height;capture.getContext('2d').drawImage(cv,0,0);document.body.append(capture);mode='pause';
+   return {before,after,foreign,readOnly,paid};
+  });
+  assert.equal(combatStats.before,'Atk 10+4  Armor 2/3');assert.equal(combatStats.after,'Atk 10+8  Armor 5/7');
+  assert.equal(combatStats.foreign,'Atk 10  Armor 2/2');assert.equal(combatStats.readOnly,true);assert.ok(combatStats.paid.every(Boolean));
+  await page.locator('#combat-stats-preview').screenshot({path:output+'/combat-stats.png'});
+  return {...result,tidewatch,relicReturn,dockGuard,productionWait,objectivePolicy,minimumRange,constructionRecovery,groupRally,fishingRally,merchantRally,networkEscorts,combatStances,paladin,combatStats};
  }finally{await page.close()}
 }
