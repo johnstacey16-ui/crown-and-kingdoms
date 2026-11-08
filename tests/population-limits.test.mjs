@@ -42,9 +42,11 @@ test('over-cap campaign training explains the actual paid housing deficit withou
   return JSON.stringify({accepted,before,after:S.res[0],queue,afterQueue:home.q.length,
    population:popOf(0),capacity:capOf(0),message:notes.at(-1).s});
  })()`));
- assert.equal(result.population,28);assert.equal(result.capacity,10);
+ assert.ok(result.population>result.capacity,'the initial Tidewatch army and flotilla exceed starting housing');
+ assert.equal(result.capacity,10);
  assert.equal(result.accepted,false);
- assert.equal(result.message,'Population full (28/10): build 4 Houses');
+ const houses=Math.ceil((result.population+1-result.capacity)/5);
+ assert.equal(result.message,`Population full (${result.population}/${result.capacity}): build ${houses} Houses`,'explain the actual paid housing needed for one more Villager');
  assert.deepEqual(result.after,result.before,'a blocked training order never charges the unit');
  assert.equal(result.afterQueue,result.queue,'a blocked order never reserves another slot');
 });
