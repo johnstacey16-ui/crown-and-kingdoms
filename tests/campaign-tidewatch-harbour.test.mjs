@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {spawnSync} from 'node:child_process';
 
 function tidewatch(){
  const {source,sandbox}=headlessGame();
@@ -131,3 +132,14 @@ test('Tidewatch naval reinforcements depend on the actual enemy Dock at the trig
  assert.equal(ruined('S.over'),null);
 });
 
+
+test('one-off complete Tidewatch campaign siege after the Castle breach column',()=>{
+ const proc=spawnSync(process.execPath,['tests/simulation-smoke.test.mjs'],{cwd:process.cwd(),encoding:'utf8',env:{...process.env,CK_MISSION:'14',CK_SKIP_CAMPAIGN:'0'},timeout:210000,maxBuffer:8*1024*1024});
+ assert.equal(proc.status,0,'the campaign script should finish: '+(proc.stderr||'').slice(-1600));
+ const line=(proc.stdout||'').split('\n').find(x=>x.includes('campaign-isolation-result: '));
+ assert.ok(line,'structured campaign evidence expected: '+(proc.stdout||'').slice(-1700));
+ const data=JSON.parse(line.split('campaign-isolation-result: ')[1]);
+ console.log('Tidewatch breakthrough playthrough result '+JSON.stringify(data));
+ assert.equal(data.mission,14);
+ assert.ok(['win','lose','timeout'].includes(data.outcome),'do not mistake a loss for a win');
+});

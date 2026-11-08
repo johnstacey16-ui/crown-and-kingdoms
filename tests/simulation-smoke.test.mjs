@@ -72,6 +72,7 @@ globalThis.__CK_TEST__ = {
     }
     const productionPeak = Object.fromEntries(Object.keys(plan.units || {}).map(kind =>
       [kind, S.us.filter(u => u.t === 0 && u.k === kind && u.hp > 0).length]));
+    const tidewatchProgress=[];
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
@@ -220,6 +221,9 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
+        playerRams:S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0).length,playerBombards:S.us.filter(u=>u.t===0&&u.k==='bomb'&&u.hp>0).length,playerTrebuchets:S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length,
+        troops:S.us.filter(u=>u.t===0&&u.hp>0&&!u.ld).length,enemyTroops:S.us.filter(u=>u.t===1&&u.hp>0&&!u.ld).length});
       if(tick%30===0)for(const kind of Object.keys(productionPeak))
         productionPeak[kind]=Math.max(productionPeak[kind],S.us.filter(u=>u.t===0&&u.k===kind&&u.hp>0).length);
       if(index===6&&tick%30===0){peakRanged=Math.max(peakRanged,S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.rng>=4&&u.k!=='vil').length);peakVillagers=Math.max(peakVillagers,S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.k==='vil').length)}
@@ -228,6 +232,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
+      tidewatchProgress:index===14?tidewatchProgress:null,
       coastalRecon:index===16?{orders:causewayRecon.orders,explored:S.ex.filter(Boolean).length,playerDocks:cb('dock')}:null,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
