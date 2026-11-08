@@ -104,7 +104,7 @@ test('Strait siege decisions do not require the opening War Galleys to survive',
   'after two real relics, a surviving Ram must be enough to launch the land assault');
  assert.match(src,/if\(index===13\)straitAssaultStarted=true/,
   'attack orders must continue after a Ram or fleet casualty');
- assert.match(src,/index===9\|\|index===13\)\&\&unit\.k!=='ram'/,
+ assert.match(src,/index===9\|\|index===12\|\|index===13\)\&\&unit\.k!=='ram'/,
   'foot soldiers clear defenders while Rams attack fortifications');
 });
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
@@ -127,6 +127,8 @@ test('Golden Coast harbour builds a real naval patrol without granting the War G
  assert.equal(c("CAMP[12].goals.find(g=>g.id==='fleet').ok()"),false);
  c('cmpTick(30)');
  assert.equal(c("aliveUnits(0,'fire').length"),0,'a scripted patrol must not appear before the Dock is completed');
+ // This test simulates completing real coastal reconnaissance, not a free Dock.
+ c('S.ex.fill(1)');
  assert.equal(c("!!(globalThis.coastDock=put(0,'dock',tcOf(0).x+7,tcOf(0).y+5))"),true);
  for(let i=0;i<16;i++)c('cmpTick(1/30)');
  assert.equal(c('!!cmp.d.dock'),true);
@@ -151,6 +153,7 @@ test('Golden Coast enemy Dock blockade stops later sea waves and rallies physica
  assert.equal(enemyDock,1,'a living rival Dock is the optional blockade target');
  const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,resources:S.res[0]})"));
  c("globalThis.blockedDock=S.bs.find(b=>b&&b.t===1&&b.k==='dock');blockedDock.hp=0");
+ c('cmp.k=14;cmpTick(5)'); // Capital and harbour destruction milestones require >3 seconds.
  for(let i=0;i<15;i++)c('cmpTick(1/30)');
  assert.equal(c('!!cmp.d.blockade'),true,'the player must physically remove the hostile Dock before taking credit');
  c('cmpTick(1/30)');

@@ -167,6 +167,8 @@ function campaignTidewatchBreachColumn(){
 // Completing the paid harbour establishes a one-time allied coast patrol.
 // The Fire Ship uses navigable water and never satisfies the War Galley goal.
 function campaignCoastHarbourPatrol(){
+ // Isolated objective tests do not initialise map coordinates or water grids.
+ if(typeof W!=='number'||typeof H!=='number'||!S?.wt||!S?.nd)return 0;
  const dock=S.bs.find(b=>b&&b.t===0&&b.k==='dock'&&b.done&&b.hp>0);
  if(!dock||S.over)return 0;
  const spot=raidShipPositions(dock,1,0)[0];if(!spot)return 0;
@@ -182,6 +184,7 @@ function campaignCoastHarbourPatrol(){
 // Capturing the hostile harbour frees local volunteers for the land offensive.
 // Troops are physical and vulnerable; the rival capital is never auto-damaged.
 function campaignCoastLandingRelief(){
+ if(typeof W!=='number'||typeof H!=='number'||!S?.wt||!S?.nd)return 0;
  const home=tcOf(0),enemy=tcOf(1);if(!home||!enemy||S.over)return 0;
  const old=new Set(S.us.map(u=>u.netId));
  grp(0,'ram',1);grp(0,'spear',3);grp(0,'skirm',2);
