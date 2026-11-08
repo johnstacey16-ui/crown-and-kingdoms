@@ -106,6 +106,19 @@ test('Tidewatch Castle breach sends a one-time Trebuchet column that still must 
  c('cmpTick(1)');
  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2,'loaded games cannot duplicate siege reinforcements');
 });
+test('Tidewatch siege detachment joins after real Castle damage instead of waiting for the player army to collapse',()=>{
+ const c=tidewatch();
+ const id=c("CAMP[14].ev.findIndex(e=>typeof e.do==='function'&&e.do.toString().includes('campaignTidewatchBreachColumn'))");
+ const full=c('B.castle.hp');
+ c('S.bs.find(b=>b.t===1&&b.k===\'castle\').hp='+Math.round(full*.8)+';cmpTick(12)');
+ assert.equal(c('!!cmp.e['+id+']'),false,'undamaged defences must not summon a forward assault');
+ c('S.bs.find(b=>b.t===1&&b.k===\'castle\').hp='+Math.round(full*.7)+';cmpTick(1)');
+ assert.equal(c('!!cmp.e['+id+']'),true,'Castle damaged by 30 percent earns a siege column');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2);
+ assert.equal(c("S.bs.find(b=>b.t===1&&b.k==='castle').hp"),Math.round(full*.7),'allied arrivals must not destroy the Castle automatically');
+ assert.equal(c('tcOf(1).hp'),900,'no instant enemy Town Centre damage');
+ assert.equal(c('S.over'),null);
+});
 test('Optional harbour does not block a legitimate siege victory',()=>{
  const c=tidewatch();
  c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});addU(0,'bomb',20.5,20.5);addU(0,'bomb',21.5,20.5)");
