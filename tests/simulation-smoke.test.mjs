@@ -83,7 +83,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let goldenCoastAssaultStarted=false,causewayAssaultStarted=false,ashfordAssaultStarted=false;
-    let goldenCoastHomeReserveAssigned=false;const goldenCoastHomeGuardIds=new Set();
+    let goldenCoastHomeReserveAssigned=false,goldenCoastStaging=null;const goldenCoastHomeGuardIds=new Set();
     let causewayHomeReserveAssigned=false;const causewayHomeGuardIds=new Set();
     let tidewatchAssaultStarted=false,straitAssaultStarted=false;
     let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false,greywatchGuardOrders=0,greywatchAssaultTime=null;
@@ -223,6 +223,31 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
+      // The mainland army must reach a legal coastal staging cell while
+      // the fleet clears the harbour. Otherwise the earned landing Rams
+      // charge the enemy capital with their starting escort alone.
+      if(index===12&&cb('dock')>=1&&!goldenCoastAssaultStarted){
+        if(!goldenCoastHomeReserveAssigned){
+          const guard=aliveUnits(0).filter(u=>!U[u.k].sh&&U[u.k].dmg>0&&!['vil','mon','ram'].includes(u.k))
+            .sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y)).slice(0,4);
+          for(const u of guard){
+            goldenCoastHomeGuardIds.add(u.netId);
+            u.o='G';u.tg=tc;u.guardTarget=null;u.p=[];u.rp=0;
+          }
+          goldenCoastHomeReserveAssigned=true;
+        }
+        const coastDock=S.bs.find(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0);
+        if(!goldenCoastStaging&&coastDock)
+          goldenCoastStaging=campaignOverflowSpawn({t:0,x:coastDock.x-9,y:coastDock.y+5,s:2});
+        if(goldenCoastStaging){
+          for(const u of aliveUnits(0).filter(u=>!U[u.k].sh&&U[u.k].dmg>0&&!['vil','mon','ram'].includes(u.k)&&!goldenCoastHomeGuardIds.has(u.netId))){
+            if(Math.hypot(u.x-goldenCoastStaging[0],u.y-goldenCoastStaging[1])<=4||
+               u.o==='a'&&u.tg?.hp>0||u.o==='m'&&u.p?.length)continue;
+            const route=path(u,gp(goldenCoastStaging[0],goldenCoastStaging[1],1));
+            if(route){u.o='m';u.tg=null;u.p=route;u.rp=1}
+          }
+        }
+      }
       // Give real attack orders to the starting navy immediately. Waiting for
       // the land Workshop previously left three War Galleys motionless.
       if(index===12){
@@ -344,7 +369,7 @@ globalThis.__CK_TEST__ = {
         playerShips:aliveUnits(0,'gal').map(u=>({hp:Math.round(u.hp),o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)})),
         enemyShips:aliveUnits(1,'gal').length,fireShips:aliveUnits(0,'fire').length,
         army:cmil(0),enemyArmy:cmil(1),rams:aliveUnits(0,'ram').length,
-        assault:goldenCoastAssaultStarted,homeGuards:goldenCoastHomeGuardIds.size,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
+        assault:goldenCoastAssaultStarted,staging:goldenCoastStaging,homeGuards:goldenCoastHomeGuardIds.size,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
         goals:CAMP[12].goals.filter(g=>cmp.d[g.id]).map(g=>g.id),
         resources:{...S.res[0]},
         workerCount:aliveUnits(0,'vil').length,
@@ -389,7 +414,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
-       goldenCoast:index===12?{homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
+       goldenCoast:index===12?{staging:goldenCoastStaging,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
        causewayProgress:index===16?causewayProgress:null,
        crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,crownHomeGuards:index===17?crownHomeGuardIds.size:null,crownRecorded:index===17?campDone()[17]===1:null,crownEnemyCapitalAlive:index===17?!!tcOf(1):null,
