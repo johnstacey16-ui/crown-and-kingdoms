@@ -320,3 +320,33 @@ test('Causeway HUD keeps all five required victory objectives visible before opt
  assert.ok(goals.slice(0,5).every(g=>!g.optional),'the visible five-objective panel must not hide the final enemy capital goal');
  assert.deepEqual(goals.slice(5),[{id:'fords',optional:true}],'ford garrisons remain an explicitly optional bonus');
 });
+
+test('Causeway naval control summons a real royal land contingent without crediting enemy destruction',()=>{
+ const c=mission(16);
+ const event=c("CAMP[16].ev.findIndex(e=>e.do.toString().includes('campaignCausewayFleetRelief'))");
+ assert.ok(event>=0,'the campaign must explicitly tell the story of land reinforcements');
+ const before=JSON.parse(c("JSON.stringify({knight:aliveUnits(0,'knight').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,resources:{...S.res[0]},castleHp:S.bs.find(b=>b.t===1&&b.k==='castle')?.hp,tcHp:tcOf(1)?.hp})"));
+ c('cmpTick(20)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'having a Dock alone must never grant fleet reinforcements');
+ c('grp(0,\'gal\',3)'); // Seed three genuine ship entities for a focused objective fixture; normal gameplay pays to train them.
+ assert.equal(c("aliveUnits(0,'gal').length"),3);
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('cmp.d.fleet'),1,'the normal sustained fleet objective must be satisfied first');
+ assert.equal(c('!!cmp.e['+event+']'),false);
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),true,'land relief is dispatched only after naval control is recorded');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+3);
+ assert.equal(c("aliveUnits(0,'spear').length"),before.spear+4);
+ assert.equal(c("aliveUnits(0,'skirm').length"),before.skirm+4);
+ assert.equal(c("S.us.filter(u=>u.t===0&&['knight','spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg===tcOf(0)).length"),11,'the campaign soldiers rally as a physical home guard');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.resources),'campaign reinforcements do not forge resources');
+ assert.equal(c("S.bs.find(b=>b.t===1&&b.k==='castle').hp"),before.castleHp,'the Castle must be destroyed by genuine combat');
+ assert.equal(c('tcOf(1).hp'),before.tcHp,'the Town Centre must be destroyed by genuine combat');
+ assert.equal(c('S.over'),null,'the fleet does not grant victory');
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+3,'the relief arrives only once');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+3,'save/load may not spawn a second fleet levy');
+});
