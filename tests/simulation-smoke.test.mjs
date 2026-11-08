@@ -112,8 +112,16 @@ globalThis.__CK_TEST__ = {
       // The Causeway's shoreline is initially under fog. Until the Dock is
       // built, do not divert workers or timber into inland Towers and Barracks:
       // the previous scripted opening exhausted wood rebuilding Dock losses.
-      if((index===12||index===16)&&!cb('dock'))placeBuilding('dock',1);
+      // Completing the Golden Coast blockade is a strategic pivot: once
+      // three War Galleys remain afloat, do not use scarce timber to replace
+      // a Dock already counted for the milestone. Save wood for the land siege.
+      const coastFleetSecure=index===12&&!!cmp.d.dock&&aliveUnits(0,'gal').length>=3;
+      if(index===12&&!cb('dock')&&!coastFleetSecure)placeBuilding('dock',1);
+      else if(index===12&&cb('dock')&&!cb('bar'))placeBuilding('bar',1);
+      else if(index===12&&cb('bar')&&!cb('siege'))placeBuilding('siege',1);
+      else if(index===16&&!cb('dock'))placeBuilding('dock',1);
       else for (const entry of plan.buildings) {
+        if(index===12&&entry.kind==='dock'&&coastFleetSecure)continue;
         const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0 && building.done).length;
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
       }
@@ -205,6 +213,9 @@ globalThis.__CK_TEST__ = {
         }
       }
       for (const [unitKind, targetCount] of Object.entries(plan.units || {})) {
+        if(index===12&&cmp.d.blockade&&aliveUnits(1,'gal').length===0&&['gal','fire'].includes(unitKind))continue;
+        // The completed blockade stops sea reinforcements; conserve actual
+        // player resources for the Siege Workshop and land replacements.
         if(index===5&&S.age[0]<2)continue; // Save the real 800 food and 200 gold for Castle Age before siege training.
         if (U[unitKind] && U[unitKind].age > S.age[0]) { trainingGate = unitKind + ' requires age ' + U[unitKind].age; continue; }
         const live = S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length;
@@ -225,7 +236,7 @@ globalThis.__CK_TEST__ = {
           }
         }
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&aliveUnits(0,'ram').length>=2&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&(aliveUnits(0,'ram').length>=2||cmp.d.blockade&&aliveUnits(0,'ram').length>=1)&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true;
         if(index===12){
           goldenCoastAssaultStarted=true;
