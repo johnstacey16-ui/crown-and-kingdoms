@@ -32,3 +32,10 @@ jobs:
         run: node scripts/run-checks.mjs --quick
       - name: Check focused gameplay, controller and graphics regression contracts
         run: node scripts/run-checks.mjs --focused
+      # A commit explicitly marked [verify-causeway] opts into one bounded
+      # real mission simulation; the default per-push gate stays inexpensive.
+      - name: Diagnose Causeway end-to-end (explicit commit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-causeway]')
+        env:
+          CK_MISSION: '16'
+        run: node tests/simulation-smoke.test.mjs
