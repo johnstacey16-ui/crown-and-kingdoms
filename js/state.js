@@ -18,5 +18,7 @@ function unitName(k,t){
  if(k==='knight'&&tech.pala)return 'Paladin';
  if(k==='knight'&&tech.cavl)return 'Cavalier';
  if(k==='camel'&&tech.hcamel)return 'Heavy Camel Rider';
+ if(k==='mang'&&tech.siegeOnager)return 'Siege Onager';
+ if(k==='mang'&&tech.onager)return 'Onager';
  return U[k]?U[k].n:k;
 }

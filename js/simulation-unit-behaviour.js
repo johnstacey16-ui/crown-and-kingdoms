@@ -78,7 +78,7 @@ if(u.o==='p'){const e=u.st===4?null:foe(u,6);if(e){u.o='a';u.tg=e;u.p=[];return}
 if(!u.p.length||u.rp<=0){const g=pt.to?pt.b:pt.a,p=path(u,gp(g[0],g[1],1.2));u.rp=2;if(!p){u.o='i';return}u.p=p}if(walk(u,dt)){if(pt.once){u.o='i';u.pt=null}else{pt.to^=1;u.p=[]}}return}
 if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTarget.hp>0?u.guardTarget:null;u.o=guard?'G':u.pt?'p':'i';u.tg=guard;u.guardTarget=null;u.p=[];return}
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
-const dist=d2(u.x,u.y,tg),minR=d.minR||0,range=attackRange(u);
+const dist=d2(u.x,u.y,tg),minR=u.k==='mang'&&S.tech[u.t]?.onager?3:d.minR||0,range=attackRange(u);
 if(u.wind>0&&(u.windTarget!==tg.netId||dist>range||minR&&dist<minR)){u.wind=0;u.windTarget=null}
 if(minR&&dist<minR){if(u.st===2){u.p=[];return}if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,Math.max(minR+.5,range-.4),minR));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(dist<=range){u.p=[];
