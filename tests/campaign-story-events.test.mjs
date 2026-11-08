@@ -230,3 +230,85 @@ test('Causeway forward-Castle objective rejects remote and hostile fortification
  c("homeFort.hp=0");
  assert.equal(c('!!campaignCausewayFordCastle(.22)'),false,'destroyed fortifications never earn crossing relief');
 });
+
+test('Causeway Dock completion earns a physical naval escort, without counting it as a War Galley',()=>{
+ const c=mission(16);
+ assert.equal(c('S.bs.filter(b=>b&&b.t===0&&b.k===\'house\'&&b.done&&b.hp>0).length'),4,'full starting expedition must have real housing');
+ assert.equal(c("aliveUnits(0,'gal').length"),0,'the player still must train three War Galleys');
+ assert.equal(c("aliveUnits(1,'gal').length"),3,'enemy patrol still occupies the strait');
+ c('cmp.k=14;cmpTick(8)');
+ assert.equal(c("aliveUnits(0,'fire').length"),0,'a Dock foundation alone cannot earn naval support');
+ c('S.ex.fill(1)'); // Fixture simulates completed reconnaissance, not a free Dock.
+ assert.equal(c("!!(globalThis.causewayDock=put(0,'dock',tcOf(0).x+8,tcOf(0).y+4))"),true);
+ const before=c('JSON.stringify(S.res[0])');
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('cmp.d.dock'),1);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1,'the reward must be a living, navigable Fire Ship');
+ assert.equal(c("aliveUnits(0,'gal').length"),0,'Fire Ship cannot bypass the actual fleet goal');
+ assert.equal(c('JSON.stringify(S.res[0])'),before,'the escort must not invent resources');
+ assert.equal(c("['a','G'].includes(aliveUnits(0,'fire')[0].o)"),true,'the ship receives a real combat or guard order');
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1,'loading cannot spawn a second escort');
+ assert.equal(c('S.over'),null,'the naval reward does not win the mission');
+});
+
+test('Causeway north and south ford Towers earn a guarded siege column, not an automatic Castle kill',()=>{
+ const c=mission(16);
+ assert.equal(c('CAMP[16].goals.find(g=>g.id===\'fords\').optional'),true);
+ assert.equal(c('!!campaignCausewayFordTower(.22)'),false);
+ assert.equal(c('!!campaignCausewayFordTower(.78)'),false);
+ c('S.ex.fill(1)');
+ const setup=JSON.parse(c(`JSON.stringify((()=>{
+  const positions=[],river=y=>W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8;
+  for(const ford of [.22,.78]){
+   let found=null;
+   for(let y=Math.floor(H*ford)-9;y<=Math.floor(H*ford)+9&&!found;y++)
+    for(let x=Math.floor(river(y))-18;x<=Math.floor(river(y))-5;x++)
+     if(x>1&&y>1&&x+B.tower.s<W-1&&y+B.tower.s<H-1&&okPlace(0,'tower',x,y)){
+      const tower=addB(0,'tower',x,y,true);if(tower){found={x,y};break}
+     }
+   positions.push(found);
+  }
+  return {positions,castleHp:S.bs.find(b=>b.t===1&&b.k==='castle')?.hp||0,homeHp:tcOf(0).hp,enemyHp:tcOf(1).hp,resources:{...S.res[0]}};
+ })())`));
+ assert.ok(setup.positions.every(Boolean),'both shallow fords must offer legal Tower locations');
+ assert.equal(c('!!campaignCausewayFordTower(.22)'),true);
+ assert.equal(c('!!campaignCausewayFordTower(.78)'),true);
+ const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length})"));
+ c('cmp.k=14;cmpTick(10)');
+ assert.equal(c('cmp.d.fords'),1,'both Towers must be built on the crossing banks');
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1,'the royal detachment contributes one real Ram');
+ assert.equal(c("aliveUnits(0,'spear').length"),before.spear+2);
+ assert.equal(c("aliveUnits(0,'skirm').length"),before.skirm+2);
+ assert.equal(c("S.us.filter(u=>u&&u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='ram').length"),4,'the new escort guards the siege engine');
+ assert.equal(c('tcOf(0).hp'),setup.homeHp);
+ assert.equal(c('tcOf(1).hp'),setup.enemyHp,'allied arrival never auto-damages the capital');
+ assert.equal(c("S.bs.find(b=>b.t===1&&b.k==='castle').hp"),setup.castleHp,'enemy Castle must survive for genuine combat');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(setup.resources),'royal units do not mint resources');
+ assert.equal(c('S.over'),null,'siege bonus alone cannot grant victory');
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1,'reward persists across a save without duplication');
+});
+
+test('Remote and unfinished Causeway Towers are not credited as ford defences',()=>{
+ const c=mission(16);
+ c('S.ex.fill(1)');
+ assert.equal(c("!!(globalThis.remoteTower=put(0,'tower',tcOf(0).x+7,tcOf(0).y+7))"),true);
+ assert.equal(c('!!campaignCausewayFordTower(.22)'),false);
+ assert.equal(c('!!campaignCausewayFordTower(.78)'),false);
+ c('cmp.k=14;cmpTick(10)');
+ assert.equal(c('!!cmp.d.fords'),false,'ordinary build-count cannot activate the special defensive milestone');
+ assert.equal(c("CAMP[16].goals.find(g=>g.id==='towers').ok()"),false,'one Tower is not enough for the main objective');
+ c('remoteTower.hp=0');
+ assert.equal(c('!!campaignCausewayFordTower(.22)'),false,'dead or unfinished Towers do not protect a ford');
+});
