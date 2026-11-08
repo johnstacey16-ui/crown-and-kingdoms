@@ -18,7 +18,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30 # Covers explicit one-off 19-mission verification; normal pushes remain quick.
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -44,3 +44,8 @@ jobs:
         env:
           CK_MISSION: '17'
         run: node tests/simulation-smoke.test.mjs
+      # Intentionally expensive, one-off gate. Every mission runs in its own
+      # process, preserving the weekly/manual default for full regressions.
+      - name: Verify all nineteen complete scripted campaign playthroughs (explicit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-campaign-matrix]')
+        run: node scripts/run-checks.mjs --campaigns
