@@ -104,7 +104,7 @@ test('Strait siege decisions do not require the opening War Galleys to survive',
   'after two real relics, a surviving Ram must be enough to launch the land assault');
  assert.match(src,/if\(index===13\)straitAssaultStarted=true/,
   'attack orders must continue after a Ram or fleet casualty');
- assert.match(src,/index===9\|\|index===12\|\|index===13\)\&\&unit\.k!=='ram'/,
+ assert.match(src,/const defender=\([^\n]*index===13[^\n]*\)\&\&unit\.k!=='ram'/,
   'foot soldiers clear defenders while Rams attack fortifications');
 });
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
