@@ -214,5 +214,42 @@
       "finding": "Defender housing and escalating timed assaults are tested and meaningful.",
       "next": "Add visible convoy exit and clear arrival cue for the finale."
     }
-  ]
+  ],
+  "replayVerification": {
+    "run": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42478662077",
+    "mode": "One-off CK_MISSION complete production-simulation replays, removed from ordinary focused CI after checking outcomes",
+    "missions": [
+      {
+        "index": 1,
+        "title": "Raiders at the Ford",
+        "outcome": "win",
+        "time": 480,
+        "completed": 3,
+        "total": 3
+      },
+      {
+        "index": 7,
+        "title": "Crossing at Redwater",
+        "outcome": "win",
+        "time": 480,
+        "completed": 3,
+        "total": 3
+      },
+      {
+        "index": 13,
+        "title": "The Strait's Last Relic",
+        "outcome": "lose",
+        "time": 614,
+        "reason": "Your Town Centre fell",
+        "completed": 2,
+        "total": 4
+      }
+    ],
+    "notes": [
+      "The previously winning timed defence scenarios remain winnable after the new story encounters.",
+      "Strait's Last Relic still lacks a verified siege win and must not be presented as completed.",
+      "Separate focused tests verify the actual relief troop orders, merchant paths and enemy-owned relic release.",
+      "Full 19-mission campaign acceptance and physical Xbox Series S gameplay have not been rerun."
+    ]
+  }
 }

@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
-import {spawnSync} from 'node:child_process';
 
 function mission(index){
  const {source,sandbox}=headlessGame();
@@ -77,21 +76,4 @@ test('The 19 original missions retain their objectives, setup ages and arc progr
  assert.ok(evidence.goals.every(n=>n>=1));
  assert.ok(evidence.events.every(n=>n>=1));
  assert.equal(evidence.unique,true);
-});
-
-for(const index of [1,7,13])test('one-off isolated complete mission '+(index+1)+' after story revision',()=>{
- const run=spawnSync(process.execPath,['tests/simulation-smoke.test.mjs'],{
-  cwd:process.cwd(),encoding:'utf8',env:{...process.env,CK_MISSION:String(index),CK_SKIP_CAMPAIGN:'0'},timeout:200000,maxBuffer:8*1024*1024
- });
- assert.equal(run.status,0,'isolated campaign runner crashed: '+(run.stderr||'').slice(-2000)+'\n'+(run.stdout||'').slice(-2000));
- const line=(run.stdout||'').split('\n').find(t=>t.includes('campaign-isolation-result: '));
- assert.ok(line,'mission must emit evidence');
- const evidence=JSON.parse(line.split('campaign-isolation-result: ')[1]);
- console.log('campaign-design-replay-result: '+JSON.stringify(evidence));
- assert.equal(evidence.mission,index);
- assert.ok(['win','lose','timeout'].includes(evidence.outcome),'do not count a defeat or timeout as victory');
- if(index===1||index===7){
-  assert.equal(evidence.outcome,'win','previously winning story mission must still win naturally');
-  assert.equal(evidence.objectiveCount,evidence.totalObjectives);
- }
 });
