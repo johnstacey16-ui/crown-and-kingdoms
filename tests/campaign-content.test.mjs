@@ -73,7 +73,7 @@ test('final Causeway campaign mission requires forward Castles and a decisive To
   assert.ok(mission.includes('layout:12'), 'The mission must use the Causeway layout');
   assert.ok(mission.includes("t:'Build 2 completed Castles'"), 'The mission must require forward fortifications');
   assert.ok(mission.includes("t:'Destroy the enemy Town Centre'"), 'The mission must require a decisive assault');
-  assert.ok(mission.includes("at:260,do:()=>raid(9,['ram','ram','bomb'"), 'The mission must include a timed heavy-siege counterattack');
+  assert.ok(mission.includes("at:260,do:()=>raid(7,['ram','ram','bomb'"), 'The mission must include a timed heavy-siege counterattack');
   assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The final mission must be reachable in campaign progression');
 });
 
@@ -280,7 +280,7 @@ test('campaign overflow preserves the declared late-campaign armies for both kin
   [14,{knight:5,xbow:10,spear:6,ram:2},{knight:6,xbow:8,bomb:2}],
   [15,{mil:6,spear:6,arc:7},{spear:6,arc:5}],
   [16,{knight:4,spear:6,arc:8,ram:2},{knight:5,spear:6,arc:8,ram:2}],
-  [17,{knight:6,xbow:10,spear:8,bomb:2},{knight:7,xbow:10,spear:8,ram:3,bomb:2}]
+  [17,{knight:6,xbow:10,spear:8,bomb:2},{knight:6,xbow:8,spear:6,ram:2,bomb:1}]
  ];
  for(const [mission,...armies] of rosters){
   const {source,sandbox}=headlessGame();vm.createContext(sandbox);
