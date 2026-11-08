@@ -37,6 +37,7 @@ const FOCUSED=[
  // Campaign progression, shoreline layout and map/naval AI contracts.
  "tests/campaign-arc-coverage.test.mjs",
  "tests/campaign-content.test.mjs",
+ "tests/campaign-story-events.test.mjs",
  "tests/campaign-progression.test.mjs",
  "tests/campaign-scripted-economy.test.mjs",
  "tests/campaign-ui-extraction.test.mjs",
