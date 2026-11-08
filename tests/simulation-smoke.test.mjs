@@ -189,6 +189,7 @@ globalThis.__CK_TEST__ = {
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
+           if(index===14&&unit.o==='G'&&unit.tg?.k==='treb'&&unit.tg.hp>0)continue; // Keep the actual Royal siege escort guarding the weapons.
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
           const defender=(index===4||index===5||index===8||index===9)&&unit.k!=='ram'

@@ -91,7 +91,8 @@ test('Tidewatch Castle breach sends a one-time Trebuchet column that still must 
  c("S.bs.find(b=>b.t===1&&b.k==='castle').hp=0;cmp.k=14;cmpTick(1);cmpTick(1)");
  assert.equal(c('!!cmp.e['+index+']'),true);
  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2,'real artillery must spawn');
- assert.ok(c('S.us.length')>=oldUnits+4,'reinforcements exist in the normal unit roster');
+ assert.ok(c('S.us.length')>=oldUnits+12,'the full infantry escort and artillery must exist in the normal unit roster');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['knight','spear','xbow'].includes(u.k)&&u.o==='G'&&u.tg?.k==='treb').length"),10,'ten actual soldiers Guard the Trebuchets instead of racing ahead');
  assert.equal(c('JSON.stringify(S.res[0])'),stores,'the event must not hand over extra resources');
  assert.equal(c('tcOf(1).hp'),initialHealth,'the event must not directly damage the enemy capital');
  assert.equal(c('S.over'),null,'receiving reinforcements is not a win condition');

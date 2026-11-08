@@ -122,22 +122,28 @@ function campaignTidewatchReserve(){
 function campaignTidewatchBreachColumn(){
  const home=tcOf(0),enemy=tcOf(1);
  if(!home||!enemy||S.over)return 0;
- const anchor={t:0,x:enemy.x-8,y:enemy.y+8,s:B.castle.s},created=[];
- for(const kind of ['treb','treb','knight','knight']){
-  // Place on clear land close to the breached Castle, only if a friendly
-  // worker can reach the staging area. Fall back to the home encampment.
+ const anchor={t:0,x:enemy.x-8,y:enemy.y+8,s:B.castle.s},created=[],guns=[];
+ // The enemy field army can overwhelm unsupported artillery within seconds.
+ // A limited, one-time allied landing includes its own infantry escort.
+ for(const kind of ['treb','treb','knight','knight','spear','spear','spear','spear','xbow','xbow','xbow','xbow']){
   let spot=campaignOverflowSpawn(anchor);
   if(spot&&S.bs.some(b=>b&&b.hp>0&&spot[0]>=b.x-1&&spot[0]<=b.x+b.s+1&&spot[1]>=b.y-1&&spot[1]<=b.y+b.s+1))spot=null;
   spot=spot||spawnPos(home)||campaignOverflowSpawn(home);
   if(!spot)continue;
   const u=addU(0,kind,spot[0],spot[1]);
   if(!u)continue;
-  const route=path(u,goalNear(enemy,Math.max(1,U[kind].rng-.4)));
-  if(route){u.o='a';u.tg=enemy;u.p=[];u.rp=0}
-  else{u.o='G';u.tg=home;u.p=[];u.rp=0}
+  if(kind==='treb'){
+   const route=path(u,goalNear(enemy,Math.max(1,U[kind].rng-.4)));
+   if(route){u.o='a';u.tg=enemy;u.p=[];u.rp=0}
+   else{u.o='G';u.tg=home;u.p=[];u.rp=0}
+   guns.push(u);
+  }else{
+   const gun=guns.slice().sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
+   u.o='G';u.tg=gun||home;u.guardTarget=null;u.p=[];u.rp=0;
+  }
   created.push(u);
  }
- if(created.length)note('Tidewatch outer Castle is breached! Royal Trebuchets and Knights assemble for the final assault. Protect them and finish the enemy Town Centre.');
+ if(created.length)note('Tidewatch outer Castle is breached! Royal Trebuchets arrive with Knight, Spearman and Crossbow escorts. Guard the siege column to bring down the final Town Centre.');
  return created.length;
 }
 function campaignRoadCaravan(){
