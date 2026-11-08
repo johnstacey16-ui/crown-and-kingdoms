@@ -326,7 +326,7 @@ globalThis.__CK_TEST__ = {
       goldenCoast:index===12?{assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
        causewayProgress:index===16?causewayProgress:null,
-       crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,crownHomeGuards:index===17?crownHomeGuardIds.size:null,
+       crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,crownHomeGuards:index===17?crownHomeGuardIds.size:null,crownRecorded:index===17?campDone()[17]===1:null,crownEnemyCapitalAlive:index===17?!!tcOf(1):null,
       straitProgress:index===13?straitProgress:null,
       coastalRecon:index===16?{orders:causewayRecon.orders,explored:S.ex.filter(Boolean).length,playerDocks:cb('dock'),assaultStarted:causewayAssaultStarted,playerTowers:cb('tower'),playerGalleys:aliveUnits(0,'gal').length,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),earnedFordRelief:!!cmp.d.fords,earnedFleetRelief:!!cmp.e[CAMP[16].ev.findIndex(e=>e.do?.toString().includes('campaignCausewayFleetRelief'))],homeGuards:causewayHomeGuardIds.size}:null,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
@@ -1421,7 +1421,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     productionPeak: result.productionPeak,
     ...(index===9?{siegeAssault:result.greywatch}:{}),
     ...(index===16?{coastalRecon:result.coastalRecon,causewayProgress:result.causewayProgress}:{}),
-    ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards}:{}),
+    ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards,crownRecorded:result.crownRecorded,crownEnemyCapitalAlive:result.crownEnemyCapitalAlive}:{}),
     ...(index===13?{straitProgress:result.straitProgress}:{}),
     ...(index===14?{tidewatchProgress:result.tidewatchProgress}:{})
   };
@@ -1929,6 +1929,20 @@ for (const [index, label, limit] of [
     assert.ok(result.productionPeak.ram>=3&&result.productionPeak.skirm>=5,
       'normal paid production must reinforce the starting siege and ranged infantry');
     assert.ok(result.townCentreHp>0,'the original Town Centre must survive the Causeway battle');
+  }
+  if(index===17){
+    assert.equal(result.over,'win','The Crown Holds the Crossing requires a natural victory after real Castle and capital destruction: '+JSON.stringify({reason:result.reason,time:result.campaignTime,objectives:result.objectives}));
+    assert.ok(result.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+      'both finished Castles and the actual destroyed enemy Town Centre are mandatory');
+    assert.equal(result.crownEnemyCapitalAlive,false,'a living replacement enemy capital cannot count as defeated');
+    assert.equal(result.crownRecorded,true,'the normal campaign progress record must unlock the victory');
+    assert.ok(result.crownProgress.some(p=>p.ownCastles>=2),'both real royal Castles must be complete before the final assault');
+    assert.ok(result.crownProgress.some(p=>p.enemyCastleHp>0)&&result.crownProgress.some(p=>p.enemyCastleHp===0),
+      'the siege train must physically breach the full-health enemy Castle');
+    assert.ok(result.crownAssaultTime>100,'the siege must not begin before the two-Castle defence is established');
+    assert.equal(result.crownHomeGuards,5,'five troops must remain assigned to home Guard defence');
+    assert.ok(result.productionPeak.treb>=3,'paid Castle production must reinforce the two royal Trebuchets');
+    assert.ok(result.townCentreHp>0,'the player capital must survive the crossing campaign');
   }
   if(index===10){
     assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
