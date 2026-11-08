@@ -1898,7 +1898,7 @@ for (const [index, label, limit] of [
     assert.equal(result.coastalRecon.assaultStarted,true,'the scripted army must actually launch a land siege');
     assert.ok(result.productionPeak.ram>=3&&result.productionPeak.skirm>=5,
       'normal paid production must reinforce the starting siege and ranged infantry');
-    assert.ok(result.townCentreHp>0,'the player's original Town Centre must survive');
+    assert.ok(result.townCentreHp>0,'the original Town Centre must survive the Causeway battle');
   }
   if(index===10){
     assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
