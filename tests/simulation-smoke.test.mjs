@@ -181,6 +181,30 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
+      // A competent Tidewatch scripted opponent must defend its actual Town
+      // Centre and Guard the artillery instead of ordering every escort into
+      // the enemy Castle's arrow range. All orders use the normal state machine.
+      const tidewatchReserved=new Set();
+      if(index===14){
+        const home=tcOf(0),guns=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='bomb');
+        const threats=S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&!U[u.k]?.sh&&U[u.k]?.dmg>0);
+        const assignProtection=(u,anchor,radius)=>{
+          const enemy=threats.filter(v=>Math.hypot(v.x-anchor.x,v.y-anchor.y)<radius)
+            .sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
+          if(enemy){if(u.o!=='a'||u.tg!==enemy){u.o='a';u.tg=enemy;u.guardTarget=anchor;u.p=[];u.rp=0}return}
+          if((u.o==='G'&&u.tg===anchor)||(u.o==='a'&&u.guardTarget===anchor&&u.tg?.hp>0))return;
+          u.o='G';u.tg=anchor;u.guardTarget=null;u.p=[];u.rp=0;
+        };
+        if(home)for(const [kind,count]of [['spear',4],['xbow',4],['knight',1]]){
+          const units=S.us.filter(u=>u&&u.t===0&&u.k===kind&&u.hp>0&&!u.ld)
+            .sort((a,b)=>Math.hypot(a.x-home.x,a.y-home.y)-Math.hypot(b.x-home.x,b.y-home.y));
+          for(const u of units.slice(0,count)){tidewatchReserved.add(u);assignProtection(u,home,18)}
+        }
+        for(const u of S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&!tidewatchReserved.has(u)&&['knight','xbow','spear'].includes(u.k))){
+          const gun=guns.slice().sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
+          if(gun){tidewatchReserved.add(u);assignProtection(u,gun,10)}
+        }
+      }
       if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&greywatchAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true; // Do not abandon the capital after siege casualties.
         if(index===9){if(!greywatchAssaultStarted)greywatchAssaultTime=S.t;greywatchAssaultStarted=true} // Persist after siege casualties.
@@ -188,6 +212,7 @@ globalThis.__CK_TEST__ = {
         const enemyTC = tcOf(1);
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
+           if(index===14&&tidewatchReserved.has(unit))continue; // Current Guard/defensive attack order takes priority.
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
           const defender=(index===4||index===5||index===8||index===9)&&unit.k!=='ram'

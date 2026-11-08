@@ -16,8 +16,10 @@ assert.equal(live(0,'gal').length,2, 'living player galleys count even when safe
 assert.equal(live(1,'gal').length,1, 'enemy units are not counted for player objectives');
 assert.match(campaign, /t:'Have 3 War Galleys alive',sustained:true,ok:\(\)=>aliveUnits\(0,'gal'\)\.length>=3/,
   'Fleet objectives must count only live, active war galleys');
-assert.match(campaign, /t:'Field 2 Bombard Cannons alive',sustained:true,ok:\(\)=>aliveUnits\(0,'bomb'\)\.length>=2/,
-  'Siege objectives must count only live, active bombard cannons');
+assert.match(campaign, /t:'Muster 2 Bombard Cannons',ok:\(\)=>aliveUnits\(0,'bomb'\)\.length>=2/,
+  'The artillery muster must be earned by fielding two real living cannons');
+assert.doesNotMatch(campaign, /id:'bombards'[^\n]*sustained:true/,
+  'Once artillery has been assembled, casualties must not retroactively erase the muster milestone');
 assert.match(campaign, /t:'Keep 15 land soldiers alive',sustained:true,ok:\(\)=>aliveUnits\(0\)\.filter/,
   'Survival objectives must use the guarded live-unit roster');
 assert.match(campaign, /cmp\.i===5&&!S\.us\.some\(u=>u&&u\.t===0&&u\.k==='king'&&u\.hp>0\)\)\{endGame\('lose','Your King has fallen'\);return\}/,

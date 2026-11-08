@@ -46,6 +46,16 @@ test('Destroying Tidewatch Dock grants one supply reward without cheats or repea
  assert.equal(c('S.res[0].w'),w+180,'save/load cannot duplicate optional rewards');
  assert.equal(c('S.res[0].g'),g+100);
 });
+test('Tidewatch cannon muster remains complete after casualties but requires two real fielded units',()=>{
+ const c=tidewatch();
+ c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});globalThis.a=addU(0,'bomb',20.5,20.5);globalThis.b=addU(0,'bomb',21.5,20.5);cmp.k=14;cmpTick(5)");
+ assert.equal(c('cmp.d.bombards'),1,'two living bombards complete the preparation stage');
+ c('a.hp=0;b.hp=0;cmp.k=14;cmpTick(1)');
+ assert.equal(c('cmp.d.bombards'),1,'fielded and later lost artillery still count for the completed muster');
+ assert.equal(c('S.over'),null,'muster alone cannot win without destroying the fortress');
+ const s=c('saveG()');assert.equal(s,true);assert.equal(c('loadG()'),true);
+ assert.equal(c('cmp.d.bombards'),1,'a completed stage remains complete through save/load');
+});
 test('Optional harbour does not block a legitimate siege victory',()=>{
  const c=tidewatch();
  c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});addU(0,'bomb',20.5,20.5);addU(0,'bomb',21.5,20.5)");
