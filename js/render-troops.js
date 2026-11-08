@@ -44,7 +44,7 @@ function unitVisualPose(u,time){
 // This includes Janissaries/Genoese Crossbowmen if their new sheets fail to load.
 // Fallback transforms are distinct from individually painted motion frames.
 const PAINT_SECONDARY=Object.freeze({
-  cart:'siege',fish:'ship',gal:'ship',trn:'ship',cog:'ship',
+  cart:'siege',fish:'ship',gal:'ship',fire:'ship',demo:'ship',trn:'ship',cog:'ship',
   ram:'siege',mamel:'mounted',jan:'ranged',chuko:'ranged',
   eled:'elephant',hcan:'ranged',bomb:'siege',mgd:'mounted',
   cata:'mounted',ele:'elephant',treb:'siege',camel:'mounted',
@@ -147,6 +147,25 @@ function drawUnitGround(u,selectedUnits,sx,sy,z,r){
  if((selectedUnits?selectedUnits.has(u):S.sel.includes(u))){X.strokeStyle='#8cff3c';X.lineWidth=2.5;X.beginPath();X.ellipse(sx,sy+z,(r+10)*z,(r+10)*z/2,0,0,7);X.stroke();X.lineWidth=1}
 }
 
+// Temporary painted ship silhouettes are shared with the Galley. These clearly
+// distinguish the two new combat roles without needing additional atlas memory.
+// Purely visual; both solo and team-relative multiplayer renderers call this.
+function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
+ if(kind!=='fire'&&kind!=='demo')return;
+ const z=Math.max(.3,Math.min(2.5,scale)),wave=Math.sin((Number.isFinite(time)?time:0)*8)*1.5*z;
+ ctx.save();ctx.translate(x,y);ctx.lineWidth=Math.max(.8,z);
+ if(kind==='fire'){
+  ctx.fillStyle='#ff9832';ctx.strokeStyle='#512818';ctx.beginPath();
+  ctx.moveTo(-7*z,-19*z);ctx.lineTo(-4*z,-31*z-wave);ctx.lineTo(0,-25*z);ctx.lineTo(3*z,-36*z+wave);ctx.lineTo(8*z,-19*z);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffe089';ctx.beginPath();ctx.moveTo(-2*z,-20*z);ctx.lineTo(2*z,-30*z);ctx.lineTo(4*z,-20*z);ctx.closePath();ctx.fill();
+ }else{
+  ctx.fillStyle='#f5d267';ctx.strokeStyle='#612d20';ctx.beginPath();
+  ctx.moveTo(0,-31*z);ctx.lineTo(8*z,-21*z);ctx.lineTo(0,-11*z);ctx.lineTo(-8*z,-21*z);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#812b1e';ctx.fillRect(-2*z,-26*z,4*z,9*z);ctx.fillRect(-2*z,-15*z,4*z,3*z);
+ }
+ ctx.restore();
+}
+
 /* In-match troop drawing and researched equipment cues. */
 function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1];
  if(perfUnitPass===3)return;
@@ -158,6 +177,7 @@ c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);
 /* Validated motion frames take priority; generate procedural art only if every atlas misses. */if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
+drawNavalClassMark(X,k,sx,sy,z,pose.time);
 if(perfUnitPass===1)return;
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}

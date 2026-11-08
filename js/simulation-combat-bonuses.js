@@ -65,6 +65,24 @@ hitSnd(a,t);
 if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.al=S.t;note('Under attack! L3 with nothing selected jumps there');sfx('horn');rumble(260,.6,.3)}}
 if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
 
+// Demolition Ships explode once upon reaching a valid hostile target. All combat
+// mutations use the same deterministic tick as ordinary attacks: no timers,
+// persistent explosives, or client-only damage. Allied and neutral ships are safe.
+function detonateShip(ship){
+ if(!ship||ship.k!=='demo'||ship.hp<=0||ship.dead||ship.ld||ship.o!=='a'||ship.cd>0||!S.us.includes(ship))return false;
+ const target=ship.tg;
+ if(!target||target.hp<=0||target.ld||!isHostile(ship.t,target.t)||!Number.isFinite(target.x)||!Number.isFinite(target.y)||d2(ship.x,ship.y,target)>U.demo.rng)return false;
+ const blast=2.75,attack={k:'demo',t:ship.t,x:ship.x,y:ship.y};
+ // Stable world-list ordering keeps replays and two-human simulation in step.
+ for(const enemy of S.us)if(enemy!==ship&&enemy.hp>0&&!enemy.ld&&isHostile(ship.t,enemy.t)&&Number.isFinite(enemy.x)&&Number.isFinite(enemy.y)&&Math.hypot(enemy.x-ship.x,enemy.y-ship.y)<=blast)dmgT(attack,enemy);
+ for(const b of S.bs)if(b.hp>0&&isHostile(ship.t,b.t)&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&d2(ship.x,ship.y,b)<=blast)dmgT(attack,b);
+ ship.hp=0;ship.dead=1;ship.o='i';ship.tg=null;ship.p=[];
+ corp.push({x:ship.x,y:ship.y,k:ship.k,tm:ship.t,fd:ship.fd||1,sh:true,t:gt});if(corp.length>60)corp.shift();
+ emit('spark',ship.x,ship.y,22,{s:3,vz:4,l:.6,c:'#f5a64d',r:3});
+ sfx('sink',ship.x,ship.y,{k:'demo'});
+ return true;
+}
+
 // Conversion helpers shared by solo input, AI and authenticated orders.
 // Unchanged source relocated from simulation.js; retain classic global names.
 function resetConversion(u){u.cv=0;u.cvNext=0;u.cvTargetId=null;u.cvTeam=null}

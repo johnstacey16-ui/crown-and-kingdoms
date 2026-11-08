@@ -4,6 +4,8 @@ Pack format (embed as a script element with id ck-assets and type application/js
 frame={x,y,w,h,ax,ay} (rectangle in the atlas; ax,ay = feet anchor inside the frame). states: idle, walk, attack, work. team: 0 blue, 1 red.
 A missing, failed or malformed atlas simply leaves the unit on its procedural sprite. */
 const ASSET={atl:{},n:0,hits:0,miss:0},STN=['idle','walk','attack','work'];
+// Interim art aliases let new ship roles reuse all Galley poses and team tints.
+const SHIP_ART_FALLBACK=Object.freeze({fire:'gal',demo:'gal'});
 // Indexed on asset registration/replacement, not once for each rendered unit.
 // Preserve atlas registration order and allow multiple candidates for a key:
 // a malformed/empty animation may still fall through to the next sheet.
@@ -25,7 +27,7 @@ function rebuildAssetAnimationIndex(){
 // Require every declared direction/frame so partial external packs remain
 // conservatively eligible for procedural warm-up.
 function hasReadyAssetPose(kind,team,state){
- const key=kind+'/'+STN[state]+'/'+team;
+ const key=(SHIP_ART_FALLBACK[kind]||kind)+'/'+STN[state]+'/'+team;
  return (ASSET_ANIM_INDEX.get(key)||[]).some(atlas=>{
   if(!atlas.ok||!atlas.img)return false;
   const animation=atlas.meta?.anims?.[key],lists=animation?.dirs||(animation?.frames?[animation.frames]:[]);
@@ -86,6 +88,6 @@ function validAtlasMeta(meta,w,h){if(!meta||!meta.anims||!Number.isFinite(w)||!N
 function loadAtlas(id,src,meta){const a={img:null,meta,ok:false};ASSET.atl[id]=a;rebuildAssetAnimationIndex();try{const im=new Image();im.onload=()=>{if(!validAtlasMeta(meta,im.naturalWidth||im.width,im.naturalHeight||im.height)){a.ok=false;a.img=null}else{a.img=im;a.ok=true}ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()};im.onerror=()=>{a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()};im.src=src}catch(e){a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()}}
 // Returned f samples img; sourceFrame retains canonical atlas coordinates.
 // Both share the original dimensions and foot anchor.
-function assetFrame(k,t,st,dir,time,heading,phase){const key=k+'/'+STN[st]+'/'+t;for(const a of ASSET_ANIM_INDEX.get(key)||[]){if(!a.ok||!a.img||!a.meta?.anims)continue;const an=a.meta.anims[key];if(!an)continue;const index=an.dirs&&Number.isFinite(heading)?((Math.round(heading/(Math.PI*2)*an.dirs.length)%an.dirs.length)+an.dirs.length)%an.dirs.length:an.dirs?((dir%an.dirs.length)+an.dirs.length)%an.dirs.length:0;const dl=an.dirs?an.dirs[index]:an.frames;if(!dl||!dl.length)continue;const frameIndex=Number.isFinite(phase)?Math.min(dl.length-1,Math.floor(Math.max(0,Math.min(1,phase))*dl.length)):Math.floor(Math.max(0,Number.isFinite(time)?time:0)/(an.dur>0?an.dur:.12))%dl.length;const f=dl[frameIndex];if(f&&f.w>0&&f.h>0){ASSET.hits++;return{...paintedTeamFrame(a,t,f),sourceFrame:f,sc:an.scale>0?an.scale:1,painted:!!a.meta.painted,animated:dl.length>1,referenceHeight:an.referenceHeight||f.h,...(an.referenceWidth?{referenceWidth:an.referenceWidth}:{})}}}ASSET.miss++;return null}
+function assetFrame(k,t,st,dir,time,heading,phase){const key=(SHIP_ART_FALLBACK[k]||k)+'/'+STN[st]+'/'+t;for(const a of ASSET_ANIM_INDEX.get(key)||[]){if(!a.ok||!a.img||!a.meta?.anims)continue;const an=a.meta.anims[key];if(!an)continue;const index=an.dirs&&Number.isFinite(heading)?((Math.round(heading/(Math.PI*2)*an.dirs.length)%an.dirs.length)+an.dirs.length)%an.dirs.length:an.dirs?((dir%an.dirs.length)+an.dirs.length)%an.dirs.length:0;const dl=an.dirs?an.dirs[index]:an.frames;if(!dl||!dl.length)continue;const frameIndex=Number.isFinite(phase)?Math.min(dl.length-1,Math.floor(Math.max(0,Math.min(1,phase))*dl.length)):Math.floor(Math.max(0,Number.isFinite(time)?time:0)/(an.dur>0?an.dur:.12))%dl.length;const f=dl[frameIndex];if(f&&f.w>0&&f.h>0){ASSET.hits++;return{...paintedTeamFrame(a,t,f),sourceFrame:f,sc:an.scale>0?an.scale:1,painted:!!a.meta.painted,animated:dl.length>1,referenceHeight:an.referenceHeight||f.h,...(an.referenceWidth?{referenceWidth:an.referenceWidth}:{})}}}ASSET.miss++;return null}
 function loadAssetPack(p){try{if(!p||!Array.isArray(p.atlases))return;if(p.terrain?.src&&typeof loadPaintedTerrain==='function')loadPaintedTerrain(p.terrain.src);for(const a of p.atlases)if(a&&a.id&&a.src&&a.meta)loadAtlas(a.id,a.src,a.meta)}catch(e){}}
 

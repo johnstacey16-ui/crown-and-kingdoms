@@ -205,7 +205,7 @@
       const scale=height/(sprite.referenceHeight||f.h)*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);
       context.save();
       if(size&&e.complete===false&&!sprite.painted)context.globalAlpha=.4+.45*(e.progress||0);
-      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0,e.kind,e.pose?.phase);else if(size&&typeof drawBuildingArtwork==='function')drawBuildingArtwork(context,sprite,footX,footY,scale,e.complete!==false,e.progress,false,typeof buildingDamageStage==='function'?buildingDamageStage(e.complete!==false,e.hp,e.maxHp):0,time);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);}
+      try{if(sprite.painted&&!size)drawPaintedTroop(context,sprite,footX,footY,scale,e.pose?.state||0,e.pose?.time??time,Math.cos(e.pose?.heading||0)<0,e.kind,e.pose?.phase);else if(size&&typeof drawBuildingArtwork==='function')drawBuildingArtwork(context,sprite,footX,footY,scale,e.complete!==false,e.progress,false,typeof buildingDamageStage==='function'?buildingDamageStage(e.complete!==false,e.hp,e.maxHp):0,time);else context.drawImage(sprite.img,f.x,f.y,f.w,f.h,footX-f.ax*scale,footY-f.ay*scale,f.w*scale,f.h*scale);if(!size&&typeof drawNavalClassMark==='function')drawNavalClassMark(context,e.kind,footX,footY,scale,e.pose?.time??time);}
       catch(_){context.restore();return false;}
       context.restore();return size&&sprite.painted?'painted-building':true;
     }
@@ -222,7 +222,7 @@
       }else if(!atlas){
         context.beginPath();context.ellipse(x+1,y+2,unitRadius+1,unitRadius*.65,0,0,Math.PI*2);context.fill();
         context.fillStyle=color;context.strokeStyle='#172429';context.lineWidth=1;
-        if(['gal','fish','trn','cog'].includes(e.kind)){
+        if(['gal','fire','demo','fish','trn','cog'].includes(e.kind)){
           context.beginPath();context.moveTo(x-unitRadius,y-unitRadius*.6);context.lineTo(x+unitRadius,y-unitRadius*.6);
           context.lineTo(x+unitRadius*.65,y+unitRadius);context.lineTo(x-unitRadius*.6,y+unitRadius);context.closePath();context.fill();context.stroke();
           context.strokeStyle='#eee0ba';context.beginPath();context.moveTo(x,y+unitRadius*.5);context.lineTo(x,y-unitRadius*1.5);context.stroke();
