@@ -195,12 +195,14 @@ globalThis.__CK_TEST__ = {
           if((u.o==='G'&&u.tg===anchor)||(u.o==='a'&&u.guardTarget===anchor&&u.tg?.hp>0))return;
           u.o='G';u.tg=anchor;u.guardTarget=null;u.p=[];u.rp=0;
         };
-        if(home)for(const [kind,count]of [['spear',4],['xbow',4],['knight',1]]){
+        if(home)for(const [kind,count]of [['spear',3],['xbow',3]]){
           const units=S.us.filter(u=>u&&u.t===0&&u.k===kind&&u.hp>0&&!u.ld)
             .sort((a,b)=>Math.hypot(a.x-home.x,a.y-home.y)-Math.hypot(b.x-home.x,b.y-home.y));
           for(const u of units.slice(0,count)){tidewatchReserved.add(u);assignProtection(u,home,18)}
         }
-        for(const u of S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&!tidewatchReserved.has(u)&&['knight','xbow','spear'].includes(u.k))){
+        const escorts=[...S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='knight'&&!tidewatchReserved.has(u)).slice(0,2),
+         ...S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='xbow'&&!tidewatchReserved.has(u)).slice(0,2)];
+        for(const u of escorts){
           const gun=guns.slice().sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];
           if(gun){tidewatchReserved.add(u);assignProtection(u,gun,10)}
         }

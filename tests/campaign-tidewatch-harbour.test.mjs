@@ -48,7 +48,7 @@ test('Destroying Tidewatch Dock grants one supply reward without cheats or repea
 });
 test('Tidewatch cannon muster remains complete after casualties but requires two real fielded units',()=>{
  const c=tidewatch();
- c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});globalThis.a=addU(0,'bomb',20.5,20.5);globalThis.b=addU(0,'bomb',21.5,20.5);cmp.k=14;cmpTick(5)");
+ c("put(0,'siege',tcOf(0).x+8,tcOf(0).y+8);globalThis.a=addU(0,'bomb',20.5,20.5);globalThis.b=addU(0,'bomb',21.5,20.5);cmp.k=14;cmpTick(5)");
  assert.equal(c('cmp.d.bombards'),1,'two living bombards complete the preparation stage');
  c('a.hp=0;b.hp=0;cmp.k=14;cmpTick(1)');
  assert.equal(c('cmp.d.bombards'),1,'fielded and later lost artillery still count for the completed muster');
