@@ -1,0 +1,218 @@
+{
+  "reviewDate": "2026-11-08",
+  "reviewedCode": "8cdab6d0eca2595cd40a13f300f3508aa50e00a3",
+  "scope": "Source-based editorial gameplay review of all nineteen original Crown & Kingdoms missions. Not a human or Xbox gameplay review; classifications are subjective.",
+  "referenceStandard": "Age of Empires II: Definitive Edition campaign design style, not a claim of exact historical mission or commercial content reproduction.",
+  "officialReferences": [
+    "https://www.ageofempires.com/learn-to-play/civilizations-game-modes-aoe2/",
+    "https://www.ageofempires.com/news/aoe2de-update-50292/",
+    "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-108769/"
+  ],
+  "criteria": [
+    "Distinct historical-style or original narrative arc",
+    "Original map-specific strategic situation",
+    "Varied objective paths with meaningful consequences",
+    "Real triggered encounters, allies, enemy counterplay and end conditions",
+    "Validated, fair and understandable player victory path"
+  ],
+  "historicalValidation": {
+    "evidence": "docs/verification/campaign-2026-11-05.json",
+    "executed": 19,
+    "wins": 14,
+    "defeats": 5,
+    "timeouts": 0,
+    "note": "From a prior revision, not retested on this review commit. One later isolated Causeway test still ended in defeat."
+  },
+  "counts": {
+    "promising": 7,
+    "adequate": 5,
+    "needs_rework": 7
+  },
+  "mostImportantIssues": [
+    "Numerous stages are generic map + build/count/survive/destroy checklists",
+    "No truly hand-authored maps, multi-faction diplomacy or meaningful alternate objectives",
+    "Redwater and King's Road share the same win-condition skeleton",
+    "Five scripted defeats remain unsolved; positive setup and 40-second smoke tests are not evidence of full mission quality",
+    "Some objectives describe training or strategically located buildings but merely check living troop/building counts",
+    "Campaigns currently include no historical voiceover, hero-led escort storyline, or optional quests"
+  ],
+  "changesInThisIteration": [
+    "Raiders at the Ford: real five-unit royal relief guarded by the Town Centre at 445 seconds; objective wording now honestly says muster.",
+    "Crossing at Redwater: two physical trade carts follow a path toward the completed Market after minute 6:45.",
+    "Strait's Last Relic: actual hostile Monastery holding one real stolen relic, released after destruction.",
+    "Scripted events: mixed time + objective predicates now both gate an event, and events persist through saves."
+  ],
+  "missions": [
+    {
+      "index": 0,
+      "title": "First Hearth",
+      "arc": "The Crown of Ashford",
+      "archetype": "tutorial",
+      "assessment": "promising",
+      "finding": "Controller-native economy lesson, but nearly all learning happens on a generic map.",
+      "next": "Add map-specific gathering tasks and staged reinforcement in later iteration."
+    },
+    {
+      "index": 1,
+      "title": "Raiders at the Ford",
+      "arc": "The Crown of Ashford",
+      "archetype": "timed_defence",
+      "assessment": "adequate",
+      "finding": "Raid waves are real; originally the promised royal relief did not arrive.",
+      "next": "Physical royal relief now arrives late; add a distinctive ford chokepoint."
+    },
+    {
+      "index": 2,
+      "title": "The Feudal Frontier",
+      "arc": "The Crown of Ashford",
+      "archetype": "economic_progression",
+      "assessment": "needs_rework",
+      "finding": "Checklist of age-ups, Market and Towers; real opposition starts near the conclusion.",
+      "next": "Stage frontier outposts and earlier reactive raids; test balance."
+    },
+    {
+      "index": 3,
+      "title": "The Relic Road",
+      "arc": "The Crown of Ashford",
+      "archetype": "relic_collection",
+      "assessment": "adequate",
+      "finding": "Real monk/relic interaction, but generic generated relic locations and a late raid.",
+      "next": "Add guarded relic sites and a distinct route choice."
+    },
+    {
+      "index": 4,
+      "title": "Siege of Kronburg",
+      "arc": "The Crown of Ashford",
+      "archetype": "setpiece_siege",
+      "assessment": "promising",
+      "finding": "Starting rams and escort, real enemy Castle and Town Centre, clear unit counters.",
+      "next": "Add layered breach, side approach and castle response trigger."
+    },
+    {
+      "index": 5,
+      "title": "The Last Crown",
+      "arc": "The Crown of Ashford",
+      "archetype": "regicide",
+      "assessment": "promising",
+      "finding": "Genuine King-protection loss and King-elimination victory, functioning garrison.",
+      "next": "Make rival King movement and escape routes a staged encounter."
+    },
+    {
+      "index": 6,
+      "title": "The Northern Watch",
+      "arc": "Frontier Wars",
+      "archetype": "timed_defence",
+      "assessment": "promising",
+      "finding": "Feudal defence, natural production and multiple waves.",
+      "next": "Make the northern approaches physically distinct and reward holding outposts."
+    },
+    {
+      "index": 7,
+      "title": "Crossing at Redwater",
+      "arc": "Frontier Wars",
+      "archetype": "road_defence",
+      "assessment": "needs_rework",
+      "finding": "Original goal set duplicated King's Road: Market, two Towers, eight-minute hold.",
+      "next": "A real merchant convoy now appears; next: meaningful escort goal and route geography."
+    },
+    {
+      "index": 8,
+      "title": "Crown of Ashford",
+      "arc": "The Crown of Ashford",
+      "archetype": "capital_siege",
+      "assessment": "adequate",
+      "finding": "Substantial starting army and hostile fortifications, but only one Town Centre objective.",
+      "next": "Add an intermediate gate breach or bridge-control objective."
+    },
+    {
+      "index": 9,
+      "title": "Siege of Greywatch",
+      "arc": "The Royal Campaign",
+      "archetype": "production_siege",
+      "assessment": "promising",
+      "finding": "Paid replacement economy, ranged research, Guard escorts, proven scripted siege win.",
+      "next": "Add narrative objective stages and counterattacking enemy siege."
+    },
+    {
+      "index": 10,
+      "title": "The King's Road",
+      "arc": "The Royal Campaign",
+      "archetype": "economic_defence",
+      "assessment": "adequate",
+      "finding": "Stone shortfall creates a trade/mining decision but resembles Redwater structurally.",
+      "next": "Turn it into a true road-supply mission with economic delivery target."
+    },
+    {
+      "index": 11,
+      "title": "The Reliquary Trail",
+      "arc": "The Royal Campaign",
+      "archetype": "relic_raid",
+      "assessment": "adequate",
+      "finding": "Actual monk recovery and enemy patrols, but only a single goal.",
+      "next": "Introduce protected shrines and escort/relief choices."
+    },
+    {
+      "index": 12,
+      "title": "The Golden Coast",
+      "arc": "Coastal War",
+      "archetype": "land_naval_assault",
+      "assessment": "needs_rework",
+      "finding": "Mixed fleet and land objectives, but last isolated scripted run lost its Town Centre.",
+      "next": "Improve fleet preservation, staged enemy landings and a playable naval opening."
+    },
+    {
+      "index": 13,
+      "title": "The Strait's Last Relic",
+      "arc": "Coastal War",
+      "archetype": "relic_siege",
+      "assessment": "needs_rework",
+      "finding": "Large simultaneous relic and fortress goals; latest scripted run lost, and hostile abbey was absent.",
+      "next": "Enemy abbey now holds an actual captive relic; next verify recovery and balance."
+    },
+    {
+      "index": 14,
+      "title": "The Siege of Tidewatch",
+      "arc": "Coastal War",
+      "archetype": "imperial_siege",
+      "assessment": "needs_rework",
+      "finding": "Bombard objectives and fortified harbour, but scripted player loses its Town Centre early.",
+      "next": "Add defensible siege staging, protected artillery and clearer counterattack timings."
+    },
+    {
+      "index": 15,
+      "title": "The Bridge at Blackwood",
+      "arc": "Northern March",
+      "archetype": "fortify_survive",
+      "assessment": "promising",
+      "finding": "Walls and towers with several escalating raids are meaningful play.",
+      "next": "Make wall placement near the crossing count, not arbitrary distant walls."
+    },
+    {
+      "index": 16,
+      "title": "The Causeway Muster",
+      "arc": "The Causeway Campaign",
+      "archetype": "land_naval_crossing",
+      "assessment": "needs_rework",
+      "finding": "Dock reconnaissance/paid construction now works, but the scripted player still loses and fleet survival is unstable.",
+      "next": "Rework harbour protection, land siege coordination and wave pacing."
+    },
+    {
+      "index": 17,
+      "title": "The Crown Holds the Crossing",
+      "arc": "The Causeway Campaign",
+      "archetype": "fortified_conquest",
+      "assessment": "needs_rework",
+      "finding": "Two Castles can be built anywhere despite the forward-crossings story; final assault loses.",
+      "next": "Use meaningful castle placement zones and guarded siege staging."
+    },
+    {
+      "index": 18,
+      "title": "The Iron Pass",
+      "arc": "Northern March",
+      "archetype": "hold_the_pass",
+      "assessment": "promising",
+      "finding": "Defender housing and escalating timed assaults are tested and meaningful.",
+      "next": "Add visible convoy exit and clear arrival cue for the finale."
+    }
+  ]
+}
