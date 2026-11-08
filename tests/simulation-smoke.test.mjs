@@ -1336,6 +1336,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     productionPeak: result.productionPeak,
     ...(index===9?{siegeAssault:result.greywatch}:{}),
     ...(index===16?{coastalRecon:result.coastalRecon}:{}),
+    ...(index===13?{straitProgress:result.straitProgress}:{}),
     ...(index===14?{tidewatchProgress:result.tidewatchProgress}:{})
   };
   campaignPlaythroughResults.push(evidence);
