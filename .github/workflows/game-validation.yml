@@ -49,3 +49,8 @@ jobs:
       - name: Verify all nineteen complete scripted campaign playthroughs (explicit opt-in only)
         if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-campaign-matrix]')
         run: node scripts/run-checks.mjs --campaigns
+      - name: Diagnose Golden Coast end-to-end (explicit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-golden-coast]')
+        env:
+          CK_MISSION: '12'
+        run: node tests/simulation-smoke.test.mjs
