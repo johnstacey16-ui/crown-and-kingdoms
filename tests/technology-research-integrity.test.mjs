@@ -21,7 +21,7 @@ assert.ok(techStart >= 0 && techEnd > techStart, 'Technology table must remain i
 const techText = html.slice(techStart, techEnd + 1);
 const techMatches = [...techText.matchAll(/(?:const TE=\{|,)\s*([A-Za-z][A-Za-z0-9]*):\{n:/g)];
 const techKeys = techMatches.map((match) => match[1]);
-assert.equal(techKeys.length, 72, 'Technology table includes 72 distinct technologies including the Onager and Siege Onager lines');
+assert.equal(techKeys.length, 74, 'Technology table includes 74 technologies including both Onager and Ram upgrade lines');
 assert.ok(techKeys.includes('xbow')&&techKeys.includes('thumb')&&techKeys.includes('armI2')&&techKeys.includes('armI3')&&techKeys.includes('armR2')&&techKeys.includes('armR3')&&techKeys.includes('armC2')&&techKeys.includes('armC3'), 'Crossbowman, Thumb Ring, Chain Mail and Plate Mail must remain defined');
 assert.equal(new Set(techKeys).size, techKeys.length, 'Technology keys must be unique');
 

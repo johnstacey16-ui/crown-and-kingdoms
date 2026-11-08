@@ -20,5 +20,7 @@ function unitName(k,t){
  if(k==='camel'&&tech.hcamel)return 'Heavy Camel Rider';
  if(k==='mang'&&tech.siegeOnager)return 'Siege Onager';
  if(k==='mang'&&tech.onager)return 'Onager';
+ if(k==='ram'&&tech.siegeRam)return 'Siege Ram';
+ if(k==='ram'&&tech.cappedRam)return 'Capped Ram';
  return U[k]?U[k].n:k;
 }

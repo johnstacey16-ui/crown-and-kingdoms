@@ -90,7 +90,7 @@ return {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount};
  * than closing over aiTeam so production and focused policy checks use one owner.
  * Existing research weights, prerequisites and sorting remain unchanged. */
 function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,humanInf,humanShips}){
- const base={loom:76,wheel:79,handcart:75,gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60,armI2:64,armI3:66,armR:60,armR2:64,armR3:66,armC:60,armC2:64,armC3:66,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,blood:68,squires:64,arson:56,xbow:70,arb:65,elsk:64,lcav:62,cavl:65,pala:68,huss:65,siegeup:54,onager:60,siegeOnager:52,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57,devotion:40,faith:30,heresy:25,redemption:45,atonement:40,sanctity:55,fervor:48,blockPrinting:60,illumination:50,theocracy:42,herbalMedicine:36,murderHoles:38};
+ const base={loom:76,wheel:79,handcart:75,gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60,armI2:64,armI3:66,armR:60,armR2:64,armR3:66,armC:60,armC2:64,armC3:66,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,blood:68,squires:64,arson:56,xbow:70,arb:65,elsk:64,lcav:62,cavl:65,pala:68,huss:65,siegeup:54,onager:60,siegeOnager:52,cappedRam:56,siegeRam:52,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57,devotion:40,faith:30,heresy:25,redemption:45,atonement:40,sanctity:55,fervor:48,blockPrinting:60,illumination:50,theocracy:42,herbalMedicine:36,murderHoles:38};
  let score=base[k]||20;
  if(k==='pike'&&humanCav>=2)score+=90;
  if(k==='halb'&&humanCav>=2)score+=85;
@@ -138,6 +138,11 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='onager'||k==='siegeOnager'){
   const ownMangonels=my.filter(u=>u.k==='mang'&&!u.ld&&u.hp>0).length;
   score+=ownMangonels>=3?45:ownMangonels>0?15:-45;
+  if(humanSiege>=2)score+=15;
+ }
+ if(k==='cappedRam'||k==='siegeRam'){
+  const ownRams=my.filter(u=>u.k==='ram'&&!u.ld&&u.hp>0).length;
+  score+=ownRams>=3?40:ownRams>0?12:-45;
   if(humanSiege>=2)score+=15;
  }
  if(k==='navalHull'&&humanShips.length)score+=95;

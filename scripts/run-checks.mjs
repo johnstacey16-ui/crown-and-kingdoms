@@ -44,6 +44,7 @@ const FOCUSED=[
  "tests/map-connectivity.test.mjs",
  "tests/naval-ai-priority.test.mjs",
  "tests/onager-upgrade-line.test.mjs",
+ "tests/ram-upgrade-line.test.mjs",
  // Native artwork, fallback rendering, terrain, villager-pathing and menu contracts.
  "tests/building-age-details.test.mjs",
  "tests/building-construction-art.test.mjs",
