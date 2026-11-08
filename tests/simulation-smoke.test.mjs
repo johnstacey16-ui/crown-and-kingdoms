@@ -261,7 +261,10 @@ globalThis.__CK_TEST__ = {
               continue;
             }
           }
-          if(index===17&&!U[unit.k].sh&&!['treb','bomb'].includes(unit.k)){
+          // Guard siege until the real enemy Castle is destroyed. Then commit
+          // foot soldiers and cavalry to the remaining Town Centre so its
+          // defenders cannot repair away the hard-won breach.
+          if(index===17&&enemyCastle&&!U[unit.k].sh&&!['treb','bomb'].includes(unit.k)){
             const siege=S.us.filter(u=>u&&u.t===0&&['treb','bomb'].includes(u.k)&&u.hp>0)
               .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
             if(siege){
