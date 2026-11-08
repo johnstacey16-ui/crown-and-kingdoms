@@ -10,7 +10,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Production alignment checkpoint (verified 5 November 2026):** Authenticated Vercel alias and deployment records agree that `crown-and-kingdoms.vercel.app` serves READY production deployment `dpl_ChTCr9hWnz4sRvQGTvE96hUv9ick` from [`94ac8d1`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/94ac8d18485c830df43d4488946a84c5e9337196). This supersedes the earlier 3 November mismatch/rate-limit finding and includes terrain-blend recovery and predates the Greywatch mission guidance update; verify the alias again after each newer commit. Deployment readiness does not establish Xbox FPS or black-screen acceptance. Keep hosting free-only; do not force builds, buy credits or reactivate Railway.
 
-**Current tree inventory:** 247 standalone regression files, 61 production browser scripts, 48 core scripts, 44 headless scripts and 28 Markdown documents.
+**Current tree inventory:** 248 standalone regression files, 61 production browser scripts, 48 core scripts, 44 headless scripts and 28 Markdown documents.
 
 **Series S sustained-battle evidence (2 Nov 2026, owner hardware):** After about 15 minutes without the previous crash, the 4-team battle was at **9 FPS / 116.8 ms RAF**, **372 total / 131 rendered units**, **238 total / 20 rendered buildings**, and **2160×1063 backing pixels at 100% scale**. Profiling showed **SIM 11.4 ms, DRAW 52.1 ms, WORLD 48.8 ms, UNIT 44.1 ms, LOOP 70.1 ms, GAP 46.7 ms**. This confirms a large visible-troop render bottleneck, not hardware acceptance. Latest fix retains native frame quality and uses a direct draw for forward-facing motion frames; the FPS HUD now exposes team-tint cache hit/create/evict counts and cropped-frame usage. **FPS improvement is unmeasured until the same Xbox scene is retested.**
 
@@ -22,7 +22,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Documentation cleanup (3 November 2026):** Removed the obsolete `docs/NEXT_PAINTED_SHEETS.md` and `docs/GRAPHICS_CONTINUATION.md` plans. Their dated contents remain in Git history; current art and engineering work should follow [the graphics checklist](docs/GRAPHICS_OVERHAUL_CHECKLIST.md), [the active roadmap](ROADMAP.md), and original prompt JSON/manifests. No artwork, game code, tests or validation workflows were removed.
 
-**Current engineering phase:** [refactoring and cleanup before new features](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js`, `js/simulation-resource-routing.js`, `js/simulation-production-queues.js`, `js/simulation-research.js`, `js/simulation-building-production.js`, `js/simulation-building-updates.js` and `js/simulation-separation.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay development is temporarily secondary to consolidation of existing scripts, module responsibilities, tests and documentation.
+**Current engineering phase:** gameplay completion with tested, incremental refactoring as needed; see [active ownership and cleanup notes](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js`, `js/simulation-resource-routing.js`, `js/simulation-production-queues.js`, `js/simulation-research.js`, `js/simulation-building-production.js`, `js/simulation-building-updates.js` and `js/simulation-separation.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay and campaign completion are the priority; preserve small verified refactors and the existing modular runtime.
 
 ## What exists
 
@@ -53,7 +53,7 @@ Use **Node.js 22** for checks on Windows, macOS or Linux. These commands run loc
 ```sh
 node scripts/run-checks.mjs                    # Five quick source/asset gates
 node scripts/run-checks.mjs --focused          # The fast hosted Node --test selection
-node scripts/run-checks.mjs --regression-files # All 247 standalone regression files
+node scripts/run-checks.mjs --regression-files # All 248 standalone regression files
 node scripts/run-checks.mjs --stability        # Bounded 30-minute lifecycle soak, three seeds/maps
 node scripts/run-checks.mjs --skirmishes       # Three seeded production-AI matches
 node scripts/run-checks.mjs --campaigns        # 19 individually isolated missions

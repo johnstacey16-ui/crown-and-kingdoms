@@ -205,7 +205,7 @@ function pjs(dt){
   if(direct)dmgT(p.a,p.t);
   // Siege Onager upgrades extend the existing deterministic impact radius;
   // the ordinary Mangonel radius remains unchanged.
-  const st=S.tech[p.a.t]||{},sp=(U[p.a.k].spl||0)+(p.a.k==='mang'?(st.siegeOnager?.4:st.onager?.2:0):0);
+  const st=S.tech?.[p.a.t]||{},sp=(U[p.a.k].spl||0)+(p.a.k==='mang'?(st.siegeOnager?.4:st.onager?.2:0):0);
   if(sp){const splash2=sp*sp,ix=p.tx,iy=p.ty;
    for(const e of S.us)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2)dmgT(p.a,e);
    for(const e of S.bs)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e);
