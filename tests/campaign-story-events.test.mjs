@@ -209,7 +209,8 @@ test('Causeway forward-Castle side objectives require two real forts at differen
  assert.equal(c('!!cmp.d.northford'),true);
  assert.equal(c('!!cmp.d.southford'),true);
  c('cmpTick(1/30)');
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='spear'&&u.hp>0).length"),original+4,'each authentic forward Castle earns two guard spears');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='spear'&&u.hp>0).length"),original+8,'both optional fords provide four Guard spears and both required Castles rally four royal Spearmen');
+  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='spear'&&u.hp>0&&u.o==='G'&&u.tg===tcOf(0)).length"),4,'four extra royal Spears guard the Town Centre, not the optional ford Castles');
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='castle').length"),8);
  assert.equal(c('tcOf(1).hp'),state.before.town,'optional forward defence cannot deal automatic Town Centre damage');
  assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(state.before.resources),'side-quest arrivals do not fabricate resources');
