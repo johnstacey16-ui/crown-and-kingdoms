@@ -1319,7 +1319,8 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     totalObjectives: result.objectives.length,
     constructionOrders: result.constructionOrders,
     productionPeak: result.productionPeak,
-    ...(index===9?{siegeAssault:result.greywatch}:{})
+    ...(index===9?{siegeAssault:result.greywatch}:{}),
+    ...(index===16?{coastalRecon:result.coastalRecon}:{})
   };
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));
