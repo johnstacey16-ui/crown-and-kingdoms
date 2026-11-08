@@ -314,9 +314,20 @@ globalThis.__CK_TEST__ = {
               continue;
             }
           }
+          // Golden Coast: landing troops must contest repairs at the enemy
+          // capital rather than leave a breached Town Centre to regenerate.
+          // Spearmen/Skirmishers still clear hostile military around the Rams.
+          const coastalBreach=index===12&&enemyTC&&
+            (aliveUnits(0,'ram').some(r=>Math.hypot(r.x-enemyTC.x,r.y-enemyTC.y)<14)
+             ||goldenCoastAssaultStarted&&enemyTC.hp<enemyTC.mh*.9);
+          const coastalRepairer=coastalBreach?S.us.filter(other=>other&&other.t===1&&other.k==='vil'&&other.hp>0&&!other.ld&&
+            Math.hypot(other.x-enemyTC.x,other.y-enemyTC.y)<9)
+            .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0]:null;
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
-            : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:(defender||(enemyCastle||enemyTC)));
+            : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:
+              (coastalBreach&&['arc','xbow','mil','knight'].includes(unit.k)?
+                (coastalRepairer||enemyTC):(defender||(enemyCastle||enemyTC))));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0;
             if(index===9){greywatchOrders++;if(!S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))greywatchOrdersAfterRamLoss++}
           }
@@ -338,7 +349,9 @@ globalThis.__CK_TEST__ = {
         resources:{...S.res[0]},
         workerCount:aliveUnits(0,'vil').length,
         workerOrders:aliveUnits(0,'vil').map(u=>({o:u.o,t:u.tg?.k||null,ct:u.ct||null})),
-        ramOrders:aliveUnits(0,'ram').map(u=>({o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)}))
+        ramOrders:aliveUnits(0,'ram').map(u=>({o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)})),
+        landOrders:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh&&u.k!=='vil').slice(0,25).map(u=>({k:u.k,o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)})),
+        repairWorkers:S.us.filter(u=>u&&u.t===1&&u.k==='vil'&&u.hp>0&&tcOf(1)&&Math.hypot(u.x-tcOf(1).x,u.y-tcOf(1).y)<9).length
        });
        if(index===16&&tick%(30*60)===0)causewayProgress.push({
         time:Math.round(S.t),over:S.over||null,homeHp:tcOf(0)?.hp||0,
