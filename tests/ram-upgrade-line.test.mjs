@@ -26,7 +26,7 @@ function fixture(){
 }
 
 test('Imperial siege research offers paid Capped Ram and Siege Ram with strict prerequisites',()=>{
- assert.deepEqual(plain(B.siege.rs.slice(-2)),['cappedRam','siegeRam']);
+ for(const key of ['cappedRam','siegeRam'])assert.ok(B.siege.rs.includes(key),'missing Siege Workshop research '+key);
  assert.deepEqual(plain(TE.cappedRam.cost),{f:300});
  assert.deepEqual(plain(TE.siegeRam.cost),{f:1000});
  assert.equal(TE.cappedRam.age,3);

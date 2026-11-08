@@ -25,7 +25,7 @@ function fixture(){
 }
 
 test('Imperial Siege Workshop exposes a paid two-stage Onager line',()=>{
- assert.deepEqual(plain(cfg.B.siege.rs.slice(-2)),['onager','siegeOnager']);
+ for(const key of ['onager','siegeOnager'])assert.ok(cfg.B.siege.rs.includes(key),'missing Siege Workshop research '+key);
  assert.deepEqual(plain(cfg.TE.onager.cost),{f:800,g:500});
  assert.deepEqual(plain(cfg.TE.siegeOnager.cost),{f:1450,g:1000});
  assert.equal(cfg.TE.onager.t,75);assert.equal(cfg.TE.siegeOnager.t,150);
