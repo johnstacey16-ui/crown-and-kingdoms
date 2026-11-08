@@ -7,6 +7,7 @@ import {campaignScouting} from './helpers/campaign-scouting.mjs';
 import {campaignConstruction} from './helpers/campaign-construction.mjs';
 
 test('Causeway shoreline reconnaissance distinguishes real buildable sites from unexplored terrain',()=>{
+ assert.doesNotMatch(campaignScouting,/S\.(?:ex|vs|wt)\s*(?:\[[^\]]*\]\s*=|\.fill\s*\()/,'scouting never writes to fog, visibility or water grids');
  const {source,sandbox}=headlessGame();
  vm.runInNewContext(source+`
  startScenario(16);
