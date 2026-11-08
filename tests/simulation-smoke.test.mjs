@@ -73,6 +73,7 @@ globalThis.__CK_TEST__ = {
     const productionPeak = Object.fromEntries(Object.keys(plan.units || {}).map(kind =>
       [kind, S.us.filter(u => u.t === 0 && u.k === kind && u.hp > 0).length]));
     const tidewatchProgress=[];
+    const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
@@ -222,7 +223,7 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
-      if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
+      if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,originalCapitalHp:S.bs.find(b=>b.netId===tidewatchOriginalCapitalId)?.hp??0,allEnemyCapitals:S.bs.filter(b=>b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({netId:b.netId,hp:b.hp,done:b.done})),breachEvent:!!cmp.e[7],enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
         playerRams:S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0).length,playerBombards:S.us.filter(u=>u.t===0&&u.k==='bomb'&&u.hp>0).length,playerTrebuchets:S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length,
         troops:S.us.filter(u=>u.t===0&&u.hp>0&&!u.ld).length,enemyTroops:S.us.filter(u=>u.t===1&&u.hp>0&&!u.ld).length});
       if(tick%30===0)for(const kind of Object.keys(productionPeak))
