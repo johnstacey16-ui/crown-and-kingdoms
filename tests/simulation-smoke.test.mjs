@@ -73,6 +73,7 @@ globalThis.__CK_TEST__ = {
     const productionPeak = Object.fromEntries(Object.keys(plan.units || {}).map(kind =>
       [kind, S.us.filter(u => u.t === 0 && u.k === kind && u.hp > 0).length]));
     const tidewatchProgress=[];
+    const straitProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
@@ -228,7 +229,8 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
-      if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,originalCapitalHp:S.bs.find(b=>b.netId===tidewatchOriginalCapitalId)?.hp??0,allEnemyCapitals:S.bs.filter(b=>b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({netId:b.netId,hp:b.hp,done:b.done})),breachEvent:!!cmp.e[7],enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
+      if(index===13&&tick%(30*45)===0)straitProgress.push({time:Math.round(S.t),homeHp:tcOf(0)?.hp||0,enemyHp:tcOf(1)?.hp||0,castleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,relics:S.rel.filter(q=>q.m&&q.m.t===0&&q.m.hp>0).length,guards:!!cmp.e[CAMP[13].ev.length-1],rams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).map(u=>({o:u.o,target:u.tg?.k,x:Math.round(u.x),y:Math.round(u.y)})),landArmy:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&!U[u.k]?.sh&&U[u.k]?.dmg>0).length,ships:S.us.filter(u=>u&&u.t===0&&u.k==='gal'&&u.hp>0).length});
+       if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,originalCapitalHp:S.bs.find(b=>b.netId===tidewatchOriginalCapitalId)?.hp??0,allEnemyCapitals:S.bs.filter(b=>b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({netId:b.netId,hp:b.hp,done:b.done})),breachEvent:!!cmp.e[7],enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
         playerRams:S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0).length,playerBombards:S.us.filter(u=>u.t===0&&u.k==='bomb'&&u.hp>0).length,playerTrebuchets:S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length,
         troops:S.us.filter(u=>u.t===0&&u.hp>0&&!u.ld).length,enemyTroops:S.us.filter(u=>u.t===1&&u.hp>0&&!u.ld).length});
       if(tick%30===0)for(const kind of Object.keys(productionPeak))
@@ -240,6 +242,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       tidewatchProgress:index===14?tidewatchProgress:null,
+      straitProgress:index===13?straitProgress:null,
       coastalRecon:index===16?{orders:causewayRecon.orders,explored:S.ex.filter(Boolean).length,playerDocks:cb('dock')}:null,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
