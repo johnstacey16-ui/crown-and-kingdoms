@@ -79,6 +79,31 @@ test('Destroying Tidewatch Castle calls a real one-time royal reserve to guard h
  c('cmpTick(2)');
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)).length"),initial+6,'the reserve event persists across saves');
 });
+test('Tidewatch Castle breach sends a one-time Trebuchet column that still must damage the enemy capital',()=>{
+ const c=tidewatch();
+ const index=c("CAMP[14].ev.findIndex(e=>typeof e.do==='function'&&e.do.toString().includes('campaignTidewatchBreachColumn'))");
+ assert.ok(index>=0,'a distinct Castle-breach assault event must be present');
+ const oldUnits=c('S.us.length'),initialHealth=c('tcOf(1).hp');
+ const stores=c('JSON.stringify(S.res[0])');
+ c('cmp.k=14;cmpTick(5)');
+ assert.equal(c('!!cmp.e['+index+']'),false,'the siege column cannot arrive before the Castle falls');
+ c("S.bs.find(b=>b.t===1&&b.k==='castle').hp=0;cmp.k=14;cmpTick(1);cmpTick(1)");
+ assert.equal(c('!!cmp.e['+index+']'),true);
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2,'real artillery must spawn');
+ assert.ok(c('S.us.length')>=oldUnits+4,'reinforcements exist in the normal unit roster');
+ assert.equal(c('JSON.stringify(S.res[0])'),stores,'the event must not hand over extra resources');
+ assert.equal(c('tcOf(1).hp'),initialHealth,'the event must not directly damage the enemy capital');
+ assert.equal(c('S.over'),null,'receiving reinforcements is not a win condition');
+ const status=JSON.parse(c("JSON.stringify(S.us.filter(u=>u.t===0&&u.k==='treb').map(u=>({x:u.x,y:u.y,o:u.o,target:u.tg?.k,land:!S.wt[(u.y|0)*W+(u.x|0)],clear:!S.bs.some(b=>b.hp>0&&u.x>=b.x&&u.x<b.x+b.s&&u.y>=b.y&&u.y<b.y+b.s)})))"));
+ assert.ok(status.every(u=>u.land&&u.clear),'siege pieces must spawn on unoccupied traversable land');
+ assert.ok(status.every(u=>u.o==='a'&&u.target==='tc'),'siege pieces get an actual assault order to the enemy Town Centre');
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2,'no second detachment without a second Castle');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length"),2,'loaded games cannot duplicate siege reinforcements');
+});
 test('Optional harbour does not block a legitimate siege victory',()=>{
  const c=tidewatch();
  c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});addU(0,'bomb',20.5,20.5);addU(0,'bomb',21.5,20.5)");
