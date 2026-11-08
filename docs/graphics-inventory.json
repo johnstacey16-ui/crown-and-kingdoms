@@ -94,6 +94,24 @@
       "deathArt": "base-art fall transform"
     },
     {
+      "kind": "fire",
+      "name": "Fire Ship",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "demo",
+      "name": "Demolition Ship",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
       "kind": "trn",
       "name": "Transport Ship",
       "paintedBase": true,
@@ -631,13 +649,13 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "47 playable kinds; see catalogue",
+      "evidence": "49 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "47 of 47 kinds have painted multi-frame movement/activity art",
+      "evidence": "49 of 49 kinds have painted multi-frame movement/activity art",
       "remaining": "independent directions, work variants and dedicated death sheets"
     },
     {
