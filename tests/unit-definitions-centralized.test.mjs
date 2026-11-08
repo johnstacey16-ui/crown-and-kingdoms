@@ -8,9 +8,9 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const catalogue=currentCivilizationRuntime();
 
-test('all 52 implemented troops are defined by config instead of late engine mutation',()=>{
+test('all 53 implemented troops are defined by config instead of late engine mutation',()=>{
  const units=vm.runInNewContext(config+'\n;U');
- assert.equal(Object.keys(units).length,52);
+ assert.equal(Object.keys(units).length,53);
  assert.match(config,/Object\.assign\(U,\{conq:\{/);
  assert.doesNotMatch(engine,/Object\.assign\(U,\{/);
  for(const kind of ['conq','genoa','boyar','tarkan','huskarl','jaguar',

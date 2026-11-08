@@ -8,7 +8,7 @@ function artwork(){
  vm.runInContext(source.slice(source.indexOf('const PROJECTILE_STYLES='),source.indexOf('/* Particle emission, lifetime, rendering and queued procedural warm-up. */'))+';globalThis.api={style:projectileVisualStyle,heading:projectileVisualHeading,draw:drawProjectileArtwork}',c);return c.api;
 }
 test('weapon families are distinct and fixed aim never reads a moving or hidden target',()=>{
- const a=artwork();for(const [kind,style] of [['arc','arrow'],['genoa','bolt'],['scor','heavy-bolt'],['skirm','javelin'],['hcan','bullet'],['bomb','cannon'],['treb','stone'],['axe','axe'],['gbeto','blade']])assert.equal(a.style(kind),style);
+ const a=artwork();for(const [kind,style] of [['arc','arrow'],['genoa','bolt'],['scor','heavy-bolt'],['skirm','javelin'],['hcan','bullet'],['bomb','cannon'],['cgal','cannon'],['treb','stone'],['axe','axe'],['gbeto','blade']])assert.equal(a.style(kind),style);
  const shot={x:10,y:10,tx:20,ty:10,get t(){throw Error('target must not be read')}};
  assert.equal(a.style('__proto__'),'arrow');assert.equal(a.style('constructor'),'arrow');assert.equal(a.style(null),'arrow');
  assert.equal(a.heading(shot),0);assert.equal(a.heading({x:10,y:10,tx:20,ty:10,t:undefined}),0);

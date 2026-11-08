@@ -112,6 +112,15 @@
       "deathArt": "base-art fall transform"
     },
     {
+      "kind": "cgal",
+      "name": "Cannon Galleon",
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
       "kind": "trn",
       "name": "Transport Ship",
       "paintedBase": true,
@@ -649,13 +658,13 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "49 playable kinds; see catalogue",
+      "evidence": "50 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "49 of 49 kinds have painted multi-frame movement/activity art",
+      "evidence": "50 of 50 kinds have painted multi-frame movement/activity art",
       "remaining": "independent directions, work variants and dedicated death sheets"
     },
     {

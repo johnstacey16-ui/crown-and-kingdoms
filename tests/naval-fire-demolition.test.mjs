@@ -22,7 +22,7 @@ function fixture(){
 
 test('Fire and Demolition Ships are separately trainable in Castle Age using ordinary paid queues',()=>{
  const {U,B,TE}=catalogue;
- assert.deepEqual(json(B.dock.tr),['fish','gal','fire','demo','trn','cog']);
+ assert.deepEqual(json(B.dock.tr),['fish','gal','fire','demo','cgal','trn','cog']);
  for(const kind of ['fire','demo']){
   assert.ok(U[kind].sh);
   assert.equal(U[kind].age,2);
@@ -104,7 +104,7 @@ test('AI classifies new combat ships and uses capped Fire/Demolition naval count
 
 test('both new ships resolve all four team-state painted poses through explicit Galley aliases',()=>{
  const assets=readFileSync(new URL('../js/assets.js',import.meta.url),'utf8');
- assert.match(assets,/SHIP_ART_FALLBACK=Object.freeze\(\{fire:'gal',demo:'gal'\}\)/);
+ assert.match(assets,/SHIP_ART_FALLBACK=Object.freeze\(\{fire:'gal',demo:'gal',cgal:'gal'\}\)/);
  const {source,sandbox}=headlessGame();
  vm.runInNewContext(source+'\n'+assets+'\n'+'globalThis.testAlias=code=>eval(code);',sandbox,{timeout:15000});
  const run=code=>sandbox.testAlias(code);

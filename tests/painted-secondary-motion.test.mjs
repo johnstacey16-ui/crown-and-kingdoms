@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const groups={
-  ship:['fish','gal','fire','demo','trn','cog'],
+  ship:['fish','gal','fire','demo','cgal','trn','cog'],
   mounted:['mamel','mgd','cata','camel','conq','boyar','tarkan','huszar'],
   elephant:['eled','ele'],
   siege:['cart','ram','bomb','treb','mang','scor','wagon'],
@@ -19,18 +19,18 @@ function evaluator(){
   vm.runInContext(source+'\n;globalThis.evaluateSecondary=code=>eval(code)',sandbox);
   return sandbox.evaluateSecondary;
 }
-test('secondary fallback covers 30 base portraits with six family tempos',()=>{
+test('secondary fallback covers 31 base portraits with six family tempos',()=>{
   const run=evaluator(),kindList=Object.values(groups).flat();
-  assert.equal(kindList.length,30);
-  assert.equal(new Set(kindList).size,30);
-  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),30);
+  assert.equal(kindList.length,31);
+  assert.equal(new Set(kindList).size,31);
+  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),31);
   for(const [group,kinds] of Object.entries(groups)){
     for(const kind of kinds)assert.equal(run(`PAINT_SECONDARY['${kind}']`),group);
   }
   for(const kind of fullPainted){
     assert.equal(run(`PAINT_SECONDARY['${kind}']`),undefined,'do not alter individually painted animations');
   }
-  assert.equal(new Set([...kindList,...fullPainted]).size,49);
+  assert.equal(new Set([...kindList,...fullPainted]).size,50);
 });
 test('walking pose is repeatable, state-specific and varies over game time across all six families',()=>{
   const run=evaluator();
