@@ -162,6 +162,8 @@ test('Golden Coast enemy Dock blockade stops later sea waves and rallies physica
  assert.equal(c("aliveUnits(0,'skirm').length"),before.skirm+4);
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='ram').length"),9,'all nine landed soldiers Guard one of the two real siege engines');
   assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&u.o==='a'&&u.tg===tcOf(1)).length"),2,'both landing Rams issue real attack orders toward the capital');
+  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&Math.hypot(u.x-blockedDock.x,u.y-blockedDock.y)<25).length"),2,
+    'both siege engines land at genuinely walkable coastal cells near the captured Dock');
  assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.resources),'coastal volunteers do not create resources');
  assert.equal(c("CAMP[12].goals.find(g=>g.id==='win').ok()"),false,'a blockade alone does not destroy the enemy capital');
  c('cmpTick(330)');

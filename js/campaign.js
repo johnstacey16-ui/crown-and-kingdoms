@@ -183,13 +183,24 @@ function campaignCoastHarbourPatrol(){
 }
 // Capturing the hostile harbour frees local volunteers for the land offensive.
 // Troops are physical and vulnerable; the rival capital is never auto-damaged.
+// Capturing the enemy Dock opens a nearby coastal beachhead. Reward troops
+// enter through real open, reachable land cells rather than materializing at
+// the rival Town Centre, and their siege engines still have to fight through.
 function campaignCoastLandingRelief(){
  if(typeof W!=='number'||typeof H!=='number'||!S?.wt||!S?.nd)return 0;
  const home=tcOf(0),enemy=tcOf(1);if(!home||!enemy||S.over)return 0;
- const old=new Set(S.us.map(u=>u.netId));
- grp(0,'ram',2);grp(0,'spear',5);grp(0,'skirm',4);
- const arrived=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!old.has(u.netId));
- const rams=arrived.filter(u=>u.k==='ram');
+ const harbour=S.bs.find(b=>b&&b.t===1&&b.k==='dock');
+ const beach=harbour?{t:0,x:harbour.x+3,y:harbour.y-4,s:B.dock.s}
+   :{t:0,x:enemy.x-18,y:enemy.y+10,s:B.castle.s};
+ const arrived=[],rams=[];
+ for(const kind of ['ram','ram','spear','spear','spear','spear','spear','skirm','skirm','skirm','skirm']){
+  let spot=campaignOverflowSpawn(beach);
+  if(spot&&S.bs.some(b=>b&&b.hp>0&&spot[0]>=b.x-1&&spot[0]<=b.x+b.s+1&&spot[1]>=b.y-1&&spot[1]<=b.y+b.s+1))spot=null;
+  spot=spot||spawnPos(home)||campaignOverflowSpawn(home);
+  if(!spot)continue;
+  const u=addU(0,kind,spot[0],spot[1]);if(!u)continue;
+  arrived.push(u);if(kind==='ram')rams.push(u);
+ }
  for(const u of arrived){
   if(u.k==='ram'&&path(u,goalNear(enemy,Math.max(1,U.ram.rng||1)))){
    u.o='a';u.tg=enemy;u.p=[];u.rp=0;
@@ -200,7 +211,7 @@ function campaignCoastLandingRelief(){
   }
   u.guardTarget=null;
  }
- if(arrived.length)note('The rival harbour is down! Two Battering Rams and nine infantry guards land on the coast. Escort the siege train to the enemy Town Centre; surviving War Galleys must still hold the sea.');
+ if(arrived.length)note('The rival harbour is captured! Two Battering Rams and nine infantry land near the coastal beachhead. Escort the siege train through to the enemy Town Centre.');
  return arrived.length;
 }
 // The two forward Castle side-quests use the real diagonal Causeway map.
