@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {readFileSync} from 'node:fs';
 
 function mission(index){
  const {source,sandbox}=headlessGame();
@@ -96,6 +97,15 @@ test('Strait Pilgrim Guard is earned after two relics and keeps the Monastery de
  assert.equal(c('loadG()'),true);
  c('cmpTick(1)');
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)).length"),count+8,'the guard cannot duplicate after save/load');
+});
+test('Strait siege decisions do not require the opening War Galleys to survive',()=>{
+ const src=readFileSync(new URL('./simulation-smoke.test.mjs',import.meta.url),'utf8');
+ assert.match(src,/index===13&&\(straitAssaultStarted\|\|!!cmp\.d\.relics&&S\.us\.some\(u=>u&&u\.t===0&&u\.k==='ram'&&u\.hp>0\)\)/,
+  'after two real relics, a surviving Ram must be enough to launch the land assault');
+ assert.match(src,/if\(index===13\)straitAssaultStarted=true/,
+  'attack orders must continue after a Ram or fleet casualty');
+ assert.match(src,/index===9\|\|index===13\)\&\&unit\.k!=='ram'/,
+  'foot soldiers clear defenders while Rams attack fortifications');
 });
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);

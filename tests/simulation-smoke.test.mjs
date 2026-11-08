@@ -78,7 +78,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let ashfordAssaultStarted=false;
-    let tidewatchAssaultStarted=false;
+    let tidewatchAssaultStarted=false,straitAssaultStarted=false;
     let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false,greywatchGuardOrders=0,greywatchAssaultTime=null;
 
 
@@ -188,9 +188,10 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&greywatchAssaultStarted||index===14&&tidewatchAssaultStarted||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===9&&greywatchAssaultStarted||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true; // Do not abandon the capital after siege casualties.
-        if(index===14)tidewatchAssaultStarted=true; // Paid replacements and survivors continue the Tidewatch siege.
+        if(index===14)tidewatchAssaultStarted=true;
+        if(index===13)straitAssaultStarted=true; // Secure relics, then keep the land siege active even if the opening fleet sinks. // Paid replacements and survivors continue the Tidewatch siege.
         if(index===9){if(!greywatchAssaultStarted)greywatchAssaultTime=S.t;greywatchAssaultStarted=true} // Persist after siege casualties.
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
@@ -199,7 +200,7 @@ globalThis.__CK_TEST__ = {
            if(index===14&&unit.o==='G'&&unit.tg?.k==='treb'&&unit.tg.hp>0)continue; // Keep the actual Royal siege escort guarding the weapons.
           // Kronburg's rams siege structures while the escort clears hostile
           // troops. All targets are real living enemies, never artificial kills.
-          const defender=(index===4||index===5||index===8||index===9)&&unit.k!=='ram'
+          const defender=(index===4||index===5||index===8||index===9||index===13)&&unit.k!=='ram'
             ? S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil')
               .sort((a,b)=>{
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
