@@ -22,6 +22,7 @@ test('Tidewatch opens with a real navigable harbour and opposing naval units',()
  assert.equal(c('S.over'),null);
  const camp=JSON.parse(c("JSON.stringify({houses:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,capacity:capOf(0),population:popOf(0),resources:S.res[0]})"));
  assert.equal(camp.houses,5,'an Imperial garrison needs a real housing encampment');
+ assert.equal(c("S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.hp>0&&b.done).length"),2,'two actual watchtowers defend the supplied garrison');
  assert.equal(camp.capacity,35);
  assert.ok(camp.population<=camp.capacity,'the starting force fits without rebuilding Houses');
  const barracksCost=c('B.siege.cost.w');
