@@ -63,7 +63,7 @@ test('Strait mission creates a real enemy monastery with an enemy-owned relic',(
  assert.equal(c('stolen.m'),null,'destroyed enemy monastery releases the same relic');
  assert.equal(c('stolen.c'),null,'the liberated relic is available for a Monk to collect');
  c('cmpTick(13)');
- assert.equal(c('!!cmp.e[CAMP[13].ev.length-1]'),true,'destruction unlocks the one-time recovery prompt');
+ assert.equal(c("!!cmp.e[CAMP[13].ev.findIndex(e=>e.do.toString().includes('seized monastery is down'))]"),true,'destruction unlocks the one-time recovery prompt');
  assert.equal(c('S.over'),null,'destroying an abbey alone cannot win the mission');
 });
 

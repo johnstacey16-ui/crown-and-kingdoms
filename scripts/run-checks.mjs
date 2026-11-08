@@ -38,6 +38,7 @@ const FOCUSED=[
  "tests/campaign-arc-coverage.test.mjs",
  "tests/campaign-content.test.mjs",
  "tests/campaign-story-events.test.mjs",
+ "tests/campaign-strait-isolation.test.mjs",
  "tests/campaign-tidewatch-harbour.test.mjs",
  "tests/campaign-progression.test.mjs",
  "tests/campaign-scripted-economy.test.mjs",
