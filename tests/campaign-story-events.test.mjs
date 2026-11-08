@@ -350,3 +350,18 @@ test('Causeway naval control summons a real royal land contingent without credit
  c('cmpTick(1)');
  assert.equal(c("aliveUnits(0,'knight').length"),before.knight+3,'save/load may not spawn a second fleet levy');
 });
+
+test('Crown crossing begins with housing and requires genuine royal Castles',()=>{
+ const c=mission(17);
+ assert.equal(c("S.bs.filter(b=>b&&b.t===0&&b.k==='house'&&b.done&&b.hp>0).length"),6);
+ assert.equal(c('capOf(0)'),40,'completed Houses and Town Centre must offer real population capacity');
+ assert.equal(c("S.bs.filter(b=>b&&b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length"),0);
+ assert.equal(c("S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.done&&b.hp>0).length"),1);
+ assert.equal(c("CAMP[17].goals.find(g=>g.id==='castles').ok()"),false);
+ assert.equal(c("CAMP[17].goals.find(g=>g.id==='tc').ok()"),false);
+ assert.equal(c("aliveUnits(0,'bomb').length"),2,'the real attack force starts with two living Bombards');
+ assert.equal(c('S.over'),null);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c("S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length"),6);
+});
