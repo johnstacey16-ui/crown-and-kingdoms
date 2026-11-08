@@ -57,6 +57,29 @@ test('Tidewatch cannon muster remains complete after casualties but requires two
  const s=c('saveG()');assert.equal(s,true);assert.equal(c('loadG()'),true);
  assert.equal(c('cmp.d.bombards'),1,'a completed stage remains complete through save/load');
 });
+test('Destroying Tidewatch Castle calls a real one-time royal reserve to guard home',()=>{
+ const c=tidewatch();
+ const reserveIndex=c("CAMP[14].ev.findIndex(e=>typeof e.when==='function'&&e.when.toString().includes('cmp.d.castle'))");
+ assert.ok(reserveIndex>=0,'a separate story event follows the Castle milestone');
+ const initial=c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)).length");
+ const resources=c('JSON.stringify(S.res[0])');
+ c("cmp.k=14;cmpTick(8)");
+ assert.equal(c('!!cmp.e['+reserveIndex+']'),false,'royal reserve cannot arrive while the enemy Castle stands');
+ c("S.bs.find(b=>b.t===1&&b.k==='castle').hp=0;cmp.k=14;cmpTick(2)");
+ assert.equal(c('cmp.d.castle'),1);
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e['+reserveIndex+']'),true,'Castle destruction triggers a new visible stage');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)).length"),initial+6);
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)&&u.o==='G'&&u.tg===tcOf(0)).length"),6,'the reserve guards the real home Town Centre');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'story reinforcements do not fabricate resources');
+ assert.equal(c('S.over'),null,'royal reserves must not grant victory directly');
+ c('cmpTick(2)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)).length"),initial+6,'no repeated reinforcements in a live mission');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','xbow'].includes(u.k)).length"),initial+6,'the reserve event persists across saves');
+});
 test('Optional harbour does not block a legitimate siege victory',()=>{
  const c=tidewatch();
  c("S.bs.push({t:0,k:'siege',done:true,hp:500,s:3,x:19,y:18});addU(0,'bomb',20.5,20.5);addU(0,'bomb',21.5,20.5)");
