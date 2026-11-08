@@ -50,13 +50,13 @@ test('Fire Ship fights at close range, counters Galleys, and respects ownership'
  assert.equal(c('attackRange(fire)'),1.75);
  assert.ok(c('attackReload(fire)')<c('attackReload(galley)'));
  const hit=()=>{c('galley.hp=1000;dmgT(fire,galley)');return 1000-c('galley.hp')};
- assert.equal(hit(),10,'Fire Ship deals close-range bonus damage against Galleys');
+ assert.equal(hit(),9,'Fire Ship counters Galleys after their 1 melee armour');
  c("fire.o='a';fire.tg=galley;fire.cd=0;upU(fire,.1)");
  assert.equal(c('S.pj.length'),0,'fire attack does not create artillery projectiles');
  assert.ok(c('galley.hp')<1000,'attack orders deal damage immediately');
  assert.equal(c('friendly.hp'),90,'friends are not hit');
  c("S.tech[0].atkb={fire:3}");
- assert.equal(hit(),13,'naval weapons research improves fire damage');
+ assert.equal(hit(),12,'naval weapons research improves fire damage');
 });
 
 test('Demolition Ship explodes once against hostile ships without friendly fire',()=>{

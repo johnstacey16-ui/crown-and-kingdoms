@@ -15,7 +15,7 @@ assert.match(roster, /if\(u\.k==='vil'&&!u\.ld\)vil\.push\(u\)/,
   'Garrisoned villagers must not be counted as available workers');
 assert.match(roster, /else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'/,
   'Garrisoned units must not inflate the active army used for AI strategy');
-assert.match(roster, /if\(u\.k==='gal'&&!u\.ld\)galleys\.push\(u\)/,
+assert.match(roster, /if\(\['gal','fire','demo'\]\.includes\(u\.k\)&&!u\.ld\)galleys\.push\(u\)/,
   'Garrisoned warships must not be treated as available naval units');
 
 console.log('ai-live-active-roster: dead and garrisoned units do not inflate AI planning counts');
@@ -44,11 +44,13 @@ console.log('ai-live-active-roster: hostile army and naval counter rosters share
 
 // Execute the production helpers: verify real roster membership, not only
 // lexical guard text, and retain one pass per relevant entity collection.
-const classes={vil:{},mil:{},scout:{},gal:{sh:1},fish:{sh:1},knight:{},cog:{sh:1}};
+const classes={vil:{},mil:{},scout:{},gal:{sh:1},fire:{sh:1},demo:{sh:1},fish:{sh:1},knight:{},cog:{sh:1}};
 const actors=[
  {t:1,k:'vil',hp:25,id:'worker'}, {t:1,k:'vil',hp:25,ld:1,id:'loaded-worker'},
  {t:1,k:'mil',hp:50,id:'army'}, {t:1,k:'mil',hp:50,ld:1,id:'loaded-army'},
  {t:1,k:'scout',hp:30,id:'scout'}, {t:1,k:'gal',hp:70,id:'ship'},
+ {t:1,k:'fire',hp:100,id:'fireship'}, {t:1,k:'demo',hp:70,id:'demolition'},
+ {t:1,k:'demo',hp:70,ld:1,id:'loaded-demolition'},
  {t:1,k:'fish',hp:30,id:'fisher'}, {t:1,k:'mil',hp:0,id:'dead'},
  {t:1,k:'invalid',hp:5,id:'unknown'}, {t:0,k:'knight',hp:60,id:'enemy'}
 ];
@@ -62,8 +64,8 @@ const ctx=vm.createContext({S:{us:actors,bs:structures},U:classes,CAVARM:new Set
 vm.runInContext(ai+'\n;globalThis.roster=aiTeamRoster;globalThis.composition=aiHostileComposition;',ctx);
 const actual=ctx.roster(1);
 for(const [key,ids] of Object.entries({
- my:['worker','loaded-worker','army','loaded-army','scout','ship','fisher'],
- vil:['worker'],arm:['army'],scouts:['scout'],galleys:['ship'],fish:['fisher'],
+ my:['worker','loaded-worker','army','loaded-army','scout','ship','fireship','demolition','loaded-demolition','fisher'],
+ vil:['worker'],arm:['army'],scouts:['scout'],galleys:['ship','fireship','demolition'],fish:['fisher'],
  bl:['unfinished','completed','barracks']
 }))assert.deepEqual(Array.from(actual[key],u=>u.id),ids,'strategy '+key+' excludes dead or unavailable objects');
 assert.equal(actual.tc.id,'completed','living completed Town Centre beats unfinished and ruined');

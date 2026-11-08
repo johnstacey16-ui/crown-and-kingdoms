@@ -71,7 +71,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','fire','demo','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion).length,kinds.length);
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){const idle=a.meta.anims[kind+'/idle/'+team],walk=a.meta.anims[kind+'/walk/'+team];assert.equal(idle.frames.length,1);assert.equal(idle.scale,walk.scale);assert.equal(idle.referenceHeight,walk.referenceHeight)}
@@ -120,7 +120,8 @@ test('fishing uses actual gathering state and leaves orders, returning cargo and
 
 test('ship and trade cart sheets fit the existing vehicle envelopes without changing simulation scale',()=>{
  for(const kind of ['fish','gal','fire','demo','trn','cog','cart']){
-  const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind).meta.anims[kind+'/walk/0'];
+  const base=['fire','demo'].includes(kind)?'gal':kind;
+   const a=pack.atlases.find(a=>a.id==='painted-motion-'+base).meta.anims[base+'/walk/0'];
   const width=kind==='cart'?86:104,height=kind==='cart'?60:48;
   assert.ok(a.frames.every(f=>f.w*a.scale<=width+1e-8));
   assert.ok(a.scale*a.referenceHeight<=height+1e-8);
