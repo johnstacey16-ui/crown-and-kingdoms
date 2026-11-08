@@ -187,16 +187,20 @@ function campaignCoastLandingRelief(){
  if(typeof W!=='number'||typeof H!=='number'||!S?.wt||!S?.nd)return 0;
  const home=tcOf(0),enemy=tcOf(1);if(!home||!enemy||S.over)return 0;
  const old=new Set(S.us.map(u=>u.netId));
- grp(0,'ram',1);grp(0,'spear',3);grp(0,'skirm',2);
+ grp(0,'ram',2);grp(0,'spear',5);grp(0,'skirm',4);
  const arrived=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!old.has(u.netId));
- const ram=arrived.find(u=>u.k==='ram');
+ const rams=arrived.filter(u=>u.k==='ram');
  for(const u of arrived){
-  if(u===ram&&path(u,goalNear(enemy,Math.max(1,U.ram.rng||1)))){
+  if(u.k==='ram'&&path(u,goalNear(enemy,Math.max(1,U.ram.rng||1)))){
    u.o='a';u.tg=enemy;u.p=[];u.rp=0;
-  }else{u.o='G';u.tg=u!==ram&&ram?ram:home;u.p=[];u.rp=0}
+  }else{
+   const ram=u.k!=='ram'?rams.slice().sort((a,b)=>
+    Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0]:null;
+   u.o='G';u.tg=ram||home;u.p=[];u.rp=0;
+  }
   u.guardTarget=null;
  }
- if(arrived.length)note('The enemy harbour is destroyed! Coastal volunteers join with a Battering Ram and a guarded land escort. Sea reinforcements are cut off; the enemy Town Centre must still fall.');
+ if(arrived.length)note('The rival harbour is down! Two Battering Rams and nine infantry guards land on the coast. Escort the siege train to the enemy Town Centre; surviving War Galleys must still hold the sea.');
  return arrived.length;
 }
 // The two forward Castle side-quests use the real diagonal Causeway map.
