@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 import {campaignScouting} from './helpers/campaign-scouting.mjs';
+import {campaignConstruction} from './helpers/campaign-construction.mjs';
 
 test('Causeway shoreline reconnaissance distinguishes real buildable sites from unexplored terrain',()=>{
  const {source,sandbox}=headlessGame();
@@ -74,4 +75,43 @@ test('Causeway reconnaissance moves a real Knight and discovers legal Dock sites
  assert.ok(outcome.explored>initial+50,'visible terrain must expand from actual unit travel');
  assert.ok(outcome.visible>0,'at least one legal Dock site should become explored');
  assert.equal(outcome.reachable,1,'a living villager can reach the discovered Dock footprint');
+});
+
+test('discovered Causeway shoreline allows a paid Dock foundation and finished ship training site',()=>{
+ const {source,sandbox}=headlessGame();
+ vm.runInNewContext(source+'\n'+campaignConstruction+'\n'+campaignScouting+`
+  startScenario(16);
+  globalThis.recon={waypoint:0,orders:0};
+  globalThis.builder=createCampaignBuilder(tcOf(0));
+  globalThis.causewayRun=code=>eval(code);
+ `,sandbox,{timeout:15000});
+ const c=sandbox.causewayRun;
+ const initialWood=c('S.res[0].w'),initialTech=c('JSON.stringify(S.tech[0])');
+ const outcome=JSON.parse(c(`(()=>{
+  let founded=null,completed=null,paid=null;
+  for(let i=0;i<270*30&&!S.over;i++){
+   if(i%30===0){
+    campaignScoutCauseway(recon);
+    builder.place('dock',1);
+    const dock=S.bs.find(b=>b.t===0&&b.k==='dock'&&b.hp>0);
+    if(dock&&!founded){founded=S.t;paid=S.res[0].w}
+    if(dock?.done){completed=S.t;break}
+   }
+   step(1/30);
+  }
+  const dock=S.bs.find(b=>b.t===0&&b.k==='dock'&&b.hp>0);
+  const water=campaignWaterRegions();
+  return JSON.stringify({founded,completed,paid,orders:builder.orders,scoutOrders:recon.orders,wood:S.res[0].w,over:S.over,activeDock:!!dock?.done,
+   waterAccess:!!dock&&campaignDockAccess(dock.x,dock.y,dock.s,water,1),shipSpawn:!!dock?.done&&!!spawnPos(dock),galleys:!!dock?.done&&trOf(dock).includes('gal')});
+ })()`));
+ console.log('Causeway paid Dock construction result',JSON.stringify(outcome));
+ assert.ok(outcome.scoutOrders>0,'the scouting mission uses a live Knight');
+ assert.ok(outcome.founded!==null,'normal player-side construction starts a Dock foundation');
+ assert.equal(outcome.orders.filter(x=>x.kind==='dock').length,1,'Dock must be ordered and paid only once');
+ assert.equal(outcome.paid,initialWood-B.dock.cost.w,'no free foundation may be granted');
+ assert.equal(outcome.activeDock,true,'a real Villager must finish the Dock');
+ assert.equal(outcome.waterAccess,true,'completed Dock borders the main navigable sea');
+ assert.equal(outcome.shipSpawn,true,'ship production must have an unobstructed water exit');
+ assert.equal(outcome.galleys,true,'completed Dock exposes War Galley production');
+ assert.equal(c('JSON.stringify(S.tech[0])'),initialTech,'construction/scouting must not grant research');
 });
