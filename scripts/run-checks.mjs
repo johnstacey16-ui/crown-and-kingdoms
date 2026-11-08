@@ -234,6 +234,7 @@ const FOCUSED=[
  "tests/squires-speed.test.mjs",
  "tests/monk-technologies.test.mjs",
  "tests/campaign-naval-connectivity.test.mjs",
+ "tests/causeway-dock-reconnaissance.test.mjs",
  "tests/aoe2-de-spanish-blacksmith-costs.test.mjs",
  "tests/technology-research-integrity.test.mjs",
  "tests/network-production-commands.test.mjs",
