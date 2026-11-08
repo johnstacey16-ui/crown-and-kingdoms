@@ -108,10 +108,14 @@ function campaignStraitPilgrimGuard(){
  const sanctuary=S.bs.find(b=>b&&b.t===0&&b.k==='monastery'&&b.done&&b.hp>0),home=tcOf(0);
  if(!sanctuary||!home||S.over)return 0;
  const before=new Set(S.us.map(u=>u.netId));
- grp(0,'spear',4);grp(0,'skirm',4);
+ grp(0,'spear',4);grp(0,'skirm',4);grp(0,'ram',2);
  const pilgrims=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!before.has(u.netId));
- for(const u of pilgrims){u.o='G';u.tg=sanctuary;u.guardTarget=null;u.p=[];u.rp=0}
- if(pilgrims.length)note('The recovered relics rally the Pilgrim Guard! Eight defenders protect your Monastery while you prepare the assault across the strait.');
+ const fort=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)||tcOf(1);
+ for(const u of pilgrims){
+  if(u.k==='ram'&&fort){u.o='a';u.tg=fort;u.guardTarget=null;u.p=[];u.rp=0}
+  else {u.o='G';u.tg=sanctuary;u.guardTarget=null;u.p=[];u.rp=0}
+ }
+ if(pilgrims.length)note('Two recovered relics rally the Pilgrim Guard! Eight defenders guard your Monastery while two allied Battering Rams march on the enemy fortress.');
  return pilgrims.length;
 }
 function campaignTidewatchReserve(){
@@ -227,7 +231,7 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:650,w:850,g:500,s:200};const tc=tcOf(0);if(tc){grp(0,'gal',2);grp(0,'fish',2);grp(0,'spear',6);grp(0,'arc',5)}const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:600,w:650,g:500,s:200};put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',5);grp(1,'ram',2)}},
  goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'army',t:'Have 12 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon'].includes(u.k)).length>=12},{id:'win',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('The sea matters here: keep your Galleys together and intercept enemy ships before they reach your Fishing Ships.')},{at:150,do:()=>raid(5,['gal','gal','scout','arc','spear'],'Enemy coastal raiders are approaching!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','knight','arc','gal'],'The enemy commits a combined land-and-sea attack!')}]},
-{t:'The Strait\'s Last Relic',b:'An enemy-held abbey guards a stolen relic across the strait. Build a Monastery and recover two relics to rally the Pilgrim Guard, then protect your sanctuary while siege troops destroy the hostile Castle and Town Centre. Enemy raiders will test both your land army and fleet.',civ:2,en:6,mt:7,msz:1,seed:914,diff:2,aip:5,vm:0,
+{t:'The Strait\'s Last Relic',b:'An enemy-held abbey guards a stolen relic across the strait. Build a Monastery and recover two relics to rally the Pilgrim Guard and its two allied Battering Rams. Protect your sanctuary while the siege column destroys the hostile Castle and Town Centre. Enemy raiders will test both your land army and fleet.',civ:2,en:6,mt:7,msz:1,seed:914,diff:2,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:750,w:750,g:650,s:350};const home=tcOf(0);if(home)for(let i=0;i<4;i++)put(0,'house',home.x-7+(i%2)*3,home.y-6+Math.floor(i/2)*3);grp(0,'mon',2);grp(0,'gal',3);grp(0,'spear',7);grp(0,'arc',6);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:650,w:700,g:600,s:350};put(1,'castle',e.x-7,e.y+7);put(1,'dock',e.x-7,e.y+2);const abbey=put(1,'monastery',e.x-14,e.y+5);if(abbey){const stolen=S.rel.find(q=>q&&q.rl&&!q.c&&!q.m);if(stolen){stolen.x=abbey.x+1;stolen.y=abbey.y+1;stolen.m=abbey}}grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',6)}},
  goals:[{id:'monastery',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'relics',t:'Hold 2 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=2},{id:'castle',t:'Destroy the enemy Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('Keep your monks behind the army and return relics to a completed Monastery.')},{at:150,do:()=>raid(5,['gal','gal','scout','spear','arc'],'The enemy fleet is probing the strait!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','gal','gal','arc'],'A combined assault is approaching the crossing!')},{at:480,do:()=>raid(8,['ram','ram','knight','knight','arc','spear','gal','gal'],'The enemy commits its reserve. Hold the shore!')},{when:()=>cmp.t>12&&!S.bs.some(b=>b&&b.t===1&&b.k==='monastery'&&b.hp>0),do:()=>note('The seized monastery is down. The stolen relic can now be recovered!')},{when:()=>cmp.d.relics===1,do:()=>campaignStraitPilgrimGuard()}]},

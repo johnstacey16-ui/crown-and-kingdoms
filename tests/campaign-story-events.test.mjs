@@ -87,6 +87,7 @@ test('Strait Pilgrim Guard is earned after two relics and keeps the Monastery de
  assert.equal(c('!!cmp.e['+index+']'),true);
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)).length"),count+8);
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg===abbey).length"),8);
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&u.o==='a'&&u.tg?.k==='castle').length"),2,'the relic levy contributes two real siege engines attacking the hostile Castle');
  assert.equal(c('JSON.stringify(S.res[0])'),res,'story relief grants real troops but not fake resources');
  assert.equal(c('S.over'),null,'relics alone do not defeat the enemy Castle or Town Centre');
  c('cmpTick(2)');
