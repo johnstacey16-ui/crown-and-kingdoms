@@ -401,3 +401,15 @@ test('Two real Crown Castles signal a physical royal reserve that survives save/
  assert.equal(c("aliveUnits(0,'knight').length"),before.knight+4,'one-time reserves cannot duplicate after loading');
  assert.equal(c("aliveUnits(0,'treb').length"),before.treb+2,'the long-range royal siege detachment cannot duplicate after loading');
 });
+
+test('The Crown crossing has a fair staged army without overlapping autonomous surprise waves',()=>{
+ const c=mission(17);
+ const initial=JSON.parse(c("JSON.stringify({enemy:{knight:aliveUnits(1,'knight').length,xbow:aliveUnits(1,'xbow').length,spear:aliveUnits(1,'spear').length,ram:aliveUnits(1,'ram').length,bomb:aliveUnits(1,'bomb').length},castleHp:S.bs.find(b=>b.t===1&&b.k==='castle')?.hp,towers:cb('tower',1),enemyTc:tcOf(1)?.hp,ai:{nx:S.ai[1]?.nx,rn:S.ai[1]?.rn}})"));
+ assert.deepEqual(initial.enemy,{knight:6,xbow:8,spear:6,ram:2,bomb:1},'enemy guards remain a real mixed force rather than a siege-heavy opening pileup');
+ assert.equal(initial.castleHp,1400,'the intact defensive Castle must remain a meaningful challenge');
+ assert.equal(initial.towers,2,'the royal player must still face both real enemy Towers');
+ assert.equal(initial.enemyTc,900,'enemy capital still requires legitimate destruction');
+ assert.ok(initial.ai.nx>=600&&initial.ai.rn>=600,'three written assaults must not stack with extra early automated waves');
+ assert.deepEqual(JSON.parse(c("JSON.stringify(CAMP[17].ev.filter(e=>[110,260,440].includes(e.at)).map(e=>e.at))")),[110,260,440]);
+ assert.equal(c('S.over'),null);
+});
