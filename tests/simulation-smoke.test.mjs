@@ -75,7 +75,9 @@ globalThis.__CK_TEST__ = {
     const tidewatchProgress=[];
     const straitProgress=[];
     const causewayProgress=[];
+    const crownProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
+    let crownAssaultTime=null;
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let goldenCoastAssaultStarted=false,causewayAssaultStarted=false,ashfordAssaultStarted=false;
@@ -204,6 +206,7 @@ globalThis.__CK_TEST__ = {
       if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true;
         if(index===12)goldenCoastAssaultStarted=true;
+        if(index===17&&crownAssaultTime===null)crownAssaultTime=S.t;
         if(index===16){
           causewayAssaultStarted=true;
           if(!causewayHomeReserveAssigned){
@@ -267,6 +270,17 @@ globalThis.__CK_TEST__ = {
         resources:{...S.res[0]},
         armyOrders:S.us.filter(u=>u.t===0&&u.hp>0&&!u.ld&&['ram','knight','spear'].includes(u.k)).slice(0,12).map(u=>({k:u.k,o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)}))
        });
+       if(index===17&&tick%(30*60)===0)crownProgress.push({
+        time:Math.round(S.t),over:S.over||null,homeHp:tcOf(0)?.hp||0,enemyHp:tcOf(1)?.hp||0,
+        ownCastles:cb('castle'),allOwnCastles:S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.hp>0).map(b=>({done:b.done,hp:Math.round(b.hp),x:b.x,y:b.y,pr:b.pr})),
+        enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
+        bombs:aliveUnits(0,'bomb').length,enemyBombs:aliveUnits(1,'bomb').length,
+        homeArmy:cmil(0),enemyArmy:cmil(1),workshop:cb('siege'),
+        attackTime:crownAssaultTime,goals:CAMP[17].goals.filter(g=>cmp.d[g.id]).map(g=>g.id),
+        resources:{...S.res[0]},
+        workers:S.us.filter(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld).map(u=>({o:u.o,target:u.tg?.k||null,ct:u.ct||null})),
+        bombsOrders:aliveUnits(0,'bomb').map(u=>({o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y),hp:Math.round(u.hp)}))
+       });
        if(index===13&&tick%(30*45)===0)straitProgress.push({time:Math.round(S.t),homeHp:tcOf(0)?.hp||0,enemyHp:tcOf(1)?.hp||0,castleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,relics:S.rel.filter(q=>q.m&&q.m.t===0&&q.m.hp>0).length,guards:!!cmp.e[CAMP[13].ev.length-1],rams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).map(u=>({o:u.o,target:u.tg?.k,x:Math.round(u.x),y:Math.round(u.y)})),landArmy:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&!U[u.k]?.sh&&U[u.k]?.dmg>0).length,ships:S.us.filter(u=>u&&u.t===0&&u.k==='gal'&&u.hp>0).length});
        if(index===14&&tick%(30*45)===0)tidewatchProgress.push({second:Math.round(S.t),homeTcHp:tcOf(0)?.hp||0,enemyTcHp:tcOf(1)?.hp||0,originalCapitalHp:S.bs.find(b=>b.netId===tidewatchOriginalCapitalId)?.hp??0,allEnemyCapitals:S.bs.filter(b=>b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({netId:b.netId,hp:b.hp,done:b.done})),breachEvent:!!cmp.e[7],enemyCastleHp:S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0)?.hp||0,
         playerRams:S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0).length,playerBombards:S.us.filter(u=>u.t===0&&u.k==='bomb'&&u.hp>0).length,playerTrebuchets:S.us.filter(u=>u.t===0&&u.k==='treb'&&u.hp>0).length,
@@ -282,6 +296,7 @@ globalThis.__CK_TEST__ = {
       goldenCoast:index===12?{assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
        causewayProgress:index===16?causewayProgress:null,
+       crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,
       straitProgress:index===13?straitProgress:null,
       coastalRecon:index===16?{orders:causewayRecon.orders,explored:S.ex.filter(Boolean).length,playerDocks:cb('dock'),assaultStarted:causewayAssaultStarted,playerTowers:cb('tower'),playerGalleys:aliveUnits(0,'gal').length,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),earnedFordRelief:!!cmp.d.fords,earnedFleetRelief:!!cmp.e[CAMP[16].ev.findIndex(e=>e.do?.toString().includes('campaignCausewayFleetRelief'))],homeGuards:causewayHomeGuardIds.size}:null,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
@@ -1376,6 +1391,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     productionPeak: result.productionPeak,
     ...(index===9?{siegeAssault:result.greywatch}:{}),
     ...(index===16?{coastalRecon:result.coastalRecon,causewayProgress:result.causewayProgress}:{}),
+    ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime}:{}),
     ...(index===13?{straitProgress:result.straitProgress}:{}),
     ...(index===14?{tidewatchProgress:result.tidewatchProgress}:{})
   };
@@ -1870,6 +1886,20 @@ for (const [index, label, limit] of [
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   const completed = result.objectives.filter(objective => objective.complete).length;
   const total = result.objectives.length;
+  if(index===16){
+    assert.equal(result.over,'win','Causeway now has a verified natural victory after funded scouting, fleet and Guard escort: '+JSON.stringify(result.coastalRecon));
+    assert.ok(result.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+      'all five required Causeway goals must be truly satisfied, not simulated by the test harness');
+    assert.equal(result.coastalRecon.playerDocks>=1,true,'the completed Dock must remain after the battle');
+    assert.ok(result.coastalRecon.playerGalleys>=3,'three living paid War Galleys are still required at victory');
+    assert.equal(result.coastalRecon.enemyCastleHp,0,'the enemy Castle must be genuinely destroyed');
+    assert.equal(result.coastalRecon.earnedFleetRelief,true,'the real fleet milestone must summon campaign reinforcements');
+    assert.equal(result.coastalRecon.homeGuards,5,'the scripted army must retain five home Guard defenders');
+    assert.equal(result.coastalRecon.assaultStarted,true,'the scripted army must actually launch a land siege');
+    assert.ok(result.productionPeak.ram>=3&&result.productionPeak.skirm>=5,
+      'normal paid production must reinforce the starting siege and ranged infantry');
+    assert.ok(result.townCentreHp>0,'the player's original Town Centre must survive');
+  }
   if(index===10){
     assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
     assert.equal(completed,total,'King\u2019s Road must complete all three real objectives');

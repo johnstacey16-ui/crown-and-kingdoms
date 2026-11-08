@@ -39,3 +39,8 @@ jobs:
         env:
           CK_MISSION: '16'
         run: node tests/simulation-smoke.test.mjs
+      - name: Diagnose Crown Crossing end-to-end (explicit commit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-crossing]')
+        env:
+          CK_MISSION: '17'
+        run: node tests/simulation-smoke.test.mjs
