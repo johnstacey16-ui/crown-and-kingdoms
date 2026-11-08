@@ -172,3 +172,61 @@ test('Golden Coast enemy Dock blockade stops later sea waves and rallies physica
  c('cmpTick(1)');
  assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1,'coastal volunteers never duplicate after reload');
 });
+
+test('Causeway forward-Castle side objectives require two real forts at different shallow crossings',()=>{
+ const c=mission(17);
+ assert.equal(c('mapLayout'),12,'the Causeway geography is used for this mission');
+ assert.equal(c("CAMP[17].goals.filter(g=>g.optional).length"),2);
+ assert.equal(c('!!campaignCausewayFordCastle(.22)'),false);
+ assert.equal(c('!!campaignCausewayFordCastle(.78)'),false);
+ // Explore normally hidden map terrain for the fixture only; addB must still
+ // select genuinely legal Castle footprints on the player side of each ford.
+ c('S.ex.fill(1)');
+ const state=JSON.parse(c(`JSON.stringify((()=>{
+  const before={town:tcOf(1).hp,resources:{...S.res[0]}},positions=[];
+  const river=y=>W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8;
+  for(const ford of [.22,.78]){
+   let placed=null;
+   for(let y=Math.floor(H*ford)-11;y<=Math.floor(H*ford)+11&&!placed;y++){
+    const cx=river(y);
+    for(let x=Math.floor(cx)-22;x<=Math.floor(cx)-8;x++){
+     if(x<2||y<2||x+5>=W||y+5>=H||!okPlace(0,'castle',x,y))continue;
+     const b=addB(0,'castle',x,y,true);
+     if(b){placed={x,y,netId:b.netId};break}
+    }
+   }
+   positions.push(placed);
+  }
+  return {before,positions,north:!!campaignCausewayFordCastle(.22),south:!!campaignCausewayFordCastle(.78),castleCount:S.bs.filter(b=>b&&b.t===0&&b.k==='castle'&&b.hp>0).length};
+ })())`));
+ assert.ok(state.positions.every(Boolean),'both fords need at least one legal Castle footprint');
+ assert.equal(state.north,true);
+ assert.equal(state.south,true);
+ assert.equal(state.castleCount,2);
+ assert.equal(c("CAMP[17].goals.find(g=>g.id==='tc').ok()"),false,'forward Castles cannot defeat the real hostile capital');
+ const original=c("S.us.filter(u=>u.t===0&&u.k==='spear'&&u.hp>0).length");
+ c('cmp.k=14;cmpTick(5)');
+ assert.equal(c('!!cmp.d.northford'),true);
+ assert.equal(c('!!cmp.d.southford'),true);
+ c('cmpTick(1/30)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='spear'&&u.hp>0).length"),original+4,'each authentic forward Castle earns two guard spears');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='castle').length"),8);
+ assert.equal(c('tcOf(1).hp'),state.before.town,'optional forward defence cannot deal automatic Town Centre damage');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(state.before.resources),'side-quest arrivals do not fabricate resources');
+ assert.equal(c('S.over'),null,'destroying the enemy Town Centre remains necessary');
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='castle').length"),8,'guard troops spawn only once');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='castle').length"),8,'reward never duplicates after reload');
+});
+test('Causeway forward-Castle objective rejects remote and hostile fortifications',()=>{
+ const c=mission(17);
+ c('S.ex.fill(1)');
+ assert.equal(c("!!(globalThis.homeFort=put(0,'castle',tcOf(0).x+7,tcOf(0).y+8))"),true);
+ assert.equal(c('!!campaignCausewayFordCastle(.22)'),false,'a Castle beside home does not secure the northern ford');
+ assert.equal(c('!!campaignCausewayFordCastle(.78)'),false,'a Castle beside home does not secure the southern ford');
+ c("homeFort.hp=0");
+ assert.equal(c('!!campaignCausewayFordCastle(.22)'),false,'destroyed fortifications never earn crossing relief');
+});

@@ -199,6 +199,30 @@ function campaignCoastLandingRelief(){
  if(arrived.length)note('The enemy harbour is destroyed! Coastal volunteers join with a Battering Ram and a guarded land escort. Sea reinforcements are cut off; the enemy Town Centre must still fall.');
  return arrived.length;
 }
+// The two forward Castle side-quests use the real diagonal Causeway map.
+// Each fort must overlook a different ford from the player's own bank;
+// a pair of Castles beside the home Town Centre earns no crossing relief.
+function campaignCausewayFordCastle(ford){
+ if(typeof W!=='number'||typeof H!=='number'||!S?.bs)return null;
+ const home=tcOf(0);if(!home)return null;
+ const river=y=>W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8;
+ const homeY=home.y+home.s*.5,homeSide=home.x+home.s*.5<river(homeY)?-1:1;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='castle'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5,y=b.y+b.s*.5,offset=(x-river(y))*homeSide;
+  return Math.abs(y-H*ford)<=16&&offset>=4&&offset<=22;
+ })||null;
+}
+function campaignCausewayFordReserve(ford){
+ const castle=campaignCausewayFordCastle(ford);
+ if(!castle||S.over)return 0;
+ const old=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const force=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!old.has(u.netId));
+ for(const u of force){u.o='G';u.tg=castle;u.guardTarget=null;u.p=[];u.rp=0}
+ if(force.length)note((ford<.5?'North':'South')+' Causeway ford secured! Four royal defenders arrive to guard your forward Castle. The enemy capital still needs to fall.');
+ return force.length;
+}
 function campaignRoadCaravan(){
  const home=tcOf(0),market=S.bs.find(b=>b.t===0&&b.k==='market'&&b.done&&b.hp>0);
  if(!home||!market||S.over)return 0;
@@ -282,10 +306,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:1000,w:1100,g:750,s:400};grp(0,'knight',4);grp(0,'spear',6);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:1000,w:900,g:700,s:350};put(1,'castle',e.x-8,e.y+8);put(1,'tower',e.x-5,e.y+12);put(1,'tower',e.x-12,e.y+6);grp(1,'knight',5);grp(1,'spear',6);grp(1,'arc',8);grp(1,'ram',2)}for(const gy of [.34,.42,.66]){const y=Math.floor(H*gy),cx=Math.round(W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8);let placed=false;for(let dx=-3;dx<=3&&!placed;dx++){const x=cx+dx,i=y*W+x;if(x>1&&x<W-1&&S.wt[i]===1&&!S.nd[i]){addU(1,'gal',x+.5,y+.5);placed=true}}}},
  goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'towers',t:'Build 2 completed Towers',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'castle',t:'Destroy the enemy Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('The Causeway is both a ship route and a land crossing. Secure the bank before committing your villagers to Dock construction.')},{at:80,do:()=>raid(5,['scout','mil','arc','spear','mil'],'Enemy scouts are testing the inland approach!')},{at:180,do:()=>raid(8,['ram','knight','arc','spear','knight','arc','spear','mil'],'A mixed force is advancing toward the causeway!')},{at:320,do:()=>raid(9,['ram','ram','knight','knight','arc','spear','mil','arc','knight'],'The rival commits its siege reserve. Protect your towers and keep your army together!')},{at:470,do:()=>note('A galley fleet can contest the strait while towers and land troops hold the ford approaches. Do not expose siege units to cavalry.')},{at:115,do:()=>{if(!cb('dock'))note('Causeway scouting: send a Knight east along your bank to reveal clear coastal ground, then have a Villager build a Dock beside the navigable strait.')}}]},
-{t:'The Crown Holds the Crossing',b:'The enemy has fallen back to a fortified position beyond the Causeway. Establish two forward castles to secure the crossings, withstand the counter-attacks, and destroy the rival Town Centre to reopen the royal road.',civ:2,en:6,mt:7,msz:1,layout:12,seed:918,diff:3,aip:5,vm:0,
+{t:'The Crown Holds the Crossing',b:'The enemy has fallen back beyond the Causeway. Establish two Castles and withstand the counterattacks, then destroy the rival Town Centre. For extra royal defenders, build one Castle overlooking the northern ford and another overlooking the southern ford on your bank. Forts far from the crossings do not earn these optional garrisons.',civ:2,en:6,mt:7,msz:1,layout:12,seed:918,diff:3,aip:5,vm:0,
  setup(){S.age[0]=3;S.res[0]={f:1800,w:1800,g:1500,s:1900};grp(0,'knight',6);grp(0,'xbow',10);grp(0,'spear',8);grp(0,'bomb',2);const e=tcOf(1);if(e){S.age[1]=3;S.res[1]={f:1500,w:1300,g:1200,s:800};put(1,'castle',e.x-8,e.y+8);put(1,'tower',e.x-5,e.y+12);put(1,'tower',e.x-12,e.y+6);grp(1,'knight',7);grp(1,'xbow',10);grp(1,'spear',8);grp(1,'ram',3);grp(1,'bomb',2)}},
- goals:[{id:'castles',t:'Build 2 completed Castles',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length>=2},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:20,do:()=>note('The Crown Holds the Crossing: use the starting army to protect villagers while you establish two forward Castles.')},{at:110,do:()=>raid(7,['knight','knight','xbow','spear','ram','xbow','spear'],'The rival is testing the first crossing with a mixed assault!')},{at:260,do:()=>raid(9,['ram','ram','bomb','knight','knight','xbow','spear','xbow','knight'],'Heavy siege is advancing. Keep Bombard Cannons protected and repair damaged Castles.')},{at:440,do:()=>raid(10,['bomb','ram','ram','knight','knight','xbow','spear','gal','gal','xbow'],'The enemy commits its final reserve to break your fortified line!')}]}
+ goals:[{id:'castles',t:'Build 2 completed Castles',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length>=2},{id:'northford',t:'Optional: Fortify the north Causeway ford',optional:true,ok:()=>!!campaignCausewayFordCastle(.22)},{id:'southford',t:'Optional: Fortify the south Causeway ford',optional:true,ok:()=>!!campaignCausewayFordCastle(.78)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
+ ev:[{at:20,do:()=>note('Protect your builders and use the shallow fords. Castles near the northern and southern crossings each rally four defenders, but remote Castles do not.')},{when:()=>cmp.d.northford===1,do:()=>campaignCausewayFordReserve(.22)},{when:()=>cmp.d.southford===1,do:()=>campaignCausewayFordReserve(.78)},{at:110,do:()=>raid(7,['knight','knight','xbow','spear','ram','xbow','spear'],'The rival is testing the first crossing with a mixed assault!')},{at:260,do:()=>raid(9,['ram','ram','bomb','knight','knight','xbow','spear','xbow','knight'],'Heavy siege is advancing. Keep Bombard Cannons protected and repair damaged Castles.')},{at:440,do:()=>raid(10,['bomb','ram','ram','knight','knight','xbow','spear','gal','gal','xbow'],'The enemy commits its final reserve to break your fortified line!')}]}
 ,
 {t:'The Iron Pass',b:'The mountain pass is the only road through which the royal supply wagons can reach the frontier. An enemy host is gathering beyond the ridge. Build a layered defence, keep your army alive and hold the pass until the royal convoy escapes. Your forward camp starts with two Houses; extend your housing if you need to reinforce the garrison.',civ:5,en:2,mt:5,msz:1,seed:919,diff:2,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:900,w:850,g:350,s:250};grp(0,'spear',6);grp(0,'arc',6);grp(0,'scout',2);const home=tcOf(0);if(home){put(0,'house',home.x-8,home.y+5);put(0,'house',home.x+8,home.y+5)}// This hold mission already sends four timed scripted assaults; avoid piling the normal autonomous waves over them before the convoy escapes.
