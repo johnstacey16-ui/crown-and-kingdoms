@@ -94,15 +94,38 @@ function raidShipPositions(e,count,t=1){
 }
 
 function raid(n,ks,msg){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const choices=[tg,...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
+
+function campaignReliefColumn(){
+ const home=tcOf(0);if(!home||S.over)return 0;
+ const old=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',3);grp(0,'skirm',2);
+ const arrived=S.us.filter(u=>u.t===0&&u.hp>0&&!old.has(u.netId));
+ for(const u of arrived){u.o='G';u.tg=home;u.p=[];u.rp=0}
+ if(arrived.length)note('Royal relief has reached the ford! Spearmen and Skirmishers guard your Town Centre.');
+ return arrived.length;
+}
+function campaignRoadCaravan(){
+ const home=tcOf(0),market=S.bs.find(b=>b.t===0&&b.k==='market'&&b.done&&b.hp>0);
+ if(!home||!market||S.over)return 0;
+ const old=new Set(S.us.map(u=>u.netId));
+ grp(0,'cart',2);
+ let moving=0;
+ for(const u of S.us.filter(u=>u.t===0&&u.k==='cart'&&u.hp>0&&!old.has(u.netId))){
+  const p=path(u,goalNear(market,1));if(!p)continue;
+  u.o='m';u.tg=null;u.p=p;u.rp=1;moving++;
+ }
+ if(moving)note('The Redwater caravan returns! Escort the merchants safely to your Market.');
+ return moving;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
  goals:[{id:'h',t:'Build a House',ok:()=>cb('house')>=1},{id:'l',t:'Build a Lumber Camp',ok:()=>cb('lumber')>=1},{id:'v',t:'Have 10 villagers',sustained:true,ok:()=>cu('vil')>=10},{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Train 4 soldiers',ok:()=>cmil(0)>=4}],
  ev:[{at:2,do:()=>note('Pan with the left stick to centre a villager under the reticle, then press A to select.')},{at:14,do:()=>note('With villagers selected, aim at a tree and press A to send them chopping.')},{at:32,do:()=>note('Hold RT for the command menu and pick Build, then House. Houses raise your population limit.')},{when:()=>cb('house')>=1,do:()=>note('Good. A Lumber Camp beside the trees speeds up wood gathering.')},{when:()=>cb('lumber')>=1,do:()=>note('Train villagers at the Town Centre: D-pad Down selects it, then hold RT.')},{when:()=>cu('vil')>=10,do:()=>note('Now build a Barracks and train soldiers there.')}]},
-{t:'Raiders at the Ford',b:'Mongol raiders ride south along the river, burning farms and scattering villagers. The king\'s relief column is eight minutes away. Raise a barracks, train soldiers and hold your Town Centre until help arrives.',civ:1,en:2,mt:0,msz:0,seed:22,diff:0,aip:6,vm:0,
+{t:'Raiders at the Ford',b:'Mongol raiders ride south along the river, burning farms and scattering villagers. The king\'s relief column is eight minutes away. Raise a Barracks, muster eight defenders and hold your Town Centre until the relief column arrives.',civ:1,en:2,mt:0,msz:0,seed:22,diff:0,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:500,w:500,g:200,s:0}},
- goals:[{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Train 8 soldiers',ok:()=>cmil(0)>=8},{id:'t',t:'Survive until 8:00',ok:()=>cmp.t>=480}],
- ev:[{at:8,do:()=>note('Raiders strike fast. Keep soldiers near your villagers.')},{at:150,do:()=>raid(5,['skirm','scout','skirm','scout','skirm'],'Raiders sighted to the north!')},{at:270,do:()=>raid(6,['mil','skirm','mil','skirm','mil','skirm'],'A second raiding party is coming!')},{at:390,do:()=>raid(8,['mil','skirm','scout','mil','skirm','scout','mil','skirm'],'The largest raid yet. The relief column is almost here!')}]},
+ goals:[{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Muster 8 soldiers',ok:()=>cmil(0)>=8},{id:'t',t:'Survive until 8:00',ok:()=>cmp.t>=480}],
+ ev:[{at:8,do:()=>note('Raiders strike fast. Keep soldiers near your villagers.')},{at:150,do:()=>raid(5,['skirm','scout','skirm','scout','skirm'],'Raiders sighted to the north!')},{at:270,do:()=>raid(6,['mil','skirm','mil','skirm','mil','skirm'],'A second raiding party is coming!')},{at:390,do:()=>raid(8,['mil','skirm','scout','mil','skirm','scout','mil','skirm'],'The largest raid yet. The relief column is almost here!')},{at:445,do:()=>campaignReliefColumn()}]},
 {t:'The Feudal Frontier',b:'A rival lord fortifies the border and Ashford needs a stronger realm. Advance through the ages, build towers to hold the frontier and open a market to feed your growth.',civ:3,en:5,mt:1,msz:1,seed:33,diff:1,aip:2,vm:0,
  setup(){S.res[0]={f:1300,w:500,g:300,s:200}},
  goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2}],
@@ -127,7 +150,7 @@ const CAMP=[
 {t:'Crossing at Redwater',b:'A vital trade road crosses the Redwater river. Build a market and two towers to secure the crossing, then survive the enemy raids long enough for your merchants to reopen the road.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
  goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480}],
- ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')}]},
+ ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')},{at:405,when:()=>cb('market')>=1,do:()=>campaignRoadCaravan()}]},
 {t:'Crown of Ashford',b:'The rival claimant has fortified the capital and refuses all terms. Muster a field army, break the outer defences and destroy the enemy Town Centre to reunite the kingdom under one crown.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);put(1,'castle',e.x-7,e.y+8);put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2},
  goals:[{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
@@ -149,9 +172,9 @@ const CAMP=[
  goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'army',t:'Have 12 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon'].includes(u.k)).length>=12},{id:'win',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('The sea matters here: keep your Galleys together and intercept enemy ships before they reach your Fishing Ships.')},{at:150,do:()=>raid(5,['gal','gal','scout','arc','spear'],'Enemy coastal raiders are approaching!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','knight','arc','gal'],'The enemy commits a combined land-and-sea attack!')}]},
 {t:'The Strait\'s Last Relic',b:'The Golden Coast is secure, but the enemy has seized a monastery overlooking the strait. Recover the relics, establish your own monastery and break the fortress guarding the crossing. Enemy raiders will test your fleet during the siege.',civ:2,en:6,mt:7,msz:1,seed:914,diff:2,aip:5,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:750,w:750,g:650,s:350};grp(0,'mon',2);grp(0,'gal',3);grp(0,'spear',7);grp(0,'arc',6);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:650,w:700,g:600,s:350};put(1,'castle',e.x-7,e.y+7);put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',6)}},
+ setup(){S.age[0]=2;S.res[0]={f:750,w:750,g:650,s:350};grp(0,'mon',2);grp(0,'gal',3);grp(0,'spear',7);grp(0,'arc',6);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:650,w:700,g:600,s:350};put(1,'castle',e.x-7,e.y+7);put(1,'dock',e.x-7,e.y+2);const abbey=put(1,'monastery',e.x-14,e.y+5);if(abbey){const stolen=S.rel.find(q=>q&&q.rl&&!q.c&&!q.m);if(stolen){stolen.x=abbey.x+1;stolen.y=abbey.y+1;stolen.m=abbey}}grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',6)}},
  goals:[{id:'monastery',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'relics',t:'Hold 2 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=2},{id:'castle',t:'Destroy the enemy Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:20,do:()=>note('Keep your monks behind the army and return relics to a completed Monastery.')},{at:150,do:()=>raid(5,['gal','gal','scout','spear','arc'],'The enemy fleet is probing the strait!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','gal','gal','arc'],'A combined assault is approaching the crossing!')},{at:480,do:()=>raid(8,['ram','ram','knight','knight','arc','spear','gal','gal'],'The enemy commits its reserve. Hold the shore!')}]},
+ ev:[{at:20,do:()=>note('Keep your monks behind the army and return relics to a completed Monastery.')},{at:150,do:()=>raid(5,['gal','gal','scout','spear','arc'],'The enemy fleet is probing the strait!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','gal','gal','arc'],'A combined assault is approaching the crossing!')},{at:480,do:()=>raid(8,['ram','ram','knight','knight','arc','spear','gal','gal'],'The enemy commits its reserve. Hold the shore!')},{when:()=>cmp.t>12&&!S.bs.some(b=>b&&b.t===1&&b.k==='monastery'&&b.hp>0),do:()=>note('The seized monastery is down. The stolen relic can now be recovered!')}]},
 {t:'The Siege of Tidewatch',b:'The royal fleet has secured the outer coast, but Tidewatch still controls the harbour and the road inland. Establish a siege workshop, field heavy artillery, destroy the castle guarding the harbour and finally bring down the enemy Town Centre. Expect counter-raids while your siege train advances.',civ:2,en:6,mt:7,msz:1,seed:915,diff:2,aip:5,vm:0,
  setup(){S.age[0]=3;S.res[0]={f:1500,w:1400,g:1300,s:650};const p=tcOf(0);if(p){put(0,'castle',p.x+7,p.y+6);grp(0,'knight',5);grp(0,'xbow',10);grp(0,'spear',6);grp(0,'ram',2)}const e=tcOf(1);if(e){S.age[1]=3;S.res[1]={f:1100,w:900,g:900,s:500};put(1,'castle',e.x-8,e.y+8);put(1,'tower',e.x-5,e.y+12);put(1,'tower',e.x-12,e.y+6);grp(1,'knight',6);grp(1,'xbow',8);grp(1,'bomb',2)}},
  goals:[{id:'workshop',t:'Build a Siege Workshop',ok:()=>cb('siege')>=1},{id:'bombards',t:'Field 2 Bombard Cannons alive',sustained:true,ok:()=>aliveUnits(0,'bomb').length>=2},{id:'castle',t:'Destroy Tidewatch Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
