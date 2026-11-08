@@ -51,7 +51,7 @@
     if (!building || building.t !== team || building.hp <= 0 || !building.done ||
         !world.bs.includes(building) || !B[building.k]) return [];
     const options = [], tech = world.tech?.[team] || {};
-    const training = trOf(building,world.civ);
+    const training = trOf(building,world.civ,world.tech);
     for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
       label:unitName(kind,team),cost:{...U[kind].cost},locked:U[kind].age > world.age[team] ? 'Requires '+AG[U[kind].age].n : ''});
     const research = rsOf(building,world.civ);

@@ -44,7 +44,7 @@ function unitVisualPose(u,time){
 // This includes Janissaries/Genoese Crossbowmen if their new sheets fail to load.
 // Fallback transforms are distinct from individually painted motion frames.
 const PAINT_SECONDARY=Object.freeze({
-  cart:'siege',fish:'ship',gal:'ship',fire:'ship',demo:'ship',trn:'ship',cog:'ship',
+  cart:'siege',fish:'ship',gal:'ship',fire:'ship',demo:'ship',cgal:'ship',trn:'ship',cog:'ship',
   ram:'siege',mamel:'mounted',jan:'ranged',chuko:'ranged',
   eled:'elephant',hcan:'ranged',bomb:'siege',mgd:'mounted',
   cata:'mounted',ele:'elephant',treb:'siege',camel:'mounted',
@@ -151,13 +151,18 @@ function drawUnitGround(u,selectedUnits,sx,sy,z,r){
 // distinguish the two new combat roles without needing additional atlas memory.
 // Purely visual; both solo and team-relative multiplayer renderers call this.
 function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
- if(kind!=='fire'&&kind!=='demo')return;
+ if(kind!=='fire'&&kind!=='demo'&&kind!=='cgal')return;
  const z=Math.max(.3,Math.min(2.5,scale)),wave=Math.sin((Number.isFinite(time)?time:0)*8)*1.5*z;
  ctx.save();ctx.translate(x,y);ctx.lineWidth=Math.max(.8,z);
  if(kind==='fire'){
   ctx.fillStyle='#ff9832';ctx.strokeStyle='#512818';ctx.beginPath();
   ctx.moveTo(-7*z,-19*z);ctx.lineTo(-4*z,-31*z-wave);ctx.lineTo(0,-25*z);ctx.lineTo(3*z,-36*z+wave);ctx.lineTo(8*z,-19*z);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#ffe089';ctx.beginPath();ctx.moveTo(-2*z,-20*z);ctx.lineTo(2*z,-30*z);ctx.lineTo(4*z,-20*z);ctx.closePath();ctx.fill();
+ }else if(kind==='cgal'){
+  // Twin artillery barrels and gold accents distinguish the shared hull.
+  ctx.fillStyle='#343a40';ctx.strokeStyle='#d8bd80';ctx.lineWidth=1*z;
+  for(const x0 of [-6,5]){ctx.save();ctx.translate(x0*z,-22*z);ctx.fillRect(-3*z,-3*z,6*z,13*z);ctx.strokeRect(-3*z,-3*z,6*z,13*z);ctx.fillStyle='#7e8790';ctx.fillRect(-2*z,-4*z,4*z,3*z);ctx.restore()}
+  ctx.fillStyle='#e5bf5b';ctx.fillRect(-10*z,-12*z,20*z,3*z);
  }else{
   ctx.fillStyle='#f5d267';ctx.strokeStyle='#612d20';ctx.beginPath();
   ctx.moveTo(0,-31*z);ctx.lineTo(8*z,-21*z);ctx.lineTo(0,-11*z);ctx.lineTo(-8*z,-21*z);ctx.closePath();ctx.fill();ctx.stroke();

@@ -5,7 +5,7 @@ frame={x,y,w,h,ax,ay} (rectangle in the atlas; ax,ay = feet anchor inside the fr
 A missing, failed or malformed atlas simply leaves the unit on its procedural sprite. */
 const ASSET={atl:{},n:0,hits:0,miss:0},STN=['idle','walk','attack','work'];
 // Interim art aliases let new ship roles reuse all Galley poses and team tints.
-const SHIP_ART_FALLBACK=Object.freeze({fire:'gal',demo:'gal'});
+const SHIP_ART_FALLBACK=Object.freeze({fire:'gal',demo:'gal',cgal:'gal'});
 // Indexed on asset registration/replacement, not once for each rendered unit.
 // Preserve atlas registration order and allow multiple candidates for a key:
 // a malformed/empty animation may still fall through to the next sheet.

@@ -222,7 +222,7 @@
       }else if(!atlas){
         context.beginPath();context.ellipse(x+1,y+2,unitRadius+1,unitRadius*.65,0,0,Math.PI*2);context.fill();
         context.fillStyle=color;context.strokeStyle='#172429';context.lineWidth=1;
-        if(['gal','fire','demo','fish','trn','cog'].includes(e.kind)){
+        if(['gal','fire','demo','cgal','fish','trn','cog'].includes(e.kind)){
           context.beginPath();context.moveTo(x-unitRadius,y-unitRadius*.6);context.lineTo(x+unitRadius,y-unitRadius*.6);
           context.lineTo(x+unitRadius*.65,y+unitRadius);context.lineTo(x-unitRadius*.6,y+unitRadius);context.closePath();context.fill();context.stroke();
           context.strokeStyle='#eee0ba';context.beginPath();context.moveTo(x,y+unitRadius*.5);context.lineTo(x,y-unitRadius*1.5);context.stroke();

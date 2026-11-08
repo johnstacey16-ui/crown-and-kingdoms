@@ -279,7 +279,7 @@ function regionalTrainables(kind,civId){
  }
  return available;
 }
-const trOf=(b,civs=S?.civ)=>{
+const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
@@ -289,6 +289,8 @@ const trOf=(b,civs=S?.civ)=>{
  // Castles in DE cannot independently create foot Crossbowmen. Campaign
  // scripted units and older save IDs remain valid.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
+ // Chemistry is a real training prerequisite, also for authenticated peers.
+ if(b.k==='dock')return eligible.filter(k=>k!=='cgal'||!!techs?.[b.t]?.chem);
  return eligible;
 };
 

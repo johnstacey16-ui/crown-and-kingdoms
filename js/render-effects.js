@@ -3,7 +3,7 @@
  * The world draw dispatcher and viewport caches remain in js/render.js. */
 // Copied visual descriptions only: no entity/target references, RNG or combat
 // state are needed to distinguish the current catalogue's projectile families.
-const PROJECTILE_STYLES=Object.freeze({xbow:'bolt',genoa:'bolt',chuko:'bolt',scor:'heavy-bolt',skirm:'javelin',jan:'bullet',hcan:'bullet',conq:'bullet',bomb:'cannon',mang:'stone',treb:'stone',axe:'axe',gbeto:'blade'});
+const PROJECTILE_STYLES=Object.freeze({xbow:'bolt',genoa:'bolt',chuko:'bolt',scor:'heavy-bolt',skirm:'javelin',jan:'bullet',hcan:'bullet',conq:'bullet',bomb:'cannon',cgal:'cannon',mang:'stone',treb:'stone',axe:'axe',gbeto:'blade'});
 function projectileVisualStyle(kind){const style=typeof kind==='string'?PROJECTILE_STYLES[kind]:null;return typeof style==='string'?style:'arrow'}
 function projectileVisualHeading(p){
  if(!p||![p.x,p.y,p.tx,p.ty].every(Number.isFinite))return null;

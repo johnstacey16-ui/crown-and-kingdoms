@@ -89,6 +89,24 @@ for(const ship of my.filter(u=>u&&U[u.k]?.sh&&!['fish','trn','cog','demo'].inclu
 }
 
 
+/* Shoreline target selection is bounded to enemies reachable by cannon fire.
+ * Ships never acquire a land target that has no reachable firing tile. A
+ * single deterministic score order is shared by AI research and orders. */
+function aiCoastalSiegeTargets(t){
+ return S.bs.filter(b=>b&&b.done&&b.hp>0&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&isHostile(t,b.t)&&['dock','tw','tower','castle','tc','cs','gate','siege'].includes(b.k));
+}
+function aiAssignCannonTargets(t,fleet){
+ const targets=aiCoastalSiegeTargets(t);
+ if(!targets.length)return;
+ for(const ship of fleet)if(ship.k==='cgal'&&ship.hp>0&&!ship.ld&&(ship.o==='i'||ship.o==='m'&&!ship.tg||ship.o==='a'&&(!ship.tg||ship.tg.hp<=0||!isHostile(t,ship.tg.t)))){
+  const radius=attackRange(ship),options=targets.filter(b=>Math.hypot(b.x+b.s/2-ship.x,b.y+b.s/2-ship.y)<radius+8)
+   .sort((a,b)=>(a.k==='dock'? -5:0)+Math.hypot(a.x+a.s/2-ship.x,a.y+a.s/2-ship.y)-(b.k==='dock'?-5:0)-Math.hypot(b.x+b.s/2-ship.x,b.y+b.s/2-ship.y));
+  for(const b of options.slice(0,6))if(path(ship,goalNear(b,Math.max(U.cgal.minR+1,radius-.5)))){
+   ship.o='a';ship.tg=b;ship.p=[];ship.rp=0;break;
+  }
+ }
+}
+
 /* Assign coordinated naval combat targets and patrol fallback without changing
  * reachability scoring, enemy priority, focus fire, or target/patrol cooldowns.
  * The main AI owns enemy roster filtering; this policy owns tactical orders. */

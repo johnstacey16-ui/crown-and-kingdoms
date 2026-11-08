@@ -175,7 +175,7 @@ function attackReload(u){
 }
 function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.atkR2?3:t.bodkin?2:t.atkR?1:0):0}
 function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
-function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)}
+function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)}
 // A shot records a fixed impact point at launch. Ballistics predicts constant
 // movement along the current path segment; later turns can still dodge it.
 function projectileSpeed(a){return U[a.k]?.ps||14}
@@ -223,7 +223,7 @@ function pjs(dt){
   if(direct)dmgT(p.a,p.t);
   // Siege Onager upgrades extend the existing deterministic impact radius;
   // the ordinary Mangonel radius remains unchanged.
-  const st=S.tech?.[p.a.t]||{},sp=(U[p.a.k].spl||0)+(p.a.k==='mang'?(st.siegeOnager?.4:st.onager?.2:0):0);
+  const st=S.tech?.[p.a.t]||{},sp=(U[p.a.k].spl||0)+(p.a.k==='mang'?(st.siegeOnager?.4:st.onager?.2:0):p.a.k==='cgal'&&st.eliteCgal?.35:0);
   if(sp){const splash2=sp*sp,ix=p.tx,iy=p.ty;
    for(const e of S.us)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2)dmgT(p.a,e);
    for(const e of S.bs)if((e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&(e.x+(e.s||0)/2-ix)**2+(e.y+(e.s||0)/2-iy)**2<splash2)dmgT(p.a,e);
