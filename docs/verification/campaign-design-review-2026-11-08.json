@@ -166,8 +166,8 @@
       "arc": "Coastal War",
       "archetype": "relic_siege",
       "assessment": "needs_rework",
-      "finding": "Large simultaneous relic and fortress goals; latest scripted run lost, and hostile abbey was absent.",
-      "next": "Enemy abbey now holds an actual captive relic; next verify recovery and balance."
+      "finding": "The formerly blocked Strait siege now reaches victory at 389 simulated seconds in the isolated seed-914 test: two relics secured, hostile Castle and Town Centre destroyed with real combat, and the player's Town Centre remains undamaged. The 19-mission aggregate and human/Xbox playtests are still pending.",
+      "next": "Polish the navigable strait layout and staged story presentation; verify mission quality with human, controller, and Xbox playtesting. Do not weaken the authentic relic, Castle, or capital objectives."
     },
     {
       "index": 14,
@@ -265,7 +265,8 @@
       "Strait's Last Relic still lacks a verified siege win and must not be presented as completed.",
       "Separate focused tests verify the actual relief troop orders, merchant paths and enemy-owned relic release.",
       "Full 19-mission campaign acceptance and physical Xbox Series S gameplay have not been rerun.",
-      "8 November Tidewatch full isolated simulation verified the optional harbour completion but still ended with Town Centre defeat at 514.4 simulated seconds."
+      "8 November Tidewatch full isolated simulation verified the optional harbour completion but still ended with Town Centre defeat at 514.4 simulated seconds.",
+      "Strait's Last Relic was revalidated to a natural scripted win at 389 seconds on the latest relic-levy and fleet-independent assault changes. Earlier 614-second defeat remains historical only; full matrix not yet rerun."
     ],
     "tidewatchRun": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42479807590",
     "tidewatchIteration": {
@@ -292,6 +293,28 @@
       "objectiveType": "Bombard Cannon muster is now a milestone, not a maintained alive-count",
       "previousUnimprovedTime": 514.4,
       "notes": "Castle destruction and a longer siege are verified, but no natural victory has been proved. The failed scripted-player Guard experiments were reverted."
+    },
+    "latestStrait": {
+      "date": "2026-11-08",
+      "sourceCommit": "e82c09381297813d6b00259c92819a3d4a297404",
+      "run": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42497551143",
+      "missionIndex": 13,
+      "seed": 914,
+      "outcome": "win",
+      "campaignTime": 389,
+      "completedObjectives": [
+        "Build a Monastery",
+        "Hold 2 relics in your Monasteries",
+        "Destroy the enemy Castle",
+        "Destroy the enemy Town Centre"
+      ],
+      "completed": 4,
+      "total": 4,
+      "homeTcHpAtLast45SecondSample": 900,
+      "enemyCastleAt360Sec": 0,
+      "enemyCapitalHpAt360Sec": 509,
+      "diagnosis": "Previously, scripted land attacks stopped when the fleet sank; after two relics and at least one Ram, the attack now continues without Galleys, while escorts confront hostile troops.",
+      "notes": "Full mission test itself passed; run failed solely because the one-off temporary test file changed the static repository inventory count. Temporary file has been removed and this result is retained as evidence, with final CI checked separately."
     }
   }
 }
