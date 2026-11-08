@@ -108,7 +108,7 @@ test('discovered Causeway shoreline allows a paid Dock foundation and finished s
  assert.ok(outcome.scoutOrders>0,'the scouting mission uses a live Knight');
  assert.ok(outcome.founded!==null,'normal player-side construction starts a Dock foundation');
  assert.equal(outcome.orders.filter(x=>x.kind==='dock').length,1,'Dock must be ordered and paid only once');
- assert.equal(outcome.paid,initialWood-B.dock.cost.w,'no free foundation may be granted');
+ assert.equal(outcome.paid,initialWood-c('B.dock.cost.w'),'no free foundation may be granted');
  assert.equal(outcome.activeDock,true,'a real Villager must finish the Dock');
  assert.equal(outcome.waterAccess,true,'completed Dock borders the main navigable sea');
  assert.equal(outcome.shipSpawn,true,'ship production must have an unobstructed water exit');
