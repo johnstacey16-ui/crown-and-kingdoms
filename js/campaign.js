@@ -164,6 +164,38 @@ function campaignTidewatchBreachColumn(){
  if(created.length)note('Tidewatch Castle walls are breached! Royal Trebuchets arrive behind the front line with Knights, Spearmen and Crossbowmen on Guard. Keep the assault moving.');
  return created.length;
 }
+// Completing the paid harbour establishes a one-time allied coast patrol.
+// The Fire Ship uses navigable water and never satisfies the War Galley goal.
+function campaignCoastHarbourPatrol(){
+ const dock=S.bs.find(b=>b&&b.t===0&&b.k==='dock'&&b.done&&b.hp>0);
+ if(!dock||S.over)return 0;
+ const spot=raidShipPositions(dock,1,0)[0];if(!spot)return 0;
+ const ship=addU(0,'fire',spot[0],spot[1]);if(!ship)return 0;
+ const foe=aliveUnits(1,'gal').sort((a,b)=>Math.hypot(a.x-ship.x,a.y-ship.y)-Math.hypot(b.x-ship.x,b.y-ship.y))[0]||
+  S.bs.find(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0);
+ if(foe&&path(ship,goalNear(foe,Math.max(1,U.fire.rng||1)))){
+  ship.o='a';ship.tg=foe;ship.p=[];ship.rp=0;
+ }else{ship.o='G';ship.tg=dock;ship.p=[];ship.rp=0}
+ note('The Golden Coast harbour is operating! An allied Fire Ship patrol joins your navy. Train War Galleys at your Dock to secure the sea.');
+ return 1;
+}
+// Capturing the hostile harbour frees local volunteers for the land offensive.
+// Troops are physical and vulnerable; the rival capital is never auto-damaged.
+function campaignCoastLandingRelief(){
+ const home=tcOf(0),enemy=tcOf(1);if(!home||!enemy||S.over)return 0;
+ const old=new Set(S.us.map(u=>u.netId));
+ grp(0,'ram',1);grp(0,'spear',3);grp(0,'skirm',2);
+ const arrived=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!old.has(u.netId));
+ const ram=arrived.find(u=>u.k==='ram');
+ for(const u of arrived){
+  if(u===ram&&path(u,goalNear(enemy,Math.max(1,U.ram.rng||1)))){
+   u.o='a';u.tg=enemy;u.p=[];u.rp=0;
+  }else{u.o='G';u.tg=u!==ram&&ram?ram:home;u.p=[];u.rp=0}
+  u.guardTarget=null;
+ }
+ if(arrived.length)note('The enemy harbour is destroyed! Coastal volunteers join with a Battering Ram and a guarded land escort. Sea reinforcements are cut off; the enemy Town Centre must still fall.');
+ return arrived.length;
+}
 function campaignRoadCaravan(){
  const home=tcOf(0),market=S.bs.find(b=>b.t===0&&b.k==='market'&&b.done&&b.hp>0);
  if(!home||!market||S.over)return 0;
@@ -227,10 +259,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);for(let i=0;i<2;i++){let x=(W/2|0)+(i?3:-3),y=(H/2|0)+(i?2:-2);for(let r=0;r<16&&(x<2||y<2||x>=W-2||y>=H-2||S.g[y*W+x]||S.wt[y*W+x]);r++){x=(W/2|0)+(i?3:-3)+r%4;y=(H/2|0)+(i?2:-2)+((r/4)|0)}if(x>1&&y>1&&x<W-1&&y<H-1&&!S.wt[y*W+x])S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null})}const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
  goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2}],
  ev:[{at:80,do:()=>note('Monks can collect relics and carry them back to a Monastery. Keep escorts nearby.')},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy patrols have spotted your monks.')}]},
-{t:'The Golden Coast',b:'A rival admiral is raiding the fishing grounds while a coastal lord prepares a land assault. Secure the shoreline, build a Dock, train a War Galley and a mixed land force, then destroy the enemy Town Centre. Protect your villagers and keep your fleet alive.',civ:2,en:6,mt:7,msz:1,seed:913,diff:1,aip:5,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:650,w:850,g:500,s:200};const tc=tcOf(0);if(tc){grp(0,'gal',2);grp(0,'fish',2);grp(0,'spear',6);grp(0,'arc',5)}const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:600,w:650,g:500,s:200};put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',5);grp(1,'ram',2)}},
- goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'army',t:'Have 12 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon'].includes(u.k)).length>=12},{id:'win',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:20,do:()=>note('The sea matters here: keep your Galleys together and intercept enemy ships before they reach your Fishing Ships.')},{at:150,do:()=>raid(5,['gal','gal','scout','arc','spear'],'Enemy coastal raiders are approaching!')},{at:300,do:()=>raid(7,['ram','knight','arc','spear','knight','arc','gal'],'The enemy commits a combined land-and-sea attack!')}]},
+{t:'The Golden Coast',b:'A rival admiral controls the fishing grounds while a coastal lord threatens your settlement. Build a Dock to rally one allied Fire Ship, then train at least three War Galleys and muster twelve land soldiers. Destroy the enemy Dock to stop his sea reinforcements and rally coastal volunteers (optional). Protect your home, defeat the coastal lord and destroy his Town Centre.',civ:2,en:6,mt:7,msz:1,seed:913,diff:1,aip:5,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:650,w:850,g:500,s:200};const tc=tcOf(0);if(tc){for(let i=0;i<4;i++)put(0,'house',tc.x-7+(i%2)*3,tc.y-7+Math.floor(i/2)*3);grp(0,'gal',2);grp(0,'fish',2);grp(0,'spear',6);grp(0,'arc',5)}const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:600,w:650,g:500,s:200};put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',5);grp(1,'ram',2)}},
+ goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'army',t:'Have 12 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon'].includes(u.k)).length>=12},{id:'blockade',t:'Optional: Destroy the enemy Dock',optional:true,ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0)},{id:'win',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
+ ev:[{at:20,do:()=>note('Escort your Fishing Ships with the opening Galleys. A completed Dock rallies one allied Fire Ship, but you must train War Galleys yourself.')},{when:()=>cmp.d.dock===1,do:()=>campaignCoastHarbourPatrol()},{at:150,do:()=>raid(3,['scout','arc','spear'],'Coastal raiders are attacking the settlement!')},{at:150,when:()=>S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),do:()=>raid(2,['gal','gal'],'Enemy war galleys sail from the hostile harbour!')},{at:300,do:()=>raid(6,['ram','knight','arc','spear','knight','arc'],'The coastal lord commits his land siege!')},{at:300,when:()=>S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),do:()=>raid(1,['gal'],'The rival admiral sends another war galley!')},{when:()=>cmp.d.blockade===1,do:()=>campaignCoastLandingRelief()}]},
 {t:'The Strait\'s Last Relic',b:'An enemy-held abbey guards a stolen relic across the strait. Build a Monastery and recover two relics to rally the Pilgrim Guard and its two allied Battering Rams. Protect your sanctuary while the siege column destroys the hostile Castle and Town Centre. Enemy raiders will test both your land army and fleet.',civ:2,en:6,mt:7,msz:1,seed:914,diff:2,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:750,w:750,g:650,s:350};const home=tcOf(0);if(home)for(let i=0;i<4;i++)put(0,'house',home.x-7+(i%2)*3,home.y-6+Math.floor(i/2)*3);grp(0,'mon',2);grp(0,'gal',3);grp(0,'spear',7);grp(0,'arc',6);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:650,w:700,g:600,s:350};put(1,'castle',e.x-7,e.y+7);put(1,'dock',e.x-7,e.y+2);const abbey=put(1,'monastery',e.x-14,e.y+5);if(abbey){const stolen=S.rel.find(q=>q&&q.rl&&!q.c&&!q.m);if(stolen){stolen.x=abbey.x+1;stolen.y=abbey.y+1;stolen.m=abbey}}grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',6)}},
  goals:[{id:'monastery',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'relics',t:'Hold 2 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=2},{id:'castle',t:'Destroy the enemy Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],

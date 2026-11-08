@@ -117,3 +117,55 @@ test('The 19 original missions retain their objectives, setup ages and arc progr
  assert.ok(evidence.events.every(n=>n>=1));
  assert.equal(evidence.unique,true);
 });
+
+test('Golden Coast harbour builds a real naval patrol without granting the War Galley objective',()=>{
+ const c=mission(12);
+ assert.equal(c("S.bs.filter(b=>b.t===0&&b.k==='house'&&b.hp>0&&b.done).length"),4,'the expedition has enough housing for a paid fleet and land muster');
+ assert.equal(c("aliveUnits(0,'gal').length"),2);
+ assert.equal(c("aliveUnits(1,'gal').length"),3,'the rival admiral begins with a superior navy');
+ assert.equal(c("CAMP[12].goals.find(g=>g.id==='blockade').optional"),true);
+ assert.equal(c("CAMP[12].goals.find(g=>g.id==='fleet').ok()"),false);
+ c('cmpTick(30)');
+ assert.equal(c("aliveUnits(0,'fire').length"),0,'a scripted patrol must not appear before the Dock is completed');
+ assert.equal(c("!!(globalThis.coastDock=put(0,'dock',tcOf(0).x+7,tcOf(0).y+5))"),true);
+ for(let i=0;i<16;i++)c('cmpTick(1/30)');
+ assert.equal(c('!!cmp.d.dock'),true);
+ const before=c('JSON.stringify(S.res[0])');
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1,'the harbour calls a real single Fire Ship');
+ assert.equal(c("S.us.find(u=>u.t===0&&u.k==='fire').o"),'a','the patrol moves against the rival fleet');
+ assert.equal(c("CAMP[12].goals.find(g=>g.id==='fleet').ok()"),false,'Fire Ships cannot substitute for War Galleys');
+ assert.equal(c('JSON.stringify(S.res[0])'),before,'story support cannot invent wood or gold');
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1,'harbour support is one-time');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'fire').length"),1,'restoring a save cannot duplicate allied ships');
+ assert.equal(c('S.over'),null,'the real land army and enemy capital remain required');
+});
+
+test('Golden Coast enemy Dock blockade stops later sea waves and rallies physical land escorts',()=>{
+ const c=mission(12);
+ const enemyDock=c("S.bs.filter(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0).length");
+ assert.equal(enemyDock,1,'a living rival Dock is the optional blockade target');
+ const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,resources:S.res[0]})"));
+ c("globalThis.blockedDock=S.bs.find(b=>b&&b.t===1&&b.k==='dock');blockedDock.hp=0");
+ for(let i=0;i<15;i++)c('cmpTick(1/30)');
+ assert.equal(c('!!cmp.d.blockade'),true,'the player must physically remove the hostile Dock before taking credit');
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1);
+ assert.equal(c("aliveUnits(0,'spear').length"),before.spear+3);
+ assert.equal(c("aliveUnits(0,'skirm').length"),before.skirm+2);
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='ram').length"),5,'the arriving escort guards the real siege engine');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.resources),'coastal volunteers do not create resources');
+ assert.equal(c("CAMP[12].goals.find(g=>g.id==='win').ok()"),false,'a blockade alone does not destroy the enemy capital');
+ c('cmpTick(330)');
+ assert.equal(c("CAMP[12].ev.filter(e=>e.at===150&&!!e.when||e.at===300&&!!e.when).every(e=>!cmp.e[CAMP[12].ev.indexOf(e)])"),true,'after destroying the rival harbour no further scripted sea waves spawn');
+ assert.equal(c("CAMP[12].ev.filter(e=>e.at===150&&!e.when||e.at===300&&!e.when).every(e=>!!cmp.e[CAMP[12].ev.indexOf(e)])"),true,'land attacks still happen, keeping pressure on the settlement');
+ assert.equal(c('S.over'),null);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+1,'coastal volunteers never duplicate after reload');
+});
