@@ -76,7 +76,7 @@ test('Tidewatch naval reinforcements depend on the actual enemy Dock at the trig
 test('one-off Tidewatch full simulation with viable starting housing',()=>{
  const result=spawnSync(process.execPath,['tests/simulation-smoke.test.mjs'],{cwd:process.cwd(),encoding:'utf8',env:{...process.env,CK_MISSION:'14',CK_SKIP_CAMPAIGN:'0'},timeout:200000,maxBuffer:8*1024*1024});
  assert.equal(result.status,0,'campaign runner crashed: '+(result.stderr||'').slice(-1800)+' '+(result.stdout||'').slice(-1600));
- const line=(result.stdout||'').split('\\n').find(x=>x.includes('campaign-isolation-result: '));
+ const line=(result.stdout||'').split('\n').find(x=>x.includes('campaign-isolation-result: '));
  assert.ok(line,'campaign runner should return structured evidence');
  const value=JSON.parse(line.split('campaign-isolation-result: ')[1]);
  console.log('Tidewatch housing playthrough result '+JSON.stringify(value));
