@@ -37,13 +37,14 @@ function trainingWorld(mission){
 test('over-cap campaign training explains the actual paid housing deficit without spending',()=>{
  const run=trainingWorld(14);
  const result=JSON.parse(run(`(()=>{
-  const home=tcOf(0),before={...S.res[0]},queue=home.q.length;
+  const home=tcOf(0);while(popOf(0)<=capOf(0))addU(0,'mil',home.x+6,home.y+6);
+   const before={...S.res[0]},queue=home.q.length;
   const accepted=train(home,'vil');
   return JSON.stringify({accepted,before,after:S.res[0],queue,afterQueue:home.q.length,
    population:popOf(0),capacity:capOf(0),message:notes.at(-1).s});
  })()`));
  assert.ok(result.population>result.capacity,'the initial Tidewatch army and flotilla exceed starting housing');
- assert.equal(result.capacity,10);
+ assert.equal(result.capacity,35,'the supplied Tidewatch garrison now has five completed Houses');
  assert.equal(result.accepted,false);
  const houses=Math.ceil((result.population+1-result.capacity)/5);
  assert.equal(result.message,`Population full (${result.population}/${result.capacity}): build ${houses} Houses`,'explain the actual paid housing needed for one more Villager');
