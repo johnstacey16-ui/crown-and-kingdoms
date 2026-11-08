@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
 import {campaignConstruction} from './helpers/campaign-construction.mjs';
+import {campaignScouting} from './helpers/campaign-scouting.mjs';
 const {source,sandbox,storage,listeners}=headlessGame();
 assert.ok(source.length > 200000, 'The external real game engine must be present');
 
 const harness = `
 ${campaignConstruction}
+${campaignScouting}
 let aiPeak = {};
 const aiMilitaryCount = (team) => S.us.filter((u) => u.t === team && u.hp > 0 && u.k !== 'vil' && !U[u.k].sh && !['king', 'cart', 'mon'].includes(u.k)).length;
 globalThis.__CK_TEST__ = {
@@ -33,6 +35,7 @@ globalThis.__CK_TEST__ = {
   startCampaign(index) { startScenario(index); return this.state(); },
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
+    const causewayRecon={waypoint:0,orders:0};
     const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }], villagers: 0, soldiers: 0, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 3, units: { bomb: 2 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
@@ -78,6 +81,7 @@ globalThis.__CK_TEST__ = {
     for (let tick = 0; tick < Math.round(maxSeconds * 30) && !S.over; tick++) {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
       if(tick%30===0){
+      if(index===16)campaignScoutCauseway(causewayRecon);
       if(index===9){
         greywatchPeakRams=Math.max(greywatchPeakRams,S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length);
         greywatchWorkshopCompleted ||= S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0);
@@ -224,6 +228,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
+      coastalRecon:index===16?{orders:causewayRecon.orders,explored:S.ex.filter(Boolean).length,playerDocks:cb('dock')}:null,
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
