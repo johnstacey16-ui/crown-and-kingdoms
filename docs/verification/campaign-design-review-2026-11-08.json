@@ -175,8 +175,8 @@
       "arc": "Coastal War",
       "archetype": "imperial_siege",
       "assessment": "needs_rework",
-      "finding": "The optional Dock/harbour objective is naturally achievable, but a complete isolated playthrough still loses its Town Centre around 514 seconds after peaking at two Bombard Cannons.",
-      "next": "Improve genuine Town Centre defence and siege-artillery preservation, then prove a complete natural win without weakening the Castle, enemy attacks or mandatory objectives."
+      "finding": "On 8 November, an isolated full battle with a proper five-House camp, two defensive watchtowers, staged Bombard Cannon muster and earned royal reserve lasted 614.4s and destroyed the enemy Dock and Castle, but the Town Centre was lost before the enemy capital fell.",
+      "next": "Improve actual defensive troop coordination, siege approach routes and late-stage counterattacks; prove a complete victory with the capital destroyed while keeping the real combat and resource rules."
     },
     {
       "index": 15,
@@ -267,6 +267,31 @@
       "Full 19-mission campaign acceptance and physical Xbox Series S gameplay have not been rerun.",
       "8 November Tidewatch full isolated simulation verified the optional harbour completion but still ended with Town Centre defeat at 514.4 simulated seconds."
     ],
-    "tidewatchRun": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42479807590"
+    "tidewatchRun": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42479807590",
+    "tidewatchIteration": {
+      "checkedOn": "2026-11-08",
+      "sourceCommit": "f07d2abfe0ffaa9d35c8e4aa39755d1e97585f27",
+      "run": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42481828331",
+      "mode": "One-off complete 30Hz scripted-player mission simulation; expensive probe removed from routine focused CI",
+      "outcome": "lose",
+      "campaignTime": 614.4,
+      "reason": "Your Town Centre fell",
+      "completedObjectives": [
+        "Build a Siege Workshop",
+        "Muster 2 Bombard Cannons",
+        "Optional: Destroy the enemy Dock",
+        "Destroy Tidewatch Castle"
+      ],
+      "incompleteObjectives": [
+        "Destroy the enemy Town Centre"
+      ],
+      "bombardsPeak": 2,
+      "startingHousing": 5,
+      "startingWatchtowers": 2,
+      "castleTriggeredDefenders": 6,
+      "objectiveType": "Bombard Cannon muster is now a milestone, not a maintained alive-count",
+      "previousUnimprovedTime": 514.4,
+      "notes": "Castle destruction and a longer siege are verified, but no natural victory has been proved. The failed scripted-player Guard experiments were reverted."
+    }
   }
 }
