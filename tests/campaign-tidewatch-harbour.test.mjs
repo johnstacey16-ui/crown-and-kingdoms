@@ -9,6 +9,14 @@ function tidewatch(){
  vm.runInNewContext(source+"\nstartScenario(14);globalThis.tidewatchRun=code=>eval(code);",sandbox,{timeout:15000});
  return code=>sandbox.tidewatchRun(code);
 }
+test('Tidewatch Moderate campaign retains its authored attacks without the top-end AI personality',()=>{
+ const c=tidewatch();
+ assert.equal(c('CAMP[14].diff'),2,'Moderate difficulty remains the intended stage');
+ assert.equal(c('CAMP[14].aip'),3,'siege campaign uses a supported balanced military AI personality');
+ assert.equal(c("CAMP[14].ev.filter(e=>[90,240,420,345].includes(e.at)).length"),4,'all four scripted counter-raids and naval attacks remain');
+ assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='tower'&&b.hp>0).length"),2,'enemy towers remain intact');
+ assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='castle'&&b.hp>0).length"),1,'the full enemy Castle is still there');
+});
 test('Tidewatch opens with a real navigable harbour and opposing naval units',()=>{
  const c=tidewatch();
  assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='dock'&&b.hp>0&&b.done).length"),1,'enemy harbour must exist as a real completed Dock');
