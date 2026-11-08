@@ -175,8 +175,8 @@
       "arc": "Coastal War",
       "archetype": "imperial_siege",
       "assessment": "needs_rework",
-      "finding": "Bombard objectives and fortified harbour, but scripted player loses its Town Centre early.",
-      "next": "Add defensible siege staging, protected artillery and clearer counterattack timings."
+      "finding": "The optional Dock/harbour objective is naturally achievable, but a complete isolated playthrough still loses its Town Centre around 514 seconds after peaking at two Bombard Cannons.",
+      "next": "Improve genuine Town Centre defence and siege-artillery preservation, then prove a complete natural win without weakening the Castle, enemy attacks or mandatory objectives."
     },
     {
       "index": 15,
@@ -243,13 +243,30 @@
         "reason": "Your Town Centre fell",
         "completed": 2,
         "total": 4
+      },
+      {
+        "index": 14,
+        "title": "The Siege of Tidewatch",
+        "outcome": "lose",
+        "time": 514.4,
+        "reason": "Your Town Centre fell",
+        "completed": 2,
+        "total": 5,
+        "completedObjectives": [
+          "Build a Siege Workshop",
+          "Optional: Destroy the enemy Dock"
+        ],
+        "peakBombardCannons": 2,
+        "notes": "The optional harbour can be captured naturally; scripted player failed to preserve the artillery or complete the siege."
       }
     ],
     "notes": [
       "The previously winning timed defence scenarios remain winnable after the new story encounters.",
       "Strait's Last Relic still lacks a verified siege win and must not be presented as completed.",
       "Separate focused tests verify the actual relief troop orders, merchant paths and enemy-owned relic release.",
-      "Full 19-mission campaign acceptance and physical Xbox Series S gameplay have not been rerun."
-    ]
+      "Full 19-mission campaign acceptance and physical Xbox Series S gameplay have not been rerun.",
+      "8 November Tidewatch full isolated simulation verified the optional harbour completion but still ended with Town Centre defeat at 514.4 simulated seconds."
+    ],
+    "tidewatchRun": "https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42479807590"
   }
 }

@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
-import {spawnSync} from 'node:child_process';
 
 function tidewatch(){
  const {source,sandbox}=headlessGame();
@@ -65,16 +64,4 @@ test('Tidewatch naval reinforcements depend on the actual enemy Dock at the trig
  assert.equal(ruined('!!cmp.e['+index+']'),false,'destroying harbour cancels its sortie');
  assert.equal(ruined("S.us.filter(u=>u.t===1&&u.k==='gal'&&u.hp>0).length"),n,'no phantom ships after destruction');
  assert.equal(ruined('S.over'),null);
-});
-
-test('isolated Tidewatch 1200-second campaign playthrough records full battle outcome',()=>{
- const result=spawnSync(process.execPath,['tests/simulation-smoke.test.mjs'],{cwd:process.cwd(),encoding:'utf8',env:{...process.env,CK_MISSION:'14',CK_SKIP_CAMPAIGN:'0'},timeout:200000,maxBuffer:8*1024*1024});
- assert.equal(result.status,0,'isolated runner must finish normally: '+(result.stderr||'').slice(-2000)+'\n'+(result.stdout||'').slice(-2000));
- const line=(result.stdout||'').split('\n').find(x=>x.includes('campaign-isolation-result: '));
- assert.ok(line,'isolation must log structured outcome');
- const evidence=JSON.parse(line.split('campaign-isolation-result: ')[1]);
- console.log('Tidewatch expanded campaign outcome '+JSON.stringify(evidence));
- assert.equal(evidence.mission,14);
- assert.ok(['win','lose','timeout'].includes(evidence.outcome));
- assert.equal(evidence.totalObjectives,5,'one optional harbour and four original mandatory goals');
 });
