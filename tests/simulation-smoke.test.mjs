@@ -178,6 +178,10 @@ globalThis.__CK_TEST__ = {
       if(index===14){
         assignMiners('w',4,650);assignMiners('g',3,500);
       }
+      if(index===17){
+        const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
+        if(range&&!range.rs&&!S.tech[0].xbow)research(range,'xbow');
+      }
       if(index===9){
         const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
         if(range&&!range.rs&&!S.tech[0].xbow)research(range,'xbow');

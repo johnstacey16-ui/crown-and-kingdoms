@@ -365,3 +365,35 @@ test('Crown crossing begins with housing and requires genuine royal Castles',()=
  assert.equal(c('loadG()'),true);
  assert.equal(c("S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length"),6);
 });
+
+test('Two real Crown Castles signal a physical royal reserve that survives save/load without auto-victory',()=>{
+ const c=mission(17);
+ const event=c("CAMP[17].ev.findIndex(e=>e.do.toString().includes('campaignCrownRoyalReserve'))");
+ assert.ok(event>=0);
+ const before=JSON.parse(c("JSON.stringify({knight:aliveUnits(0,'knight').length,xbow:aliveUnits(0,'xbow').length,spear:aliveUnits(0,'spear').length,resources:{...S.res[0]},enemyTown:tcOf(1).hp,enemyCastle:S.bs.find(b=>b.t===1&&b.k==='castle').hp})"));
+ c('cmpTick(25)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'the reinforcements require two finished Castles');
+ c('S.ex.fill(1)'); // Focused fixture only: reveal terrain for completed Castle placement.
+ assert.equal(c("!!(globalThis.castleA=put(0,'castle',tcOf(0).x+9,tcOf(0).y-9))"),true);
+ assert.equal(c("!!(globalThis.castleB=put(0,'castle',tcOf(0).x+13,tcOf(0).y+6))"),true);
+ assert.equal(c("S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length"),2);
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('cmp.d.castles'),1);
+ assert.equal(c('!!cmp.e['+event+']'),false);
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),true);
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+4);
+ assert.equal(c("aliveUnits(0,'xbow').length"),before.xbow+6);
+ assert.equal(c("aliveUnits(0,'spear').length"),before.spear+4);
+ assert.equal(c("S.us.filter(u=>u&&u.t===0&&u.hp>0&&['knight','xbow','spear'].includes(u.k)&&u.o==='G'&&u.tg===tcOf(0)).length"),14);
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.resources),'milestone troops must not fabricate resources');
+ assert.equal(c('tcOf(1).hp'),before.enemyTown,'enemy Town Centre still requires real attacks');
+ assert.equal(c("S.bs.find(b=>b.t===1&&b.k==='castle').hp"),before.enemyCastle);
+ assert.equal(c('S.over'),null);
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+4);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+4,'one-time reserves cannot duplicate after loading');
+});
