@@ -36,7 +36,7 @@ globalThis.__CK_TEST__ = {
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
     const causewayRecon={waypoint:0,orders:0};
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 12, ages: 2, units: { gal: 3, ram: 2 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 8, soldiers: 0, ages: 3, units: { bomb: 2, ram: 2, knight: 5, xbow: 8, spear: 6 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { gal: 3, ram: 3, spear: 8, skirm: 5 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 3, units: { treb: 3, bomb: 2, knight: 8, xbow: 12, spear: 10 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { fire: 2, gal: 4, ram: 2, spear: 8, skirm: 5 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 8, soldiers: 0, ages: 3, units: { bomb: 2, ram: 2, knight: 5, xbow: 8, spear: 6 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { gal: 3, ram: 3, spear: 8, skirm: 5 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 3, units: { treb: 3, bomb: 2, knight: 8, xbow: 12, spear: 10 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -83,6 +83,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let goldenCoastAssaultStarted=false,causewayAssaultStarted=false,ashfordAssaultStarted=false;
+    let goldenCoastHomeReserveAssigned=false;const goldenCoastHomeGuardIds=new Set();
     let causewayHomeReserveAssigned=false;const causewayHomeGuardIds=new Set();
     let tidewatchAssaultStarted=false,straitAssaultStarted=false;
     let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false,greywatchGuardOrders=0,greywatchAssaultTime=null;
@@ -106,12 +107,12 @@ globalThis.__CK_TEST__ = {
             .reduce((n, b) => n + (b.q || []).filter(q => q.k === kind).length, 0);
           return sum + Math.max(0, target - live - queued);
         }, 0);
-        if((index!==16||cb('dock'))&&(index!==17||cb('castle')>=2))builder.houseFor(neededSlots); // First establish the real harbour or two Castles.
+        if((index!==12||cb('dock'))&&(index!==16||cb('dock'))&&(index!==17||cb('castle')>=2))builder.houseFor(neededSlots); // First establish the real harbour or two Castles.
       }
       // The Causeway's shoreline is initially under fog. Until the Dock is
       // built, do not divert workers or timber into inland Towers and Barracks:
       // the previous scripted opening exhausted wood rebuilding Dock losses.
-      if(index===16&&!cb('dock'))placeBuilding('dock',1);
+      if((index===12||index===16)&&!cb('dock'))placeBuilding('dock',1);
       else for (const entry of plan.buildings) {
         const existing = S.bs.filter(building => building.t === 0 && building.k === entry.kind && building.hp > 0 && building.done).length;
         if (existing < entry.count) placeBuilding(entry.kind, entry.count);
@@ -169,7 +170,8 @@ globalThis.__CK_TEST__ = {
       // Greywatch must fund its replacements and muster a paid escort, rather
       // than send the fast cavalry ahead of two unsupported starting rams.
       if(index===12){
-        assignMiners('w',3,650);assignMiners('g',2,400);
+        // Keep an actual ten-worker economy supporting navy and land siege.
+        assignMiners('w',4,1400);assignMiners('g',2,850);
       }
       if(index===17){assignMiners('w',4,2000);assignMiners('g',2,1800)}
       if(index===16){
@@ -210,9 +212,33 @@ globalThis.__CK_TEST__ = {
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
         if (producer && live + queued < targetCount && producer.q.length < 5) train(producer, unitKind);
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      // Give real attack orders to the starting navy immediately. Waiting for
+      // the land Workshop previously left three War Galleys motionless.
+      if(index===12){
+        const hostileShips=aliveUnits(1,'gal').filter(u=>!u.ld);
+        const hostileDock=S.bs.find(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0);
+        for(const ship of aliveUnits(0).filter(u=>U[u.k].sh&&U[u.k].dmg>0&&!u.ld)){
+          const target=hostileShips.slice().sort((a,b)=>
+            Math.hypot(a.x-ship.x,a.y-ship.y)-Math.hypot(b.x-ship.x,b.y-ship.y))[0]||hostileDock;
+          if(target&&(ship.o!=='a'||ship.tg!==target)){
+            ship.o='a';ship.tg=target;ship.p=[];ship.rp=0;
+          }
+        }
+      }
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&aliveUnits(0,'ram').length>=2&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true;
-        if(index===12)goldenCoastAssaultStarted=true;
+        if(index===12){
+          goldenCoastAssaultStarted=true;
+          if(!goldenCoastHomeReserveAssigned){
+            const homeGuards=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['spear','arc','skirm'].includes(u.k))
+              .sort((a,b)=>Math.hypot(a.x-tc.x,a.y-tc.y)-Math.hypot(b.x-tc.x,b.y-tc.y)).slice(0,4);
+            for(const u of homeGuards){
+              goldenCoastHomeGuardIds.add(u.netId);
+              u.o='G';u.tg=tc;u.guardTarget=null;u.p=[];u.rp=0;
+            }
+            goldenCoastHomeReserveAssigned=true;
+          }
+        }
         if(index===17){
          crownAssaultStarted=true;
          if(crownAssaultTime===null)crownAssaultTime=S.t;
@@ -240,6 +266,7 @@ globalThis.__CK_TEST__ = {
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
            if(index===14&&unit.o==='G'&&unit.tg?.k==='treb'&&unit.tg.hp>0)continue;
+           if(index===12&&goldenCoastHomeGuardIds.has(unit.netId))continue; // Defend the home settlement against the land raids.
            if(index===17&&crownHomeGuardIds.has(unit.netId))continue; // Protect the real home Town Centre.
            if(index===16&&causewayHomeGuardIds.has(unit.netId))continue; // Guard the player Town Centre throughout the assault.
            if(index===16&&unit.o==='G'&&unit.tg?.k==='ram'&&unit.tg.hp>0)continue; // Preserve the earned Causeway ram escort. // Keep the actual Royal siege escort guarding the weapons.
@@ -251,10 +278,10 @@ globalThis.__CK_TEST__ = {
                 const priority=other=>(unit.k==='knight'&&other.k==='arc'||unit.k==='arc'&&other.k==='spear'?0:6);
                 return priority(a)-priority(b)+Math.hypot(a.x-unit.x,a.y-unit.y)*.12-Math.hypot(b.x-unit.x,b.y-unit.y)*.12;
               })[0]:null;
-          if((index===9||index===16)&&!U[unit.k].sh&&unit.k!=='ram'){
+          if((index===9||index===16||index===12)&&!U[unit.k].sh&&unit.k!=='ram'){
             const ram=S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0)
               .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
-            if(ram){
+            if(ram&&(index!==12||!enemyTC||Math.hypot(ram.x-enemyTC.x,ram.y-enemyTC.y)>14)){
               if(!((unit.o==='G'&&unit.tg===ram)||(unit.o==='a'&&unit.guardTarget===ram))){
                 const selected=S.sel;S.sel=[unit];
                 try{if(orderGuardFollow(ram.x,ram.y,'G'))greywatchGuardOrders++}finally{S.sel=selected}
@@ -295,7 +322,7 @@ globalThis.__CK_TEST__ = {
         playerShips:aliveUnits(0,'gal').map(u=>({hp:Math.round(u.hp),o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)})),
         enemyShips:aliveUnits(1,'gal').length,fireShips:aliveUnits(0,'fire').length,
         army:cmil(0),enemyArmy:cmil(1),rams:aliveUnits(0,'ram').length,
-        assault:goldenCoastAssaultStarted,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
+        assault:goldenCoastAssaultStarted,homeGuards:goldenCoastHomeGuardIds.size,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
         goals:CAMP[12].goals.filter(g=>cmp.d[g.id]).map(g=>g.id),
         resources:{...S.res[0]},
         workerCount:aliveUnits(0,'vil').length,
@@ -338,7 +365,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
-       goldenCoast:index===12?{assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
+       goldenCoast:index===12?{homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
        causewayProgress:index===16?causewayProgress:null,
        crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,crownHomeGuards:index===17?crownHomeGuardIds.size:null,crownRecorded:index===17?campDone()[17]===1:null,crownEnemyCapitalAlive:index===17?!!tcOf(1):null,
