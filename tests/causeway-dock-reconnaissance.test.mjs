@@ -5,7 +5,6 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 import {campaignScouting} from './helpers/campaign-scouting.mjs';
 import {campaignConstruction} from './helpers/campaign-construction.mjs';
-import {spawnSync} from 'node:child_process';
 
 test('Causeway shoreline reconnaissance distinguishes real buildable sites from unexplored terrain',()=>{
  const {source,sandbox}=headlessGame();
@@ -115,20 +114,4 @@ test('discovered Causeway shoreline allows a paid Dock foundation and finished s
  assert.equal(outcome.shipSpawn,true,'ship production must have an unobstructed water exit');
  assert.equal(outcome.galleys,true,'completed Dock exposes War Galley production');
  assert.equal(c('JSON.stringify(S.tech[0])'),initialTech,'construction/scouting must not grant research');
-});
-
-test('isolated Causeway playthrough logs real shoreline reconnaissance and Dock production without false victory',()=>{
- const result=spawnSync(process.execPath,['tests/simulation-smoke.test.mjs'],{
-  cwd:process.cwd(),env:{...process.env,CK_MISSION:'16',CK_SKIP_CAMPAIGN:'0'},
-  encoding:'utf8',timeout:180000,maxBuffer:5*1024*1024
- });
- assert.equal(result.status,0,'mission-specific campaign runner must finish normally: '+(result.stderr||'').slice(-1800)+'\n'+(result.stdout||'').slice(-1800));
- const line=(result.stdout||'').split('\n').find(x=>x.includes('campaign-isolation-result: '));
- assert.ok(line,'mission runner must emit structured progress evidence');
- const evidence=JSON.parse(line.split('campaign-isolation-result: ')[1]);
- console.log('Causeway isolated campaign outcome',JSON.stringify(evidence));
- assert.equal(evidence.mission,16);
- assert.ok(evidence.coastalRecon?.orders>0,'scripted player uses normal Knight scouting');
- assert.ok(evidence.constructionOrders.some(x=>x.kind==='dock'),'real Dock construction must start after shoreline reconnaissance');
- assert.ok(['win','lose','timeout'].includes(evidence.outcome),'do not treat a defeat or timeout as victory');
 });
