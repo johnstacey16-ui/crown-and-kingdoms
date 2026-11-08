@@ -312,3 +312,11 @@ test('Remote and unfinished Causeway Towers are not credited as ford defences',(
  c('remoteTower.hp=0');
  assert.equal(c('!!campaignCausewayFordTower(.22)'),false,'dead or unfinished Towers do not protect a ford');
 });
+
+test('Causeway HUD keeps all five required victory objectives visible before optional ford rewards',()=>{
+ const c=mission(16);
+ const goals=JSON.parse(c("JSON.stringify(CAMP[16].goals.map(g=>({id:g.id,optional:!!g.optional})))"));
+ assert.deepEqual(goals.slice(0,5).map(g=>g.id),['dock','fleet','towers','castle','tc']);
+ assert.ok(goals.slice(0,5).every(g=>!g.optional),'the visible five-objective panel must not hide the final enemy capital goal');
+ assert.deepEqual(goals.slice(5),[{id:'fords',optional:true}],'ford garrisons remain an explicitly optional bonus');
+});
