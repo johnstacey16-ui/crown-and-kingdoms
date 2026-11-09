@@ -509,7 +509,10 @@ const CAMP=[
  goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
  ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')},{at:300,when:()=>cb('market')>=1&&cb('tower')>=2&&can(0,{w:150,s:75}),do:()=>campaignKingsRoadSupply()}]},
 {t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready. Two sacred relics are hidden along the dangerous shore approach to the Mediterranean. Escort the Monks home while enemy road patrols hunt them. Optional: establish a forward Outpost on your bank to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-hx,dy=H*.5-hy,dist=Math.hypot(dx,dy)||1;
+ setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);
+// The two authored relics are the entire objective. Leave no random map
+// relics behind as an easier, unguarded shortcut around the pilgrim trail.
+S.rel.length=0;const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-hx,dy=H*.5-hy,dist=Math.hypot(dx,dy)||1;
  for(const side of [-1,1]){
   let placed=false;
   for(const forward of [24,26,22,28,20,30,32]){
