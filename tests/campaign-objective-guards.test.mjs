@@ -19,7 +19,7 @@ test('ranged objectives exclude melee, civilians and siege units', () => {
 });
 
 test('three separate relic mission objectives require completed monasteries', () => {
-  const relicGoalLines = campaign.split('\n').filter(line => /S\.rel\.filter/.test(line));
+  const relicGoalLines = campaign.split('\n').filter(line => /goals:\[/.test(line) && /S\.rel\.filter/.test(line));
   assert.equal(relicGoalLines.length, 3, 'All three relic campaign objectives must remain represented');
   for (const line of relicGoalLines) {
     assert.match(line, /\.m\.done/, 'Relics count toward a campaign objective only when stored in a completed monastery');

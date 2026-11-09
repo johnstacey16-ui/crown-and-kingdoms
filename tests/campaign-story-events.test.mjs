@@ -581,7 +581,7 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  const c=mission(11);
  const first=c("CAMP[11].ev.findIndex(e=>e.do.toString().includes('campaignReliquaryPatrol'))");
  assert.ok(first>=0);
- assert.equal(c("CAMP[11].ev[first].at"),55);
+ assert.equal(c("CAMP[11].ev["+first+"].at"),55);
  assert.equal(c("CAMP[11].goals.find(g=>g.id==='trailpost').optional"),true);
  assert.ok(c("aliveUnits(0,'mon').length")>=2,'two genuine player Monks begin the mission');
  assert.equal(c("cb('monastery')"),1,'the mission briefing reflects the starting Monastery');
