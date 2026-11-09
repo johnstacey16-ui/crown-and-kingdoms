@@ -12,9 +12,9 @@ test('land-army objectives count only actual land combat units', () => {
 });
 
 test('ranged objectives exclude melee, civilians and siege units', () => {
-  assert.match(campaign, /t:'Train 6 ranged soldiers',ok:\(\)=>aliveUnits\(0\)\.filter\(u=>U\[u\.k\]\.rng>=4&&!U\[u\.k\]\.sh&&!\['vil','mon','king','ram','mang','scor','treb','bomb'\]\.includes\(u\.k\)\)\.length>=6/,
+  assert.match(campaign, /t:'Keep 6 ranged soldiers alive',sustained:true,ok:\(\)=>aliveUnits\(0\)\.filter\(u=>U\[u\.k\]\.rng>=4&&!U\[u\.k\]\.sh&&!\['vil','mon','king','ram','mang','scor','treb','bomb'\]\.includes\(u\.k\)\)\.length>=6/,
     'The ranged-soldier objective must count living ranged combat units rather than every military unit');
-  assert.doesNotMatch(campaign, /t:'Train 6 ranged soldiers',ok:\(\)=>cmil\(0\)>=6/,
+  assert.doesNotMatch(campaign, /t:'Keep 6 ranged soldiers alive',sustained:true,ok:\(\)=>cmil\(0\)>=6/,
     'Melee troops must not satisfy a ranged-soldier objective');
 });
 
