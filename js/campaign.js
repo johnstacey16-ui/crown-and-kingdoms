@@ -489,6 +489,39 @@ function campaignReliquaryPatrol(){
  if(orders)note('Enemy road patrols are advancing on your Monks! Keep their escorts close.');
  return launched;
 }
+// Ashford's outer signal towers are real, persistent enemy buildings, not an
+// invented capture counter. Their IDs survive normal save/load even after a
+// destroyed building has been compacted out of the live entity array.
+function campaignAshfordSignalsDisabled(){
+ const ids=cmp?.i===8?cmp.d.ashfordSignalIds:null;
+ return Array.isArray(ids)&&ids.length===2&&new Set(ids).size===2&&
+  ids.every(id=>typeof id==='string'&&!S.bs.some(b=>b&&b.t===1&&b.hp>0&&b.netId===id));
+}
+function campaignAshfordSignalRelief(){
+ const home=tcOf(0);if(!home||S.over||!campaignAshfordSignalsDisabled())return 0;
+ const before=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',3);grp(0,'arc',3);
+ const relief=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!before.has(u.netId));
+ const ram=aliveUnits(0,'ram').find(u=>!u.ld)||home;
+ for(const u of relief){u.o='G';u.tg=ram;u.guardTarget=null;u.p=[];u.rp=0}
+ if(relief.length)note('The twin signal towers are silent! Six royal troops join the siege and guard your battering rams.');
+ return relief.length;
+}
+function campaignAshfordCastleSortie(){
+ const enemy=tcOf(1);if(!enemy||S.over)return 0;
+ const before=new Set(S.us.map(u=>u.netId));
+ grp(1,'spear',3);grp(1,'arc',3);
+ const defenders=S.us.filter(u=>u&&u.t===1&&u.hp>0&&!before.has(u.netId));
+ const rams=aliveUnits(0,'ram').filter(u=>!u.ld);
+ const targets=[...rams,...S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0),tcOf(0)].filter(Boolean);
+ let attacking=0;
+ for(const u of defenders)for(const target of targets){
+  if(!path(u,goalNear(target,Math.max(1,U[u.k].rng||1))))continue;
+  u.o='a';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0;attacking++;break;
+ }
+ if(attacking)note('Ashford Castle has fallen! The rival sends its last defenders against your siege train.');
+ return defenders.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -523,10 +556,10 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
  goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480},{id:'caravan',t:'Escort a Redwater Trade Cart safely into your Market',ok:()=>campaignRedwaterCartArrived()}],
  ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')},{at:405,when:()=>cb('market')>=1,do:()=>campaignRoadCaravan()},{at:435,when:()=>cmp.e[3]&&!cmp.d.caravan,do:()=>note('The caravan needs an escort! Keep your soldiers near the Trade Carts until at least one enters your Market.')}]},
-{t:'Crown of Ashford',b:'The rival claimant has fortified the capital and refuses all terms. Muster a field army, break the outer defences and destroy the enemy Town Centre to reunite the kingdom under one crown.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);put(1,'castle',e.x-7,e.y+8);put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2},
- goals:[{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:5,do:()=>note('Protect your rams with infantry. They deal heavy damage to buildings but are vulnerable in melee.')},{at:120,do:()=>note('Use your archers to thin defenders before your siege units reach the walls.')}]},
+{t:'Crown of Ashford',b:'The rival claimant holds Ashford behind a Castle and two signal towers. Defeat the garrison, destroy the real Castle, then break the rival Town Centre to claim the capital. Optional: silence both marked signal towers to rally six royal spearmen and archers to your siege. Expect a final counterattack when the Castle falls.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);if(e){put(1,'castle',e.x-7,e.y+8);const ids=[];for(const [dx,dy] of [[-4,12],[-11,5]]){const tower=put(1,'tower',e.x+dx,e.y+dy);if(tower){tower.campaignSignal='ashford';ids.push(tower.netId)}}cmp.d.ashfordSignalIds=ids;grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2}},
+ goals:[{id:'castle',t:'Destroy Ashford Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'signals',t:'Optional: Destroy both Ashford signal towers',optional:true,ok:()=>campaignAshfordSignalsDisabled()}],
+ ev:[{at:5,do:()=>note('Ashford Castle must fall before you can claim the capital. Protect your rams with archers and cavalry.')},{at:120,do:()=>note('The two enemy signal towers can be destroyed for a real royal siege escort. They are optional, but the Castle and Town Centre are not.')},{when:()=>cmp.d.signals===1,do:()=>campaignAshfordSignalRelief()},{when:()=>cmp.d.castle===1&&!!tcOf(1),do:()=>campaignAshfordCastleSortie()}]},
 {t:'Siege of Greywatch',b:'Greywatch blocks the royal road. The enemy has fortified its capital, and reinforcements will strike your economy. Muster your siege engines before advancing. Gather wood and gold for replacements, research Crossbowman at an Archery Range, and use Guard to keep the escort with your rams. Keep cavalry away from enemy pikes.',civ:0,en:3,mt:1,msz:1,seed:910,diff:1,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);put(1,'tower',e.x-4,e.y+11);grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
  goals:[{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
