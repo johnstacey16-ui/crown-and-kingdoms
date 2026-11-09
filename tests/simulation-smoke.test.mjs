@@ -77,6 +77,8 @@ globalThis.__CK_TEST__ = {
     const causewayProgress=[];
     const goldenCoastProgress=[];
     const redwaterProgress=[];
+    const ironPassProgress=[];
+    let ironEscortIssued=false;
     const frontierProgress=[];
     const reliquaryProgress=[];
     const crownProgress=[];
@@ -97,6 +99,14 @@ globalThis.__CK_TEST__ = {
       // Bot decisions run once per simulated second; simulation still runs at 30 Hz.
       if(tick%30===0){
       if(index===16)campaignScoutCauseway(causewayRecon);
+      if(index===18&&cmp.d.ironConvoySent&&!ironEscortIssued){
+        const wagon=aliveUnits(0,'cart').find(u=>u.campaignConvoy==='iron-pass');
+        if(wagon){
+          const escort=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['spear','arc','scout'].includes(u.k)).slice(0,8);
+          for(const u of escort){u.o='G';u.tg=wagon;u.guardTarget=null;u.p=[];u.rp=0}
+          ironEscortIssued=escort.length>0;
+        }
+      }
       if(index===9){
         greywatchPeakRams=Math.max(greywatchPeakRams,S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length);
         greywatchWorkshopCompleted ||= S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0);
@@ -439,6 +449,15 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(index===18&&tick%(30*10)===0&&cmp.t>=450)ironPassProgress.push({
+        time:Math.round(cmp.t),sent:!!cmp.d.ironConvoySent,delivered:!!cmp.d.convoy,
+        escorts:S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.o==='G'&&u.tg?.campaignConvoy==='iron-pass').length,
+        pursuers:S.us.filter(u=>u&&u.t===1&&u.campaignPatrol==='iron-pass'&&u.hp>0).length,
+        wagons:S.us.filter(u=>u&&u.t===0&&u.campaignConvoy==='iron-pass').map(u=>{
+          const h=tcOf(0);return {id:u.netId,alive:u.hp>0,x:+u.x.toFixed(1),y:+u.y.toFixed(1),
+            distance:h?Math.hypot(u.x-h.x,u.y-h.y):999,order:u.o,route:u.p?.length||0};
+        })
+      });
       if(index===11&&tick%(30*30)===0)reliquaryProgress.push({
         second:Math.round(S.t),townHp:Math.round(tcOf(0)?.hp||0),
         monks:aliveUnits(0,'mon').map(u=>({id:u.netId,x:+u.x.toFixed(1),y:+u.y.toFixed(1),hp:Math.round(u.hp),order:u.o,target:u.tg?.rl?'relic':u.tg?.k||null,carrying:!!u.rel,route:u.p?.length||0})),
@@ -523,6 +542,11 @@ globalThis.__CK_TEST__ = {
         standingWalls:S.bs.filter(b=>b.t===0&&b.k==='wall'&&b.done&&b.hp>0).length,
         bridgehead:!!cmp.d.bridgehead,raidWaves:CAMP[15].ev.filter((e,i)=>e.at>=65&&e.at<=435&&cmp.e[i]).length}:null,
       redwaterProgress:index===7?redwaterProgress:null,
+      ironPassProgress:index===18?ironPassProgress:null,
+      ironPass:index===18?{sent:!!cmp.d.ironConvoySent,delivered:!!cmp.d.convoy,
+        liveWagons:aliveUnits(0,'cart').filter(u=>u.campaignConvoy==='iron-pass').length,
+        pursuers:S.us.filter(u=>u&&u.t===1&&u.campaignPatrol==='iron-pass').length,
+        guardsIssued:ironEscortIssued}:null,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
        goldenCoast:index===12?{staging:goldenCoastStaging,capitalBreach:goldenCoastCapitalBreach,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
@@ -1626,6 +1650,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===2?{frontierProgress:result.frontierProgress}:{}),
     ...(index===8?{ashford:result.ashford}:{}),
     ...(index===15?{blackwood:result.blackwood}:{}),
+    ...(index===18?{ironPass:result.ironPass,ironPassProgress:result.ironPassProgress}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
@@ -2231,10 +2256,17 @@ for (const [index, label, limit] of [
   }
   if(index===18){
     assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
-    assert.equal(completed,total,'all three defensive objectives must be completed');
+    assert.equal(completed,total,'the real convoy delivery and all three defensive objectives must be completed');
+    assert.equal(total,4,'Iron Pass now requires a fourth genuine wagon delivery');
     assert.ok(result.soldiers>=15,'at least fifteen living land soldiers must survive the timed assaults');
     assert.ok(result.townCentreHp>0,'the home Town Centre must remain standing');
-    assert.equal(result.enemyRaidsFired,5,'all five timed campaign events must run');
+    assert.equal(result.enemyRaidsFired,7,'all original attacks, convoy dispatch and real pursuing riders must fire');
+    assert.ok(result.ironPass?.delivered,'a tagged living Trade Cart must actually reach the Town Centre');
+    assert.ok(result.ironPass?.pursuers>=1,'real enemy horsemen must target the route');
+    assert.ok(result.ironPassProgress.some(p=>p.wagons.some(w=>w.alive&&w.distance>=17&&w.order==='m')),
+      'the convoy must start at a real remote checkpoint and move toward home');
+    assert.ok(result.ironPassProgress.some(p=>p.wagons.some(w=>w.alive&&w.distance<4)),
+      'at least one royal wagon must actually traverse the road to the living Town Centre');
   }
   const diagnostics=(index===18||index===10)?'; diagnostics='+JSON.stringify({reason:result.reason,tcHp:result.townCentreHp,pop:result.population,cap:result.populationCapacity,houses:result.houses,soldiers:result.soldiers,unfinished:result.unfinished,buildings:result.buildings,resources:result.resources,raidEvents:result.enemyRaidsFired,workers:result.workerOrders}):'';
   console.log('campaign-scripted-playthrough: '+label+' '+(result.over === 'win' ? 'won' : result.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+result.campaignTime.toFixed(1)+' simulated seconds; objectives='+completed+'/'+total+'; incomplete='+result.objectives.filter(objective => !objective.complete).map(objective => objective.title).join('|')+diagnostics);

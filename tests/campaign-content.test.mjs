@@ -59,6 +59,24 @@ test('Causeway campaign uses the navigable strait layout and a staged land-and-s
   assert.ok(html.includes("n:'The Causeway Campaign',ids:[16,17]"), 'The mission must be included in natural campaign progression');
 });
 
+test('Iron Pass requires an actual delivered royal wagon in addition to all original defences',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+';startScenario(18)',sandbox);
+ const goals=vm.runInContext("CAMP[18].goals.map(g=>({id:g.id,optional:!!g.optional,sustained:!!g.sustained}))",sandbox);
+ assert.deepEqual(JSON.parse(JSON.stringify(goals)),[
+  {id:'towers',optional:false,sustained:true},
+  {id:'army',optional:false,sustained:true},
+  {id:'hold',optional:false,sustained:false},
+  {id:'convoy',optional:false,sustained:false}
+ ],'the delivery is a fourth mandatory goal and the towers must remain standing');
+ assert.equal(vm.runInContext("CAMP[18].ev.filter(e=>e.at<=440).length",sandbox),5,
+  'the four original raids and introductory event remain untouched');
+ assert.equal(vm.runInContext("CAMP[18].ev.filter(e=>e.at>=475).length",sandbox),2,
+  'the dispatched wagons and enemy pursuit add real late-campaign encounters');
+ assert.equal(vm.runInContext("CAMP[18].goals.find(g=>g.id==='convoy').ok()",sandbox),false,
+  'no invented delivery can be recorded at mission start');
+});
+
 test('Iron Pass is reachable in the Northern March and campaign arcs contain valid mission IDs', () => {
   assert.ok(html.includes("n:'Northern March',ids:[15,18]"),
     'Iron Pass must be reachable in the Northern March arc');
@@ -486,7 +504,7 @@ test('a completed one-time objective stays recorded when its wording starts with
 test('campaign milestones stay one-shot except explicit Blackwood living fortifications and existing sustained goals',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  vm.runInContext(source+';globalThis.liveGoals=CAMP.flatMap((sc,i)=>sc.goals.filter(g=>g.sustained===true).map(g=>[i,g.id]));',sandbox);
- assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[6,'t'],[6,'a'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[15,'tower'],[15,'wall'],[16,'fleet'],[18,'army']]);
+ assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[6,'t'],[6,'a'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[15,'tower'],[15,'wall'],[16,'fleet'],[18,'towers'],[18,'army']]);
 });
 
 test('scripted construction resumes the same paid foundation after its builder is lost',()=>{

@@ -392,6 +392,65 @@ test('Northern Watch standing Tower and ranged soldiers are rechecked after loss
  c('cmp.k=14;cmpTick(600)');
  assert.equal(c('S.over'),null,'surviving the clock alone cannot complete broken defenses');
 });
+test('Iron Pass dispatches two real distant wagons rather than winning on a timer alone',()=>{
+ const c=mission(18);
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CAMP[18].goals.map(g=>g.id))')),['towers','army','hold','convoy']);
+ assert.equal(c("CAMP[18].goals.find(g=>g.id==='towers').sustained"),true,'both real defensive Towers must remain standing');
+ c('cmpTick(474)');
+ assert.equal(c('!!cmp.d.ironConvoySent'),false,'the convoy cannot be summoned ahead of its timed checkpoint');
+ assert.equal(c("aliveUnits(0,'cart').filter(u=>u.campaignConvoy==='iron-pass').length"),0);
+ c('cmpTick(1)');
+ assert.equal(c('cmp.d.ironConvoySent'),1,'the scripted checkpoint dispatched genuine wagons');
+ const carts=JSON.parse(c("JSON.stringify(aliveUnits(0,'cart').filter(u=>u.campaignConvoy==='iron-pass').map(u=>({id:u.netId,x:u.x,y:u.y,order:u.o,route:u.p?.length||0,distance:Math.hypot(u.x-tcOf(0).x,u.y-tcOf(0).y)})))"));
+ assert.equal(carts.length,2,'the royal supply column consists of two living, identifiable Trade Carts');
+ assert.ok(carts.every(u=>u.distance>=19&&u.route>0&&u.order==='m'),
+  'wagons spawn on a genuinely reachable forward road and walk home rather than teleporting: '+JSON.stringify(carts));
+ assert.equal(c('campaignIronPassCartArrived()'),false,'a remote wagon does not count as delivered');
+ assert.equal(c('S.over'),null,'the timer by itself cannot bypass the convoy or army objectives');
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'cart').filter(u=>u.campaignConvoy==='iron-pass').length"),2,'the supply wagons are a one-shot encounter');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c("S.us.filter(u=>u.campaignConvoy==='iron-pass'&&u.hp>0).length"),2,'both convoy identities survive a normal game save');
+ assert.equal(c('!!cmp.d.convoy'),false,'saving/loading may not complete an undelivered convoy');
+});
+
+test('Iron Pass pursuers target real caravans and destroying all wagons causes genuine defeat',()=>{
+ const c=mission(18);
+ c('cmpTick(475)');
+ assert.equal(c('cmp.d.ironConvoySent'),1);
+ const enemies=c("aliveUnits(1,'scout').length");
+ c('cmpTick(8)');
+ assert.equal(c('cmp.e[6]'),1,'the final pursuit event fires only after wagons depart');
+ assert.ok(c("S.us.some(u=>u.t===1&&u.hp>0&&u.campaignPatrol==='iron-pass'&&u.o==='a'&&u.tg?.campaignConvoy==='iron-pass')"),
+  'real hostile Scouts are tasked to attack actual moving royal Trade Carts');
+ assert.ok(c("aliveUnits(1,'scout').length")>enemies);
+ assert.equal(c('S.over'),null);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.ok(c("S.us.some(u=>u.t===1&&u.hp>0&&u.campaignPatrol==='iron-pass'&&u.tg?.campaignConvoy==='iron-pass')"),
+  'pursuit identity and entity target survive save/load');
+ c("S.us.filter(u=>u.campaignConvoy==='iron-pass').forEach(u=>u.hp=0)");
+ c('cmpTick(1)');
+ assert.equal(c('S.over'),'lose','both destroyed wagons mean the supply route is lost even with a healthy Town Centre');
+});
+
+test('Iron Pass accepts only a living tagged wagon actually reaching the Town Centre',()=>{
+ const c=mission(18);
+ c('cmpTick(475)');
+ const home=c('tcOf(0).netId');
+ assert.ok(home);
+ assert.equal(c('campaignIronPassCartArrived()'),false);
+ c("S.us.filter(u=>u.campaignConvoy==='iron-pass').forEach(u=>u.hp=0)");
+ c("const h=tcOf(0);addU(0,'cart',h.x+2,h.y+2)");
+ assert.equal(c('campaignIronPassCartArrived()'),false,'an unrelated Trade Cart at home cannot forge royal convoy completion');
+ const another=mission(18);
+ another('cmpTick(475)');
+ another("const h=tcOf(0),w=aliveUnits(0,'cart').find(u=>u.campaignConvoy==='iron-pass');w.x=h.x+1;w.y=h.y+1;");
+ assert.equal(another('campaignIronPassCartArrived()'),true,'the correct living wagon at the real Town Centre is delivered');
+ another("const w=aliveUnits(0,'cart').find(u=>u.campaignConvoy==='iron-pass');w.hp=0;");
+ assert.equal(another('campaignIronPassCartArrived()'),false,'a dead wagon never qualifies as a delivery');
+});
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));
