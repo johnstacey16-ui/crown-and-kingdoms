@@ -20,7 +20,24 @@ The repository's `vercel.json` configures an **Ignored Build Step**: `node scrip
 | Next Production release | Publish the accumulated, accepted `main` commit explicitly with `[deploy]`; the repository gate allows a Vercel build. |
 | After release | Verify Vercel Ready and correct public Production alias/SHA, run **bounded** browser/offline/artwork and relevant multiplayer/Xbox smoke, preserve rollback options, and record usage. |
 
-**How the owner initiates it:** Say **"Deploy the latest tested Crown & Kingdoms to live."** The assistant should inspect the actual current `main` and GitHub Actions results, check that the release criteria below are met and verify storage/plan constraints before writing any release commit. If everything is ready, publish one deliberate commit with `[deploy]` (for example, `chore(release): publish tested game changes [deploy]`). To release an already-committed `main` without changing game files, a normal Git command is `git commit --allow-empty -m "chore(release): publish tested main [deploy]"`, followed by `git push origin main`; equivalent GitHub API tooling can commit the unchanged tree at the verified current branch head. **Do not add `[deploy]` to every code commit.** The Vercel Git integration should build automatically from that marker, but successful publication still has to be verified; no assumption that a request or a Ready status is a successful game test.
+### One-line release request
+
+**Preferred shorthand to send in ChatGPT:**
+
+```text
+https://github.com/johnstacey16-ui/crown-and-kingdoms deploy
+```
+
+This means **"Deploy the latest tested Crown & Kingdoms to live"** and starts the entire guarded release workflow in that request; the owner **does not need to repeat the release request after tests**. This is a conversational instruction interpreted by the assistant using GitHub/Vercel tools, **not** a GitHub-native slash command, webhook or automatically running scheduled workflow. Do not treat merely mentioning the command in a planning/documentation conversation as a request to publish immediately. If required tests, resources, or access block release, report the blocker and leave Production unchanged.
+
+The release request invokes these steps in order:
+
+1. **Test first.** Inspect `main`, changes since the latest live revision and recent GitHub Actions. Run/verify suitable quick/focused regression gates, full standalone regressions, seeded AI, all 19 campaign simulations, Chromium and/or Xbox-contract software checks depending on changed code and risk. Use current-SHA evidence, repair any failures within scope, rerun affected tests, and do not publish if required gates remain red or unverified. Keep high-cost hosted checks purposeful and aligned to existing weekly/manual free-tier workflows.
+2. **Release if accepted.** Check current Vercel Deployment Storage/free quotas and identify an existing known-good live release/rollback. Only after passing acceptance, publish one deliberate `[deploy]` commit to the current verified `main` using an expected-head, non-force update. There is **no additional owner prompt** needed for the same request if all gates pass. If a gate can't be completed safely, explain what remains without claiming deployment.
+3. **Verify Vercel.** Confirm the triggered Production deployment reaches Ready and the production domain points to the expected Git SHA; use GitHub Vercel check statuses when the project API is unavailable. A build attempt or deployment event alone does not prove readiness.
+4. **Smoke-test and report.** Run bounded production startup and changes-specific offline/art/multiplayer browser checks when possible; report actual deployed SHA, test results, public URL, bandwidth/storage observation and any unverified physical Xbox checks. Preserve rollback. Avoid repeated fresh-cache downloads.
+
+**Equivalent longer request:** Say **"Deploy the latest tested Crown & Kingdoms to live."** The assistant should inspect the actual current `main` and GitHub Actions results, check that the release criteria below are met and verify storage/plan constraints before writing any release commit. If everything is ready, publish one deliberate commit with `[deploy]` (for example, `chore(release): publish tested game changes [deploy]`). To release an already-committed `main` without changing game files, a normal Git command is `git commit --allow-empty -m "chore(release): publish tested main [deploy]"`, followed by `git push origin main`; equivalent GitHub API tooling can commit the unchanged tree at the verified current branch head. **Do not add `[deploy]` to every code commit.** The Vercel Git integration should build automatically from that marker, but successful publication still has to be verified; no assumption that a request or a Ready status is a successful game test.
 
 ### Release readiness and rollback checklist
 
