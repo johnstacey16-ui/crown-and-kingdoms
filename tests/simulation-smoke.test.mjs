@@ -2262,7 +2262,10 @@ for (const [index, label, limit] of [
     assert.ok(result.townCentreHp>0,'the home Town Centre must remain standing');
     assert.equal(result.enemyRaidsFired,7,'all original attacks, convoy dispatch and real pursuing riders must fire');
     assert.ok(result.ironPass?.delivered,'a tagged living Trade Cart must actually reach the Town Centre');
-    assert.ok(result.ironPass?.pursuers>=1,'real enemy horsemen must target the route');
+    assert.ok(result.ironPassProgress.some(p=>p.pursuers>=2),
+      'two real enemy horsemen must pursue the convoy during the live battle, even when the escort defeats them before the finale');
+    assert.ok(result.ironPassProgress.some(p=>p.escorts>=3&&p.wagons.some(w=>w.alive&&w.order==='m')),
+      'the player must send living soldiers to guard moving royal wagons');
     assert.ok(result.ironPassProgress.some(p=>p.wagons.some(w=>w.alive&&w.distance>=17&&w.order==='m')),
       'the convoy must start at a real remote checkpoint and move toward home');
     assert.ok(result.ironPassProgress.some(p=>p.wagons.some(w=>w.alive&&w.distance<4)),
