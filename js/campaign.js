@@ -806,7 +806,13 @@ function campaignRelicRoadShrines(){
  return found.length;
 }
 function campaignRelicRoadDeposited(){
- return S.rel.filter(q=>q&&q.campaignShrine==='relic-road'&&q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length;
+ // The save format stores relic coordinates and monastery references, but
+ // intentionally drops arbitrary relic properties. Shrine identity therefore
+ // comes from the saved campaign coordinates, not an unsaved entity tag.
+ const sites=cmp?.i===3?cmp.d.relicRoadShrines:null;
+ if(!Array.isArray(sites)||sites.length!==3)return 0;
+ return S.rel.filter(q=>q&&q.m&&q.m.t===0&&q.m.done&&q.m.hp>0&&
+  sites.some(p=>Array.isArray(p)&&p.length===2&&Math.abs(p[0]-q.x)<.01&&Math.abs(p[1]-q.y)<.01)).length;
 }
 // After the first relic comes home, Turkish trackers follow the monks along
 // real traversable roads. Their IDs persist through saves, and killing them
