@@ -589,6 +589,12 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  assert.equal(c("S.rel.filter(q=>q.rl&&!q.c&&!q.m).length"),2,'both mission relics begin on the map, unclaimed');
  assert.equal(c("S.rel.every(q=>!!path(aliveUnits(0,'mon')[0],gp(q.x,q.y,.8)))"),true,
  'both authored relic sites must be navigable by a real Monk, not merely drawn on dry terrain');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='reliquary'&&u.t===1&&u.hp>0).length"),2,
+ 'each relic starts guarded by one real enemy Scout Cavalry, not a text-only threat');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='reliquary').every(u=>u.k==='scout'&&u.o==='p'&&u.pt?.a?.length===2&&u.pt?.b?.length===2)"),true,
+ 'the two enemy scouts have ordinary movable patrol waypoints');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='reliquary').every(u=>!!path(u,gp(u.pt.b[0],u.pt.b[1],1)))"),true,
+ 'both scouts can physically reach their guarded relics with normal land movement');
  assert.equal(c("CAMP[11].goals.find(g=>g.id==='relics').ok()"),false,'no free relic objectives at the start');
  const shore=JSON.parse(c(`JSON.stringify((()=>{
   const home=tcOf(0),hx=home.x+home.s/2,hy=home.y+home.s/2;
@@ -616,6 +622,8 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
  assert.equal(c('S.rel.length'),2,'the only two authored relics persist across save/reload');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='reliquary'&&u.t===1&&u.hp>0&&u.pt?.b?.length===2).length"),2,
+ 'both genuine patrol identities and waypoint routes survive save/reload');
  const afterReload=c("aliveUnits(1).length");
  c('cmpTick(1)');
  assert.equal(c("aliveUnits(1).length"),afterReload,'saved one-shot patrol events never duplicate on reload');
