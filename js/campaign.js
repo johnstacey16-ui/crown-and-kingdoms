@@ -523,6 +523,10 @@ S.rel.length=0;const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-h
      const x=Math.round(hx+dx/dist*forward-dy/dist*(side*lateral+offset)),y=Math.round(hy+dy/dist*forward+dx/dist*(side*lateral+offset)),cell=y*W+x;
      if(x<3||y<3||x>=W-3||y>=H-3||S.g[cell]||S.wt[cell]||S.nd[cell])continue;
      if(S.rel.some(q=>Math.hypot(q.x-x-.5,q.y-y-.5)<5))continue;
+     // A dry tile is not enough: Monks must be able to walk there using
+     // ordinary land pathfinding on the seeded Mediterranean coastline.
+     const pilgrim=aliveUnits(0,'mon').find(u=>!u.ld);
+     if(!pilgrim||!path(pilgrim,gp(x+.5,y+.5,.8)))continue;
      S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null});placed=true;break;
     }
    }
