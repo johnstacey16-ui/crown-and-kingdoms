@@ -576,3 +576,68 @@ test('Feudal Frontier raids react to actual Towers and a Market, never age-up al
  assert.equal(c('!!cmp.e[4]'),true,'real Market and two completed Towers provoke the second raid');
  assert.equal(c('S.over'),null);
 });
+
+test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted raid',()=>{
+ const c=mission(11);
+ const first=c("CAMP[11].ev.findIndex(e=>e.do.toString().includes('campaignReliquaryPatrol'))");
+ assert.ok(first>=0);
+ assert.equal(c("CAMP[11].ev[first].at"),55);
+ assert.equal(c("CAMP[11].goals.find(g=>g.id==='trailpost').optional"),true);
+ assert.ok(c("aliveUnits(0,'mon').length")>=2,'two genuine player Monks begin the mission');
+ assert.equal(c("cb('monastery')"),1,'the mission briefing reflects the starting Monastery');
+ const before=c("aliveUnits(1).length");
+ c('cmpTick(54)');
+ assert.equal(c('!!cmp.e['+first+']'),false,'early patrols cannot fire ahead of their timing');
+ c('cmpTick(1)');
+ assert.equal(c('cmp.e['+first+']'),1,'the first contested-road patrol fires at 0:55');
+ assert.ok(c("aliveUnits(1).length")>=before+2,'the patrol consists of real living units');
+ assert.ok(c("S.us.some(u=>u.t===1&&u.hp>0&&u.o==='a'&&u.tg?.t===0)"),'at least one patrol unit actually targets a reachable friendly Monk or holding');
+ assert.equal(c('S.over'),null,'patrol arrivals do not grant victory');
+ const afterFirst=c("aliveUnits(1).length");
+ c('cmpTick(75)');
+ assert.ok(c("aliveUnits(1).length")>=afterFirst+2,'a second physical patrol is dispatched at 2:10');
+ assert.equal(c("CAMP[11].goals.find(g=>g.id==='relics').ok()"),false,'only relics returned to a live friendly Monastery complete the mission');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ const afterReload=c("aliveUnits(1).length");
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(1).length"),afterReload,'saved one-shot patrol events never duplicate on reload');
+});
+
+test('Reliquary Trail optional forward Outpost earns four mortal Monk escorts once, without bypassing relic recovery',()=>{
+ const c=mission(11);
+ assert.equal(c('campaignReliquaryWaystation()'),null);
+ const reward=c("CAMP[11].ev.findIndex(e=>e.do.toString().includes('campaignReliquaryEscort'))");
+ assert.ok(reward>=0);
+ c('S.ex.fill(1)');
+ const site=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),hx=h.x+h.s/2,hy=h.y+h.s/2;
+  for(let radius=0;radius<=18;radius++)
+   for(let y=Math.max(2,Math.floor(H/2)-radius);y<Math.min(H-B.outpost.s-1,Math.floor(H/2)+radius+1);y++)
+    for(let x=Math.max(2,Math.floor(W/2)-radius);x<Math.min(W-B.outpost.s-1,Math.floor(W/2)+radius+1);x++){
+     const px=x+B.outpost.s/2,py=y+B.outpost.s/2;
+     if(Math.hypot(px-W/2,py-H/2)<=17&&Math.hypot(px-hx,py-hy)>=11&&okPlace(0,'outpost',x,y))return{x,y};
+    }
+  return null;
+ })())`));
+ assert.ok(site,'the seeded relic road must have a legal buildable optional Outpost location');
+ assert.equal(c(`!!(globalThis.post=addB(0,'outpost',${site.x},${site.y},true))`),true);
+ assert.equal(c('campaignReliquaryWaystation()===post'),true,'the forward location is verified from completed physical buildings');
+ const resources=c('JSON.stringify(S.res[0])');
+ const enemyTc=c('tcOf(1).hp');
+ const prior=c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length");
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('!!cmp.d.trailpost'),true,'the optional goal records a genuine built waystation');
+ c('cmpTick(1)');
+ assert.equal(c('cmp.e['+reward+']'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),prior+4,'four real soldiers arrive to guard Monks');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='mon').length"),4,'the escorts guard living Monks rather than an arbitrary map marker');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'the optional reward does not mint free materials');
+ assert.equal(c('tcOf(1).hp'),enemyTc,'a guard reward cannot fabricate damage or an enemy defeat');
+ assert.equal(c('S.over'),null,'an optional Outpost does not replace retrieving two actual relics');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),prior+4,'the escort is not doubled on save/reload');
+});
+
