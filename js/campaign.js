@@ -334,8 +334,8 @@ function campaignRoadCaravan(){
   let spot=null;
   for(const fraction of [.52,.43,.34,.27]){
    const checkpoint={t:0,s:2,
-    x:market.x+(enemy.x-market.x)*fraction,
-    y:market.y+(enemy.y-market.y)*fraction};
+    x:Math.round(market.x+(enemy.x-market.x)*fraction),
+    y:Math.round(market.y+(enemy.y-market.y)*fraction)};
    const candidate=campaignOverflowSpawn(checkpoint);
    if(!candidate||Math.hypot(candidate[0]-market.x,candidate[1]-market.y)<23)continue;
    if(Math.hypot(candidate[0]-enemy.x,candidate[1]-enemy.y)<11)continue;
