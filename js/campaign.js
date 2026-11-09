@@ -93,7 +93,30 @@ function raidShipPositions(e,count,t=1){
  return spots.slice(0,count).map(p=>[p.x+.5,p.y+.5])
 }
 
-function raid(n,ks,msg,priority){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=(priority&&priority.t===0&&priority.hp>0?priority:null)||S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const choices=[tg,...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
+// Late Blackwood reinforcements emerge on the hostile side of the actual
+// ford. Choose ordinary traversable cells with a real route to the player's
+// forward structures; impenetrable forest and completed walls stay solid.
+function campaignBlackwoodRoadSpawn(tower){
+ if(cmp?.i!==15||!tower)return null;
+ const fort=campaignBlackwoodBridgeFortifications(),ford=fort.ford,enemy=tcOf(1);
+ if(!ford||!enemy)return null;
+ const dx=enemy.x+enemy.s*.5-ford[0],dy=enemy.y+enemy.s*.5-ford[1],length=Math.hypot(dx,dy);
+ if(length<8)return null;
+ const ux=dx/length,uy=dy/length;
+ const targets=[tower,...fort.walls,...fort.towers].filter(t=>t&&t.hp>0);
+ for(const forward of [10,8,12,6,14,16,4])
+  for(const lateral of [0,2,-2,4,-4,6,-6,8,-8,10,-10]){
+   const x=Math.floor(ford[0]+ux*forward-uy*lateral),y=Math.floor(ford[1]+uy*forward+ux*lateral);
+   if(x<2||y<2||x>=W-2||y>=H-2)continue;
+   const cell=y*W+x;
+   if(S.wt[cell]===1||S.g[cell]&&S.gt[cell]!==2||S.nd[cell])continue;
+   if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.7))continue;
+   const probe={x:x+.5,y:y+.5,t:1,sh:0};
+   if(targets.some(t=>path(probe,goalNear(t,2))))return [x+.5,y+.5];
+  }
+ return null;
+}
+function raid(n,ks,msg,priority){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=(priority&&priority.t===0&&priority.hp>0?priority:null)||S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:(priority&&cmp?.i===15?campaignBlackwoodRoadSpawn(priority):null)||spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const bridge=priority&&cmp?.i===15?campaignBlackwoodBridgeFortifications():null;const choices=[tg,...(bridge?[...bridge.walls,...bridge.towers]:[]),...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
 
 function campaignReliefColumn(){
  const home=tcOf(0);if(!home||S.over)return 0;

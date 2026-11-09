@@ -183,7 +183,7 @@ test('Blackwood ford is a real, reachable seeded shallow crossing and defenses m
  assert.equal(c("CAMP[15].goals.find(g=>g.id==='tower').ok()"),false,'dead Towers cannot secure the final victory');
 });
 
-test('Blackwood bridgehead earns physical guards once and late raids prioritize its actual Tower',()=>{
+test('Blackwood bridgehead earns physical guards once and late raids target reachable actual defenses',()=>{
  const c=mission(15);
  c('S.ex.fill(1)');
  const result=JSON.parse(c(`JSON.stringify((()=>{
@@ -231,8 +231,10 @@ test('Blackwood bridgehead earns physical guards once and late raids prioritize 
  c('cmpTick(1/30)');
  assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),before+6,'reloading must not duplicate the relief');
  c('cmpTick(260)');
- assert.ok(c("S.us.some(u=>u&&u.t===1&&u.hp>0&&u.o==='a'&&u.tg?.netId===campaignBlackwoodBridgeTower()?.netId)"),
-  'the third attack wave actively targets the real home-bank Tower, not an invisible objective flag');
+ const roadThreat=JSON.parse(c("JSON.stringify(S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.o==='a').map(u=>({kind:u.k,target:u.tg?.k||null,id:u.tg?.netId||null})))"));
+ const fortIds=JSON.parse(c("JSON.stringify(campaignBlackwoodBridgeFortifications().towers.concat(campaignBlackwoodBridgeFortifications().walls).map(b=>b.netId))"));
+ assert.ok(roadThreat.some(u=>fortIds.includes(u.id)),
+  'the third attack wave must target a real bridgehead Tower or its screening walls, using a reachable route: '+JSON.stringify({ford:result.ford,roadThreat,fortIds}));
  assert.equal(c('S.over'),null,'enemy attack orders cannot fabricate a win or loss');
 });
 

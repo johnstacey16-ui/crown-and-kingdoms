@@ -480,10 +480,10 @@ test('a completed one-time objective stays recorded when its wording starts with
  vm.runInContext("CAMP[0].goals.find(g=>g.id==='h').t='Have built a House';house.hp=0;for(let i=0;i<15;i++)cmpTick(1/30)",sandbox);
  assert.equal(vm.runInContext('cmp.d.h',sandbox),1,'a completed construction milestone does not turn into a maintained goal');
 });
-test('campaign milestones do not become maintained goals after the Tidewatch cannon muster',()=>{
+test('campaign milestones stay one-shot except explicit Blackwood living fortifications and existing sustained goals',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  vm.runInContext(source+';globalThis.liveGoals=CAMP.flatMap((sc,i)=>sc.goals.filter(g=>g.sustained===true).map(g=>[i,g.id]));',sandbox);
- assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[16,'fleet'],[18,'army']]);
+ assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[15,'tower'],[15,'wall'],[16,'fleet'],[18,'army']]);
 });
 
 test('scripted construction resumes the same paid foundation after its builder is lost',()=>{
