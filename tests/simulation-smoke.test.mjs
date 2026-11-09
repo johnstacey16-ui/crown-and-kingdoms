@@ -2072,16 +2072,6 @@ assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a M
 assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
-if (shouldRunCampaignMission(15)) {
-const blackwoodPlaythrough=playCampaignScenarioTimed(15,720);
-assert.equal(blackwoodPlaythrough.over,'win','Blackwood must withstand actual enemy raids until 8:00');
-assert.ok(blackwoodPlaythrough.blackwood?.ford,'Blackwood must select a real walkable ford');
-assert.ok(blackwoodPlaythrough.blackwood?.standingTowers>=2&&blackwoodPlaythrough.blackwood?.standingWalls>=6,
- 'the required Towers and walls must still be alive at the real victory: '+JSON.stringify(blackwoodPlaythrough.blackwood));
-assert.equal(blackwoodPlaythrough.blackwood?.raidWaves,5,'all five physically spawned enemy attack waves must occur');
-assert.ok(blackwoodPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
- 'optional bridge placement cannot replace the required sustained fortifications and actual timed survival');
-}
 if (shouldRunCampaignMission(11)) {
 const secondRelicRoadPlaythrough = playCampaignScenarioTimed(11, 600);
 assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
@@ -2225,6 +2215,16 @@ for (const [index, label, limit] of [
     assert.equal(total,4,'the new roadworks delivery is a mandatory fourth objective');
     assert.ok(result.townCentreHp>0,'King\u2019s Road Town Centre must survive');
     assert.equal(result.enemyRaidsFired,4,'all three raids and the one-time paid roadworks event must execute');
+  }
+  if(index===15){
+    assert.equal(result.over,'win','Blackwood must withstand actual enemy raids until 8:00');
+    assert.ok(result.blackwood?.ford,'Blackwood must select a real walkable ford');
+    assert.ok(result.blackwood?.standingTowers>=2&&result.blackwood?.standingWalls>=6,
+      'the required Towers and walls must still be alive at the real victory: '+JSON.stringify(result.blackwood));
+    assert.equal(result.blackwood?.raidWaves,5,'all five physically spawned enemy attack waves must occur');
+    assert.ok(result.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+      'optional bridge placement cannot replace sustained fortifications or actual timed survival');
+    assert.ok(result.townCentreHp>0,'the home Town Centre must remain alive at the forest relief signal');
   }
   if(index===18){
     assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
