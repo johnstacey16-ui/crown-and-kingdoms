@@ -444,6 +444,33 @@ function campaignReliquaryEscort(){
 }
 // Unlike a generic raid on farms, these real enemy patrols actively pursue
 // living Monks. If a road is blocked, they attack reachable friendly holdings.
+// Two live enemy scouts roam around the actual relic positions from the
+// opening second. They can be fought, evaded or converted with normal rules.
+function campaignReliquarySentries(){
+ const directions=[[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
+ let sentries=0;
+ for(const relic of S.rel.filter(q=>q&&q.rl&&!q.c&&!q.m)){
+  let placed=false;
+  for(const radius of [6,7,5,8,9]){
+   if(placed)break;
+   for(const [dx,dy] of directions){
+    const x=Math.floor(relic.x)+dx*radius,y=Math.floor(relic.y)+dy*radius;
+    if(x<2||y<2||x>=W-2||y>=H-2)continue;
+    const cell=y*W+x;
+    if(S.wt[cell]||S.g[cell]||S.nd[cell])continue;
+    if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<2))continue;
+    // Test a genuine route before adding the enemy soldier. Do not put a
+    // decorative but unreachable guard behind water or forest.
+    if(!path({x:x+.5,y:y+.5,t:1,sh:0},gp(relic.x,relic.y,1)))continue;
+    const scout=addU(1,'scout',x+.5,y+.5);
+    scout.campaignPatrol='reliquary';
+    scout.o='p';scout.pt={a:[x+.5,y+.5],b:[relic.x,relic.y],to:1};
+    sentries++;placed=true;break;
+   }
+  }
+ }
+ return sentries;
+}
 function campaignReliquaryPatrol(){
  const enemy=tcOf(1);if(!enemy||S.over)return 0;
  const monks=aliveUnits(0,'mon').filter(u=>!u.ld).sort((a,b)=>Number(!!b.rel||b.o==='r')-Number(!!a.rel||a.o==='r'));
@@ -508,7 +535,7 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
  goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
  ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')},{at:300,when:()=>cb('market')>=1&&cb('tower')>=2&&can(0,{w:150,s:75}),do:()=>campaignKingsRoadSupply()}]},
-{t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready. Two sacred relics are hidden along the dangerous shore approach to the Mediterranean. Escort the Monks home while enemy road patrols hunt them. Optional: establish a forward Outpost on your bank to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
+{t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready. Two sacred relics lie along the Mediterranean shore, each watched by an enemy scouting patrol. Escort your Monks, outfight or evade the scouts, and bring both relics home while reinforcements hunt your pilgrims. Optional: establish a forward Outpost on your bank to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);
 // The two authored relics are the entire objective. Leave no random map
 // relics behind as an easier, unguarded shortcut around the pilgrim trail.
@@ -531,7 +558,7 @@ S.rel.length=0;const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-h
     }
    }
   }
- }const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
+ }const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}campaignReliquarySentries()},
  goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2},{id:'trailpost',t:'Optional: Build a completed forward Outpost on the pilgrim shore road',optional:true,ok:()=>!!campaignReliquaryWaystation()}],
  ev:[{at:15,do:()=>note('Escort your Monks with soldiers. The enemy patrols the relic road, not just your settlement.')},{at:55,do:()=>campaignReliquaryPatrol()},{at:130,do:()=>campaignReliquaryPatrol()},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy reinforcements have reached your supply road.')},{when:()=>cmp.d.trailpost===1,do:()=>campaignReliquaryEscort()}]},
 {t:'The Golden Coast',b:'A rival admiral controls the fishing grounds while a coastal lord threatens your settlement. Build a Dock to rally one allied Fire Ship, then train at least three War Galleys and muster twelve land soldiers. Destroy the enemy Dock to stop his sea reinforcements and rally coastal volunteers (optional). Protect your home, defeat the coastal lord and destroy his Town Centre.',civ:2,en:6,mt:7,msz:1,seed:913,diff:1,aip:5,vm:0,
