@@ -1536,6 +1536,10 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
   };
   campaignPlaythroughResults.push(evidence);
   console.log('campaign-isolation-result: '+JSON.stringify(evidence));
+  // Full acceptance must fail when a mission is lost or times out. Historical
+  // matrices once reported all 19 processes successful despite five defeats.
+  if(process.env.CK_REQUIRE_CAMPAIGN_VICTORY==='1')
+    assert.equal(result.over,'win','The full campaign matrix requires a real natural victory for mission '+(index+1)+': '+JSON.stringify({title:result.missionTitle,reason:result.reason,time:result.campaignTime,completed:evidence.completedObjectives,missing:evidence.incompleteObjectives}));
   return result;
 };
 const requestedMission = process.env.CK_MISSION === undefined ? null : Number(process.env.CK_MISSION);
@@ -1978,8 +1982,17 @@ console.log('campaign-scripted-playthrough: the second Relic Road won through re
 }
 if (shouldRunCampaignMission(12)) {
 const goldenCoastPlaythrough = playCampaignScenarioTimed(12, 1200);
-assert.ok(['win', 'lose'].includes(goldenCoastPlaythrough.over), 'The Golden Coast must reach a real victory or defeat transition: '+JSON.stringify(goldenCoastPlaythrough));
-console.log('campaign-scripted-playthrough: The Golden Coast '+(goldenCoastPlaythrough.over === 'win' ? 'won' : 'ended in defeat; simple-bot winnability remains unverified')+' after '+goldenCoastPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+goldenCoastPlaythrough.objectives.filter(objective => objective.complete).length+'/'+goldenCoastPlaythrough.objectives.length);
+assert.equal(goldenCoastPlaythrough.over,'win','Golden Coast must defeat the real enemy Town Centre in natural naval and land combat: '+JSON.stringify({reason:goldenCoastPlaythrough.reason,time:goldenCoastPlaythrough.campaignTime,objectives:goldenCoastPlaythrough.objectives}));
+assert.ok(goldenCoastPlaythrough.objectives.every(o=>o.complete&&o.predicate),
+ 'The Dock, sustained War Galley and land army thresholds, harbour blockade and enemy capital must all be genuinely satisfied');
+assert.ok(goldenCoastPlaythrough.goldenCoast.playerDocks>=1,'the player must retain its built Dock at victory');
+assert.ok(goldenCoastPlaythrough.goldenCoast.warGalleys>=3,'at least three living War Galleys must survive the final land siege');
+assert.ok(goldenCoastPlaythrough.goldenCoast.landSoldiers>=12,'at least twelve living land soldiers must survive the naval-and-land assault');
+assert.equal(goldenCoastPlaythrough.goldenCoast.enemyDockAlive,false,'the rival harbour must physically fall for earned beachhead support');
+assert.equal(goldenCoastPlaythrough.goldenCoast.homeGuards,4,'four soldiers must remain on actual Town Centre Guard duty');
+assert.ok(goldenCoastPlaythrough.productionPeak.ram>=4,'the four-Ram earned landing must be formed by real combat units');
+assert.ok(goldenCoastPlaythrough.townCentreHp>0,'the original home Town Centre must survive');
+console.log('campaign-scripted-playthrough: Golden Coast won its full naval-and-land battle in '+goldenCoastPlaythrough.campaignTime.toFixed(1)+' simulated seconds with all five objectives legitimately complete');
 }
 if (shouldRunCampaignMission(14)) {
 const tidewatchPlaythrough = playCampaignScenarioTimed(14, 1200);

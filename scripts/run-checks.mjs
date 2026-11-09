@@ -294,7 +294,7 @@ const SKIRMISHES=[
   env:{CK_PLAYER:'active',CK_DIFFICULTY:'3',CK_RELOAD_AT:'900',CK_MAX_SECONDS:'2700'}}
 ];
 const CAMPAIGNS=Array.from({length:19},(_,i)=>({
- label:'Campaign '+i,file:'tests/simulation-smoke.test.mjs',args:[],env:{CK_MISSION:String(i)}
+ label:'Campaign '+i,file:'tests/simulation-smoke.test.mjs',args:[],env:{CK_MISSION:String(i),CK_REQUIRE_CAMPAIGN_VICTORY:'1'}
 }));
 const BROWSER=[
  {label:'Battlefield artwork in Chromium',file:'tests/browser/battlefield-art.mjs',args:[]},
