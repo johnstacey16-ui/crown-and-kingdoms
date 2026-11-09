@@ -362,6 +362,18 @@ test('Northern Watch beacon earns a one-time physical royal defence without bypa
  assert.equal(c('campaignNorthernBeaconReady()'),false,'destruction silences a forward beacon despite its previous reward');
 });
 
+test('Northern Watch royal relief waits for a live guarded beacon after interrupted signalling',()=>{
+ const c=mission(6);
+ const reliefEvent=c("CAMP[6].ev.findIndex(e=>e.do.toString().includes('campaignNorthernBeaconRelief'))");
+ assert.ok(reliefEvent>=3,'the royal relief event is distinct from the three original timed raids');
+ const starting=c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length");
+ // The optional milestone may have been earned in an earlier half-second,
+ // but its signal guards can die before the next campaign event evaluation.
+ c('cmp.d.beacon=1;cmpTick(1/30)');
+ assert.equal(c('!!cmp.e['+reliefEvent+']'),false,'a broken beacon must not consume its one-time relief event');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),starting,'no troops are fabricated at an undefended signal');
+ assert.equal(c('S.over'),null);
+});
 test('Northern Watch standing Tower and ranged soldiers are rechecked after losses',()=>{
  const c=mission(6);
  c('S.ex.fill(1)');
