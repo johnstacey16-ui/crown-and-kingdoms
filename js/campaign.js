@@ -416,6 +416,48 @@ function campaignFrontierWatchReinforcement(){
  if(guard.length)note('The forward frontier Outpost is secured! Four royal defenders march to guard it. Keep your Market, Towers and villagers alive against the border raids.');
  return guard.length;
 }
+// Reliquary Trail: a forward Outpost must secure the real central relic route.
+// Its optional escort uses ordinary mortal units and follows living Monks.
+function campaignReliquaryWaystation(){
+ const home=tcOf(0);if(!home)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='outpost'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5,y=b.y+b.s*.5;
+  return Math.hypot(x-W*.5,y-H*.5)<=18&&Math.hypot(x-hx,y-hy)>=10;
+ })||null;
+}
+function campaignReliquaryEscort(){
+ const post=campaignReliquaryWaystation();
+ if(!post||S.over)return 0;
+ const before=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const escorts=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!before.has(u.netId));
+ const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
+ escorts.forEach((u,i)=>{u.o='G';u.tg=monks.length?monks[i%monks.length]:post;u.guardTarget=null;u.p=[];u.rp=0});
+ if(escorts.length)note('The pilgrim waystation is secured! Four royal escorts arrive to guard your Monks on the relic road.');
+ return escorts.length;
+}
+// Unlike a generic raid on farms, these real enemy patrols actively pursue
+// living Monks. If a road is blocked, they attack reachable friendly holdings.
+function campaignReliquaryPatrol(){
+ const enemy=tcOf(1);if(!enemy||S.over)return 0;
+ const monks=aliveUnits(0,'mon').filter(u=>!u.ld).sort((a,b)=>Number(!!b.rel||b.o==='r')-Number(!!a.rel||a.o==='r'));
+ const targets=[...monks,...S.bs.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&b.k==='monastery'),tcOf(0)].filter(Boolean);
+ let launched=0,orders=0;
+ for(const k of ['scout','spear','arc']){
+  const p=spawnPos(enemy)||(cmp?campaignOverflowSpawn(enemy):null);
+  if(!p)continue;
+  const u=addU(1,k,p[0],p[1]);if(!u)continue;
+  launched++;
+  for(const target of targets){
+   if(!path(u,goalNear(target,Math.max(1,U[k].rng||1))))continue;
+   u.o='a';u.tg=target;u.p=[];u.rp=0;orders++;break;
+  }
+ }
+ if(orders)note('Enemy road patrols are advancing on your Monks! Keep their escorts close.');
+ return launched;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -462,10 +504,10 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
  goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
  ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')},{at:300,when:()=>cb('market')>=1&&cb('tower')>=2&&can(0,{w:150,s:75}),do:()=>campaignKingsRoadSupply()}]},
-{t:'The Reliquary Trail',b:'Two sacred relics lie between the rival kingdoms. Build a monastery, train monks and bring both relics home. Protect the monks: the enemy patrols the central road.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
+{t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready, but two sacred relics lie on the contested central road. Escort the Monks to recover both relics while mounted enemy patrols hunt them. Optional: build an Outpost near the central relic trail to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);for(let i=0;i<2;i++){let x=(W/2|0)+(i?3:-3),y=(H/2|0)+(i?2:-2);for(let r=0;r<16&&(x<2||y<2||x>=W-2||y>=H-2||S.g[y*W+x]||S.wt[y*W+x]);r++){x=(W/2|0)+(i?3:-3)+r%4;y=(H/2|0)+(i?2:-2)+((r/4)|0)}if(x>1&&y>1&&x<W-1&&y<H-1&&!S.wt[y*W+x])S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null})}const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
- goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2}],
- ev:[{at:80,do:()=>note('Monks can collect relics and carry them back to a Monastery. Keep escorts nearby.')},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy patrols have spotted your monks.')}]},
+ goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2},{id:'trailpost',t:'Optional: Build a completed Outpost by the central relic trail',optional:true,ok:()=>!!campaignReliquaryWaystation()}],
+ ev:[{at:15,do:()=>note('Escort your Monks with soldiers. The enemy patrols the relic road, not just your settlement.')},{at:55,do:()=>campaignReliquaryPatrol()},{at:130,do:()=>campaignReliquaryPatrol()},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy reinforcements have reached your supply road.')},{when:()=>cmp.d.trailpost===1,do:()=>campaignReliquaryEscort()}]},
 {t:'The Golden Coast',b:'A rival admiral controls the fishing grounds while a coastal lord threatens your settlement. Build a Dock to rally one allied Fire Ship, then train at least three War Galleys and muster twelve land soldiers. Destroy the enemy Dock to stop his sea reinforcements and rally coastal volunteers (optional). Protect your home, defeat the coastal lord and destroy his Town Centre.',civ:2,en:6,mt:7,msz:1,seed:913,diff:1,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:650,w:850,g:500,s:200};const tc=tcOf(0);if(tc){for(let i=0;i<4;i++)put(0,'house',tc.x-7+(i%2)*3,tc.y-7+Math.floor(i/2)*3);grp(0,'gal',2);grp(0,'fish',2);grp(0,'spear',6);grp(0,'arc',5)}const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:600,w:650,g:500,s:200};put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',5);grp(1,'ram',2)}},
  goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'army',t:'Have 12 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon'].includes(u.k)).length>=12},{id:'blockade',t:'Optional: Destroy the enemy Dock',optional:true,ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0)},{id:'win',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
