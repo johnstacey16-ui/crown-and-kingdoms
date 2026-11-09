@@ -146,6 +146,19 @@ globalThis.__CK_TEST__ = {
           if (relic) { monk.o = 'r'; monk.tg = relic; monk.p = []; monk.rp = 0; reserved.add(relic); }
         }
       }
+      // The Reliquary scripted player must use its real starting soldiers to
+      // protect the two moving Monks, rather than claiming an unescorted win.
+      if(index===11){
+        const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
+        const soldiers=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['mil','arc'].includes(u.k));
+        soldiers.forEach((u,i)=>{
+          const monk=monks.length?monks[i%monks.length]:null;
+          if(!monk||u.o==='G'&&u.tg===monk)return;
+          // Let an escort finish an immediate fight before resuming its guard.
+          if(u.o==='a'&&u.tg?.t===1&&u.tg.hp>0&&Math.hypot(u.x-u.tg.x,u.y-u.tg.y)<5)return;
+          u.o='G';u.tg=monk;u.guardTarget=null;u.p=[];u.rp=0;
+        });
+      }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
       // Iron Pass is a defensive cavalry-counter mission: reinforce with paid
       // Feudal Spearmen, not gold-hungry generic Militia that cannot stop Knights.
@@ -2021,7 +2034,10 @@ console.log('campaign-scripted-playthrough: The Relic Road won through real mona
 if (shouldRunCampaignMission(11)) {
 const secondRelicRoadPlaythrough = playCampaignScenarioTimed(11, 600);
 assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
-assert.ok(secondRelicRoadPlaythrough.objectives.every(objective => objective.complete), 'The second Relic Road must record both objectives complete: '+JSON.stringify(secondRelicRoadPlaythrough));
+assert.ok(secondRelicRoadPlaythrough.objectives.filter(objective => !objective.title.startsWith('Optional:')).every(objective => objective.complete&&objective.predicate),
+ 'Both real relics must reach a live friendly Monastery; the forward Outpost remains an optional tactical choice: '+JSON.stringify(secondRelicRoadPlaythrough));
+assert.ok(secondRelicRoadPlaythrough.enemyRaidsFired>=3,
+ 'The 0:15 warning and both genuine early Monk-hunting patrols must run before victory: '+JSON.stringify(secondRelicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: the second Relic Road won through real monastery construction and monk relic behaviour in '+secondRelicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
 if (shouldRunCampaignMission(12)) {
