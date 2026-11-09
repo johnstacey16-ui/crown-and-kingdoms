@@ -151,11 +151,14 @@ globalThis.__CK_TEST__ = {
       // Feudal Spearmen, not gold-hungry generic Militia that cannot stop Knights.
       const defenderKind = index === 18 ? 'spear' : 'mil';
       const queuedDefenders = barracks ? barracks.q.filter(queue => queue.k === defenderKind).length : 0;
-      if (barracks && cmil(0) + queuedDefenders < plan.soldiers && barracks.q.length < 5) {
+      if (barracks && cmil(0) + queuedDefenders < plan.soldiers && barracks.q.length < 5 &&
+          !(index===2&&S.age[0]===1&&cb('market')>=1&&cb('tower')>=2)) {
+          // After the frontier is fortified, the Castle-Age food/gold reserve
+          // takes precedence over endlessly replacing Militia during raids.
         if (S.age[0] < U[defenderKind].age) trainingGate = defenderKind + ' requires a later age';
         else train(barracks, defenderKind);
       }
-      const woodNeeded = index === 2 && S.res[0].w < 350;
+      const woodNeeded = index === 2 && !cb('rng') && S.res[0].w < 350;
       if (woodNeeded) {
         const woodWorker = S.us.find(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0 && !unit.ld && unit.o !== 'b' && (unit.ct==='w'||unit.car===0));
         if (woodWorker) assignWood(woodWorker);
@@ -163,13 +166,30 @@ globalThis.__CK_TEST__ = {
       // Feudal Frontier and King's Road both require more stone than their
       // starting supply. Use real villager mining instead of granting resources
       // or silently allowing an unfunded defensive Tower.
-      const neededStone=index===2?200:index===10
+      const neededStone=index===2?(cb('tower')<2?200:0):index===10
         ?(S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.hp>0).length<2
           ?B.tower.cost.s:cmp.d.roadsupply?0:75):0;
       if(neededStone>0&&S.res[0].s<neededStone&&
          !S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='s')){
         const worker=S.us.find(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o!=='b'&&u.ct!=='w'&&u.car===0);
         if(worker)assignStone(worker);
+      }
+      // Feudal Frontier's two Towers and Archery Range previously stranded
+      // all five Villagers on wood/stone, so the Castle Age could never be
+      // funded despite a fully defended capital. Redirect those *real*
+      // workers to food and gold after the construction milestone.
+      if(index===2&&S.age[0]===1&&cb('market')>=1&&cb('tower')>=2&&cb('rng')>=1){
+        const workers=aliveUnits(0,'vil').filter(u=>!u.ld);
+        if(S.res[0].g<200&&!workers.some(u=>u.o==='g'&&u.ct==='g')){
+          const worker=workers.find(u=>u.o==='g'&&u.ct!=='g'&&!u.car);
+          if(worker)assignGold(worker);
+        }
+        let food=workers.filter(u=>u.o==='g'&&u.ct==='f').length;
+        for(const worker of workers){
+          if(food>=4)break;
+          if(worker.o!=='g'||worker.ct==='f'||worker.ct==='g'||worker.car)continue;
+          if(assignFood(worker))food++;
+        }
       }
       // Regicide's final assault must pay for Castle Age, a Siege Workshop,
       // rams and escort. Train the economy through ordinary worker gathering.
