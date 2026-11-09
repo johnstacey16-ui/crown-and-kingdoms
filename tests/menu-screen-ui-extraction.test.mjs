@@ -122,7 +122,7 @@ test('campaign Objectives use mission goals instead of the skirmish victory rule
   tx:value=>labels.push(String(value)),S:{teamN:3,pl:{tr:0,kills:0,gath:0},civ:[0,1,2],t:60,age:[0],us:[],bs:[]},
   CIV:[{n:'Blue'},{n:'Red'},{n:'Gold'}],AG:[{n:'Founding Age'}],
   difficultyName:()=> 'Normal',diff:0,popOf:()=>0,capOf:()=>10,
-  cmp:{i:0,d:{}},cmpObj:()=>labels.push('Mission goals shown'),
+  cmp:{i:0,d:{}},cmpObj:()=>labels.push('Mission goals shown'),kingdomAlive:()=>true,
   scoreLimit:1200,vm:0
  });
  vm.runInContext(source.slice(start,end),ctx);ctx.drawObj();
@@ -159,4 +159,40 @@ test('six-goal campaign displays every objective without obscuring the footer',(
  assert.ok(rows.every((r,i)=>i===0||r.y-rows[i-1].y>=20),'objectives have readable spacing');
  ctx.cmp.d.goal0=1;painted.length=0;ctx.cmpObj();
  assert.ok(painted.some(r=>r.label==='[x] Goal 0'&&r.color==='#9ae6b4'),'completed state remains visible');
+});
+test('multi-kingdom Objectives show only kingdoms with living units or buildings',()=>{
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const victory=readFileSync(new URL('../js/simulation-victory.js',import.meta.url),'utf8');
+ const start=ui.indexOf('function drawObj()'),end=ui.indexOf('function drawInfo2()',start);
+ const alive=victory.match(/function kingdomAlive\(t\)\{[^}]*\}/);
+ assert.ok(start>=0&&end>start&&alive,'exercise the real Objectives renderer and survival rule');
+ const labels=[];
+ const ctx=vm.createContext({
+  X:{fillRect(){}},CW:1280,CH:720,panel(){},tx:value=>labels.push(String(value)),
+  S:{teamN:3,civ:[0,1,2],age:[0],t:100,
+    pl:{tr:0,kills:0,gath:0},us:[],bs:[]},
+  CIV:[{n:'Blue'},{n:'Red'},{n:'Gold'}],AG:[{n:'Founding Age'}],
+  diff:0,difficultyName:()=> 'Normal',popOf:()=>0,capOf:()=>20,
+  cmp:null,cmpObj(){},scoreLimit:1200,vm:0
+ });
+ vm.runInContext(alive[0]+'\n'+ui.slice(start,end),ctx);
+ const readCount=()=>{
+  labels.length=0;ctx.drawObj();
+  const row=labels.find(t=>t.includes('Kingdoms alive:'));
+  assert.ok(row,'three-kingdom match should display a living-kingdom count');
+  const count=row.match(/Kingdoms alive: (\d+)/);
+  assert.ok(count);return Number(count[1]);
+ };
+ ctx.S.us=[{t:0,hp:10},{t:1,hp:0},{t:2,hp:20}];
+ ctx.S.bs=[{t:1,hp:0}];
+ assert.equal(readCount(),2,'dead units/buildings cannot keep a kingdom alive');
+ ctx.S.us[2].hp=0;
+ assert.equal(readCount(),1,'a second defeated rival is removed from the count');
+ ctx.S.bs.push({t:1,hp:30});
+ assert.equal(readCount(),2,'surviving buildings keep a kingdom alive');
+ ctx.S.bs[1].hp=0;
+ assert.equal(readCount(),1,'destroying its final building eliminates that kingdom');
+ ctx.S.teamN=2;labels.length=0;ctx.drawObj();
+ assert.equal(labels.some(t=>t.includes('Kingdoms alive:')),false,
+  'two-kingdom Objectives retain the existing simpler layout');
 });
