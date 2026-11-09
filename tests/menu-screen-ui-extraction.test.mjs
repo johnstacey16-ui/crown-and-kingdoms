@@ -93,7 +93,7 @@ test('Objectives screen accurately explains all seven selectable victory conditi
  const expected=[
   /Destroy the enemy Town Centre/,
   /Wonder.*5 minutes/,
-  /relics.*4 minutes/i,
+  /relic.*4 minutes/i,
   /King alive.*enemy King/i,
   /highest kingdom score.*20-minute time limit/i,
   /central hill.*military units.*5 minutes.*contest/i,
