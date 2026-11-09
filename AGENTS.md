@@ -17,6 +17,8 @@ The end goal is an original browser RTS with full *Age of Empires II: Definitive
 
 **Cleanup before additional gameplay features:** reduce duplicate source, misleading docs, tests and dependencies through small reversible, well-tested refactors. Investigate browser `index.html`, `sw.js`, source/test imports, generator manifests, artwork and deployment references before removing anything. In particular, preserve painted **stone, gold and berry** assets, existing original art, procedural fallback, movement/combat correctness, current-build saves, authenticated network authority and controller mapping.
 
+**Controlled Vercel releases (9 November 2026):** Routine commits to `main` intentionally skip Vercel builds via `vercel.json` and `scripts/vercel-deployment-gate.mjs`. Include **`[deploy]`** in a commit message only when publishing an accepted release is intended; do not add it to every development or test commit. This does not stop GitHub Actions tests. See [docs/VERCEL_RELEASES.md](docs/VERCEL_RELEASES.md) for release and emergency redeploy steps.
+
 ## Reproducible tests and evidence
 
 Use the central `scripts/run-checks.mjs` rather than new handwritten workflow test lists:
