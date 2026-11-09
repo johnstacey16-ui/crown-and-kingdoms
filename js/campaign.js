@@ -638,6 +638,87 @@ function campaignNorthernBeaconRelief(){
  if(relief.length)note('The pine-line beacon is defended! Four royal soldiers join the Watch Tower. Hold the position while raiders strike from the forest.');
  return relief.length;
 }
+// Iron Pass is an actual convoy defence. The two royal Trade Carts enter
+// from a reachable enemy-facing checkpoint and must physically cross the
+// contested approach to the player's living Town Centre. Both wagons, their
+// movement orders and the pursuing scouts persist through normal saves.
+function campaignIronPassCartArrived(){
+ const home=tcOf(0);if(!home)return false;
+ return aliveUnits(0,'cart').some(u=>{
+  if(u.campaignConvoy!=='iron-pass'||u.ld)return false;
+  const dx=Math.max(home.x-u.x,0,u.x-(home.x+home.s));
+  const dy=Math.max(home.y-u.y,0,u.y-(home.y+home.s));
+  return Math.hypot(dx,dy)<=2.5;
+ });
+}
+function campaignIronPassWagons(){
+ const home=tcOf(0),enemy=tcOf(1);if(!home||!enemy||S.over)return 0;
+ let sent=0;const dest=goalNear(home,1);
+ for(let i=0;i<2;i++){
+  let spot=null;
+  for(const f of [.42,.36,.30,.24,.20]){
+   const anchor={t:0,s:2,x:Math.round(home.x+(enemy.x-home.x)*f),
+    y:Math.round(home.y+(enemy.y-home.y)*f)};
+   const p=campaignOverflowSpawn(anchor);
+   if(!p||Math.hypot(p[0]-home.x,p[1]-home.y)<19||Math.hypot(p[0]-enemy.x,p[1]-enemy.y)<13)continue;
+   if(!path({x:p[0],y:p[1],t:0,sh:0},dest))continue;
+   spot=p;break;
+  }
+  if(!spot)continue; // No teleporting wagons to the destination on a bad map.
+  const cart=addU(0,'cart',spot[0],spot[1]);
+  if(!cart)continue;
+  const route=path(cart,dest);
+  if(!route){cart.hp=0;continue}
+  cart.campaignConvoy='iron-pass';cart.o='m';cart.tg=null;cart.p=route;
+  cart.rp=1;cart.manualTradeMove=true;cart.tradePaused=false;
+  sent++;
+ }
+ if(sent){cmp.d.ironConvoySent=1;
+  note('Two royal supply wagons are on the contested Iron Pass road! Escort at least one living Trade Cart safely to your Town Centre. Protect them from the final enemy riders.')}
+ return sent;
+}
+function campaignIronPassWagonAdvance(){
+ const home=tcOf(0);if(!home||S.over)return 0;
+ let restarted=0;
+ for(const u of aliveUnits(0,'cart')){
+  if(u.campaignConvoy!=='iron-pass'||u.ld||!['i','m'].includes(u.o)||u.p?.length)continue;
+  const dx=Math.max(home.x-u.x,0,u.x-(home.x+home.s));
+  const dy=Math.max(home.y-u.y,0,u.y-(home.y+home.s));
+  if(Math.hypot(dx,dy)<=2.5)continue;
+  const route=path(u,goalNear(home,1));
+  if(!route?.length)continue;
+  u.o='m';u.tg=null;u.p=route;u.rp=1;u.manualTradeMove=true;u.tradePaused=false;restarted++;
+ }
+ return restarted;
+}
+function campaignIronPassPursuit(){
+ const enemy=tcOf(1),carts=aliveUnits(0,'cart').filter(u=>u.campaignConvoy==='iron-pass'&&!u.ld);
+ if(!enemy||!carts.length||S.over)return 0;
+ let attackers=0;
+ for(let k=0;k<2;k++){
+  const cart=carts[k%carts.length],dx=enemy.x-cart.x,dy=enemy.y-cart.y;
+  const d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d;
+  let spot=null;
+  for(const forward of [10,8,12,6,14])for(const side of [k?3:-3,k?-3:3,0]){
+   const x=Math.floor(cart.x+ux*forward-uy*side),y=Math.floor(cart.y+uy*forward+ux*side);
+   if(x<2||y<2||x>=W-2||y>=H-2)continue;
+   const idx=y*W+x;
+   if(S.wt[idx]===1||S.g[idx]||S.nd[idx])continue;
+   if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.7))continue;
+   const candidate=[x+.5,y+.5];
+   if(path({x:candidate[0],y:candidate[1],t:1,sh:0},goalNear(cart,1))){spot=candidate;break}
+  }
+  if(!spot)spot=spawnPos(enemy);
+  if(!spot)continue;
+  const scout=addU(1,'scout',spot[0],spot[1]);
+  if(!scout)continue;
+  if(!path(scout,goalNear(cart,1))){scout.hp=0;continue}
+  scout.campaignPatrol='iron-pass';scout.o='a';scout.tg=cart;scout.p=[];
+  scout.guardTarget=null;scout.rp=0;attackers++;
+ }
+ if(attackers)note('Enemy horsemen are pursuing the royal wagons! Guard the Trade Carts until one reaches the Town Centre.');
+ return attackers;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -735,16 +816,16 @@ S.rel.length=0;const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-h
  goals:[{id:'castles',t:'Build 2 completed Castles',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='castle'&&b.done&&b.hp>0).length>=2},{id:'northford',t:'Optional: Fortify the north Causeway ford',optional:true,ok:()=>!!campaignCausewayFordCastle(.22)},{id:'southford',t:'Optional: Fortify the south Causeway ford',optional:true,ok:()=>!!campaignCausewayFordCastle(.78)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('Protect your builders and use the shallow fords. Castles near the northern and southern crossings each rally four defenders, but remote Castles do not.')},{when:()=>cmp.d.northford===1,do:()=>campaignCausewayFordReserve(.22)},{when:()=>cmp.d.southford===1,do:()=>campaignCausewayFordReserve(.78)},{when:()=>cmp.d.castles===1,do:()=>campaignCrownRoyalReserve()},{at:110,do:()=>raid(5,['knight','knight','xbow','spear','ram'],'The rival is testing the first crossing with a mixed assault!')},{at:260,do:()=>raid(7,['ram','ram','bomb','knight','knight','xbow','spear'],'Heavy siege is advancing. Keep Bombard Cannons protected and repair damaged Castles.')},{at:440,do:()=>raid(8,['bomb','ram','ram','knight','knight','xbow','spear','gal'],'The enemy commits its final reserve to break your fortified line!')}]}
 ,
-{t:'The Iron Pass',b:'The mountain pass is the only road through which the royal supply wagons can reach the frontier. An enemy host is gathering beyond the ridge. Build a layered defence, keep your army alive and hold the pass until the royal convoy escapes. Your forward camp starts with two Houses; extend your housing if you need to reinforce the garrison.',civ:5,en:2,mt:5,msz:1,seed:919,diff:2,aip:6,vm:0,
+{t:'The Iron Pass',b:'The frozen mountain road must stay open for the royal supply wagons. Hold the pass for 9:00, keep two completed Towers standing and at least 15 land soldiers alive, then escort at least one of two real royal Trade Carts safely into your Town Centre. The wagons arrive after the final enemy assault, but enemy riders will try to run them down. A destroyed convoy loses the mission. Your forward camp begins with two Houses.',civ:5,en:2,mt:5,msz:1,seed:919,diff:2,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:900,w:850,g:350,s:250};grp(0,'spear',6);grp(0,'arc',6);grp(0,'scout',2);const home=tcOf(0);if(home){put(0,'house',home.x-8,home.y+5);put(0,'house',home.x+8,home.y+5)}// This hold mission already sends four timed scripted assaults; avoid piling the normal autonomous waves over them before the convoy escapes.
  const enemyStrategy=S.ai[1];if(enemyStrategy){enemyStrategy.nx=Math.max(enemyStrategy.nx||0,600);enemyStrategy.rn=Math.max(enemyStrategy.rn||0,600)}const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:900,w:650,g:300,s:150};grp(1,'scout',3);grp(1,'spear',5)}},
- goals:[{id:'towers',t:'Build 2 completed Towers',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'army',t:'Keep 15 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon','cart','cog'].includes(u.k)).length>=15},{id:'hold',t:'Hold the pass for 9:00',ok:()=>cmp.t>=540}],
- ev:[{at:20,do:()=>note('The Iron Pass: place Towers to cover the approach, but keep soldiers nearby to stop siege units.')},{at:95,do:()=>raid(5,['scout','spear','scout','arc','spear'],'Enemy scouts have found the pass!')},{at:205,do:()=>raid(7,['spear','arc','scout','spear','arc','scout','ram'],'The first serious assault is advancing. Protect your Towers from the ram!')},{at:325,do:()=>raid(9,['knight','spear','arc','knight','spear','arc','ram','scout','arc'],'Enemy cavalry and siege are attacking together!')},{at:440,do:()=>raid(10,['ram','ram','knight','knight','spear','arc','spear','arc','scout','knight'],'The final host is here. Hold the pass until the convoy clears the road!')}]}
+ goals:[{id:'towers',t:'Keep 2 completed Towers standing',sustained:true,ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'army',t:'Keep 15 land soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].dmg>0&&!U[u.k].sh&&!['vil','king','mon','cart','cog'].includes(u.k)).length>=15},{id:'hold',t:'Hold the pass for 9:00',ok:()=>cmp.t>=540},{id:'convoy',t:'Escort a royal supply wagon safely into your Town Centre',ok:()=>campaignIronPassCartArrived()}],
+ ev:[{at:20,do:()=>note('The Iron Pass: keep both Towers standing and at least fifteen land soldiers alive until 9:00. Royal wagons will arrive along the road after the final assault.')},{at:95,do:()=>raid(5,['scout','spear','scout','arc','spear'],'Enemy scouts have found the pass!')},{at:205,do:()=>raid(7,['spear','arc','scout','spear','arc','scout','ram'],'The first serious assault is advancing. Protect your Towers from the ram!')},{at:325,do:()=>raid(9,['knight','spear','arc','knight','spear','arc','ram','scout','arc'],'Enemy cavalry and siege are attacking together!')},{at:440,do:()=>raid(10,['ram','ram','knight','knight','spear','arc','spear','arc','scout','knight'],'The final host is here. Hold the pass and cover the royal wagon route!')},{at:475,do:()=>campaignIronPassWagons()},{at:483,when:()=>cmp.d.ironConvoySent&&!cmp.d.convoy,do:()=>campaignIronPassPursuit()}]}
 ]; 
 const campDone=()=>{try{const d=JSON.parse(localStorage.getItem('ck_camp'));return Array.isArray(d)?Array.from({length:CAMP.length},(_,i)=>d[i]===1||d[i]===true?1:0):[]}catch(e){return[]}};
 function campMark(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return;try{const d=campDone();d[i]=1;localStorage.setItem('ck_camp',JSON.stringify(d))}catch(e){}}
 function startScenario(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return false;const sc=CAMP[i];if(!sc)return false;if(!PRF)PRF={civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit};civ=sc.civ;msz=sc.msz;mt=sc.mt;mapLayout=Number.isInteger(sc.layout)?sc.layout:0;if(mapLayout)applyMapLayout();diff=sc.diff;aip=sc.aip;vm=sc.vm;scoreLimit=1200;seedOv=sc.seed;aiCiv=sc.en;cmp={i,t:0,d:{},e:{}};start();seedOv=null;aiCiv=-1;if(sc.setup)sc.setup();note('Mission '+(i+1)+': '+sc.t);return true}
-function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0)){endGame('lose','The Redwater merchant convoy was destroyed');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&cmp.k%30===0)campaignRedwaterCaravanAdvance();sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
+function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0)){endGame('lose','The Redwater merchant convoy was destroyed');return}if(cmp.i===18&&cmp.d.ironConvoySent&&!cmp.d.convoy&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='iron-pass'&&u.hp>0)){endGame('lose','The royal supply wagons were destroyed');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&cmp.k%30===0)campaignRedwaterCaravanAdvance();if(cmp.i===18&&cmp.d.ironConvoySent&&!cmp.d.convoy&&cmp.k%30===0)campaignIronPassWagonAdvance();sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
 function restoreCampaignPrefs(){if(PRF){({civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit}=PRF);PRF=null}}
 function leaveCampaign(){restoreCampaignPrefs();cmp=null;seedOv=null;aiCiv=-1;mode='title'}
 function endA(){if(!cmp){start();return}if(S.over==='win'){const next=nextCampaignMission(cmp.i);if(next!==null){bi=next;mode='brief'}else{mode='camp';ci=0}}else startScenario(cmp.i)}
