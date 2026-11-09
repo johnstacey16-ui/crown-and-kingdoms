@@ -897,15 +897,109 @@ function campaignKronburgCastleSortie(){
  if(created.length)note(quiet?'The flank towers are silent! Only the scattered Kronburg rearguard can sortie.':'Kronburg Castle is breached! Its full garrison sallies out against your battering rams. Guard your siege train!');
  return created.length;
 }
+// Raiders at the Ford is fought across the actual Arabia map's shallow
+// river cells. Store the chosen crossing with campaign progress: the normal
+// save format already persists the waypoint and any earned guard milestone.
+function campaignRaidersFord(){
+ if(cmp?.i!==1||!S?.wt)return null;
+ const saved=cmp.d.raidersFord;
+ if(Array.isArray(saved)&&saved.length===2&&saved.every(Number.isFinite))return saved;
+ const home=tcOf(0),enemy=tcOf(1),walker=aliveUnits(0,'vil')[0];
+ if(!home||!enemy||!walker)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=enemy.x+enemy.s*.5-hx,dy=enemy.y+enemy.s*.5-hy,dist=Math.hypot(dx,dy);
+ if(dist<26)return null;
+ const ux=dx/dist,uy=dy/dist,sites=[];
+ for(let y=2;y<H-2;y++)for(let x=2;x<W-2;x++){
+  const idx=y*W+x;if(S.wt[idx]!==2||S.g[idx])continue;
+  const forward=(x+.5-hx)*ux+(y+.5-hy)*uy;
+  const side=Math.abs((x+.5-hx)*uy-(y+.5-hy)*ux);
+  if(forward<9||forward>dist*.8||side>Math.min(34,dist*.6))continue;
+  sites.push({x:x+.5,y:y+.5,score:Math.abs(forward-dist*.32)+side*.38});
+ }
+ sites.sort((a,b)=>a.score-b.score);
+ for(const site of sites.slice(0,180)){
+  if(!path(walker,gp(site.x,site.y,1)))continue;
+  cmp.d.raidersFord=[site.x,site.y];return cmp.d.raidersFord;
+ }
+ return null;
+}
+function campaignRaidersFordGuards(){
+ const ford=campaignRaidersFord();
+ if(!ford)return [];
+ return aliveUnits(0).filter(u=>u&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh&&
+  !['vil','king','mon','cart','cog'].includes(u.k)&&
+  Math.hypot(u.x-ford[0],u.y-ford[1])<=10);
+}
+function campaignRaidersFordGuardReady(){
+ return campaignRaidersFordGuards().length>=3;
+}
+function campaignRaidersFordRoadSpawn(target){
+ const ford=campaignRaidersFord(),enemy=tcOf(1);
+ if(!ford||!enemy||!target)return null;
+ const dx=enemy.x+enemy.s*.5-ford[0],dy=enemy.y+enemy.s*.5-ford[1],dist=Math.hypot(dx,dy);
+ if(dist<6)return null;
+ const ux=dx/dist,uy=dy/dist;
+ for(const forward of [9,12,7,15,5,18,3])
+  for(const sideways of [0,2,-2,4,-4,6,-6,9,-9,12,-12]){
+   const x=Math.floor(ford[0]+ux*forward-uy*sideways);
+   const y=Math.floor(ford[1]+uy*forward+ux*sideways);
+   if(x<2||y<2||x>=W-2||y>=H-2)continue;
+   const cell=y*W+x;
+   if(S.wt[cell]===1||S.g[cell]||S.nd[cell])continue;
+   if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.7))continue;
+   const probe={x:x+.5,y:y+.5,t:1,sh:0};
+   if(path(probe,goalNear(target,2)))return [x+.5,y+.5];
+  }
+ return null;
+}
+function campaignRaidersFordRaid(kinds,message){
+ const enemy=tcOf(1),home=tcOf(0);
+ if(!enemy||!home||S.over)return 0;
+ let spawned=0;
+ const defenders=campaignRaidersFordGuards(),threat=defenders[0]||null;
+ const holdings=S.bs.filter(b=>b&&b.t===0&&b.hp>0&&
+  ['lumber','mine','mill','house','bar','market','tc'].includes(b.k));
+ const targets=[threat,...holdings,home].filter(Boolean);
+ for(const kind of kinds){
+  const preferred=threat||holdings[0]||home;
+  const road=campaignRaidersFordRoadSpawn(preferred);
+  const spot=road||spawnPos(enemy);if(!spot)continue;
+  const u=addU(1,kind,spot[0],spot[1]);if(!u)continue;
+  if(road){
+   u.campaignPatrol='ford-crossing';
+   cmp.d.raidersCrossings=(cmp.d.raidersCrossings||0)+1;
+   if(!Array.isArray(cmp.d.raidersRoadSpawns))cmp.d.raidersRoadSpawns=[];
+   if(cmp.d.raidersRoadSpawns.length<12)cmp.d.raidersRoadSpawns.push([spot[0],spot[1]]);
+  }
+  for(const target of targets){
+   if(!target||target.hp<=0||!path(u,goalNear(target,Math.max(1,U[kind]?.rng||1))))continue;
+   u.o='a';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0;break;
+  }
+  spawned++;
+ }
+ if(spawned&&message)note(message);
+ return spawned;
+}
+function campaignRaidersFordGuardRelief(){
+ const defenders=campaignRaidersFordGuards();
+ if(S.over||defenders.length<3)return 0;
+ const original=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const arrivals=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!original.has(u.netId));
+ for(const u of arrivals){u.o='G';u.tg=defenders[0];u.p=[];u.rp=0;u.guardTarget=null}
+ if(arrivals.length)note('The ford is secured! Four royal soldiers join your forward defenders before the enemy raids.');
+ return arrivals.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
  goals:[{id:'h',t:'Build a House',ok:()=>cb('house')>=1},{id:'l',t:'Build a Lumber Camp',ok:()=>cb('lumber')>=1},{id:'v',t:'Have 10 villagers',sustained:true,ok:()=>cu('vil')>=10},{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Train 4 soldiers',ok:()=>cmil(0)>=4}],
  ev:[{at:2,do:()=>note('Pan with the left stick to centre a villager under the reticle, then press A to select.')},{at:14,do:()=>note('With villagers selected, aim at a tree and press A to send them chopping.')},{at:32,do:()=>note('Hold RT for the command menu and pick Build, then House. Houses raise your population limit.')},{when:()=>cb('house')>=1,do:()=>note('Good. A Lumber Camp beside the trees speeds up wood gathering.')},{when:()=>cb('lumber')>=1,do:()=>note('Train villagers at the Town Centre: D-pad Down selects it, then hold RT.')},{when:()=>cu('vil')>=10,do:()=>note('Now build a Barracks and train soldiers there.')}]},
-{t:'Raiders at the Ford',b:'Mongol raiders ride south along the river, burning farms and scattering villagers. The king\'s relief column is eight minutes away. Raise a Barracks, muster eight defenders and hold your Town Centre until the relief column arrives.',civ:1,en:2,mt:0,msz:0,seed:22,diff:0,aip:6,vm:0,
- setup(){S.age[0]=1;S.res[0]={f:500,w:500,g:200,s:0}},
- goals:[{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Muster 8 soldiers',ok:()=>cmil(0)>=8},{id:'t',t:'Survive until 8:00',ok:()=>cmp.t>=480}],
- ev:[{at:8,do:()=>note('Raiders strike fast. Keep soldiers near your villagers.')},{at:150,do:()=>raid(5,['skirm','scout','skirm','scout','skirm'],'Raiders sighted to the north!')},{at:270,do:()=>raid(6,['mil','skirm','mil','skirm','mil','skirm'],'A second raiding party is coming!')},{at:390,do:()=>raid(8,['mil','skirm','scout','mil','skirm','scout','mil','skirm'],'The largest raid yet. The relief column is almost here!')},{at:445,do:()=>campaignReliefColumn()}]},
+{t:'Raiders at the Ford',b:'Mongol raiders will use the shallow crossing north of your village to attack your farms. Build a Barracks, muster eight soldiers and survive until 8:00 for the king\'s relief column. The three original enemy waves now ride down reachable roads from the ford. Optional: station three living soldiers at the actual crossing to earn four royal troops guarding your forward defenders. The late relief still protects your Town Centre.',civ:1,en:2,mt:0,msz:0,seed:22,diff:0,aip:6,vm:0,
+ setup(){S.age[0]=1;S.res[0]={f:500,w:500,g:200,s:0};campaignRaidersFord()},
+ goals:[{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Muster 8 soldiers',ok:()=>cmil(0)>=8},{id:'t',t:'Survive until 8:00',ok:()=>cmp.t>=480},{id:'fordguard',t:'Optional: Guard the real river ford with 3 soldiers',optional:true,ok:()=>campaignRaidersFordGuardReady()}],
+ ev:[{at:8,do:()=>note('Scout the shallow river crossing. Three real soldiers at the ford can rally four early royal guards, but defending the village is still essential.')},{at:150,do:()=>campaignRaidersFordRaid(['skirm','scout','skirm','scout','skirm'],'Raiders are advancing across the ford toward your village!')},{at:270,do:()=>campaignRaidersFordRaid(['mil','skirm','mil','skirm','mil','skirm'],'A second raiding party is crossing the ford!')},{at:390,do:()=>campaignRaidersFordRaid(['mil','skirm','scout','mil','skirm','scout','mil','skirm'],'The largest ford raid has begun. The relief column is almost here!')},{at:445,do:()=>campaignReliefColumn()},{when:()=>cmp.d.fordguard===1&&campaignRaidersFordGuardReady(),do:()=>campaignRaidersFordGuardRelief()}]},
 {t:'The Feudal Frontier',b:'A rival lord fortifies the border. Advance through the Feudal and Castle Ages, open a Market and build two Towers. Small raids will test each new defensive line before the final attack. Optionally place a completed Outpost ahead of the Town Centre, toward the rival frontier, to call in a four-soldier watch garrison.',civ:3,en:5,mt:1,msz:1,seed:33,diff:1,aip:2,vm:0,
  setup(){S.res[0]={f:1300,w:500,g:300,s:200}},
  goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2},{id:'frontierwatch',t:'Optional: Fortify the forward frontier with an Outpost',optional:true,ok:()=>!!campaignFrontierWatchpost()}],

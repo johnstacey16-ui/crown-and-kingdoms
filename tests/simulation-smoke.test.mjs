@@ -600,6 +600,9 @@ globalThis.__CK_TEST__ = {
       enemyRaidsFired: Object.keys(cmp.e||{}).filter(key=>cmp.e[key]).length,
       villagers: S.us.filter(unit => unit && unit.t === 0 && unit.k === 'vil' && unit.hp > 0).length,
       soldiers: cmil(0),
+      raidersFord:index===1?{ford:cmp.d.raidersFord||null,crossings:cmp.d.raidersCrossings||0,
+        waves:[1,2,3].filter(i=>!!cmp.e[i]).length,guardEarned:!!cmp.d.fordguard,
+        bonusArrived:!!cmp.e[5],roadSpawns:cmp.d.raidersRoadSpawns||[]}:null,
       kronburg:index===4?{
         castleFlag:cmp.d.cas||0,
         flanksSilenced:!!cmp.d.flanks,sortieTriggered:!!cmp.e[2],
@@ -1689,6 +1692,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===15?{blackwood:result.blackwood}:{}),
     ...(index===18?{ironPass:result.ironPass,ironPassProgress:result.ironPassProgress}:{}),
     ...(index===9?{greywatch:result.greywatch}:{}),
+    ...(index===1?{raidersFord:result.raidersFord}:{}),
     ...(index===4?{kronburg:result.kronburg}:{}),
     ...(index===3?{relicRoad:result.relicRoad,relicRoadProgress:result.relicRoadProgress}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
@@ -2120,7 +2124,15 @@ if (shouldRunCampaignMission(1)) {
 const raidersAtFordPlaythrough = playCampaignScenarioTimed(1, 600);
 assert.equal(raidersAtFordPlaythrough.trainingGate, null, 'Raiders at the Ford must allow its required soldiers to be trained: '+JSON.stringify(raidersAtFordPlaythrough));
 assert.equal(raidersAtFordPlaythrough.over, 'win', 'A scripted player must build a Barracks, train eight soldiers and survive the timed raids in Raiders at the Ford: '+JSON.stringify(raidersAtFordPlaythrough));
-assert.ok(raidersAtFordPlaythrough.objectives.every(objective => objective.complete), 'Raiders at the Ford must record every objective as completed: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.ok(raidersAtFordPlaythrough.objectives.filter(objective=>!objective.title.startsWith('Optional:')).every(objective=>objective.complete&&objective.predicate),
+ 'Raiders at the Ford must still complete all three required objectives: '+JSON.stringify(raidersAtFordPlaythrough));
+assert.equal(raidersAtFordPlaythrough.objectives.filter(objective=>!objective.title.startsWith('Optional:')).length,3,
+ 'the optional ford guard must not replace any original win condition');
+assert.ok(raidersAtFordPlaythrough.raidersFord?.ford,'the real mission must have a reachable shallow crossing');
+assert.ok(raidersAtFordPlaythrough.raidersFord?.crossings>=3,
+ 'multiple hostile soldiers must travel by the actual ford road in the 30 Hz simulation');
+assert.ok(raidersAtFordPlaythrough.raidersFord?.waves===3,
+ 'all three original timed raids must execute during the eight-minute survival battle');
 assert.equal(raidersAtFordPlaythrough.objectives.find(objective => objective.title === 'Survive until 8:00')?.predicate, true, 'The survival objective must still be true at victory');
 console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }

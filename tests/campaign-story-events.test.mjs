@@ -31,6 +31,78 @@ test('Raiders at the Ford delivers a physical royal relief force, guarding the T
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)).length"),5,'reload cannot duplicate story arrivals');
 });
 
+test('Raiders at the Ford selects a real reachable shallow crossing and uses the correct raid routes',()=>{
+ const c=mission(1);
+ const ford=JSON.parse(c('JSON.stringify(campaignRaidersFord())'));
+ assert.ok(ford,'the seeded Arabia map must contain a reachable shallow river crossing');
+ assert.equal(c('S.wt[(campaignRaidersFord()[1]|0)*W+(campaignRaidersFord()[0]|0)]'),2,
+  'the crossing is actual shallow water, not a decorative marker');
+ assert.ok(c("!!path(aliveUnits(0,'vil')[0],gp(...campaignRaidersFord(),1))"),
+  'ordinary villagers can walk to the selected river crossing');
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CAMP[1].goals.map(g=>[g.id,!!g.optional]))')),
+  [['b',false],['s',false],['t',false],['fordguard',true]],'the original three objectives remain required');
+ assert.equal(c('CAMP[1].ev.filter(e=>e.at>=150&&e.at<=390).length'),3,
+  'all three original mounted and infantry raid waves remain scheduled');
+ assert.equal(c('campaignRaidersFordGuardReady()'),false);
+ c('cmpTick(150)');
+ assert.equal(c('cmp.e[1]'),1,'the real first raid fires on time');
+ const crossingCount=c('cmp.d.raidersCrossings||0');
+ assert.ok(crossingCount>=2,'multiple attackers must emerge on reachable enemy-facing approaches to the actual ford');
+ const locations=JSON.parse(c('JSON.stringify(cmp.d.raidersRoadSpawns)'));
+ assert.ok(locations.every(p=>Math.hypot(p[0]-campaignRaidersFord()[0],p[1]-campaignRaidersFord()[1])<=30));
+ assert.ok(c("S.us.some(u=>u&&u.campaignPatrol==='ford-crossing'&&u.o==='a'&&u.tg?.t===0)"),
+  'the real raiders receive combat orders against living friendly targets');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.raidersFord)'),JSON.stringify(ford),'ford coordinate survives save/load');
+ assert.equal(c('cmp.d.raidersCrossings'),crossingCount,'raid evidence persists through save/load');
+ c('cmpTick(120)');
+ assert.equal(c('cmp.e[2]'),1,'second original wave still attacks');
+ c('cmpTick(120)');
+ assert.equal(c('cmp.e[3]'),1,'third original wave still attacks');
+ assert.equal(c('cmp.e[4]'),undefined,'the late royal relief is not brought forward');
+});
+
+test('Raiders at the Ford rewards a living three-soldier defense exactly once, without bypassing victory',()=>{
+ const c=mission(1);
+ const ford=JSON.parse(c('JSON.stringify(campaignRaidersFord())'));
+ assert.ok(ford,'a real shallow crossing is required');
+ c('cmp.d.fordguard=1;cmpTick(1/30)');
+ assert.equal(c('!!cmp.e[5]'),false,'forging the milestone without real guards cannot summon troops');
+ c('cmp.d.fordguard=0');
+ const placed=JSON.parse(c(`JSON.stringify((()=>{
+  const f=campaignRaidersFord(),out=[];
+  for(let radius=2;radius<=9&&out.length<3;radius++)
+   for(let y=Math.floor(f[1])-radius;y<=Math.floor(f[1])+radius&&out.length<3;y++)
+    for(let x=Math.floor(f[0])-radius;x<=Math.floor(f[0])+radius&&out.length<3;x++){
+     if(x<2||y<2||x>=W-2||y>=H-2||Math.hypot(x+.5-f[0],y+.5-f[1])>9)continue;
+     const i=y*W+x;
+     if(S.wt[i]===1||S.g[i]||S.nd[i]||S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.7))continue;
+     const u=addU(0,'spear',x+.5,y+.5);
+     if(u)out.push(u.netId);
+    }
+  return out;
+ })())`));
+ assert.equal(placed.length,3,'three normal, living player soldiers can be stationed near the ford');
+ assert.equal(c('campaignRaidersFordGuardReady()'),true);
+ const before=c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length");
+ const resources=c('JSON.stringify(S.res[0])'),trained=c('S.pl.tr');
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.fordguard'),1,'only three real soldiers near the shallow ford earn the optional milestone');
+ c('cmpTick(1/30)');
+ assert.equal(c('cmp.e[5]'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),before+4,
+  'the optional defense brings four mortal spearmen/skirmishers');
+ assert.equal(c("S.us.filter(u=>u&&u.t===0&&u.hp>0&&u.o==='G'&&u.tg?.netId==="+JSON.stringify(placed[0])+").length"),4,
+  'new royal troops follow a real living forward defender rather than guarding an invisible marker');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'the bonus does not forge extra resources');
+ assert.equal(c('S.pl.tr'),trained,'story help is not falsely recorded as paid training');
+ assert.equal(c('S.over'),null,'three guard soldiers cannot replace the Barracks, eight soldiers or eight-minute hold');
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),before+4,
+  'saving and reloading cannot duplicate the optional royal guard');
+});
 test('Redwater merchant escort departs from a distant reachable checkpoint and never accepts a counterfeit cart',()=>{
  const c=mission(7);
  assert.equal(c("CAMP[7].ev.some(e=>e.at===405&&typeof e.when==='function')"),true);
