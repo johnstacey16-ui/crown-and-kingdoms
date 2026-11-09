@@ -704,6 +704,8 @@ test('on-screen controller help matches centre-reticle, minimap and close contro
   const help=seen.join('\n');
   assert.match(help,/Pan camera to aim the centre reticle/);
   assert.match(help,/Minimap cursor speed/);
+ assert.match(help,/Small minimap/);
+ assert.match(help,/A inside the diamond focuses the camera/);
   assert.match(help,/Camera speed changes normal panning/);
   assert.match(help,/B\/RB\/View closes/);
   assert.match(help,/View opens objectives; Menu pauses/);
