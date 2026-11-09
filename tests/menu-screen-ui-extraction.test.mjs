@@ -87,7 +87,7 @@ test('Objectives screen accurately explains all seven selectable victory conditi
      age:[0],us:[],bs:[]},
   CIV:[{n:'Blue'},{n:'Red'},{n:'Gold'}],AG:[{n:'Founding Age'}],
   difficultyName:()=> 'Normal',diff:0,popOf:()=>2,capOf:()=>15,
-  cmp:null,cmpObj(){},scoreLimit:1200,vm:0
+  cmp:null,cmpObj(){},kingdomAlive:()=>true,scoreLimit:1200,vm:0
  });
  vm.runInContext(source.slice(start,end),context);
  const expected=[
