@@ -2133,6 +2133,12 @@ assert.ok(raidersAtFordPlaythrough.raidersFord?.crossings>=3,
  'multiple hostile soldiers must travel by the actual ford road in the 30 Hz simulation');
 assert.ok(raidersAtFordPlaythrough.raidersFord?.waves===3,
  'all three original timed raids must execute during the eight-minute survival battle');
+assert.equal(raidersAtFordPlaythrough.raidersFord?.guardEarned,true,
+ 'the seeded live player must station three real soldiers near the shallow crossing');
+assert.equal(raidersAtFordPlaythrough.raidersFord?.bonusArrived,true,
+ 'the guarded ford must earn the four genuine royal defenders in the full 30 Hz battle');
+assert.equal(raidersAtFordPlaythrough.raidersFord?.roadSpawns?.length,12,
+ 'the authored river approaches must be used across the three original raids');
 assert.equal(raidersAtFordPlaythrough.objectives.find(objective => objective.title === 'Survive until 8:00')?.predicate, true, 'The survival objective must still be true at victory');
 console.log('campaign-scripted-playthrough: Raiders at the Ford won through real building, training and timed raid simulation in '+raidersAtFordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
