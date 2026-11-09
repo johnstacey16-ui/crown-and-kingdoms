@@ -2118,18 +2118,6 @@ assert.equal(northernWatchPlaythrough.enemyRaidsFired,3,'all three Northern Watc
 assert.ok(northernWatchPlaythrough.buildings.includes('bar')&&northernWatchPlaythrough.buildings.includes('rng'),'Barracks and Range must be constructed through normal orders');
 console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length+'; diagnostics='+JSON.stringify({objectives:northernWatchPlaythrough.objectives,reason:northernWatchPlaythrough.reason,ranged:northernWatchPlaythrough.rangedUnits,peakRanged:northernWatchPlaythrough.peakRanged,peakVillagers:northernWatchPlaythrough.peakVillagers,queuedArchers:northernWatchPlaythrough.queuedArchers,population:northernWatchPlaythrough.population,capacity:northernWatchPlaythrough.populationCapacity,houses:northernWatchPlaythrough.houses,buildings:northernWatchPlaythrough.buildings,unfinished:northernWatchPlaythrough.unfinished,resources:northernWatchPlaythrough.resources,workers:northernWatchPlaythrough.workerOrders}));
 }
-if (shouldRunCampaignMission(8)) {
-const ashfordPlaythrough=playCampaignScenarioTimed(8,1500);
-assert.equal(ashfordPlaythrough.over,'win',
- 'A real player siege must destroy both Ashford Castle and the rival Town Centre, not win by a fake victory trigger: '+JSON.stringify({time:ashfordPlaythrough.campaignTime,reason:ashfordPlaythrough.reason,ashford:ashfordPlaythrough.ashford}));
-assert.equal(ashfordPlaythrough.ashford?.enemyCastleAlive,false,
- 'A Castle that survived the capital battle is not an acceptable Ashford victory');
-assert.equal(ashfordPlaythrough.ashford?.enemyTownAlive,false,
- 'The rival capital must also be destroyed through real combat');
-assert.ok(ashfordPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
- 'Every mandatory Ashford objective must complete through live simulation: '+JSON.stringify(ashfordPlaythrough.objectives));
-console.log('campaign-scripted-playthrough: Ashford Castle and rival capital fell to real troops after '+ashfordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
-}
 if (shouldRunCampaignMission(7)) {
 const redwaterPlaythrough = playCampaignScenarioTimed(7, 600);
 assert.equal(redwaterPlaythrough.over, 'win', 'A scripted player must build the Market and two Towers and survive Crossing at Redwater: '+JSON.stringify(redwaterPlaythrough));
@@ -2257,6 +2245,10 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
       'both real Ashford Castle and capital objectives must complete; destroying the signal towers remains optional');
     assert.equal(result.ashford.enemyCastleAlive,false,'Ashford Castle must actually fall before the campaign can be won');
     assert.equal(result.ashford.enemyTownAlive,false,'enemy Town Centre must actually be destroyed');
+    assert.ok(result.objectives.some(goal=>goal.title==='Destroy Ashford Castle'&&goal.complete&&goal.predicate),
+      'the living enemy Castle must fall before Ashford victory can be recorded');
+    assert.ok(result.objectives.some(goal=>goal.title==='Destroy the rival Town Centre'&&goal.complete&&goal.predicate),
+      'the rival Town Centre must fall through ordinary siege combat');
     assert.equal(result.ashford.assaultStarted,true,'the paid siege assault must launch and persist after casualties');
     assert.equal(result.ashford.workshopBuilt,true,'the additional battering rams require a completed, paid Siege Workshop');
     assert.ok(result.townCentreHp>0,'the attacker must keep its home Town Centre');
