@@ -2079,6 +2079,18 @@ for (const [index, label, limit] of [
     assert.ok(result.productionPeak.treb>=3,'paid Castle production must reinforce the two royal Trebuchets');
     assert.ok(result.townCentreHp>0,'the player capital must survive the crossing campaign');
   }
+  if(index===7){
+    assert.equal(result.over,'win','Redwater now requires a genuine merchant-escort victory, not just a Market, towers and timer');
+    assert.ok(result.objectives.every(o=>o.complete),
+      'Redwater must complete all four mandatory goals, including physical merchant delivery');
+    assert.ok(result.redwaterProgress.some(p=>p.hasDispatch&&p.carts.some(cart=>
+      cart.alive&&cart.convoy==='redwater'&&cart.o==='m'&&cart.path>0)),
+      'mission convoy must actually travel a navigable road rather than appear at its destination');
+    assert.ok(result.redwaterProgress.some(p=>p.delivered),
+      'a tagged living merchant must reach the actual Market before the defence wins');
+    assert.ok(result.townCentreHp>0,'the defended Town Centre must survive the complete Redwater attack');
+    assert.ok(result.campaignTime>=480,'the eight-minute hold cannot be bypassed by early caravan arrival');
+  }
   if(index===12){
     for(const snapshot of result.goldenCoastProgress){
       if(!snapshot.assault||!snapshot.ramOrders.length||snapshot.enemyHp<=0)continue;
