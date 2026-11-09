@@ -554,6 +554,10 @@ test('Relic Road authors exactly three spaced, dry, reachable inland shrines',()
  assert.equal(c("CAMP[3].goals.find(g=>g.id==='trackers').optional"),true,'enemy trackers are not an additional mandatory win shortcut');
  assert.equal(c('campaignRelicRoadHuntersDefeated()'),false,'no patrol defeated without a real pursuit');
  assert.equal(c('campaignRelicRoadDeposited()'),0);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('campaignRelicRoadDeposited()'),0,'undelivered shrines remain uncredited after a reload');
+ assert.equal(c('cmp.d.relicRoadShrines.length'),3,'shrine route coordinates persist through regular save/load');
 });
 
 test('Relic Road enemy pursuit follows a genuine first relic deposit, never a fabricated timer',()=>{
@@ -575,6 +579,8 @@ test('Relic Road enemy pursuit follows a genuine first relic deposit, never a fa
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
  assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'tracker IDs survive save/load');
+ assert.equal(c('campaignRelicRoadDeposited()'),1,'an authored shrine remains recognized as delivered after save/load drops its optional entity tag');
+ assert.equal(c('cmp.d.relicRoadShrines.length'),3,'all three original shrine coordinates remain saved');
  c('cmpTick(1)');
  assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'pursuit cannot re-spawn after a reload');
  assert.equal(c('S.over'),null,'a single deposited relic cannot win a three-relic mission');
