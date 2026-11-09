@@ -93,7 +93,7 @@ function raidShipPositions(e,count,t=1){
  return spots.slice(0,count).map(p=>[p.x+.5,p.y+.5])
 }
 
-function raid(n,ks,msg){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const choices=[tg,...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
+function raid(n,ks,msg,priority){const e=tcOf(1);if(!e||!Number.isInteger(n)||n<=0||!Array.isArray(ks)||!ks.length)return;const tg=(priority&&priority.t===0&&priority.hp>0?priority:null)||S.bs.filter(b=>b.t===0&&b.hp>0&&['lumber','mine','mill','house','market','dock'].includes(b.k)).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0]||tcOf(0);if(!tg)return;let ships=0,land=0;const navalSpawns=ks.some(k=>U[k]?.sh)?raidShipPositions(e,n):[];for(let i=0;i<n;i++){const k=ks[i%ks.length],ship=!!(U[k]&&U[k].sh),p=ship?navalSpawns[ships]:spawnPos(e);if(!p||!U[k])continue;const u=addU(1,k,p[0],p[1]);if(!u)continue;if(ship){ships++;const navalTargets=[...S.us.filter(q=>q.hp>0&&!q.ld&&q.t===0&&U[q.k]?.sh),...S.bs.filter(q=>q.hp>0&&q.t===0&&q.k==='dock')].sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));for(const enemy of navalTargets.slice(0,8)){if(path(u,goalNear(enemy,Math.max(1,U[k].rng||1)))){u.o='a';u.tg=enemy;u.p=[];break}}}else{land++;let target=null;const choices=[tg,...S.bs.filter(b=>b.t===0&&b.hp>0&&b!==tg)].slice(0,16);for(const candidate of choices)if(path(u,goalNear(candidate,2))){target=candidate;break}if(target){u.o='a';u.tg=target;u.p=[]}}}if(msg&&(land||ships))note(msg)}
 
 function campaignReliefColumn(){
  const home=tcOf(0);if(!home||S.over)return 0;
@@ -522,6 +522,64 @@ function campaignAshfordCastleSortie(){
  if(attacking)note('Ashford Castle has fallen! The rival sends its last defenders against your siege train.');
  return defenders.length;
 }
+// Blackwood's bridgehead is derived from the actual shallow-water fords,
+// not from arbitrary coordinates or a text-only capture marker. Cache the
+// reachable ford in campaign save state so changing terrain/buildings cannot
+// silently move the objective after construction or a save/load.
+function campaignBlackwoodFord(){
+ if(cmp?.i!==15||!S?.wt)return null;
+ const saved=cmp.d.blackwoodFord;
+ if(Array.isArray(saved)&&saved.length===2&&saved.every(Number.isFinite))return saved;
+ const home=tcOf(0),enemy=tcOf(1);
+ const scout=aliveUnits(0,'mil')[0]||aliveUnits(0,'vil')[0];
+ if(!home||!enemy||!scout)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=enemy.x+enemy.s*.5-hx,dy=enemy.y+enemy.s*.5-hy,len=Math.hypot(dx,dy);
+ if(len<25)return null;
+ const ux=dx/len,uy=dy/len,candidates=[];
+ for(let y=2;y<H-2;y++)for(let x=2;x<W-2;x++){
+  const i=y*W+x;if(S.wt[i]!==2||S.g[i])continue;
+  const ahead=(x+.5-hx)*ux+(y+.5-hy)*uy;
+  const side=Math.abs((x+.5-hx)*uy-(y+.5-hy)*ux);
+  if(ahead<14||ahead>Math.min(55,len*.65)||side>23)continue;
+  candidates.push({x:x+.5,y:y+.5,score:Math.abs(ahead-len*.28)+side*.4});
+ }
+ candidates.sort((a,b)=>a.score-b.score);
+ for(const q of candidates.slice(0,80)){
+  if(!path(scout,gp(q.x,q.y,1)))continue;
+  cmp.d.blackwoodFord=[q.x,q.y];
+  return cmp.d.blackwoodFord;
+ }
+ return null;
+}
+function campaignBlackwoodBridgeFortifications(){
+ const ford=campaignBlackwoodFord(),home=tcOf(0);
+ if(!ford||!home)return {ford:null,towers:[],walls:[]};
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5,homeRange=Math.hypot(ford[0]-hx,ford[1]-hy);
+ const eligible=(b,max)=>b&&b.t===0&&b.done&&b.hp>0&&
+  Math.hypot(b.x+b.s*.5-ford[0],b.y+b.s*.5-ford[1])>=3&&
+  Math.hypot(b.x+b.s*.5-ford[0],b.y+b.s*.5-ford[1])<=max&&
+  Math.hypot(b.x+b.s*.5-hx,b.y+b.s*.5-hy)<homeRange-1;
+ return {ford,towers:S.bs.filter(b=>b.k==='tower'&&eligible(b,19)),
+  walls:S.bs.filter(b=>b.k==='wall'&&eligible(b,21))};
+}
+function campaignBlackwoodBridgeReady(){
+ const f=campaignBlackwoodBridgeFortifications();
+ return !!f.ford&&f.towers.length>=2&&f.walls.length>=3;
+}
+function campaignBlackwoodBridgeTower(){
+ return campaignBlackwoodBridgeFortifications().towers[0]||null;
+}
+function campaignBlackwoodBridgeRelief(){
+ const tower=campaignBlackwoodBridgeTower();
+ if(!tower||S.over||!campaignBlackwoodBridgeReady())return 0;
+ const before=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',3);grp(0,'skirm',3);
+ const troops=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!before.has(u.netId));
+ for(const u of troops){u.o='G';u.tg=tower;u.guardTarget=null;u.p=[];u.rp=0}
+ if(troops.length)note('The Blackwood bridgehead is secured! Six royal defenders guard the forward Tower against the coming siege.');
+ return troops.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -606,10 +664,10 @@ S.rel.length=0;const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-h
  setup(){S.age[0]=3;S.res[0]={f:1500,w:1400,g:1300,s:650};const p=tcOf(0);if(p){put(0,'castle',p.x+7,p.y+6);put(0,'tower',p.x+8,p.y-5);put(0,'tower',p.x+8,p.y+13);for(let i=0;i<5;i++)put(0,'house',p.x-7+(i%3)*3,p.y-7+Math.floor(i/3)*3);grp(0,'knight',5);grp(0,'xbow',10);grp(0,'spear',6);grp(0,'ram',2);grp(0,'fire',2)}const e=tcOf(1);if(e){S.age[1]=3;S.res[1]={f:1100,w:900,g:900,s:500};put(1,'castle',e.x-8,e.y+8);put(1,'tower',e.x-5,e.y+12);put(1,'tower',e.x-12,e.y+6);put(1,'dock',e.x-11,e.y+5);grp(1,'gal',2);grp(1,'knight',6);grp(1,'xbow',8);grp(1,'bomb',2)}},
  goals:[{id:'workshop',t:'Build a Siege Workshop',ok:()=>cb('siege')>=1},{id:'bombards',t:'Muster 2 Bombard Cannons',ok:()=>aliveUnits(0,'bomb').length>=2},{id:'harbour',t:'Optional: Destroy the enemy Dock',optional:true,ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='dock'&&b.hp>0)},{id:'castle',t:'Destroy Tidewatch Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:20,do:()=>note('Tidewatch is an Imperial Age siege. Your fortified camp has housing and two watchtowers covering the approaches. Keep a few Spearmen and Crossbowmen protecting the Town Centre while your main force escorts Bombard Cannons.')},{at:90,do:()=>raid(6,['knight','knight','xbow','spear','xbow','scout'],'Tidewatch cavalry are raiding your supply road!')},{at:240,do:()=>raid(8,['ram','bomb','knight','xbow','spear','knight','xbow','ram'],'The harbour garrison launches a coordinated counter-attack!')},{at:420,do:()=>raid(7,['bomb','ram','knight','knight','xbow','spear','xbow'],'Enemy reinforcements are attempting to break your siege!')},{at:345,when:()=>S.bs.some(b=>b.t===1&&b.k==='dock'&&b.hp>0),do:()=>raid(2,['gal','gal'],'Tidewatch war galleys are sailing from the harbour!')},{when:()=>cmp.d.harbour===1,do:()=>{S.res[0].w+=180;S.res[0].g+=100;note('Harbour secured! Captured ship stores provide 180 wood and 100 gold. Enemy sea reinforcements are cut off.')}},{when:()=>cmp.d.castle===1,do:()=>campaignTidewatchReserve()},{when:()=>campaignTidewatchSiegeBreachReady(),do:()=>campaignTidewatchBreachColumn()}]},
-{t:'The Bridge at Blackwood',b:'The forest road is the last open supply route to the northern army. Hold the crossing through repeated enemy raids. Raise two towers, seal the approaches with six wall sections, and keep your Town Centre standing until the relief force arrives.',civ:0,en:1,mt:1,msz:1,seed:916,diff:1,aip:3,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:900,w:1200,g:450,s:450};grp(0,'mil',6);grp(0,'spear',6);grp(0,'arc',7);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:900,w:650,g:350,s:150};grp(1,'spear',6);grp(1,'arc',5)}},
- goals:[{id:'tower',t:'Build 2 completed Towers',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'wall',t:'Build 6 completed Wall sections',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='wall'&&b.done&&b.hp>0).length>=6},{id:'hold',t:'Hold Blackwood for 8:00',ok:()=>cmp.t>=480}],
- ev:[{at:20,do:()=>note('Build your towers where they cover the approach. Walls buy time, but leave room for your villagers to move between resources and the Town Centre.')},{at:65,do:()=>raid(5,['scout','mil','spear','scout','arc'],'Blackwood scouts are testing the outer farms!')},{at:155,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'The first serious raid is moving up the forest road!')},{at:260,do:()=>raid(8,['knight','spear','arc','knight','mil','arc','spear','ram'],'Enemy cavalry and siege are approaching the crossing!')},{at:365,do:()=>raid(9,['ram','knight','knight','spear','arc','mil','arc','spear','scout'],'A combined force is pushing for the Town Centre!')},{at:435,do:()=>raid(10,['ram','ram','knight','knight','spear','arc','mil','arc','spear','knight'],'The final assault has begun. Hold until the relief signal!')}]},
+{t:'The Bridge at Blackwood',b:'The shallow Blackwood ford is the northern army\'s last supply route. Keep two Towers and six wall sections standing until the eight-minute relief signal; rebuilding lost defenses matters. Optional: build both Towers and at least three walls on your bank overlooking the real forest ford to rally six royal defenders. Later enemy siege waves will target the fortified bridgehead before your settlement.',civ:0,en:1,mt:1,msz:1,seed:916,diff:1,aip:3,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:900,w:1200,g:450,s:450};grp(0,'mil',6);grp(0,'spear',6);grp(0,'arc',7);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:900,w:650,g:350,s:150};grp(1,'spear',6);grp(1,'arc',5)}campaignBlackwoodFord()},
+ goals:[{id:'tower',t:'Keep 2 completed Towers standing',sustained:true,ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'wall',t:'Keep 6 completed Wall sections standing',sustained:true,ok:()=>S.bs.filter(b=>b.t===0&&b.k==='wall'&&b.done&&b.hp>0).length>=6},{id:'hold',t:'Hold Blackwood for 8:00',ok:()=>cmp.t>=480},{id:'bridgehead',t:'Optional: Secure the forest ford with 2 Towers and 3 nearby walls',optional:true,ok:()=>campaignBlackwoodBridgeReady()}],
+ ev:[{at:20,do:()=>note('Scout the shallow forest ford. Towers and three walls on your home-side bank earn six royal defenders; all six required wall sections and both Towers must survive until relief.')},{at:65,do:()=>raid(5,['scout','mil','spear','scout','arc'],'Blackwood scouts are testing the outer farms!')},{at:155,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'The first serious raid is moving up the forest road!')},{at:260,do:()=>raid(8,['knight','spear','arc','knight','mil','arc','spear','ram'],'Enemy cavalry and siege are approaching the crossing!',campaignBlackwoodBridgeTower())},{at:365,do:()=>raid(9,['ram','knight','knight','spear','arc','mil','arc','spear','scout'],'A combined force is pushing for the Town Centre!',campaignBlackwoodBridgeTower())},{at:435,do:()=>raid(10,['ram','ram','knight','knight','spear','arc','mil','arc','spear','knight'],'The final assault has begun. Hold until the relief signal!',campaignBlackwoodBridgeTower())},{when:()=>cmp.d.bridgehead===1,do:()=>campaignBlackwoodBridgeRelief()}]},
 {t:'The Causeway Muster',b:'The rival guards the last road over the strait. Scout your bank, build a Dock and field three War Galleys. The completed Dock rallies one Fire Ship; securing a fleet signals mounted and infantry relief. Raise two Towers; putting one by each ford optionally earns a guarded royal siege ram. Break the real enemy Castle and Town Centre to reopen the Causeway.',civ:2,en:6,mt:7,layout:12,msz:1,seed:917,diff:2,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:1000,w:1100,g:750,s:400};const home=tcOf(0);if(home)for(let i=0;i<4;i++)put(0,'house',home.x-7+(i%2)*3,home.y-7+Math.floor(i/2)*3);grp(0,'knight',4);grp(0,'spear',6);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:1000,w:900,g:700,s:350};put(1,'castle',e.x-8,e.y+8);put(1,'tower',e.x-5,e.y+12);put(1,'tower',e.x-12,e.y+6);grp(1,'knight',5);grp(1,'spear',6);grp(1,'arc',8);grp(1,'ram',2)}for(const gy of [.34,.42,.66]){const y=Math.floor(H*gy),cx=Math.round(W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8);let placed=false;for(let dx=-3;dx<=3&&!placed;dx++){const x=cx+dx,i=y*W+x;if(x>1&&x<W-1&&S.wt[i]===1&&!S.nd[i]){addU(1,'gal',x+.5,y+.5);placed=true}}}},
  goals:[{id:'dock',t:'Build a Dock',ok:()=>cb('dock')>=1},{id:'fleet',t:'Have 3 War Galleys alive',sustained:true,ok:()=>aliveUnits(0,'gal').length>=3},{id:'towers',t:'Build 2 completed Towers',ok:()=>S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length>=2},{id:'castle',t:'Destroy the enemy Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'fords',t:'Optional: Secure both Causeway fords with Towers',optional:true,ok:()=>!!campaignCausewayFordTower(.22)&&!!campaignCausewayFordTower(.78)}],

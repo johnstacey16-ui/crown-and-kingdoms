@@ -80,6 +80,12 @@ jobs:
           CK_MISSION: '8'
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
+      - name: Verify Blackwood bridgehead and genuine eight-minute defence (explicit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-blackwood]')
+        env:
+          CK_MISSION: '15'
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs
       - name: Verify Feudal Frontier staged raids (explicit commit opt-in only)
         if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-frontier]')
         env:

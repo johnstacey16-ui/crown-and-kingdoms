@@ -167,6 +167,75 @@ test('Strait siege decisions do not require the opening War Galleys to survive',
  assert.match(src,/const defender=\([^\n]*index===13[^\n]*\)\&\&unit\.k!=='ram'/,
   'foot soldiers clear defenders while Rams attack fortifications');
 });
+test('Blackwood ford is a real, reachable seeded shallow crossing and defenses must remain standing',()=>{
+ const c=mission(15);
+ const ford=JSON.parse(c('JSON.stringify(campaignBlackwoodFord())'));
+ assert.ok(ford,'the seeded Black Forest contains a reachable shallow ford on the forest road');
+ assert.equal(c('S.wt[(campaignBlackwoodFord()[1]|0)*W+(campaignBlackwoodFord()[0]|0)]'),2,'the ford is actual walkable shallow water');
+ assert.ok(c('!!path(aliveUnits(0,"mil")[0],gp(...campaignBlackwoodFord(),1))'),'a real starting soldier can reach the ford on foot');
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CAMP[15].goals.map(g=>[g.id,!!g.sustained,!!g.optional]))')),
+  [['tower',true,false],['wall',true,false],['hold',false,false],['bridgehead',false,true]]);
+ assert.equal(c('campaignBlackwoodBridgeReady()'),false,'unbuilt bridge defenses do not count');
+ assert.equal(c('CAMP[15].ev.length'),7,'all five original enemy attack waves remain, plus the briefing and one optional relief event');
+ // A completed Tower can lose the mandatory milestone once it is destroyed.
+ c("addB(0,'tower',tcOf(0).x+6,tcOf(0).y-2,true)");
+ c("S.bs.filter(b=>b.t===0&&b.k==='tower').forEach(b=>b.hp=0)");
+ assert.equal(c("CAMP[15].goals.find(g=>g.id==='tower').ok()"),false,'dead Towers cannot secure the final victory');
+});
+
+test('Blackwood bridgehead earns physical guards once and late raids prioritize its actual Tower',()=>{
+ const c=mission(15);
+ c('S.ex.fill(1)');
+ const result=JSON.parse(c(`JSON.stringify((()=>{
+  const ford=campaignBlackwoodFord(),home=tcOf(0);
+  if(!ford||!home)return {error:'no ford'};
+  const hx=home.x+home.s*.5,hy=home.y+home.s*.5,dist=Math.hypot(ford[0]-hx,ford[1]-hy);
+  const built=[];
+  const scout=aliveUnits(0,'vil')[0];
+  for(const kind of ['tower','tower','wall','wall','wall']){
+   const possible=[];
+   for(let y=2;y<H-B[kind].s-2;y++)for(let x=2;x<W-B[kind].s-2;x++){
+    const cx=x+B[kind].s*.5,cy=y+B[kind].s*.5;
+    const d=Math.hypot(cx-ford[0],cy-ford[1]);
+    if(d<3||d>(kind==='tower'?19:21)||Math.hypot(cx-hx,cy-hy)>=dist-1)continue;
+    if(okPlace(0,kind,x,y))possible.push({x,y,score:Math.abs(d-10)});
+   }
+   possible.sort((a,b)=>a.score-b.score);
+   const site=possible.slice(0,65).find(q=>path(scout,goalNear({x:q.x,y:q.y,s:B[kind].s},1)));
+   if(!site)return {error:'no reachable buildable '+kind,built,ford,candidates:possible.length};
+   const building=addB(0,kind,site.x,site.y,true);
+   if(!building)return {error:'failed real building '+kind,built,ford};
+   built.push({kind,netId:building.netId,x:site.x,y:site.y});
+  }
+  return {ford,built,bridgeReady:campaignBlackwoodBridgeReady(),tower:campaignBlackwoodBridgeTower()?.netId};
+ })())`));
+ assert.ok(!result.error,'there must be a feasible home-bank fortified bridgehead: '+JSON.stringify(result));
+ assert.equal(result.built.length,5);
+ assert.equal(result.bridgeReady,true,'only actual home-bank fortifications overlooking the ford earn the bonus');
+ assert.equal(result.tower,result.built[0].netId);
+ const before=c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length");
+ const resources=c('JSON.stringify(S.res[0])');
+ const trained=c('S.pl.tr');
+ c('for(let i=0;i<17;i++)cmpTick(1/30)');
+ assert.equal(c('cmp.d.bridgehead'),1);
+ const relief=c("CAMP[15].ev.findIndex(e=>e.do.toString().includes('campaignBlackwoodBridgeRelief'))");
+ assert.equal(c('cmp.e['+relief+']'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),before+6,'royal relief must be six live, ordinary soldiers');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg?.netId===campaignBlackwoodBridgeTower()?.netId).length"),6,'royal soldiers protect the physical forward Tower');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'the event does not mint resources');
+ assert.equal(c('S.pl.tr'),trained,'story reinforcements are not misrepresented as paid training');
+ assert.equal(c('S.over'),null,'optional bridgehead cannot end the timed defense');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.blackwoodFord)'),JSON.stringify(result.ford),'the actual ford location persists across save/reload');
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),before+6,'reloading must not duplicate the relief');
+ c('cmpTick(260)');
+ assert.ok(c("S.us.some(u=>u&&u.t===1&&u.hp>0&&u.o==='a'&&u.tg?.netId===campaignBlackwoodBridgeTower()?.netId)"),
+  'the third attack wave actively targets the real home-bank Tower, not an invisible objective flag');
+ assert.equal(c('S.over'),null,'enemy attack orders cannot fabricate a win or loss');
+});
+
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));

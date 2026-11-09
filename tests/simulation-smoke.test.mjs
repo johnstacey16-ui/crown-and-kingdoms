@@ -519,6 +519,9 @@ globalThis.__CK_TEST__ = {
       frontierProgress:index===2?frontierProgress:null,
       reliquaryProgress:index===11?reliquaryProgress:null,
       reliquaryOpeningPatrols,
+      blackwood:index===15?{ford:campaignBlackwoodFord(),standingTowers:S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length,
+        standingWalls:S.bs.filter(b=>b.t===0&&b.k==='wall'&&b.done&&b.hp>0).length,
+        bridgehead:!!cmp.d.bridgehead,raidWaves:CAMP[15].ev.filter((e,i)=>e.at>=65&&e.at<=435&&cmp.e[i]).length}:null,
       redwaterProgress:index===7?redwaterProgress:null,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
        goldenCoast:index===12?{staging:goldenCoastStaging,capitalBreach:goldenCoastCapitalBreach,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
@@ -1622,6 +1625,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards,crownRecorded:result.crownRecorded,crownEnemyCapitalAlive:result.crownEnemyCapitalAlive}:{}),
     ...(index===2?{frontierProgress:result.frontierProgress}:{}),
     ...(index===8?{ashford:result.ashford}:{}),
+    ...(index===15?{blackwood:result.blackwood}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
@@ -2067,6 +2071,16 @@ const relicRoadPlaythrough = playCampaignScenarioTimed(3, 600);
 assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and recover three relics in the first Relic Road: '+JSON.stringify(relicRoadPlaythrough));
 assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
+}
+if (shouldRunCampaignMission(15)) {
+const blackwoodPlaythrough=playCampaignScenarioTimed(15,720);
+assert.equal(blackwoodPlaythrough.over,'win','Blackwood must withstand actual enemy raids until 8:00');
+assert.ok(blackwoodPlaythrough.blackwood?.ford,'Blackwood must select a real walkable ford');
+assert.ok(blackwoodPlaythrough.blackwood?.standingTowers>=2&&blackwoodPlaythrough.blackwood?.standingWalls>=6,
+ 'the required Towers and walls must still be alive at the real victory: '+JSON.stringify(blackwoodPlaythrough.blackwood));
+assert.equal(blackwoodPlaythrough.blackwood?.raidWaves,5,'all five physically spawned enemy attack waves must occur');
+assert.ok(blackwoodPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+ 'optional bridge placement cannot replace the required sustained fortifications and actual timed survival');
 }
 if (shouldRunCampaignMission(11)) {
 const secondRelicRoadPlaythrough = playCampaignScenarioTimed(11, 600);
