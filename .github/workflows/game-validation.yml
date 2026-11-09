@@ -68,3 +68,9 @@ jobs:
           CK_MISSION: '10'
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
+      - name: Verify Feudal Frontier staged raids (explicit commit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-frontier]')
+        env:
+          CK_MISSION: '2'
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs

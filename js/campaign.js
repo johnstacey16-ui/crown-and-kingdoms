@@ -389,6 +389,33 @@ function campaignKingsRoadSupply(){
  note('The royal roadworks have received 150 wood and 75 stone at your Market! Four royal guards arrive to protect the supply post. Keep your Town Centre safe until 8:00.');
  return guards.length;
 }
+// A forward watchpost must stand on the real route from Ashford's Town
+// Centre toward the rival border, not behind the capital or anywhere on
+// the map. Both the Outpost and its small garrison obey normal combat rules.
+function campaignFrontierWatchpost(){
+ const home=tcOf(0),enemy=tcOf(1);
+ if(!home||!enemy)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const ex=enemy.x+enemy.s*.5,ey=enemy.y+enemy.s*.5;
+ const dx=ex-hx,dy=ey-hy,dist=Math.hypot(dx,dy);
+ if(dist<26)return null;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='outpost'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5-hx,y=b.y+b.s*.5-hy;
+  const forward=(x*dx+y*dy)/dist,off=Math.abs(x*dy-y*dx)/dist;
+  return forward>=10&&forward<=Math.min(37,dist*.55)&&off<=11;
+ })||null;
+}
+function campaignFrontierWatchReinforcement(){
+ const post=campaignFrontierWatchpost();
+ if(!post||S.over)return 0;
+ const prior=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const guard=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!prior.has(u.netId));
+ for(const u of guard){u.o='G';u.tg=post;u.p=[];u.rp=0;u.guardTarget=null}
+ if(guard.length)note('The forward frontier Outpost is secured! Four royal defenders march to guard it. Keep your Market, Towers and villagers alive against the border raids.');
+ return guard.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -398,10 +425,10 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:500,w:500,g:200,s:0}},
  goals:[{id:'b',t:'Build a Barracks',ok:()=>cb('bar')>=1},{id:'s',t:'Muster 8 soldiers',ok:()=>cmil(0)>=8},{id:'t',t:'Survive until 8:00',ok:()=>cmp.t>=480}],
  ev:[{at:8,do:()=>note('Raiders strike fast. Keep soldiers near your villagers.')},{at:150,do:()=>raid(5,['skirm','scout','skirm','scout','skirm'],'Raiders sighted to the north!')},{at:270,do:()=>raid(6,['mil','skirm','mil','skirm','mil','skirm'],'A second raiding party is coming!')},{at:390,do:()=>raid(8,['mil','skirm','scout','mil','skirm','scout','mil','skirm'],'The largest raid yet. The relief column is almost here!')},{at:445,do:()=>campaignReliefColumn()}]},
-{t:'The Feudal Frontier',b:'A rival lord fortifies the border and Ashford needs a stronger realm. Advance through the ages, build towers to hold the frontier and open a market to feed your growth.',civ:3,en:5,mt:1,msz:1,seed:33,diff:1,aip:2,vm:0,
+{t:'The Feudal Frontier',b:'A rival lord fortifies the border. Advance through the Feudal and Castle Ages, open a Market and build two Towers. Small raids will test each new defensive line before the final attack. Optionally place a completed Outpost ahead of the Town Centre, toward the rival frontier, to call in a four-soldier watch garrison.',civ:3,en:5,mt:1,msz:1,seed:33,diff:1,aip:2,vm:0,
  setup(){S.res[0]={f:1300,w:500,g:300,s:200}},
- goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2}],
- ev:[{at:10,do:()=>note('Advancing an age is done at the Town Centre and needs the right buildings first.')},{when:()=>S.age[0]>=1,do:()=>note('Feudal Age reached. Towers need stone: put villagers on a stone mine.')},{at:660,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','mil','arc'],'A border patrol is marching on your lands!')}]},
+ goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2},{id:'frontierwatch',t:'Optional: Fortify the forward frontier with an Outpost',optional:true,ok:()=>!!campaignFrontierWatchpost()}],
+ ev:[{at:10,do:()=>note('Advancing an age is done at the Town Centre and needs the right buildings first.')},{when:()=>S.age[0]>=1,do:()=>note('Feudal Age reached. Towers need stone: put villagers on a stone mine.')},{at:660,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','mil','arc'],'A border patrol is marching on your lands!')},{at:205,when:()=>S.age[0]>=1&&cb('tower')>=1,do:()=>raid(3,['scout','mil','spear'],'A rival scouting party tests your first defensive Tower!')},{at:390,when:()=>cb('tower')>=2&&cb('market')>=1,do:()=>raid(5,['mil','arc','spear','scout','mil'],'The rival launches a second raid at the fortified Market road!')},{when:()=>cmp.d.frontierwatch===1,do:()=>campaignFrontierWatchReinforcement()}]},
 {t:'The Relic Road',b:'Holy relics lie scattered across the land and the Church will crown whoever gathers them. Build a monastery, send your monks out and bring the relics home. The Turks may send scouts to probe your lands.',civ:8,en:9,mt:0,msz:1,seed:44,diff:1,aip:3,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:600,w:600,g:500,s:300};grp(0,'mon',2)},
  goals:[{id:'m',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'r',t:'Hold 3 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=3}],

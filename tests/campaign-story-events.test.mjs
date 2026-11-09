@@ -517,3 +517,62 @@ test('King’s Road requires genuine funds and a completed Market with two live 
  'royal road guards cannot duplicate when the event is restored');
  assert.equal(c('S.res[0].w'),0,'saved supply is never charged a second time');
 });
+
+test('Feudal Frontier optional watchpost must be completed ahead of Ashford on the enemy approach',()=>{
+ const c=mission(2);
+ assert.equal(c("CAMP[2].goals.find(g=>g.id==='frontierwatch').optional"),true);
+ assert.equal(c('!!campaignFrontierWatchpost()'),false);
+ const start=JSON.parse(c("JSON.stringify((()=>{const h=tcOf(0),e=tcOf(1);return {home:{x:h.x,y:h.y},enemy:{x:e.x,y:e.y},age:S.age[0],resources:{...S.res[0]},initialRaidCount:CAMP[2].ev.length}})())"));
+ assert.equal(start.initialRaidCount,6,'original hints and final raid plus two reactive patrols and a watchpost reward');
+ c('S.ex.fill(1)');
+ const position=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),e=tcOf(1),hx=h.x+h.s*.5,hy=h.y+h.s*.5;
+  const dx=e.x+e.s*.5-hx,dy=e.y+e.s*.5-hy,dist=Math.hypot(dx,dy);
+  let valid=null;
+  for(let forward=12;forward<=30&&!valid;forward+=2)
+   for(let lateral=-8;lateral<=8&&!valid;lateral+=2){
+    const x=Math.round(hx+dx/dist*forward-dy/dist*lateral),
+          y=Math.round(hy+dy/dist*forward+dx/dist*lateral);
+    if(x>1&&y>1&&x+B.outpost.s<W-1&&y+B.outpost.s<H-1&&okPlace(0,'outpost',x,y))valid={x,y};
+   }
+  return valid;
+ })())`));
+ assert.ok(position,'a legally buildable forward Outpost site must exist on this seeded map');
+ assert.equal(c(`!!(globalThis.post=addB(0,'outpost',${position.x},${position.y},true))`),true);
+ assert.equal(c('campaignFrontierWatchpost()===post'),true);
+ const enemyHp=c('tcOf(1).hp');
+ const resources=c('JSON.stringify(S.res[0])');
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('!!cmp.d.frontierwatch'),true);
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===post&&['spear','skirm'].includes(u.k)).length"),4,'four real defenders guard the forward post');
+ assert.equal(c('tcOf(1).hp'),enemyHp,'watchpost garrison cannot fabricate enemy losses');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'milestone reward never fabricates materials');
+ assert.equal(c('S.over'),null,'optional Outpost never counts as winning four required goals');
+ c('cmpTick(2)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===post&&['spear','skirm'].includes(u.k)).length"),4);
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===campaignFrontierWatchpost()&&['spear','skirm'].includes(u.k)).length"),4,'the garrison remains unique after save/load');
+});
+
+test('Feudal Frontier raids react to actual Towers and a Market, never age-up alone',()=>{
+ const c=mission(2);
+ assert.equal(c("CAMP[2].ev.filter(e=>e.at===205||e.at===390).length"),2);
+ c('cmpTick(395)');
+ assert.equal(c('!!cmp.e[3]'),false,'no early raid before first real Tower');
+ assert.equal(c('!!cmp.e[4]'),false,'no market raid before two real Towers');
+ c('S.age[0]=1');
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e[3]'),false);
+ assert.equal(c("!!(globalThis.first=put(0,'tower',tcOf(0).x+8,tcOf(0).y+5))"),true);
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e[3]'),true,'the first real Tower provokes the small scouting attack');
+ assert.equal(c('!!cmp.e[4]'),false);
+ assert.equal(c("!!(globalThis.second=put(0,'tower',tcOf(0).x-8,tcOf(0).y-5))"),true);
+ assert.equal(c("!!(globalThis.market=put(0,'market',tcOf(0).x+7,tcOf(0).y-8))"),true);
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e[4]'),true,'real Market and two completed Towers provoke the second raid');
+ assert.equal(c('S.over'),null);
+});
