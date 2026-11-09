@@ -325,6 +325,24 @@ function campaignRedwaterCartArrived(){
   return Math.hypot(dx,dy)<=2.5;
  });
 }
+// The shared terrain pathfinder can return a safe partial route. Trade Carts
+// otherwise become idle halfway through Redwater, even on a clear road.
+// Resume each exhausted leg without overriding explicit player Hold/Guard.
+function campaignRedwaterCaravanAdvance(){
+ const market=S.bs.find(b=>b&&b.t===0&&b.k==='market'&&b.done&&b.hp>0);
+ if(!market)return 0;
+ let ordered=0;
+ for(const cart of aliveUnits(0,'cart')){
+  if(cart.campaignConvoy!=='redwater'||cart.ld||!['i','m'].includes(cart.o)||cart.p?.length)continue;
+  const dx=Math.max(market.x-cart.x,0,cart.x-(market.x+market.s));
+  const dy=Math.max(market.y-cart.y,0,cart.y-(market.y+market.s));
+  if(Math.hypot(dx,dy)<=2.5)continue;
+  const route=path(cart,goalNear(market,1));
+  if(!route||!route.length)continue;
+  cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;ordered++;
+ }
+ return ordered;
+}
 function campaignRoadCaravan(){
  const home=tcOf(0),market=S.bs.find(b=>b&&b.t===0&&b.k==='market'&&b.done&&b.hp>0),enemy=tcOf(1);
  if(!home||!market||!enemy||S.over)return 0;
@@ -438,7 +456,7 @@ const CAMP=[
 const campDone=()=>{try{const d=JSON.parse(localStorage.getItem('ck_camp'));return Array.isArray(d)?Array.from({length:CAMP.length},(_,i)=>d[i]===1||d[i]===true?1:0):[]}catch(e){return[]}};
 function campMark(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return;try{const d=campDone();d[i]=1;localStorage.setItem('ck_camp',JSON.stringify(d))}catch(e){}}
 function startScenario(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return false;const sc=CAMP[i];if(!sc)return false;if(!PRF)PRF={civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit};civ=sc.civ;msz=sc.msz;mt=sc.mt;mapLayout=Number.isInteger(sc.layout)?sc.layout:0;if(mapLayout)applyMapLayout();diff=sc.diff;aip=sc.aip;vm=sc.vm;scoreLimit=1200;seedOv=sc.seed;aiCiv=sc.en;cmp={i,t:0,d:{},e:{}};start();seedOv=null;aiCiv=-1;if(sc.setup)sc.setup();note('Mission '+(i+1)+': '+sc.t);return true}
-function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0)){endGame('lose','The Redwater merchant convoy was destroyed');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
+function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0)){endGame('lose','The Redwater merchant convoy was destroyed');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&cmp.k%30===0)campaignRedwaterCaravanAdvance();sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
 function restoreCampaignPrefs(){if(PRF){({civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit}=PRF);PRF=null}}
 function leaveCampaign(){restoreCampaignPrefs();cmp=null;seedOv=null;aiCiv=-1;mode='title'}
 function endA(){if(!cmp){start();return}if(S.over==='win'){const next=nextCampaignMission(cmp.i);if(next!==null){bi=next;mode='brief'}else{mode='camp';ci=0}}else startScenario(cmp.i)}

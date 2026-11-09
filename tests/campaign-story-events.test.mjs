@@ -57,6 +57,24 @@ test('Redwater merchant escort departs from a distant reachable checkpoint and n
  assert.equal(c("S.us.filter(u=>u.t===0&&u.campaignConvoy==='redwater').length"),2,'one-shot event never duplicates carts after loading');
 });
 
+test('Redwater authentic carts resume bounded road legs but obey player Hold orders',()=>{
+ const c=mission(7);
+ c('cmpTick(405)');
+ c("globalThis.market=put(0,'market',tcOf(0).x+6,tcOf(0).y+4)");
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.campaignConvoy==='redwater'&&u.p.length>0).length"),2);
+ c("globalThis.merchants=S.us.filter(u=>u.campaignConvoy==='redwater');merchants[0].o='i';merchants[0].p=[];merchants[1].o='h';merchants[1].p=[]");
+ c('cmp.k=29;cmpTick(1/30)');
+ assert.equal(c("merchants[0].o"),'m','idle authentic caravans must automatically continue along the road');
+ assert.ok(c("merchants[0].p.length")>0,'continuation must use real pathfinding to the Market');
+ assert.equal(c("merchants[1].o"),'h','scripted path continuation must not override explicit Hold commands');
+ assert.equal(c("merchants[1].p.length"),0);
+ assert.equal(c("campaignRedwaterCartArrived()"),false,'resuming a route does not count as delivering a merchant');
+ c('saveG()');
+ c('loadG()');
+ assert.equal(c("S.us.filter(u=>u.campaignConvoy==='redwater'&&u.hp>0).length"),2,'both convoy identities and orders survive reloading');
+});
+
 test('Redwater fails if both convoy merchants die before delivery and allows a real survivor',()=>{
  const c=mission(7);
  c('cmpTick(405)');
