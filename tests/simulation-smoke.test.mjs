@@ -80,6 +80,7 @@ globalThis.__CK_TEST__ = {
     const frontierProgress=[];
     const crownProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
+    const reliquaryOpeningPatrols=index===11?S.us.filter(u=>u&&u.t===1&&u.k==='scout'&&u.campaignPatrol==='reliquary'&&u.hp>0).length:null;
     let crownAssaultTime=null,crownAssaultStarted=false,crownHomeReserveAssigned=false;
     const crownHomeGuardIds=new Set();
     let trainingGate = null;
@@ -484,6 +485,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       frontierProgress:index===2?frontierProgress:null,
+      reliquaryOpeningPatrols,
       redwaterProgress:index===7?redwaterProgress:null,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
        goldenCoast:index===12?{staging:goldenCoastStaging,capitalBreach:goldenCoastCapitalBreach,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
@@ -2036,8 +2038,11 @@ const secondRelicRoadPlaythrough = playCampaignScenarioTimed(11, 600);
 assert.equal(secondRelicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and return two relics in the second Relic Road: '+JSON.stringify(secondRelicRoadPlaythrough));
 assert.ok(secondRelicRoadPlaythrough.objectives.filter(objective => !objective.title.startsWith('Optional:')).every(objective => objective.complete&&objective.predicate),
  'Both real relics must reach a live friendly Monastery; the forward Outpost remains an optional tactical choice: '+JSON.stringify(secondRelicRoadPlaythrough));
-assert.ok(secondRelicRoadPlaythrough.enemyRaidsFired>=3,
- 'The 0:15 warning and both genuine early Monk-hunting patrols must run before victory: '+JSON.stringify(secondRelicRoadPlaythrough));
+assert.equal(secondRelicRoadPlaythrough.reliquaryOpeningPatrols,2,
+ 'Two genuine enemy scouts must patrol the relic approaches from the moment this campaign begins');
+const earlyEvents=1+Number(secondRelicRoadPlaythrough.campaignTime>=55)+Number(secondRelicRoadPlaythrough.campaignTime>=130);
+assert.ok(secondRelicRoadPlaythrough.enemyRaidsFired>=earlyEvents,
+ 'All scripted warning and Monk-hunting patrol events reached before a real victory must execute; an early victory does not need later waves: '+JSON.stringify(secondRelicRoadPlaythrough));
 console.log('campaign-scripted-playthrough: the second Relic Road won through real monastery construction and monk relic behaviour in '+secondRelicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
 if (shouldRunCampaignMission(12)) {
