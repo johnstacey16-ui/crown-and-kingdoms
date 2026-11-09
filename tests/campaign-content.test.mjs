@@ -132,8 +132,8 @@ test('King’s Road starts with a genuine stone shortfall, not two free Towers',
  assert.equal(actual.towerStone,100,'real tower price is charged per building');
  assert.ok(actual.stone<2*actual.towerStone,'the second tower must be funded by mining/trading');
  assert.equal(actual.towers,0,'the mission does not grant pre-built towers');
- assert.deepEqual(Array.from(actual.goals),['roadmarket','roadtowers','roadtime']);
- assert.equal(actual.raids,3,'all three enemy attack events remain unchanged');
+ assert.deepEqual(Array.from(actual.goals),['roadmarket','roadtowers','roadtime','roadsupply']);
+ assert.equal(actual.raids,4,'three original raids remain alongside the paid roadworks contract');
 });
 
 test('Northern Watch retains three real raids and requires living ranged defenders',()=>{

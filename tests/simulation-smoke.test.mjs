@@ -162,9 +162,9 @@ globalThis.__CK_TEST__ = {
       // Feudal Frontier and King's Road both require more stone than their
       // starting supply. Use real villager mining instead of granting resources
       // or silently allowing an unfunded defensive Tower.
-      const neededStone=index===2?200:index===10&&
-        S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.hp>0).length<2
-          ?B.tower.cost.s:0;
+      const neededStone=index===2?200:index===10
+        ?(S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.hp>0).length<2
+          ?B.tower.cost.s:cmp.d.roadsupply?0:75):0;
       if(neededStone>0&&S.res[0].s<neededStone&&
          !S.us.some(u=>u.t===0&&u.k==='vil'&&u.hp>0&&u.o==='g'&&u.ct==='s')){
         const worker=S.us.find(u=>u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&u.o!=='b'&&u.ct!=='w'&&u.car===0);

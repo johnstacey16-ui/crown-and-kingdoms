@@ -372,6 +372,23 @@ function campaignRoadCaravan(){
  if(moving)note('Redwater merchants are crossing the contested road. Escort at least one living Trade Cart to your Market before the last raid.');
  return moving;
 }
+// King's Road is an economic supply operation, unlike Redwater's escort.
+// A completed Market and two real Towers must exist before a royal
+// quartermaster accepts the wood and stone reserved for road repairs.
+// The delivery permanently spends actual player resources; the paid-for
+// expedition earns real, mortal Guards rather than an instant win.
+function campaignKingsRoadSupply(){
+ const market=S.bs.find(b=>b&&b.t===0&&b.k==='market'&&b.done&&b.hp>0);
+ const price={w:150,s:75};
+ if(!market||cb('tower')<2||S.over||!can(0,price))return 0;
+ pay(0,price);
+ const old=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const guards=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!old.has(u.netId));
+ for(const u of guards){u.o='G';u.tg=market;u.guardTarget=null;u.p=[];u.rp=0}
+ note('The royal roadworks have received 150 wood and 75 stone at your Market! Four royal guards arrive to protect the supply post. Keep your Town Centre safe until 8:00.');
+ return guards.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -414,10 +431,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);put(1,'tower',e.x-4,e.y+11);grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
  goals:[{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
  ev:[{at:90,do:()=>note('Greywatch is reinforced. Keep your siege units behind the front line.')},{at:240,do:()=>raid(5,['knight','arc','spear','knight','arc'],'Enemy reinforcements are striking your economy.')}]},
-{t:'The King’s Road',b:'A vital trade route is under threat. Establish a market, raise two defensive towers and hold the road for eight minutes while enemy raiders test your defences. Your initial stone only covers one Tower: mine more stone or trade at the Market for the second.',civ:3,en:2,mt:0,msz:1,seed:911,diff:1,aip:4,vm:0,
+{t:'The King’s Road',b:'The northern royal road needs supplies, not just walls. Establish a Market and raise two Towers; your starting stone only covers the first Tower, so mine or trade for more. After five minutes the Market quartermaster will collect 150 wood and 75 stone for repairs once the towers stand. Fund that real supply contract, then hold the road until 8:00.',civ:3,en:2,mt:0,msz:1,seed:911,diff:1,aip:4,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
- goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480}],
- ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')}]},
+ goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
+ ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')},{at:300,when:()=>cb('market')>=1&&cb('tower')>=2&&can(0,{w:150,s:75}),do:()=>campaignKingsRoadSupply()}]},
 {t:'The Reliquary Trail',b:'Two sacred relics lie between the rival kingdoms. Build a monastery, train monks and bring both relics home. Protect the monks: the enemy patrols the central road.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);for(let i=0;i<2;i++){let x=(W/2|0)+(i?3:-3),y=(H/2|0)+(i?2:-2);for(let r=0;r<16&&(x<2||y<2||x>=W-2||y>=H-2||S.g[y*W+x]||S.wt[y*W+x]);r++){x=(W/2|0)+(i?3:-3)+r%4;y=(H/2|0)+(i?2:-2)+((r/4)|0)}if(x>1&&y>1&&x<W-1&&y<H-1&&!S.wt[y*W+x])S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null})}const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
  goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2}],

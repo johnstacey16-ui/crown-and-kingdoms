@@ -61,3 +61,10 @@ jobs:
           CK_MISSION: '7'
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
+      # One-off 30Hz real economic mission run, not included in ordinary pushes.
+      - name: Verify King's Road paid-supply defence (explicit commit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-kings-road]')
+        env:
+          CK_MISSION: '10'
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs

@@ -477,3 +477,43 @@ test('The Crown crossing has a fair staged army without overlapping autonomous s
  assert.deepEqual(JSON.parse(c("JSON.stringify(CAMP[17].ev.filter(e=>[110,260,440].includes(e.at)).map(e=>e.at))")),[110,260,440]);
  assert.equal(c('S.over'),null);
 });
+
+test('King’s Road requires genuine funds and a completed Market with two live Towers for roadwork delivery',()=>{
+ const c=mission(10);
+ const event=c("CAMP[10].ev.findIndex(e=>e.do.toString().includes('campaignKingsRoadSupply'))");
+ assert.ok(event>=0);
+ assert.equal(c("CAMP[10].goals.find(g=>g.id==='roadsupply').optional"),undefined);
+ c('cmpTick(300)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'timer alone cannot pay the supply contract');
+ c("globalThis.market=put(0,'market',tcOf(0).x+8,tcOf(0).y+4)");
+ assert.ok(c('!!market'));
+ c('cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'the Market alone cannot replace two completed Towers');
+ c("globalThis.t1=put(0,'tower',tcOf(0).x+12,tcOf(0).y+5);globalThis.t2=put(0,'tower',tcOf(0).x+12,tcOf(0).y-6)");
+ assert.ok(c('!!t1&&!!t2'));
+ assert.equal(c("cb('tower')"),2);
+ c('S.res[0].w=149;S.res[0].s=75;cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'insufficient wood cannot be delivered');
+ c('S.res[0].w=150;S.res[0].s=74;cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),false,'insufficient stone cannot be delivered');
+ const original=c("JSON.stringify({w:S.res[0].w,s:S.res[0].s,g:S.res[0].g,pl:S.pl.tr,units:S.us.length})");
+ c('S.res[0].s=75;cmpTick(1)');
+ assert.equal(c('!!cmp.e['+event+']'),true,'actual Market and resource stock unlock a one-time collection');
+ assert.equal(c('S.res[0].w'),0,'roadworks consumes exactly 150 player wood');
+ assert.equal(c('S.res[0].s'),0,'roadworks consumes exactly 75 player stone');
+ const before=JSON.parse(original);
+ assert.equal(c('S.res[0].g'),before.g,'roadworks cannot fabricate or spend unrelated resources');
+ assert.equal(c('S.pl.tr'),before.pl,'earned soldiers are not mislabeled as paid player training');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===market&&['spear','skirm'].includes(u.k)).length"),4,
+ 'four normal defensive soldiers guard the actual Market, not an invented victory flag');
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('!!cmp.d.roadsupply'),true,'payment records the irreversible supply milestone');
+ assert.equal(c('S.over'),null,'the defence still requires 8:00 and real Towers');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(2)');
+ assert.equal(c('!!cmp.d.roadsupply'),true,'save/load restores the paid contract');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&['spear','skirm'].includes(u.k)).length"),4,
+ 'royal road guards cannot duplicate when the event is restored');
+ assert.equal(c('S.res[0].w'),0,'saved supply is never charged a second time');
+});
