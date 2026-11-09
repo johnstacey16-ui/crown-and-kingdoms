@@ -36,7 +36,7 @@ globalThis.__CK_TEST__ = {
   playCampaignScenario(index = 0, maxSeconds = 240) {
     this.startCampaign(index);
     const causewayRecon={waypoint:0,orders:0};
-    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 || index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { fire: 2, gal: 4, ram: 2, spear: 8, skirm: 5 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 8, soldiers: 0, ages: 3, units: { bomb: 2, ram: 2, knight: 5, xbow: 8, spear: 6 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { gal: 3, ram: 3, spear: 8, skirm: 5 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 3, units: { treb: 3, bomb: 2, knight: 8, xbow: 12, spear: 10 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
+    const plan = index === 0 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'lumber', count: 1 }, { kind: 'bar', count: 1 }], villagers: 10, soldiers: 4, ages: 1 } : index === 1 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 8, ages: 1 } : index === 2 ? { buildings: [{ kind: 'lumber', count: 1 }, { kind: 'mill', count: 1 }, { kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }], villagers: 0, soldiers: 4, ages: 2 } : index === 3 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2 } : index === 11 ? { buildings: [{ kind: 'monastery', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { mon: 2 } } : index === 4 ? { buildings: [], villagers: 0, soldiers: 0, ages: 2, units: { ram: 1 }, attack: true } : index === 8 ? { buildings: [{ kind: 'house', count: 4 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 8 }, attack: true } : index === 9 ? { buildings: [{ kind: 'house', count: 5 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 2, units: { ram: 4, xbow: 10, knight: 5 }, attack: true } : index === 5 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'house', count: 4 }], villagers: 10, soldiers: 0, ages: 2, units: { ram: 3, spear: 8, skirm: 6 }, attack: true } : index === 6 ? { buildings: [{ kind: 'house', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'tower', count: 1 }, { kind: 'house', count: 3 }], villagers: 8, soldiers: 0, ages: 1, units: { spear: 6, skirm: 10 } } : index === 7 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 12 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { fire: 2, gal: 4, ram: 2, spear: 8, skirm: 5 }, attack: true } : index === 10 ? { buildings: [{ kind: 'market', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }], villagers: 0, soldiers: 4, ages: 1 } : index === 13 ? { buildings: [{ kind: 'monastery', count: 1 }, { kind: 'siege', count: 1 }], villagers: 0, soldiers: 0, ages: 2, units: { ram: 2, gal: 3 }, attack: true } : index === 14 ? { buildings: [{ kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 8, soldiers: 0, ages: 3, units: { bomb: 2, ram: 2, knight: 5, xbow: 8, spear: 6 }, attack: true } : index === 15 ? { buildings: [{ kind: 'tower', count: 2 }, { kind: 'wall', count: 6 }], villagers: 0, soldiers: 0, ages: 2 } : index === 16 ? { buildings: [{ kind: 'dock', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'bar', count: 1 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }], villagers: 10, soldiers: 0, ages: 2, units: { gal: 3, ram: 3, spear: 8, skirm: 5 }, attack: true } : index === 17 ? { buildings: [{ kind: 'castle', count: 2 }, { kind: 'siege', count: 1 }, { kind: 'rng', count: 1 }, { kind: 'stable', count: 1 }], villagers: 12, soldiers: 0, ages: 3, units: { treb: 3, bomb: 2, knight: 8, xbow: 12, spear: 10 }, attack: true } : index === 18 ? { buildings: [{ kind: 'house', count: 3 }, { kind: 'bar', count: 1 }, { kind: 'tower', count: 2 }, { kind: 'house', count: 4 }], villagers: 0, soldiers: 24, ages: 1 } : null;
     if (!plan) throw new Error('No scripted-player plan exists for campaign mission ' + (index + 1));
     const tc = S.bs.find(building => building.t === 0 && building.k === 'tc' && building.done && building.hp > 0);
     if (!tc) throw new Error('Campaign bot requires a live Town Centre');
@@ -134,6 +134,16 @@ globalThis.__CK_TEST__ = {
         const monks = S.us.filter(unit => unit && unit.t === 0 && unit.k === 'mon' && unit.hp > 0 && !unit.ld);
         const reserved = new Set(monks.filter(unit => unit.o === 'r' && unit.tg && !unit.rel && !unit.tg.c && !unit.tg.m).map(unit => unit.tg));
         for (const monk of monks) {
+          // The shore scouts kill unescorted Monks before the slower soldiers
+          // can arrive. Keep them at their real Monastery while a real advance
+          // guard clears the two shrine patrols; then collect the relics.
+          if(index===11&&aliveUnits(1,'scout').some(u=>u.campaignPatrol==='reliquary')){
+            const sanctuary=S.bs.find(b=>b&&b.t===0&&b.k==='monastery'&&b.done&&b.hp>0);
+            if(sanctuary&&(monk.o!=='G'||monk.tg!==sanctuary)){
+              monk.o='G';monk.tg=sanctuary;monk.p=[];monk.rp=0;
+            }
+            continue;
+          }
           if (monk.rel) {
             const home = S.bs.find(b => b.t === 0 && b.k === 'monastery' && b.done && b.hp > 0);
             if (home && monk.o !== 'r') {
@@ -153,12 +163,24 @@ globalThis.__CK_TEST__ = {
       if(index===11){
         const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
         const soldiers=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['mil','arc'].includes(u.k));
+        const sentries=aliveUnits(1,'scout').filter(u=>u.campaignPatrol==='reliquary');
         soldiers.forEach((u,i)=>{
+          if(sentries.length){
+            // Clear both genuine enemy scouts with ordinary attack orders
+            // before exposing vulnerable Monks to a faster cavalry target.
+            const target=sentries[i%sentries.length];
+            if(u.o!=='a'||u.tg!==target){
+              u.o='a';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0;
+            }
+            return;
+          }
           const monk=monks.length?monks[i%monks.length]:null;
-          if(!monk||u.o==='G'&&u.tg===monk)return;
-          // Let an escort finish an immediate fight before resuming its guard.
+          // Keep two living soldiers guarding the capital while the rest
+          // accompany the relic column; enemy raids still use real combat.
+          const protect=i<2?tc:monk||tc;
+          if(u.o==='G'&&u.tg===protect)return;
           if(u.o==='a'&&u.tg?.t===1&&u.tg.hp>0&&Math.hypot(u.x-u.tg.x,u.y-u.tg.y)<5)return;
-          u.o='G';u.tg=monk;u.guardTarget=null;u.p=[];u.rp=0;
+          u.o='G';u.tg=protect;u.guardTarget=null;u.p=[];u.rp=0;
         });
       }
       const barracks = S.bs.find(building => building.t === 0 && building.k === 'bar' && building.done && building.hp > 0);
