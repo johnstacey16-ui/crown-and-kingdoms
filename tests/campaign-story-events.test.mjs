@@ -72,6 +72,26 @@ test('Redwater fails if both convoy merchants die before delivery and allows a r
  assert.equal(c('S.over'),'lose','the mission fails when both authentic carts perish');
  assert.equal(c("S.reason||''"),'','the loss is reached through normal endGame, not a fabricated delivery');
 });
+
+test('Redwater delivery requires an authentic living cart at the Market and persists its successful milestone',()=>{
+ const c=mission(7);
+ c('cmpTick(405)');
+ c("globalThis.market=put(0,'market',tcOf(0).x+6,tcOf(0).y+4)");
+ assert.ok(c('!!market'));
+ c('cmpTick(1)');
+ assert.equal(c("campaignRedwaterCartArrived()"),false);
+ c("globalThis.merchant=S.us.find(u=>u&&u.campaignConvoy==='redwater'&&u.hp>0);merchant.x=market.x+market.s+1;merchant.y=market.y+1;merchant.o='i';merchant.p=[]");
+ assert.equal(c("campaignRedwaterCartArrived()"),true,'only a real alive campaign cart physically beside the Market counts');
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('!!cmp.d.caravan'),true,'delivery records a one-time objective milestone');
+ assert.equal(c('!!S.over'),false,'cart delivery alone is not victory: towers and timed defence remain mandatory');
+ c("S.us.filter(u=>u.campaignConvoy==='redwater').forEach(u=>u.hp=0)");
+ c('cmpTick(1)');
+ assert.equal(c('S.over'),null,'a merchant delivered alive before death earns the completed convoy objective');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('!!cmp.d.caravan'),true,'successful delivery persists in the saved campaign');
+});
 test('Strait mission creates a real enemy monastery with an enemy-owned relic',()=>{
  const c=mission(13);
  assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='monastery'&&b.hp>0&&b.done).length"),1);
