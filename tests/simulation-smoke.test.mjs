@@ -1621,6 +1621,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===16?{coastalRecon:result.coastalRecon,causewayProgress:result.causewayProgress}:{}),
     ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards,crownRecorded:result.crownRecorded,crownEnemyCapitalAlive:result.crownEnemyCapitalAlive}:{}),
     ...(index===2?{frontierProgress:result.frontierProgress}:{}),
+    ...(index===8?{ashford:result.ashford}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
@@ -2116,6 +2117,18 @@ assert.ok(northernWatchPlaythrough.townCentreHp>0,'the original Town Centre must
 assert.equal(northernWatchPlaythrough.enemyRaidsFired,3,'all three Northern Watch scripted raids must run');
 assert.ok(northernWatchPlaythrough.buildings.includes('bar')&&northernWatchPlaythrough.buildings.includes('rng'),'Barracks and Range must be constructed through normal orders');
 console.log('campaign-scripted-playthrough: The Northern Watch '+(northernWatchPlaythrough.over === 'win' ? 'won' : northernWatchPlaythrough.over === 'lose' ? 'ended in defeat; simple-bot winnability remains unverified' : 'timed out; simple-bot winnability remains unverified')+' after '+northernWatchPlaythrough.campaignTime.toFixed(1)+' simulated seconds; objectives='+northernWatchPlaythrough.objectives.filter(objective => objective.complete).length+'/'+northernWatchPlaythrough.objectives.length+'; diagnostics='+JSON.stringify({objectives:northernWatchPlaythrough.objectives,reason:northernWatchPlaythrough.reason,ranged:northernWatchPlaythrough.rangedUnits,peakRanged:northernWatchPlaythrough.peakRanged,peakVillagers:northernWatchPlaythrough.peakVillagers,queuedArchers:northernWatchPlaythrough.queuedArchers,population:northernWatchPlaythrough.population,capacity:northernWatchPlaythrough.populationCapacity,houses:northernWatchPlaythrough.houses,buildings:northernWatchPlaythrough.buildings,unfinished:northernWatchPlaythrough.unfinished,resources:northernWatchPlaythrough.resources,workers:northernWatchPlaythrough.workerOrders}));
+}
+if (shouldRunCampaignMission(8)) {
+const ashfordPlaythrough=playCampaignScenarioTimed(8,1500);
+assert.equal(ashfordPlaythrough.over,'win',
+ 'A real player siege must destroy both Ashford Castle and the rival Town Centre, not win by a fake victory trigger: '+JSON.stringify({time:ashfordPlaythrough.campaignTime,reason:ashfordPlaythrough.reason,ashford:ashfordPlaythrough.ashford}));
+assert.equal(ashfordPlaythrough.ashford?.enemyCastleAlive,false,
+ 'A Castle that survived the capital battle is not an acceptable Ashford victory');
+assert.equal(ashfordPlaythrough.ashford?.enemyTownAlive,false,
+ 'The rival capital must also be destroyed through real combat');
+assert.ok(ashfordPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+ 'Every mandatory Ashford objective must complete through live simulation: '+JSON.stringify(ashfordPlaythrough.objectives));
+console.log('campaign-scripted-playthrough: Ashford Castle and rival capital fell to real troops after '+ashfordPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
 if (shouldRunCampaignMission(7)) {
 const redwaterPlaythrough = playCampaignScenarioTimed(7, 600);
