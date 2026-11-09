@@ -10,6 +10,13 @@ d[i*4]=c[0]*f;d[i*4+1]=c[1]*f;d[i*4+2]=c[2]*f;d[i*4+3]=255}mmx.putImageData(mmd,
 /* Minimap coordinate transforms, filters and overlays. */
 
 const w2m=(r,x,y)=>[r.x+r.w/2+(x/W-y/H)*r.w/2,r.y+(x/W+y/H)*r.h/2];
+// Only a press inside the visible diamond can navigate the small minimap.
+// The surrounding HUD (including the rectangle's transparent corners) is
+// ordinary gameplay space; it must not teleport the camera.
+function minimapContains(r,x,y){
+ if(!r||![r.x,r.y,r.w,r.h,x,y].every(Number.isFinite)||r.w<=0||r.h<=0)return false;
+ return Math.abs(x-(r.x+r.w/2))/(r.w/2)+Math.abs(y-(r.y+r.h/2))/(r.h/2)<=1;
+}
 const m2w=(r,px,py)=>{const a=(px-r.x-r.w/2)/(r.w/2),b=(py-r.y)/(r.h/2);return[cl((a+b)/2,0,1)*W,cl((b-a)/2,0,1)*H]};
 const ECOB=['tc','house','lumber','mine','mill','market','dock','farm'],mmOk=(k,isB)=>mmM===0||(mmM===1?(isB?ECOB.includes(k):(k==='vil'||k==='fish')):(isB?!ECOB.includes(k):(k!=='vil'&&k!=='fish')));
 function minimapDraw(r,big){X.save();X.fillStyle='#000';dia(r.x+r.w/2,r.y+r.h/2,r.w/2+4,r.h/2+4);X.fill();X.imageSmoothingEnabled=false;X.setTransform(DPR*r.w/2/W,DPR*r.h/2/W,-DPR*r.w/2/H,DPR*r.h/2/H,DPR*(r.x+r.w/2),DPR*r.y);if(mmF<2){X.globalAlpha=mmF?.5:1;X.drawImage(mmc,0,0);X.globalAlpha=1}X.setTransform(DPR,0,0,DPR,0,0);

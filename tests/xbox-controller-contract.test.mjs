@@ -73,7 +73,7 @@ test('Xbox A, LT+A, box and quick-category handlers have one input owner',()=>{
   assert.ok(!selectionInput.includes('function '+fn+'('),fn+' has one owner');
   assert.ok(!selectionEngine.includes('function '+fn+'('),fn+' is not duplicated in engine');
  }
- assert.match(selectionInput,/if\(E\[0\]\)\{if\(cur\.x>=mm\.x/);
+ assert.match(selectionInput,/if\(E\[0\]\)\{if\(minimapContains\(mm,cur\.x,cur\.y\)\)/);
  assert.match(selectionInput,/boxSel\(boxR,lt\)/);
  assert.match(selectionInput,/tapA\(aw\[0\],aw\[1\],lt\)/);
  assert.match(selectionInput,/qsel\('idle'\)/);
@@ -98,6 +98,39 @@ function fixture() {
   return sandbox;
 }
 const button=i=>Object.assign([],{[i]:true});
+
+test('small minimap A hits only its visible diamond, leaving surrounding clicks as normal selection',()=>{
+ const c=fixture();
+ vm.runInContext(`
+  globalThis.minimapFocuses=[];globalThis.worldTaps=[];
+  ctr=(x,y)=>{minimapFocuses.push([x,y]);};
+  tapA=(x,y,lt)=>{worldTaps.push([x,y,lt]);};
+  cur={x:mm.x+mm.w/2,y:mm.y+mm.h/2};
+ `,c);
+ c.run(button(0),button(0));c.run([],[],button(0));
+ assert.equal(c.minimapFocuses.length,1,'centre of diamond should navigate once');
+ assert.equal(c.worldTaps.length,0,'minimap must not dispatch a world A order');
+ assert.equal(c.state().gesture,false);
+
+ // Both the diamond's transparent rectangle corner and a point past its
+ // right boundary previously jumped the camera due to one-sided bounds.
+ for(const expression of [
+  'cur={x:mm.x+10,y:mm.y+5}',
+  'cur={x:mm.x+mm.w+5,y:mm.y+mm.h/2}'
+ ]){
+  vm.runInContext(expression,c);
+  c.run(button(0),button(0));
+  assert.equal(c.state().gesture,true,'outside click should start normal A selection');
+  c.run([],[],button(0));
+ }
+ assert.equal(c.minimapFocuses.length,1,'outside points must not move the camera');
+ assert.equal(c.worldTaps.length,2,'outside points follow the usual A tap flow');
+ assert.equal(c.state().gesture,false,'release clears the selection gesture');
+
+ assert.equal(vm.runInContext('minimapContains(mm,NaN,mm.y)',c),false);
+ assert.equal(vm.runInContext('minimapContains(mm,mm.x,mm.y)',c),false);
+});
+
 
 function cameraFixture(){
   const {source,sandbox}=headlessGame();vm.createContext(sandbox);

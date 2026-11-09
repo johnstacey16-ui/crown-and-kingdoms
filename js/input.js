@@ -72,7 +72,7 @@ if(E[3]){yc=0;yDown=true}if(yDown&&P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){co
 // LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
 // The dedicated R3 villager priorities wheel handles those bindings above.
 if(!lt&&!P[7]&&!P[4]&&!P[py]){if(E[12])qsel('idle');if(E[15])qsel('support');if(E[13])qsel('tc');if(E[14])qsel('mil')}
-if(E[0]){if(cur.x>=mm.x&&cur.y>=mm.y){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y,wx,wy}}
+if(E[0]){if(minimapContains(mm,cur.x,cur.y)){const mw=m2w(mm,cur.x,cur.y);ctr(mw[0],mw[1])}else aDown={x:cur.x,y:cur.y,wx,wy}}
 if(aDown&&P[pa]&&Math.hypot(cur.x-aDown.x,cur.y-aDown.y)>14)boxR={x0:aDown.x,y0:aDown.y,x1:cur.x,y1:cur.y};
 if(aDown&&RE[pa]){if(boxR){boxSel(boxR,lt);boxR=null}else{const aw=s2w(aDown.x,aDown.y);tapA(aw[0],aw[1],lt)}aDown=null}
 // X's contextual actions and R3's priorities wheel require their own Xbox
