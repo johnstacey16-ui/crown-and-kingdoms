@@ -2110,6 +2110,18 @@ for (const [index, label, limit] of [
     assert.ok(result.productionPeak.treb>=3,'paid Castle production must reinforce the two royal Trebuchets');
     assert.ok(result.townCentreHp>0,'the player capital must survive the crossing campaign');
   }
+  if(index===2){
+    assert.equal(result.over,'win','The Feudal Frontier must reach Castle Age despite its staged border patrols');
+    assert.ok(result.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+      'Feudal, two real Towers, Market and Castle Age remain the mandatory victory requirements');
+    assert.ok(result.frontierProgress.some(p=>p.events.some(e=>e.i===3)),
+      'the first frontier raiders must react to the completed player Tower in the real campaign');
+    assert.ok(result.frontierProgress.some(p=>p.events.some(e=>e.i===4)),
+      'the later Market-road patrol must engage the actual two-Tower defensive position');
+    assert.ok(result.frontierProgress.some(p=>p.workers.filter(u=>u.ct==='f').length>=3),
+      'the scripted economy must restore food gathering instead of indefinitely mining stone and wood');
+    assert.ok(result.townCentreHp>0,'the real Ashford Town Centre must survive all three attacks');
+  }
   if(index===7){
     assert.equal(result.over,'win','Redwater now requires a genuine merchant-escort victory, not just a Market, towers and timer');
     assert.ok(result.objectives.every(o=>o.complete),
