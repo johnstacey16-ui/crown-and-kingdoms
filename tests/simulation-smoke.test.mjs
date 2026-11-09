@@ -2115,7 +2115,10 @@ if (shouldRunCampaignMission(6)) {
 const northernWatchPlaythrough = playCampaignScenarioTimed(6, 700);
 assert.equal(northernWatchPlaythrough.trainingGate, null, 'The Northern Watch must permit its ranged-unit objective at the mission start age: '+JSON.stringify(northernWatchPlaythrough));
 assert.equal(northernWatchPlaythrough.over,'win','Northern Watch must win by building a Tower, training six live ranged soldiers and holding until ten minutes: '+JSON.stringify(northernWatchPlaythrough));
-assert.equal(northernWatchPlaythrough.objectives.filter(o=>o.complete).length,3,'Northern Watch must complete all three real victory objectives');
+assert.ok(northernWatchPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).every(o=>o.complete&&o.predicate),
+ 'Northern Watch must keep the Tower and six ranged troops alive through the actual 10:00 hold');
+assert.equal(northernWatchPlaythrough.objectives.filter(o=>!o.title.startsWith('Optional:')).length,3,'all three original objectives remain mandatory');
+assert.ok(northernWatchPlaythrough.objectives.some(o=>o.title.startsWith('Optional:')),'the pine-line beacon remains a player choice');
 assert.ok(northernWatchPlaythrough.rangedUnits>=6,'six living ranged soldiers are required by the actual mission predicate');
 assert.ok(northernWatchPlaythrough.townCentreHp>0,'the original Town Centre must survive the Northern Watch hold');
 assert.equal(northernWatchPlaythrough.enemyRaidsFired,3,'all three Northern Watch scripted raids must run');

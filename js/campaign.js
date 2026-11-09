@@ -603,6 +603,41 @@ function campaignBlackwoodBridgeRelief(){
  if(troops.length)note('The Blackwood bridgehead is secured! Six royal defenders guard the forward Tower against the coming siege.');
  return troops.length;
 }
+// Northern Watch: the first snow-line beacon must be an actual completed
+// forward Tower, not a counter that can be satisfied by a building at home.
+// Garrison a small ranged detachment around it to draw royal assistance.
+function campaignNorthernBeaconTower(){
+ if(cmp?.i!==6||!S?.bs)return null;
+ const home=tcOf(0),enemy=tcOf(1);
+ if(!home||!enemy)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=enemy.x+enemy.s*.5-hx,dy=enemy.y+enemy.s*.5-hy,dist=Math.hypot(dx,dy);
+ if(dist<24)return null;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='tower'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5-hx,y=b.y+b.s*.5-hy;
+  const forward=(x*dx+y*dy)/dist,off=Math.abs(x*dy-y*dx)/dist;
+  return forward>=10&&forward<=Math.min(36,dist*.58)&&off<=15;
+ })||null;
+}
+function campaignNorthernBeaconReady(){
+ const tower=campaignNorthernBeaconTower();
+ if(!tower)return false;
+ const x=tower.x+tower.s*.5,y=tower.y+tower.s*.5;
+ return aliveUnits(0).filter(u=>!u.ld&&U[u.k]?.rng>=4&&!U[u.k].sh&&
+  !['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)&&
+  Math.hypot(u.x-x,u.y-y)<=9).length>=3;
+}
+function campaignNorthernBeaconRelief(){
+ const tower=campaignNorthernBeaconTower();
+ if(!tower||S.over||!campaignNorthernBeaconReady())return 0;
+ const prior=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',2);grp(0,'skirm',2);
+ const relief=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!prior.has(u.netId));
+ for(const u of relief){u.o='G';u.tg=tower;u.guardTarget=null;u.p=[];u.rp=0}
+ if(relief.length)note('The pine-line beacon is defended! Four royal soldiers join the Watch Tower. Hold the position while raiders strike from the forest.');
+ return relief.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -629,10 +664,10 @@ const CAMP=[
  goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)}],
  ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')}]}
 ,
-{t:'The Northern Watch',b:'The first snows have arrived, and raiders are gathering beyond the pine forests. Build a Watch Tower, protect it with Spearmen and ranged troops, and hold your settlement until the raiding season passes. Build Houses to support your army: a Barracks unlocks the Archery Range, and Skirmishers can defend without spending gold.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
+{t:'The Northern Watch',b:'Snow has closed the northern roads. Keep a real Watch Tower standing and six living ranged defenders in service until the ten-minute relief signal; rebuilding destroyed defenses matters. Build Houses for your army and a Barracks before an Archery Range. Optional: place a second Tower along the forward pine line and station three ranged troops nearby to light the beacon and summon four royal defenders. Expect later raids to strike that forward position.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:600,w:600,g:250,s:150}},
- goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>aliveUnits(0).filter(u=>U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
- ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching!')},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!')}]},
+ goals:[{id:'t',t:'Keep a completed Watch Tower standing',sustained:true,ok:()=>cb('tower')>=1},{id:'a',t:'Keep 6 ranged soldiers alive',sustained:true,ok:()=>aliveUnits(0).filter(u=>U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600},{id:'beacon',t:'Optional: Secure the pine-line Tower with 3 nearby ranged troops',optional:true,ok:()=>campaignNorthernBeaconReady()}],
+ ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching the northern Watch Tower!',campaignNorthernBeaconTower())},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!',campaignNorthernBeaconTower())},{when:()=>cmp.d.beacon===1,do:()=>campaignNorthernBeaconRelief()}]},
 {t:'Crossing at Redwater',b:'The Redwater trade road is under attack. Build a Market and two Towers, defend the crossing through eight minutes, and escort at least one merchant cart from the far checkpoint into your Market. If both merchants fall, the road is lost.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
  goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480},{id:'caravan',t:'Escort a Redwater Trade Cart safely into your Market',ok:()=>campaignRedwaterCartArrived()}],

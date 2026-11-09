@@ -268,6 +268,118 @@ test('Blackwood loses maintained fortification credit when real defenses fall an
  assert.equal(c('S.over'),'win','rebuilding the actual surviving fortifications after eight minutes finally earns victory');
 });
 
+test('Northern Watch forward beacon requires a real forward Tower and three live nearby ranged defenders',()=>{
+ const c=mission(6);
+ assert.equal(c('campaignNorthernBeaconTower()'),null,'a starting settlement has no invented forward beacon');
+ assert.equal(c('campaignNorthernBeaconReady()'),false);
+ c('S.ex.fill(1)');
+ const loc=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),e=tcOf(1),hx=h.x+h.s*.5,hy=h.y+h.s*.5;
+  const dx=e.x+e.s*.5-hx,dy=e.y+e.s*.5-hy,len=Math.hypot(dx,dy);
+  const vil=aliveUnits(0,'vil')[0];
+  for(let f=14;f<=30;f+=2)for(let offset of [0,3,-3,6,-6,9,-9,12,-12]){
+   const x=Math.round(hx+dx/len*f-dy/len*offset),y=Math.round(hy+dy/len*f+dx/len*offset);
+   if(x<2||y<2||x>=W-B.tower.s-2||y>=H-B.tower.s-2)continue;
+   if(okPlace(0,'tower',x,y)&&path(vil,goalNear({x,y,s:B.tower.s},1)))return [x,y];
+  }
+  return null;
+ })())`));
+ assert.ok(loc,'the seeded frozen forest must allow a legal, accessible forward Watch Tower');
+ assert.ok(c(`!!addB(0,'tower',${loc[0]},${loc[1]},true)`),'an actual friendly Tower is constructed');
+ assert.equal(c('campaignNorthernBeaconReady()'),false,'the Tower alone does not light the signal');
+ const towerId=c('campaignNorthernBeaconTower()?.netId');
+ assert.ok(towerId,'the Tower occupies the real pine-line approach');
+ const units=JSON.parse(c(`JSON.stringify((()=>{
+  const tower=campaignNorthernBeaconTower(),out=[];
+  for(let radius=4;radius<=8&&out.length<3;radius++)
+   for(let y=Math.floor(tower.y)-radius;y<=Math.ceil(tower.y+tower.s+radius)&&out.length<3;y++)
+    for(let x=Math.floor(tower.x)-radius;x<=Math.ceil(tower.x+tower.s+radius)&&out.length<3;x++){
+     if(x<2||y<2||x>=W-2||y>=H-2)continue;
+     if(Math.hypot(x+.5-(tower.x+tower.s*.5),y+.5-(tower.y+tower.s*.5))>8)continue;
+     const i=y*W+x;
+     if(S.wt[i]===1||S.g[i]||S.nd[i]||S.us.some(u=>u&&u.hp>0&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.5))continue;
+     const u=addU(0,'skirm',x+.5,y+.5);
+     if(u)out.push(u.netId);
+    }
+  return out;
+ })())`));
+ assert.equal(units.length,3,'three ordinary living ranged troops can stand beside the Watch Tower');
+ assert.equal(c('campaignNorthernBeaconReady()'),true);
+ c('S.us.find(u=>u.netId==='+JSON.stringify(units[0])+').hp=0');
+ assert.equal(c('campaignNorthernBeaconReady()'),false,'a dead nearby defender never satisfies the beacon');
+ assert.equal(c('!!cmp.d.beacon'),false);
+});
+
+test('Northern Watch beacon earns a one-time physical royal defence without bypassing the timed mission',()=>{
+ const c=mission(6);
+ c('S.ex.fill(1)');
+ // Fixture builds the real Tower on a navigable forward road; its live
+ // Skirmishers are ordinary units and can die like a player-trained squad.
+ const coords=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),e=tcOf(1),hx=h.x+h.s*.5,hy=h.y+h.s*.5;
+  const dx=e.x+e.s*.5-hx,dy=e.y+e.s*.5-hy,len=Math.hypot(dx,dy),vil=aliveUnits(0,'vil')[0];
+  for(let f=14;f<=30;f+=2)for(let off of [0,3,-3,6,-6,9,-9,12,-12]){
+   const x=Math.round(hx+dx/len*f-dy/len*off),y=Math.round(hy+dy/len*f+dx/len*off);
+   if(x>1&&y>1&&x<W-B.tower.s-2&&y<H-B.tower.s-2&&okPlace(0,'tower',x,y)&&path(vil,goalNear({x,y,s:B.tower.s},1)))return [x,y];
+  }
+  return null;
+ })())`));
+ assert.ok(coords,'an accessible Pine Tower site must exist');
+ c(`addB(0,'tower',${coords[0]},${coords[1]},true)`);
+ assert.equal(c('!!campaignNorthernBeaconTower()'),true);
+ const created=JSON.parse(c(`JSON.stringify((()=>{
+  const t=campaignNorthernBeaconTower(),a=[];
+  for(let r=4;r<=8&&a.length<3;r++)for(let y=t.y-r;y<=t.y+t.s+r&&a.length<3;y++)
+   for(let x=t.x-r;x<=t.x+t.s+r&&a.length<3;x++){
+    if(x<2||y<2||x>=W-2||y>=H-2)continue;
+    const i=y*W+x;
+    if(S.wt[i]===1||S.g[i]||S.nd[i]||Math.hypot(x+.5-(t.x+t.s*.5),y+.5-(t.y+t.s*.5))>8)continue;
+    if(S.us.some(u=>u&&u.hp>0&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.5))continue;
+    const u=addU(0,'skirm',x+.5,y+.5);if(u)a.push(u.netId);
+   }
+  return a;
+ })())`));
+ assert.equal(created.length,3);
+ assert.equal(c('campaignNorthernBeaconReady()'),true);
+ const count=c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length");
+ const resources=c('JSON.stringify(S.res[0])'),trained=c('S.pl.tr'),enemyHp=c('tcOf(1).hp');
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.beacon'),1,'the beacon goal recognizes the actually defended forward Tower');
+ c('cmpTick(1/30)');
+ const event=c("CAMP[6].ev.findIndex(e=>e.do.toString().includes('campaignNorthernBeaconRelief'))");
+ assert.equal(c('cmp.e['+event+']'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),count+4,'four real royal troops appear once');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg?.netId===campaignNorthernBeaconTower()?.netId).length"),4,'royal soldiers guard the real forward Tower');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'event does not fabricate resources');
+ assert.equal(c('S.pl.tr'),trained,'story arrivals are not falsely recorded as paid production');
+ assert.equal(c('tcOf(1).hp'),enemyHp,'optional assistance cannot damage enemy structures for free');
+ assert.equal(c('S.over'),null,'signal beacons never bypass the ten-minute hold');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),count+4,'a reload cannot duplicate royal relief');
+ c("campaignNorthernBeaconTower().hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('campaignNorthernBeaconReady()'),false,'destruction silences a forward beacon despite its previous reward');
+});
+
+test('Northern Watch standing Tower and ranged soldiers are rechecked after losses',()=>{
+ const c=mission(6);
+ c('S.ex.fill(1)');
+ const tower=JSON.parse(c(`JSON.stringify((()=>{
+  const tc=tcOf(0);return put(0,'tower',tc.x+5,tc.y-5)?.netId||null;
+ })())`));
+ assert.ok(tower);
+ c("grp(0,'skirm',6)");
+ assert.ok(c("CAMP[6].goals.find(g=>g.id==='a').ok()"),'six actual ranged soldiers qualify');
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.t'),1);
+ assert.equal(c('cmp.d.a'),1);
+ c("S.bs.find(b=>b.netId==="+JSON.stringify(tower)+").hp=0;aliveUnits(0,'skirm')[0].hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('!!cmp.d.t'),false,'destroyed Tower revokes maintained defense credit');
+ assert.equal(c('!!cmp.d.a'),false,'the dead sixth ranged soldier revokes maintained army credit');
+ c('cmp.k=14;cmpTick(600)');
+ assert.equal(c('S.over'),null,'surviving the clock alone cannot complete broken defenses');
+});
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));

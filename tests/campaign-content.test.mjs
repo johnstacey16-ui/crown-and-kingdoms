@@ -140,12 +140,15 @@ test('Northern Watch retains three real raids and requires living ranged defende
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
  vm.runInContext(source+'\nstartScenario(6)',sandbox);
- const state=vm.runInContext('({age:S.age[0],resources:{...S.res[0]},goals:CAMP[6].goals.map(g=>g.id),raids:CAMP[6].ev.length,towers:S.bs.filter(b=>b.t===0&&b.k==="tower"&&b.hp>0).length,rangeRequires:B.rng.req,skirmisherRange:U.skirm.rng,spearBonus:U.spear.bn.scout})',sandbox);
+ const state=vm.runInContext('({age:S.age[0],resources:{...S.res[0]},goals:CAMP[6].goals.map(g=>g.id),timedRaids:CAMP[6].ev.filter(e=>e.at!==undefined).length,events:CAMP[6].ev.length,sustained:CAMP[6].goals.filter(g=>g.sustained).map(g=>g.id),optional:CAMP[6].goals.filter(g=>g.optional).map(g=>g.id),towers:S.bs.filter(b=>b.t===0&&b.k==="tower"&&b.hp>0).length,rangeRequires:B.rng.req,skirmisherRange:U.skirm.rng,spearBonus:U.spear.bn.scout})',sandbox);
  assert.equal(state.age,1,'Feudal Age is the playable starting age');
  assert.deepEqual({...state.resources},{f:600,w:600,g:250,s:150},
   'the campaign starts with its original resources, not gifted troops or extra gold');
- assert.deepEqual(Array.from(state.goals),['t','a','s'],'all actual Tower, live ranged and hold goals remain');
- assert.equal(state.raids,3,'all three original attack waves remain scheduled');
+ assert.deepEqual(Array.from(state.goals),['t','a','s','beacon'],'all original victory objectives remain alongside the optional forward beacon');
+ assert.equal(state.timedRaids,3,'all three original attack waves remain scheduled');
+ assert.equal(state.events,4,'the only extra event is conditional one-time royal beacon relief');
+ assert.deepEqual(Array.from(state.sustained),['t','a'],'the Watch Tower and ranged garrison must survive to the final relief signal');
+ assert.deepEqual(Array.from(state.optional),['beacon'],'the forward beacon cannot hold victory hostage');
  assert.equal(state.towers,0,'players must pay and build their own Watch Tower');
  assert.equal(state.rangeRequires,'bar','a Barracks precedes a legal Archery Range');
  assert.ok(state.skirmisherRange>=4,'paid Skirmishers fulfil the real ranged-unit goal');
@@ -483,7 +486,7 @@ test('a completed one-time objective stays recorded when its wording starts with
 test('campaign milestones stay one-shot except explicit Blackwood living fortifications and existing sustained goals',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  vm.runInContext(source+';globalThis.liveGoals=CAMP.flatMap((sc,i)=>sc.goals.filter(g=>g.sustained===true).map(g=>[i,g.id]));',sandbox);
- assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[15,'tower'],[15,'wall'],[16,'fleet'],[18,'army']]);
+ assert.deepEqual(JSON.parse(JSON.stringify(sandbox.liveGoals)),[[0,'v'],[3,'r'],[6,'t'],[6,'a'],[11,'relics'],[12,'fleet'],[12,'army'],[13,'relics'],[15,'tower'],[15,'wall'],[16,'fleet'],[18,'army']]);
 });
 
 test('scripted construction resumes the same paid foundation after its builder is lost',()=>{
