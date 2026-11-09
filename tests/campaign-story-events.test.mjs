@@ -646,6 +646,27 @@ test('Kronburg flank Towers have genuine persistent identities and a timed pre-b
   'the Castle cannot respawn its reserve after loading');
 });
 
+test('Kronburg flanking objective cannot be forged by an unrelated rebuilt enemy Tower',()=>{
+ const c=mission(4);
+ const originals=JSON.parse(c('JSON.stringify(cmp.d.kronburgFlankIds)'));
+ assert.equal(originals.length,2);
+ c("globalThis.decoy=put(1,'tower',tcOf(1).x+12,tcOf(1).y-10)");
+ assert.ok(c('!!decoy'),'a third ordinary enemy Tower can be placed on the same seeded battlefield');
+ assert.ok(!originals.includes(c('decoy.netId')),'the third Tower must have its own identity');
+ c('decoy.hp=0;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('campaignKronburgFlanksDown()'),false,'destroying a decoy cannot silence the authored flank line');
+ assert.equal(c('!!cmp.d.flanks'),false);
+ c("S.bs.find(b=>b.netId===cmp.d.kronburgFlankIds[0]).hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('campaignKronburgFlanksDown()'),false,'one actual outer Tower still stands');
+ c("S.bs.find(b=>b.netId===cmp.d.kronburgFlankIds[1]).hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('cmp.d.flanks'),1,'both original outer Towers, not any pair, earn the disruption');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.kronburgFlankIds)'),JSON.stringify(originals),
+  'the original Tower targets persist even after dead structures are compacted by saving');
+ assert.equal(c('cmp.d.flanks'),1,'the completed flank disruption stays earned across reload');
+});
+
 test('Kronburg direct Castle rush provokes full mortal garrison, even if both towers fall later',()=>{
  const c=mission(4);
  c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp*=.6;cmp.k=14;cmpTick(1/30)");
