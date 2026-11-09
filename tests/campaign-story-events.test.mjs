@@ -471,14 +471,19 @@ test('Greywatch relay sabotage before 4:00 reduces a real enemy cavalry raid and
  const c=mission(9);
  const healthy=c('S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp');
  assert.ok(healthy>0);
+ // In this clock-only fixture, no simulation step has moved the original
+ // enemy garrison away from the Town Centre's spawn cells. Clear only those
+ // soldiers so raid production can be tested without changing its real code.
+ c("S.us.filter(u=>u.t===1&&u.k!=='vil').forEach(u=>u.hp=0)");
  const before=c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length");
  c('cmp.t=238;cmp.k=14;cmpTick(1/30)');
  assert.equal(c('!!cmp.d.relay'),false);
  c('S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp=0;cmp.k=14;cmpTick(1/30)');
  assert.equal(c('cmp.d.relay'),1,'only a dead authored enemy relay before 4:00 satisfies the optional sabotage');
+ const relayId=c('cmp.d.greywatchRelayId');
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
- assert.equal(c('cmp.d.greywatchRelayId'),c('cmp.d.greywatchRelayId'),'the saved relay key is available after loading');
+ assert.equal(c('cmp.d.greywatchRelayId'),relayId,'the original relay identity persists across save and reload');
  c('cmpTick(2)');
  assert.equal(c('cmp.e[1]'),1,'the reinforcement event still occurs once');
  assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length"),before+3,
@@ -489,6 +494,7 @@ test('Greywatch relay sabotage before 4:00 reduces a real enemy cavalry raid and
  assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length"),before+3,
   'reload and repeat campaign ticks cannot duplicate the suppressed raid');
  const intact=mission(9);
+ intact("S.us.filter(u=>u.t===1&&u.k!=='vil').forEach(u=>u.hp=0)");
  intact('cmpTick(240)');
  assert.equal(intact('!!cmp.d.relay'),false);
  assert.ok(intact("S.us.filter(u=>u.t===1&&u.hp>0&&u.k==='knight').length")>=2,
