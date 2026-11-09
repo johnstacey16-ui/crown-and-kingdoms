@@ -2100,9 +2100,10 @@ for (const [index, label, limit] of [
   }
   if(index===10){
     assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
-    assert.equal(completed,total,'King\u2019s Road must complete all three real objectives');
+    assert.equal(completed,total,'King\u2019s Road must complete the Market, two Towers, timed hold and paid supply contract');
+    assert.equal(total,4,'the new roadworks delivery is a mandatory fourth objective');
     assert.ok(result.townCentreHp>0,'King\u2019s Road Town Centre must survive');
-    assert.equal(result.enemyRaidsFired,3,"every scripted King's Road raid must execute");
+    assert.equal(result.enemyRaidsFired,4,'all three raids and the one-time paid roadworks event must execute');
   }
   if(index===18){
     assert.equal(result.over,'win','The Iron Pass requires a legal scripted victory, not a tolerated timeout or defeat: '+JSON.stringify(result));
