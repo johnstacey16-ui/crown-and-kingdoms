@@ -557,7 +557,7 @@ globalThis.__CK_TEST__ = {
       townCentreHp:S.bs.filter(b=>b&&b.t===0&&b.k==='tc'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),
       age: S.age[0], trainingGate,
       ashford:index===8?{assaultStarted:ashfordAssaultStarted,enemyTownAlive:!!tcOf(1),enemyCastleAlive:S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0),survivingRams:S.us.filter(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0).length,workshopBuilt:S.bs.some(b=>b&&b.t===0&&b.k==='siege'&&b.done&&b.hp>0)}:null,
-      greywatch:index===9?{guardOrders:greywatchGuardOrders,assaultTime:greywatchAssaultTime,campaignRecorded:campDone()[9]===1,assaultStarted:greywatchAssaultStarted,peakRams:greywatchPeakRams,workshopCompleted:greywatchWorkshopCompleted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
+      greywatch:index===9?{relayDown:campaignGreywatchRelayDown(),relaySabotaged:!!cmp.d.relay,castleHuntersTriggered:!!cmp.e[2],guardOrders:greywatchGuardOrders,assaultTime:greywatchAssaultTime,campaignRecorded:campDone()[9]===1,assaultStarted:greywatchAssaultStarted,peakRams:greywatchPeakRams,workshopCompleted:greywatchWorkshopCompleted,ordersIssued:greywatchOrders,ordersWithoutRams:greywatchOrdersAfterRamLoss,enemyTownHp:tcOf(1)?.hp||0,enemyCastleHp:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).reduce((hp,b)=>hp+b.hp,0),enemyDefenders:S.us.filter(u=>u&&u.t===1&&u.hp>0&&!u.ld&&U[u.k]?.dmg>0&&!U[u.k].sh).length,playerTroops:Object.fromEntries(['ram','knight','arc'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),resources:{...S.res[0]}}:null,
       lastCrown:index===5?{enemyKingAlive:S.us.some(u=>u&&u.t===1&&u.k==='king'&&u.hp>0),playerKingAlive:S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0),campaignRecorded:campDone()[5]===1}:null,
       peakRanged,peakVillagers,
       objectives: CAMP[index].goals.map(goal => ({ title: goal.t, complete: !!cmp.d[goal.id], predicate: goal.ok() })),
@@ -1651,6 +1651,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===8?{ashford:result.ashford}:{}),
     ...(index===15?{blackwood:result.blackwood}:{}),
     ...(index===18?{ironPass:result.ironPass,ironPassProgress:result.ironPassProgress}:{}),
+    ...(index===9?{greywatch:result.greywatch}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
@@ -2282,8 +2283,13 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   if(index===9){
     assert.equal(result.over,'win','Greywatch requires a naturally destroyed Town Centre: '+JSON.stringify(result.greywatch));
-    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Greywatch objective must complete');
+    assert.ok(result.objectives.filter(goal=>!goal.title.startsWith('Optional:')).every(goal=>goal.complete&&goal.predicate),
+      'Greywatch Castle and the rival Town Centre must both actually fall; relay sabotage is optional');
+    assert.equal(result.objectives.filter(goal=>!goal.title.startsWith('Optional:')).length,2);
+    assert.ok(result.objectives.some(goal=>goal.title==='Destroy Greywatch Castle'&&goal.complete&&goal.predicate),
+      'a living enemy Castle must never permit a Greywatch victory');
     assert.equal(result.greywatch.enemyTownHp,0);assert.equal(result.greywatch.enemyCastleHp,0);
+    assert.ok(result.greywatch.castleHuntersTriggered,'the Castle breach must draw a real one-shot siege-hunter sortie');
     assert.equal(result.greywatch.campaignRecorded,true,'the victory must enter normal campaign progression');
     assert.ok(result.townCentreHp>0,'the player must retain its own Town Centre');
     assert.ok(result.greywatch.guardOrders>0,'the escort uses the production Guard command');

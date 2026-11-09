@@ -451,6 +451,71 @@ test('Iron Pass accepts only a living tagged wagon actually reaching the Town Ce
  another("const w=aliveUnits(0,'cart').find(u=>u.campaignConvoy==='iron-pass');w.hp=0;");
  assert.equal(another('campaignIronPassCartArrived()'),false,'a dead wagon never qualifies as a delivery');
 });
+test('Greywatch has two genuine fortification objectives and a unique saved relay Tower',()=>{
+ const c=mission(9);
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CAMP[9].goals.map(g=>[g.id,!!g.optional]))')),
+  [['castle',false],['greywatch',false],['relay',true]]);
+ const id=c('cmp.d.greywatchRelayId');
+ assert.ok(id,'the original hostile Tower must have a persistent sabotage target ID');
+ assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='tower'&&b.hp>0&&b.netId===cmp.d.greywatchRelayId).length"),1);
+ assert.equal(c('campaignGreywatchRelaySabotaged()'),false,'an intact relay cannot be silenced by an arbitrary building');
+ c('cmp.t=30;cmp.k=14;tcOf(1).hp=0;cmpTick(1/30)');
+ assert.equal(c('cmp.d.greywatch'),1,'the actual enemy Town Centre is destroyed');
+ assert.equal(c('!!cmp.d.castle'),false,'a real Castle still blocks victory');
+ assert.equal(c('S.over'),null,'destroying only the Town Centre is no longer an automatic win');
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('S.over'),'win','both enemy structures must fall for real victory');
+});
+
+test('Greywatch relay sabotage before 4:00 reduces a real enemy cavalry raid and survives reload',()=>{
+ const c=mission(9);
+ const healthy=c('S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp');
+ assert.ok(healthy>0);
+ const before=c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length");
+ c('cmp.t=238;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('!!cmp.d.relay'),false);
+ c('S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp=0;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.relay'),1,'only a dead authored enemy relay before 4:00 satisfies the optional sabotage');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('cmp.d.greywatchRelayId'),c('cmp.d.greywatchRelayId'),'the saved relay key is available after loading');
+ c('cmpTick(2)');
+ assert.equal(c('cmp.e[1]'),1,'the reinforcement event still occurs once');
+ assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length"),before+3,
+  'sabotage leaves three real foot defenders instead of five cavalry-led reinforcements');
+ assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&u.k==='knight').length"),0,'the relay sabotage suppresses cavalry');
+ assert.equal(c('S.over'),null,'optional sabotage does not substitute for the Castle and Town Centre');
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['knight','arc','spear'].includes(u.k)).length"),before+3,
+  'reload and repeat campaign ticks cannot duplicate the suppressed raid');
+ const intact=mission(9);
+ intact('cmpTick(240)');
+ assert.equal(intact('!!cmp.d.relay'),false);
+ assert.ok(intact("S.us.filter(u=>u.t===1&&u.hp>0&&u.k==='knight').length")>=2,
+  'failing to silence the relay launches real cavalry reinforcements');
+ intact("S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(intact('!!cmp.d.relay'),false,'destroying the Tower after the cavalry signal cannot retroactively earn early sabotage');
+});
+
+test('Breaching Greywatch Castle launches one-shot mortal siege hunters against real rams',()=>{
+ const c=mission(9);
+ const fort=c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).netId");
+ assert.ok(fort);
+ const before=c("S.us.filter(u=>u.t===1&&u.hp>0&&['scout','spear'].includes(u.k)).length");
+ c("S.bs.find(b=>b.netId==="+JSON.stringify(fort)+").hp=S.bs.find(b=>b.netId==="+JSON.stringify(fort)+").mh*.7;cmpTick(1/30)");
+ assert.equal(c('!!cmp.e[2]'),false,'minor Castle damage does not trigger the elite siege hunt');
+ c("S.bs.find(b=>b.netId==="+JSON.stringify(fort)+").hp=S.bs.find(b=>b.netId==="+JSON.stringify(fort)+").mh*.5;cmpTick(1/30)");
+ assert.equal(c('cmp.e[2]'),1);
+ assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['scout','spear'].includes(u.k)).length"),before+4,
+  'four physical siege hunters sortie from the enemy capital');
+ assert.ok(c("S.us.some(u=>u&&u.t===1&&u.hp>0&&u.campaignPatrol==='greywatch-siege'&&u.o==='a'&&u.tg?.k==='ram')"),
+  'the counterattack uses real attack orders against live Battering Rams');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['scout','spear'].includes(u.k)).length"),before+4,
+  'reload cannot summon another sortie from the same breach');
+});
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));

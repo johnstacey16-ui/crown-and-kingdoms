@@ -238,7 +238,9 @@ test('Greywatch spawns its full declared army and keeps the enemy stronghold int
  assert.equal(state.castle,1,'the Castle remains a real defensive obstacle');
  assert.equal(state.towers,1,'the defending Tower must remain intact');
  assert.ok(state.defenders.spear>0&&state.defenders.arc>0,'enemy pikes and archers must remain real battlefield threats');
- assert.deepEqual(Array.from(state.goal),['greywatch'],'only destroying the enemy Town Centre completes the mission');
+ assert.deepEqual(Array.from(state.goal),['castle','greywatch','relay'],
+  'the Castle and Town Centre are mandatory, and early relay sabotage remains optional');
+ assert.equal(vm.runInContext("CAMP[9].goals.find(g=>g.id==='relay').optional",sandbox),true);
 });
 
 test('nineteen campaigns have unique playable mission names and deterministic mission seeds',()=>{

@@ -719,6 +719,53 @@ function campaignIronPassPursuit(){
  if(attackers)note('Enemy horsemen are pursuing the royal wagons! Guard the Trade Carts until one reaches the Town Centre.');
  return attackers;
 }
+// Greywatch's relay Tower is a real enemy building. Sabotage it before the
+// four-minute reinforcement raid to cut the column down to foot soldiers.
+// Identity persists through save/load; destroying an unrelated Tower cannot
+// cancel the relief army. Later destruction cannot retroactively change it.
+function campaignGreywatchRelayDown(){
+ const id=cmp?.i===9?cmp.d.greywatchRelayId:null;
+ return typeof id==='string'&&!!id&&!S.bs.some(b=>b&&b.t===1&&b.hp>0&&b.netId===id);
+}
+function campaignGreywatchRelaySabotaged(){
+ return cmp?.i===9&&cmp.t<240&&campaignGreywatchRelayDown();
+}
+function campaignGreywatchReinforcements(){
+ if(!tcOf(1)||S.over)return 0;
+ const disabled=!!cmp.d.relay||campaignGreywatchRelayDown();
+ if(disabled)note('Greywatch relay silenced! The enemy cavalry signal failed; a reduced foot patrol approaches your supplies.');
+ else note('The Greywatch relay Tower is still active! Cavalry reinforcements are striking your economy.');
+ const before=new Set(S.us.filter(u=>u&&u.t===1&&u.hp>0).map(u=>u.netId));
+ raid(disabled?3:5,disabled?['spear','arc','spear']:['knight','arc','spear','knight','arc'],
+  disabled?'An isolated foot patrol approaches the royal supplies!':'Greywatch cavalry are striking your economy!');
+ return S.us.filter(u=>u&&u.t===1&&u.hp>0&&!before.has(u.netId)).length;
+}
+// Once the Castle is wounded, its garrison sorties to attack the actual
+// player siege train and Siege Workshop rather than applying scripted damage.
+function campaignGreywatchCastleBreached(){
+ if(cmp?.i!==9)return false;
+ const fort=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0);
+ return !!fort&&fort.hp<=fort.mh*.55;
+}
+function campaignGreywatchSiegeHunters(){
+ if(!tcOf(1)||S.over)return 0;
+ const old=new Set(S.us.filter(u=>u&&u.t===1&&u.hp>0).map(u=>u.netId));
+ grp(1,'scout',2);grp(1,'spear',2);
+ const hunters=S.us.filter(u=>u&&u.t===1&&u.hp>0&&!old.has(u.netId));
+ const targets=[...aliveUnits(0,'ram').filter(u=>!u.ld),
+  ...S.bs.filter(b=>b&&b.t===0&&b.k==='siege'&&b.hp>0),
+  tcOf(0)].filter(Boolean);
+ let ordered=0;
+ for(const u of hunters){
+  u.campaignPatrol='greywatch-siege';
+  for(const target of targets){
+   if(!path(u,goalNear(target,Math.max(1,U[u.k]?.rng||1))))continue;
+   u.o='a';u.tg=target;u.p=[];u.rp=0;u.guardTarget=null;ordered++;break;
+  }
+ }
+ if(ordered)note('Greywatch Castle is breached! Enemy siege hunters are attacking your rams and forward workshop. Protect your siege train.');
+ return hunters.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -757,10 +804,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);if(e){put(1,'castle',e.x-7,e.y+8);const ids=[];for(const [dx,dy] of [[-4,12],[-11,5]]){const tower=put(1,'tower',e.x+dx,e.y+dy);if(tower){tower.campaignSignal='ashford';ids.push(tower.netId)}}cmp.d.ashfordSignalIds=ids;grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2}},
  goals:[{id:'castle',t:'Destroy Ashford Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'signals',t:'Optional: Destroy both Ashford signal towers',optional:true,ok:()=>campaignAshfordSignalsDisabled()}],
  ev:[{at:5,do:()=>note('Ashford Castle must fall before you can claim the capital. Protect your rams with archers and cavalry.')},{at:120,do:()=>note('The two enemy signal towers can be destroyed for a real royal siege escort. They are optional, but the Castle and Town Centre are not.')},{when:()=>cmp.d.signals===1,do:()=>campaignAshfordSignalRelief()},{when:()=>cmp.d.castle===1&&!!tcOf(1),do:()=>campaignAshfordCastleSortie()}]},
-{t:'Siege of Greywatch',b:'Greywatch blocks the royal road. The enemy has fortified its capital, and reinforcements will strike your economy. Muster your siege engines before advancing. Gather wood and gold for replacements, research Crossbowman at an Archery Range, and use Guard to keep the escort with your rams. Keep cavalry away from enemy pikes.',civ:0,en:3,mt:1,msz:1,seed:910,diff:1,aip:1,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);put(1,'tower',e.x-4,e.y+11);grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
- goals:[{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:90,do:()=>note('Greywatch is reinforced. Keep your siege units behind the front line.')},{at:240,do:()=>raid(5,['knight','arc','spear','knight','arc'],'Enemy reinforcements are striking your economy.')}]},
+{t:'Siege of Greywatch',b:'Greywatch blocks the royal road behind a Castle and a signal Tower. Breach and destroy the real Castle, then demolish the rival Town Centre. Optional: destroy its marked relay Tower before 4:00 to disrupt the cavalry reinforcement signal and reduce the raid on your economy. Once the Castle is badly damaged, enemy siege hunters will attack your Battering Rams and Siege Workshop. Protect your rams with Guard, gather wood and gold for replacements, and research Crossbowman at an Archery Range.',civ:0,en:3,mt:1,msz:1,seed:910,diff:1,aip:1,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);const relay=put(1,'tower',e.x-4,e.y+11);if(relay){relay.campaignRelay='greywatch';cmp.d.greywatchRelayId=relay.netId}grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
+ goals:[{id:'castle',t:'Destroy Greywatch Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'relay',t:'Optional: Silence Greywatch relay Tower before 4:00',optional:true,ok:()=>campaignGreywatchRelaySabotaged()}],
+ ev:[{at:90,do:()=>note('Greywatch is reinforced. Destroy its relay Tower before 4:00 to weaken the cavalry attack. Shield your rams when the Castle is breached.')},{at:240,do:()=>campaignGreywatchReinforcements()},{when:()=>campaignGreywatchCastleBreached(),do:()=>campaignGreywatchSiegeHunters()}]},
 {t:'The King’s Road',b:'The northern royal road needs supplies, not just walls. Establish a Market and raise two Towers; your starting stone only covers the first Tower, so mine or trade for more. After five minutes the Market quartermaster will collect 150 wood and 75 stone for repairs once the towers stand. Fund that real supply contract, then hold the road until 8:00.',civ:3,en:2,mt:0,msz:1,seed:911,diff:1,aip:4,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
  goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
