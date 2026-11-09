@@ -421,10 +421,14 @@ function campaignFrontierWatchReinforcement(){
 function campaignReliquaryWaystation(){
  const home=tcOf(0);if(!home)return null;
  const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=W*.5-hx,dy=H*.5-hy,dist=Math.hypot(dx,dy);
+ if(dist<22)return null;
  return S.bs.find(b=>{
   if(!b||b.t!==0||b.k!=='outpost'||!b.done||b.hp<=0)return false;
-  const x=b.x+b.s*.5,y=b.y+b.s*.5;
-  return Math.hypot(x-W*.5,y-H*.5)<=18&&Math.hypot(x-hx,y-hy)>=10;
+  const x=b.x+b.s*.5-hx,y=b.y+b.s*.5-hy;
+  const forward=(x*dx+y*dy)/dist,off=Math.abs(x*dy-y*dx)/dist;
+  // The Mediterranean centre is open water: protect the friendly shore road.
+  return forward>=12&&forward<=Math.min(34,dist*.7)&&off<=12;
  })||null;
 }
 function campaignReliquaryEscort(){
@@ -504,9 +508,24 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:700,w:800,g:250,s:150};grp(0,'mil',4);grp(0,'arc',4);const e=tcOf(1);if(e){S.age[1]=1;S.res[1]={f:600,w:500,g:250,s:100};grp(1,'scout',3);grp(1,'mil',4)}},
  goals:[{id:'roadmarket',t:'Build a Market',ok:()=>cb('market')>=1},{id:'roadtowers',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'roadtime',t:'Hold the road for 8:00',ok:()=>cmp.t>=480},{id:'roadsupply',t:'Fund royal roadworks with 150 wood and 75 stone at the Market',ok:()=>!!cmp.e[3]}],
  ev:[{at:70,do:()=>raid(4,['scout','mil','scout','mil'],'Scouts are probing your outer farms.')},{at:200,do:()=>raid(7,['mil','spear','arc','scout','mil','arc','spear'],'A larger raiding party is approaching.')},{at:360,do:()=>raid(8,['knight','arc','spear','knight','arc','mil','spear','arc'],'The enemy commits its main raiding force.')},{at:300,when:()=>cb('market')>=1&&cb('tower')>=2&&can(0,{w:150,s:75}),do:()=>campaignKingsRoadSupply()}]},
-{t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready, but two sacred relics lie on the contested central road. Escort the Monks to recover both relics while mounted enemy patrols hunt them. Optional: build an Outpost near the central relic trail to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);for(let i=0;i<2;i++){let x=(W/2|0)+(i?3:-3),y=(H/2|0)+(i?2:-2);for(let r=0;r<16&&(x<2||y<2||x>=W-2||y>=H-2||S.g[y*W+x]||S.wt[y*W+x]);r++){x=(W/2|0)+(i?3:-3)+r%4;y=(H/2|0)+(i?2:-2)+((r/4)|0)}if(x>1&&y>1&&x<W-1&&y<H-1&&!S.wt[y*W+x])S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null})}const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
- goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2},{id:'trailpost',t:'Optional: Build a completed Outpost by the central relic trail',optional:true,ok:()=>!!campaignReliquaryWaystation()}],
+{t:'The Reliquary Trail',b:'Your Monastery and two Monks are ready. Two sacred relics are hidden along the dangerous shore approach to the Mediterranean. Escort the Monks home while enemy road patrols hunt them. Optional: establish a forward Outpost on your bank to rally four royal escorts.',civ:1,en:0,mt:7,msz:1,seed:912,diff:1,aip:2,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:800,w:650,g:650,s:250};const tc=tcOf(0);if(tc)put(0,'monastery',tc.x+8,tc.y+4);grp(0,'mon',2);grp(0,'mil',4);grp(0,'arc',4);const hx=tc?tc.x+tc.s*.5:W*.15,hy=tc?tc.y+tc.s*.5:H*.85,dx=W*.5-hx,dy=H*.5-hy,dist=Math.hypot(dx,dy)||1;
+ for(const side of [-1,1]){
+  let placed=false;
+  for(const forward of [24,26,22,28,20,30,32]){
+   if(placed)break;
+   for(const lateral of [12,10,14,8,16]){
+    if(placed)break;
+    for(const offset of [0,-2,2,-4,4]){
+     const x=Math.round(hx+dx/dist*forward-dy/dist*(side*lateral+offset)),y=Math.round(hy+dy/dist*forward+dx/dist*(side*lateral+offset)),cell=y*W+x;
+     if(x<3||y<3||x>=W-3||y>=H-3||S.g[cell]||S.wt[cell]||S.nd[cell])continue;
+     if(S.rel.some(q=>Math.hypot(q.x-x-.5,q.y-y-.5)<5))continue;
+     S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null});placed=true;break;
+    }
+   }
+  }
+ }const e=tcOf(1);if(e){S.age[1]=2;grp(1,'knight',4);grp(1,'arc',5)}},
+ goals:[{id:'relics',t:'Return both relics to your Monastery',sustained:true,ok:()=>S.rel.filter(r=>r.m&&r.m.t===0&&r.m.done&&r.m.hp>0).length>=2},{id:'trailpost',t:'Optional: Build a completed forward Outpost on the pilgrim shore road',optional:true,ok:()=>!!campaignReliquaryWaystation()}],
  ev:[{at:15,do:()=>note('Escort your Monks with soldiers. The enemy patrols the relic road, not just your settlement.')},{at:55,do:()=>campaignReliquaryPatrol()},{at:130,do:()=>campaignReliquaryPatrol()},{at:220,do:()=>raid(5,['scout','knight','arc','knight','arc'],'Enemy reinforcements have reached your supply road.')},{when:()=>cmp.d.trailpost===1,do:()=>campaignReliquaryEscort()}]},
 {t:'The Golden Coast',b:'A rival admiral controls the fishing grounds while a coastal lord threatens your settlement. Build a Dock to rally one allied Fire Ship, then train at least three War Galleys and muster twelve land soldiers. Destroy the enemy Dock to stop his sea reinforcements and rally coastal volunteers (optional). Protect your home, defeat the coastal lord and destroy his Town Centre.',civ:2,en:6,mt:7,msz:1,seed:913,diff:1,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:650,w:850,g:500,s:200};const tc=tcOf(0);if(tc){for(let i=0;i<4;i++)put(0,'house',tc.x-7+(i%2)*3,tc.y-7+Math.floor(i/2)*3);grp(0,'gal',2);grp(0,'fish',2);grp(0,'spear',6);grp(0,'arc',5)}const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:600,w:650,g:500,s:200};put(1,'dock',e.x-7,e.y+2);grp(1,'gal',3);grp(1,'spear',7);grp(1,'arc',5);grp(1,'ram',2)}},
