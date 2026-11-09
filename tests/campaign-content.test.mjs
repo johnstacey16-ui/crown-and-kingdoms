@@ -122,7 +122,7 @@ test('First Hearth live tutorial A/RT instructions agree with controller release
  assert.equal(sandbox.tapCount,1,'X alone does not substitute for the A gathering gesture');
 });
 
-test('Iron Pass starts with enough legal housing for its supplied garrison, without changing win goals',()=>{
+test('Iron Pass starts with enough legal housing and retains all four genuine victory goals',()=>{
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
  vm.runInContext(source+"\nstartScenario(18);",sandbox);
@@ -131,8 +131,8 @@ test('Iron Pass starts with enough legal housing for its supplied garrison, with
  assert.equal(first.houses,2,'campaign has two completed support Houses at its starting camp');
  assert.ok(first.capacity>=first.population,'starting defenders must not be blocked by housing shortage');
  assert.equal(first.soldiers,14,'opening garrison remains six spears, six archers and two scouts');
- assert.deepEqual(Array.from(first.goals),['towers','army','hold'],'all three real victory conditions remain');
- assert.equal(first.raids,5,'every original enemy attack wave is retained');
+ assert.deepEqual(Array.from(first.goals),['towers','army','hold','convoy'],'the original three victory conditions and the physical supply convoy are required');
+ assert.equal(first.raids,7,'the original four enemy assaults and introduction remain, alongside convoy dispatch and pursuit');
  assert.ok(first.aiWaveAt>540&&first.aiRaidAt>540,
   'scripted siege waves must not be doubled by the normal AI before the hold goal');
  vm.runInContext('startScenario(18)',sandbox);
