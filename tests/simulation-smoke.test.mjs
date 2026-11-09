@@ -83,7 +83,7 @@ globalThis.__CK_TEST__ = {
     let trainingGate = null;
     let peakRanged=0,peakVillagers=0;
     let goldenCoastAssaultStarted=false,causewayAssaultStarted=false,ashfordAssaultStarted=false;
-    let goldenCoastHomeReserveAssigned=false,goldenCoastStaging=null;const goldenCoastHomeGuardIds=new Set();
+    let goldenCoastHomeReserveAssigned=false,goldenCoastStaging=null,goldenCoastCapitalBreach=false;const goldenCoastHomeGuardIds=new Set();
     let causewayHomeReserveAssigned=false;const causewayHomeGuardIds=new Set();
     let tidewatchAssaultStarted=false,straitAssaultStarted=false;
     let greywatchAssaultStarted=false,greywatchOrders=0,greywatchOrdersAfterRamLoss=0,greywatchPeakRams=0,greywatchWorkshopCompleted=false,greywatchGuardOrders=0,greywatchAssaultTime=null;
@@ -299,6 +299,7 @@ globalThis.__CK_TEST__ = {
         if(index===9){if(!greywatchAssaultStarted)greywatchAssaultTime=S.t;greywatchAssaultStarted=true} // Persist after siege casualties.
         const enemyCastle = S.bs.find(building => building.t === 1 && building.k === 'castle' && building.hp > 0);
         const enemyTC = tcOf(1);
+        if(index===12&&enemyTC&&enemyTC.hp<enemyTC.mh*.9)goldenCoastCapitalBreach=true;
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
            if(index===14&&unit.o==='G'&&unit.tg?.k==='treb'&&unit.tg.hp>0)continue;
@@ -317,7 +318,7 @@ globalThis.__CK_TEST__ = {
           if((index===9||index===16||index===12)&&!U[unit.k].sh&&unit.k!=='ram'){
             const ram=S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0)
               .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
-            if(ram&&(index!==12||!enemyTC||Math.hypot(ram.x-enemyTC.x,ram.y-enemyTC.y)>14)){
+            if(ram&&(index!==12||!enemyTC||Math.hypot(ram.x-enemyTC.x,ram.y-enemyTC.y)>14||Math.hypot(unit.x-enemyTC.x,unit.y-enemyTC.y)>16)){
               if(!((unit.o==='G'&&unit.tg===ram)||(unit.o==='a'&&unit.guardTarget===ram))){
                 const selected=S.sel;S.sel=[unit];
                 try{if(orderGuardFollow(ram.x,ram.y,'G'))greywatchGuardOrders++}finally{S.sel=selected}
@@ -342,17 +343,26 @@ globalThis.__CK_TEST__ = {
           // Golden Coast: landing troops must contest repairs at the enemy
           // capital rather than leave a breached Town Centre to regenerate.
           // Spearmen/Skirmishers still clear hostile military around the Rams.
+          // Localize the landing escort's threat selection: do not abandon Rams
+          // at the capital to chase faraway enemy soldiers around the map.
+          const nearCapital=index===12&&enemyTC&&Math.hypot(unit.x-enemyTC.x,unit.y-enemyTC.y)<24;
           const coastalBreach=index===12&&enemyTC&&
-            (aliveUnits(0,'ram').some(r=>Math.hypot(r.x-enemyTC.x,r.y-enemyTC.y)<14)
-             ||goldenCoastAssaultStarted&&enemyTC.hp<enemyTC.mh*.9);
+            (goldenCoastCapitalBreach||aliveUnits(0,'ram').some(r=>Math.hypot(r.x-enemyTC.x,r.y-enemyTC.y)<16));
+          const coastalLocalDefender=coastalBreach?S.us.filter(other=>other&&other.t===1&&other.hp>0&&!other.ld&&
+            U[other.k]?.dmg>0&&!U[other.k].sh&&other.k!=='vil'&&
+            Math.hypot(other.x-enemyTC.x,other.y-enemyTC.y)<13)
+            .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0]:null;
           const coastalRepairer=coastalBreach?S.us.filter(other=>other&&other.t===1&&other.k==='vil'&&other.hp>0&&!other.ld&&
-            Math.hypot(other.x-enemyTC.x,other.y-enemyTC.y)<9)
+            Math.hypot(other.x-enemyTC.x,other.y-enemyTC.y)<11)
             .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0]:null;
           const target = U[unit.k].sh
             ? (S.us.find(other => other && other.t === 1 && other.hp > 0 && U[other.k] && U[other.k].sh) || S.bs.find(building => building.t === 1 && building.k === 'dock' && building.hp > 0))
             : (index===5&&enemyKing&&!enemyKing.ld?enemyKing:
-              (coastalBreach&&['arc','xbow','mil','knight'].includes(unit.k)?
-                (coastalRepairer||enemyTC):(defender||(enemyCastle||enemyTC))));
+              (index===12&&goldenCoastAssaultStarted&&enemyTC?
+                (coastalBreach&&['arc','xbow','mil','knight'].includes(unit.k)?
+                  (coastalRepairer||coastalLocalDefender||enemyTC)
+                  :nearCapital?(coastalLocalDefender||coastalRepairer||enemyTC):enemyTC)
+                :(defender||(enemyCastle||enemyTC))));
           if (target && (unit.o !== 'a' || unit.tg !== target)) { unit.o = 'a'; unit.tg = target; unit.p = []; unit.rp = 0;
             if(index===9){greywatchOrders++;if(!S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))greywatchOrdersAfterRamLoss++}
           }
@@ -369,7 +379,7 @@ globalThis.__CK_TEST__ = {
         playerShips:aliveUnits(0,'gal').map(u=>({hp:Math.round(u.hp),o:u.o,t:u.tg?.k||null,x:Math.round(u.x),y:Math.round(u.y)})),
         enemyShips:aliveUnits(1,'gal').length,fireShips:aliveUnits(0,'fire').length,
         army:cmil(0),enemyArmy:cmil(1),rams:aliveUnits(0,'ram').length,
-        assault:goldenCoastAssaultStarted,staging:goldenCoastStaging,homeGuards:goldenCoastHomeGuardIds.size,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
+        assault:goldenCoastAssaultStarted,capitalBreach:goldenCoastCapitalBreach,staging:goldenCoastStaging,homeGuards:goldenCoastHomeGuardIds.size,homes:S.bs.filter(b=>b.t===0&&b.k==='house'&&b.done&&b.hp>0).length,
         goals:CAMP[12].goals.filter(g=>cmp.d[g.id]).map(g=>g.id),
         resources:{...S.res[0]},
         workerCount:aliveUnits(0,'vil').length,
@@ -414,7 +424,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
-       goldenCoast:index===12?{staging:goldenCoastStaging,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
+       goldenCoast:index===12?{staging:goldenCoastStaging,capitalBreach:goldenCoastCapitalBreach,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
        causewayProgress:index===16?causewayProgress:null,
        crownProgress:index===17?crownProgress:null,crownAssaultTime:index===17?crownAssaultTime:null,crownHomeGuards:index===17?crownHomeGuardIds.size:null,crownRecorded:index===17?campDone()[17]===1:null,crownEnemyCapitalAlive:index===17?!!tcOf(1):null,
