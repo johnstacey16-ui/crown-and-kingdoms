@@ -585,6 +585,9 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  assert.equal(c("CAMP[11].goals.find(g=>g.id==='trailpost').optional"),true);
  assert.ok(c("aliveUnits(0,'mon').length")>=2,'two genuine player Monks begin the mission');
  assert.equal(c("cb('monastery')"),1,'the mission briefing reflects the starting Monastery');
+ assert.equal(c('S.rel.length'),2,'only the two authored pilgrim relics may exist; generated map loot must not bypass the trail');
+ assert.equal(c("S.rel.filter(q=>q.rl&&!q.c&&!q.m).length"),2,'both mission relics begin on the map, unclaimed');
+ assert.equal(c("CAMP[11].goals.find(g=>g.id==='relics').ok()"),false,'no free relic objectives at the start');
  const shore=JSON.parse(c(`JSON.stringify((()=>{
   const home=tcOf(0),hx=home.x+home.s/2,hy=home.y+home.s/2;
   const dx=W/2-hx,dy=H/2-hy,dist=Math.hypot(dx,dy);
@@ -610,6 +613,7 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  assert.equal(c("CAMP[11].goals.find(g=>g.id==='relics').ok()"),false,'only relics returned to a live friendly Monastery complete the mission');
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
+ assert.equal(c('S.rel.length'),2,'the only two authored relics persist across save/reload');
  const afterReload=c("aliveUnits(1).length");
  c('cmpTick(1)');
  assert.equal(c("aliveUnits(1).length"),afterReload,'saved one-shot patrol events never duplicate on reload');
