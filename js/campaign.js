@@ -312,17 +312,46 @@ function campaignCausewayFordSiegeRelief(){
  if(joined.length)note('Both Causeway fords are fortified! A royal Battering Ram and four escort troops join the crossing assault. Keep them alive to destroy the rival Castle.');
  return joined.length;
 }
+// Redwater is a physical merchant escort, not just an eight-minute timer.
+// The merchants enter from a far road checkpoint and walk to the player's
+// completed Market. Identifying marks are retained by normal unit save/load.
+function campaignRedwaterCartArrived(){
+ const market=S.bs.find(b=>b&&b.t===0&&b.k==='market'&&b.done&&b.hp>0);
+ if(!market)return false;
+ return aliveUnits(0,'cart').some(u=>{
+  if(u.campaignConvoy!=='redwater'||u.ld)return false;
+  const dx=Math.max(market.x-u.x,0,u.x-(market.x+market.s));
+  const dy=Math.max(market.y-u.y,0,u.y-(market.y+market.s));
+  return Math.hypot(dx,dy)<=2.5;
+ });
+}
 function campaignRoadCaravan(){
- const home=tcOf(0),market=S.bs.find(b=>b.t===0&&b.k==='market'&&b.done&&b.hp>0);
- if(!home||!market||S.over)return 0;
- const old=new Set(S.us.map(u=>u.netId));
- grp(0,'cart',2);
+ const home=tcOf(0),market=S.bs.find(b=>b&&b.t===0&&b.k==='market'&&b.done&&b.hp>0),enemy=tcOf(1);
+ if(!home||!market||!enemy||S.over)return 0;
  let moving=0;
- for(const u of S.us.filter(u=>u.t===0&&u.k==='cart'&&u.hp>0&&!old.has(u.netId))){
-  const p=path(u,goalNear(market,1));if(!p)continue;
-  u.o='m';u.tg=null;u.p=p;u.rp=1;moving++;
+ const target=goalNear(market,1);
+ for(let i=0;i<2;i++){
+  let spot=null;
+  for(const fraction of [.52,.43,.34,.27]){
+   const checkpoint={t:0,s:2,
+    x:market.x+(enemy.x-market.x)*fraction,
+    y:market.y+(enemy.y-market.y)*fraction};
+   const candidate=campaignOverflowSpawn(checkpoint);
+   if(!candidate||Math.hypot(candidate[0]-market.x,candidate[1]-market.y)<23)continue;
+   if(Math.hypot(candidate[0]-enemy.x,candidate[1]-enemy.y)<11)continue;
+   spot=candidate;break;
+  }
+  // Last-resort spawn avoids permanently blocking the scenario if a
+  // generated forest or river makes a remote checkpoint inaccessible.
+  spot=spot||spawnPos(home)||campaignOverflowSpawn(home);
+  if(!spot)break;
+  const cart=addU(0,'cart',spot[0],spot[1]);
+  if(!cart)continue;
+  cart.campaignConvoy='redwater';
+  const route=path(cart,target);
+  if(route){cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;moving++}
  }
- if(moving)note('The Redwater caravan returns! Escort the merchants safely to your Market.');
+ if(moving)note('Redwater merchants are crossing the contested road. Escort at least one living Trade Cart to your Market before the last raid.');
  return moving;
 }
 const CAMP=[
@@ -355,9 +384,9 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:600,w:600,g:250,s:150}},
  goals:[{id:'t',t:'Build a Watch Tower',ok:()=>cb('tower')>=1},{id:'a',t:'Train 6 ranged soldiers',ok:()=>aliveUnits(0).filter(u=>U[u.k].rng>=4&&!U[u.k].sh&&!['vil','mon','king','ram','mang','scor','treb','bomb'].includes(u.k)).length>=6},{id:'s',t:'Survive until 10:00',ok:()=>cmp.t>=600}],
  ev:[{at:90,do:()=>raid(4,['scout','skirm','scout','skirm'],'Scouts have been spotted beyond the trees!')},{at:240,do:()=>raid(7,['mil','skirm','scout','mil','skirm','scout','mil'],'The main raiding force is approaching!')},{at:420,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A final wave is testing the northern defences!')}]},
-{t:'Crossing at Redwater',b:'A vital trade road crosses the Redwater river. Build a market and two towers to secure the crossing, then survive the enemy raids long enough for your merchants to reopen the road.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
+{t:'Crossing at Redwater',b:'The Redwater trade road is under attack. Build a Market and two Towers, defend the crossing through eight minutes, and escort at least one merchant cart from the far checkpoint into your Market. If both merchants fall, the road is lost.',civ:3,en:8,mt:7,msz:1,seed:88,diff:1,aip:2,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
- goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480}],
+ goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480},{id:'caravan',t:'Escort a Redwater Trade Cart safely into your Market',ok:()=>campaignRedwaterCartArrived()}],
  ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')},{at:405,when:()=>cb('market')>=1,do:()=>campaignRoadCaravan()}]},
 {t:'Crown of Ashford',b:'The rival claimant has fortified the capital and refuses all terms. Muster a field army, break the outer defences and destroy the enemy Town Centre to reunite the kingdom under one crown.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);put(1,'castle',e.x-7,e.y+8);put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2},
@@ -409,7 +438,7 @@ const CAMP=[
 const campDone=()=>{try{const d=JSON.parse(localStorage.getItem('ck_camp'));return Array.isArray(d)?Array.from({length:CAMP.length},(_,i)=>d[i]===1||d[i]===true?1:0):[]}catch(e){return[]}};
 function campMark(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return;try{const d=campDone();d[i]=1;localStorage.setItem('ck_camp',JSON.stringify(d))}catch(e){}}
 function startScenario(i){if(!Number.isInteger(i)||i<0||i>=CAMP.length)return false;const sc=CAMP[i];if(!sc)return false;if(!PRF)PRF={civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit};civ=sc.civ;msz=sc.msz;mt=sc.mt;mapLayout=Number.isInteger(sc.layout)?sc.layout:0;if(mapLayout)applyMapLayout();diff=sc.diff;aip=sc.aip;vm=sc.vm;scoreLimit=1200;seedOv=sc.seed;aiCiv=sc.en;cmp={i,t:0,d:{},e:{}};start();seedOv=null;aiCiv=-1;if(sc.setup)sc.setup();note('Mission '+(i+1)+': '+sc.t);return true}
-function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
+function cmpTick(dt){if(!cmp||!Number.isInteger(cmp.i))return;const sc=CAMP[cmp.i];if(!sc||S.over||!Number.isFinite(dt)||dt<=0)return;if(!tcOf(0)){endGame('lose','Your Town Centre fell');return}if(cmp.i===5&&!S.us.some(u=>u&&u.t===0&&u.k==='king'&&u.hp>0)){endGame('lose','Your King has fallen');return}if(cmp.i===7&&cmp.e[3]&&!cmp.d.caravan&&!S.us.some(u=>u&&u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0)){endGame('lose','The Redwater merchant convoy was destroyed');return}cmp.t+=dt;cmp.k=(cmp.k||0)+1;sc.ev.forEach((e,i)=>{if(cmp.e[i])return;const ready=(e.at!==undefined||typeof e.when==='function')&&(e.at===undefined||cmp.t>=e.at)&&(typeof e.when!=='function'||e.when());if(ready){cmp.e[i]=1;e.do()}});if(cmp.k%15)return;let all=true;for(const g of sc.goals){const sustained=g.sustained===true;if(cmp.d[g.id]&&!sustained)continue;if(g.ok()){if(!cmp.d[g.id]){cmp.d[g.id]=1;note('Objective complete: '+g.t);sfx('tech')}}else{if(!g.optional)all=false;if(sustained&&cmp.d[g.id]){cmp.d[g.id]=0;note('Objective needs restoring: '+g.t)}}}if(all){S.over='win';mode='end';campMark(cmp.i);sting(true);rumble(700,1,.6)}}
 function restoreCampaignPrefs(){if(PRF){({civ,msz,mt,mapLayout,diff,aip,vm,scoreLimit}=PRF);PRF=null}}
 function leaveCampaign(){restoreCampaignPrefs();cmp=null;seedOv=null;aiCiv=-1;mode='title'}
 function endA(){if(!cmp){start();return}if(S.over==='win'){const next=nextCampaignMission(cmp.i);if(next!==null){bi=next;mode='brief'}else{mode='camp';ci=0}}else startScenario(cmp.i)}

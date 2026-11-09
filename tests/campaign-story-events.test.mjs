@@ -31,26 +31,47 @@ test('Raiders at the Ford delivers a physical royal relief force, guarding the T
  assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)).length"),5,'reload cannot duplicate story arrivals');
 });
 
-test('Redwater caravan waits for both elapsed time and an actual completed Market',()=>{
+test('Redwater merchant escort departs from a distant reachable checkpoint and never accepts a counterfeit cart',()=>{
  const c=mission(7);
  assert.equal(c("CAMP[7].ev.some(e=>e.at===405&&typeof e.when==='function')"),true);
+ assert.equal(c("CAMP[7].goals.some(g=>g.id==='caravan'&&!g.optional)"),true,'a genuine convoy delivery is mandatory');
  c('cmpTick(405)');
- assert.equal(c('!!cmp.e[3]'),false,'405 seconds alone cannot bypass the Market requirement');
+ assert.equal(c('!!cmp.e[3]'),false,'the timer cannot dispatch carts before a real Market exists');
  assert.equal(c("S.us.some(u=>u.t===0&&u.k==='cart')"),false);
+ assert.equal(c("campaignRedwaterCartArrived()"),false);
  assert.equal(c('!!S.over'),false);
- assert.equal(c("!!(globalThis.market=put(0,'market',tcOf(0).x+6,tcOf(0).y+4))"),true);
+ c("globalThis.market=put(0,'market',tcOf(0).x+6,tcOf(0).y+4)");
+ assert.ok(c('!!market'));
  c('cmpTick(1)');
- assert.equal(c('cmp.e[3]'),1);
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.hp>0).length"),2);
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.o==='m'&&u.p.length>0).length"),2,'merchants follow real routes to the Market');
- c('cmpTick(2)');
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart').length"),2,'event is not replayed each game tick');
+ assert.equal(c('cmp.e[3]'),1,'the real completed Market unlocks caravan departure');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0).length"),2);
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.o==='m'&&u.p.length>0).length"),2,'merchant carts are given real walkable road paths');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.campaignConvoy==='redwater').every(u=>Math.hypot(u.x-market.x,u.y-market.y)>=23)"),true,'caravan must begin far enough away for an actual escort');
+ assert.equal(c("campaignRedwaterCartArrived()"),false,'the arrival objective is not awarded at departure');
+ c("globalThis.fake=addU(0,'cart',market.x+market.s+1,market.y+1)");
+ assert.equal(c("campaignRedwaterCartArrived()"),false,'a purchased cart cannot impersonate a mission caravan');
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
- c('cmpTick(1)');
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart').length"),2,'a loaded campaign does not spawn free duplicate carts');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.campaignConvoy==='redwater'&&u.hp>0).length"),2,'save/load retains the two tagged merchants');
+ c('cmpTick(2)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.campaignConvoy==='redwater').length"),2,'one-shot event never duplicates carts after loading');
 });
 
+test('Redwater fails if both convoy merchants die before delivery and allows a real survivor',()=>{
+ const c=mission(7);
+ c('cmpTick(405)');
+ c("globalThis.market=put(0,'market',tcOf(0).x+6,tcOf(0).y+4)");
+ c('cmpTick(1)');
+ assert.equal(c("campaignRedwaterCartArrived()"),false);
+ c("globalThis.carts=S.us.filter(u=>u.campaignConvoy==='redwater'&&u.hp>0);carts[0].hp=0");
+ c('cmpTick(1)');
+ assert.equal(c('S.over'),null,'the second living merchant can still save the convoy');
+ assert.equal(c("campaignRedwaterCartArrived()"),false);
+ c("carts[1].hp=0");
+ c('cmpTick(1)');
+ assert.equal(c('S.over'),'lose','the mission fails when both authentic carts perish');
+ assert.equal(c("S.reason||''"),'','the loss is reached through normal endGame, not a fabricated delivery');
+});
 test('Strait mission creates a real enemy monastery with an enemy-owned relic',()=>{
  const c=mission(13);
  assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='monastery'&&b.hp>0&&b.done).length"),1);
