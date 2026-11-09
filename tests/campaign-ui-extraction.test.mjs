@@ -22,5 +22,6 @@ test('campaign data, progression, objective checks and controller handlers remai
   assert.match(campaign, /const campItems=\(\)=>/);
   assert.match(campaign, /function campCtl\(\)\{/);
   assert.match(campaign, /function briefCtl\(\)\{/);
-  assert.match(ui, /function cmpHud\(\)\{[\s\S]*?sc\.goals\.filter\(q=>!cmp\.d\[q\.id\]\)\.slice\(0,5\)/);
+  assert.match(ui, /function cmpHud\(\)\{[\s\S]*?const pending=sc\.goals\.filter\(q=>!cmp\.d\[q\.id\]\),g=pending\.slice\(0,5\),more=pending\.length-g\.length/,
+    'the campaign HUD retains a bounded five-row list and records overflow');
 });
