@@ -612,15 +612,16 @@ test('Reliquary Trail optional forward Outpost earns four mortal Monk escorts on
  c('S.ex.fill(1)');
  const site=JSON.parse(c(`JSON.stringify((()=>{
   const h=tcOf(0),hx=h.x+h.s/2,hy=h.y+h.s/2;
-  for(let radius=0;radius<=18;radius++)
-   for(let y=Math.max(2,Math.floor(H/2)-radius);y<Math.min(H-B.outpost.s-1,Math.floor(H/2)+radius+1);y++)
-    for(let x=Math.max(2,Math.floor(W/2)-radius);x<Math.min(W-B.outpost.s-1,Math.floor(W/2)+radius+1);x++){
-     const px=x+B.outpost.s/2,py=y+B.outpost.s/2;
-     if(Math.hypot(px-W/2,py-H/2)<=17&&Math.hypot(px-hx,py-hy)>=11&&okPlace(0,'outpost',x,y))return{x,y};
-    }
+  const dx=W/2-hx,dy=H/2-hy,dist=Math.hypot(dx,dy);
+  for(let forward=14;forward<=30;forward+=2)
+   for(let lateral=-10;lateral<=10;lateral+=2){
+    const x=Math.round(hx+dx/dist*forward-dy/dist*lateral),
+          y=Math.round(hy+dy/dist*forward+dx/dist*lateral);
+    if(x>1&&y>1&&x+B.outpost.s<W-1&&y+B.outpost.s<H-1&&okPlace(0,'outpost',x,y))return{x,y};
+   }
   return null;
  })())`));
- assert.ok(site,'the seeded relic road must have a legal buildable optional Outpost location');
+ assert.ok(site,'the player bank must have a legal buildable forward Outpost above the Mediterranean shoreline');
  assert.equal(c(`!!(globalThis.post=addB(0,'outpost',${site.x},${site.y},true))`),true);
  assert.equal(c('campaignReliquaryWaystation()===post'),true,'the forward location is verified from completed physical buildings');
  const resources=c('JSON.stringify(S.res[0])');
