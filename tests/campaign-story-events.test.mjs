@@ -45,7 +45,7 @@ test('Redwater merchant escort departs from a distant reachable checkpoint and n
  c('cmpTick(1)');
  assert.equal(c('cmp.e[3]'),1,'the real completed Market unlocks caravan departure');
  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.campaignConvoy==='redwater'&&u.hp>0).length"),2);
- assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.o==='m'&&u.p.length>0).length"),2,'merchant carts are given real walkable road paths');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='cart'&&u.o==='m'&&u.manualTradeMove&&u.p.length>0).length"),2,'both merchants use the real Trade Cart manual movement mode');
  assert.equal(c("S.us.filter(u=>u.t===0&&u.campaignConvoy==='redwater').every(u=>Math.hypot(u.x-market.x,u.y-market.y)>=23)"),true,'caravan must begin far enough away for an actual escort');
  assert.equal(c("campaignRedwaterCartArrived()"),false,'the arrival objective is not awarded at departure');
  c("globalThis.fake=addU(0,'cart',market.x+market.s+1,market.y+1)");
@@ -67,6 +67,7 @@ test('Redwater authentic carts resume bounded road legs but obey player Hold ord
  c('cmp.k=29;cmpTick(1/30)');
  assert.equal(c("merchants[0].o"),'m','idle authentic caravans must automatically continue along the road');
  assert.ok(c("merchants[0].p.length")>0,'continuation must use real pathfinding to the Market');
+ assert.equal(c("merchants[0].manualTradeMove"),true,'the trading-unit movement handler must execute the continued path');
  assert.equal(c("merchants[1].o"),'h','scripted path continuation must not override explicit Hold commands');
  assert.equal(c("merchants[1].p.length"),0);
  assert.equal(c("campaignRedwaterCartArrived()"),false,'resuming a route does not count as delivering a merchant');

@@ -339,7 +339,7 @@ function campaignRedwaterCaravanAdvance(){
   if(Math.hypot(dx,dy)<=2.5)continue;
   const route=path(cart,goalNear(market,1));
   if(!route||!route.length)continue;
-  cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;ordered++;
+  cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;cart.manualTradeMove=true;cart.tradePaused=false;ordered++;
  }
  return ordered;
 }
@@ -367,7 +367,7 @@ function campaignRoadCaravan(){
   if(!cart)continue;
   cart.campaignConvoy='redwater';
   const route=path(cart,target);
-  if(route){cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;moving++}
+  if(route){cart.o='m';cart.tg=null;cart.p=route;cart.rp=1;cart.manualTradeMove=true;cart.tradePaused=false;moving++}
  }
  if(moving)note('Redwater merchants are crossing the contested road. Escort at least one living Trade Cart to your Market before the last raid.');
  return moving;
