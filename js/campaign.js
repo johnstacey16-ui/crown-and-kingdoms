@@ -439,6 +439,15 @@ function campaignFrontierWatchReinforcement(){
  if(guard.length)note('The forward frontier Outpost is secured! Four royal defenders march to guard it. Keep your Market, Towers and villagers alive against the border raids.');
  return guard.length;
 }
+// Feudal Frontier attacks the actual defensive line instead of an unrelated
+// resource building. All selected targets are completed, living player sites;
+// the normal raid routine still checks navigable paths before issuing orders.
+function campaignFrontierRaidTarget(stage){
+ const built=S.bs.filter(b=>b&&b.t===0&&b.done&&b.hp>0);
+ if(stage==='first')return built.find(b=>b.k==='tower')||null;
+ if(stage==='market')return built.find(b=>b.k==='market')||null;
+ return campaignFrontierWatchpost()||built.find(b=>b.k==='tower')||built.find(b=>b.k==='market')||null;
+}
 // Reliquary Trail: a forward Outpost must secure the real central relic route.
 // Its optional escort uses ordinary mortal units and follows living Monks.
 function campaignReliquaryWaystation(){
@@ -1003,7 +1012,7 @@ const CAMP=[
 {t:'The Feudal Frontier',b:'A rival lord fortifies the border. Advance through the Feudal and Castle Ages, open a Market and build two Towers. Small raids will test each new defensive line before the final attack. Optionally place a completed Outpost ahead of the Town Centre, toward the rival frontier, to call in a four-soldier watch garrison.',civ:3,en:5,mt:1,msz:1,seed:33,diff:1,aip:2,vm:0,
  setup(){S.res[0]={f:1300,w:500,g:300,s:200}},
  goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2},{id:'frontierwatch',t:'Optional: Fortify the forward frontier with an Outpost',optional:true,ok:()=>!!campaignFrontierWatchpost()}],
- ev:[{at:10,do:()=>note('Advancing an age is done at the Town Centre and needs the right buildings first.')},{when:()=>S.age[0]>=1,do:()=>note('Feudal Age reached. Towers need stone: put villagers on a stone mine.')},{at:660,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','mil','arc'],'A border patrol is marching on your lands!')},{at:205,when:()=>S.age[0]>=1&&cb('tower')>=1,do:()=>raid(3,['scout','mil','spear'],'A rival scouting party tests your first defensive Tower!')},{at:390,when:()=>cb('tower')>=2&&cb('market')>=1,do:()=>raid(5,['mil','arc','spear','scout','mil'],'The rival launches a second raid at the fortified Market road!')},{when:()=>cmp.d.frontierwatch===1,do:()=>campaignFrontierWatchReinforcement()}]},
+ ev:[{at:10,do:()=>note('Advancing an age is done at the Town Centre and needs the right buildings first.')},{when:()=>S.age[0]>=1,do:()=>note('Feudal Age reached. Towers need stone: put villagers on a stone mine.')},{at:660,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','mil','arc'],'A border patrol is marching on your lands!',campaignFrontierRaidTarget('late'))},{at:205,when:()=>S.age[0]>=1&&cb('tower')>=1,do:()=>raid(3,['scout','mil','spear'],'A rival scouting party tests your first defensive Tower!',campaignFrontierRaidTarget('first'))},{at:390,when:()=>cb('tower')>=2&&cb('market')>=1,do:()=>raid(5,['mil','arc','spear','scout','mil'],'The rival launches a second raid at the fortified Market road!',campaignFrontierRaidTarget('market'))},{when:()=>cmp.d.frontierwatch===1&&!!campaignFrontierWatchpost(),do:()=>campaignFrontierWatchReinforcement()}]},
 {t:'The Relic Road',b:'Three sacred shrines mark the inland road to Ashford, with one relic at each real reachable site. Build a Monastery and return all three with your two Monks. Four spearmen and two skirmishers can escort the pilgrims. Once the first relic reaches home, Turkish trackers pursue the Monks. Optional: defeat those actual trackers to earn a third Monk and two royal spearmen. A later raiding party will also threaten your settlement.',civ:8,en:9,mt:0,msz:1,seed:44,diff:1,aip:3,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:600,w:600,g:500,s:300};grp(0,'mon',2);grp(0,'spear',4);grp(0,'skirm',2);campaignRelicRoadShrines()},
  goals:[{id:'m',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'r',t:'Hold 3 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=3},{id:'trackers',t:'Optional: Defeat the Turkish relic trackers',optional:true,ok:()=>campaignRelicRoadHuntersDefeated()}],

@@ -1199,6 +1199,7 @@ test('Feudal Frontier optional watchpost must be completed ahead of Ashford on t
  assert.ok(position,'a legally buildable forward Outpost site must exist on this seeded map');
  assert.equal(c(`!!(globalThis.post=addB(0,'outpost',${position.x},${position.y},true))`),true);
  assert.equal(c('campaignFrontierWatchpost()===post'),true);
+ assert.equal(c("campaignFrontierRaidTarget('late')===post"),true,'the final raid must prefer the living forward Outpost over unrelated farms');
  const enemyHp=c('tcOf(1).hp');
  const resources=c('JSON.stringify(S.res[0])');
  c('cmp.k=14;cmpTick(1)');
@@ -1214,6 +1215,26 @@ test('Feudal Frontier optional watchpost must be completed ahead of Ashford on t
  assert.equal(c('loadG()'),true);
  c('cmpTick(2)');
  assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===campaignFrontierWatchpost()&&['spear','skirm'].includes(u.k)).length"),4,'the garrison remains unique after save/load');
+});
+
+test('Feudal Frontier prioritizes living Towers and Market and never consumes an unearned Outpost relief',()=>{
+ const c=mission(2);
+ assert.equal(c("campaignFrontierRaidTarget('first')"),null);
+ assert.equal(c("campaignFrontierRaidTarget('market')"),null);
+ // An imported or stale save flag must not spend the one-time royal reward
+ // unless a finished, living forward Outpost actually exists.
+ c('cmp.d.frontierwatch=1;cmpTick(1/30)');
+ assert.equal(c('!!cmp.e[5]'),false,'a missing Outpost cannot consume the reward event');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'skirm').length"),0,'a fake milestone never creates soldiers');
+ c('cmp.d.frontierwatch=0;S.age[0]=1');
+ assert.equal(c("!!(globalThis.first=put(0,'tower',tcOf(0).x+8,tcOf(0).y+5))"),true);
+ assert.equal(c("campaignFrontierRaidTarget('first')===first"),true,'first raid prioritizes a physical finished Tower');
+ assert.equal(c("!!(globalThis.market=put(0,'market',tcOf(0).x+7,tcOf(0).y-8))"),true);
+ assert.equal(c("campaignFrontierRaidTarget('market')===market"),true,'second raid prioritizes the actual trading hub');
+ assert.equal(c("campaignFrontierRaidTarget('late')===first"),true,'final raid presses an existing Tower when no Outpost is ready');
+ c('first.hp=0');
+ assert.equal(c("campaignFrontierRaidTarget('first')"),null,'dead Towers cannot be selected as strategic raid targets');
+ assert.equal(c("campaignFrontierRaidTarget('late')===market"),true,'final raid falls back to the living Market after the Tower falls');
 });
 
 test('Feudal Frontier raids react to actual Towers and a Market, never age-up alone',()=>{
