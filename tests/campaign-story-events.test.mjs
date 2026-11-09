@@ -151,19 +151,20 @@ test('Golden Coast enemy Dock blockade stops later sea waves and rallies physica
  const c=mission(12);
  const enemyDock=c("S.bs.filter(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0).length");
  assert.equal(enemyDock,1,'a living rival Dock is the optional blockade target');
- const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,resources:S.res[0]})"));
+ const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,knight:aliveUnits(0,'knight').length,resources:S.res[0]})"));
  c("globalThis.blockedDock=S.bs.find(b=>b&&b.t===1&&b.k==='dock');blockedDock.hp=0");
  c('cmp.k=14;cmpTick(5)'); // Capital and harbour destruction milestones require >3 seconds.
  for(let i=0;i<15;i++)c('cmpTick(1/30)');
  assert.equal(c('!!cmp.d.blockade'),true,'the player must physically remove the hostile Dock before taking credit');
  c('cmpTick(1/30)');
- assert.equal(c("aliveUnits(0,'ram').length"),before.ram+2);
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+4);
  assert.equal(c("aliveUnits(0,'spear').length"),before.spear+5);
  assert.equal(c("aliveUnits(0,'skirm').length"),before.skirm+4);
- assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='ram').length"),9,'all nine landed soldiers Guard one of the two real siege engines');
-  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&u.o==='a'&&u.tg===tcOf(1)).length"),2,'both landing Rams issue real attack orders toward the capital');
-  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&Math.hypot(u.x-blockedDock.x,u.y-blockedDock.y)<25).length"),2,
-    'both siege engines land at genuinely walkable coastal cells near the captured Dock');
+ assert.equal(c("aliveUnits(0,'knight').length"),before.knight+2,'the landing includes two normal cavalry escorts');
+ assert.equal(c("S.us.filter(u=>u.t===0&&['spear','skirm'].includes(u.k)&&u.o==='G'&&u.tg?.k==='ram').length"),9,'all nine landed soldiers Guard one of four actual siege engines');
+  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&u.o==='a'&&u.tg===tcOf(1)).length"),4,'all four landing Rams issue real attack orders toward the capital');
+  assert.equal(c("S.us.filter(u=>u.t===0&&u.k==='ram'&&u.hp>0&&Math.hypot(u.x-blockedDock.x,u.y-blockedDock.y)<25).length"),4,
+    'all four siege engines land at genuinely walkable coastal cells near the captured Dock');
  assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.resources),'coastal volunteers do not create resources');
  assert.equal(c("CAMP[12].goals.find(g=>g.id==='win').ok()"),false,'a blockade alone does not destroy the enemy capital');
  c('cmpTick(330)');
@@ -173,7 +174,7 @@ test('Golden Coast enemy Dock blockade stops later sea waves and rallies physica
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
  c('cmpTick(1)');
- assert.equal(c("aliveUnits(0,'ram').length"),before.ram+2,'coastal volunteers never duplicate after reload');
+ assert.equal(c("aliveUnits(0,'ram').length"),before.ram+4,'coastal volunteers never duplicate after reload');
 });
 
 test('Causeway forward-Castle side objectives require two real forts at different shallow crossings',()=>{

@@ -193,7 +193,7 @@ function campaignCoastLandingRelief(){
  const beach=harbour?{t:0,x:harbour.x+3,y:harbour.y-4,s:B.dock.s}
    :{t:0,x:enemy.x-18,y:enemy.y+10,s:B.castle.s};
  const arrived=[],rams=[];
- for(const kind of ['ram','ram','spear','spear','spear','spear','spear','skirm','skirm','skirm','skirm']){
+ for(const kind of ['ram','ram','ram','ram','knight','knight','spear','spear','spear','spear','spear','skirm','skirm','skirm','skirm']){
   let spot=campaignOverflowSpawn(beach);
   if(spot&&S.bs.some(b=>b&&b.hp>0&&spot[0]>=b.x-1&&spot[0]<=b.x+b.s+1&&spot[1]>=b.y-1&&spot[1]<=b.y+b.s+1))spot=null;
   spot=spot||spawnPos(home)||campaignOverflowSpawn(home);
@@ -211,7 +211,7 @@ function campaignCoastLandingRelief(){
   }
   u.guardTarget=null;
  }
- if(arrived.length)note('The rival harbour is captured! Two Battering Rams and nine infantry land near the coastal beachhead. Escort the siege train through to the enemy Town Centre.');
+ if(arrived.length)note('The rival harbour is captured! Four Battering Rams, two Knights and nine infantry land near the coastal beachhead. Escort the siege train through to the enemy Town Centre.');
  return arrived.length;
 }
 // The two forward Castle side-quests use the real diagonal Causeway map.
