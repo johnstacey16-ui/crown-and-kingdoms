@@ -78,6 +78,7 @@ globalThis.__CK_TEST__ = {
     const goldenCoastProgress=[];
     const redwaterProgress=[];
     const frontierProgress=[];
+    const reliquaryProgress=[];
     const crownProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
     const reliquaryOpeningPatrols=index===11?S.us.filter(u=>u&&u.t===1&&u.k==='scout'&&u.campaignPatrol==='reliquary'&&u.hp>0).length:null;
@@ -416,6 +417,15 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(index===11&&tick%(30*30)===0)reliquaryProgress.push({
+        second:Math.round(S.t),townHp:Math.round(tcOf(0)?.hp||0),
+        monks:aliveUnits(0,'mon').map(u=>({id:u.netId,x:+u.x.toFixed(1),y:+u.y.toFixed(1),hp:Math.round(u.hp),order:u.o,target:u.tg?.rl?'relic':u.tg?.k||null,carrying:!!u.rel,route:u.p?.length||0})),
+        relics:S.rel.map(q=>({x:+q.x.toFixed(1),y:+q.y.toFixed(1),carried:q.c?.netId||null,home:q.m?.t??null})),
+        escorts:S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['mil','arc','spear','skirm'].includes(u.k))
+          .map(u=>({kind:u.k,order:u.o,target:u.tg?.k||null,hp:Math.round(u.hp)})),
+        enemyArmy:cmil(1),enemyPatrols:S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.campaignPatrol==='reliquary').length,
+        events:CAMP[11].ev.map((e,i)=>cmp.e[i]?i:null).filter(i=>i!==null)
+      });
       if(index===2&&tick%(30*40)===0)frontierProgress.push({
         t:Math.round(S.t),age:S.age[0],townHp:tcOf(0)?.hp||0,enemyArmy:cmil(1),friendlyArmy:cmil(0),
         events:CAMP[2].ev.map((e,i)=>cmp.e[i]?{at:e.at||0,i}:null).filter(Boolean),
@@ -485,6 +495,7 @@ globalThis.__CK_TEST__ = {
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
       frontierProgress:index===2?frontierProgress:null,
+      reliquaryProgress:index===11?reliquaryProgress:null,
       reliquaryOpeningPatrols,
       redwaterProgress:index===7?redwaterProgress:null,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
@@ -1588,6 +1599,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===16?{coastalRecon:result.coastalRecon,causewayProgress:result.causewayProgress}:{}),
     ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards,crownRecorded:result.crownRecorded,crownEnemyCapitalAlive:result.crownEnemyCapitalAlive}:{}),
     ...(index===2?{frontierProgress:result.frontierProgress}:{}),
+    ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
     ...(index===13?{straitProgress:result.straitProgress}:{}),
