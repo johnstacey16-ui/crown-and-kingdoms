@@ -1,6 +1,6 @@
 # Crown & Kingdoms — controlled Vercel releases
 
-The repository's `vercel.json` configures an **Ignored Build Step**: `node scripts/vercel-deployment-gate.mjs`. This overrides the equivalent project-dashboard ignored-build command. Vercel runs this script on Git-backed deployments; the script reads the current Git commit message.
+The repository's `vercel.json` configures an **Ignored Build Step**: `node scripts/vercel-deployment-gate.mjs`. This overrides the equivalent project-dashboard ignored-build command. Vercel runs this script on Git-backed deployments; the script first uses Vercel's `VERCEL_GIT_COMMIT_MESSAGE` system environment variable, falling back to `git log` for local checks.
 
 - Ordinary work on `main` (gameplay, tests, docs, fixes) still commits and runs existing GitHub Actions, but **does not build or publish a new Vercel deployment**.
 - To release an accepted version, include **`[deploy]`** in the commit message, e.g. `feat(campaign): finish mission fixes [deploy]`. The latest commit is released with all preceding commits. A deliberate empty release commit with `[deploy]` can also publish the already-tested current `main`.

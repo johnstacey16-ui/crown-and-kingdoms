@@ -2,15 +2,17 @@
 // Release commits must explicitly include [deploy] in their commit message.
 import { execFileSync } from 'node:child_process';
 
-let message;
-try {
-  message = execFileSync('git', ['log', '-1', '--format=%B'], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-} catch (error) {
-  console.error('Unable to read the Git commit message; skipping the deployment safely.', error.message);
-  process.exit(0);
+let message = process.env.VERCEL_GIT_COMMIT_MESSAGE;
+if (!message) {
+  try {
+    message = execFileSync('git', ['log', '-1', '--format=%B'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    console.error('Unable to read the Git commit message; skipping the deployment safely.', error.message);
+    process.exit(0);
+  }
 }
 
 if (/(?:^|\s)\[deploy\](?=\s|$)/i.test(message)) {
