@@ -238,6 +238,36 @@ test('Blackwood bridgehead earns physical guards once and late raids target reac
  assert.equal(c('S.over'),null,'enemy attack orders cannot fabricate a win or loss');
 });
 
+test('Blackwood loses maintained fortification credit when real defenses fall and restores it after rebuilding',()=>{
+ const c=mission(15);
+ c('S.ex.fill(1)');
+ const fixture=JSON.parse(c(`JSON.stringify((()=>{
+  const tc=tcOf(0),built=[];
+  for(const k of ['tower','tower','wall','wall','wall','wall','wall','wall']){
+   const b=put(0,k,tc.x+7,tc.y-7);
+   if(!b)return {failed:k,already:built};
+   built.push({k,id:b.netId});
+  }
+  return {built};
+ })())`));
+ assert.ok(!fixture.failed,'eight ordinary completed fortifications must fit around the actual starting settlement: '+JSON.stringify(fixture));
+ assert.equal(fixture.built.length,8);
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.tower'),1);
+ assert.equal(c('cmp.d.wall'),1);
+ c("S.bs.find(b=>b.netId==="+JSON.stringify(fixture.built.find(x=>x.k==='tower').id)+").hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('!!cmp.d.tower'),false,'a destroyed Tower removes the previously earned sustained objective credit');
+ assert.equal(c('cmp.d.wall'),1,'intact walls retain their own independently tracked objective credit');
+ c("S.bs.find(b=>b.netId==="+JSON.stringify(fixture.built.find(x=>x.k==='wall').id)+").hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('!!cmp.d.wall'),false,'a destroyed wall section also removes sustained completion credit');
+ c('cmp.k=14;cmpTick(480)');
+ assert.equal(c('S.over'),null,'the time milestone cannot award victory with broken Towers and walls');
+ assert.ok(c("!!put(0,'tower',tcOf(0).x+7,tcOf(0).y-7)"),'a replacement real Tower must be buildable');
+ assert.ok(c("!!put(0,'wall',tcOf(0).x+7,tcOf(0).y-7)"),'a replacement real wall must be buildable');
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('S.over'),'win','rebuilding the actual surviving fortifications after eight minutes finally earns victory');
+});
+
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));
