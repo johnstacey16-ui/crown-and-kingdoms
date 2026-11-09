@@ -302,6 +302,13 @@ globalThis.__CK_TEST__ = {
         if(index===12&&enemyTC&&enemyTC.hp<enemyTC.mh*.9)goldenCoastCapitalBreach=true;
         const enemyKing = index === 5 ? S.us.find(unit => unit && unit.t === 1 && unit.k === 'king' && unit.hp > 0) : null;
         for (const unit of S.us.filter(unit => unit && unit.t === 0 && unit.hp > 0 && !unit.ld && U[unit.k] && U[unit.k].dmg > 0 && !['vil', 'mon', 'king', 'cart', 'cog'].includes(unit.k))) {
+           // Rams exist to demolish the real enemy capital. Do not recycle
+           // infantry target selection to chase enemy Knights or hostile Rams;
+           // that stalled the Golden Coast siege while the Town Centre survived.
+           if(index===12&&unit.k==='ram'&&enemyTC){
+             if(unit.o!=='a'||unit.tg!==enemyTC){unit.o='a';unit.tg=enemyTC;unit.p=[];unit.rp=0}
+             continue;
+           }
            if(index===14&&unit.o==='G'&&unit.tg?.k==='treb'&&unit.tg.hp>0)continue;
            if(index===12&&goldenCoastHomeGuardIds.has(unit.netId))continue; // Defend the home settlement against the land raids.
            if(index===17&&crownHomeGuardIds.has(unit.netId))continue; // Protect the real home Town Centre.
@@ -2045,6 +2052,13 @@ for (const [index, label, limit] of [
     assert.equal(result.crownHomeGuards,5,'five troops must remain assigned to home Guard defence');
     assert.ok(result.productionPeak.treb>=3,'paid Castle production must reinforce the two royal Trebuchets');
     assert.ok(result.townCentreHp>0,'the player capital must survive the crossing campaign');
+  }
+  if(index===12){
+    for(const snapshot of result.goldenCoastProgress){
+      if(!snapshot.assault||!snapshot.ramOrders.length||snapshot.enemyHp<=0)continue;
+      assert.ok(snapshot.ramOrders.every(r=>r.o==='a'&&r.t==='tc'),
+        'every active Golden Coast Battering Ram must attack the real enemy Town Centre instead of chasing enemy soldiers: '+JSON.stringify(snapshot.ramOrders));
+    }
   }
   if(index===10){
     assert.equal(result.over,'win','The King\u2019s Road must be won through real mining, two completed Towers and the timed hold: '+JSON.stringify(result));
