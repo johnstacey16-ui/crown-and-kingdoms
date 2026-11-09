@@ -2139,6 +2139,14 @@ assert.ok(relicRoadPlaythrough.relicRoad?.pursuit&&relicRoadPlaythrough.relicRoa
 assert.ok(relicRoadPlaythrough.relicRoadProgress.some(p=>p.trackersAlive>=2&&p.escorts.some(u=>u.order==='a'&&u.target==='scout')),
  'the real defending army must engage the enemy pursuit while protecting Monks');
 assert.equal(relicRoadPlaythrough.relicRoad?.delivered,3,'three actually carried and deposited relics must reach a living completed Monastery');
+assert.equal(relicRoadPlaythrough.relicRoad?.trackersDefeated,true,
+ 'the seeded escort must neutralize every identified real Turkish tracker');
+assert.equal(relicRoadPlaythrough.relicRoad?.relief,true,
+ 'defeating the trackers should earn a real third pilgrim and two spearmen exactly once');
+assert.ok(relicRoadPlaythrough.relicRoadProgress.some(p=>p.trackersFired&&p.trackersAlive>=2),
+ 'there must be a genuine period of Turkish pursuit before the scripted escort prevails');
+assert.ok(relicRoadPlaythrough.relicRoadProgress.some(p=>p.relief&&p.monks.length>=1),
+ 'a living Monk must still be available to complete the pilgrimage after the optional escort arrives');
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
 if (shouldRunCampaignMission(11)) {
