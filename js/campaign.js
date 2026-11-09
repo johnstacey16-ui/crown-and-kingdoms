@@ -855,6 +855,48 @@ function campaignRelicRoadPilgrimRelief(){
  if(arrivals.length)note('The Turkish relic trackers are defeated! A third royal pilgrim and two spearmen have joined the relic recovery.');
  return arrivals.length;
 }
+// The two existing Kronburg flank Towers are identified by their original
+// persistent network IDs. A replacement or unrelated Tower must not satisfy
+// the optional sabotage objective after a save/reload.
+function campaignKronburgFlanksDown(){
+ const ids=cmp?.i===4?cmp.d.kronburgFlankIds:null;
+ return Array.isArray(ids)&&ids.length===2&&new Set(ids).size===2&&
+  ids.every(id=>typeof id==='string'&&id.length>0&&!S.bs.some(b=>b&&b.t===1&&b.hp>0&&b.netId===id));
+}
+function campaignKronburgCastleBreached(){
+ if(cmp?.i!==4)return false;
+ const castle=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0);
+ return !!castle&&castle.hp<=castle.mh*.65;
+}
+function campaignKronburgFlanksSilenced(){
+ // The player has to silence both actual enemy towers while the Castle still
+ // has an intact outer wall; later destruction cannot undo a launched sortie.
+ const castle=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0);
+ return !!castle&&castle.hp>castle.mh*.65&&campaignKronburgFlanksDown();
+}
+function campaignKronburgCastleSortie(){
+ const enemy=tcOf(1);
+ if(!enemy||S.over)return 0;
+ const quiet=cmp.d.flanks===1;
+ const roster=quiet?['spear','spear']:['spear','spear','spear','arc','arc','scout'];
+ const created=[],siege=aliveUnits(0,'ram').filter(u=>!u.ld);
+ const targets=[...siege,...aliveUnits(0).filter(u=>!u.ld&&U[u.k]?.dmg>0),tcOf(0)].filter(Boolean);
+ for(const kind of roster){
+  const point=spawnPos(enemy)||campaignOverflowSpawn(enemy);
+  if(!point)continue;
+  const u=addU(1,kind,point[0],point[1]);
+  if(!u)continue;
+  u.campaignPatrol='kronburg-sortie';
+  for(const target of targets){
+   if(!path(u,goalNear(target,Math.max(1,U[kind].rng||1))))continue;
+   u.o='a';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0;break;
+  }
+  created.push(u);
+ }
+ cmp.d.kronburgSortieIds=created.map(u=>u.netId);
+ if(created.length)note(quiet?'The flank towers are silent! Only the scattered Kronburg rearguard can sortie.':'Kronburg Castle is breached! Its full garrison sallies out against your battering rams. Guard your siege train!');
+ return created.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -872,10 +914,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:600,w:600,g:500,s:300};grp(0,'mon',2);grp(0,'spear',4);grp(0,'skirm',2);campaignRelicRoadShrines()},
  goals:[{id:'m',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'r',t:'Hold 3 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=3},{id:'trackers',t:'Optional: Defeat the Turkish relic trackers',optional:true,ok:()=>campaignRelicRoadHuntersDefeated()}],
  ev:[{at:6,do:()=>note('Your Monks must recover three real relics. Use the supplied spearmen and skirmishers to escort them; enemy trackers will respond to the first delivery.')},{at:420,do:()=>raid(4,['scout','skirm','scout','skirm'],'Turkish scouts are probing your lands. Protect your monks!')},{when:()=>campaignRelicRoadDeposited()>=1,do:()=>campaignRelicRoadPursuit()},{when:()=>cmp.d.trackers===1,do:()=>campaignRelicRoadPilgrimRelief()}]},
-{t:'Siege of Kronburg',b:'The Byzantine lord holds Kronburg, a Town Centre ringed with a castle and towers. You have only a small army and three rams. Keep your spearmen close to the rams, shoot the defenders with archers, then bring the castle down and burn the Town Centre.',civ:5,en:3,mt:3,msz:1,seed:55,diff:1,aip:5,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2},
- goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],
- ev:[{at:5,do:()=>note('Rams are strong against buildings but weak against melee. Guard them.')},{at:90,do:()=>note('Archers are fragile: keep them behind your spearmen.')}]},
+{t:'Siege of Kronburg',b:'The Byzantine lord holds Kronburg behind a Castle and two flank Towers. Keep the original three rams alive and use your twenty escorts to defeat the garrison. Destroy the Castle and Town Centre to win. Optional: destroy BOTH marked flank Towers before the Castle drops below 65% health to disrupt its reserves. If you rush the Castle directly, a full garrison will sortie to attack your battering rams; with the towers silenced, only two spearmen arrive.',civ:5,en:3,mt:3,msz:1,seed:55,diff:1,aip:5,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(e){if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;const ids=[];for(const [dx,dy] of [[-4,12],[-11,5]]){const tower=put(1,'tower',e.x+dx,e.y+dy);if(tower){tower.campaignFlank='kronburg';ids.push(tower.netId)}}cmp.d.kronburgFlankIds=ids;grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2}},
+ goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'flanks',t:'Optional: Silence both flank Towers before the Castle breach',optional:true,ok:()=>campaignKronburgFlanksSilenced()}],
+ ev:[{at:5,do:()=>note('Kronburg Towers cover the fortress approaches. Both flank Towers must fall before the Castle breach if you want to disrupt the reserve.')},{at:90,do:()=>note('Guard your rams with spearmen and use archers to thin the garrison. At 65% Castle health, the surviving reserve counterattacks.')},{when:()=>campaignKronburgCastleBreached(),do:()=>campaignKronburgCastleSortie()}]},
 {t:'The Last Crown',b:'Only two claimants remain. Both kingdoms muster in Castle Age with equal resources. Protect your King, build siege weapons and escort troops, break the jarl\'s Town Centre if he garrisons, then defeat the enemy King.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
  setup(){S.age[0]=S.age[1]=2;S.res[0]={f:800,w:1200,g:500,s:150};S.res[1]={f:800,w:1200,g:500,s:150}},
  goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)}],

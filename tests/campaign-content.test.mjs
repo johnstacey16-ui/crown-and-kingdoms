@@ -182,8 +182,10 @@ test('Kronburg places its declared rams and escort on reachable, unoccupied star
   'normal scenario start must not silently drop the archer and cavalry escort');
  assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,23,
   'all 23 supplied soldiers occupy distinct starting tiles');
- assert.deepEqual(Array.from(state.objectives),['c','t'],
-  'destroying the real Castle and Town Centre remains required');
+ assert.deepEqual(Array.from(state.objectives),['c','t','flanks'],
+  'the Castle and Town Centre remain required and flank sabotage is an optional pre-breach tactical objective');
+ assert.equal(vm.runInContext("CAMP[4].goals.find(g=>g.id==='flanks').optional",sandbox),true,
+  'the optional enemy Tower objective cannot hold a real victory hostage');
  assert.equal(state.enemyCastle,1,'the original enemy Castle stays intact at start');
  assert.equal(state.enemyTown,1,'the original enemy Town Centre stays intact at start');
  assert.ok(state.enemyArmy>=10,'the original garrison is preserved');

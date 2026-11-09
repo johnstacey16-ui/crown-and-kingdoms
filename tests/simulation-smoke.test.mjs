@@ -602,6 +602,9 @@ globalThis.__CK_TEST__ = {
       soldiers: cmil(0),
       kronburg:index===4?{
         castleFlag:cmp.d.cas||0,
+        flanksSilenced:!!cmp.d.flanks,sortieTriggered:!!cmp.e[2],
+        sortieCount:S.us.filter(u=>u&&u.campaignPatrol==='kronburg-sortie').length,
+        flankIds:cmp.d.kronburgFlankIds||[],
         enemyCastle:S.bs.filter(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
         enemyTown:S.bs.filter(b=>b&&b.t===1&&b.k==='tc'&&b.hp>0).map(b=>({hp:b.hp,x:b.x,y:b.y})),
         playerTroops:Object.fromEntries(['ram','spear','arc','knight'].map(k=>[k,S.us.filter(u=>u&&u.t===0&&u.k===k&&u.hp>0).length])),
@@ -1686,6 +1689,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===15?{blackwood:result.blackwood}:{}),
     ...(index===18?{ironPass:result.ironPass,ironPassProgress:result.ironPassProgress}:{}),
     ...(index===9?{greywatch:result.greywatch}:{}),
+    ...(index===4?{kronburg:result.kronburg}:{}),
     ...(index===3?{relicRoad:result.relicRoad,relicRoadProgress:result.relicRoadProgress}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
@@ -2364,7 +2368,11 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   }
   if(index===4){
    assert.equal(result.over,'win','Kronburg must be naturally won by an actual army without a scripted victory: '+JSON.stringify(result.kronburg));
-   assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'Kronburg must destroy both required enemy structures');
+   assert.ok(result.objectives.filter(goal=>!goal.title.startsWith('Optional:')).every(goal=>goal.complete&&goal.predicate),
+    'Kronburg must destroy its real Castle and Town Centre, without making flank disruption mandatory');
+   assert.equal(result.objectives.filter(goal=>!goal.title.startsWith('Optional:')).length,2);
+   assert.equal(result.kronburg?.sortieTriggered,true,'a real Castle siege must provoke the enemy garrison');
+   assert.ok(result.kronburg?.sortieCount>=2,'at least two mortal defenders must respond to the Castle breach');
    assert.equal(result.kronburg.enemyCastle.length,0,'enemy Castle must be destroyed');
    assert.equal(result.kronburg.enemyTown.length,0,'enemy Town Centre must be destroyed');
    assert.ok(result.townCentreHp>0,'attacking player must retain their starting Town Centre');

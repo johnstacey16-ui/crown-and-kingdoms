@@ -616,6 +616,54 @@ test('Relic Road optional victory over actual trackers earns a one-shot living p
  assert.equal(c("aliveUnits(0,'mon').length"),monks+1,'save/load does not duplicate the third Monk');
  assert.equal(c("aliveUnits(0,'spear').length"),soldiers+2,'save/load does not duplicate royal spearmen');
 });
+test('Kronburg flank Towers have genuine persistent identities and a timed pre-breach option',()=>{
+ const c=mission(4);
+ const ids=JSON.parse(c('JSON.stringify(cmp.d.kronburgFlankIds)'));
+ assert.equal(ids.length,2,'both real enemy towers must be authored');
+ assert.equal(new Set(ids).size,2,'two distinct towers make up the flank line');
+ assert.equal(c("S.bs.filter(b=>b&&b.t===1&&b.k==='tower'&&b.hp>0&&b.campaignFlank==='kronburg').length"),2);
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CAMP[4].goals.map(g=>[g.id,!!g.optional]))')),
+  [['c',false],['t',false],['flanks',true]],'Castle and Town Centre remain mandatory');
+ assert.equal(c('campaignKronburgFlanksSilenced()'),false);
+ c('S.bs.find(b=>b.netId===cmp.d.kronburgFlankIds[0]).hp=0;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('!!cmp.d.flanks'),false,'one tower cannot disrupt the flank signal');
+ c('S.bs.find(b=>b.netId===cmp.d.kronburgFlankIds[1]).hp=0;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.flanks'),1,'both real towers destroyed before breach earn the option');
+ const before=c("aliveUnits(1).filter(u=>u.k==='spear'||u.k==='arc'||u.k==='scout').length");
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp*=.6;cmpTick(1/30)");
+ assert.equal(c('cmp.e[2]'),1,'a real damaged Castle launches its one-time garrison reaction');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='kronburg-sortie'&&u.hp>0).length"),2,
+  'clearing both flanks reduces the real sortie to two mortal spearmen');
+ assert.equal(c("aliveUnits(1).filter(u=>u.k==='spear'||u.k==='arc'||u.k==='scout').length"),before+2);
+ assert.ok(c("S.us.some(u=>u.campaignPatrol==='kronburg-sortie'&&u.o==='a'&&u.tg?.k==='ram')"),
+  'the smaller defending force still targets real player rams with combat orders');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.kronburgFlankIds)'),JSON.stringify(ids),'original flank identities survive reload');
+ assert.equal(c('cmp.d.flanks'),1,'earned optional disruption persists');
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='kronburg-sortie'&&u.hp>0).length"),2,
+  'the Castle cannot respawn its reserve after loading');
+});
+
+test('Kronburg direct Castle rush provokes full mortal garrison, even if both towers fall later',()=>{
+ const c=mission(4);
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp*=.6;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('cmp.e[2]'),1,'breaching a real Castle is the only counterattack trigger');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='kronburg-sortie'&&u.hp>0).length"),6,
+  'an intact flank line leaves six real spear, archer and scout defenders');
+ assert.ok(c("S.us.filter(u=>u.campaignPatrol==='kronburg-sortie'&&u.k==='arc'&&u.hp>0).length")>=2,
+  'the full reserve contains ranged defenders instead of a dummy strength counter');
+ assert.ok(c("S.us.some(u=>u.campaignPatrol==='kronburg-sortie'&&u.o==='a'&&u.tg?.k==='ram')"),
+  'the defenders truly attack the siege train');
+ c("S.bs.filter(b=>b.t===1&&b.k==='tower'&&b.netId&&cmp.d.kronburgFlankIds.includes(b.netId)).forEach(b=>b.hp=0)");
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('!!cmp.d.flanks'),false,'tower sabotage after the Castle breach cannot retroactively weaken a sortie');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='kronburg-sortie'&&u.hp>0).length"),6,
+  'later tower destruction cannot undo enemies that physically spawned');
+ assert.equal(c('S.over'),null,'neither the full reserve nor optional towers bypasses the Castle and Town Centre objectives');
+});
+
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));
