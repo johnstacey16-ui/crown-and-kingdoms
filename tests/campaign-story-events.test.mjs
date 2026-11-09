@@ -49,7 +49,7 @@ test('Raiders at the Ford selects a real reachable shallow crossing and uses the
  const crossingCount=c('cmp.d.raidersCrossings||0');
  assert.ok(crossingCount>=2,'multiple attackers must emerge on reachable enemy-facing approaches to the actual ford');
  const locations=JSON.parse(c('JSON.stringify(cmp.d.raidersRoadSpawns)'));
- assert.ok(locations.every(p=>Math.hypot(p[0]-campaignRaidersFord()[0],p[1]-campaignRaidersFord()[1])<=30));
+ assert.ok(locations.every(p=>Math.hypot(p[0]-ford[0],p[1]-ford[1])<=30),'every documented road spawn is near the actual saved shallow ford');
  assert.ok(c("S.us.some(u=>u&&u.campaignPatrol==='ford-crossing'&&u.o==='a'&&u.tg?.t===0)"),
   'the real raiders receive combat orders against living friendly targets');
  assert.equal(c('saveG()'),true);
