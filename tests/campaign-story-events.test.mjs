@@ -518,6 +518,75 @@ test('King’s Road requires genuine funds and a completed Market with two live 
  assert.equal(c('S.res[0].w'),0,'saved supply is never charged a second time');
 });
 
+test('Ashford capital siege requires the real Castle as well as the rival Town Centre',()=>{
+ const c=mission(8);
+ assert.equal(c("CAMP[8].goals.find(g=>g.id==='castle').optional"),undefined,'the Castle is a mandatory siege objective');
+ assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='castle'&&b.hp>0).length"),1,'the enemy really begins with a living Castle');
+ assert.equal(c("S.bs.filter(b=>b.t===1&&b.k==='tower'&&b.campaignSignal==='ashford'&&b.hp>0).length"),2,'two actual enemy towers can be disabled');
+ assert.equal(c("CAMP[8].goals.find(g=>g.id==='tc').ok()"),false);
+ assert.equal(c("CAMP[8].goals.find(g=>g.id==='castle').ok()"),false);
+ // Taking the capital alone can no longer bypass its fortified Castle.
+ c('tcOf(1).hp=0;cmp.k=14;cmpTick(5)');
+ assert.equal(c('cmp.d.tc'),1);
+ assert.equal(c('!!cmp.d.castle'),false);
+ assert.equal(c('S.over'),null,'an intact hostile Castle prevents premature victory');
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp=0;cmp.k=29;cmpTick(1)");
+ assert.equal(c('cmp.d.castle'),1);
+ assert.equal(c('S.over'),'win','only destruction of both authentic enemy buildings wins the capital siege');
+});
+
+test('Ashford signal towers earn one physical siege escort and cannot be forged by arbitrary buildings',()=>{
+ const c=mission(8);
+ assert.equal(c("CAMP[8].goals.find(g=>g.id==='signals').optional"),true);
+ const ids=JSON.parse(c("JSON.stringify(cmp.d.ashfordSignalIds)"));
+ assert.equal(ids.length,2,'the two originally placed hostile signal towers have persistent unique identities');
+ assert.equal(new Set(ids).size,2);
+ const first=c("CAMP[8].ev.findIndex(e=>e.do.toString().includes('campaignAshfordSignalRelief'))");
+ assert.ok(first>=0);
+ const start=c("aliveUnits(0,'spear').length+aliveUnits(0,'arc').length");
+ const resources=c('JSON.stringify(S.res[0])');
+ const capital=c('tcOf(1).hp');
+ assert.equal(c('campaignAshfordSignalsDisabled()'),false);
+ c("S.bs.find(b=>b.netId===cmp.d.ashfordSignalIds[0]).hp=0;cmp.k=14;cmpTick(5)");
+ assert.equal(c('campaignAshfordSignalsDisabled()'),false,'destroying one tower is not enough');
+ assert.equal(c('!!cmp.d.signals'),false,'one real signal tower keeps the optional objective open');
+ c("S.bs.find(b=>b.netId===cmp.d.ashfordSignalIds[1]).hp=0;cmp.k=29;cmpTick(1)");
+ assert.equal(c('cmp.d.signals'),1,'only the two identified real towers satisfy the objective');
+ assert.equal(c('!!cmp.e['+first+']'),false,'the reward waits for its objective trigger');
+ c('cmpTick(1)');
+ assert.equal(c('cmp.e['+first+']'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'arc').length"),start+6,'six actual mortal troops join the siege');
+ assert.equal(c("S.us.filter(u=>u&&u.t===0&&u.k==='spear'&&u.hp>0&&u.o==='G'&&u.tg?.k==='ram').length"),3,'fresh spearmen guard a real Battering Ram');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'story reinforcements do not fabricate resources');
+ assert.equal(c('tcOf(1).hp'),capital,'the optional signal reward never damages the enemy for free');
+ assert.equal(c('S.over'),null,'optional towers cannot replace the Castle and Town Centre');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.ashfordSignalIds)'),JSON.stringify(ids),'tower IDs persist after save/reload');
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'arc').length"),start+6,'reward cannot duplicate after reloading');
+});
+
+test('the fall of Ashford Castle provokes real, one-shot defenders attacking the siege',()=>{
+ const c=mission(8);
+ const first=c("CAMP[8].ev.findIndex(e=>e.do.toString().includes('campaignAshfordCastleSortie'))");
+ assert.ok(first>=0);
+ const enemyBefore=c("aliveUnits(1,'spear').length+aliveUnits(1,'arc').length");
+ const castle=c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).netId");
+ assert.ok(castle);
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp=0;cmp.k=14;cmpTick(5)");
+ assert.equal(c('cmp.d.castle'),1);
+ assert.equal(c('S.over'),null,'the Castle breach does not bypass the remaining enemy Town Centre');
+ c('cmpTick(1)');
+ assert.equal(c('cmp.e['+first+']'),1);
+ assert.equal(c("aliveUnits(1,'spear').length+aliveUnits(1,'arc').length"),enemyBefore+6,'real defenders sortie after the authentic Castle falls');
+ assert.ok(c("S.us.some(u=>u.t===1&&u.k==='spear'&&u.hp>0&&u.o==='a'&&u.tg?.t===0)"),'the sortie targets living player soldiers or siege engines');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(1,'spear').length+aliveUnits(1,'arc').length"),enemyBefore+6,'the Castle sortie does not respawn after save/load');
+});
+
 test('Feudal Frontier optional watchpost must be completed ahead of Ashford on the enemy approach',()=>{
  const c=mission(2);
  assert.equal(c("CAMP[2].goals.find(g=>g.id==='frontierwatch').optional"),true);
