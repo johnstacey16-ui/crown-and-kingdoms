@@ -585,6 +585,17 @@ test('Reliquary Trail patrols pursue real Monks before the old 3:40 scripted rai
  assert.equal(c("CAMP[11].goals.find(g=>g.id==='trailpost').optional"),true);
  assert.ok(c("aliveUnits(0,'mon').length")>=2,'two genuine player Monks begin the mission');
  assert.equal(c("cb('monastery')"),1,'the mission briefing reflects the starting Monastery');
+ const shore=JSON.parse(c(`JSON.stringify((()=>{
+  const home=tcOf(0),hx=home.x+home.s/2,hy=home.y+home.s/2;
+  const dx=W/2-hx,dy=H/2-hy,dist=Math.hypot(dx,dy);
+  return S.rel.filter(q=>q&&q.rl&&!q.c&&!q.m).map(q=>{
+   const x=q.x-hx,y=q.y-hy,cell=(q.y|0)*W+(q.x|0);
+   return{forward:(x*dx+y*dy)/dist,side:(x*dy-y*dx)/dist,dry:!S.wt[cell]&&!S.g[cell]&&!S.nd[cell]};
+  });
+ })())`));
+ for(const direction of [-1,1])
+  assert.ok(shore.some(q=>q.dry&&q.forward>=19&&q.forward<=34&&q.side*direction>=4),
+   'each flank of the Mediterranean shore must have a physically placed, unclaimed mission relic');
  const before=c("aliveUnits(1).length");
  c('cmpTick(54)');
  assert.equal(c('!!cmp.e['+first+']'),false,'early patrols cannot fire ahead of their timing');
