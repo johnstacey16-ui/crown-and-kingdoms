@@ -102,13 +102,14 @@ const button=i=>Object.assign([],{[i]:true});
 test('small minimap A hits only its visible diamond, leaving surrounding clicks as normal selection',()=>{
  const c=fixture();
  vm.runInContext(`
-  globalThis.minimapFocuses=[];globalThis.worldTaps=[];
-  ctr=(x,y)=>{minimapFocuses.push([x,y]);};
+  globalThis.worldTaps=[];
   tapA=(x,y,lt)=>{worldTaps.push([x,y,lt]);};
   cur={x:mm.x+mm.w/2,y:mm.y+mm.h/2};
  `,c);
+ const cameraBefore=c.state().camera;
  c.run(button(0),button(0));c.run([],[],button(0));
- assert.equal(c.minimapFocuses.length,1,'centre of diamond should navigate once');
+ const focusedCamera=c.state().camera;
+ assert.notDeepEqual(focusedCamera,cameraBefore,'centre of the diamond must navigate');
  assert.equal(c.worldTaps.length,0,'minimap must not dispatch a world A order');
  assert.equal(c.state().gesture,false);
 
@@ -123,7 +124,7 @@ test('small minimap A hits only its visible diamond, leaving surrounding clicks 
   assert.equal(c.state().gesture,true,'outside click should start normal A selection');
   c.run([],[],button(0));
  }
- assert.equal(c.minimapFocuses.length,1,'outside points must not move the camera');
+ assert.deepEqual(c.state().camera,focusedCamera,'outside points must not move the camera');
  assert.equal(c.worldTaps.length,2,'outside points follow the usual A tap flow');
  assert.equal(c.state().gesture,false,'release clears the selection gesture');
 
