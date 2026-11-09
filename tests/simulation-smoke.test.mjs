@@ -76,6 +76,7 @@ globalThis.__CK_TEST__ = {
     const straitProgress=[];
     const causewayProgress=[];
     const goldenCoastProgress=[];
+    const redwaterProgress=[];
     const crownProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
     let crownAssaultTime=null,crownAssaultStarted=false,crownHomeReserveAssigned=false;
@@ -380,6 +381,16 @@ globalThis.__CK_TEST__ = {
       }
       }
       this.tick(1 / 30);
+      if(index===7&&tick%(30*20)===0)redwaterProgress.push({
+       t:Math.round(S.t),campaignTime:Math.round(cmp.t),hasDispatch:!!cmp.e[3],delivered:!!cmp.d.caravan,
+       market:S.bs.filter(b=>b&&b.t===0&&b.k==='market'&&b.hp>0).map(b=>({x:b.x,y:b.y,hp:Math.round(b.hp),done:b.done})),
+       carts:S.us.filter(u=>u&&u.t===0&&u.k==='cart').map(u=>({
+        convoy:u.campaignConvoy||null,alive:u.hp>0,hp:Math.round(u.hp),x:+u.x.toFixed(1),y:+u.y.toFixed(1),o:u.o,
+        path:u.p?.length||0,tg:u.tg?.k||null,
+        distance:Math.round(Math.min(...S.bs.filter(b=>b&&b.t===0&&b.k==='market'&&b.hp>0).map(b=>Math.hypot(u.x-b.x,u.y-b.y)),999))
+       })),
+       enemyArmy:cmil(1),playerArmy:cmil(0),goals:CAMP[7].goals.filter(g=>cmp.d[g.id]).map(g=>g.id)
+      });
       if(index===12&&tick%(30*60)===0)goldenCoastProgress.push({
         t:Math.round(S.t),homeHp:tcOf(0)?.hp||0,enemyHp:tcOf(1)?.hp||0,
         homeDocks:cb('dock'),enemyDockHp:S.bs.find(b=>b.t===1&&b.k==='dock'&&b.hp>0)?.hp||0,
@@ -430,6 +441,7 @@ globalThis.__CK_TEST__ = {
       over: S.over, reason:S.why||null, time: S.t, campaignTime: cmp.t, mode,
       missionTitle:CAMP[index].t,missionSeed:CAMP[index].seed,
       constructionOrders: builder.orders, productionPeak,
+      redwaterProgress:index===7?redwaterProgress:null,
       goldenCoastProgress:index===12?goldenCoastProgress:null,
        goldenCoast:index===12?{staging:goldenCoastStaging,capitalBreach:goldenCoastCapitalBreach,homeGuards:goldenCoastHomeGuardIds.size,assaultStarted:goldenCoastAssaultStarted,blockade:!!cmp.d.blockade,playerDocks:cb('dock'),enemyDockAlive:S.bs.some(b=>b&&b.t===1&&b.k==='dock'&&b.hp>0),landSoldiers:cmil(0),warGalleys:aliveUnits(0,'gal').length,playerRams:aliveUnits(0,'ram').length}:null,
       tidewatchProgress:index===14?tidewatchProgress:null,
@@ -1530,6 +1542,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===9?{siegeAssault:result.greywatch}:{}),
     ...(index===16?{coastalRecon:result.coastalRecon,causewayProgress:result.causewayProgress}:{}),
     ...(index===17?{crownProgress:result.crownProgress,crownAssaultTime:result.crownAssaultTime,crownHomeGuards:result.crownHomeGuards,crownRecorded:result.crownRecorded,crownEnemyCapitalAlive:result.crownEnemyCapitalAlive}:{}),
+    ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
     ...(index===13?{straitProgress:result.straitProgress}:{}),
     ...(index===14?{tidewatchProgress:result.tidewatchProgress}:{})
