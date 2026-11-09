@@ -503,6 +503,23 @@ test('Greywatch relay sabotage before 4:00 reduces a real enemy cavalry raid and
  assert.equal(intact('!!cmp.d.relay'),false,'destroying the Tower after the cavalry signal cannot retroactively earn early sabotage');
 });
 
+test('Greywatch sabotage cannot be forged by destroying a different hostile Tower',()=>{
+ const c=mission(9);
+ const original=c('cmp.d.greywatchRelayId');
+ assert.ok(original,'Greywatch must have one identified relay Tower');
+ c("globalThis.decoy=put(1,'tower',tcOf(1).x+9,tcOf(1).y-7)");
+ assert.ok(c('!!decoy'),'the mission allows another ordinary enemy Tower');
+ assert.notEqual(c('decoy.netId'),original,'the second Tower must have its own persistent identity');
+ c('decoy.hp=0;cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('campaignGreywatchRelayDown()'),false,'an unrelated destroyed Tower cannot disable the actual enemy signal');
+ assert.equal(c('!!cmp.d.relay'),false,'a counterfeit Tower cannot earn the timed optional objective');
+ c("S.bs.find(b=>b.netId===cmp.d.greywatchRelayId).hp=0;cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('cmp.d.relay'),1,'the genuine destroyed relay is credited before the enemy reinforcement signal');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('cmp.d.greywatchRelayId'),original,'the original sabotage target identity survives reload');
+ assert.equal(c('cmp.d.relay'),1,'the early sabotage milestone cannot be reset by saving');
+});
 test('Breaching Greywatch Castle launches one-shot mortal siege hunters against real rams',()=>{
  const c=mission(9);
  const fort=c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).netId");
