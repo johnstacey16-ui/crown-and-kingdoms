@@ -766,6 +766,90 @@ function campaignGreywatchSiegeHunters(){
  if(ordered)note('Greywatch Castle is breached! Enemy siege hunters are attacking your rams and forward workshop. Protect your siege train.');
  return hunters.length;
 }
+// The Relic Road is a land pilgrimage, not a random scavenger hunt. Author
+// three separate shrines from reachable, unoccupied terrain on its seeded map.
+// All three must be placed before replacing the generator's random relics.
+function campaignRelicRoadShrines(){
+ const home=tcOf(0),enemy=tcOf(1),pilgrim=aliveUnits(0,'mon')[0];
+ if(cmp?.i!==3||!home||!enemy||!pilgrim)return 0;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=enemy.x+enemy.s*.5-hx,dy=enemy.y+enemy.s*.5-hy,dist=Math.hypot(dx,dy);
+ if(dist<35)return 0;
+ const ux=dx/dist,uy=dy/dist;
+ const plan=[[19,-12],[30,13],[40,-5]],found=[];
+ for(const [forward,lateral] of plan){
+  let site=null;
+  const targets=[];
+  for(const df of [0,2,-2,4,-4,6,-6,8,-8,10,-10])
+   for(const dl of [0,2,-2,4,-4,6,-6,8,-8,10,-10]){
+    const x=Math.round(hx+ux*(forward+df)-uy*(lateral+dl)),
+      y=Math.round(hy+uy*(forward+df)+ux*(lateral+dl));
+    if(x<3||y<3||x>=W-3||y>=H-3)continue;
+    const cell=y*W+x;
+    if(S.g[cell]||S.wt[cell]||S.nd[cell])continue;
+    if(Math.hypot(x+.5-hx,y+.5-hy)<13||Math.hypot(x+.5-enemy.x,y+.5-enemy.y)<11)continue;
+    if(found.some(q=>Math.hypot(q.x-x-.5,q.y-y-.5)<12))continue;
+    if(S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<2))continue;
+    targets.push({x:x+.5,y:y+.5,score:Math.abs(df)+Math.abs(dl)*.65});
+   }
+  targets.sort((a,b)=>a.score-b.score);
+  for(const q of targets.slice(0,180)){
+   if(!path(pilgrim,gp(q.x,q.y,.8)))continue;
+   site={rl:1,x:q.x,y:q.y,c:null,m:null,campaignShrine:'relic-road'};
+   break;
+  }
+  if(!site)return 0;
+  found.push(site);
+ }
+ S.rel.length=0;S.rel.push(...found);
+ cmp.d.relicRoadShrines=found.map(q=>[q.x,q.y]);
+ return found.length;
+}
+function campaignRelicRoadDeposited(){
+ return S.rel.filter(q=>q&&q.campaignShrine==='relic-road'&&q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length;
+}
+// After the first relic comes home, Turkish trackers follow the monks along
+// real traversable roads. Their IDs persist through saves, and killing them
+// earns an optional third pilgrim and a small escort—not a free relic.
+function campaignRelicRoadPursuit(){
+ const enemy=tcOf(1);
+ if(!enemy||S.over)return 0;
+ const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
+ const targets=[...monks,...S.bs.filter(b=>b&&b.t===0&&b.hp>0&&b.k==='monastery'),tcOf(0)].filter(Boolean);
+ const ids=[];
+ for(const k of ['scout','scout','skirm']){
+  const p=spawnPos(enemy)||campaignOverflowSpawn(enemy);
+  if(!p)continue;
+  const u=addU(1,k,p[0],p[1]);
+  if(!u)continue;
+  for(const target of targets){
+   if(!path(u,goalNear(target,Math.max(1,U[k].rng||1))))continue;
+   u.o='a';u.tg=target;u.p=[];u.rp=0;u.guardTarget=null;break;
+  }
+  u.campaignPatrol='relic-road';ids.push(u.netId);
+ }
+ cmp.d.relicRoadHunterIds=ids;
+ if(ids.length)note('A relic has reached the Church! Turkish trackers are hunting your Monks on the road. Send their escort to defeat the trackers.');
+ return ids.length;
+}
+function campaignRelicRoadHuntersDefeated(){
+ const ids=cmp?.i===3?cmp.d.relicRoadHunterIds:null;
+ return Array.isArray(ids)&&ids.length>=2&&
+  ids.every(id=>typeof id==='string'&&!S.us.some(u=>u&&u.netId===id&&u.hp>0));
+}
+function campaignRelicRoadPilgrimRelief(){
+ const home=tcOf(0);if(!home||S.over||!campaignRelicRoadHuntersDefeated())return 0;
+ const original=new Set(S.us.map(u=>u.netId));
+ grp(0,'mon',1);grp(0,'spear',2);
+ const arrivals=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!original.has(u.netId));
+ const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
+ for(const u of arrivals){
+  const target=u.k==='mon'?S.bs.find(b=>b&&b.t===0&&b.k==='monastery'&&b.hp>0):monks[0];
+  if(target){u.o='G';u.tg=target;u.p=[];u.rp=0;u.guardTarget=null}
+ }
+ if(arrivals.length)note('The Turkish relic trackers are defeated! A third royal pilgrim and two spearmen have joined the relic recovery.');
+ return arrivals.length;
+}
 const CAMP=[
 {t:'First Hearth',b:'The old king is dead and three heirs claim the Crown of Ashford. You inherit only a Town Centre and a few villagers on a quiet plain. Build a real village: houses to grow, a lumber camp for wood, a barracks to raise soldiers. Nobody will trouble you here, so learn the ropes.',civ:0,en:1,mt:3,msz:0,seed:11,diff:0,aip:0,vm:0,noai:1,
  setup(){S.age[0]=1;S.res[0]={f:500,w:600,g:100,s:100}},
@@ -779,10 +863,10 @@ const CAMP=[
  setup(){S.res[0]={f:1300,w:500,g:300,s:200}},
  goals:[{id:'f',t:'Reach the Feudal Age',ok:()=>S.age[0]>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'c',t:'Reach the Castle Age',ok:()=>S.age[0]>=2},{id:'frontierwatch',t:'Optional: Fortify the forward frontier with an Outpost',optional:true,ok:()=>!!campaignFrontierWatchpost()}],
  ev:[{at:10,do:()=>note('Advancing an age is done at the Town Centre and needs the right buildings first.')},{when:()=>S.age[0]>=1,do:()=>note('Feudal Age reached. Towers need stone: put villagers on a stone mine.')},{at:660,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','mil','arc'],'A border patrol is marching on your lands!')},{at:205,when:()=>S.age[0]>=1&&cb('tower')>=1,do:()=>raid(3,['scout','mil','spear'],'A rival scouting party tests your first defensive Tower!')},{at:390,when:()=>cb('tower')>=2&&cb('market')>=1,do:()=>raid(5,['mil','arc','spear','scout','mil'],'The rival launches a second raid at the fortified Market road!')},{when:()=>cmp.d.frontierwatch===1,do:()=>campaignFrontierWatchReinforcement()}]},
-{t:'The Relic Road',b:'Holy relics lie scattered across the land and the Church will crown whoever gathers them. Build a monastery, send your monks out and bring the relics home. The Turks may send scouts to probe your lands.',civ:8,en:9,mt:0,msz:1,seed:44,diff:1,aip:3,vm:0,
- setup(){S.age[0]=2;S.res[0]={f:600,w:600,g:500,s:300};grp(0,'mon',2)},
- goals:[{id:'m',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'r',t:'Hold 3 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=3}],
- ev:[{at:6,do:()=>note('Monks can carry relics. Select one and order it onto a relic, then to your Monastery.')},{at:420,do:()=>raid(4,['scout','skirm','scout','skirm'],'Turkish scouts are probing your lands. Protect your monks!')}]},
+{t:'The Relic Road',b:'Three sacred shrines mark the inland road to Ashford, with one relic at each real reachable site. Build a Monastery and return all three with your two Monks. Four spearmen and two skirmishers can escort the pilgrims. Once the first relic reaches home, Turkish trackers pursue the Monks. Optional: defeat those actual trackers to earn a third Monk and two royal spearmen. A later raiding party will also threaten your settlement.',civ:8,en:9,mt:0,msz:1,seed:44,diff:1,aip:3,vm:0,
+ setup(){S.age[0]=2;S.res[0]={f:600,w:600,g:500,s:300};grp(0,'mon',2);grp(0,'spear',4);grp(0,'skirm',2);campaignRelicRoadShrines()},
+ goals:[{id:'m',t:'Build a Monastery',ok:()=>cb('monastery')>=1},{id:'r',t:'Hold 3 relics in your Monasteries',sustained:true,ok:()=>S.rel.filter(q=>q.m&&q.m.t===0&&q.m.done&&q.m.hp>0).length>=3},{id:'trackers',t:'Optional: Defeat the Turkish relic trackers',optional:true,ok:()=>campaignRelicRoadHuntersDefeated()}],
+ ev:[{at:6,do:()=>note('Your Monks must recover three real relics. Use the supplied spearmen and skirmishers to escort them; enemy trackers will respond to the first delivery.')},{at:420,do:()=>raid(4,['scout','skirm','scout','skirm'],'Turkish scouts are probing your lands. Protect your monks!')},{when:()=>campaignRelicRoadDeposited()>=1,do:()=>campaignRelicRoadPursuit()},{when:()=>cmp.d.trackers===1,do:()=>campaignRelicRoadPilgrimRelief()}]},
 {t:'Siege of Kronburg',b:'The Byzantine lord holds Kronburg, a Town Centre ringed with a castle and towers. You have only a small army and three rams. Keep your spearmen close to the rams, shoot the defenders with archers, then bring the castle down and burn the Town Centre.',civ:5,en:3,mt:3,msz:1,seed:55,diff:1,aip:5,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;put(1,'tower',e.x-4,e.y+12);put(1,'tower',e.x-11,e.y+5);grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2},
  goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)}],

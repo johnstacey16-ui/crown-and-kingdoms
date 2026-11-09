@@ -81,6 +81,8 @@ globalThis.__CK_TEST__ = {
     let ironEscortIssued=false;
     const frontierProgress=[];
     const reliquaryProgress=[];
+    const relicRoadProgress=[];
+    const relicRoadOpeningEscort=index===3?{monks:aliveUnits(0,'mon').length,spears:aliveUnits(0,'spear').length,skirmishers:aliveUnits(0,'skirm').length,sites:S.rel.map(q=>({x:q.x,y:q.y,tag:q.campaignShrine||null}))}:null;
     const crownProgress=[];
     const tidewatchOriginalCapitalId=index===14?tcOf(1)?.netId:null;
     const reliquaryOpeningPatrols=index===11?S.us.filter(u=>u&&u.t===1&&u.k==='scout'&&u.campaignPatrol==='reliquary'&&u.hp>0).length:null;
@@ -147,6 +149,13 @@ globalThis.__CK_TEST__ = {
           // The shore scouts kill unescorted Monks before the slower soldiers
           // can arrive. Keep them at their real Monastery while a real advance
           // guard clears the two shrine patrols; then collect the relics.
+          if(index===3&&S.us.some(u=>u&&u.t===1&&u.hp>0&&u.campaignPatrol==='relic-road')){
+            const sanctuary=S.bs.find(b=>b&&b.t===0&&b.k==='monastery'&&b.done&&b.hp>0);
+            if(sanctuary&&(monk.o!=='G'||monk.tg!==sanctuary)){
+              monk.o='G';monk.tg=sanctuary;monk.p=[];monk.rp=0;
+            }
+            continue;
+          }
           if(index===11&&aliveUnits(1,'scout').some(u=>u.campaignPatrol==='reliquary')){
             const sanctuary=S.bs.find(b=>b&&b.t===0&&b.k==='monastery'&&b.done&&b.hp>0);
             if(sanctuary&&(monk.o!=='G'||monk.tg!==sanctuary)){
@@ -170,6 +179,19 @@ globalThis.__CK_TEST__ = {
       }
       // The Reliquary scripted player must use its real starting soldiers to
       // protect the two moving Monks, rather than claiming an unescorted win.
+      if(index===3){
+        const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
+        const defenders=aliveUnits(0).filter(u=>!u.ld&&['spear','skirm'].includes(u.k));
+        const trackers=S.us.filter(u=>u&&u.t===1&&u.hp>0&&u.campaignPatrol==='relic-road');
+        defenders.forEach((u,i)=>{
+          const target=trackers.length?trackers[i%trackers.length]:(monks.length?monks[i%monks.length]:tc);
+          if(target&&target.t===1){
+            if(u.o!=='a'||u.tg!==target){u.o='a';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0}
+          }else if(target&&(u.o!=='G'||u.tg!==target)){
+            u.o='G';u.tg=target;u.guardTarget=null;u.p=[];u.rp=0;
+          }
+        });
+      }
       if(index===11){
         const monks=aliveUnits(0,'mon').filter(u=>!u.ld);
         const soldiers=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!u.ld&&['mil','arc'].includes(u.k));
@@ -458,6 +480,14 @@ globalThis.__CK_TEST__ = {
             distance:h?Math.hypot(u.x-h.x,u.y-h.y):999,order:u.o,route:u.p?.length||0};
         })
       });
+      if(index===3&&tick%(30*20)===0)relicRoadProgress.push({
+        time:Math.round(cmp.t),deposited:campaignRelicRoadDeposited(),
+        trackersFired:!!cmp.e[2],trackersAlive:S.us.filter(u=>u&&u.campaignPatrol==='relic-road'&&u.hp>0).length,
+        trackersTotal:(cmp.d.relicRoadHunterIds||[]).length,relief:!!cmp.e[3],
+        monks:aliveUnits(0,'mon').map(u=>({x:+u.x.toFixed(1),y:+u.y.toFixed(1),order:u.o,carrying:!!u.rel})),
+        escorts:aliveUnits(0).filter(u=>['spear','skirm'].includes(u.k)).map(u=>({k:u.k,order:u.o,target:u.tg?.k||null})),
+        shrineSites:S.rel.map(q=>({x:q.x,y:q.y,home:q.m?.t??null}))
+      });
       if(index===11&&tick%(30*30)===0)reliquaryProgress.push({
         second:Math.round(S.t),townHp:Math.round(tcOf(0)?.hp||0),
         monks:aliveUnits(0,'mon').map(u=>({id:u.netId,x:+u.x.toFixed(1),y:+u.y.toFixed(1),hp:Math.round(u.hp),order:u.o,target:u.tg?.rl?'relic':u.tg?.k||null,carrying:!!u.rel,route:u.p?.length||0})),
@@ -537,6 +567,10 @@ globalThis.__CK_TEST__ = {
       constructionOrders: builder.orders, productionPeak,
       frontierProgress:index===2?frontierProgress:null,
       reliquaryProgress:index===11?reliquaryProgress:null,
+      relicRoadProgress:index===3?relicRoadProgress:null,
+      relicRoad:index===3?{opening:relicRoadOpeningEscort,sites:cmp.d.relicRoadShrines||null,delivered:campaignRelicRoadDeposited(),
+        pursuit:!!cmp.e[2],trackersCount:(cmp.d.relicRoadHunterIds||[]).length,
+        trackersDefeated:campaignRelicRoadHuntersDefeated(),relief:!!cmp.e[3]}:null,
       reliquaryOpeningPatrols,
       blackwood:index===15?{ford:campaignBlackwoodFord(),standingTowers:S.bs.filter(b=>b.t===0&&b.k==='tower'&&b.done&&b.hp>0).length,
         standingWalls:S.bs.filter(b=>b.t===0&&b.k==='wall'&&b.done&&b.hp>0).length,
@@ -1652,6 +1686,7 @@ const playCampaignScenarioTimed = (index, maxSeconds) => {
     ...(index===15?{blackwood:result.blackwood}:{}),
     ...(index===18?{ironPass:result.ironPass,ironPassProgress:result.ironPassProgress}:{}),
     ...(index===9?{greywatch:result.greywatch}:{}),
+    ...(index===3?{relicRoad:result.relicRoad,relicRoadProgress:result.relicRoadProgress}:{}),
     ...(index===11?{reliquaryProgress:result.reliquaryProgress}:{}),
     ...(index===7?{redwaterProgress:result.redwaterProgress}:{}),
     ...(index===12?{goldenCoast:result.goldenCoast,goldenCoastProgress:result.goldenCoastProgress}:{}),
@@ -2095,7 +2130,15 @@ console.log('campaign-scripted-playthrough: The Feudal Frontier '+frontierOutcom
 if (shouldRunCampaignMission(3)) {
 const relicRoadPlaythrough = playCampaignScenarioTimed(3, 600);
 assert.equal(relicRoadPlaythrough.over, 'win', 'A scripted player must build a Monastery and recover three relics in the first Relic Road: '+JSON.stringify(relicRoadPlaythrough));
-assert.ok(relicRoadPlaythrough.objectives.every(objective => objective.complete), 'The first Relic Road must record all objectives complete: '+JSON.stringify(relicRoadPlaythrough));
+assert.ok(relicRoadPlaythrough.objectives.filter(objective => !objective.title.startsWith('Optional:')).every(objective => objective.complete&&objective.predicate),
+ 'Both mandatory Relic Road objectives must be achieved through actual delivery: '+JSON.stringify(relicRoadPlaythrough));
+assert.equal(relicRoadPlaythrough.relicRoad?.opening?.sites?.length,3,'the real initial terrain has exactly three authored shrine relics');
+assert.ok(relicRoadPlaythrough.relicRoad?.opening?.sites.every(q=>q.tag==='relic-road'));
+assert.ok(relicRoadPlaythrough.relicRoad?.pursuit&&relicRoadPlaythrough.relicRoad?.trackersCount>=2,
+ 'the first relic delivery must trigger real enemy trackers, not only a briefing');
+assert.ok(relicRoadPlaythrough.relicRoadProgress.some(p=>p.trackersAlive>=2&&p.escorts.some(u=>u.order==='a'&&u.target==='scout')),
+ 'the real defending army must engage the enemy pursuit while protecting Monks');
+assert.equal(relicRoadPlaythrough.relicRoad?.delivered,3,'three actually carried and deposited relics must reach a living completed Monastery');
 console.log('campaign-scripted-playthrough: The Relic Road won through real monastery construction and monk relic behaviour in '+relicRoadPlaythrough.campaignTime.toFixed(1)+' simulated seconds');
 }
 if (shouldRunCampaignMission(11)) {

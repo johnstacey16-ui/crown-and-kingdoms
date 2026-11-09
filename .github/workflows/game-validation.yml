@@ -68,6 +68,12 @@ jobs:
           CK_MISSION: '10'
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
+      - name: Verify first Relic Road authored shrines and Turkish pursuit (explicit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-relic-road]')
+        env:
+          CK_MISSION: '3'
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs
       - name: Verify Reliquary Trail escorted relic recovery (explicit commit opt-in only)
         if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-reliquary]')
         env:

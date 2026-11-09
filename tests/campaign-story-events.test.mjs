@@ -539,6 +539,72 @@ test('Breaching Greywatch Castle launches one-shot mortal siege hunters against 
  assert.equal(c("S.us.filter(u=>u.t===1&&u.hp>0&&['scout','spear'].includes(u.k)).length"),before+4,
   'reload cannot summon another sortie from the same breach');
 });
+test('Relic Road authors exactly three spaced, dry, reachable inland shrines',()=>{
+ const c=mission(3);
+ const sites=JSON.parse(c('JSON.stringify(cmp.d.relicRoadShrines)'));
+ assert.equal(sites?.length,3,'the three-site pilgrimage must be authored successfully on the real seed');
+ const actual=JSON.parse(c("JSON.stringify(S.rel.map(q=>({x:q.x,y:q.y,kind:q.campaignShrine,ground:S.wt[(q.y|0)*W+(q.x|0)],blocked:S.g[(q.y|0)*W+(q.x|0)]})))"));
+ assert.equal(actual.length,3,'random easy relics must not bypass the three designed shrines');
+ assert.ok(actual.every(q=>q.kind==='relic-road'&&q.ground===0&&!q.blocked),'relics must be grounded on genuine walkable land');
+ for(let i=0;i<3;i++)for(let j=0;j<i;j++)
+  assert.ok(Math.hypot(sites[i][0]-sites[j][0],sites[i][1]-sites[j][1])>=12,'each real shrine must be separated from the others');
+ assert.ok(c("S.rel.every(q=>!!path(aliveUnits(0,'mon')[0],gp(q.x,q.y,.8)))"),'the original living Monk must be able to walk to every shrine');
+ assert.equal(c("aliveUnits(0,'spear').length"),4,'a genuine four-person Spear escort begins with the fragile pilgrims');
+ assert.equal(c("aliveUnits(0,'skirm').length"),2,'two ordinary ranged escorts are supplied');
+ assert.equal(c("CAMP[3].goals.find(g=>g.id==='trackers').optional"),true,'enemy trackers are not an additional mandatory win shortcut');
+ assert.equal(c('campaignRelicRoadHuntersDefeated()'),false,'no patrol defeated without a real pursuit');
+ assert.equal(c('campaignRelicRoadDeposited()'),0);
+});
+
+test('Relic Road enemy pursuit follows a genuine first relic deposit, never a fabricated timer',()=>{
+ const c=mission(3);
+ assert.equal(c('CAMP[3].ev.length'),4,'the original late Turkish raid remains, with two added objective-driven events');
+ c('cmpTick(20)');
+ assert.equal(c('!!cmp.e[2]'),false,'no enemy trackers spawn before a genuine delivery');
+ assert.equal(c("S.us.filter(u=>u.campaignPatrol==='relic-road').length"),0);
+ c("globalThis.sanctuary=put(0,'monastery',tcOf(0).x+7,tcOf(0).y+4)");
+ assert.ok(c('!!sanctuary'),'a real completed friendly Monastery must exist');
+ c('S.rel[0].m=sanctuary;S.rel[0].c=null;cmpTick(1/30)');
+ assert.equal(c('cmp.e[2]'),1,'an actual relic delivered to a completed Monastery triggers the pursuit');
+ const ids=JSON.parse(c('JSON.stringify(cmp.d.relicRoadHunterIds)'));
+ assert.ok(ids.length>=2,'at least two physical Turkish trackers must be spawned');
+ assert.equal(new Set(ids).size,ids.length,'each enemy tracker must retain its own real identity');
+ assert.ok(c("S.us.some(u=>u.campaignPatrol==='relic-road'&&u.hp>0&&u.o==='a'&&u.tg?.k==='mon')"),
+  'the enemy trackers must actually target a living player Monk');
+ assert.equal(c('campaignRelicRoadHuntersDefeated()'),false,'the live trackers prevent the optional reward');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'tracker IDs survive save/load');
+ c('cmpTick(1)');
+ assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'pursuit cannot re-spawn after a reload');
+ assert.equal(c('S.over'),null,'a single deposited relic cannot win a three-relic mission');
+});
+
+test('Relic Road optional victory over actual trackers earns a one-shot living pilgrim escort',()=>{
+ const c=mission(3);
+ c("globalThis.sanctuary=put(0,'monastery',tcOf(0).x+7,tcOf(0).y+4)");
+ assert.ok(c('!!sanctuary'));
+ c('S.rel[0].m=sanctuary;cmpTick(1/30)');
+ assert.ok(c('cmp.d.relicRoadHunterIds.length>=2'));
+ const monks=c("aliveUnits(0,'mon').length"),soldiers=c("aliveUnits(0,'spear').length");
+ const res=c('JSON.stringify(S.res[0])'),trained=c('S.pl.tr');
+ // Killing an unrelated enemy Scout must not earn the royal pilgrim relief.
+ c("S.us.filter(u=>u.t===1&&u.k==='scout'&&u.campaignPatrol!=='relic-road').forEach(u=>u.hp=0)");
+ assert.equal(c('campaignRelicRoadHuntersDefeated()'),false);
+ c("S.us.filter(u=>u.campaignPatrol==='relic-road').forEach(u=>u.hp=0);cmp.k=14;cmpTick(1/30)");
+ assert.equal(c('cmp.d.trackers'),1,'the objective checks defeat of the actual named patrol');
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'mon').length"),monks+1,'a third real Monk is earned by protecting the road');
+ assert.equal(c("aliveUnits(0,'spear').length"),soldiers+2,'two mortal spearmen join the escort');
+ assert.equal(c('JSON.stringify(S.res[0])'),res,'the reward does not create player resources');
+ assert.equal(c('S.pl.tr'),trained,'royal relief is not misrecorded as paid production');
+ assert.equal(c('S.over'),null,'optional escort reward cannot bypass all three relics');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("aliveUnits(0,'mon').length"),monks+1,'save/load does not duplicate the third Monk');
+ assert.equal(c("aliveUnits(0,'spear').length"),soldiers+2,'save/load does not duplicate royal spearmen');
+});
 test('The 19 original missions retain their objectives, setup ages and arc progression',()=>{
  const c=mission(0);
  const evidence=JSON.parse(c("JSON.stringify({count:CAMP.length,arcs:CAMP_ARCS.map(x=>x.ids),goals:CAMP.map(x=>x.goals.length),events:CAMP.map(x=>x.ev.length),unique:CAMP.every(x=>new Set(x.goals.map(g=>g.id)).size===x.goals.length)})"));
