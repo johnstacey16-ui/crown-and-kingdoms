@@ -2253,7 +2253,9 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   }
   if(index===8){
     assert.equal(result.over,'win','Crown of Ashford requires a naturally destroyed enemy Town Centre, not a timeout: '+JSON.stringify(result.ashford));
-    assert.ok(result.objectives.every(goal=>goal.complete&&goal.predicate),'the real Crown of Ashford destruction goal must complete');
+    assert.ok(result.objectives.filter(goal=>!goal.title.startsWith('Optional:')).every(goal=>goal.complete&&goal.predicate),
+      'both real Ashford Castle and capital objectives must complete; destroying the signal towers remains optional');
+    assert.equal(result.ashford.enemyCastleAlive,false,'Ashford Castle must actually fall before the campaign can be won');
     assert.equal(result.ashford.enemyTownAlive,false,'enemy Town Centre must actually be destroyed');
     assert.equal(result.ashford.assaultStarted,true,'the paid siege assault must launch and persist after casualties');
     assert.equal(result.ashford.workshopBuilt,true,'the additional battering rams require a completed, paid Siege Workshop');
