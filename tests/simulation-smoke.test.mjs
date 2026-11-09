@@ -2074,6 +2074,14 @@ assert.ok(secondRelicRoadPlaythrough.objectives.filter(objective => !objective.t
  'Both real relics must reach a live friendly Monastery; the forward Outpost remains an optional tactical choice: '+JSON.stringify(secondRelicRoadPlaythrough));
 assert.equal(secondRelicRoadPlaythrough.reliquaryOpeningPatrols,2,
  'Two genuine enemy scouts must patrol the relic approaches from the moment this campaign begins');
+assert.ok(secondRelicRoadPlaythrough.reliquaryProgress.some(p=>
+ p.enemyPatrols===2&&p.monks.length===2&&p.monks.every(m=>m.hp>0&&!m.carrying&&m.order==='G')&&
+ p.escorts.some(u=>u.order==='a'&&u.target==='scout')),
+ 'The scripted army must attack real shrine scouts while both fragile Monks safely guard the sanctuary');
+assert.ok(secondRelicRoadPlaythrough.reliquaryProgress.some(p=>
+ p.enemyPatrols===0&&p.monks.filter(m=>m.carrying&&m.hp>0).length===2),
+ 'Both real shrine patrols must be defeated before two living Monks return carrying the actual relics');
+assert.ok(secondRelicRoadPlaythrough.townCentreHp>0,'The defending capital must survive the pilgrim recovery');
 const earlyEvents=1+Number(secondRelicRoadPlaythrough.campaignTime>=55)+Number(secondRelicRoadPlaythrough.campaignTime>=130);
 assert.ok(secondRelicRoadPlaythrough.enemyRaidsFired>=earlyEvents,
  'All scripted warning and Monk-hunting patrol events reached before a real victory must execute; an early victory does not need later waves: '+JSON.stringify(secondRelicRoadPlaythrough));
