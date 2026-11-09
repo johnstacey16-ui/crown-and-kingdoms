@@ -568,7 +568,10 @@ test('Relic Road enemy pursuit follows a genuine first relic deposit, never a fa
  assert.equal(c("S.us.filter(u=>u.campaignPatrol==='relic-road').length"),0);
  c("globalThis.sanctuary=put(0,'monastery',tcOf(0).x+7,tcOf(0).y+4)");
  assert.ok(c('!!sanctuary'),'a real completed friendly Monastery must exist');
- c('S.rel[0].m=sanctuary;S.rel[0].c=null;cmpTick(1/30)');
+ // Real Monks move relic objects as they walk home. Exercise that mutable
+ // position explicitly; a delivered relic must count by ownership, not the
+ // original site coordinates written in campaign state.
+ c('S.rel[0].x=sanctuary.x+.5;S.rel[0].y=sanctuary.y+.5;S.rel[0].m=sanctuary;S.rel[0].c=null;cmpTick(1/30)');
  assert.equal(c('cmp.e[2]'),1,'an actual relic delivered to a completed Monastery triggers the pursuit');
  const ids=JSON.parse(c('JSON.stringify(cmp.d.relicRoadHunterIds)'));
  assert.ok(ids.length>=2,'at least two physical Turkish trackers must be spawned');
@@ -579,7 +582,9 @@ test('Relic Road enemy pursuit follows a genuine first relic deposit, never a fa
  assert.equal(c('saveG()'),true);
  assert.equal(c('loadG()'),true);
  assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'tracker IDs survive save/load');
- assert.equal(c('campaignRelicRoadDeposited()'),1,'an authored shrine remains recognized as delivered after save/load drops its optional entity tag');
+ assert.equal(c('campaignRelicRoadDeposited()'),1,'the moved relic is recognized as delivered after save/load drops its optional entity tag');
+ assert.ok(c('Math.hypot(S.rel[0].x-cmp.d.relicRoadShrines[0][0],S.rel[0].y-cmp.d.relicRoadShrines[0][1])>5'),
+  'relic movement must not be mistaken for a different relic after a reload');
  assert.equal(c('cmp.d.relicRoadShrines.length'),3,'all three original shrine coordinates remain saved');
  c('cmpTick(1)');
  assert.equal(c('JSON.stringify(cmp.d.relicRoadHunterIds)'),JSON.stringify(ids),'pursuit cannot re-spawn after a reload');
