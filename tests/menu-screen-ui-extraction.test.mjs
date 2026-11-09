@@ -74,3 +74,41 @@ test('Menu/Start performs the advertised back action in setup, options, slots an
  assert.match(input,/mode!=='title'\)uis\('back'\)/,
   'title screen no longer plays a back sound for an unavailable action');
 });
+test('Objectives screen accurately explains all seven selectable victory conditions',()=>{
+ const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const start=source.indexOf('function drawObj()');
+ const end=source.indexOf('function drawInfo2()',start);
+ assert.ok(start>=0&&end>start,'use the real in-game Objectives renderer');
+ const labels=[];
+ const context=vm.createContext({
+  X:{fillRect(){},fillStyle:''},CW:1280,CH:720,panel(){},
+  tx:(value)=>labels.push(String(value)),
+  S:{teamN:2,pl:{tr:2,kills:1,gath:3},civ:[0,1,2],t:50,
+     age:[0],us:[],bs:[]},
+  CIV:[{n:'Blue'},{n:'Red'},{n:'Gold'}],AG:[{n:'Founding Age'}],
+  difficultyName:()=> 'Normal',diff:0,popOf:()=>2,capOf:()=>15,
+  cmp:null,cmpObj(){},scoreLimit:1200,vm:0
+ });
+ vm.runInContext(source.slice(start,end),context);
+ const expected=[
+  /Destroy the enemy Town Centre/,
+  /Wonder.*5 minutes/,
+  /relics.*4 minutes/i,
+  /King alive.*enemy King/i,
+  /highest kingdom score.*20-minute time limit/i,
+  /central hill.*military units.*5 minutes.*contest/i,
+  /starting Town Centre.*hostile Town Centre.*cannot build additional Town Centres/i
+ ];
+ for(let mode=0;mode<7;mode++){
+  labels.length=0;context.vm=mode;context.drawObj();
+  const objective=labels.find(v=>v.startsWith('Primary: '));
+  assert.ok(objective, 'mode '+mode+' must display its primary objective');
+  assert.doesNotMatch(objective,/undefined|null/,'mode '+mode+' must show a valid objective');
+  assert.match(objective,expected[mode],'mode '+mode+' must match its actual victory rules');
+  assert.ok(labels.some(v=>v.includes('A / B / View / RB / Menu: back')),'screen keeps controller close guidance');
+ }
+ context.vm=4;context.scoreLimit=600;labels.length=0;context.drawObj();
+ assert.ok(labels.some(v=>v.includes('10-minute time limit')),'Score mode reflects selected duration');
+ context.vm=0;context.S.teamN=3;labels.length=0;context.drawObj();
+ assert.ok(labels.some(v=>v.includes('Destroy every rival Town Centre')),'multiplayer objective includes all rivals');
+});
