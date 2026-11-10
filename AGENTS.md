@@ -9,6 +9,10 @@
 - **Architecture/cleanup status:** [docs/REFACTORING_INVENTORY.md](docs/REFACTORING_INVENTORY.md). Historical detail is available through Git history (including [the pre-consolidation snapshot](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694)) and existing dated audit files. Do not create more duplicate checkpoint logs in this file.
 - **Audits and reference scope:** [docs/audits/2026-10-31-consolidated-audit.md](docs/audits/2026-10-31-consolidated-audit.md), [XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md), and [FREE_HOSTING.md](FREE_HOSTING.md).
 
+## Living, reusable RTS development skill
+
+Use and maintain [browser-rts-game-dev](.github/skills/browser-rts-game-dev/SKILL.md) for meaningful new gameplay, original sprites, AI, campaigns, multiplayer, Xbox and publishing methods. It is a standard Agent Skills package and historical case study, **not a second backlog**. For each substantial tested feature batch, add a concise **dated, commit-bound** lesson to the [build journal](.github/skills/browser-rts-game-dev/references/journal.md); update a focused guide only when the engineering/art procedure changes. Keep gameplay, graphics/Elite appearances, network, hardware and release acceptance **separate**, and record unfinished sprite states rather than declaring a civilization complete from code alone. Never invent test, art or deployed-revision evidence.
+
 ## Standing delivery instructions
 
 The owner authorizes autonomous continuation and routine decisions on the roadmap. Work on `main`, make meaningful verified changes and continue without routine approval prompts. This is **not** authorization to spend money, activate paid tiers, change account billing, delete infrastructure, force-push, message others or break security boundaries.
