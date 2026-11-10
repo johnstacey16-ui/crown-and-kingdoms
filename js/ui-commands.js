@@ -96,7 +96,7 @@ function drawRadial(){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m),vis=item
 const title=typeof m?.title==='string'?m.title:'Commands',ttl=title==='Build'?(pg===0?'Economic buildings':'Military buildings'):title;
 if(CW<720||CH<500){drawCompactRadialMenu(m,items,a0,n,pg,pr.length,ttl);return}
 X.fillStyle='rgba(0,0,0,.55)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();X.strokeStyle=CK_COMMAND_UI.brass;X.lineWidth=3;X.stroke();X.fillStyle='#241709';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();X.stroke();
-tx(commandLabelFit(ttl,R*.86,Math.min(24,R/10)),cx,cy-R*.18,Math.min(24,R/10),CK_COMMAND_UI.cream,'center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),CK_COMMAND_UI.muted,'center');
+tx(commandLabelFit(ttl,R*1.12,Math.min(20,R/12)),cx,cy-R*.18,Math.min(20,R/12),CK_COMMAND_UI.cream,'center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),CK_COMMAND_UI.muted,'center');
 if(!n)tx('No commands available — A or B to close',cx,cy+R*.26,17,CK_COMMAND_UI.muted,'center');
 const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=48;
 vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=a0+j===m.i;
@@ -121,8 +121,8 @@ function drawVillagerPriorityWheel(){
  const w=Math.min(manual?156:140,2*R*Math.sin(Math.PI/n)*.9),h=manual?66:54;
  for(let i=0;i<n;i++){
   const a=i/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,selected=vpWheel.sel===i;
-  X.fillStyle=selected?CK_COMMAND_UI.selected:'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
-  X.strokeStyle=selected?CK_COMMAND_UI.focus:'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
+  X.fillStyle=selected?'#354651':'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
+  X.strokeStyle=selected?'#f2c14e':'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
   const name=manual?WORKER_TARGETS[i].n:i===VILLAGER_PRIORITY_PRESETS.length?'Auto Farms':VILLAGER_PRIORITY_PRESETS[i].name;
   const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):i===VILLAGER_PRIORITY_PRESETS.length?(p.autoFarms?'ON':'OFF'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
   tx(name,x,y-3,15,'#fff','center');tx(detail,x,y+17,13,'#e5d5ad','center');
@@ -135,7 +135,7 @@ function drawVillagerPriorityWheel(){
 
 function drawCg(){const cx=CW/2,cy=CH/2,R=Math.min(CW,CH)*.26;X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+55,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();
 const current=new Set([...S.us,...S.bs]);
-for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?CK_COMMAND_UI.selected:'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?CK_COMMAND_UI.focus:CK_COMMAND_UI.brass;X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
+for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?'#354651':'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?'#f2c14e':'#d9b568';X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
 tx('CONTROL GROUPS',cx,cy-6,26,'#f2c14e','center');tx('Left stick: pick   X: assign selection   Y: focus   release LB: select',cx,cy+22,15,'#cbd5e1','center')}
 
 function quickBar(){const iv=quickSelectionChoices('idle').length,mil=quickSelectionChoices('mil').length,sup=quickSelectionChoices('support').length,x0=mm.x-262,y0=CH-112;

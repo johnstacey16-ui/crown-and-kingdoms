@@ -93,7 +93,7 @@ test('radial commands stay index-stable and visibly focused in compact Xbox-styl
   if(width<720||height<500){
    const l=ctx.compactCommandLayout(width,height,12,10);
    assert.ok(l.y+l.h<=height,'compact command panel stays in the viewport');
-   assert.ok(texts.some(([label])=>label.includes('10')&&label.includes('12')));
+   assert.ok(texts.some(([label])=>label.includes('11/12')),'focused position is displayed one-based');
    assert.ok(frames.some(([kind])=>kind==='strokeRect'),'selected item has a non-colour focus border');
   }else{
    assert.ok(texts.some(([label])=>label.includes('Economic buildings')));
@@ -114,6 +114,6 @@ test('command wheel and group/preset selection use the Figma focus palette',()=>
  }
  assert.ok(commands.includes('function compactCommandLayout('));
  assert.ok(commands.includes('function drawCompactRadialMenu('));
- assert.ok(commands.includes("X.strokeStyle=selected?CK_COMMAND_UI.focus"));
- assert.ok(commands.includes("X.strokeStyle=sel?CK_COMMAND_UI.focus"));
+ assert.ok(commands.includes("X.strokeStyle=selected?'#f2c14e'"));
+ assert.ok(commands.includes("X.strokeStyle=sel?'#f2c14e'"));
 });
