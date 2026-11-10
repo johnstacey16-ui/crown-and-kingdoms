@@ -20,9 +20,96 @@ X.fillStyle='#101923';X.strokeStyle='#b99559';for(const p of [[-156,-192],[-45,-
 for(const p of [[-31,-270],[84,-235],[207,-216]]){X.strokeStyle='#b99559';X.lineWidth=2;X.beginPath();X.moveTo(p[0],p[1]);X.lineTo(p[0],p[1]-35);X.stroke();X.fillStyle='#9c3c32';X.beginPath();X.moveTo(p[0],p[1]-35);X.lineTo(p[0]+24,p[1]-28);X.lineTo(p[0],p[1]-20);X.closePath();X.fill()}
 X.fillStyle='#080e14';X.fillRect(-18,-72,38,92);X.strokeStyle='#b99559';X.strokeRect(-18,-72,38,92);X.beginPath();X.arc(1,-72,19,Math.PI,0);X.stroke();X.restore();
 const cx=CW/2,cy=CH*.12;X.save();X.shadowColor='#f2c14e';X.shadowBlur=18;X.fillStyle='#f2c14e';poly([[cx-28,cy+18],[cx-34,cy-8],[cx-16,cy+2],[cx,cy-22],[cx+16,cy+2],[cx+34,cy-8],[cx+28,cy+18]]);X.fill();X.restore();tx('CROWN & KINGDOMS',CW/2,CH*.25,Math.min(76,CW/15),'#f5d27b','center');tx('BUILD YOUR REALM  •  COMMAND YOUR ARMY  •  CLAIM THE CROWN',CW/2,CH*.25+32,Math.min(18,CW/45),'#e2e8f0','center')}
-function drawList(title,items,idx,sub){X.fillStyle='rgba(3,7,12,.64)';X.fillRect(0,0,CW,CH);const w=Math.min(780,CW-40),rh=Math.min(48,Math.max(34,(CH-230)/items.length|0)),y0=Math.max(10,(CH-items.length*rh-130)/2|0),x=(CW-w)/2;panel(x,y0,w,items.length*rh+110);tx(title,CW/2,y0+52,36,'#f4d58b','center');X.fillStyle='rgba(220,181,104,.18)';X.fillRect(x+24,y0+63,w-48,1);
-items.forEach((it,i)=>{const yy=y0+72+i*rh,active=i===idx;if(active){const hg=X.createLinearGradient(x,yy,x+w,yy+rh);hg.addColorStop(0,'#5c492d');hg.addColorStop(.5,'#354651');hg.addColorStop(1,'#27343c');X.fillStyle=hg;X.fillRect(x+14,yy,w-28,rh-4);X.strokeStyle='#e8c777';X.lineWidth=1.5;X.strokeRect(x+14.5,yy+.5,w-29,rh-5);X.fillStyle='#f6d98f';X.fillRect(x+22,yy+7,3,rh-18)}else{X.fillStyle='rgba(255,255,255,.025)';X.fillRect(x+18,yy,w-36,rh-5)}tx(it.n,x+36,yy+rh*.64,Math.min(26,rh*.55|0),it.a&&!it.v?'#f4d58b':'#f1f5f9');if(it.v){tx('‹',x+w-150,yy+rh*.64,Math.min(25,rh*.5|0),'#c5a45e','center');tx(String(it.v()),x+w-88,yy+rh*.64,Math.min(22,rh*.48|0),'#f8e2a6','center');tx('›',x+w-28,yy+rh*.64,Math.min(25,rh*.5|0),'#c5a45e','center')}});
-const sd=items[idx]&&items[idx].d?items[idx].d():'';if(sd){X.fillStyle='rgba(0,0,0,.28)';X.fillRect(x+18,y0+items.length*rh+78,w-36,26);tx(sd,CW/2,y0+items.length*rh+97,Math.min(17,CW/45),'#d6e0e8','center')}tx(sub,CW/2,Math.min(CH-12,y0+items.length*rh+130),Math.min(16,CW/55),'#a9d9bf','center')}
+/* The controller must never select an off-screen setup option. The Figma
+ * reference's gold focus and slate panel colours are reused here, while input
+ * state, setting values and menu action handlers remain the canonical owners. */
+const CK_MENU_UI=Object.freeze({
+ focus:'#f2c14e',selected:'#354651',text:'#f1f5f9',muted:'#cbd5e1',
+ gold:'#f5d27b',success:'#9ae6b4',panel:'#111820'
+});
+function menuListLayout(count,index,width,height){
+ const total=Math.max(0,Math.trunc(count));
+ const w=Math.max(240,Math.min(780,width-40));
+ const rh=Math.max(30,Math.min(48,Math.floor((height-200)/Math.min(Math.max(total,1),10))));
+ const visible=Math.min(total,Math.max(1,Math.floor((height-238)/rh)));
+ const selected=Math.max(0,Math.min(Number.isInteger(index)?index:0,total-1));
+ const start=Math.max(0,Math.min(selected-Math.floor(visible/2),total-visible));
+ const h=visible*rh+150;
+ return {w,x:(width-w)/2,y:Math.max(8,Math.floor((height-h)/2)),h,rh,visible,start,total,selected};
+}
+function menuMeasure(s,size){
+ X.font='bold '+size+'px system-ui,sans-serif';
+ return typeof X.measureText==='function'?X.measureText(s).width:s.length*size*.6;
+}
+function menuFit(s,width,size){
+ const value=String(s??'');
+ if(menuMeasure(value,size)<=width)return value;
+ let lo=0,hi=value.length;
+ while(lo<hi){
+  const mid=Math.ceil((lo+hi)/2);
+  if(menuMeasure(value.slice(0,mid)+'…',size)<=width)lo=mid;
+  else hi=mid-1;
+ }
+ return value.slice(0,lo)+'…';
+}
+function menuDescription(s,width,size){
+ const words=String(s??'').trim().split(/\s+/).filter(Boolean);
+ if(!words.length)return [];
+ let first='';
+ while(words.length){
+  const next=first?first+' '+words[0]:words[0];
+  if(first&&menuMeasure(next,size)>width)break;
+  first=next;words.shift();
+ }
+ return words.length?[menuFit(first,width,size),menuFit(words.join(' '),width,size)]:[menuFit(first,width,size)];
+}
+function drawList(title,items,idx,sub){
+ X.fillStyle='rgba(3,7,12,.64)';X.fillRect(0,0,CW,CH);
+ const l=menuListLayout(items.length,idx,CW,CH);
+ const {w,x,y,h,rh,visible,start,total,selected}=l;
+ panel(x,y,w,h);
+ tx(menuFit(title,w-170,Math.min(32,w/13)),CW/2,y+49,Math.min(32,w/13),CK_MENU_UI.gold,'center');
+ tx(total?(selected+1)+' / '+total+(start?'  ▲':'')+(start+visible<total?'  ▼':''):'',
+  x+w-24,y+50,14,CK_MENU_UI.muted,'right');
+ X.fillStyle='rgba(220,181,104,.18)';X.fillRect(x+24,y+62,w-48,1);
+ for(let row=0;row<visible;row++){
+  const i=start+row,it=items[i],yy=y+72+row*rh,active=i===selected;
+  if(active){
+   const gradient=X.createLinearGradient(x,yy,x+w,yy+rh);
+   gradient.addColorStop(0,'#5c492d');
+   gradient.addColorStop(.55,CK_MENU_UI.selected);
+   gradient.addColorStop(1,'#27343c');
+   X.fillStyle=gradient;X.fillRect(x+14,yy,w-28,rh-4);
+   X.strokeStyle=CK_MENU_UI.focus;X.lineWidth=1.5;
+   X.strokeRect(x+14.5,yy+.5,w-29,rh-5);
+   X.fillStyle=CK_MENU_UI.focus;X.fillRect(x+22,yy+7,4,Math.max(8,rh-18));
+  }else{
+   X.fillStyle='rgba(255,255,255,.025)';X.fillRect(x+18,yy,w-36,rh-5);
+  }
+  const sz=Math.max(15,Math.min(24,Math.floor(rh*.52)));
+  const adjustable=typeof it.v==='function';
+  const labelWidth=adjustable?w-238:w-95;
+  tx(menuFit(it.n,labelWidth,sz),x+36,yy+rh*.65,sz,
+   active?CK_MENU_UI.gold:it.a&&!adjustable?CK_MENU_UI.gold:CK_MENU_UI.text);
+  if(adjustable){
+   const value=String(it.v());
+   tx('‹',x+w-150,yy+rh*.65,sz,CK_MENU_UI.focus,'center');
+   tx(menuFit(value,104,Math.max(14,sz-2)),x+w-88,yy+rh*.65,Math.max(14,sz-2),CK_MENU_UI.gold,'center');
+   tx('›',x+w-28,yy+rh*.65,sz,CK_MENU_UI.focus,'center');
+  }
+ }
+ const bottom=y+72+visible*rh;
+ const selectedItem=items[selected];
+ const desc=selectedItem&&typeof selectedItem.d==='function'?selectedItem.d():'';
+ if(desc){
+  X.fillStyle='rgba(0,0,0,.28)';X.fillRect(x+18,bottom+4,w-36,46);
+  const size=Math.max(13,Math.min(16,w/42));
+  menuDescription(desc,w-74,size).forEach((line,i)=>
+   tx(line,CW/2,bottom+20+i*18,size,CK_MENU_UI.muted,'center'));
+ }
+ tx(menuFit(sub,w-48,Math.max(12,Math.min(16,w/49))),CW/2,bottom+66,
+  Math.max(12,Math.min(16,w/49)),CK_MENU_UI.success,'center');
+}
 
 /* Reusable framed panels, match results and runtime-error presentation. */
 function panel(x,y,w,h){X.save();X.shadowColor='rgba(0,0,0,.55)';X.shadowBlur=24;X.shadowOffsetY=8;const g=X.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,'#354451');g.addColorStop(.18,'#202b34');g.addColorStop(.72,'#111820');g.addColorStop(1,'#080d12');X.fillStyle=g;X.fillRect(x,y,w,h);X.restore();X.fillStyle='rgba(7,12,17,.42)';X.fillRect(x+8,y+8,w-16,h-16);X.strokeStyle='#d9b568';X.lineWidth=3;X.strokeRect(x+1.5,y+1.5,w-3,h-3);X.strokeStyle='#6f5631';X.lineWidth=1;X.strokeRect(x+7.5,y+7.5,w-15,h-15);X.strokeStyle='rgba(235,207,143,.5)';X.lineWidth=1;X.beginPath();X.moveTo(x+20,y+17);X.lineTo(x+w-20,y+17);X.moveTo(x+20,y+h-17);X.lineTo(x+w-20,y+h-17);X.stroke();for(const q of [[x+11,y+11],[x+w-11,y+11],[x+11,y+h-11],[x+w-11,y+h-11]]){X.fillStyle='#f5d58a';X.beginPath();X.moveTo(q[0],q[1]-4);X.lineTo(q[0]+4,q[1]);X.lineTo(q[0],q[1]+4);X.lineTo(q[0]-4,q[1]);X.closePath();X.fill()}X.fillStyle='#d9b568';X.fillRect(x+w*.5-30,y+13,60,2);X.fillRect(x+w*.5-15,y+h-15,30,2)}
