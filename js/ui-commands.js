@@ -89,8 +89,8 @@ function drawCompactRadialMenu(m,items,a0,n,pg,pageCount,title){
  const selectedItem=items[focus],info=selectedItem?(DS[selectedItem.l]||''):'';
  tx(commandLabelFit(info||(!n?'No commands available — A or B to close':'A: confirm   Y: page   B: close'),
   w-28,13),x+14,y+l.h-20,13,CK_COMMAND_UI.muted);
- tx('LEFT STICK  CHOOSE     A  CONFIRM     Y  PAGE     B  CLOSE',
-  CW/2,Math.min(CH-7,y+l.h+20),12,CK_COMMAND_UI.muted,'center');
+ const footer='LS Choose   A Confirm   Y Page   B Close';
+tx(footer,CW/2,Math.min(CH-7,y+l.h+20),12,CK_COMMAND_UI.muted,'center');
 }
 function drawRadial(){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m),vis=items.slice(a0,a0+n),cx=CW/2,cy=CH/2-10,R=Math.min(CW,CH)*.33;
 const title=typeof m?.title==='string'?m.title:'Commands',ttl=title==='Build'?(pg===0?'Economic buildings':'Military buildings'):title;

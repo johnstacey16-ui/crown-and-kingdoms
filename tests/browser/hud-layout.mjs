@@ -118,6 +118,11 @@ try{
     const lower=hudProof.lower;
     assert.ok(lower.y+lower.h<=q.y-8,
      'compact selection description clears the D-pad shortcut row');
+    if(viewport.height>=580){
+     assert.ok(words.some(s=>s.includes('A Select')),'selected-unit help is visible');
+     assert.ok(words.some(s=>s.includes('RB Map')&&s.includes('B Back')),
+      'controller map/back hints must remain readable without truncation');
+    }
    }
    if(viewport.width>=1000)assert.equal(hudProof.header.compact,false,
     'Xbox-sized resource bar stays in one row');
@@ -135,6 +140,9 @@ try{
      'compact command menu fits above and below the viewport edges');
     assert.ok(commands.labels.some(t=>t.value.includes('11/12')),
      'selected option remains in the scrolled command list');
+    const footer=commands.labels.find(t=>t.value.startsWith('LS Choose'));
+    assert.ok(footer&&footer.left>=8&&footer.right<=viewport.width-8,
+     'compact controller footer must be fully readable in the real browser');
    }
    await page.locator('#ck-ui-evidence').screenshot({
     path:output+'/figma-live-commands-'+viewport.width+'x'+viewport.height+'.png'

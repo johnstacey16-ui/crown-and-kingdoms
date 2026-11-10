@@ -217,3 +217,10 @@ test('large-screen selected details and action hints reserve space for the four 
  const sample=Array.from({length:2},()=>null);
  assert.ok(sample.length===2);
 });
+
+test('compact controller hints keep back/map instructions on a separate visible line',()=>{
+ const src=ui.slice(ui.indexOf('function hud(){'),ui.indexOf('\n/* Full-screen menu',ui.indexOf('function hud(){')));
+ assert.ok(src.includes("['A Select  RT Menu  LB Groups','RB Map  B Back  Menu Pause']"));
+ assert.ok(src.includes('lower.y+72+i*17'));
+ assert.ok(src.includes('if(lower.short)'));
+});

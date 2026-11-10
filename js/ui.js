@@ -284,12 +284,17 @@ if(lower){
 }
 const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT radial: left stick choose   A Confirm   Y Switch page   X Cancel last queued   B Close':queueWait?queueWait.hint+'  RT Command menu  LB Groups  RB Minimap  B Deselect':'A Select / command (hold: box)  RT Command menu  Y Shortcut  LB Groups  RB Minimap  D-pad Quick select  LT Modifier  B Deselect  Menu Pause';
 if(lower){
- const hint=place?'A Place  LT+A Repeat  B Cancel':menu?'RT Menu  A Confirm  B Close':
-  queueWait?'RT Menu  LB Groups  B Deselect':
-  'A Select  RT Menu  LB Groups  RB Map  B Back';
+ const hintLines=place?['A Place  LT+A Repeat','B Cancel']:
+  menu?['RT Menu  A Confirm','B Close  X Cancel Queue']:
+  queueWait?['RT Menu  LB Groups','B Deselect']:
+  ['A Select  RT Menu  LB Groups','RB Map  B Back  Menu Pause'];
  const hintSize=lower.w<430?12:13;
- tx(hudTopFit(hint,lower.w-32,hintSize),lower.x+12,
-  lower.y+lower.h-13,hintSize,CK_HUD_THEME.secondary);
+ if(lower.short){
+  // Very short landscapes have only room for one concise caption.
+  tx(hudTopFit(hintLines.join('  '),lower.w-32,hintSize),lower.x+12,
+   lower.y+lower.h-12,hintSize,CK_HUD_THEME.secondary);
+ }else hintLines.forEach((line,i)=>tx(line,lower.x+12,lower.y+72+i*17,
+  hintSize,CK_HUD_THEME.secondary));
 }else{
  const available=Math.max(220,(typeof quickBarLayout==='function'?
   quickBarLayout(CW,CH,mm.x).x:mm.x-262)-36);

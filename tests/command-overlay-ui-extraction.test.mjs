@@ -117,3 +117,8 @@ test('command wheel and group/preset selection use the Figma focus palette',()=>
  assert.ok(commands.includes("X.strokeStyle=selected?'#f2c14e'"));
  assert.ok(commands.includes("X.strokeStyle=sel?'#f2c14e'"));
 });
+
+test('compact radial menu uses a bounded, nonclipped action footer',()=>{
+ assert.ok(commands.includes("const footer='LS Choose   A Confirm   Y Page   B Close';"));
+ assert.ok(commands.includes("CW/2,Math.min(CH-7,y+l.h+20),12"));
+});
