@@ -8,9 +8,12 @@ assert.ok(start >= 0 && end > start, 'Patrol command must remain isolated');
 const patrol = simulation.slice(start, end);
 
 assert.match(patrol, /u\.hp>0&&!u\.ld/, 'Patrol must ignore defeated and garrisoned units');
-for (const kind of ['vil', 'fish', 'cart', 'cog', 'trn', 'mon']) {
-  assert.ok(patrol.includes(`u.k!=='${kind}'`), `Patrol must not override ${kind} work`);
-}
+assert.match(patrol, /!\['vil','fish','cart','cog','trn','mon','king'\]\.includes\(u\.k\)/,
+  'Patrol must exclude worker, trade, transport, monk and King orders');
+assert.match(patrol, /u\.t===0&&S\.us\.includes\(u\)/,
+  'Solo patrol must only control living owned military entities in the current world');
+assert.match(patrol, /!Number\.isFinite\(wx\)/,
+  'Patrol must reject invalid map destinations before issuing unit orders');
 assert.match(patrol, /u\.tg=null;u\.p=\[\];u\.rp=0/,
   'A patrol order must clear stale target/path state');
 assert.match(patrol, /return n>0/,

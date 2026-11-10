@@ -35,9 +35,9 @@ test('player controller unit orders have a single logistics owner',()=>{
  const source=logistics.slice(logistics.indexOf('function stopSel(){'));
  const selection=readFileSync(new URL('../js/input-selection.js',import.meta.url),'utf8');
  const members=selection.slice(selection.indexOf('function controlGroupMembers('),selection.indexOf('function trainSelection('));
- const actor={k:'mil',hp:40,o:'a',t:0,p:[[5,5]],tg:{},guardTarget:{}};
+ const actor={k:'mil',hp:40,o:'a',t:0,x:5.5,y:5.5,p:[[5,5]],tg:{},guardTarget:{}};
  const orders=vm.runInNewContext(members+source+'\n;({stopSel,patrol,setStance})',{
-  S:{sel:[actor],us:[actor],bs:[]},
+  S:{sel:[actor],us:[actor],bs:[]},W:64,H:64,
   U:{mil:{n:'Militia'}},note:()=>{},menu:null
  });
  assert.equal(orders.patrol(12,12,false),true);
