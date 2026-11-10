@@ -5,9 +5,9 @@ const html = loadCoreGameSource({includeUI:true,includeAssets:true});
 
 assert.match(html, /const sr=\[Math\.max\(7,attackRange\(u\)\),4,attackRange\(u\),0,0\]\[u\.st\|0\]/,
   'No Attack must disable autonomous hostile target acquisition');
-assert.match(html, /const e=u\.st===4\?null:S\.us\.find\(e=>canConvert\(u,e\)/,
+assert.match(html, /const e=u\.st===3\|\|u\.st===4\?null:S\.us\.find\(e=>canConvert\(u,e\)/,
   'No Attack must also prevent automatic conversion attacks');
-assert.match(html, /if\(u\.o==='p'\)\{const e=u\.st===4\?null:foe\(u,6\)/,
+assert.match(html, /if\(u\.o==='p'\)\{const radius=u\.st===3\|\|u\.st===4\?0:u\.st===2\?attackRange\(u\):u\.st===1\?4:6,e=radius>0\?foe\(u,radius\):null/,
   'No Attack units must patrol without automatically engaging enemies');
 assert.match(html, /if\(u\.st===4\)\{u\.o='i';u\.tg=null;u\.p=\[\];noAttackBlocked\+\+;continue\}/,
   'Direct attack commands must not override No Attack stance');

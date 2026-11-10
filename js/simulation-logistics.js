@@ -197,13 +197,29 @@ function orderGuardFollow(wx,wy,kind){
  note((kind==='F'?'Following ':'Guarding ')+(U[target.k]?.n||B[target.k]?.n||'target')+' with '+units.length+' unit'+(units.length===1?'':'s'));
  return true;
 }
-function patrol(wx,wy,once){let n=0;for(const u of S.sel)if(!u.q&&u.hp>0&&!u.ld&&u.k!=='vil'&&u.k!=='fish'&&u.k!=='cart'&&u.k!=='cog'&&u.k!=='trn'&&u.k!=='mon'){u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once};u.o='p';u.tg=null;u.p=[];u.rp=0;n++}if(n)note('Patrolling with '+n+' unit'+(n===1?'':'s'));else note('Select living, ungarrisoned military units or warships to patrol');return n>0}
+function patrol(wx,wy,once){
+ if(!S||!Array.isArray(S.sel)||!Array.isArray(S.us)||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return false;
+ let n=0;
+ // Only current, controlled military entities may receive a solo patrol.
+ // A fresh manual order cancels old guard interception/retreat/auto-scout state.
+ for(const u of new Set(S.sel))if(u&&u.hp>0&&!u.ld&&u.t===0&&S.us.includes(u)&&U[u.k]&&!u.q&&
+  !['vil','fish','cart','cog','trn','mon','king'].includes(u.k)){
+  u.pt={a:[u.x,u.y],b:[wx,wy],to:1,once:!!once};u.o='p';u.tg=null;u.p=[];u.rp=0;
+  u.guardTarget=null;u.as=0;u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;
+  u.wind=0;u.windTarget=null;n++;
+ }
+ if(n)note('Patrolling with '+n+' unit'+(n===1?'':'s'));
+ else note('Select living, ungarrisoned military units or warships to patrol');
+ return n>0;
+}
 function subg(d){const fresh=!(S.all&&S.sel.length&&S.sel.every(u=>S.all.includes(u))),base=fresh?S.sel.filter(u=>!u.q):S.all.filter(u=>u.hp>0),ks=[...new Set(base.map(u=>u.k))];if(ks.length<2)return false;if(fresh)S.si=0;S.all=base;S.si=((S.si||0)+d+ks.length+1)%(ks.length+1);S.sel=S.si?base.filter(u=>u.k===ks[S.si-1]):base;note('Group: '+(S.si?U[ks[S.si-1]].n+' x'+S.sel.length:'all '+base.length));return true}
 function unitStanceName(v){return ['Aggressive','Defensive','Stand ground','Passive','No Attack'][v]}
 function applyUnitStance(u,v){
  if(!u||!Number.isInteger(v)||v<0||v>4)return false;
  u.st=v;
- if(v===4&&(u.o==='a'||u.o==='v')){
+ // Passive ends automatic patrol/Guard interceptions but leaves deliberate
+ // player-directed attacks alone. No Attack cancels all attack/conversion orders.
+ if((v===4||v===3&&u.o==='a'&&(u.pt||u.guardTarget))&&(u.o==='a'||u.o==='v')){
   const target=u.guardTarget,guard=u.o==='a'&&target&&(S.us.includes(target)||S.bs.includes(target))&&target.hp>0&&!target.ld&&(!target.q||target.done)&&(target.t===u.t||diplomacyRelation(u.t,target.t)==='ally')&&guardTargetCompatible(u,target);
   u.o=guard?'G':u.o==='a'&&u.pt?'p':'i';u.tg=guard?target:null;
   u.guardTarget=null;u.p=[];u.rp=0;u.wind=0;u.windTarget=null;

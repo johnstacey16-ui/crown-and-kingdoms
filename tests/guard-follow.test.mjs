@@ -11,7 +11,7 @@ assert.match(html, /u\.k!=='vil'&&u\.k!=='cart'&&u\.k!=='cog'&&guardTargetCompat
   'Guard/Follow must exclude villagers/traders and keep land/ship movement types compatible');
 assert.match(html, /if\(u\.o==='F'\|\|u\.o==='G'\)\{const target=u\.tg;/,
   'Guard/Follow orders must be processed continuously by the simulation');
-assert.match(html, /if\(u\.o==='G'&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&guardThreatensTarget\(u,e,target\)\)/,
+assert.match(html, /if\(u\.o==='G'&&u\.st!==3&&u\.st!==4\)\{const e=foe\(u,6\);if\(e&&e!==target&&guardThreatensTarget\(u,e,target\)\)/,
   'Guard must apply its shared threat boundary and respect No Attack');
 assert.match(html, /const spacing=u\.o==='F'\?1\.25:2,dist=d2\(u\.x,u\.y,target\)/,
   'Follow and Guard must maintain separate target distances');
