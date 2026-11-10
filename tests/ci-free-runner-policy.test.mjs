@@ -60,3 +60,25 @@ test('unsupported Docker and Railway deployments stay retired without losing loc
  assert.doesNotMatch(localServer,/up\.railway\.app/i,
   'local test documentation must not direct users to the retired external host');
 });
+
+test('new game HUD screenshots run in Chromium only weekly, manually, or on explicit commit opt-in',()=>{
+ const full=read('battlefield-browser'),fast=read('game-validation');
+ const script=readFileSync(new URL('../tests/browser/hud-layout.mjs',import.meta.url),'utf8');
+ assert.match(full,/node scripts\/run-checks\.mjs --browser/);
+ assert.match(full,/run: node tests\/browser\/hud-layout\.mjs/);
+ const job=fast.slice(fast.indexOf('\n  hud-browser:'));
+ assert.ok(job,'expected dedicated opt-in browser job');
+ assert.match(job,/if: github\.event_name == 'push' && contains\(github\.event\.head_commit\.message, '\[verify-hud-browser\]'\)/);
+ assert.match(job,/timeout-minutes: 10/);
+ assert.match(job,/node tests\/browser\/hud-layout\.mjs/);
+ assert.match(job,/if: always\(\)/);
+ assert.doesNotMatch(fast.slice(0,fast.indexOf('\n  hud-browser:')),/playwright install|--browser/);
+ for(const size of ['1920,height:1080','1280,height:720','480,height:720','390,height:844']){
+  assert.ok(script.includes(size),'missing visual evidence viewport '+size);
+ }
+ assert.match(script,/hud\(\)/);
+ assert.match(script,/drawRadial\(\)/);
+ assert.match(script,/before,hud/);
+ assert.match(script,/simulation-read-only/);
+ assert.match(script,/\.screenshot\(/);
+});

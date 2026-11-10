@@ -25,6 +25,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Validate Chromium battlefield art and responsive multiplayer room
         run: node scripts/run-checks.mjs --browser
+      - name: Verify live HUD and command-wheel layouts in Chromium
+        run: node tests/browser/hud-layout.mjs
       - name: Save rendered evidence
         if: always()
         uses: actions/upload-artifact@v4
