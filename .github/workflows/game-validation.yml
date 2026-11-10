@@ -146,10 +146,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Capture real Canvas2D HUD and command menus at four sizes
         run: node tests/browser/hud-layout.mjs
+      - name: Capture HUD and command wheels over real terrain and a large battle
+        run: node tests/browser/hud-battlefield.mjs
       - name: Store UI visual-acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: crown-kingdoms-hud-ui
-          path: artifacts/battlefield-art/figma-live-*
+          path: |
+            artifacts/battlefield-art/figma-live-*
+            artifacts/battlefield-art/figma-world-*
           if-no-files-found: ignore

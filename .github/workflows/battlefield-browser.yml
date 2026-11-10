@@ -27,6 +27,8 @@ jobs:
         run: node scripts/run-checks.mjs --browser
       - name: Verify live HUD and command-wheel layouts in Chromium
         run: node tests/browser/hud-layout.mjs
+      - name: Check live battlefield and HUD composition
+        run: node tests/browser/hud-battlefield.mjs
       - name: Save rendered evidence
         if: always()
         uses: actions/upload-artifact@v4
