@@ -30,15 +30,34 @@ function shade(t,l1,l2,c){X.fillStyle='#000b';X.fillRect(0,0,CW,CH);tx(t,CW/2,CH
 function drawError(){X.setTransform(DPR,0,0,DPR,0,0);X.fillStyle='#090b10';X.fillRect(0,0,CW,CH);const w=Math.min(900,CW-32),h=Math.min(CH-32,Math.max(310,CH*.72)),x=(CW-w)/2,y=(CH-h)/2;panel(x,y,w,h);tx('CROWN & KINGDOMS — RUNTIME ERROR',x+24,y+42,Math.min(27,w/28),'#ff8b82');tx('Simulation paused to prevent repeated failure.',x+24,y+76,18,'#f4d6d3');const er=CK_ERR||{},lines=[`Error: ${er.message||'Unknown error'}`,`Game time: ${Number(er.time||0).toFixed(1)}s   Units: ${er.units||0}   Buildings: ${er.buildings||0}`,`Map: ${er.map||'unknown'}   Mode before error: ${er.mode||'unknown'}`,...String(er.stack||'').split('\n').slice(1,8)];let yy=y+112;for(const line of lines){if(yy>y+h-62)break;tx(line.slice(0,Math.max(20,Math.floor((w-48)/9))),x+24,yy,14,line.startsWith('Error:')?'#ffb4ab':'#e2e8f0');yy+=22}tx('Press A or B to return to the title screen. Start a fresh match after an error.',x+24,y+h-24,15,'#9ae6b4')}
 
 /* Campaign objective, list and briefing presentation; progression stays in js/campaign.js. */
-function wrapT(s,x,y,w,sz,c,lh){X.font=`bold ${sz}px system-ui,sans-serif`;let line='',yy=y;for(const wd of s.split(' ')){const t=line?line+' '+wd:wd;if(X.measureText(t).width>w&&line){tx(line,x,yy,sz,c);yy+=lh;line=wd}else line=t}tx(line,x,yy,sz,c);return yy+lh}
+// Mission briefing body scrolls independently from fixed Xbox button help.
+let briefScroll=0,briefScrollMax=0,briefScrollMission=-1;
+function briefingLines(s,w,sz){X.font=`bold ${sz}px system-ui,sans-serif`;let line='';const lines=[];for(const word of String(s||'').split(' ')){const next=line?line+' '+word:word;if(line&&X.measureText(next).width>w){lines.push(line);line=word}else line=next}lines.push(line);return lines}
+function wrapT(s,x,y,w,sz,c,lh,rows=null){const lines=rows||briefingLines(s,w,sz);lines.forEach((line,i)=>tx(line,x,y+i*lh,sz,c));return y+lines.length*lh}
 
 function cmpHud(){const sc=CAMP[cmp.i];if(!sc)return;const pending=sc.goals.filter(q=>!cmp.d[q.id]),g=pending.slice(0,5),more=pending.length-g.length;if(!g.length)return;X.fillStyle='rgba(0,0,0,.55)';X.fillRect(10,60,Math.min(420,CW-20),30+(g.length+(more?1:0))*26);tx('Mission '+(cmp.i+1)+': '+sc.t,20,80,17,'#f2c14e');g.forEach((q,i)=>tx('- '+q.t,24,104+i*26,16,'#fff'));if(more)tx('+'+more+' more — View for all objectives',24,104+g.length*26,15,'#f2c14e')}
 
 function cmpObj(){const sc=CAMP[cmp.i];if(!sc)return;const gap=sc.goals.length>1?Math.max(20,Math.min(34,(CH-145-440)/(sc.goals.length-1))):34;tx('Mission '+(cmp.i+1)+': '+sc.t,CW/2-400,400,22,'#f2c14e');sc.goals.forEach((g,i)=>tx((cmp.d[g.id]?'[x] ':'[  ] ')+g.t,CW/2-400,440+i*gap,21,cmp.d[g.id]?'#9ae6b4':'#fff'))}
 
-function drawCamp(){titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
+function drawCamp(){briefScrollMission=-1;titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
 
-function drawBrief(){titleBg();X.fillStyle='rgba(0,0,0,.6)';X.fillRect(0,0,CW,CH);const sc=CAMP[bi],w=Math.min(900,CW-60),x=(CW-w)/2;panel(x,40,w,CH-80);tx('MISSION '+(bi+1)+': '+sc.t.toUpperCase(),CW/2,100,34,'#f2c14e','center');let y=wrapT(sc.b,x+30,150,w-60,20,'#e2e8f0',28);tx('You: '+CIV[sc.civ].n+'    Enemy: '+CIV[sc.en].n+'    Difficulty: '+difficultyName(sc.diff),x+30,y+6,19,'#cbd5e1');y+=48;tx('OBJECTIVES',x+30,y,22,'#fde68a');y+=34;for(const g of sc.goals){tx('- '+g.t,x+40,y,20);y+=30}tx('A: start mission    B: back',CW/2,CH-62,22,'#9ae6b4','center')}
+function drawBrief(){
+ const sc=CAMP[bi];if(!sc)return;
+ if(briefScrollMission!==bi){briefScroll=0;briefScrollMission=bi}
+ titleBg();X.fillStyle='rgba(0,0,0,.6)';X.fillRect(0,0,CW,CH);
+ const w=Math.min(900,CW-60),x=(CW-w)/2,titleY=Math.min(100,Math.max(72,CH*.13)),clipTop=Math.max(112,titleY+34),clipBottom=Math.max(clipTop+20,CH-118);
+ panel(x,40,w,CH-80);tx('MISSION '+(bi+1)+': '+sc.t.toUpperCase(),CW/2,titleY,Math.min(34,Math.max(24,CH*.047)),'#f2c14e','center');
+ const story=briefingLines(sc.b,w-60,20),storyY=clipTop+24,storyEnd=storyY+story.length*28,metaY=storyEnd+6,headingY=storyEnd+48,goalsY=headingY+34;
+ const lastY=goalsY+Math.max(0,sc.goals.length-1)*30;
+ briefScrollMax=Math.max(0,lastY-(clipBottom-18));briefScroll=Math.max(0,Math.min(briefScroll,briefScrollMax));
+ X.save();X.beginPath();X.rect(x+18,clipTop,w-36,clipBottom-clipTop);X.clip();
+ wrapT(sc.b,x+30,storyY-briefScroll,w-60,20,'#e2e8f0',28,story);
+ tx('You: '+CIV[sc.civ].n+'    Enemy: '+CIV[sc.en].n+'    Difficulty: '+difficultyName(sc.diff),x+30,metaY-briefScroll,19,'#cbd5e1');
+ tx('OBJECTIVES',x+30,headingY-briefScroll,22,'#fde68a');
+ sc.goals.forEach((g,i)=>tx('- '+g.t,x+40,goalsY+i*30-briefScroll,20));
+ X.restore();
+ tx(briefScrollMax?'D-pad Up/Down: scroll    A: start mission    B: back':'A: start mission    B: back',CW/2,CH-62,20,'#9ae6b4','center');
+}
 
 /* Main title, new-game setup and options screen drawing. */
 function drawTitle(){titleBg();const it=['New Game','Campaign','Continue'+(hs?'':'  ·  NO SAVE'),'Options','Controls','About','Multiplayer','Xbox FPS Test · '+selectedXboxPerformanceLoad+' units','Large Battle Test Save'],w=Math.min(500,CW-40),rh=Math.max(30,Math.min(48,Math.floor((CH-385)/it.length))),y0=Math.max(48,Math.min(CH*.35,CH-145-it.length*rh)),x=(CW-w)/2;panel(x-24,y0-24,w+48,it.length*rh+48);it.forEach((s,i)=>{const yy=y0+i*rh;if(i===ti){const hg=X.createLinearGradient(x,yy,x+w,yy+rh);hg.addColorStop(0,'#6b512b');hg.addColorStop(.45,'#344750');hg.addColorStop(1,'#25333b');X.fillStyle=hg;X.fillRect(x+2,yy,w-4,rh-7);X.strokeStyle='#f2d28a';X.lineWidth=1.5;X.strokeRect(x+2.5,yy+.5,w-5,rh-8);X.fillStyle='#f2d28a';X.fillRect(x+12,yy+8,3,rh-22);X.fillStyle='rgba(244,213,138,.12)';X.fillRect(x+20,yy+rh-10,w-40,1)}tx(s,x+34,yy+rh*.61,Math.min(26,rh*.5|0),i===2&&!hs?'#8b9299':i===ti?'#fff0c2':'#edf2f5','left');if(i===ti)tx('›',x+w-24,yy+rh*.62,28,'#f4d58b','center')});
