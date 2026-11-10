@@ -65,7 +65,7 @@ test('Passive Guard tracks the friendly target without auto-interception and can
  run("soldier.o='G';soldier.tg=protected;soldier.st=3;foeGridDirty=true");
  run('upU(soldier,DT)');
  assert.equal(run('soldier.o'),'G');
- assert.equal(run('soldier.guardTarget'),null,'Passive guard does not seek a raider');
+ assert.equal(run('soldier.guardTarget==null'),true,'Passive guard does not seek a raider');
  run("soldier.st=0;foeGridDirty=true;upU(soldier,DT)");
  assert.equal(run('soldier.o'),'a');
  assert.equal(run('soldier.guardTarget===protected'),true);
