@@ -100,7 +100,7 @@ test('solo army march queues real sequential A* destinations, saves and physical
  vm.createContext(sandbox);
  vm.runInContext(game+';globalThis.act=code=>eval(code);',sandbox);
  const run=sandbox.act;
- run("kingdoms=2;start();S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);globalThis.soldier=addU(0,'mil',18.5,18.5);S.sel=[soldier];soldier.o='i';soldier.p=[];");
+ run("kingdoms=2;start();S.bs=[];S.us=[];S.nodes=[];S.rel=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);addB(0,'tc',4,4,true);addB(1,'tc',W-12,H-12,true);globalThis.soldier=addU(0,'mil',18.5,18.5);S.sel=[soldier];soldier.o='i';soldier.p=[];");
  assert.equal(run('queueMarchWaypoint(25.5,18.5)'),true);
  const first=JSON.parse(run('JSON.stringify(soldier.p)'));
  assert.ok(first.length>0);
@@ -113,7 +113,7 @@ test('solo army march queues real sequential A* destinations, saves and physical
  assert.deepEqual(JSON.parse(run("JSON.stringify(S.us.find(u=>u.netId===soldier.netId).p)")),full);
  const outcome=JSON.parse(run("JSON.stringify((()=>{const u=S.us.find(u=>u.netId===soldier.netId);for(let i=0;i<1800&&u.o==='m';i++)upU(u,1/30);return {x:u.x,y:u.y,order:u.o}})())"));
  assert.equal(outcome.order,'i');
- assert.ok(Math.hypot(outcome.x-25.5,outcome.y-28.5)<2,'normal movement reaches the final waypoint');
+ assert.ok(Math.hypot(outcome.x-25.5,outcome.y-28.5)<2,'normal movement reaches the final waypoint: '+JSON.stringify(outcome));
 });
 test('march queue skips foreign/dead/busy members and preserves path on failed routing',()=>{
  const units=[{k:'mil',t:0,hp:30,x:2.5,y:2.5,o:'m',p:[[3.5,2.5]],sh:false},
