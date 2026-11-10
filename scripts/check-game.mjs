@@ -49,7 +49,7 @@ const checks = [
   ['age advancement uses reference resource costs and research times', /cost:\{f:500\},t:130/.test(source)&&/cost:\{f:800,g:200\},t:160/.test(source)&&/cost:\{f:1000,g:800\},t:190/.test(source)],
   ['age advancement shares distinct-building and single-Castle eligibility', source.includes('function ageRequirements(t,world=S)')&&source.includes('const gate=ageRequirements(t);if(!gate.ready)')],
   ['farm capacity uses researched technologies', /function farmFood\(t\)[\s\S]{0,180}q\.coll\?75[\s\S]{0,80}q\.plow\?125[\s\S]{0,80}q\.crop\?175/.test(source)],
-  ['player-built farms record ownership', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);if\(n\)n\.t=0/.test(source)],
+  ['player-built farms record ownership and charge only after creation', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);\s*if\(!n\)return note\('Cannot build there'\);\s*n\.t=0;pay\(0,d\.cost\)/.test(source)],
   ['AI-built farms record ownership', /const farm=addN\('f',x,y,farmFood\(t\),1\);if\(!farm\)continue;pay\(t,B\.farm\.cost\);farm\.t=t/.test(source)],
   ['farm technology only affects the researching kingdom', /n\.k==='f'&&n\.fm&&n\.t===b\.t&&S\.nd\[n\.y\*W\+n\.x\]===n/.test(source)],
   ['infantry armour upgrades use explicit unit classes', source.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto'])")],
