@@ -1,12 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 function fixture(){
  const {source,sandbox,storage}=headlessGame();
  vm.createContext(sandbox);
- vm.runInContext(source+'\n;globalThis.evalGame=code=>eval(code)',sandbox);
+ vm.runInContext(source+'\n'+
+  readFileSync(new URL('../js/ui.js',import.meta.url),'utf8')+
+  '\n;globalThis.evalGame=code=>eval(code)',sandbox);
  return {run:sandbox.evalGame,storage};
 }
 test('reduced cosmetic effects is offered in Options and Pause via the shared menu model',()=>{
