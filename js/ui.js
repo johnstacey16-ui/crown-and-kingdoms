@@ -201,7 +201,7 @@ function topbar(r){
   X.fillRect(x+2,statusTop,Math.max(0,w-5),l.compact?34:43);
  }
  statusChip(l.idleX,l.idleWidth);
- const idleSize=l.compact?14:16;
+ const idleSize=l.compact?12:16;
  X.fillStyle=idl?CK_HUD_THEME.idle:CK_HUD_THEME.inactive;
  X.beginPath();X.arc(l.idleX+13,l.summaryY-6,6,0,Math.PI*2);X.fill();
  tx(hudTopFit('Idle '+idl,l.idleWidth-27,idleSize),
@@ -273,13 +273,29 @@ if(Array.isArray(s[0]?.q)&&production.length>1)l=production.length+' production 
 const status=l+(s[0]?.rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':'');
 if(lower){
  const size=lower.short?15:16,lines=hudLowerLines(status,lower.w-24,size,lower.short?1:2);
- lines.forEach((line,i)=>tx(line,lower.x+12,lower.y+25+i*23,size,CK_HUD_THEME.text));
-}else tx(status,20,CH-80,24);
+ lines.forEach((line,i)=>tx(line,lower.x+12,lower.y+(lower.short?25:33)+i*23,size,CK_HUD_THEME.text));
+}else{
+ // The four D-pad controls are painted inside the wide lower panel.
+ // Wrap unit information to the actual available left-hand space.
+ const available=Math.max(220,(typeof quickBarLayout==='function'?
+  quickBarLayout(CW,CH,mm.x).x:mm.x-262)-36);
+ hudLowerLines(status,available,19,2).forEach((line,i)=>
+  tx(line,20,CH-92+i*21,19,CK_HUD_THEME.text));
+}
 const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT radial: left stick choose   A Confirm   Y Switch page   X Cancel last queued   B Close':queueWait?queueWait.hint+'  RT Command menu  LB Groups  RB Minimap  B Deselect':'A Select / command (hold: box)  RT Command menu  Y Shortcut  LB Groups  RB Minimap  D-pad Quick select  LT Modifier  B Deselect  Menu Pause';
 if(lower){
- const hint=place?'A Place   LT+A Repeat   B Cancel':menu?'RT Commands   A Confirm   B Close':queueWait?'RT Commands   LB Groups   B Deselect':'A Select   RT Commands   LB Groups   RB Map   B Back';
- tx(hudTopFit(hint,lower.w-24,13),lower.x+12,lower.y+lower.h-12,13,CK_HUD_THEME.secondary);
-}else{const hh=h.split('  LB ');tx(hh[0],20,CH-50,17,'#94a3b8');tx(hh[1]?'LB '+hh[1]:'',20,CH-26,17,'#94a3b8')}
+ const hint=place?'A Place  LT+A Repeat  B Cancel':menu?'RT Menu  A Confirm  B Close':
+  queueWait?'RT Menu  LB Groups  B Deselect':
+  'A Select  RT Menu  LB Groups  RB Map  B Back';
+ const hintSize=lower.w<430?12:13;
+ tx(hudTopFit(hint,lower.w-32,hintSize),lower.x+12,
+  lower.y+lower.h-13,hintSize,CK_HUD_THEME.secondary);
+}else{
+ const available=Math.max(220,(typeof quickBarLayout==='function'?
+  quickBarLayout(CW,CH,mm.x).x:mm.x-262)-36);
+ hudLowerLines(h,available,16,2).forEach((line,i)=>
+  tx(line,20,CH-43+i*21,16,CK_HUD_THEME.secondary));
+}
 
 minimapDraw(mm,0);
 let y=80;for(const n of notes){X.globalAlpha=Math.min(1,n.t);tx(n.s,CW/2,y,24,'#fff','center');y+=32}X.globalAlpha=1;

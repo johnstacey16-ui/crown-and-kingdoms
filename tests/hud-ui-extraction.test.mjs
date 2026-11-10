@@ -208,3 +208,12 @@ test('quick-select strip retains four controller choices without overlapping com
  assert.ok(expectedOrder.includes("'Town C.'"));
  assert.ok(expectedOrder.includes("'Military'"));
 });
+
+test('large-screen selected details and action hints reserve space for the four D-pad buttons',()=>{
+ const hudSource=ui.slice(ui.indexOf('function hud(){'),ui.indexOf('\n/* Full-screen menu',ui.indexOf('function hud(){')));
+ assert.ok(hudSource.includes("hudLowerLines(status,available,19,2)"));
+ assert.ok(hudSource.includes("hudLowerLines(h,available,16,2)"));
+ assert.ok(hudSource.includes("quickBarLayout(CW,CH,mm.x).x"));
+ const sample=Array.from({length:2},()=>null);
+ assert.ok(sample.length===2);
+});

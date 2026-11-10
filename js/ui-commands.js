@@ -68,7 +68,7 @@ function drawCompactRadialMenu(m,items,a0,n,pg,pageCount,title){
  X.fillStyle=CK_COMMAND_UI.panel;X.fillRect(x,y,w,l.h);
  X.strokeStyle=CK_COMMAND_UI.brass;X.lineWidth=2;X.strokeRect(x+.5,y+.5,w-1,l.h-1);
  tx(commandLabelFit(title,w-110,19),x+14,y+35,19,CK_COMMAND_UI.cream);
- tx((pg+1)+'/'+pageCount+(n>l.visible?'  •  '+(focus-a0+1)+'/'+n:''),
+ tx((pg+1)+'/'+pageCount+'  •  '+(focus-a0+1)+'/'+n,
   x+w-14,y+35,14,CK_COMMAND_UI.muted,'right');
  for(let row=0;row<l.visible;row++){
   const index=a0+l.start+row,it=items[index],yy=y+52+row*l.rh,

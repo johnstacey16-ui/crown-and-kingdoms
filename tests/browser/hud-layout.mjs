@@ -59,8 +59,12 @@ try{
       X=context;X.save();X.setTransform(1,0,0,1,0,0);
       X.fillStyle='#243d38';X.fillRect(0,0,CW,CH);
       tx=(value,x,y,size,color,align)=>{
-       labels.push({value:String(value),x,y,size,align:align||'left'});
-       return priorTx(value,x,y,size,color,align);
+       const output=priorTx(value,x,y,size,color,align);
+       const measured=X.measureText(String(value)).width;
+       const actualAlign=X.textAlign;
+       const left=actualAlign==='center'?x-measured/2:actualAlign==='right'?x-measured:x;
+       labels.push({value:String(value),x,y,size,align:actualAlign,left,right:left+measured});
+       return output;
       };
       if(kind==='hud'){menu=null;place=null;hud()}
       else{
@@ -92,8 +96,20 @@ try{
    }
    assert.ok(words.some(s=>s.includes('Town Centre')),
     'selected building remains visible at '+viewport.width+'px');
-   assert.ok(hudProof.labels.every(t=>Number.isFinite(t.x)&&Number.isFinite(t.y)),
-    'HUD paints only finite coordinates');
+   assert.ok(hudProof.labels.every(t=>Number.isFinite(t.x)&&Number.isFinite(t.y)&&
+    Number.isFinite(t.left)&&Number.isFinite(t.right)),
+    'HUD paints only finite text coordinates and widths');
+   assert.ok(words.some(s=>s.includes('Idle 5')),'active idle worker number remains readable');
+   // On the wide Xbox picture, lower-unit captions must not cover the shortcut tiles.
+   // On narrow layouts, the entire lower-caption is constrained inside its own panel.
+   const leftText=hudProof.labels.filter(t=>t.x===20&&
+    t.y>=(hudProof.lower?hudProof.lower.y:viewport.height-120));
+   const textEdge=hudProof.lower?viewport.width-14:hudProof.quick.x-8;
+   for(const entry of leftText){
+    assert.ok(entry.left>=8&&entry.right<=textEdge+1,
+     'live HUD text must not overlap the D-pad dock at '+viewport.width+
+     ': '+entry.value+' right='+entry.right.toFixed(1)+' limit='+textEdge);
+   }
    const q=hudProof.quick,mm=hudProof.minimap;
    assert.ok(q.x>=0&&q.y>=0&&q.x+q.w<=viewport.width&&q.y+q.h<=viewport.height,
     'all four D-pad shortcuts are inside viewport');
