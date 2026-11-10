@@ -539,6 +539,36 @@ function campaignAshfordSignalRelief(){
  if(relief.length)note('The twin signal towers are silent! Six royal troops join the siege and guard your battering rams.');
  return relief.length;
 }
+
+// Ashford's optional forward siege camp must be a real, completed workshop
+// placed near the enemy Castle along the assault approach. A rear base
+// workshop, a hostile building, or a destroyed camp earns no royal relief.
+function campaignAshfordForwardSiegeCamp(){
+ if(cmp?.i!==8||S.over)return null;
+ const home=tcOf(0),castle=S.bs.find(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0);
+ if(!home||!castle)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const cx=castle.x+castle.s*.5,cy=castle.y+castle.s*.5;
+ const dx=cx-hx,dy=cy-hy,dist=Math.hypot(dx,dy);
+ if(dist<45)return null;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='siege'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5-hx,y=b.y+b.s*.5-hy;
+  const forward=(x*dx+y*dy)/dist,side=Math.abs(x*dy-y*dx)/dist;
+  return forward>=dist*.56&&forward<=dist-9&&side<=14&&
+   Math.hypot(b.x+b.s*.5-cx,b.y+b.s*.5-cy)<=36;
+ })||null;
+}
+function campaignAshfordForwardSiegeRelief(){
+ const camp=campaignAshfordForwardSiegeCamp();
+ if(!camp||S.over)return 0;
+ const prior=new Set(S.us.map(u=>u.netId));
+ grp(0,'ram',1);grp(0,'spear',2);grp(0,'skirm',2);
+ const relief=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!prior.has(u.netId));
+ for(const u of relief){u.o='G';u.tg=camp;u.guardTarget=null;u.p=[];u.rp=0}
+ if(relief.length)note('The forward siege camp is established! A royal Ram and four escorts march to defend your Workshop. Push the real siege through to Ashford Castle.');
+ return relief.length;
+}
 function campaignAshfordCastleSortie(){
  const enemy=tcOf(1);if(!enemy||S.over)return 0;
  const before=new Set(S.us.map(u=>u.netId));
@@ -1034,10 +1064,10 @@ const CAMP=[
  setup(){S.age[0]=1;S.res[0]={f:700,w:700,g:350,s:250}},
  goals:[{id:'m',t:'Build a Market',ok:()=>cb('market')>=1},{id:'t',t:'Build 2 Towers',ok:()=>cb('tower')>=2},{id:'s',t:'Hold the crossing for 8:00',ok:()=>cmp.t>=480},{id:'caravan',t:'Escort a Redwater Trade Cart safely into your Market',ok:()=>campaignRedwaterCartArrived()}],
  ev:[{at:100,do:()=>raid(5,['scout','mil','scout','mil','arc'],'The enemy is probing the river crossing.')},{at:260,do:()=>raid(8,['mil','spear','arc','mil','spear','arc','scout','scout'],'A larger force is advancing along the trade road.')},{at:390,do:()=>note('Keep villagers away from the front line while your towers and soldiers hold the crossing.')},{at:405,when:()=>cb('market')>=1,do:()=>campaignRoadCaravan()},{at:435,when:()=>cmp.e[3]&&!cmp.d.caravan,do:()=>note('The caravan needs an escort! Keep your soldiers near the Trade Carts until at least one enters your Market.')}]},
-{t:'Crown of Ashford',b:'The rival claimant holds Ashford behind a Castle and two signal towers. Defeat the garrison, destroy the real Castle, then break the rival Town Centre to claim the capital. Optional: silence both marked signal towers to rally six royal spearmen and archers to your siege. Expect a final counterattack when the Castle falls.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
+{t:'Crown of Ashford',b:'The rival claimant holds Ashford behind a Castle and two signal towers. Defeat the garrison, destroy the real Castle, then break the rival Town Centre to claim the capital. Optional: silence both marked signal towers to rally six royal escorts, or build a completed forward Siege Workshop near the hostile Castle to call in a Ram and four guards. Rear-area Workshops do not qualify. Expect a final counterattack when the Castle falls.',civ:0,en:1,mt:0,msz:2,seed:99,diff:2,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:900,w:900,g:700,s:500};grp(0,'knight',6);grp(0,'arc',10);grp(0,'ram',3);const e=tcOf(1);if(e){put(1,'castle',e.x-7,e.y+8);const ids=[];for(const [dx,dy] of [[-4,12],[-11,5]]){const tower=put(1,'tower',e.x+dx,e.y+dy);if(tower){tower.campaignSignal='ashford';ids.push(tower.netId)}}cmp.d.ashfordSignalIds=ids;grp(1,'knight',5);grp(1,'arc',8);S.age[1]=2}},
- goals:[{id:'castle',t:'Destroy Ashford Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'signals',t:'Optional: Destroy both Ashford signal towers',optional:true,ok:()=>campaignAshfordSignalsDisabled()}],
- ev:[{at:5,do:()=>note('Ashford Castle must fall before you can claim the capital. Protect your rams with archers and cavalry.')},{at:120,do:()=>note('The two enemy signal towers can be destroyed for a real royal siege escort. They are optional, but the Castle and Town Centre are not.')},{when:()=>cmp.d.signals===1,do:()=>campaignAshfordSignalRelief()},{when:()=>cmp.d.castle===1&&!!tcOf(1),do:()=>campaignAshfordCastleSortie()}]},
+ goals:[{id:'castle',t:'Destroy Ashford Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'tc',t:'Destroy the rival Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'signals',t:'Optional: Destroy both Ashford signal towers',optional:true,ok:()=>campaignAshfordSignalsDisabled()},{id:'forwardcamp',t:'Optional: Establish a forward Siege Workshop near Ashford Castle',optional:true,ok:()=>!!campaignAshfordForwardSiegeCamp()}],
+ ev:[{at:5,do:()=>note('Ashford Castle must fall before you can claim the capital. Protect your rams with archers and cavalry.')},{at:120,do:()=>note('The two enemy signal towers can be destroyed for a real royal siege escort. They are optional, but the Castle and Town Centre are not.')},{when:()=>cmp.d.signals===1,do:()=>campaignAshfordSignalRelief()},{when:()=>cmp.d.forwardcamp===1&&!!campaignAshfordForwardSiegeCamp(),do:()=>campaignAshfordForwardSiegeRelief()},{when:()=>cmp.d.castle===1&&!!tcOf(1),do:()=>campaignAshfordCastleSortie()}]},
 {t:'Siege of Greywatch',b:'Greywatch blocks the royal road behind a Castle and a signal Tower. Breach and destroy the real Castle, then demolish the rival Town Centre. Optional: destroy its marked relay Tower before 4:00 to disrupt the cavalry reinforcement signal and reduce the raid on your economy. Once the Castle is badly damaged, enemy siege hunters will attack your Battering Rams and Siege Workshop. Protect your rams with Guard, gather wood and gold for replacements, and research Crossbowman at an Archery Range.',civ:0,en:3,mt:1,msz:1,seed:910,diff:1,aip:1,vm:0,
  setup(){S.age[0]=2;S.res[0]={f:1100,w:900,g:650,s:450};grp(0,'knight',5);grp(0,'arc',8);grp(0,'ram',2);const e=tcOf(1);if(e){S.age[1]=2;S.res[1]={f:900,w:700,g:500,s:300};put(1,'castle',e.x-7,e.y+7);const relay=put(1,'tower',e.x-4,e.y+11);if(relay){relay.campaignRelay='greywatch';cmp.d.greywatchRelayId=relay.netId}grp(1,'spear',5);grp(1,'arc',6);grp(1,'ram',1)}},
  goals:[{id:'castle',t:'Destroy Greywatch Castle',ok:()=>cmp.t>3&&!S.bs.some(b=>b&&b.t===1&&b.k==='castle'&&b.hp>0)},{id:'greywatch',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'relay',t:'Optional: Silence Greywatch relay Tower before 4:00',optional:true,ok:()=>campaignGreywatchRelaySabotaged()}],

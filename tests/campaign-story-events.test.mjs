@@ -1108,6 +1108,79 @@ test('King’s Road requires genuine funds and a completed Market with two live 
  assert.equal(c('S.res[0].w'),0,'saved supply is never charged a second time');
 });
 
+
+test('Ashford forward Siege Workshop requires real completed construction near its enemy Castle',()=>{
+ const c=mission(8);
+ assert.equal(c("CAMP[8].goals.find(g=>g.id==='forwardcamp').optional"),true);
+ assert.equal(c('campaignAshfordForwardSiegeCamp()'),null);
+ const place=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),castle=S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0);
+  const hx=h.x+h.s*.5,hy=h.y+h.s*.5,cx=castle.x+castle.s*.5,cy=castle.y+castle.s*.5;
+  const len=Math.hypot(cx-hx,cy-hy),ux=(cx-hx)/len,uy=(cy-hy)/len;
+  S.ex.fill(1);
+  let site=null;
+  for(const gap of [22,25,28,31,34])for(const side of [0,3,-3,6,-6,9,-9,12,-12]){
+   const x=Math.round(cx-ux*gap-uy*side),y=Math.round(cy-uy*gap+ux*side);
+   if(x>1&&y>1&&x+B.siege.s<W-1&&y+B.siege.s<H-1&&okPlace(0,'siege',x,y)){site={x,y};break}
+   if(site)break;
+  }
+  return site;
+ })())`));
+ assert.ok(place,'the existing Ashford seed has a legally buildable forward siege site');
+ // An unbuilt or destroyed workshop cannot earn the optional objective.
+ assert.equal(c(`!!(globalThis.camp=addB(0,'siege',${place.x},${place.y},false))`),true);
+ assert.equal(c('!!campaignAshfordForwardSiegeCamp()'),false);
+ c('camp.hp=camp.mh;camp.done=true');
+ assert.equal(c('campaignAshfordForwardSiegeCamp()===camp'),true);
+ c('camp.t=1');assert.equal(c('!!campaignAshfordForwardSiegeCamp()'),false,'enemy Workshops do not count');
+ c('camp.t=0;camp.hp=0');assert.equal(c('!!campaignAshfordForwardSiegeCamp()'),false,'ruins do not count');
+ c('camp.hp=camp.mh');
+ assert.equal(c('campaignAshfordForwardSiegeCamp()===camp'),true);
+ c("S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0).hp=0");
+ assert.equal(c('!!campaignAshfordForwardSiegeCamp()'),false,'the camp must be built while the target Castle still stands');
+});
+
+test('Ashford forward camp raises one physical, guard-ordered siege relief with no free victory',()=>{
+ const c=mission(8);
+ const trigger=c("CAMP[8].ev.findIndex(e=>e.do.toString().includes('campaignAshfordForwardSiegeRelief'))");
+ assert.ok(trigger>=0);
+ c('cmp.d.forwardcamp=1;cmpTick(1/30)');
+ assert.equal(c('!!cmp.e['+trigger+']'),false,'a forged objective flag cannot create soldiers');
+ c('cmp.d.forwardcamp=0');
+ const site=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),castle=S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0);
+  const hx=h.x+h.s*.5,hy=h.y+h.s*.5,cx=castle.x+castle.s*.5,cy=castle.y+castle.s*.5;
+  const len=Math.hypot(cx-hx,cy-hy),ux=(cx-hx)/len,uy=(cy-hy)/len;
+  S.ex.fill(1);
+  for(const gap of [22,25,28,31,34])for(const side of [0,3,-3,6,-6,9,-9,12,-12]){
+   const x=Math.round(cx-ux*gap-uy*side),y=Math.round(cy-uy*gap+ux*side);
+   if(x>1&&y>1&&x+B.siege.s<W-1&&y+B.siege.s<H-1&&okPlace(0,'siege',x,y))return{x,y};
+  }
+  return null;
+ })())`));
+ assert.ok(site,'a real forward Siege Workshop must fit the original map');
+ assert.equal(c(`!!(globalThis.camp=addB(0,'siege',${site.x},${site.y},true))`),true);
+ assert.equal(c('campaignAshfordForwardSiegeCamp()===camp'),true);
+ const before=JSON.parse(c("JSON.stringify({ram:aliveUnits(0,'ram').length,spear:aliveUnits(0,'spear').length,skirm:aliveUnits(0,'skirm').length,res:S.res[0],capital:tcOf(1).hp,castle:S.bs.find(b=>b.t===1&&b.k==='castle').hp})"));
+ c('cmp.k=14;cmpTick(1)');
+ assert.equal(c('cmp.d.forwardcamp'),1,'only a finished forward Workshop completes the optional goal');
+ assert.equal(c('!!cmp.e['+trigger+']'),false,'the milestone is observed before the one-time relief event');
+ c('cmpTick(1)');
+ assert.equal(c('cmp.e['+trigger+']'),1);
+ assert.deepEqual(JSON.parse(c("JSON.stringify([aliveUnits(0,'ram').length,aliveUnits(0,'spear').length,aliveUnits(0,'skirm').length])")),
+ [before.ram+1,before.spear+2,before.skirm+2]);
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===camp&&['ram','spear','skirm'].includes(u.k)).length"),5,
+ 'new troops are mortal controllable units guarding the forward Siege Workshop');
+ assert.equal(c('JSON.stringify(S.res[0])'),JSON.stringify(before.res),'reward never fabricates resources');
+ assert.equal(c('tcOf(1).hp'),before.capital);
+ assert.equal(c("S.bs.find(b=>b.t===1&&b.k==='castle').hp"),before.castle);
+ assert.equal(c('S.over'),null,'the required Castle and Town Centre still need to fall');
+ assert.equal(c('saveG()'),true);assert.equal(c('loadG()'),true);
+ c('cmpTick(1)');
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&u.o==='G'&&u.tg===campaignAshfordForwardSiegeCamp()&&['ram','spear','skirm'].includes(u.k)).length"),5,
+ 'reloading cannot re-award the same siege detachment');
+});
+
 test('Ashford capital siege requires the real Castle as well as the rival Town Centre',()=>{
  const c=mission(8);
  assert.equal(c("CAMP[8].goals.find(g=>g.id==='castle').optional"),undefined,'the Castle is a mandatory siege objective');
