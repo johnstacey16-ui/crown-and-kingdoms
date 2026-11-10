@@ -478,6 +478,38 @@ test('invalid selected villagers cannot start shortcuts or receive building orde
   }
 });
 
+test('invalid or removed placement definitions cancel safely before reading footprints or spending',()=>{
+ for(const [label,setup] of [
+  ['unknown kind',"place={k:'retired'};"],
+  ['missing kind',"place={};"],
+  ['null kind',"place={k:null};"],
+  ['inherited prototype kind',"place={k:'__proto__'};"],
+  ['noninteger footprint',"place={k:'house'};B.house.s=1.5;"],
+  ['invalid footprint',"place={k:'house'};B.house.s=NaN;"],
+  ['oversized footprint',"place={k:'house'};B.house.s=W+1;"]
+ ]){
+  const f=buildFixture();
+  f.run(setup);
+  assert.doesNotThrow(()=>f.c.run(button(0),button(0)),label+' cannot crash input');
+  assert.equal(f.state().place,null,label+' exits invalid placement');
+  assert.equal(f.state().wood,1000,label+' cannot spend resources');
+  assert.equal(f.state().buildings,0,label+' cannot create buildings');
+  assert.ok(f.state().notes.some(t=>t.includes('placement cancelled')),label+' explains cancellation');
+ }
+ const f=buildFixture();
+ f.run("place={k:'retired'};");
+ f.c.run(button(1),button(1));
+ assert.equal(f.state().place,null,'B still cancels even an invalid placement');
+ assert.equal(f.state().notes.length,0,'manual cancellation has no error toast');
+ const normal=buildFixture();normal.run("ysc.vb='house';");
+ farmShortcut(normal.c);
+ assert.equal(normal.state().place?.k,'house','a valid placement can still open');
+ normal.c.run(button(0),button(0));
+ assert.equal(normal.state().place,null,'valid house placement closes normally');
+ assert.equal(normal.state().wood,975,'valid house placement still pays exactly once');
+ assert.equal(normal.state().buildings,1,'valid house placement still creates its building');
+});
+
 test('house shortcut remains available without a Mill and placement excludes invalid workers from the build order',()=>{
   const f=buildFixture();
   f.run(`
