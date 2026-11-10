@@ -1,10 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 function create(){
  const {source,sandbox}=headlessGame();
- vm.createContext(sandbox);vm.runInContext(source+'\n;globalThis.run=code=>eval(code)',sandbox);
+ vm.createContext(sandbox);vm.runInContext(source+'\n'+
+  readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+
+  '\n;globalThis.run=code=>eval(code)',sandbox);
  return sandbox.run;
 }
 test('distinct Elite equipment requires the owning civilization and researched tier',()=>{
