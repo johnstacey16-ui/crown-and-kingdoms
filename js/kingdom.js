@@ -288,7 +288,7 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
- if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,c.uu])];
+ if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
  // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
  // Chemistry is a real training prerequisite, also for authenticated peers.

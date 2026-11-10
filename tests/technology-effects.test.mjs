@@ -91,8 +91,20 @@ assert.match(html, /cons:\{n:'Conscription',cost:\{f:150,g:150\},t:60,age:3\}/,
   'Conscription must have explicit cost, research time and Imperial Age requirement');
 assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','dock'\]\)/,
   'Conscription must cover all military production buildings');
-assert.match(html, /function trainRate\(b,k\)\{return S\.tech\[b\.t\]&&S\.tech\[b\.t\]\.cons&&MILITARY_PRODUCTION_BUILDINGS\.has\(b\.k\)&&!\['vil','cart','fish','trn','cog'\]\.includes\(k\)\?4\/3:1\}/,
-  'Conscription must only speed military units, not villagers, traders, fishing or transport ships');
+// Exercise the production source rather than pinning one minified function body.
+const productionSource=readFileSync(new URL('../js/simulation-building-production.js',import.meta.url),'utf8');
+const working={S:{tech:[{}]}};
+const actualRate=vm.runInNewContext(productionSource+'\ntrainRate',working);
+assert.equal(actualRate({k:'bar',t:0},'mil'),1);
+working.S.tech[0].cons=1;
+assert.equal(actualRate({k:'bar',t:0},'mil'),4/3,
+ 'Conscription speeds eligible military without requiring a different function shape');
+for(const key of ['vil','cart','fish','trn','cog'])
+ assert.equal(actualRate({k:'bar',t:0},key),1,'Conscription never speeds '+key);
+assert.equal(actualRate({k:'tc',t:0},'vil'),1);
+working.S.tech[0].perfusion=1;
+assert.equal(actualRate({k:'bar',t:0},'mil'),8/3,'Goth Barracks work bonus stacks with Conscription');
+assert.equal(actualRate({k:'rng',t:0},'arc'),4/3,'Perfusion affects Barracks only');
 assert.match(html, /q\.t-=dt\*trainRate\(b,q\.k\)/,
   'Conscription must accelerate the live unit production queue, including units already queued');
 assert.match(researchPolicy, /if\(k==='cons'&&arm\.length>=8\)score\+=24/,
