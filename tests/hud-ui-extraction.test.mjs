@@ -64,7 +64,9 @@ test('selected HUD safely renders stale buildings, corrupted queues and null/dea
  const expect=(selection,caption)=>{
   state.sel=selection;labels.length=0;
   assert.doesNotThrow(()=>ctx.hud(),'stale selections must not interrupt the main render');
-  assert.ok(labels.some(x=>x.includes(caption)), 'HUD should show '+caption);
+  const normalize=s=>String(s).replace(/\s+/g,' ').trim();
+  assert.ok(labels.some(x=>normalize(x).includes(normalize(caption))),
+   'HUD should show the actual wording (regardless of wrapping/extra spaces): '+caption);
  };
  expect([{k:'tc',t:0,hp:100,mh:200,q:[],done:true}], 'Town Centre  HP 100/200');
  expect([{k:'deleted',t:0,hp:5,mh:200,q:[],done:false,pr:20}], 'Building (details unavailable)');
