@@ -10,7 +10,7 @@ assert.ok(beg>=0&&end>beg,'the original production cache and troop painter are p
 const production=code.slice(beg,end);
 
 function scene(){
- const crops=[],contexts=[],calls=[];let fail=false;
+ const crops=[],contexts=[],calls=[],prepares=[];let fail=false;
  const X={save(){calls.push(['save'])},restore(){calls.push(['restore'])},
   translate(...a){calls.push(['translate',...a])},
   scale(...a){calls.push(['scale',...a])},
@@ -21,12 +21,12 @@ function scene(){
   const canvas={width:0,height:0,getContext(type){
    assert.equal(type,'2d');
    if(fail)return null;
-   const context={drawImage(...a){crops.push(a)}};contexts.push(context);return context;
+   const context={translate(...a){prepares.push(['translate',...a])},scale(...a){prepares.push(['scale',...a])},drawImage(...a){crops.push(a);prepares.push(['crop',...a])}};contexts.push(context);return context;
   }};
   return canvas;
  }}};
  const fn=vm.runInNewContext(production+'\n({troopFrameTexture,TROOP_TEXTURE_LRU,TROOP_TEXTURE_PIXEL_LIMIT})',context);
- return {...fn,X,calls,crops,contexts,setFail(v){fail=v}};
+ return {...fn,X,calls,crops,contexts,prepares,setFail(v){fail=v}};
 }
 test('unit animated frames use one exact 1:1 crop each and reuse it for identical soldiers',()=>{
  const s=scene(),img={},f={x:15,y:26,w:230,h:246,ax:75,ay:240},art={img,f};
@@ -38,6 +38,46 @@ test('unit animated frames use one exact 1:1 crop each and reuse it for identica
  assert.equal(s.TROOP_TEXTURE_LRU.size,1);
  assert.notEqual(s.troopFrameTexture({img,f:{...f,x:50}}),first,'next movement frame receives its own crop');
  assert.notEqual(s.troopFrameTexture({img:{},f}),first,'team image or new atlas invalidates old cache');
+});
+
+test('left-facing painted frames reuse one pre-flipped native crop within the bounded cache',()=>{
+ const s=scene(),img={},f={x:15,y:26,w:230,h:246,ax:75,ay:240},art={img,f};
+ const normal=s.troopFrameTexture(art),flipped=s.troopFrameTexture(art,true);
+ assert.notEqual(normal,flipped,'mirroring never changes the normal source texture');
+ assert.equal(s.troopFrameTexture(art,true),flipped,'all left-facing soldiers reuse one crop');
+ assert.equal(s.TROOP_TEXTURE_LRU.size,2);
+ assert.equal(s.crops.length,2);
+ assert.deepEqual(s.prepares.slice(-3).map(x=>x[0]),['translate','scale','crop']);
+ assert.deepEqual(s.prepares.at(-3),['translate',230,0]);
+ assert.deepEqual(s.prepares.at(-2),['scale',-1,1]);
+ assert.deepEqual(s.crops[1].slice(1),[15,26,230,246,0,0,230,246]);
+ const native={width:230,height:246,paintedSourceFrame:{x:15,y:26,w:230,h:246}},nf={...f,x:0,y:0};
+ assert.equal(s.troopFrameTexture({img:native,f:nf}),native,'forward tint remains zero-copy');
+ assert.notEqual(s.troopFrameTexture({img:native,f:nf},true),native,'mirrored native tints also use a separate crop');
+});
+test('mirrored high-quality motion draws directly with the original foot anchor, with a safe fallback',()=>{
+ const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);
+ assert.ok(start>=0&&end>start);
+ const crops=[],frame={width:120,height:170},art={img:{},f:{x:18,y:19,w:120,h:170,ax:38,ay:165},animated:true,referenceHeight:170};
+ const stage={troopFrameTexture:(_art,flip)=>flip?frame:frame,PAINT_SECONDARY:{},paintedSecondaryPose:()=>null,Math,Number};
+ const painter=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
+ const direct={imageSmoothingEnabled:true,imageSmoothingQuality:'high',drawImage(...a){crops.push(a)},
+  save(){throw Error('should not save on cached mirror')},restore(){throw Error('should not restore on cached mirror')},
+  translate(){throw Error('should not translate on cached mirror')},scale(){throw Error('should not scale on cached mirror')}};
+ painter(direct,art,200,320,.5,1,7,true,'mil');
+ assert.equal(crops.length,1);
+ assert.equal(crops[0][0],frame);
+ assert.deepEqual(crops[0].slice(1),[159,237.5,60,85]);
+ const ops=[];
+ stage.troopFrameTexture=(_art,flip)=>flip?null:frame;
+ const fallback=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
+ const canvas={imageSmoothingEnabled:true,imageSmoothingQuality:'high',
+  save(){ops.push('save')},restore(){ops.push('restore')},translate(...a){ops.push(['translate',...a])},
+  scale(...a){ops.push(['scale',...a])},drawImage(...a){ops.push(['draw',...a])}};
+ fallback(canvas,art,200,320,.5,1,7,true,'mil');
+ assert.equal(ops[0],'save');assert.equal(ops.at(-1),'restore');
+ assert.ok(ops.some(a=>Array.isArray(a)&&a[0]==='scale'&&a[1]===-1));
+ assert.deepEqual(ops.find(a=>Array.isArray(a)&&a[0]==='draw').slice(2),[-19,-82.5,60,85]);
 });
 test('cache stays within its global original RGBA pixel budget and evicts least-recent frames',()=>{
  const s=scene(),img={},f={x:0,y:0,w:300,h:300};
