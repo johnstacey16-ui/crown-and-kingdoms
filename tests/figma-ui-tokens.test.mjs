@@ -18,7 +18,7 @@ test('Figma colour and measurement snapshot remains mapped to CSS variables', ()
 });
 
 test('Browser chrome and focus use the declared design palette without changing controller logic', () => {
-  assert.match(css, /background:\\s*var\\(--ck-surface-deep\\)/);
-  assert.match(css, /outline:\\s*2px solid var\\(--ck-brand-gold\\)/);
-  assert.match(css, /border-left:\\s*4px solid var\\(--ck-status-information\\)/);
+  assert.ok(css.includes('background: var(--ck-surface-deep);'));
+  assert.ok(css.includes('outline: 2px solid var(--ck-brand-gold);'));
+  assert.ok(css.includes('border-left: 4px solid var(--ck-status-information);'));
 });

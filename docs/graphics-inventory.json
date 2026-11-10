@@ -668,6 +668,12 @@
       "remaining": "independent directions, work variants and dedicated death sheets"
     },
     {
+      "category": "Elite unit visuals",
+      "state": "partial",
+      "evidence": "four researched Elite lines use interim equipment overlays",
+      "remaining": "four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md)"
+    },
+    {
       "category": "Building artwork",
       "state": "partial",
       "evidence": "22 painted kinds including farm; all carry fog-safe age presentation",
