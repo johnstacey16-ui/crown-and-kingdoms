@@ -47,6 +47,9 @@ try{
       const lead=S.us.find(u=>u&&u.t===0&&u.k==='knight'&&u.hp>0);
       if(!lead)throw Error('Missing large battle selected knight');
       S.sel=[lead];ctr(W/2,H/2);
+      // Late-game battle is revealed so its actual units and terrain can be
+      // visually inspected; the opening fixture keeps genuine unexplored fog.
+      S.ex.fill(1);S.vs.fill(1);
      }else{
       seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;
       startAge=2;startArmy=2;startRes=3;
@@ -64,6 +67,12 @@ try{
     assert.deepEqual(initialized.canvas,{w:viewport.width,h:viewport.height});
     assert.ok(initialized.units>0&&initialized.buildings>0);
     assert.equal(initialized.hasPaintedTerrain,true,'real painted terrain is loaded');
+    await page.evaluate(()=>{
+     const c=document.createElement('canvas');c.id='ck-world-evidence';
+     c.width=CW;c.height=CH;
+     c.style.cssText='position:fixed;inset:0;z-index:10000;pointer-events:none;width:100%;height:100%;';
+     document.body.append(c);
+    });
     const shot=async(kind)=>{
      const info=await page.evaluate(kind=>{
       const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
@@ -85,17 +94,21 @@ try{
          i:10,pg:0,rad:1};
        }else menu=null;
        mode='play';draw(0);
+       // Capture on the same task before returning to the paused state.
+       document.getElementById('ck-world-evidence').getContext('2d')
+        .drawImage(cv,0,0,CW,CH);
       }finally{
        tx=original.tx;menu=original.menu;place=original.place;
        perfFlatField=original.perfFlatField;mode='pause';
       }
       // Pixel sample excludes top/bottom controls; it demonstrates the world
       // background is real and varied rather than one flat swatch.
-      const middleX=Math.floor(CW*.28),middleY=Math.floor(CH*.31);
-      const sampleW=Math.max(1,Math.floor(CW*.44)),sampleH=Math.max(1,Math.floor(CH*.31));
-      const pixels=WORLD_X.getImageData(middleX,middleY,sampleW,sampleH).data;
+      const sampleY=Math.floor(CH*.12),sampleW=CW;
+      const sampleH=Math.max(1,Math.floor(CH*.67));
+      const pixels=document.getElementById('ck-world-evidence').getContext('2d')
+       .getImageData(0,sampleY,sampleW,sampleH).data;
       const distinct=new Set();let coloured=0;
-      for(let y=0;y<sampleH;y+=7)for(let x=0;x<sampleW;x+=7){
+      for(let y=0;y<sampleH;y+=11)for(let x=0;x<sampleW;x+=11){
        const i=(y*sampleW+x)*4,red=pixels[i],green=pixels[i+1],blue=pixels[i+2];
        distinct.add((red>>4)+','+(green>>4)+','+(blue>>4));
        if(red+green+blue>65)coloured++;
@@ -112,7 +125,8 @@ try{
      assert.equal(info.before,info.after,
       'rendering '+kind+' over '+scene+' must not change game state');
      assert.ok(info.distinct>10&&info.coloured>150,
-      'world pixels must contain real varied painted terrain/units/fog');
+      'world pixels must contain real varied painted terrain/units/fog: '+
+      scene+' '+viewport.width+'px distinct='+info.distinct+' bright='+info.coloured);
      assert.ok(info.labels.every(t=>Number.isFinite(t.x)&&Number.isFinite(t.y)),
       'real world and UI labels always use finite paint positions');
      if(kind==='hud'){
@@ -125,12 +139,13 @@ try{
       assert.equal(info.commandVisible,true,'selected Build command visible in real battlefield');
      }
      const path=output+'/figma-world-'+scene+'-'+kind+'-'+viewport.width+'x'+viewport.height+'.png';
-     await page.locator('#c').screenshot({path});
+     await page.locator('#ck-world-evidence').screenshot({path});
      return {kind,distinct:info.distinct,coloured:info.coloured,
       unitCount:info.units,buildingCount:info.buildings,simulationUnchanged:true,
       path};
     };
     const hud=await shot('hud'),commands=await shot('commands');
+    await page.locator('#ck-world-evidence').evaluate(el=>el.remove());
     evidence.push({viewport:{width:viewport.width,height:viewport.height},scene,
      paintedTerrain:true,fogged:initialized.fogged,hud,commands,
      pageErrors:errors.length});
