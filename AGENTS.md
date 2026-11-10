@@ -13,6 +13,10 @@
 
 Use and maintain [browser-rts-game-dev](.github/skills/browser-rts-game-dev/SKILL.md) for meaningful new gameplay, original sprites, AI, campaigns, multiplayer, Xbox and publishing methods. It is a standard Agent Skills package and historical case study, **not a second backlog**. For each substantial tested feature batch, add a concise **dated, commit-bound** lesson to the [build journal](.github/skills/browser-rts-game-dev/references/journal.md); update a focused guide only when the engineering/art procedure changes. Keep gameplay, graphics/Elite appearances, network, hardware and release acceptance **separate**, and record unfinished sprite states rather than declaring a civilization complete from code alone. Never invent test, art or deployed-revision evidence.
 
+## Professional quality and human/device acceptance
+
+Use [docs/PROFESSIONAL_QUALITY.md](docs/PROFESSIONAL_QUALITY.md) for real game-feel, multi-seed balance, graphics/sprite, human campaigns, security, accessibility, Xbox FPS and publish gates. The read-only `node scripts/professional-readiness.mjs` reports source coverage without granting acceptance; its regression belongs in the focused suite. Keep incomplete acceptance explicit and do not rewrite original source licences or release without a verified build.
+
 ## Standing delivery instructions
 
 The owner authorizes autonomous continuation and routine decisions on the roadmap. Work on `main`, make meaningful verified changes and continue without routine approval prompts. This is **not** authorization to spend money, activate paid tiers, change account billing, delete infrastructure, force-push, message others or break security boundaries.

@@ -31,3 +31,8 @@ After every substantial, verified feature, graphics, AI, networking or acceptanc
 **Tests:** [5/5 quick, 1,339/1,339 focused](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42883636464) on `629dd437`; full/AI/campaign/physical Xbox unverified at this SHA.
 **Status:** gameplay focused VERIFIED; distinct Elite sprites PARTIAL; WAN/physical Xbox UNVERIFIED; not intentionally released.
 **Lesson:** generalize repeated gameplay rules, test isolated consumers, track original artwork acceptance separately.
+
+### 2026-11-10 — Professional acceptance and visible Elite research (post-commit check)
+**Sources:** `js/render-troops.js` now draws optional original Elite equipment cues for Huskarl/Longbowman/Mangudai, and `js/assets.js` constructs atlas descriptors without two object spreads. This is a low-allocation code change **without measured Xbox FPS improvement**; the cues are not dedicated painted Elite sprite sheets.
+**Process:** [professional quality gates](../../../../docs/PROFESSIONAL_QUALITY.md), source-only readiness report, private security disclosure and contribution guidance formalise human, Xbox, balance and network acceptance without inventing pass results.
+**Lesson:** treat a sprite/upgrade as complete only after real in-game rendering and hardware review; report script-counts and actual user/device quality separately. GitHub CI and physical measurements must be pinned to the resulting SHA; update this entry's evidence when the run finishes.

@@ -28,6 +28,8 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Current engineering phase:** gameplay completion with tested, incremental refactoring as needed; see [active ownership and cleanup notes](docs/REFACTORING_INVENTORY.md). Procedural fallback art, trade/transport logistics and AI policy selectors now have distinct modules (`js/render-procedural-units.js`, `js/simulation-logistics.js`, `js/ai-policy.js`, `js/simulation-combat-bonuses.js`, `js/simulation-resource-routing.js`, `js/simulation-production-queues.js`, `js/simulation-research.js`, `js/simulation-building-production.js`, `js/simulation-building-updates.js` and `js/simulation-separation.js`); the complete hosted regression/Chromium suites still require current-tree evidence. Gameplay and campaign completion are the priority; preserve small verified refactors and the existing modular runtime.
 
+**Professional quality and release gates:** [professional acceptance playbook](docs/PROFESSIONAL_QUALITY.md) and read-only `node scripts/professional-readiness.mjs` inventory distinguish source coverage from human, Xbox, multiplayer and production acceptance. [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md).
+
 ## What exists
 
 - **Solo RTS:** resource gathering, ages, buildings, troops, combat, AI skirmishes, naval units, monks/relics, formations, diplomacy, victory modes, manual saves and autosaves. Blocked training reports the needed House count or the configured population limit. Numeric and feature parity are incomplete.
