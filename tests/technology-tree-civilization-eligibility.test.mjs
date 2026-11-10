@@ -99,7 +99,7 @@ test('a single read-only tree model describes each existing civilization unique 
 
 test('tree details reflect prerequisites, completed research and Spanish no-gold blacksmith costs',()=>{
  const run=fixture();
- run('S.age[0]=3;S.civ[0]=0;S.tech[0]={}');
+ run('S.age[0]=3;S.civ[0]=1;S.tech[0]={}'); // Britons: Crossbowman → Arbalester
  const read=k=>JSON.parse(run("JSON.stringify(technologyTreeModel(0,S))")).buildings.find(b=>b.id===k);
  const archery=read('rng');
  const arb=archery.research.find(t=>t.id==='arb');
