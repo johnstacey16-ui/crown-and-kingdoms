@@ -130,6 +130,16 @@ test('resource and status groups use bounded responsive HUD geometry at console 
   assert.ok(drawn.some(p=>p[0]==='panel'&&p[4]===l.height+4));
   assert.ok(painted.filter(p=>p.align==='right').every(p=>p.x<=width));
  }
+ // A real 372-unit fixture produces double-digit idle villagers.
+ // The count must stay legible at 390 CSS pixels and at console widths.
+ context.S.us=Array.from({length:10},()=>({t:0,hp:20,k:'vil',o:'i'}));
+ for(const width of [390,1280,1920]){
+  context.CW=width;painted.length=0;
+  context.topbar(context.S.res[0]);
+  assert.ok(painted.some(t=>t.s==='Idle 10'),
+    'idle-worker count must remain complete at '+width+'px');
+ }
+ context.S.us=[];
  assert.equal(context.hudTopLayout(1280).compact,false,'720p Xbox is single row');
  assert.equal(context.hudTopLayout(720).compact,true,'narrow browser uses two rows');
  // Tests intentionally use a malformed loading-game state, as controller fixtures may

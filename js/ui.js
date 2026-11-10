@@ -201,11 +201,15 @@ function topbar(r){
   X.fillRect(x+2,statusTop,Math.max(0,w-5),l.compact?34:43);
  }
  statusChip(l.idleX,l.idleWidth);
- const idleSize=l.compact?12:16;
+ const idleLabel='Idle '+idl;
+ // The actual worker count must survive two- and three-digit army scenes.
+ // Size the label to its chip; never truncate the count to an ellipsis.
+ const idleSize=Math.max(9,Math.min(l.compact?12:16,
+  (l.idleWidth-27)/(Math.max(1,idleLabel.length)*.62)));
  X.fillStyle=idl?CK_HUD_THEME.idle:CK_HUD_THEME.inactive;
  X.beginPath();X.arc(l.idleX+13,l.summaryY-6,6,0,Math.PI*2);X.fill();
- tx(hudTopFit('Idle '+idl,l.idleWidth-27,idleSize),
-  l.idleX+25,l.summaryY,idleSize,idl?CK_HUD_THEME.idle:CK_HUD_THEME.secondary);
+ tx(idleLabel,l.idleX+25,l.summaryY,idleSize,
+  idl?CK_HUD_THEME.idle:CK_HUD_THEME.secondary);
  statusChip(l.ageX,l.ageWidth);
  const ageIndex=Array.isArray(S.age)?S.age[0]:0;
  const ageName=(typeof AG!=='undefined'&&AG[ageIndex]?.n)||'Age unavailable';

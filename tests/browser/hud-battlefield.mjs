@@ -133,6 +133,9 @@ try{
       const labels=info.labels.map(t=>t.value);
       assert.ok(labels.some(t=>t.includes('Castle Age')),'live Castle Age indicator');
       assert.ok(labels.some(t=>t.includes('1:34')),'live match clock');
+      if(scene==='large-battle')assert.ok(labels.some(t=>t==='Idle 10'),
+       'real large-battle HUD shows the full two-digit idle-worker count');
+
       assert.ok(info.shortcut.x>=0&&info.shortcut.x+info.shortcut.w<=viewport.width,
        'the shortcut dock is on screen');
      }else{

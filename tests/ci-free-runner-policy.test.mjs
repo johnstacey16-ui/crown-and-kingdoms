@@ -93,9 +93,11 @@ test('real battlefield + HUD screenshots remain opt-in and use the true large-ar
  assert.doesNotMatch(weekly,/\n  push:|\n  pull_request:/);
  for(const requirement of ['draw(0)','loadSeriesSLargeBattleSave()',
   'S.us.length!==372||S.bs.length!==238','CK_SIM_SYNC.worldCheckpoint(S,1)',
-  "page.locator('#c').screenshot",'figma-world-ui-evidence.json']){
+  "page.locator('#ck-world-evidence').screenshot",'figma-world-ui-evidence.json']){
   assert.ok(script.includes(requirement),'world UI evidence contract absent: '+requirement);
  }
  assert.ok(script.includes('perfFlatField=0'),
   'world acceptance cannot quietly substitute flat-field visual isolation');
+ assert.ok(script.includes('.drawImage(cv,0,0,CW,CH)'),
+  'Chromium world evidence must be copied before the paused-menu RAF can replace it');
 });
