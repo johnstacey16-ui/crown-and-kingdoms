@@ -17,6 +17,8 @@ This is a **release/feature acceptance checklist**, not a second roadmap. [ROADM
 
 Each feature can be GAMEPLAY VERIFIED / GRAPHICS PARTIAL / NETWORK UNVERIFIED / XBOX UNVERIFIED. **Never treat a green focused test as a completed feature.**
 
+**Implemented baseline (10 November 2026):** original researched Elite equipment cues, reduced temporary atlas-frame allocation, and an optional saved *Reduced cosmetic effects* setting in Options/Pause. [Latest source quick/focused CI](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/42896413631) passed on `d223308`; **no physical Xbox FPS gain, dedicated painted Elite sprites, full-campaign/human/balance or WAN reliability acceptance is claimed.** Open work has [targeted GitHub issues #97–#103](https://github.com/johnstacey16-ui/crown-and-kingdoms/issues?q=is%3Aissue+is%3Aopen).
+
 ## Priority acceptance sessions (record date, SHA and actual tester)
 
 1. **Xbox frame pacing:** run the built-in 50/100/200-unit scenes; on the same camera/picture preset run Full → Frozen full → Flat → Frozen flat → Full repeat, object-only, unit-only and 100%/75%/50%/100% pixel A/B. Record FPS, RAF GAP, SIM/DRAW, visible/total units, buildings, canvas pixels, cache hit/evict and long-battle drift. [Issue #57](https://github.com/johnstacey16-ui/crown-and-kingdoms/issues/57) is a historical measured baseline, not a proven fix.
