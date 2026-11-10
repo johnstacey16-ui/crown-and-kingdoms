@@ -43,3 +43,28 @@ test('research status label safely handles absent or stale technology definition
     assert.equal(research(stale),'unknown technology');
   assert.match(ui,/researchNameForHud\(s\[0\]\.rs\)/,'live selected-building HUD uses the guard');
 });
+test('selected HUD safely renders stale buildings, corrupted queues and null/dead selection entries',()=>{
+ const start=ui.indexOf('function hud(){'),end=ui.indexOf('\n/* Full-screen menu',start);
+ assert.ok(start>=0&&end>start,'exercise real in-game HUD renderer');
+ const labels=[],state={res:[{f:0,w:0,g:0,s:0}],age:[0],sel:[],t:42,vc:[]};
+ const ctx=vm.createContext({
+  S:state,topbar(){},cmp:null,cmpHud(){},vm:0,scoreLimit:1200,CW:1280,CH:720,AG:[{n:'Dark Age'}],
+  difficultyName:()=>'Easy',diff:0,gs:1,panel(){},quickBar(){},place:null,menu:null,
+  mm:{x:1000},notes:[],X:{globalAlpha:1},tx:label=>labels.push(String(label)),
+  minimapDraw(){},B:{tc:{n:'Town Centre',bt:80,tr:['vil']}},U:{vil:{n:'Villager'},mil:{n:'Militia'}},
+  unitName:k=>k==='vil'?'Villager':k==='mil'?'Militia':'Unknown',
+  mhp:()=>50,stt:()=>'Standing',TASK:{},productionQueueWait:()=>null,researchNameForHud:()=>'Steelwork'
+ });
+ vm.runInContext(ui.slice(start,end),ctx);
+ const expect=(selection,caption)=>{
+  state.sel=selection;labels.length=0;
+  assert.doesNotThrow(()=>ctx.hud(),'stale selections must not interrupt the main render');
+  assert.ok(labels.some(x=>x.includes(caption)), 'HUD should show '+caption);
+ };
+ expect([{k:'tc',t:0,hp:100,mh:200,q:[],done:true}], 'Town Centre  HP 100/200');
+ expect([{k:'deleted',t:0,hp:5,mh:200,q:[],done:false,pr:20}], 'Building (details unavailable)');
+ expect([{k:'tc',t:0,hp:5,mh:200,q:[null,{k:'vil',t:'bad'}],done:true}], 'time unknown');
+ expect([null,{k:'tc',t:0,hp:0,mh:200,q:[]},{k:'mil',t:0,hp:22,o:'unknown',car:3,ct:null}], 'carrying 3 resource');
+ expect(null,'Nothing selected');
+ expect([{k:'tc',t:0,hp:100,mh:200,q:[],done:true},{k:'tc',t:0,hp:100,mh:200,q:[],done:true}], '2 production buildings selected');
+});

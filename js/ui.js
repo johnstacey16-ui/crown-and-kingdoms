@@ -124,12 +124,22 @@ function topbar(r){panel(0,-4,CW,54);const gc={f:0,w:0,g:0,s:0};let idl=0;for(co
 function researchNameForHud(rs){return rs?.k==='age'?'next age':(TE[rs?.k]?.n||'unknown technology')}
 function hud(){const r=S.res[0];topbar(r);if(cmp)cmpHud();{const a=vm===5?(S.kh||[]):(S.vc||[]),lead=a.reduce((best,v,i)=>v>(a[best]||0)?i:best,0),progress=a[lead]||0;if(vm===4)tx('SCORE MODE · '+Math.ceil(Math.max(0,scoreLimit-S.t)/60)+' MIN LEFT · YOUR SCORE '+((S.scoreCache||[])[0]||0),CW/2,CH-134,22,'#f2d28a','center');else if(vm===5)tx(progress>0?(lead===0?'YOUR KINGDOM':'KINGDOM '+(lead+1))+' CONTROLS THE HILL · '+Math.ceil(Math.max(0,300-progress))+'s TO WIN':'KING OF THE HILL · HOLD THE CENTRAL HILL FOR 5 MIN',CW/2,CH-134,20,progress>0?(lead===0?'#9ae6b4':'#ff9a9a'):'#f2d28a','center');else if(vm===6)tx('SUDDEN DEATH · DEFEND YOUR TOWN CENTRE',CW/2,CH-134,20,'#ff9a9a','center');else if(vm&&progress>0)tx((lead===0?'Your ':'Kingdom '+(lead+1)+' ')+(vm===1?'Wonder':'Relic')+' victory in '+Math.ceil((vm===1?300:240)-progress)+'s',CW/2,CH-134,24,lead===0?'#9ae6b4':'#ff9a9a','center')}tx(AG[S.age[0]].n,880,32,24,'#cbd5e1');tx(`${difficultyName(diff)}${gs!==1?'  '+gs+'x':''}  ${(S.t/60|0)}:${String(S.t%60|0).padStart(2,'0')}`,CW-20,32,24,'#cbd5e1','right');
 panel(0,CH-120,mm.x-8,120);quickBar();
-const s=S.sel,queueWait=s.length===1&&s[0]?.q?productionQueueWait(s[0]):null;let l='Nothing selected - left stick pans camera; A selects at centre';
-if(s.length){const a=s[0];l=a.q?`${B[a.k].n}  HP ${a.hp|0}/${a.mh}`+(a.done?(a.q.length?`  Training ${a.q.map(q=>unitName(q.k,a.t)[0]).join('')} (${queueWait?queueWait.label:a.q[0].t.toFixed(0)+'s'})`:''):`  Building ${(a.pr/B[a.k].bt*100)|0}%`):
-`${unitName(a.k,a.t)}${s.length>1?' +'+(s.length-1)+' more':''}  HP ${a.hp|0}/${mhp(a)}  ${stt(a)}  ${TASK[a.o]}${a.cg&&a.cg.length?' - cargo '+a.cg.length+'/5':''}${a.car>0?' - carrying '+(a.car|0)+' '+a.ct.toUpperCase():''}`}
+const s=Array.isArray(S.sel)?S.sel.filter(a=>a&&a.hp>0):[],queueWait=s.length===1&&Array.isArray(s[0].q)&&s[0].q.every(q=>q&&typeof q.k==='string'&&Number.isFinite(q.t))&&B[s[0].k]?.n?productionQueueWait(s[0]):null;let l='Nothing selected - left stick pans camera; A selects at centre';
+if(s.length){
+ const a=s[0],building=a.q!=null,queue=Array.isArray(a.q)?a.q:[],def=building&&typeof B[a.k]?.n==='string'?B[a.k]:null;
+ if(building){
+  l=`${def?.n||'Building'}  HP ${a.hp|0}/${a.mh||0}`;
+  if(a.done&&queue.length){
+   const names=queue.map(q=>q&&U[q.k]?(unitName(q.k,a.t)?.[0]||'?'):'?').join('');
+   const remaining=queueWait?.label||(Number.isFinite(queue[0]?.t)?queue[0].t.toFixed(0)+'s':'time unknown');
+   l+=`  Training ${names} (${remaining})`;
+  }else if(!a.done)l+=def?.bt>0&&Number.isFinite(a.pr)?`  Building ${(a.pr/def.bt*100)|0}%`:'  Building (details unavailable)';
+  else if(!Array.isArray(a.q))l+='  Queue unavailable';
+ }else l=`${unitName(a.k,a.t)}${s.length>1?' +'+(s.length-1)+' more':''}  HP ${a.hp|0}/${mhp(a)}  ${stt(a)}  ${TASK[a.o]||'Idle'}${a.cg&&a.cg.length?' - cargo '+a.cg.length+'/5':''}${a.car>0?' - carrying '+(a.car|0)+' '+(typeof a.ct==='string'?a.ct.toUpperCase():'resource'):''}`;
+}
 const production=s.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length);
-if(s[0]?.q&&production.length>1)l=production.length+' production buildings selected · '+production.reduce((n,b)=>n+b.q.length,0)+' units queued';
-tx(l+(s[0]&&s[0].rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':''),20,CH-80,24);
+if(Array.isArray(s[0]?.q)&&production.length>1)l=production.length+' production buildings selected · '+production.reduce((n,b)=>n+b.q.length,0)+' units queued';
+tx(l+(s[0]?.rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':''),20,CH-80,24);
 const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT radial: left stick choose   A Confirm   Y Switch page   X Cancel last queued   B Close':queueWait?queueWait.hint+'  RT Command menu  LB Groups  RB Minimap  B Deselect':'A Select / command (hold: box)  RT Command menu  Y Shortcut  LB Groups  RB Minimap  D-pad Quick select  LT Modifier  B Deselect  Menu Pause';
 {const hh=h.split('  LB ');tx(hh[0],20,CH-50,17,'#94a3b8');tx(hh[1]?'LB '+hh[1]:'',20,CH-26,17,'#94a3b8')}
 
