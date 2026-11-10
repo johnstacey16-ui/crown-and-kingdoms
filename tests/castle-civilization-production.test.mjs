@@ -166,3 +166,78 @@ test('Elite Huskarl upgrades only Gothic units, armor, counters and current-buil
  assert.equal(run("combatArmor(S.us.find(u=>u.t===0&&u.k==='huskarl'),'p')"),armor+2);
  assert.equal(run('S.tech[0].atkb.huskarl'),2);
 });
+
+test('Elite Longbowman uses shared Imperial upgrade effects, tech tree and current-build saves',()=>{
+ const {run}=fixture();
+ run("S.civ=[1,0];S.age=[3,3];S.tech=[{},{}];S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.longbow=addU(0,'lbow',42.5,42.5)");
+ assert.equal(run("rsOf(castles[0]).includes('eliteLongbowman')"),true);
+ assert.equal(run("rsOf(castles[1]).includes('eliteLongbowman')"),false);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,castles[0]).some(o=>o.value==='eliteLongbowman'&&o.type==='research')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,1,castles[1]).some(o=>o.value==='eliteLongbowman')"),false);
+ const budget=run('JSON.stringify(S.res[1])');
+ assert.equal(run("research(castles[1],'eliteLongbowman')"),false);
+ assert.equal(run('JSON.stringify(S.res[1])'),budget);
+ const range=run('attackRange(longbow)'),armor=run("combatArmor(longbow,'p')"),hp=run('longbow.hp');
+ run('S.age[0]=2');
+ assert.equal(run("research(castles[0],'eliteLongbowman')"),false);
+ run('S.age[0]=3');
+ assert.equal(run("research(castles[0],'eliteLongbowman')"),true);
+ assert.equal(run('S.res[0].f'),9150);
+ assert.equal(run('S.res[0].g'),9150);
+ run('upB(castles[0],TE.eliteLongbowman.t)');
+ assert.equal(run('S.tech[0].eliteLongbowman'),1);
+ assert.equal(run('longbow.hp'),hp+5);
+ assert.equal(run("combatArmor(longbow,'p')"),armor+1);
+ assert.equal(run('attackRange(longbow)'),range+1);
+ assert.equal(run("unitName('lbow',0)"),'Elite Longbowman');
+ assert.equal(run("unitName('lbow',1)"),'Longbowman');
+ assert.equal(run("S.tech[0].hpb.lbow"),5);
+ assert.equal(run('saveG()'),true);
+ assert.equal(run('loadG()'),true);
+ assert.equal(run("unitName('lbow',0)"),'Elite Longbowman');
+ assert.equal(run("attackRange(S.us.find(u=>u.t===0&&u.k==='lbow'))"),range+1);
+ assert.equal(run("combatArmor(S.us.find(u=>u.t===0&&u.k==='lbow'),'p')"),armor+1);
+});
+
+test('Elite Mangudai has real anti-siege damage, extra attack, armor and faction-only effects',()=>{
+ const {run}=fixture();
+ run("S.civ=[2,1];S.age=[3,3];S.tech=[{},{}];S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.mangudai=addU(0,'mgd',42.5,42.5);globalThis.scorpion=addU(1,'scor',46.5,42.5);globalThis.enemyMongol=addU(1,'mgd',48.5,42.5)");
+ assert.equal(run("rsOf(castles[0]).includes('eliteMangudai')"),true);
+ assert.equal(run("rsOf(castles[1]).includes('eliteMangudai')"),false);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,castles[0]).some(o=>o.value==='eliteMangudai'&&o.type==='research')"),true);
+ const before=run("scorpion.hp=100;dmgT(mangudai,scorpion);100-scorpion.hp");
+ assert.equal(run("civilizationUniqueUnitTargetBonus(mangudai,scorpion)"),3,'Castle Mangudai have +3 against siege');
+ const armor=run("combatArmor(mangudai,'m')");
+ const enemyArmor=run("combatArmor(enemyMongol,'m')");
+ const enemyBudget=run('JSON.stringify(S.res[1])');
+ assert.equal(run("research(castles[1],'eliteMangudai')"),false);
+ assert.equal(run('JSON.stringify(S.res[1])'),enemyBudget);
+ run('S.age[0]=2');
+ assert.equal(run("research(castles[0],'eliteMangudai')"),false);
+ run('S.age[0]=3');
+ assert.equal(run("research(castles[0],'eliteMangudai')"),true);
+ assert.equal(run('S.res[0].f'),8900);
+ assert.equal(run('S.res[0].g'),9325);
+ run('upB(castles[0],TE.eliteMangudai.t)');
+ assert.equal(run('S.tech[0].eliteMangudai'),1);
+ assert.equal(run("S.tech[0].atkb.mgd"),2);
+ assert.equal(run("unitName('mgd',0)"),'Elite Mangudai');
+ assert.equal(run("unitName('mgd',1)"),'Mangudai');
+ assert.equal(run("combatArmor(mangudai,'m')"),armor+1);
+ assert.equal(run("combatArmor(enemyMongol,'m')"),enemyArmor);
+ assert.equal(run("civilizationUniqueUnitTargetBonus(mangudai,scorpion)"),5);
+ const after=run("scorpion.hp=100;dmgT(mangudai,scorpion);100-scorpion.hp");
+ assert.equal(after-before,4,'Elite adds +2 direct attack and +2 against siege');
+ assert.equal(run('saveG()'),true);
+ assert.equal(run('loadG()'),true);
+ assert.equal(run("unitName('mgd',0)"),'Elite Mangudai');
+ assert.equal(run("S.tech[0].atkb.mgd"),2);
+ assert.equal(run("combatArmor(S.us.find(u=>u.t===0&&u.k==='mgd'),'m')"),armor+1);
+});
+
+test('AI ranks its own researched unique-unit Elite upgrade without hardcoded civ IDs',()=>{
+ const {run}=fixture();
+ run("S.civ=[1,0];S.age=[3,3];S.tech=[{},{}];globalThis.aiUnits=[{k:'lbow',t:0,hp:35},{k:'lbow',t:0,hp:35},{k:'lbow',t:0,hp:35}]");
+ const context="({arm:aiUnits,vil:[],bl:[],my:aiUnits,humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]})";
+ assert.ok(run("aiTechnologyPriority('eliteLongbowman',"+context+")")>run("aiTechnologyPriority('eliteLongbowman', {..."+context.slice(1,-1)+",my:[]})"));
+});

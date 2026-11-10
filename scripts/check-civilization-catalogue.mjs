@@ -75,6 +75,23 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
      !['f','w','g','s'].includes(resource)||!Number.isFinite(amount)||amount<0)))
     errors.push('Invalid '+label+' definition for '+entry.name);
   }
+  // Elite-only modifiers must be data-driven, finite and bounded.
+  if(actual?.elite){
+   const elite=actual.elite;
+   if(elite.age!==3)errors.push('Elite upgrade must require Imperial Age for '+entry.name);
+   if(elite.range!==undefined&&(!Number.isFinite(elite.range)||elite.range<0||elite.range>5))
+    errors.push('Invalid Elite range modifier for '+entry.name);
+   for(const [field,keys] of [['armor',['m','p']],['bonus',['archer','siege','building']]]){
+    if(elite[field]!==undefined&&(
+     !elite[field]||typeof elite[field]!=='object'||
+     Object.entries(elite[field]).some(([name,n])=>!keys.includes(name)||!Number.isFinite(n)||n<0||n>30)))
+     errors.push('Invalid Elite '+field+' modifier for '+entry.name);
+   }
+   for(const field of ['hpb','atkb']){
+    if(elite[field]!==undefined&&Object.keys(elite[field]).some(k=>k!==actual.uniqueUnit))
+     errors.push('Elite '+field+' affects foreign units for '+entry.name);
+   }
+  }
   if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
    errors.push('Missing live civilization/technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||

@@ -159,3 +159,25 @@ test('Goths Elite Huskarl upgrade is indexed, restricted and correctly registere
   }).some(e=>/Elite unique-unit upgrade/.test(e)));
  }
 });
+
+test('Briton, Mongol and Goth Elite upgrades have valid registered Imperial definitions',()=>{
+ for(const [id,key,cost,unit] of [
+  [1,'eliteLongbowman',{f:850,g:850},'lbow'],
+  [2,'eliteMangudai',{f:1100,g:675},'mgd'],
+  [18,'eliteHuskarl',{f:1200,g:550},'huskarl']
+ ]){
+  assert.equal(catalogue.civilizations[id].eliteUpgrade,key);
+  assert.equal(runtime.civilizations[id].eliteUpgrade,key);
+  assert.equal(runtime.technologies[key].age,3);
+  assert.equal(runtime.technologies[key].t>0,true);
+  assert.equal(JSON.stringify(runtime.technologies[key].cost),JSON.stringify(cost));
+  assert.ok(runtime.researchAvailability[id].castle.includes(key));
+  assert.equal(runtime.civilizations[id].uniqueUnit,unit);
+  for(let other=0;other<runtime.civilizations.length;other++)if(other!==id)
+   assert.equal(runtime.researchAvailability[other].castle.includes(key),false);
+ }
+ for(const [id,key] of [[1,'eliteLongbowman'],[2,'eliteMangudai']]){
+  assert.ok(altered(c=>{delete c.civilizations[id].eliteUpgrade}).some(e=>/Elite unique-unit upgrade/.test(e)));
+  assert.ok(altered(c=>{c.civilizations[id].eliteUpgrade='eliteHuskarl'}).some(e=>/Elite unique-unit upgrade/.test(e)));
+ }
+});
