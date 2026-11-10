@@ -165,6 +165,7 @@ test('compact lower HUD keeps selected information above D-pad shortcuts and the
   tx:(s,...args)=>painted.push([String(s),...args]),
   hudTopFit:(s)=>String(s)
  });
+ vm.runInContext(ui.slice(ui.indexOf('const CK_HUD_THEME='),ui.indexOf('function hudTopLayout(')),ctx);
  vm.runInContext(ui.slice(begin,end),ctx);
  for(const [width,height] of [[360,720],[480,720],[720,720],[960,720],[480,480]]){
   const g=ctx.hudLowerLayout(width,height);
