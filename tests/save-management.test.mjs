@@ -42,7 +42,8 @@ test('deletion markers survive unavailable IndexedDB and clear on new saves', as
 test('autosave always uses its own rolling key, not the selected manual slot', () => {
  assert.match(save,/const key=auto\?'ck_autosave':skey\(slot\)/);
  assert.match(engine,/saveG\(true\)/);
- assert.match(engine,/lastAutoSaveAt=-60000;newGame\(\)/);
+ assert.match(engine,/lastAutoSaveAt=-60000;resetSavePerformanceMetrics\(\);newGame\(\)/,
+  'new matches reset both the autosave clock and old performance readings');
  assert.match(save,/overwriteSlotTarget!==null/);
 });
 
