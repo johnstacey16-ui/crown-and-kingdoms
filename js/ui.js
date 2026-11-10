@@ -59,16 +59,59 @@ function drawOv(){const o=ovr();X.fillStyle='rgba(0,0,0,.85)';X.fillRect(0,0,CW,
 /* Display the real civilization-eligible lines, not raw generic building data.
  * The same trOf / rsOf gates protect solo and authenticated multiplayer. */
 function treeLines(){
- const id=S?.civ?.[0]??civ,c=CIV[id],rows=[['Civilization: '+c.n,c.d]],b={k:'',t:0};
- for(const k in B){
-  b.k=k;const d=B[k],tr=trOf(b).filter(key=>!!U[key]).map(key=>unitName(key,0));
-  const research=rsOf(b).filter(key=>!!TE[key]).map(key=>TE[key].n);
-  rows.push([d.n+(d.age?' ('+AG[d.age].n+')':' (Founding Age)'),
-   (tr.length?'Units: '+tr.join(', ')+'. ':'')+(research.length?'Tech: '+research.join(', '):'')]);
+ const model=technologyTreeModel(0,S),c=CIV[model.civilizationId];
+ if(!c)return [['Civilization unavailable','No technology data for this kingdom']];
+ const rows=[['Civilization: '+c.n,c.d]];
+ for(const entry of model.buildings){
+  const tr=entry.units.map(u=>unitName(u.id,0));
+  const research=entry.research.map(t=>t.name);
+  rows.push([entry.name+(entry.age?' ('+AG[entry.age].n+')':' (Founding Age)'),
+   (tr.length?'Units: '+tr.join(', ')+'. ':'')+
+   (research.length?'Tech: '+research.join(', '):'')]);
  }
  return rows;
 }
-function drawTree(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(40,40,CW-80,CH-80);tx('TECHNOLOGY TREE',CW/2,100,38,'#f2c14e','center');const TL=treeLines();for(let i=0;i<12;i++){const e=TL[tsc+i];if(!e)break;const y=160+i*Math.min(56,(CH-300)/12);tx(e[0],70,y,20,'#fde68a');tx(e[1].slice(0,Math.floor((CW-340)/9)),330,y,17,'#e2e8f0')}tx('D-pad Up/Down: scroll    A or B: back',CW/2,CH-70,18,'#9ae6b4','center')}
+function treePageRows(height){
+ return Math.max(4,Math.min(9,Math.floor((height-280)/44)));
+}
+function treeCostLabel(cost){
+ return Object.entries(cost||{}).filter(([_,n])=>Number.isFinite(n)&&n>0)
+  .map(([k,n])=>n+({f:'F',w:'W',g:'G',s:'S'}[k]||k)).join(' ')||'Free';
+}
+function treeFit(value,width,size){
+ const str=String(value??''),cap=Math.max(1,Math.floor(width/(size*.58)));
+ return str.length>cap?str.slice(0,Math.max(0,cap-1))+'…':str;
+}
+function drawTree(){
+ X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);
+ const margin=Math.min(40,Math.max(10,CW*.04)),left=margin+18;
+ panel(margin,margin,CW-margin*2,CH-margin*2);
+ tx('TECHNOLOGY TREE',CW/2,margin+52,Math.min(32,Math.max(22,CW/33)),'#f2c14e','center');
+ const model=technologyTreeModel(0,S),TL=treeLines(),count=treePageRows(CH);
+ const chosen=Math.min(Math.max(0,tsc),TL.length-1);
+ const offset=Math.max(0,Math.min(chosen-Math.floor(count/2),TL.length-count));
+ const listTop=margin+98,rowHeight=Math.min(44,(CH-300)/count);
+ for(let i=0;i<count;i++){
+  const index=offset+i,e=TL[index];if(!e)break;
+  const y=listTop+i*rowHeight,selected=index===chosen;
+  if(selected){X.fillStyle='#354651';X.fillRect(left-8,y-24,CW-2*left+16,rowHeight-2);
+   X.strokeStyle='#f2c14e';X.lineWidth=2;X.strokeRect(left-7.5,y-23.5,CW-2*left+15,rowHeight-3)}
+  const detailX=CW<850?left+Math.max(125,CW*.31):Math.max(left+205,CW*.34);
+  tx(treeFit(e[0],detailX-left-12,16),left,y,16,selected?'#f5d27b':'#e6d4a9');
+  tx(treeFit(e[1],CW-detailX-margin-28,14),detailX,y,14,selected?'#f1f5f9':'#cbd5e1');
+ }
+ const selected=model.buildings[chosen-1],boxY=CH-margin-151;
+ panel(left-8,boxY,CW-left-margin-10,107);
+ if(selected){
+  const available=selected.units.slice(0,3).map(u=>u.name+(u.reason?' ('+u.reason+')':'')+' '+treeCostLabel(u.cost));
+  const researched=selected.research.slice(0,3).map(t=>t.name+' ('+(t.reason||t.state)+') '+treeCostLabel(t.cost));
+  tx(treeFit(selected.name+' · '+AG[selected.age].n,CW-2*left,17),left,boxY+28,17,'#f5d27b');
+  tx(treeFit('Units: '+(available.join('  |  ')||'None'),CW-2*left,14),left,boxY+56,14,'#f1f5f9');
+  tx(treeFit('Research: '+(researched.join('  |  ')||'None'),CW-2*left,14),left,boxY+81,14,'#cbd5e1');
+ }else tx(treeFit(model.civilization||'No civilization',CW-2*left,18),left,boxY+49,18,'#f5d27b');
+ tx('D-pad: select building    A/B: back    '+(chosen+1)+'/'+TL.length,
+  CW/2,CH-margin-17,Math.min(16,Math.max(11,CW/33)),'#9ae6b4','center');
+}
 function drawObj(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(CW/2-440,70,880,CH-140);tx('OBJECTIVES',CW/2,140,40,'#f2c14e','center');const vmx=[S.teamN>2?'Destroy every rival Town Centre.':'Destroy the enemy Town Centre.','Build a Wonder and hold it for 5 minutes. Any rival kingdom can win the same way.','Hold every relic in your Monasteries for 4 minutes. Any rival kingdom can win the same way.',S.teamN>2?'Keep your King alive and defeat every rival King.':'Keep your King alive and kill the enemy King.','Have the highest kingdom score when the '+Math.round(scoreLimit/60)+'-minute time limit expires.','Control the central hill with military units for 5 minutes; hostile units contest control.','Protect your starting Town Centre and destroy every hostile Town Centre. You cannot build additional Town Centres.'][vm],p=S.pl;
 tx('Primary: '+(cmp?'Complete the required mission objectives below; defend your Town Centre.':vmx),CW/2-400,220,21);tx('You: '+CIV[S.civ[0]].n+'     '+(S.teamN>2?((S.teamN-1)+' rival kingdoms'):('Enemy: '+CIV[S.civ[1]].n))+'     Difficulty: '+difficultyName(diff),CW/2-400,270,20,'#cbd5e1');tx('Time '+(S.t/60|0)+' min     Units trained '+p.tr+'     Enemies defeated '+p.kills+'     Resources gathered '+(p.gath|0),CW/2-400,312,20,'#cbd5e1');tx('Age: '+AG[S.age[0]].n+'     Population '+popOf(0)+'/'+capOf(0)+(S.teamN>2?'     Kingdoms alive: '+(Array.from({length:S.teamN},(_,t)=>kingdomAlive(t)).filter(Boolean).length):''),CW/2-400,354,20,'#cbd5e1');if(cmp)cmpObj();tx('A / B / View / RB / Menu: back',CW/2,CH-110,20,'#9ae6b4','center')}
 function drawInfo2(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);const c=inf==='c',L=c?[['Left stick','Pan camera to aim the centre reticle; steer wheels and expanded minimap cursor'],['Right stick','Up/down: zoom during gameplay (solo and multiplayer)'],['Minimap cursor speed','Controls expanded minimap pointer only; Camera speed changes normal panning'],['A','Select / command. Hold A and drag for a selection box; double-tap for all of a type on screen'],['Small minimap','A inside the diamond focuses the camera; outside it A selects or commands normally'],['A (production buildings selected)','Set their gather (rally) point'],['LT (hold)','Add to selection, place several buildings, train five at a time'],['RT (hold)','Command menu (radial). With nothing selected: site-based commands'],['Y','Build/train; military: Line/Split. Hold Y + D-pad Left: change shortcut.'],['LB (hold)','Control groups: left stick picks, X assigns, release selects, Y focuses'],['RB','Open minimap; left stick moves its cursor, Y focuses, B/RB/View closes'],['D-pad','Up: idle villager; Right: support; Down: Town Centre; Left: military'],['X / B','X assigns control groups in the LB wheel; B cancels or deselects'],['L3 / R3','L3 focuses camera; R3: villager priorities, Y: manual weights'],['View / Menu','View opens objectives; Menu pauses. B/RB/View exits objectives']]:[['Game','Crown & Kingdoms is an original controller-first medieval RTS built from modular browser scripts.'],['Goal','Win by the victory mode you chose; the enemy follows the same rules and fog.'],['Controls','Target: Age of Empires II: DE Xbox default controls. Full parity is still in progress.'],['Graphics','Painted medieval raster sprites, textured terrain and team-colour heraldry.'],['Audio','Synthesised Web Audio with spatial effects, ambience and adaptive music; browser audio may require controller input first.'],['Online','Multiplayer reliability and host-authoritative match state are active development goals.'],['Focus','Finish all 19 campaigns, improve AI and technology, fix naval/maps, improve graphics, measure Xbox performance and verify multiplayer.']];

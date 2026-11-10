@@ -62,3 +62,70 @@ test('Goth technology tree shows the Imperial Elite Huskarl upgrade without expo
  run('S.civ[0]=1');
  assert.doesNotMatch(row(run,'Castle'),/Elite Huskarl/);
 });
+
+test('Archery Range tech state is taken from the supplied world, not a stale global match',()=>{
+ const run=fixture();
+ run('S.civ=[0,1];S.tech=[{},{}]');
+ const other='[{xbow:1},{}]';
+ assert.ok(JSON.parse(run("JSON.stringify(trOf({k:'rng',t:0},S.civ,"+other+"))")).includes('xbow'));
+ assert.ok(!JSON.parse(run("JSON.stringify(trOf({k:'rng',t:0},S.civ,"+other+"))")).includes('arc'));
+ assert.ok(JSON.parse(run("JSON.stringify(trOf({k:'rng',t:0},S.civ,S.tech))")).includes('arc'));
+ run('S.tech[0].xbow=1');
+ assert.ok(JSON.parse(run("JSON.stringify(trOf({k:'rng',t:0},S.civ,[{},{}]))")).includes('arc'),
+  'provided unresearched world must not inherit Crossbowman from global S');
+});
+
+test('a single read-only tree model describes each existing civilization unique and Elite line',()=>{
+ const run=fixture();
+ const before=run('JSON.stringify({tech:S.tech,res:S.res,civ:S.civ,age:S.age})');
+ for(let id=0;id<26;id++){
+  const model=JSON.parse(run('JSON.stringify(technologyTreeModel(0,{civ:['+id+'],age:[1],tech:[{}]}))'));
+  assert.equal(model.civilizationId,id);
+  assert.equal(model.buildings.length,Object.keys(JSON.parse(run('JSON.stringify(B)'))).length);
+  const castle=model.buildings.find(b=>b.id==='castle');
+  const unique=JSON.parse(run('JSON.stringify(CIV['+id+'])'));
+  assert.ok(castle.units.some(u=>u.id===unique.uu));
+  assert.ok(castle.research.some(t=>t.id===unique.ut.k));
+  if(unique.ut2)assert.ok(castle.research.some(t=>t.id===unique.ut2.k));
+  if(unique.elite){
+   const line=castle.research.find(t=>t.id===unique.elite.k);
+   assert.ok(line,'own Elite line appears for '+unique.n);
+   assert.equal(line.state,'locked','Imperial research is gated in Feudal Age');
+  }
+ }
+ assert.equal(run('JSON.stringify({tech:S.tech,res:S.res,civ:S.civ,age:S.age})'),before,
+  'technology-model reads never spend resources or alter the live match');
+});
+
+test('tree details reflect prerequisites, completed research and Spanish no-gold blacksmith costs',()=>{
+ const run=fixture();
+ run('S.age[0]=3;S.civ[0]=0;S.tech[0]={}');
+ const read=k=>JSON.parse(run("JSON.stringify(technologyTreeModel(0,S))")).buildings.find(b=>b.id===k);
+ const archery=read('rng');
+ const arb=archery.research.find(t=>t.id==='arb');
+ assert.ok(arb);
+ assert.equal(arb.state,'locked');
+ assert.match(arb.reason,/Needs Crossbowman/);
+ run('S.tech[0].xbow=1');
+ assert.equal(read('rng').research.find(t=>t.id==='arb').state,'available');
+ run('S.tech[0].arb=1');
+ assert.equal(read('rng').research.find(t=>t.id==='arb').state,'researched');
+ run('S.civ[0]=14;S.tech[0]={};S.age[0]=3');
+ const smith=read('smith'),goldTech=smith.research.find(t=>t.cost?.g===0);
+ assert.ok(goldTech,'Spanish smith costs must agree with actual research payment');
+ const otherTech=JSON.parse(run("JSON.stringify(technologyTreeModel(0,{civ:[0],tech:[{}],age:[3]}))"))
+  .buildings.find(b=>b.id==='smith').research.find(t=>t.id===goldTech.id);
+ assert.ok(otherTech.cost.g>0);
+});
+
+test('Xbox technology-tree browsing selects every building and fits its details in compact viewports',()=>{
+ const run=fixture();
+ const count=run('treeLines().length');
+ assert.equal(run('treePageRows(720)'),9);
+ assert.equal(run('treePageRows(480)'),4);
+ assert.ok(count>12);
+ run('tsc=treeLines().length-1');
+ assert.equal(run('treeLines()[tsc][0].length>0'),true);
+ assert.ok(run('treeCostLabel({f:100,w:200,g:0})').includes('100F'));
+ assert.match(run('treeFit("A very long technology name",88,16)'),/…$/);
+});

@@ -25,3 +25,9 @@ A civilization is **partial** until all of the following work in the live game: 
 For each content batch, pin the external rules to the reference game **version and patch date**. In particular, the September 2026 Definitive Edition update replaced the Frankish Bearded Axe technology; do not add obsolete content from old guides. Maintain original content for Crown & Kingdoms' art, audio and campaigns.
 
 **Owner's personal saved games:** migration of personal saves created on old development builds is *not required*. Keep tests proving a fresh save made in the current build loads, persists new technology effects, and rejects corrupted/network-invalid data.
+
+### Shared technology-tree foundation increment — 10 November 2026
+
+The read-only `technologyTreeModel(team,world)` in `js/kingdom.js` now packages **the actual `trOf/rsOf` eligibility rules** into explicit per-building units and technologies, with researched/locked/available status, age, prerequisite, research time and actual per-civilization cost (including Spanish Blacksmith gold removal). This is a presentation model, not a second gameplay rulebook. `trOf` also uses the **supplied** technology state for Archer/Crossbowman replacement instead of accidentally reading global `S.tech`, making authoritative projections and technology previews deterministic.
+
+The Xbox technology-tree screen consumes the same model, presents the chosen building's first three units/technologies with locks and resource costs, and scrolls through the entire building roster via the existing D-pad Up/Down; A/B still return. All 26 existing civilizations' unique Castle options are covered by targeted tests. This does **not** complete missing civilizations, art, all tech exclusions, new rulesets or physical Xbox inspection.

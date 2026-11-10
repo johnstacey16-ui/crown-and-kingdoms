@@ -285,7 +285,7 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
- if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
+ if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(techs?.[b.t]?.xbow?'xbow':'arc');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
  if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
@@ -678,3 +678,37 @@ const rsOf=(b,civs=S?.civ)=>{
   rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
  return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[]),...(c.elite?[c.elite.k]:[])])]:regional;
 };
+
+/* Read-only, per-kingdom technology-tree model. Production, AI, Xbox menus
+ * and authenticated orders already share rsOf/trOf; this presents those
+ * exact allowed options with their current ages, prerequisites and costs.
+ * Never infer an unavailable foreign technology by walking raw B.rs.
+ * World may be an authoritative peer-projected snapshot rather than global S. */
+function technologyTreeModel(team=0,world=S){
+ const id=world?.civ?.[team],c=Number.isInteger(id)?CIV[id]:null;
+ if(!c||!Number.isInteger(team)||team<0||!world?.tech?.[team])return {civilization:null,age:0,buildings:[]};
+ const age=Number.isInteger(world.age?.[team])?world.age[team]:0,known=world.tech[team];
+ const buildings=[];
+ for(const kind of Object.keys(B)){
+  const building=B[kind],ref={k:kind,t:team};
+  const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
+   const d=U[key],requiredAge=Number.isInteger(d.age)?d.age:0;
+   return {id:key,name:d.n,age:requiredAge,cost:d.cost||{},
+    state:requiredAge>age?'locked':'available',
+    reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
+  });
+  const research=rsOf(ref,world.civ).filter(key=>!!TE[key]).map(key=>{
+   const d=TE[key],pre=d.pre,requiredAge=Number.isInteger(d.age)?d.age:0;
+   const reason=requiredAge>age?'Needs '+AG[requiredAge].n:
+    pre&&!known[pre]?'Needs '+(TE[pre]?.n||pre):'';
+   return {id:key,name:d.n,age:requiredAge,pre:pre||null,
+    cost:typeof researchCost==='function'?researchCost(ref,key,world.civ):d.cost||{},
+    duration:d.t,state:known[key]?'researched':reason?'locked':'available',
+    reason:known[key]?'Completed':reason};
+  });
+  buildings.push({id:kind,name:building.n,age:Number.isInteger(building.age)?building.age:0,
+   units,research});
+ }
+ return {civilization:c.n,civilizationId:id,age,buildings};
+}
+

@@ -88,7 +88,7 @@ function ctl(dt){if(mode!=='play')cancelShortcutGesture();if(E.some(Boolean)&&aI
 if(mode==='remap'){if(rw){const b=ER.findIndex((v,i)=>v&&i!==9);if(b>=0){BM[RA[ri][0]]=b;rw=0;sv()}return}
 if(ER[12])ri=(ri+RA.length-1)%RA.length;if(ER[13])ri=(ri+1)%RA.length;if(ER[0])rw=1;if(ER[2]){BM={};sv()}if(ER[9]||ER[1])mode=rbk;return}
 if(mode==='obj'){if(E[0]||E[1]||E[8]||E[9]||E[5])mode=omr;return}
-if(mode==='tree'){const TL=treeLines();if(E[13])tsc=Math.min(Math.max(0,TL.length-12),tsc+1);if(E[12])tsc=Math.max(0,tsc-1);if(E[1]||E[0]||E[9])mode='pause';return}
+if(mode==='tree'){const TL=treeLines();if(E[13])tsc=Math.min(Math.max(0,TL.length-1),tsc+1);if(E[12])tsc=Math.max(0,tsc-1);if(E[1]||E[0]||E[9])mode='pause';return}
 if(mode==='info'){if(E[0]||E[1]||E[9])mode='title';return}
 if(mode==='title'){titleCtl();return}
 if(mode==='multiplayer'){if(window.CK_NET)window.CK_NET.control(dt);else mode='title';return}
