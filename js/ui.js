@@ -173,8 +173,47 @@ if(menu&&!menu.rad){
 /* Shared canvas text primitive used by menus, HUD and engine overlays. */
 function tx(s,x,y,sz=20,c='#fff',al='left'){X.font=`bold ${sz}px system-ui,sans-serif`;X.fillStyle=c;X.textAlign=al;X.fillText(s,x,y)}
 
+/* Draw only the selected first march, only while adding waypoints.
+ * Original A* waypoints stay on the unit and in saves; this read-only preview
+ * samples at most 34 points and never reveals a fogged-out tile. B and the
+ * original Xbox command mapping remain owned by the input module. */
+function drawQueuedMarchPreview(){
+ if(pat!==5||!S||!Array.isArray(S.sel)||!Array.isArray(S.us))return;
+ const unit=S.sel.find(u=>u&&u.t===0&&u.hp>0&&!u.ld&&u.o==='m'&&
+  Array.isArray(u.p)&&u.p.length>0&&S.us.includes(u));
+ if(!unit)return;
+ const route=unit.p,step=Math.max(1,Math.ceil(route.length/32)),samples=[[unit.x,unit.y]];
+ for(let i=0;i<route.length;i+=step)samples.push(route[i]);
+ if((route.length-1)%step)samples.push(route[route.length-1]);
+ const screenPoint=p=>{
+  if(!Array.isArray(p)||p.length!==2||!p.every(Number.isFinite))return null;
+  const [x,y]=p;
+  if(x<0||y<0||x>=W||y>=H||S.ex&&!S.ex[(y|0)*W+(x|0)])return null;
+  const screen=w2s(x,y);
+  return Array.isArray(screen)&&screen.length===2&&screen.every(Number.isFinite)?screen:null;
+ };
+ X.save();
+ try{
+  X.lineWidth=2;X.strokeStyle='rgba(255,210,74,.85)';X.setLineDash([7,5]);X.beginPath();
+  let pen=false,segments=0;
+  for(const sample of samples){
+   const point=screenPoint(sample);
+   if(!point){pen=false;continue}
+   if(!pen)X.moveTo(point[0],point[1]);else{X.lineTo(point[0],point[1]);segments++}
+   pen=true;
+  }
+  if(segments)X.stroke();
+  X.setLineDash([]);
+  const end=screenPoint(route[route.length-1]);
+  if(end){
+   X.beginPath();X.arc(end[0],end[1],9,0,Math.PI*2);X.stroke();
+   tx('MARCH END',end[0]+13,end[1]-10,13,'#ffdb74');
+  }
+ }finally{X.restore()}
+}
+
 // Controller-first in-match presentation. Simulation and controller state remain owned by engine.js/input.js.
-function drawGameOverlays(dt){if(mode==='play'){const[wx,wy]=s2w(cur.x,cur.y);hud();if(ov)drawOv();if(boxR){X.strokeStyle='#8cff3c';X.lineWidth=2;X.setLineDash([7,5]);X.strokeRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0));X.setLineDash([]);X.fillStyle='rgba(140,255,60,.12)';X.fillRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0))}if(menu&&menu.rad)drawRadial();if(cgo)drawCg();if(vpWheel)drawVillagerPriorityWheel();const h=pick(wx,wy);
+function drawGameOverlays(dt){if(mode==='play'){const[wx,wy]=s2w(cur.x,cur.y);hud();drawQueuedMarchPreview();if(ov)drawOv();if(boxR){X.strokeStyle='#8cff3c';X.lineWidth=2;X.setLineDash([7,5]);X.strokeRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0));X.setLineDash([]);X.fillStyle='rgba(140,255,60,.12)';X.fillRect(Math.min(boxR.x0,boxR.x1),Math.min(boxR.y0,boxR.y1),Math.abs(boxR.x1-boxR.x0),Math.abs(boxR.y1-boxR.y0))}if(menu&&menu.rad)drawRadial();if(cgo)drawCg();if(vpWheel)drawVillagerPriorityWheel();const h=pick(wx,wy);
 X.strokeStyle='#fff';X.lineWidth=3;X.beginPath();X.arc(cur.x,cur.y,12,0,7);X.moveTo(cur.x-20,cur.y);X.lineTo(cur.x+20,cur.y);X.moveTo(cur.x,cur.y-20);X.lineTo(cur.x,cur.y+20);X.stroke();X.lineWidth=1;if(pat)tx(pat===2?'ATTACK MOVE: A set point, B cancel':pat===3?'FOLLOW: select a friendly target, B cancel':pat===4?'GUARD: select a friendly target, B cancel':pat===5?'WAYPOINT: A add next point, B finish':'PATROL: A set point, B cancel',cur.x+22,cur.y+30,20,'#ffd24a');
 if(h&&!(menu&&menu.rad)&&!cgo&&!vpWheel)tx(h.rl?'Relic':h.q?(B[h.k]?.n||'Building')+(h.t?' (enemy)':'')+' '+(h.hp|0)+'/'+h.mh:h.k in NM&&!U[h.k]?(h.fi?'Fish':h.an?'Deer':h.fm?'Farm':NM[h.k])+' '+(h.amt|0):(h.t?'Enemy ':'')+unitName(h.k,h.t)+' '+(h.hp|0)+'/'+mhp(h),cur.x+22,cur.y-14,20,h.t?'#f99':'#fff')}
 else hud();

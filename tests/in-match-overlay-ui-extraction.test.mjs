@@ -61,3 +61,66 @@ test('stale hovered building blueprints cannot crash the live match HUD',()=>{
  assert.doesNotThrow(()=>ctx.drawGameOverlays(1/30),'empty reticles remain safe');
  assert.equal(labels.length,0);
 });
+
+
+test('queued march preview is bounded, fog-aware and read-only while setting waypoints',()=>{
+ const begin=ui.indexOf('function drawQueuedMarchPreview(){');
+ const end=ui.indexOf('\n// Controller-first in-match presentation',begin);
+ assert.ok(begin>=0&&end>begin,'exercise the production route preview implementation');
+ const calls=[],labels=[],visited=[];
+ const X={
+  save(){calls.push(['save'])},restore(){calls.push(['restore'])},
+  setLineDash(v){calls.push(['dash',...v])},beginPath(){calls.push(['begin'])},
+  moveTo(x,y){calls.push(['move',x,y])},lineTo(x,y){calls.push(['line',x,y])},
+  stroke(){calls.push(['stroke'])},arc(x,y,r){calls.push(['arc',x,y,r])}
+ };
+ const W=40,H=40,ex=new Uint8Array(W*H).fill(1);
+ const unit={k:'mil',t:0,hp:30,x:2.5,y:2.5,o:'m',p:[[3.5,2.5],[4.5,2.5],[5.5,2.5]]};
+ const S={ex,sel:[unit],us:[unit]};
+ const ctx=vm.createContext({pat:5,S,W,H,X,
+  w2s:(x,y)=>{visited.push([x,y]);return [x*10,y*8]},
+  tx:(s,...rest)=>labels.push([s,...rest]),Math,Number,Array});
+ vm.runInContext(ui.slice(begin,end),ctx);
+ const snapshot=JSON.stringify(S);
+ assert.doesNotThrow(()=>ctx.drawQueuedMarchPreview());
+ assert.equal(calls.filter(x=>x[0]==='save').length,1);
+ assert.equal(calls.at(-1)[0],'restore');
+ assert.equal(calls.filter(x=>x[0]==='line').length,3,'each explored route node appears');
+ assert.equal(calls.filter(x=>x[0]==='arc').length,1,'destination gets a distinct ring');
+ assert.equal(labels[0][0],'MARCH END');
+ assert.equal(JSON.stringify(S),snapshot,'preview cannot rewrite the live game state or its saved route');
+ // A hidden segment must not be drawn as a jump across the fog.
+ ex[3*W+7]=0;
+ unit.p=[[6.5,3.5],[7.5,3.5],[8.5,3.5]];
+ calls.length=0;labels.length=0;visited.length=0;
+ ctx.drawQueuedMarchPreview();
+ assert.equal(calls.filter(x=>x[0]==='line').length,1,'fog breaks rather than bridges a hidden route');
+ assert.equal(labels[0][0],'MARCH END');
+ assert.ok(!visited.some(p=>p[0]===7.5&&p[1]===3.5),'never project unrevealed waypoints');
+ // The route can contain 512 legitimate nodes, but one render never paints 512 segments.
+ unit.p=Array.from({length:512},(_,i)=>[(i%30)+.5,Math.floor(i/30)+.5]);
+ calls.length=0;visited.length=0;
+ ctx.drawQueuedMarchPreview();
+ assert.ok(visited.length<=35,'Xbox preview has a fixed drawing budget');
+ assert.ok(calls.filter(x=>x[0]==='line').length<=33,'route cannot force unbounded per-frame drawing');
+});
+
+test('queued march preview does not draw during battle, when dismissed, or for invalid selections',()=>{
+ const begin=ui.indexOf('function drawQueuedMarchPreview(){');
+ const end=ui.indexOf('\n// Controller-first in-match presentation',begin);
+ const calls=[];
+ const X={save(){calls.push('save')},restore(){calls.push('restore')},
+  setLineDash(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},arc(){}};
+ const unit={k:'mil',t:0,hp:30,x:2.5,y:2.5,o:'m',p:[[4.5,4.5]]};
+ const S={ex:new Uint8Array(400).fill(1),sel:[unit],us:[unit]};
+ const ctx=vm.createContext({pat:0,S,W:20,H:20,X,w2s:(x,y)=>[x,y],tx(){},Math,Number,Array});
+ vm.runInContext(ui.slice(begin,end),ctx);
+ ctx.drawQueuedMarchPreview();assert.equal(calls.length,0,'dismissed command makes no preview work');
+ ctx.pat=5;unit.hp=0;ctx.drawQueuedMarchPreview();assert.equal(calls.length,0,'defeated troops are ignored');
+ unit.hp=30;unit.t=1;ctx.drawQueuedMarchPreview();assert.equal(calls.length,0,'enemy commands cannot appear');
+ unit.t=0;unit.o='a';ctx.drawQueuedMarchPreview();assert.equal(calls.length,0,'combat orders are not shown as march plans');
+ unit.o='m';S.us=[];ctx.drawQueuedMarchPreview();assert.equal(calls.length,0,'stale selections cannot draw');
+ S.us=[unit];unit.p=[[NaN,3],null,[100,100]];
+ assert.doesNotThrow(()=>ctx.drawQueuedMarchPreview(),'bad saved path entries are skipped without crashing');
+ assert.equal(calls.at(-1),'restore');
+});
