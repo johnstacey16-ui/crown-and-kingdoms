@@ -642,6 +642,43 @@ function campaignBlackwoodBridgeRelief(){
  if(troops.length)note('The Blackwood bridgehead is secured! Six royal defenders guard the forward Tower against the coming siege.');
  return troops.length;
 }
+
+// Last Crown: a royal standard must be raised at a real, completed Outpost
+// on the enemy approach and held by three living land soldiers. Building
+// behind the capital, using the King as a soldier, or assigning transported
+// troops earns nothing. Normal construction and casualty rules still apply.
+function campaignLastCrownRoyalStandard(){
+ if(cmp?.i!==5||!S?.bs||S.over)return null;
+ const home=tcOf(0),enemy=tcOf(1);
+ if(!home||!enemy)return null;
+ const hx=home.x+home.s*.5,hy=home.y+home.s*.5;
+ const dx=enemy.x+enemy.s*.5-hx,dy=enemy.y+enemy.s*.5-hy,dist=Math.hypot(dx,dy);
+ if(dist<32)return null;
+ return S.bs.find(b=>{
+  if(!b||b.t!==0||b.k!=='outpost'||!b.done||b.hp<=0)return false;
+  const x=b.x+b.s*.5-hx,y=b.y+b.s*.5-hy;
+  const forward=(x*dx+y*dy)/dist,off=Math.abs(x*dy-y*dx)/dist;
+  return forward>=14&&forward<=Math.min(42,dist*.58)&&off<=12;
+ })||null;
+}
+function campaignLastCrownRoyalStandardReady(){
+ const outpost=campaignLastCrownRoyalStandard();
+ if(!outpost)return false;
+ const x=outpost.x+outpost.s*.5,y=outpost.y+outpost.s*.5;
+ return aliveUnits(0).filter(u=>!u.ld&&!u.retreating&&U[u.k]?.dmg>0&&!U[u.k].sh&&
+  !['vil','king','mon','cart','cog','fish','trn'].includes(u.k)&&
+  Math.hypot(u.x-x,u.y-y)<=9).length>=3;
+}
+function campaignLastCrownRoyalGuard(){
+ const outpost=campaignLastCrownRoyalStandard();
+ if(!outpost||S.over||!campaignLastCrownRoyalStandardReady())return 0;
+ const before=new Set(S.us.map(u=>u.netId));
+ grp(0,'spear',3);grp(0,'xbow',2);
+ const royal=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!before.has(u.netId));
+ for(const u of royal){u.o='G';u.tg=outpost;u.guardTarget=null;u.p=[];u.rp=0}
+ if(royal.length)note('The royal standard flies on the contested road! Three Spearmen and two Crossbowmen rally to guard your forward Outpost. Your rival King must still be defeated.');
+ return royal.length;
+}
 // Northern Watch: the first snow-line beacon must be an actual completed
 // forward Tower, not a counter that can be satisfied by a building at home.
 // Garrison a small ranged detachment around it to draw royal assistance.
@@ -1051,10 +1088,10 @@ const CAMP=[
  setup(){S.age[0]=2;S.res[0]={f:300,w:400,g:300,s:200};grp(0,'ram',3);grp(0,'spear',8);grp(0,'arc',8);grp(0,'knight',4);const e=tcOf(1);if(e){if(put(1,'castle',e.x-7,e.y+8))cmp.d.cas=1;const ids=[];for(const [dx,dy] of [[-4,12],[-11,5]]){const tower=put(1,'tower',e.x+dx,e.y+dy);if(tower){tower.campaignFlank='kronburg';ids.push(tower.netId)}}cmp.d.kronburgFlankIds=ids;grp(1,'spear',6);grp(1,'arc',4);S.age[1]=2}},
  goals:[{id:'c',t:'Destroy the enemy Castle',ok:()=>cmp.d.cas&&cmp.t>3&&!S.bs.some(b=>b.t===1&&b.k==='castle'&&b.hp>0)},{id:'t',t:'Destroy the enemy Town Centre',ok:()=>cmp.t>3&&!tcOf(1)},{id:'flanks',t:'Optional: Silence both flank Towers before the Castle breach',optional:true,ok:()=>campaignKronburgFlanksSilenced()}],
  ev:[{at:5,do:()=>note('Kronburg Towers cover the fortress approaches. Both flank Towers must fall before the Castle breach if you want to disrupt the reserve.')},{at:90,do:()=>note('Guard your rams with spearmen and use archers to thin the garrison. At 65% Castle health, the surviving reserve counterattacks.')},{when:()=>campaignKronburgCastleBreached(),do:()=>campaignKronburgCastleSortie()}]},
-{t:'The Last Crown',b:'Only two claimants remain. Both kingdoms muster in Castle Age with equal resources. Protect your King, build siege weapons and escort troops, break the jarl\'s Town Centre if he garrisons, then defeat the enemy King.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
+{t:'The Last Crown',b:'Only two claimants remain. Both kingdoms muster in Castle Age with equal resources. Protect your King, build siege weapons and escort troops, break the jarl\'s Town Centre if he garrisons, then defeat the enemy King. Optional: build a completed forward Outpost on the enemy approach and defend it with three living land soldiers to rally five royal guards.',civ:0,en:7,mt:2,msz:1,seed:66,diff:2,aip:1,vm:3,
  setup(){S.age[0]=S.age[1]=2;S.res[0]={f:800,w:1200,g:500,s:150};S.res[1]={f:800,w:1200,g:500,s:150}},
- goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)}],
- ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')}]}
+ goals:[{id:'k',t:'Slay the enemy King',ok:()=>cmp.t>3&&!S.us.some(u=>u&&Number.isInteger(u.t)&&u.t===1&&u.k==='king'&&u.hp>0)},{id:'royalstandard',t:'Optional: Defend a forward Outpost with 3 land soldiers',optional:true,ok:()=>campaignLastCrownRoyalStandardReady()}],
+ ev:[{at:6,do:()=>note('If your King falls, the mission is lost. Keep him inside your Town Centre if attacked.')},{at:60,do:()=>note('A forward Outpost guarded by three land soldiers can rally a royal escort. You still need to defeat the rival King.')},{at:600,do:()=>note('The jarl keeps his King close to his Town Centre.')},{when:()=>cmp.d.royalstandard===1&&campaignLastCrownRoyalStandardReady(),do:()=>campaignLastCrownRoyalGuard()}]}
 ,
 {t:'The Northern Watch',b:'Snow has closed the northern roads. Keep a real Watch Tower standing and six living ranged defenders in service until the ten-minute relief signal; rebuilding destroyed defenses matters. Build Houses for your army and a Barracks before an Archery Range. Optional: place a second Tower along the forward pine line and station three ranged troops nearby to light the beacon and summon four royal defenders. Expect later raids to strike that forward position.',civ:5,en:2,mt:5,msz:1,seed:77,diff:1,aip:6,vm:0,
  setup(){S.age[0]=1;S.res[0]={f:600,w:600,g:250,s:150}},

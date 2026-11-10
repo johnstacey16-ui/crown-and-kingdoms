@@ -204,7 +204,7 @@ test('The Last Crown is a symmetric Castle Age Regicide scenario, not a gifted w
   'both claimants receive identical starting resources');
  assert.deepEqual({...initial.resources[0]},{f:800,w:1200,g:500,s:150},
   'the opening budget is fixed and does not grow by hidden cheats');
- assert.deepEqual(Array.from(initial.goals),['k'],'the real enemy-King objective is unchanged');
+ assert.deepEqual(Array.from(initial.goals),['k','royalstandard'],'the enemy King remains the sole mandatory goal alongside an optional defensive milestone');
  assert.deepEqual(Array.from(initial.kings),[1,1],'both Kings begin alive');
  assert.deepEqual(Array.from(initial.towns),[1,1],'both Town Centres begin intact');
  assert.equal(initial.progress,0,'starting the scenario cannot award a campaign completion');

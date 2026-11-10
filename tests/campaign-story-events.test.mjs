@@ -1181,6 +1181,76 @@ test('Ashford forward camp raises one physical, guard-ordered siege relief with 
  'reloading cannot re-award the same siege detachment');
 });
 
+
+test('Last Crown royal standard requires a genuine forward Outpost and three living defenders; its escort is one-shot',()=>{
+ const c=mission(5);
+ assert.equal(c("CAMP[5].goals.find(g=>g.id==='royalstandard').optional"),true);
+ const event=c("CAMP[5].ev.findIndex(e=>e.do.toString().includes('campaignLastCrownRoyalGuard'))");
+ assert.ok(event>=0);
+ assert.equal(c('campaignLastCrownRoyalStandardReady()'),false);
+ const before=c("aliveUnits(0,'spear').length+aliveUnits(0,'xbow').length");
+ const enemyKing=c("aliveUnits(1,'king').length"),playerKing=c("aliveUnits(0,'king').length");
+ const resources=c('JSON.stringify(S.res[0])'),enemyTC=c('tcOf(1).hp');
+ // Forged milestones cannot conjure reinforcements without the actual defense.
+ c('cmp.d.royalstandard=1;cmpTick(1/30)');
+ assert.equal(c('!!cmp.e['+event+']'),false);
+ c('cmp.d.royalstandard=0');
+ // A completed home-base Outpost is real but does not defend the forward road.
+ c("globalThis.homePost=put(0,'outpost',tcOf(0).x+5,tcOf(0).y+5)");
+ assert.equal(c('campaignLastCrownRoyalStandardReady()'),false);
+ // Find a buildable, reachable location ahead of the player, using the same
+ // world placement/collision rules as a finished, player-owned Outpost.
+ const banner=JSON.parse(c(`JSON.stringify((()=>{
+  const h=tcOf(0),e=tcOf(1),hx=h.x+h.s*.5,hy=h.y+h.s*.5,
+   dx=e.x+e.s*.5-hx,dy=e.y+e.s*.5-hy,d=Math.hypot(dx,dy);
+  const villager=aliveUnits(0,'vil')[0];
+  for(const forward of [24,28,32,36,20,40])for(const off of [0,-4,4,-8,8]){
+   const x=Math.floor(hx+dx/d*forward-dy/d*off),
+    y=Math.floor(hy+dy/d*forward+dx/d*off);
+   if(!okPlace(0,'outpost',x,y)||!path(villager,gp(x+.5,y+.5,1.5)))continue;
+   const b=addB(0,'outpost',x,y,true);
+   if(campaignLastCrownRoyalStandard()===b)return {id:b.netId,x:b.x,y:b.y};
+  }
+  return null;
+ })())`));
+ assert.ok(banner,'a legitimate forward Outpost site exists in the seeded mission');
+ assert.equal(c('campaignLastCrownRoyalStandardReady()'),false,'construction alone does not earn royal soldiers');
+ const defenders=JSON.parse(c(`JSON.stringify((()=>{
+  const b=campaignLastCrownRoyalStandard(),soldiers=[],v=aliveUnits(0,'vil')[0];
+  for(let radius=2;radius<=9&&soldiers.length<3;radius++)
+   for(let dy=-radius;dy<=radius&&soldiers.length<3;dy++)
+    for(let dx=-radius;dx<=radius&&soldiers.length<3;dx++){
+     const x=b.x+(b.s>>1)+dx,y=b.y+(b.s>>1)+dy;
+     if(x<2||y<2||x>=W-2||y>=H-2||Math.hypot(x+.5-b.x-b.s*.5,y+.5-b.y-b.s*.5)>9)continue;
+     const i=y*W+x;
+     if(S.g[i]||S.wt[i]===1||S.nd[i]||
+       S.us.some(u=>u.hp>0&&!u.ld&&Math.hypot(u.x-x-.5,u.y-y-.5)<1.2)||
+       !path(v,gp(x+.5,y+.5,.8)))continue;
+     const u=addU(0,'spear',x+.5,y+.5);
+     soldiers.push(u.netId);
+    }
+  return soldiers;
+ })())`));
+ assert.equal(defenders.length,3,'three real soldiers can reach and defend the banner');
+ assert.equal(c('campaignLastCrownRoyalStandardReady()'),true);
+ c('cmp.k=14;cmpTick(1/30)');
+ assert.equal(c('cmp.d.royalstandard'),1);
+ assert.equal(c('!!cmp.e['+event+']'),false,'reinforcements arrive only after the objective has been earned');
+ c('cmpTick(1/30)');
+ assert.equal(c('cmp.e['+event+']'),1);
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'xbow').length"),before+3+5);
+ assert.equal(c("S.us.filter(u=>u.t===0&&u.hp>0&&['spear','xbow'].includes(u.k)&&u.o==='G'&&u.tg?.netId==="+JSON.stringify(banner.id)+").length"),5,'the entire contingent guards the actual banner');
+ assert.equal(c('JSON.stringify(S.res[0])'),resources,'earned units do not change player resources');
+ assert.equal(c('tcOf(1).hp'),enemyTC,'no scripted damage to enemy capital');
+ assert.equal(c("aliveUnits(1,'king').length"),enemyKing);
+ assert.equal(c("aliveUnits(0,'king').length"),playerKing);
+ assert.equal(c('S.over'),null,'the optional goal never wins Regicide');
+ assert.equal(c('saveG()'),true);
+ assert.equal(c('loadG()'),true);
+ c('cmpTick(1/30)');
+ assert.equal(c("aliveUnits(0,'spear').length+aliveUnits(0,'xbow').length"),before+3+5,
+  'reloading cannot spawn a second guard contingent');
+});
 test('Ashford capital siege requires the real Castle as well as the rival Town Centre',()=>{
  const c=mission(8);
  assert.equal(c("CAMP[8].goals.find(g=>g.id==='castle').optional"),undefined,'the Castle is a mandatory siege objective');
