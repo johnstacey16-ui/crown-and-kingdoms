@@ -221,8 +221,8 @@ test('Ashford fields all declared initial soldiers without weakening enemy forti
   'all 19 troops named in the mission setup must actually appear on the map');
  assert.equal(new Set(Array.from(state.positions,p=>p.join(','))).size,19,
   'starting army must occupy distinct, usable cells');
- assert.deepEqual(Array.from(state.goal),['castle','tc','signals'],
-  'Ashford now requires breaching the real Castle and Town Centre; the signal towers remain an optional tactical objective');
+ assert.deepEqual(Array.from(state.goal),['castle','tc','signals','forwardcamp'],
+  'The real Castle and Town Centre remain mandatory; signal towers and a forward Siege Workshop are optional tactical goals');
  assert.equal(state.town,1,'the hostile Town Centre must be alive initially');
  assert.equal(state.castle,1,'the hostile Castle must not be removed or weakened');
  assert.equal(state.towers,2,'both defensive Towers remain intact');
