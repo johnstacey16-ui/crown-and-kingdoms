@@ -46,7 +46,7 @@ test('research status label safely handles absent or stale technology definition
 test('selected HUD safely renders stale buildings, corrupted queues and null/dead selection entries',()=>{
  const start=ui.indexOf('function hud(){'),end=ui.indexOf('\n/* Full-screen menu',start);
  assert.ok(start>=0&&end>start,'exercise real in-game HUD renderer');
- const labels=[],state={res:[{f:0,w:0,g:0,s:0}],age:[0],sel:[],t:42,vc:[]};
+ const labels=[],state={res:[{f:0,w:0,g:0,s:0}],age:[0],tech:[{}],sel:[],t:42,vc:[]};
  const ctx=vm.createContext({
   S:state,topbar(){},cmp:null,cmpHud(){},vm:0,scoreLimit:1200,CW:1280,CH:720,AG:[{n:'Dark Age'}],
   difficultyName:()=>'Easy',diff:0,gs:1,panel(){},quickBar(){},place:null,menu:null,
