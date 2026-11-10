@@ -693,7 +693,7 @@ function technologyTreeModel(team=0,world=S){
   const building=B[kind],ref={k:kind,t:team};
   const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
    const d=U[key],requiredAge=Number.isInteger(d.age)?d.age:0;
-   return {id:key,name:d.n,age:requiredAge,cost:d.cost||{},
+   return {id:key,name:d.n,age:requiredAge,cost:{...(d.cost||{})},
     state:requiredAge>age?'locked':'available',
     reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
   });
@@ -702,7 +702,7 @@ function technologyTreeModel(team=0,world=S){
    const reason=requiredAge>age?'Needs '+AG[requiredAge].n:
     pre&&!known[pre]?'Needs '+(TE[pre]?.n||pre):'';
    return {id:key,name:d.n,age:requiredAge,pre:pre||null,
-    cost:typeof researchCost==='function'?researchCost(ref,key,world.civ):d.cost||{},
+    cost:{...(typeof researchCost==='function'?researchCost(ref,key,world.civ):d.cost||{})},
     duration:d.t,state:known[key]?'researched':reason?'locked':'available',
     reason:known[key]?'Completed':reason};
   });

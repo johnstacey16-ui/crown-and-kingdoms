@@ -111,8 +111,9 @@ test('tree details reflect prerequisites, completed research and Spanish no-gold
  run('S.tech[0].arb=1');
  assert.equal(read('rng').research.find(t=>t.id==='arb').state,'researched');
  run('S.civ[0]=14;S.tech[0]={};S.age[0]=3');
- const smith=read('smith'),goldTech=smith.research.find(t=>t.cost?.g===0);
- assert.ok(goldTech,'Spanish smith costs must agree with actual research payment');
+ const smith=read('smith'),goldTech=smith.research.find(t=>t.id==='ironCasting');
+ assert.ok(goldTech,'Spanish must have Iron Casting in the shared research tree');
+ assert.equal(goldTech.cost.g,0,'Spanish Iron Casting has no gold charge');
  const otherTech=JSON.parse(run("JSON.stringify(technologyTreeModel(0,{civ:[0],tech:[{}],age:[3]}))"))
   .buildings.find(b=>b.id==='smith').research.find(t=>t.id===goldTech.id);
  assert.ok(otherTech.cost.g>0);
@@ -128,4 +129,14 @@ test('Xbox technology-tree browsing selects every building and fits its details 
  assert.equal(run('treeLines()[tsc][0].length>0'),true);
  assert.ok(run('treeCostLabel({f:100,w:200,g:0})').includes('100F'));
  assert.match(run('treeFit("A very long technology name",88,16)'),/…$/);
+});
+
+test('technology tree model returns detached cost snapshots, not mutable game cost objects',()=>{
+ const run=fixture();
+ run('S.civ[0]=1;S.age[0]=3;S.tech[0]={xbow:1}');
+ const original=run('JSON.stringify({units:U,tech:TE})');
+ run("globalThis.modelSnapshot=technologyTreeModel(0,S)");
+ run("const r=modelSnapshot.buildings.find(b=>b.id==='rng'); r.units[0].cost.w=-999; r.research[0].cost.f=-999");
+ assert.equal(run('JSON.stringify({units:U,tech:TE})'),original,
+  'a menu consumer cannot rewrite canonical unit or research costs');
 });
