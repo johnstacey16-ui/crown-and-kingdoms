@@ -177,6 +177,46 @@ function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
  ctx.restore();
 }
 
+/* Original interim Elite equipment accents for painted/fallback units.
+ * Dedicated illustrated Elite sprites remain a separate unfinished art gate.
+ * Only the owning team's completed technology enables these visual details. */
+function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
+ if(kind!=='huskarl'&&kind!=='lbow'&&kind!=='mgd')return false;
+ if(typeof eliteUniqueUnitUpgrade!=='function'||!eliteUniqueUnitUpgrade(kind,team))return false;
+ const z=Math.max(.45,Math.min(2.4,scale));
+ ctx.save();ctx.translate(x,y);ctx.scale(z,z);
+ ctx.lineCap='round';ctx.lineJoin='round';
+ if(kind==='huskarl'){
+  ctx.fillStyle='#c6d3dd';ctx.strokeStyle='#363d44';ctx.lineWidth=1.3;
+  ctx.beginPath();ctx.moveTo(-6,-37);ctx.lineTo(-6,-44);ctx.lineTo(0,-48);
+  ctx.lineTo(6,-44);ctx.lineTo(6,-37);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#d3ae59';ctx.fillRect(-1.5,-49,3,10);
+  ctx.fillStyle='#8c3030';ctx.beginPath();ctx.moveTo(-8,-45);
+  ctx.lineTo(0,-54);ctx.lineTo(8,-45);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#dfbd65';ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(-12,-31);ctx.lineTo(-18,-28);ctx.lineTo(-16,-19);ctx.lineTo(-11,-25);ctx.stroke();
+ }else if(kind==='lbow'){
+  ctx.fillStyle='#ccd6de';ctx.strokeStyle='#474e54';ctx.lineWidth=1.25;
+  ctx.beginPath();ctx.moveTo(-6,-40);ctx.lineTo(0,-47);ctx.lineTo(6,-40);
+  ctx.lineTo(5,-37);ctx.lineTo(-5,-37);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#d9b76f';ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(15,-52);ctx.lineTo(26,-33);ctx.lineTo(15,-14);ctx.stroke();
+  ctx.strokeStyle='#eee6d1';ctx.lineWidth=.8;ctx.beginPath();
+  ctx.moveTo(15,-52);ctx.lineTo(15,-14);ctx.stroke();
+  ctx.fillStyle='#a43c31';ctx.fillRect(-12,-33,4,15);
+ }else{
+  ctx.fillStyle='#dfb45e';ctx.strokeStyle='#583522';ctx.lineWidth=1.25;
+  ctx.beginPath();ctx.moveTo(-7,-50);ctx.lineTo(0,-55);ctx.lineTo(7,-50);
+  ctx.lineTo(5,-45);ctx.lineTo(-5,-45);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#a93635';ctx.beginPath();ctx.moveTo(-1,-56);
+  ctx.lineTo(7,-65);ctx.lineTo(9,-54);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#dfb45e';ctx.lineWidth=2.5;ctx.beginPath();
+  ctx.moveTo(-14,-22);ctx.lineTo(14,-22);ctx.stroke();
+  ctx.fillStyle='#a93635';ctx.fillRect(-3,-25,6,6);
+ }
+ ctx.restore();return true;
+}
+
 /* In-match troop drawing and researched equipment cues. */
 function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.t]||{},P=screenPosition||w2s(u.x,u.y),sx=P[0]+((gt-(u.hit||-9))<.15?Math.sin(gt*90)*1.5*zm:0),sy=P[1];
  if(perfUnitPass===3)return;
@@ -189,6 +229,7 @@ if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c
 if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);
 /* Validated motion frames take priority; generate procedural art only if every atlas misses. */if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
 drawNavalClassMark(X,k,sx,sy,z,pose.time);
+drawEliteUniqueUnitMark(X,k,u.t,sx,sy,z);
 if(perfUnitPass===1)return;
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}
