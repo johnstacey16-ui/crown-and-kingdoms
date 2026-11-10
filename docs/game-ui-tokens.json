@@ -1,0 +1,55 @@
+{
+  "fileKey": "xCa6EgkpRf0Y1zUxK1yRXD",
+  "fileUrl": "https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD",
+  "tokenOwner": "Figma / CK · Game Palette and CK · Layout Measurements",
+  "syncedManuallyOn": "2026-11-10",
+  "status": "design-contract-not-automatic-export",
+  "colors": {
+    "surface/canvas": "#080f20",
+    "surface/deep": "#0d0f14",
+    "surface/panel": "#111820",
+    "surface/elevated": "#202b34",
+    "surface/selected": "#354651",
+    "brand/gold": "#f2c14e",
+    "brand/cream": "#f5d27b",
+    "brand/brass": "#d9b568",
+    "brand/brass-muted": "#b99559",
+    "text/primary": "#f1f5f9",
+    "text/secondary": "#cbd5e1",
+    "text/muted": "#93a8b9",
+    "text/on-gold": "#121923",
+    "status/success": "#9ae6b4",
+    "status/danger": "#ff8b82",
+    "status/information": "#82b7ca",
+    "resource/food": "#d99273",
+    "resource/wood": "#a7c976",
+    "resource/gold": "#f2c14e",
+    "resource/stone": "#b5c4cf"
+  },
+  "layoutPx": {
+    "space/1": 4,
+    "space/2": 8,
+    "space/3": 12,
+    "space/4": 16,
+    "space/5": 24,
+    "space/6": 32,
+    "space/7": 48,
+    "radius/compact": 6,
+    "radius/panel": 12,
+    "focus/stroke": 3,
+    "target/min-height": 48,
+    "safe-area/edge": 48
+  },
+  "typography": {
+    "source": "Inter approximates the system-ui game menu mockups; runtime uses system-ui and multiplayer room headings use Georgia",
+    "scalePx": {
+      "display": 48,
+      "heading": 32,
+      "section": 24,
+      "body": 18,
+      "button": 18,
+      "meta": 14,
+      "caption": 12
+    }
+  }
+}

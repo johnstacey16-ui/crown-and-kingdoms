@@ -2,6 +2,9 @@
 
 **Status: artwork specification only.** Four civilizations now have researched Elite gameplay and temporary Canvas2D equipment accents. No dedicated Elite painted animation sheets have been approved or committed. Use this brief to create original artwork, not copyrighted assets from other games.
 
+
+**Figma review boards (10 November 2026):** [Editable original Elite art specification](https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD?node-id=8-2) and [Visual QA and Xbox acceptance guide](https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD?node-id=8-66). These are editable planning references only; the four missing Elite sprite sheets and on-device approvals remain outstanding. Follow [the UI/Figma handoff](FIGMA_UI_WORKFLOW.md) for the separate design-to-runtime boundary.
+
 ## Our connected creative stack
 
 | Tool | Role | Boundary |

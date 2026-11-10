@@ -2,7 +2,41 @@
    Keep the canvas as the sole game surface; UI and world rendering remain controller-driven. */
 :root {
   color-scheme: dark;
-  background: #0d0f14;
+  /* Figma CK UI tokens; additive CSS variables for DOM overlays and focus states.
+     The Canvas2D game UI still owns its rendering palette in JavaScript. */
+  --ck-surface-canvas: #080f20;
+  --ck-surface-deep: #0d0f14;
+  --ck-surface-panel: #111820;
+  --ck-surface-elevated: #202b34;
+  --ck-surface-selected: #354651;
+  --ck-brand-gold: #f2c14e;
+  --ck-brand-cream: #f5d27b;
+  --ck-brand-brass: #d9b568;
+  --ck-brand-brass-muted: #b99559;
+  --ck-text-primary: #f1f5f9;
+  --ck-text-secondary: #cbd5e1;
+  --ck-text-muted: #93a8b9;
+  --ck-text-on-gold: #121923;
+  --ck-status-success: #9ae6b4;
+  --ck-status-danger: #ff8b82;
+  --ck-status-information: #82b7ca;
+  --ck-resource-food: #d99273;
+  --ck-resource-wood: #a7c976;
+  --ck-resource-gold: #f2c14e;
+  --ck-resource-stone: #b5c4cf;
+  --ck-space-1: 4px;
+  --ck-space-2: 8px;
+  --ck-space-3: 12px;
+  --ck-space-4: 16px;
+  --ck-space-5: 24px;
+  --ck-space-6: 32px;
+  --ck-space-7: 48px;
+  --ck-radius-compact: 6px;
+  --ck-radius-panel: 12px;
+  --ck-focus-stroke: 3px;
+  --ck-target-min-height: 48px;
+  --ck-safe-area-edge: 48px;
+  background: var(--ck-surface-deep);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -13,7 +47,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #0d0f14;
+  background: var(--ck-surface-deep);
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
@@ -35,7 +69,7 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 canvas:focus-visible {
-  outline: 2px solid #f2c14e;
+  outline: 2px solid var(--ck-brand-gold);
   outline-offset: -2px;
 }
 
@@ -51,7 +85,7 @@ canvas:focus-visible {
 .ck-room-brand { color: #dcb975; font-size: .75rem; letter-spacing: .24em; font-weight: 750; margin: 0 0 16px; }
 .ck-room-shell h1 { font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; margin: 0 0 20px; color: #fff2d5; }
 .ck-room-intro { max-width: 75ch; color: #bdc9d6; line-height: 1.65; margin-bottom: 24px; }
-.ck-room-status { padding: 16px 20px; border: 1px solid #537b91; border-left: 4px solid #82b7ca; border-radius: 8px; background: #112633; line-height: 1.5; overflow-wrap: anywhere; }
+.ck-room-status { padding: 16px 20px; border: 1px solid #537b91; border-left: 4px solid var(--ck-status-information); border-radius: 8px; background: #112633; line-height: 1.5; overflow-wrap: anywhere; }
 .ck-room-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; margin: 24px 0; }
 .ck-room-card { min-width: 0; padding: clamp(16px, 3vw, 28px); border: 1px solid #53606a; border-radius: 12px; background: linear-gradient(145deg, #172735, #101b26); box-shadow: 0 12px 30px #0003; }
 .ck-room-card h2 { font: 600 1.2rem Georgia, serif; color: #f1d59c; margin: 0 0 18px; }

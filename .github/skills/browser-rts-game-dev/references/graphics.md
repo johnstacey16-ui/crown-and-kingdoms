@@ -22,3 +22,9 @@ Profile simulation time, world drawing and compositor gaps **separately** before
 ## Creative stack in the 10 November production plan
 
 Connected **Canva, Adobe and Figma** support original concepts, image cleanup and editable game HUD/art-board review. They are not runtime dependencies or substitutes for game sprites. Use the [four-unit Elite sheet brief](../../../../docs/ELITE_ART_PRODUCTION.md), optional free frame editors, existing named WebP atlas scripts and verifiable cache/browser/physical Xbox checks. Stay within free features and verify usage/redistribution rights. Franks join Goths, Britons and Mongols as **gameplay-verified but dedicated-art partial**.
+
+## Figma-to-game design handoff (10 November 2026)
+
+The editable [Crown & Kingdoms Figma reference](https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD) contains an original dark-medieval UI design foundation, eight screen artboards and four Elite unit **art-spec cards**. Read [the handoff contract](../../../../docs/FIGMA_UI_WORKFLOW.md) before applying visual work. `docs/game-ui-tokens.json` mirrors 20 colour tokens and 12 measurements; `styles.css` exposes same-named `--ck-*` variables for the actual DOM overlay. The canvas renderer keeps its own colours and gameplay drawing until explicitly implemented and tested.
+
+Practical route for another game: (1) audit existing UI, input and typography; (2) create Figma variables, components and controller-state variants; (3) build editable 16:9 menu/HUD/campaign/setup designs; (4) specify original art separately, with poses/facings/alpha/anchors; (5) translate only approved UI changes into the runtime; (6) review on browser and target hardware and log incomplete states. Figma artboards alone never count as playable code or shipped sprites. Avoid paid Figma AI generation without approval.
