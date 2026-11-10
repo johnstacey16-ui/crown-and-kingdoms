@@ -43,6 +43,13 @@ test('performance overlay distinguishes input/control CPU work from the non-game
  assert.match(ui,/WORLD '\+perfObjectsMs/);
 });
 
+test('save cost appears separately from simulation and RAF gap in performance diagnostics',()=>{
+ assert.ok(state.includes("perfSaveMetrics={kind:'NONE',ok:null"));
+ assert.ok(ui.includes('const saveStat=perfSaveMetrics'));
+ for(const key of ['saveStat.serialize.toFixed','saveStat.storage.toFixed','saveStat.peak.toFixed'])
+  assert.ok(ui.includes(key),key+' appears in the FPS overlay');
+});
+
 test('RAF telemetry counts actual completed fixed ticks, including catch-up, without dropping simulation work',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  vm.runInContext(source+'\nglobalThis.run=code=>eval(code);',sandbox);const run=sandbox.run;

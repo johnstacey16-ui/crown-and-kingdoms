@@ -277,3 +277,44 @@ test('save during ranged combat preserves arrows, siege splash and building-fire
  }
 });
 
+test('opt-in autosave timing measures JSON, primary storage and synchronous total without changing saves',()=>{
+ const f=saveFixture();let tick=0;
+ f.context.perfHud=1;
+ f.context.perfSaveMetrics={kind:'NONE',ok:null,total:0,peak:0,serialize:0,storage:0,bytes:0,count:0,failures:0};
+ f.context.performance={now:()=>tick+=5};
+ assert.equal(f.context.saveG(true),true);
+ const m=f.context.perfSaveMetrics;
+ assert.equal(m.kind,'AUTO');assert.equal(m.ok,true);
+ assert.equal(m.serialize,5);assert.equal(m.storage,5);assert.equal(m.total,15);
+ assert.equal(m.peak,15);assert.equal(m.count,1);assert.equal(m.failures,0);
+ assert.ok(m.bytes>50,'payload size measured but not persisted');
+ assert.equal(JSON.parse(f.data.get('ck_autosave')).t,123);
+ assert.deepEqual(f.events,['primary-write','primary-readback','backup-write','clear-deletion-marker']);
+ assert.equal(f.context.saveG(false),true);
+ assert.equal(f.context.perfSaveMetrics.kind,'MANUAL');
+ assert.equal(f.context.perfSaveMetrics.count,2);
+ assert.equal(f.context.perfSaveMetrics.peak,15);
+});
+test('opt-in autosave failure timing preserves the last verified checkpoint',()=>{
+ const f=saveFixture({failPrimary:true});let tick=0;
+ f.context.perfHud=1;
+ f.context.perfSaveMetrics={kind:'NONE',ok:null,total:0,peak:0,serialize:0,storage:0,bytes:0,count:0,failures:0};
+ f.context.performance={now:()=>tick+=4};
+ assert.equal(f.context.saveG(true),false);
+ assert.equal(f.context.perfSaveMetrics.kind,'AUTO');
+ assert.equal(f.context.perfSaveMetrics.ok,false);
+ assert.equal(f.context.perfSaveMetrics.failures,1);
+ assert.equal(f.context.perfSaveMetrics.count,1);
+ assert.ok(f.context.perfSaveMetrics.total>0);
+ assert.equal(f.data.get('ck_autosave'),'previous verified checkpoint');
+ assert.equal(f.events.includes('backup-write'),false);
+});
+test('save telemetry does not call a clock when FPS overlay is disabled',()=>{
+ const f=saveFixture();
+ f.context.perfHud=0;
+ f.context.perfSaveMetrics={kind:'NONE',ok:null,total:0,peak:0,serialize:0,storage:0,bytes:0,count:0,failures:0};
+ f.context.performance={now(){throw Error('No clock sampling permitted')}};
+ assert.equal(f.context.saveG(true),true);
+ assert.equal(f.context.perfSaveMetrics.count,0);
+ assert.equal(f.context.perfSaveMetrics.kind,'NONE');
+});

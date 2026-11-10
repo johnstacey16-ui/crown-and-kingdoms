@@ -1,7 +1,7 @@
 function drawPerfOverlay(dt){
  if(!perfHud||mode!=='play'||!S)return;
  const frameMs=perfFrameIntervalMs>0?perfFrameIntervalMs:dt*1000,instant=frameMs>0?1000/frameMs:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
- const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?190:172)+(canvasBenchmark?23:canvasBenchSummary?(canvasBenchSummary.kind==='layers'||canvasBenchSummary.kind==='pacing'||canvasBenchSummary.kind==='objects'||canvasBenchSummary.kind==='units')?68:46:0);
+ const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?208:190)+(canvasBenchmark?23:canvasBenchSummary?(canvasBenchSummary.kind==='layers'||canvasBenchSummary.kind==='pacing'||canvasBenchSummary.kind==='objects'||canvasBenchSummary.kind==='units')?68:46:0);
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+frameMs.toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');
  const teamCounts=new Array(S.teamN).fill(0);for(const u of S.us)if(Number.isInteger(u.t)&&u.t>=0&&u.t<S.teamN)teamCounts[u.t]++;
@@ -14,36 +14,38 @@ function drawPerfOverlay(dt){
  tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus+'  LOSS '+GRAPHICS_RECOVERY.losses,x+9,y+126,11,'#cbd5e1');
  tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2),x+9,y+144,11,'#f8e6b5');
  tx('TINT  HIT '+TEAM_FRAME_CACHE.hits+'  NEW '+TEAM_FRAME_CACHE.creations+'  EVICT '+TEAM_FRAME_CACHE.evictions+'  CACHE '+(TEAM_FRAME_CACHE.pixels*4/1048576).toFixed(1)+' MiB  |  TROOP CROPS '+TROOP_TEXTURE_LRU.size,x+9,y+162,11,'#cbd5e1');
+ const saveStat=perfSaveMetrics;
+ tx('SAVE '+(saveStat.kind==='NONE'?'awaiting first save':saveStat.kind+' '+(saveStat.ok?'OK':'FAILED')+' '+saveStat.total.toFixed(1)+'ms  PEAK '+saveStat.peak.toFixed(1)+'  JSON '+saveStat.serialize.toFixed(1)+'  WRITE '+saveStat.storage.toFixed(1)+'  '+Math.round(saveStat.bytes/1024)+'KiB'+(saveStat.failures?'  ERR '+saveStat.failures:'')),x+9,y+180,11,'#f8e6b5');
  if(!canvasBenchmark){
-  if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+180,11,'#fbd38d');
-  else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+180,11,'#fbd38d');
-  else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+180,11,'#fbd38d');
+  if(perfFlatField)tx('TEST: FLAT FIELD - world graphics temporarily hidden',x+9,y+198,11,'#fbd38d');
+  else if(perfLayerMode===1)tx('TEST: TERRAIN ONLY - units/buildings temporarily hidden',x+9,y+198,11,'#fbd38d');
+  else if(perfLayerMode===2)tx('TEST: OBJECTS ONLY - terrain temporarily hidden',x+9,y+198,11,'#fbd38d');
  }
  if(canvasBenchmark){
   const b=canvasBenchmark,percent=b.start===null?0:Math.min(100,Math.max(0,(performance.now()-b.start)/CK_CANVAS_BENCH_STAGE_MS*100));
   const step=b.kind==='layers'?CK_LAYER_BENCH_STAGES[b.phase].label:b.kind==='pacing'?CK_PACING_BENCH_STAGES[b.phase].label:b.kind==='objects'?CK_OBJECT_BENCH_STAGES[b.phase].label:b.kind==='units'?CK_UNIT_BENCH_STAGES[b.phase].label:Math.round(CK_CANVAS_BENCH_STAGES[b.phase]*100)+'%';
-  tx('AUTO BENCH '+(b.phase+1)+'/'+(b.kind==='layers'||b.kind==='pacing'||b.kind==='objects'||b.kind==='units'?5:4)+'  '+step+'  '+percent.toFixed(0)+'% complete | AI paused',x+9,y+180,11,'#fbd38d');
+  tx('AUTO BENCH '+(b.phase+1)+'/'+(b.kind==='layers'||b.kind==='pacing'||b.kind==='objects'||b.kind==='units'?5:4)+'  '+step+'  '+percent.toFixed(0)+'% complete | AI paused',x+9,y+198,11,'#fbd38d');
  }else if(canvasBenchSummary){
   const f=i=>{const r=canvasBenchSummary.results[i];return r&&r.ms?Math.round(1000/r.ms)+' FPS':'N/A'};
   if(canvasBenchSummary.kind==='layers'){
-   tx('MEDIAN FPS: FULL '+f(0)+'  TERRAIN '+f(1)+'  OBJECTS '+f(2),x+9,y+180,11,'#fbd38d');
-   tx('FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
-   tx('All original graphics restored | AI running',x+9,y+216,11,'#fbd38d');
+   tx('MEDIAN FPS: FULL '+f(0)+'  TERRAIN '+f(1)+'  OBJECTS '+f(2),x+9,y+198,11,'#fbd38d');
+   tx('FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+216,11,'#fbd38d');
+   tx('All original graphics restored | AI running',x+9,y+234,11,'#fbd38d');
   }else if(canvasBenchSummary.kind==='objects'){
-   tx('MEDIAN FPS: ALL '+f(0)+'  UNITS '+f(1)+'  BUILDINGS '+f(2),x+9,y+180,11,'#fbd38d');
-   tx('RESOURCES '+f(3)+'  ALL REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
-   tx('Original graphics restored | AI running',x+9,y+216,11,'#fbd38d');
+   tx('MEDIAN FPS: ALL '+f(0)+'  UNITS '+f(1)+'  BUILDINGS '+f(2),x+9,y+198,11,'#fbd38d');
+   tx('RESOURCES '+f(3)+'  ALL REPEAT '+f(4),x+9,y+216,11,'#fbd38d');
+   tx('Original graphics restored | AI running',x+9,y+234,11,'#fbd38d');
   }else if(canvasBenchSummary.kind==='units'){
-   tx('MEDIAN FPS: UNITS '+f(0)+'  SPRITES '+f(1)+'  GROUND '+f(2),x+9,y+180,11,'#fbd38d');
-   tx('NONE '+f(3)+'  UNITS REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
-   tx('Original unit graphics restored | AI running',x+9,y+216,11,'#fbd38d');
+   tx('MEDIAN FPS: UNITS '+f(0)+'  SPRITES '+f(1)+'  GROUND '+f(2),x+9,y+198,11,'#fbd38d');
+   tx('NONE '+f(3)+'  UNITS REPEAT '+f(4),x+9,y+216,11,'#fbd38d');
+   tx('Original unit graphics restored | AI running',x+9,y+234,11,'#fbd38d');
   }else if(canvasBenchSummary.kind==='pacing'){
-   tx('MEDIAN FPS: FULL '+f(0)+'  FROZEN FULL '+f(1)+'  FLAT '+f(2),x+9,y+180,11,'#fbd38d');
-   tx('FROZEN FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+198,11,'#fbd38d');
-   tx('All graphics restored | AI running',x+9,y+216,11,'#fbd38d');
+   tx('MEDIAN FPS: FULL '+f(0)+'  FROZEN FULL '+f(1)+'  FLAT '+f(2),x+9,y+198,11,'#fbd38d');
+   tx('FROZEN FLAT '+f(3)+'  FULL REPEAT '+f(4),x+9,y+216,11,'#fbd38d');
+   tx('All graphics restored | AI running',x+9,y+234,11,'#fbd38d');
   }else{
-   tx('MEDIAN FPS: 100% '+f(0)+'  | 75% '+f(1)+'  | 50% '+f(2),x+9,y+180,11,'#fbd38d');
-   tx('100% repeat '+f(3)+'  |  Full graphics restored',x+9,y+198,11,'#fbd38d');
+   tx('MEDIAN FPS: 100% '+f(0)+'  | 75% '+f(1)+'  | 50% '+f(2),x+9,y+198,11,'#fbd38d');
+   tx('100% repeat '+f(3)+'  |  Full graphics restored',x+9,y+216,11,'#fbd38d');
   }
  }
 
