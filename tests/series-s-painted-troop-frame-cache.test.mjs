@@ -114,7 +114,9 @@ test('painted troop painter retains original source dimensions, flip, anchor and
  const rect=calls.find(x=>Array.isArray(x)&&x[0]==='draw');
  assert.deepEqual(rect.slice(2),[-30,-83,60,85],'original frame anchor and dimensions retained');
  assert.equal(calls.at(-1),'restore');
- calls.length=0;
+ // The first draw opts the mock context into high-quality sampling. Switch it
+ // off to exercise the original transform-safe mirrored fallback explicitly.
+ calls.length=0;g.imageSmoothingEnabled=false;
  draw(g,{img,f,animated:true,referenceHeight:170},100,200,.5,1,1,true,'mil');
  assert.ok(calls.some(x=>Array.isArray(x)&&x[0]==='scale'&&x[1]===-1),'face mirroring preserved');
 });
