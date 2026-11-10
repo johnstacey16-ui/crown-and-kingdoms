@@ -150,3 +150,60 @@ test('campaign HUD clears both single and two-row resource headers',()=>{
  bounds.length=0;ctx.CW=1280;ctx.cmpHud();
  assert.equal(bounds[0][1],68,'console objectives begin after the 60px header');
 });
+
+test('compact lower HUD keeps selected information above D-pad shortcuts and the minimap',()=>{
+ const begin=ui.indexOf('function hudLowerLayout('),end=ui.indexOf('\n/* Full-screen menu',begin);
+ assert.ok(begin>0&&end>begin,'use the live lower HUD layout and renderer');
+ const painted=[],panels=[];
+ const ctx=vm.createContext({
+  CW:480,CH:720,mm:{x:326},X:{globalAlpha:1},
+  S:{res:[{f:200,w:200,g:200,s:200}],sel:[{k:'tc',hp:100,mh:200,q:[],done:true,t:0}],vc:[],tech:[{}]},
+  cmp:null,vm:0,scoreLimit:1200,topbar(){},difficultyName:()=>'Normal',diff:0,gs:1,
+  panel:(...args)=>panels.push(args),quickBar:()=>{},minimapDraw:()=>{},notes:[],
+  place:null,menu:null,productionQueueWait:()=>null,
+  B:{tc:{n:'Town Centre',tr:['vil']}},U:{vil:{n:'Villager'}},
+  tx:(s,...args)=>painted.push([String(s),...args]),
+  hudTopFit:(s)=>String(s)
+ });
+ vm.runInContext(ui.slice(begin,end),ctx);
+ for(const [width,height] of [[360,720],[480,720],[720,720],[960,720],[480,480]]){
+  const g=ctx.hudLowerLayout(width,height);
+  assert.ok(g.x>=0&&g.x+g.w<=width,'lower panel must fit the viewport');
+  assert.ok(g.y>=100,'lower panel never touches the compact top header');
+  assert.ok(g.y+g.h<=height-212-8,'quick-select strip stays below unit details');
+  const lines=Array.from(ctx.hudLowerLines('Town Centre has a very long training and research description that must be bounded to two readable lines',g.w-24,16,2));
+  assert.ok(lines.length<=2);
+  assert.ok(lines.every(line=>line.length<=Math.floor((g.w-24)/(16*.6))));
+ }
+ ctx.CW=480;ctx.CH=720;painted.length=0;panels.length=0;
+ assert.doesNotThrow(()=>ctx.hud());
+ const lower=ctx.hudLowerLayout(480,720);
+ assert.ok(panels.some(([x,y,w,h])=>x===lower.x&&y===lower.y&&w===lower.w&&h===lower.h));
+ assert.ok(painted.some(([s])=>s.includes('Town Centre')),'selected building stays identified');
+ assert.ok(painted.some(([s])=>s.includes('A Select')),'essential controls remain visible');
+ assert.ok(painted.every(([s,x,y])=>Number.isFinite(x)&&Number.isFinite(y)));
+});
+
+test('quick-select strip retains four controller choices without overlapping compact unit details',()=>{
+ const commands=readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8');
+ const begin=commands.indexOf('function quickBarLayout('),end=commands.indexOf('\nfunction quickBar()',begin);
+ assert.ok(begin>=0&&end>begin);
+ const layout=vm.runInNewContext(commands.slice(begin,end)+'\nquickBarLayout;');
+ for(const [w,h,mmx] of [[360,720,206],[480,480,326],[720,720,490],[960,720,658],[1280,720,966]]){
+  const p=layout(w,h,mmx),compact=w<1000;
+  assert.equal(p.compact,compact);
+  assert.ok(p.x>=0&&p.x+p.w<=w,'all four quick-select buttons are in view');
+  assert.ok(p.y>=0&&p.y+p.h<=h);
+  assert.equal(p.y,h-(compact?212:112));
+  if(compact){
+   const info=vm.runInNewContext(ui.slice(ui.indexOf('function hudLowerLayout('),ui.indexOf('function hudLowerLines('))+'\nhudLowerLayout;')(w,h);
+   assert.ok(info.y+info.h<=p.y-8,'status text must not overlap quick-select choices');
+  }
+ }
+ const expectedOrder=commands.slice(commands.indexOf('function quickBar(){'));
+ assert.ok(expectedOrder.includes("['Idle']")===false);
+ assert.ok(expectedOrder.includes("'Idle'"));
+ assert.ok(expectedOrder.includes("'Support'"));
+ assert.ok(expectedOrder.includes("'Town C.'"));
+ assert.ok(expectedOrder.includes("'Military'"));
+});

@@ -219,8 +219,41 @@ function topbar(r){
  tx(matchText,CW-l.edge-9,l.summaryY,matchFont,CK_HUD_THEME.secondary,'right');
 }
 function researchNameForHud(rs){return rs?.k==='age'?'next age':(TE[rs?.k]?.n||'unknown technology')}
+/* Narrow-view HUD docking: keep selected-unit text above the quick-select
+ * row, not behind its buttons or the minimap. Wide Xbox presentation retains
+ * the existing layout and exact informational strings. */
+function hudLowerLayout(width,height){
+ const short=height<580,h=short?60:100;
+ return {x:8,y:Math.max(106,height-h-224),w:Math.max(240,width-16),h,short};
+}
+function hudLowerLines(message,width,font,maxLines){
+ const limit=Math.max(8,Math.floor(Math.max(0,width)/(Math.max(1,font)*.6)));
+ const words=String(message??'').trim().split(/\s+/).filter(Boolean),result=[];
+ let current='';
+ for(const word of words){
+  let remaining=word;
+  while(remaining.length>limit){
+   if(current){result.push(current);current=''}
+   result.push(remaining.slice(0,limit));remaining=remaining.slice(limit);
+  }
+  if(!remaining)continue;
+  const candidate=current?current+' '+remaining:remaining;
+  if(candidate.length>limit){if(current)result.push(current);current=remaining}
+  else current=candidate;
+ }
+ if(current)result.push(current);
+ if(result.length>maxLines){
+  const clipped=result.slice(0,maxLines);
+  clipped[maxLines-1]=clipped[maxLines-1].slice(0,limit-1)+'…';
+  return clipped;
+ }
+ return result;
+}
 function hud(){const r=S.res[0];topbar(r);if(cmp)cmpHud();{const a=vm===5?(S.kh||[]):(S.vc||[]),lead=a.reduce((best,v,i)=>v>(a[best]||0)?i:best,0),progress=a[lead]||0;if(vm===4)tx('SCORE MODE · '+Math.ceil(Math.max(0,scoreLimit-S.t)/60)+' MIN LEFT · YOUR SCORE '+((S.scoreCache||[])[0]||0),CW/2,CH-134,22,'#f2d28a','center');else if(vm===5)tx(progress>0?(lead===0?'YOUR KINGDOM':'KINGDOM '+(lead+1))+' CONTROLS THE HILL · '+Math.ceil(Math.max(0,300-progress))+'s TO WIN':'KING OF THE HILL · HOLD THE CENTRAL HILL FOR 5 MIN',CW/2,CH-134,20,progress>0?(lead===0?'#9ae6b4':'#ff9a9a'):'#f2d28a','center');else if(vm===6)tx('SUDDEN DEATH · DEFEND YOUR TOWN CENTRE',CW/2,CH-134,20,'#ff9a9a','center');else if(vm&&progress>0)tx((lead===0?'Your ':'Kingdom '+(lead+1)+' ')+(vm===1?'Wonder':'Relic')+' victory in '+Math.ceil((vm===1?300:240)-progress)+'s',CW/2,CH-134,24,lead===0?'#9ae6b4':'#ff9a9a','center')}/* Age, speed and match clock are now drawn in the responsive topbar. */
-panel(0,CH-120,mm.x-8,120);quickBar();
+const lower=CW<1000?hudLowerLayout(CW,CH):null;
+if(lower)panel(lower.x,lower.y,lower.w,lower.h);
+else panel(0,CH-120,mm.x-8,120);
+quickBar();
 const s=Array.isArray(S.sel)?S.sel.filter(a=>a&&a.hp>0):[],queueWait=s.length===1&&Array.isArray(s[0].q)&&s[0].q.every(q=>q&&typeof q.k==='string'&&Number.isFinite(q.t))&&B[s[0].k]?.n?productionQueueWait(s[0]):null;let l='Nothing selected - left stick pans camera; A selects at centre';
 if(s.length){
  const a=s[0],building=a.q!=null,queue=Array.isArray(a.q)?a.q:[],def=building&&typeof B[a.k]?.n==='string'?B[a.k]:null;
@@ -237,9 +270,16 @@ if(s.length){
 }
 const production=s.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length);
 if(Array.isArray(s[0]?.q)&&production.length>1)l=production.length+' production buildings selected · '+production.reduce((n,b)=>n+b.q.length,0)+' units queued';
-tx(l+(s[0]?.rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':''),20,CH-80,24);
+const status=l+(s[0]?.rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':'');
+if(lower){
+ const size=lower.short?15:16,lines=hudLowerLines(status,lower.w-24,size,lower.short?1:2);
+ lines.forEach((line,i)=>tx(line,lower.x+12,lower.y+25+i*23,size,CK_HUD_THEME.text));
+}else tx(status,20,CH-80,24);
 const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT radial: left stick choose   A Confirm   Y Switch page   X Cancel last queued   B Close':queueWait?queueWait.hint+'  RT Command menu  LB Groups  RB Minimap  B Deselect':'A Select / command (hold: box)  RT Command menu  Y Shortcut  LB Groups  RB Minimap  D-pad Quick select  LT Modifier  B Deselect  Menu Pause';
-{const hh=h.split('  LB ');tx(hh[0],20,CH-50,17,'#94a3b8');tx(hh[1]?'LB '+hh[1]:'',20,CH-26,17,'#94a3b8')}
+if(lower){
+ const hint=place?'A Place   LT+A Repeat   B Cancel':menu?'RT Commands   A Confirm   B Close':queueWait?'RT Commands   LB Groups   B Deselect':'A Select   RT Commands   LB Groups   RB Map   B Back';
+ tx(hudTopFit(hint,lower.w-24,13),lower.x+12,lower.y+lower.h-12,13,CK_HUD_THEME.secondary);
+}else{const hh=h.split('  LB ');tx(hh[0],20,CH-50,17,'#94a3b8');tx(hh[1]?'LB '+hh[1]:'',20,CH-26,17,'#94a3b8')}
 
 minimapDraw(mm,0);
 let y=80;for(const n of notes){X.globalAlpha=Math.min(1,n.t);tx(n.s,CW/2,y,24,'#fff','center');y+=32}X.globalAlpha=1;

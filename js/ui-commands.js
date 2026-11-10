@@ -138,6 +138,12 @@ const current=new Set([...S.us,...S.bs]);
 for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?'#354651':'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?'#f2c14e':'#d9b568';X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
 tx('CONTROL GROUPS',cx,cy-6,26,'#f2c14e','center');tx('Left stick: pick   X: assign selection   Y: focus   release LB: select',cx,cy+22,15,'#cbd5e1','center')}
 
-function quickBar(){const iv=quickSelectionChoices('idle').length,mil=quickSelectionChoices('mil').length,sup=quickSelectionChoices('support').length,x0=mm.x-262,y0=CH-112;
+/* Four original D-pad shortcuts remain in the same order; compact screens
+ * dock them above the minimap rather than drawing across unit details. */
+function quickBarLayout(width,height,minimapLeft){
+ const compact=width<1000;
+ return {x:compact?8:Math.max(8,minimapLeft-262),y:height-(compact?212:112),w:248,h:86,compact};
+}
+function quickBar(){const iv=quickSelectionChoices('idle').length,mil=quickSelectionChoices('mil').length,sup=quickSelectionChoices('support').length,{x:x0,y:y0}=quickBarLayout(CW,CH,mm.x);
 [[0,iv,'Idle'],[1,sup,'Support'],[2,quickSelectionChoices('tc').length,'Town C.'],[3,mil,'Military']].forEach(q=>{const d=q[0],x=x0+d*62,y=y0;X.fillStyle='rgba(20,14,8,.85)';X.fillRect(x,y,56,86);X.strokeStyle='#c9a24a';X.lineWidth=1.5;X.strokeRect(x,y,56,86);X.fillStyle='#f2c14e';const t3=[[[0,-8],[7,6],[-7,6]],[[8,0],[-6,7],[-6,-7]],[[0,8],[7,-6],[-7,-6]],[[-8,0],[6,7],[6,-7]]][d];poly(t3.map(p=>[x+28+p[0],y+18+p[1]]));X.fill();tx(q[2],x+28,y+50,12,'#cbd5e1','center');tx(String(q[1]),x+28,y+76,22,q[1]?'#fff':'#777','center')})}
 
