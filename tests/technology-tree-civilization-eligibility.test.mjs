@@ -54,3 +54,11 @@ test('technology tree displays both Gothic unique techs only for Goths',()=>{
  run('S.civ[0]=1');
  assert.doesNotMatch(row(run,'Castle'),/Anarchy|Perfusion/);
 });
+
+test('Goth technology tree shows the Imperial Elite Huskarl upgrade without exposing it to Britons',()=>{
+ const run=fixture();
+ run('S.civ[0]=18');
+ assert.match(row(run,'Castle'),/Elite Huskarl/);
+ run('S.civ[0]=1');
+ assert.doesNotMatch(row(run,'Castle'),/Elite Huskarl/);
+});

@@ -24,5 +24,6 @@ function unitName(k,t){
  if(k==='ram'&&tech.siegeRam)return 'Siege Ram';
  if(k==='ram'&&tech.cappedRam)return 'Capped Ram';
  if(k==='cgal'&&tech.eliteCgal)return 'Elite Cannon Galleon';
+ if(k==='huskarl'&&tech.eliteHuskarl)return 'Elite Huskarl';
  return U[k]?U[k].n:k;
 }

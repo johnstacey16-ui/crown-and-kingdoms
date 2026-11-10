@@ -143,3 +143,19 @@ test('Goths second Castle technology is unique, registered, indexed and validate
   }).some(e=>/second unique technology/.test(e)),'reject missing, borrowed or invented unique tech');
  }
 });
+
+test('Goths Elite Huskarl upgrade is indexed, restricted and correctly registered',()=>{
+ assert.equal(catalogue.civilizations[18].eliteUpgrade,'eliteHuskarl');
+ assert.equal(runtime.civilizations[18].eliteUpgrade,'eliteHuskarl');
+ assert.equal(runtime.technologies.eliteHuskarl.n,'Elite Huskarl');
+ assert.equal(runtime.technologies.eliteHuskarl.age,3);
+ assert.ok(runtime.researchAvailability[18].castle.includes('eliteHuskarl'));
+ for(let i=0;i<runtime.researchAvailability.length;i++)if(i!==18)
+  assert.ok(!runtime.researchAvailability[i].castle.includes('eliteHuskarl'));
+ for(const wrong of [undefined,'ut18p','not-research']){
+  assert.ok(altered(c=>{
+   if(wrong===undefined)delete c.civilizations[18].eliteUpgrade;
+   else c.civilizations[18].eliteUpgrade=wrong;
+  }).some(e=>/Elite unique-unit upgrade/.test(e)));
+ }
+});

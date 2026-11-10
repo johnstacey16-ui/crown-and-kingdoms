@@ -676,5 +676,5 @@ const rsOf=(b,civs=S?.civ)=>{
  // Use the same regional unit catalogue as Stable training and authenticated orders.
  const regional=finalList.filter(k=>k!=='hcamel'||REGIONAL_UNIT_ACCESS.some(rule=>
   rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
- return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[])])]:regional;
+ return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[]),...(c.elite?[c.elite.k]:[])])]:regional;
 };
