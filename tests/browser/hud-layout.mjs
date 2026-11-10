@@ -120,8 +120,10 @@ try{
      'compact selection description clears the D-pad shortcut row');
     if(viewport.height>=580){
      assert.ok(words.some(s=>s.includes('A Select')),'selected-unit help is visible');
-     assert.ok(words.some(s=>s.includes('RB Map')&&s.includes('B Back')),
-      'controller map/back hints must remain readable without truncation');
+     const backHint=hudProof.labels.find(t=>t.value.includes('RB Map')&&t.value.includes('B Back'));
+     assert.ok(backHint,'controller map/back hints must remain readable without truncation');
+     assert.ok(backHint.y<=lower.y+lower.h-22,
+      'compact help clears the decorative bottom divider rather than crossing it');
     }
    }
    if(viewport.width>=1000)assert.equal(hudProof.header.compact,false,

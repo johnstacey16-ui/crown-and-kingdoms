@@ -55,6 +55,11 @@ test('selected HUD safely renders stale buildings, corrupted queues and null/dea
   unitName:k=>k==='vil'?'Villager':k==='mil'?'Militia':'Unknown',
   mhp:()=>50,stt:()=>'Standing',TASK:{},productionQueueWait:()=>null,researchNameForHud:()=>'Steelwork'
  });
+ const themeStart=ui.indexOf('const CK_HUD_THEME='),themeEnd=ui.indexOf('function hudTopLayout(',themeStart);
+ const layoutStart=ui.indexOf('function hudLowerLayout(');
+ assert.ok(themeStart>=0&&themeEnd>themeStart&&layoutStart>themeEnd&&layoutStart<start);
+ vm.runInContext(ui.slice(themeStart,themeEnd),ctx);
+ vm.runInContext(ui.slice(layoutStart,start),ctx);
  vm.runInContext(ui.slice(start,end),ctx);
  const expect=(selection,caption)=>{
   state.sel=selection;labels.length=0;
@@ -221,6 +226,6 @@ test('large-screen selected details and action hints reserve space for the four 
 test('compact controller hints keep back/map instructions on a separate visible line',()=>{
  const src=ui.slice(ui.indexOf('function hud(){'),ui.indexOf('\n/* Full-screen menu',ui.indexOf('function hud(){')));
  assert.ok(src.includes("['A Select  RT Menu  LB Groups','RB Map  B Back  Menu Pause']"));
- assert.ok(src.includes('lower.y+72+i*17'));
+ assert.ok(src.includes('lower.y+61+i*17'));
  assert.ok(src.includes('if(lower.short)'));
 });

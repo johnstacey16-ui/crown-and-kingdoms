@@ -273,7 +273,7 @@ if(Array.isArray(s[0]?.q)&&production.length>1)l=production.length+' production 
 const status=l+(s[0]?.rs?'  Researching '+researchNameForHud(s[0].rs)+' '+(s[0].rs.t|0)+'s':'');
 if(lower){
  const size=lower.short?15:16,lines=hudLowerLines(status,lower.w-24,size,lower.short?1:2);
- lines.forEach((line,i)=>tx(line,lower.x+12,lower.y+(lower.short?25:33)+i*23,size,CK_HUD_THEME.text));
+ lines.forEach((line,i)=>tx(line,lower.x+12,lower.y+(lower.short?23:27)+i*17,size,CK_HUD_THEME.text));
 }else{
  // The four D-pad controls are painted inside the wide lower panel.
  // Wrap unit information to the actual available left-hand space.
@@ -292,8 +292,8 @@ if(lower){
  if(lower.short){
   // Very short landscapes have only room for one concise caption.
   tx(hudTopFit(hintLines.join('  '),lower.w-32,hintSize),lower.x+12,
-   lower.y+lower.h-12,hintSize,CK_HUD_THEME.secondary);
- }else hintLines.forEach((line,i)=>tx(line,lower.x+12,lower.y+72+i*17,
+   lower.y+lower.h-20,hintSize,CK_HUD_THEME.secondary);
+ }else hintLines.forEach((line,i)=>tx(line,lower.x+12,lower.y+61+i*17,
   hintSize,CK_HUD_THEME.secondary));
 }else{
  const available=Math.max(220,(typeof quickBarLayout==='function'?
