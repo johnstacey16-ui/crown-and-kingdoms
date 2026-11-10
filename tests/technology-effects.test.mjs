@@ -149,8 +149,10 @@ assert.match(html, /note\(unitName\(q\.k,b\.t\)\+' trained'\)/,
   'Training feedback must use the researched unit name');
 assert.match(html, /\$\{unitName\(a\.k,a\.t\)\}/,
   'The selected-unit HUD must use the researched unit name');
-assert.match(html, /Training \$\{a\.q\.map\(q=>unitName\(q\.k,a\.t\)\[0\]\)\.join\(''\)\}/,
-  'Production queue initials must remain consistent with researched unit ranks');
+assert.ok(html.includes("const names=queue.map(q=>q&&U[q.k]?(unitName(q.k,a.t)?.[0]||'?'):'?').join('')"),
+  'Production queue initials must use researched ranks and tolerate stale queue entries');
+assert.match(html, /Training \$\{names\}/,
+  'The selected-building HUD must display those validated queue initials');
 
 // Every technology must connect to either a shared effect payload (unit HP/attack
 // bonus or a callback), or one of the explicitly handled scalar technology flags.
