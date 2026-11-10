@@ -65,6 +65,8 @@ const FOCUSED=[
  "tests/terrain-blending.test.mjs",
  "tests/villager-pathing.test.mjs",
  "tests/menu-screen-ui-extraction.test.mjs",
+ // Live Canvas menus and responsive multiplayer style must match the Figma token contract.
+ "tests/figma-ui-tokens.test.mjs",
  // Civilization technology eligibility, 26-civ identity and regional production.
  "tests/aoe2-de-archer-armor-tiers.test.mjs",
  "tests/aoe2-de-archer-upgrade-line.test.mjs",
