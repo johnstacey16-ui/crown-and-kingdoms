@@ -207,8 +207,10 @@ function topbar(r){
  tx(hudTopFit('Idle '+idl,l.idleWidth-27,idleSize),
   l.idleX+25,l.summaryY,idleSize,idl?CK_HUD_THEME.idle:CK_HUD_THEME.secondary);
  statusChip(l.ageX,l.ageWidth);
- const ageSize=l.compact?14:Math.min(19,Math.max(15,l.ageWidth/10));
- tx(hudTopFit(AG[S.age[0]]?.n||'Unknown Age',l.ageWidth-18,ageSize),
+ const ageIndex=Array.isArray(S.age)?S.age[0]:0;
+ const ageName=(typeof AG!=='undefined'&&AG[ageIndex]?.n)||'Age unavailable';
+ const ageSize=l.compact?Math.max(10,Math.min(14,(l.ageWidth-18)/(Math.max(1,ageName.length)*.73))):Math.min(19,Math.max(15,l.ageWidth/10));
+ tx(hudTopFit(ageName,l.ageWidth-18,ageSize),
   l.ageX+10,l.summaryY,ageSize,CK_HUD_THEME.gold);
  statusChip(l.statusX,l.statusWidth);
  const clock=(S.t/60|0)+':'+String(S.t%60|0).padStart(2,'0');

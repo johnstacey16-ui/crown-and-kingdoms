@@ -25,7 +25,7 @@ test('campaign arcs reference every defined mission exactly once', () => {
 
 test('campaign HUD keeps five visible rows and signals any additional unfinished goals', () => {
   assert.match(html, /function cmpHud\(\)[\s\S]*?const pending=sc\.goals\.filter\(q=>!cmp\.d\[q\.id\]\),g=pending\.slice\(0,5\),more=pending\.length-g\.length/);
-  assert.match(html, /g\.forEach\(\(q,i\)=>tx\('- '\+q\.t,24,104\+i\*26,16,'#fff'\)\)/);
+  assert.match(html, /g\.forEach\(\(q,i\)=>tx\('- '\+q\.t,24,y\+44\+i\*26,16,'#fff'\)\)/);
   assert.match(html, /if\(more\)tx\('\+'\+more\+' more — View for all objectives'/,
     'a sixth unfinished goal must not disappear without an overview hint');
 });

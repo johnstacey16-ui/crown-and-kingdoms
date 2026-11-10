@@ -125,6 +125,13 @@ test('resource and status groups use bounded responsive HUD geometry at console 
  }
  assert.equal(context.hudTopLayout(1280).compact,false,'720p Xbox is single row');
  assert.equal(context.hudTopLayout(720).compact,true,'narrow browser uses two rows');
+ // Tests intentionally use a malformed loading-game state, as controller fixtures may
+ // render a resource bar before the first full age array is initialized.
+ context.S.age=undefined;context.CW=1280;painted.length=0;
+ assert.doesNotThrow(()=>context.topbar(context.S.res[0]));
+ assert.ok(painted.some(p=>p.s.includes('Age unavailable')||p.s.includes('Dark Age')),
+  'incomplete pre-match age data must not crash the HUD');
+ context.S.age=[2];
 });
 
 test('campaign HUD clears both single and two-row resource headers',()=>{
