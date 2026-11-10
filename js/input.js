@@ -56,7 +56,7 @@ if(RE[4]){if(!cgo.done&&sl>=0&&live().length){S.sel=live();note('Group '+(sl+1)+
 if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);if(!n){if(E[0]||E[1]||(RE[7]&&m.rad))menu=null;return}const sx=ax(0),sy=ax(1);
 if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;m.i=a0+Math.floor(a/6.2832*n+.5)%n}else if(!Number.isInteger(m.i)||m.i<a0||m.i>=a0+n)m.i=a0;
 if(E[3])yc=1;if(RE[7]&&m.rad){menu=null;return}if(E[0]){const choice=items[m.i];if(choice&&typeof choice.fn==='function')choice.fn();return}if(E[2]&&m.b)cancelQ(m.b);if(E[3]&&pr.length>1){m.pg=(pg+1)%pr.length;m.i=pr[m.pg][0]}if(E[1])menu=null;return}
-if(pat){if(E[1])pat=0;else if(E[0]){if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}return}
+if(pat){if(E[1])pat=0;else if(E[0]){if(pat===5)queueMarchWaypoint(wx,wy);else{if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}}return}
 if(place){if(E[1]){place=null;return}
 const d=place&&typeof place.k==='string'&&Object.prototype.hasOwnProperty.call(B,place.k)?B[place.k]:null;
 if(!d||!Number.isInteger(d.s)||d.s<1||d.s>W||d.s>H){place=null;note('Building placement cancelled: unavailable building');return}

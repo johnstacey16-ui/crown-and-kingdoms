@@ -71,6 +71,34 @@ if(window.CK_PATH_DIAGNOSTICS&&typeof window.CK_PATH_DIAGNOSTICS.recordFormation
 if(noRouteCount)note(noRouteCount===1?'No route to that location':noRouteCount+' selected units could not reach their destinations');
 if(fallbackCount)note(fallbackCount+' unit'+(fallbackCount===1?'':'s')+' moved toward the group destination instead of blocked formation slots');
 if(noAttackBlocked)note('No Attack stance blocked '+noAttackBlocked+' attack order'+(noAttackBlocked===1?'':'s'));ackCmd(S.sel[0]);fx.push({x:wx,y:wy,l:.5,k:'p'});return true}
+
+/* Solo march waypoints append real A* legs to the existing saved movement
+ * path. Active jobs, battles, transports, trade and multiplayer retain their
+ * original commands. A failed leg never destroys an in-progress march. */
+function queueMarchWaypoint(wx,wy){
+ if(!S||!Number.isFinite(wx)||!Number.isFinite(wy)||wx<0||wy<0||wx>=W||wy>=H)return false;
+ if(window.CK_NET?.isRunning?.()){note('Queued march waypoints are solo-only for now');return false}
+ const units=[...new Set(S.sel.filter(u=>isMil(u)&&S.us.includes(u)&&!u.retreating&&(u.o==='i'||u.o==='m')))];
+ if(!units.length){note('Select living idle or moving soldiers or warships to queue a waypoint');return false}
+ let queued=0,blocked=0;
+ for(const u of units){
+  const old=u.o==='m'&&Array.isArray(u.p)&&u.p.length?u.p:null;
+  const last=old?.[old.length-1];
+  const validLast=Array.isArray(last)&&last.length===2&&last.every(Number.isFinite);
+  const origin=validLast?{x:last[0],y:last[1],t:u.t,sh:u.sh}:u;
+  const route=path(origin,gp(wx,wy,.8))||path(origin,gp(wx,wy,2));
+  if(!route?.length){blocked++;continue}
+  const append=old&&validLast&&route[0][0]===last[0]&&route[0][1]===last[1]?route.slice(1):route;
+  if((old?.length||0)+append.length>Math.min(W*H,512)){blocked++;continue}
+  if(!append.length){queued++;continue}
+  u.p=old?old.concat(append):append;
+  u.o='m';u.tg=null;u.pt=null;u.as=0;u.autoWorker=0;u.guardTarget=null;u.rp=0;
+  queued++;
+ }
+ if(queued){fx.push({x:wx,y:wy,l:.5,k:'p'});note('March waypoint queued for '+queued+' unit'+(queued===1?'':'s')+(blocked?' ('+blocked+' could not route)':''))}
+ else note('No route to that waypoint, or the route is too long');
+ return queued>0;
+}
 function controlGroupMembers(group,current=null){
  if(!S||!Array.isArray(group))return [];
  const world=current||new Set([...S.us,...S.bs]);
@@ -122,7 +150,7 @@ menu={title:d.n,b:s,i:0,items:it}}
 else if(S.sel.length&&S.sel.every(u=>u.k==='fish'))menu={title:'Fishing Ship',i:0,items:[{l:'Deploy Fish Trap (-100 Wood)',c:{w:100},lk:'',fn:()=>{deployFishTrap(S.sel);menu=null}},{l:'Stop fishing',c:{},lk:'',fn:()=>{stopSel();menu=null}}]}
 else if(selectedBuilders().length)menu={title:'Build',i:0,items:[...ECO,'bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc'].map(k=>{const d=B[k];
 return{l:d.n,c:d.cost,get lk(){return bLock(k)},fn:()=>{const currentLock=bLock(k);if(currentLock)return note(currentLock);if(!selectedBuilders().length)return note('Select an available villager');if(!can(0,d.cost))return note('Not enough resources');menu=null;place={k}}}})}
-else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Follow friendly target',c:{},lk:'',fn:()=>{menu=null;pat=3;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Guard friendly target',c:{},lk:'',fn:()=>{menu=null;pat=4;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
+else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Queue march waypoints',c:{},lk:'',fn:()=>{menu=null;pat=5;note('Move camera to each waypoint and press A to add; B finishes. Idle or moving military only.')}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Follow friendly target',c:{},lk:'',fn:()=>{menu=null;pat=3;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Guard friendly target',c:{},lk:'',fn:()=>{menu=null;pat=4;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
 if(menu&&menu.title==='Soldiers'&&S.sel.some(u=>u.k==='cart'||u.k==='cog'))menu.items.splice(1,0,{l:'Resume automatic trading',c:{},lk:'',fn:()=>{let n=0;for(const u of S.sel)if(u.k==='cart'||u.k==='cog'){u.tradePaused=false;u.manualTradeMove=false;u.o='i';u.p=[];u.rp=0;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;n++}menu=null;note('Automatic trading resumed for '+n+' merchant'+(n===1?'':'s'))}});
 if(menu&&menu.title==='Build'){menu.items.splice(ECO.length,0,{l:'Stop (go idle)',c:{},lk:'',fn:()=>{stopSel();menu=null}});menu.pr=[[0,ECO.length+1],[ECO.length+1,menu.items.length]]}}
 
