@@ -1198,6 +1198,9 @@ test('Last Crown royal standard requires a genuine forward Outpost and three liv
  // A completed home-base Outpost is real but does not defend the forward road.
  c("globalThis.homePost=put(0,'outpost',tcOf(0).x+5,tcOf(0).y+5)");
  assert.equal(c('campaignLastCrownRoyalStandardReady()'),false);
+ // Scout the route first: normal construction disallows unexplored fog.
+ // This fixture represents the player's reconnaissance before choosing a site.
+ c('S.ex.fill(1)');
  // Find a buildable, reachable location ahead of the player, using the same
  // world placement/collision rules as a finished, player-owned Outpost.
  const banner=JSON.parse(c(`JSON.stringify((()=>{
