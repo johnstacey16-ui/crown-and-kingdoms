@@ -510,6 +510,34 @@ test('invalid or removed placement definitions cancel safely before reading foot
  assert.equal(normal.state().buildings,1,'valid house placement still creates its building');
 });
 
+test('failed farm and building creation does not charge resources or issue orphaned orders',()=>{
+ for(const [kind,constructor] of [['farm','addN'],['house','addB']]){
+  const f=buildFixture();
+  f.run("ysc.vb="+JSON.stringify(kind)+";"+(kind==='farm'?"addMill();":""));
+  farmShortcut(f.c);
+  assert.equal(f.state().place?.k,kind,kind+' preview must be active before failure');
+  f.run(constructor+"=()=>null;");
+  const previous=f.state();
+  f.c.run(button(0),button(0));
+  const after=f.state();
+  assert.equal(after.wood,previous.wood,kind+' failure cannot spend wood');
+  assert.equal(after.food,previous.food,kind+' failure cannot spend food');
+  assert.equal(after.buildings,previous.buildings,kind+' failure cannot create a phantom building');
+  assert.deepEqual(after.farms,previous.farms,kind+' failure cannot create a phantom farm');
+  assert.deepEqual(after.workers,previous.workers,kind+' failure cannot order villagers to missing entities');
+  assert.equal(after.place?.k,kind,kind+' preview stays open so the player can retry or cancel');
+  assert.ok(after.notes.includes('Cannot build there'),kind+' must explain the failure');
+ }
+ const farm=buildFixture();farm.run("addMill();ysc.vb='farm';");farmShortcut(farm.c);
+ farm.c.run(button(0),button(0));
+ assert.equal(farm.state().wood,940,'successful farms still cost 60 wood');
+ assert.equal(farm.state().farms.length,1,'successful farms still create the farm node');
+ const house=buildFixture();house.run("ysc.vb='house';");farmShortcut(house.c);
+ house.c.run(button(0),button(0));
+ assert.equal(house.state().wood,975,'successful houses still cost 25 wood');
+ assert.equal(house.state().buildings,1,'successful houses still create the building');
+});
+
 test('house shortcut remains available without a Mill and placement excludes invalid workers from the build order',()=>{
   const f=buildFixture();
   f.run(`

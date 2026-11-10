@@ -61,12 +61,14 @@ if(place){if(E[1]){place=null;return}
 const d=place&&typeof place.k==='string'&&Object.prototype.hasOwnProperty.call(B,place.k)?B[place.k]:null;
 if(!d||!Number.isInteger(d.s)||d.s<1||d.s>W||d.s>H){place=null;note('Building placement cancelled: unavailable building');return}
 const s=d.s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=!lock&&okPlace(0,place.k,place.x,place.y)&&can(0,d.cost);
-if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');pay(0,d.cost);
-if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);if(n)n.t=0;for(const u of vs){
- const own=n&&farmAvailableTo(u,n),other=!own?findReachableAutoNode(u,'f',36):null;
+if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');
+if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);
+if(!n)return note('Cannot build there');
+n.t=0;pay(0,d.cost);for(const u of vs){
+ const own=farmAvailableTo(u,n),other=!own?findReachableAutoNode(u,'f',36):null;
  if(own||other){u.o='g';u.tg=own?n:other.n;u.ct='f';u.p=own?[]:other.route;u.rp=own?0:1;u.ret=0;u.car=0}
  else{u.o='i';u.tg=null;u.p=[];u.rp=0}
- }}else{const b=addB(0,k,place.x,place.y,false);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
+ }}else{const b=addB(0,k,place.x,place.y,false);if(!b)return note('Cannot build there');pay(0,d.cost);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){cancelGameplayGestures();ov=1;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cancelGameplayGestures();cgo={sel:-1,done:0};yc=1;return}
 if(E[1]&&!lt){cancelGameplayGestures();S.sel=[];return}
