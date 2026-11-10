@@ -149,7 +149,7 @@ test('when no evacuation route exists, stop an impossible move but preserve work
  const ctx=vm.createContext({S,W:96,H:96,path:()=>null,goalNear:b=>b,gp:(x,y,r)=>({x,y,r})});
  vm.runInContext(aiPolicy.slice(begin,end),ctx);
  ctx.aiEvacuateVillagers([v],[dead],[{k:'mil',x:19,y:20,hp:90}]);
- assert.equal(v.o,'i');assert.equal(v.tg,null);assert.deepEqual(v.p,[]);
+ assert.equal(v.o,'i');assert.equal(v.tg,null);assert.equal(v.p.length,0,'no stale path to a destroyed shelter');
  assert.equal(v.aiEvac.tg,work);
  S.t=119;ctx.aiEvacuateVillagers([v],[dead],[]);
  assert.equal(v.o,'i','unreachable worksite should not get a fake route');
