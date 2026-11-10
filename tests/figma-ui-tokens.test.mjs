@@ -89,3 +89,16 @@ test('multiplayer room consumes the shared palette without changing its native i
     assert.ok(css.includes(rule), 'multiplayer room styling drifted: ' + rule);
   }
 });
+
+test('live top HUD palette matches the Figma reference tokens', () => {
+ const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ for(const [key,token] of [
+  ['surface','surface/elevated'],['text','text/primary'],
+  ['secondary','text/secondary'],['gold','brand/cream'],
+  ['success','status/success'],['accent','brand/gold']
+ ]){
+  assert.ok(ui.includes(key + ":'" + data.colors[token] + "'"),
+   'HUD style token must match Figma: ' + token);
+ }
+ assert.ok(ui.includes('function hudTopLayout(width){'));
+});

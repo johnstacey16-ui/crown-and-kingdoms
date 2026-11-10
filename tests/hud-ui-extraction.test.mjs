@@ -86,3 +86,60 @@ test('selected HUD safely renders stale buildings, corrupted queues and null/dea
  assert.equal(ctx.stt({k:'obsolete-unit',t:0}),'Stats unavailable');
  assert.equal(ctx.stt({k:'mil',t:7}),'Stats unavailable');
 });
+
+test('resource and status groups use bounded responsive HUD geometry at console and narrow widths',()=>{
+ const start=ui.indexOf('const CK_HUD_THEME='),end=ui.indexOf('function researchNameForHud(',start);
+ assert.ok(start>0&&end>start,'shared top bar geometry must stay in js/ui.js');
+ const painted=[],drawn=[];
+ const context=vm.createContext({
+  CW:1280,S:{us:[],res:[{f:840,w:1125,g:325,s:100}],age:[2],t:94},
+  X:{
+   fillRect:(...a)=>drawn.push(a),
+   beginPath(){},arc(){},fill(){},
+   set fillStyle(_v){},
+  },
+  AG:[{n:'Dark Age'},{n:'Feudal Age'},{n:'Castle Age'},{n:'Imperial Age'}],
+  popOf:()=>62,capOf:()=>90,gs:1,diff:2,difficultyName:()=>'Moderate',
+  panel:(...a)=>drawn.push(['panel',...a]),
+  ico:()=>{},tx:(s,x,y,sz,_c,align)=>painted.push({s:String(s),x,y,sz,align})
+ });
+ vm.runInContext(ui.slice(start,end),context);
+ for(const width of [360,480,720,960,1000,1280,1920]){
+  const l=context.hudTopLayout(width);
+  assert.ok(l.height===60||l.height===100);
+  assert.ok(l.slotWidth>=50,'four resource slots must have space for values');
+  assert.ok(Math.abs(l.popX-(l.resourceX+l.resourceWidth))<.01);
+  assert.ok(l.popX+l.popWidth<=width-l.edge+.01);
+  assert.ok(l.ageX+l.ageWidth<=l.statusX+.01,'status cannot overlap age');
+  assert.ok(l.statusWidth>=70,'clock always has a usable slot');
+  assert.ok(l.statusX+l.statusWidth<=width-l.edge+.01);
+  assert.ok(l.height+8<175,'campaign objective overlay stays on screen');
+  context.CW=width;painted.length=0;drawn.length=0;
+  assert.doesNotThrow(()=>context.topbar(context.S.res[0]));
+  for(const label of ['840','1125','325','100','62/90','Castle Age','1:34']){
+   assert.ok(painted.some(p=>p.s.includes(label)),
+    'top bar at '+width+'px must show '+label);
+  }
+  assert.ok(drawn.some(p=>p[0]==='panel'&&p[4]===l.height+4));
+  assert.ok(painted.filter(p=>p.align==='right').every(p=>p.x<=width));
+ }
+ assert.equal(context.hudTopLayout(1280).compact,false,'720p Xbox is single row');
+ assert.equal(context.hudTopLayout(720).compact,true,'narrow browser uses two rows');
+});
+
+test('campaign HUD clears both single and two-row resource headers',()=>{
+ const screens=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
+ const begin=screens.indexOf('function cmpHud()'),end=screens.indexOf('function cmpObj()',begin);
+ assert.ok(begin>=0&&end>begin);
+ const bounds=[],ctx=vm.createContext({
+  X:{fillRect:(...args)=>bounds.push(args)},CW:720,
+  CAMP:[{t:'Mission',goals:[{id:'a',t:'Secure the hill'}]}],
+  cmp:{i:0,d:{}},tx(){},
+  hudTopLayout:width=>({height:width<1000?100:60})
+ });
+ vm.runInContext(screens.slice(begin,end),ctx);
+ ctx.cmpHud();
+ assert.equal(bounds[0][1],108,'campaign begins below a compact 100px header');
+ bounds.length=0;ctx.CW=1280;ctx.cmpHud();
+ assert.equal(bounds[0][1],68,'console objectives begin after the 60px header');
+});

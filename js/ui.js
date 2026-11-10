@@ -126,9 +126,98 @@ tx('D-pad Up/Down choose   A rebind   X reset all   B or Menu back   (0=A 1=B 2=
 
 /* In-match HUD: resource bar, population/idle counts, selection and orders. */
 function ico(k,x,y){X.save();X.translate(x,y);if(k==='f'){X.fillStyle='#d9473f';X.beginPath();X.arc(0,2,9,0,7);X.fill();X.fillStyle='rgba(255,255,255,.3)';X.beginPath();X.arc(-3,-1,3,0,7);X.fill();X.fillStyle='#3a7a2a';X.fillRect(-1,-9,3,5)}else if(k==='w'){X.fillStyle='#7a4f24';X.fillRect(-10,-6,20,12);X.fillStyle='#c79a5c';X.beginPath();X.ellipse(10,0,4,6,0,0,7);X.fill()}else if(k==='g'){X.fillStyle='#f2c14e';X.beginPath();X.arc(0,0,9,0,7);X.fill();X.strokeStyle='#a87b12';X.lineWidth=2;X.stroke();X.fillStyle='rgba(255,255,255,.4)';X.fillRect(-2,-5,3,9)}else if(k==='s'){X.fillStyle='#9aa3a8';poly([[-10,6],[-6,-6],[4,-8],[10,4],[6,8]]);X.fill();X.fillStyle='#dfe6ea';poly([[-6,-6],[4,-8],[0,0]]);X.fill()}else{X.fillStyle='#3b82f6';X.beginPath();X.arc(0,-4,5,0,7);X.fill();X.fillRect(-7,2,14,8)}X.restore()}
-function topbar(r){panel(0,-4,CW,54);const gc={f:0,w:0,g:0,s:0};let idl=0;for(const u of S.us)if(u&&u.t===0&&u.hp>0&&!u.ld){if(u.o==='g'&&u.ct&&gc[u.ct]!==undefined)gc[u.ct]++;else if(u.o==='i'&&(u.k==='vil'||u.k==='fish'))idl++}[['f',r.f],['w',r.w],['g',r.g],['s',r.s]].forEach((a,i)=>{const x=22+i*158;ico(a[0],x,24);tx(String(a[1]|0),x+22,32,22,'#fff');tx('('+gc[a[0]]+')',x+22+String(a[1]|0).length*13+8,32,15,'#e0d0a0')});ico('p',680,24);tx(popOf(0)+'/'+capOf(0),700,32,22,'#fff');X.fillStyle=idl?'#ffd24a':'#666';X.beginPath();X.arc(786,24,8,0,7);X.fill();tx('Idle '+idl,800,31,17,idl?'#ffd24a':'#999')}
+
+/* Figma-inspired top HUD geometry. Keep everything on one row at Xbox sizes;
+ * use two rows on narrow browser views rather than overlapping live numbers.
+ * This pure layout never changes simulation, controller inputs or saved state. */
+const CK_HUD_THEME=Object.freeze({
+ surface:'#202b34',text:'#f1f5f9',secondary:'#cbd5e1',gold:'#f5d27b',
+ success:'#9ae6b4',accent:'#f2c14e',idle:'#ffd24a',inactive:'#667788'
+});
+function hudTopLayout(width){
+ const w=Number.isFinite(width)?Math.max(320,width):1280,compact=w<1000;
+ const edge=w<700?8:16,inner=w-2*edge;
+ const resourceWidth=compact?inner*.76:Math.min(610,inner*.47);
+ const popWidth=compact?inner-resourceWidth:Math.min(130,Math.max(100,inner*.09));
+ const idleWidth=compact?Math.max(76,inner*.18):Math.min(114,Math.max(92,inner*.08));
+ const ageWidth=compact?Math.max(96,inner*.28):Math.min(208,Math.max(150,inner*.15));
+ const popX=edge+resourceWidth;
+ const idleX=compact?edge+ageWidth:popX+popWidth;
+ const ageX=compact?edge:idleX+idleWidth;
+ const statusX=compact?idleX+idleWidth:ageX+ageWidth;
+ return {
+  width:w,compact,edge,height:compact?100:60,
+  resourceX:edge,resourceWidth,slotWidth:resourceWidth/4,
+  popX,popWidth,idleX,idleWidth,ageX,ageWidth,statusX,
+  statusWidth:w-edge-statusX,firstY:compact?29:30,
+  workerY:compact?45:47,summaryY:compact?84:34,
+  summaryTop:compact?58:8
+ };
+}
+function hudTopFit(value,width,font){
+ const s=String(value??''),limit=Math.max(1,Math.floor(Math.max(0,width)/(font*.67)));
+ return s.length<=limit?s:s.slice(0,Math.max(0,limit-1))+'…';
+}
+function hudTopStatus(difficulty,speed,clock,width,font){
+ const d=String(difficulty??''),pace=speed===1?'':String(speed)+'x';
+ const options=[d+(pace?'  '+pace:'')+'  '+clock,
+  d.slice(0,6)+(pace?' '+pace:'')+' '+clock,
+  (pace?pace+'  ':'')+clock,clock];
+ const max=Math.max(1,Math.floor(width/(font*.67)));
+ return options.find(s=>s.length<=max)||clock;
+}
+function topbar(r){
+ const l=hudTopLayout(CW);
+ panel(0,-4,CW,l.height+4);
+ const gc={f:0,w:0,g:0,s:0};
+ let idl=0;
+ for(const u of S.us){
+  if(!u||u.t!==0||u.hp<=0||u.ld)continue;
+  if(u.o==='g'&&u.ct&&gc[u.ct]!==undefined)gc[u.ct]++;
+  else if(u.o==='i'&&(u.k==='vil'||u.k==='fish'))idl++;
+ }
+ const resources=[['f',r?.f],['w',r?.w],['g',r?.g],['s',r?.s]];
+ for(let i=0;i<resources.length;i++){
+  const [kind,value]=resources[i],x=l.resourceX+i*l.slotWidth;
+  X.fillStyle=CK_HUD_THEME.surface;
+  X.fillRect(x+2,9,Math.max(0,l.slotWidth-5),43);
+  ico(kind,x+15,25);
+  const amount=String(Number.isFinite(value)?value|0:0);
+  const size=Math.max(11,Math.min(l.compact?17:20,(l.slotWidth-38)/(Math.max(1,amount.length)*.61)));
+  tx(amount,x+32,l.firstY,size,CK_HUD_THEME.text);
+  tx('('+gc[kind]+')',x+32,l.workerY,l.compact?11:13,CK_HUD_THEME.secondary);
+ }
+ X.fillStyle=CK_HUD_THEME.surface;
+ X.fillRect(l.popX+2,9,Math.max(0,l.popWidth-5),43);
+ const popLabel=popOf(0)+'/'+capOf(0);
+ const tinyPop=l.popWidth<104;
+ if(!tinyPop)ico('p',l.popX+15,25);
+ tx(hudTopFit(popLabel,l.popWidth-(tinyPop?14:37),tinyPop?14:18),
+  l.popX+(tinyPop?9:32),l.firstY,tinyPop?14:18,CK_HUD_THEME.text);
+ tx('POPULATION',l.popX+9,l.workerY,l.popWidth<85?10:11,CK_HUD_THEME.secondary);
+ const statusTop=l.summaryTop;
+ function statusChip(x,w){
+  X.fillStyle=CK_HUD_THEME.surface;
+  X.fillRect(x+2,statusTop,Math.max(0,w-5),l.compact?34:43);
+ }
+ statusChip(l.idleX,l.idleWidth);
+ const idleSize=l.compact?14:16;
+ X.fillStyle=idl?CK_HUD_THEME.idle:CK_HUD_THEME.inactive;
+ X.beginPath();X.arc(l.idleX+13,l.summaryY-6,6,0,Math.PI*2);X.fill();
+ tx(hudTopFit('Idle '+idl,l.idleWidth-27,idleSize),
+  l.idleX+25,l.summaryY,idleSize,idl?CK_HUD_THEME.idle:CK_HUD_THEME.secondary);
+ statusChip(l.ageX,l.ageWidth);
+ const ageSize=l.compact?14:Math.min(19,Math.max(15,l.ageWidth/10));
+ tx(hudTopFit(AG[S.age[0]]?.n||'Unknown Age',l.ageWidth-18,ageSize),
+  l.ageX+10,l.summaryY,ageSize,CK_HUD_THEME.gold);
+ statusChip(l.statusX,l.statusWidth);
+ const clock=(S.t/60|0)+':'+String(S.t%60|0).padStart(2,'0');
+ const matchFont=l.compact?14:Math.min(18,Math.max(14,l.statusWidth/14));
+ const matchText=hudTopStatus(difficultyName(diff),gs,clock,l.statusWidth-18,matchFont);
+ tx(matchText,CW-l.edge-9,l.summaryY,matchFont,CK_HUD_THEME.secondary,'right');
+}
 function researchNameForHud(rs){return rs?.k==='age'?'next age':(TE[rs?.k]?.n||'unknown technology')}
-function hud(){const r=S.res[0];topbar(r);if(cmp)cmpHud();{const a=vm===5?(S.kh||[]):(S.vc||[]),lead=a.reduce((best,v,i)=>v>(a[best]||0)?i:best,0),progress=a[lead]||0;if(vm===4)tx('SCORE MODE · '+Math.ceil(Math.max(0,scoreLimit-S.t)/60)+' MIN LEFT · YOUR SCORE '+((S.scoreCache||[])[0]||0),CW/2,CH-134,22,'#f2d28a','center');else if(vm===5)tx(progress>0?(lead===0?'YOUR KINGDOM':'KINGDOM '+(lead+1))+' CONTROLS THE HILL · '+Math.ceil(Math.max(0,300-progress))+'s TO WIN':'KING OF THE HILL · HOLD THE CENTRAL HILL FOR 5 MIN',CW/2,CH-134,20,progress>0?(lead===0?'#9ae6b4':'#ff9a9a'):'#f2d28a','center');else if(vm===6)tx('SUDDEN DEATH · DEFEND YOUR TOWN CENTRE',CW/2,CH-134,20,'#ff9a9a','center');else if(vm&&progress>0)tx((lead===0?'Your ':'Kingdom '+(lead+1)+' ')+(vm===1?'Wonder':'Relic')+' victory in '+Math.ceil((vm===1?300:240)-progress)+'s',CW/2,CH-134,24,lead===0?'#9ae6b4':'#ff9a9a','center')}tx(AG[S.age[0]].n,880,32,24,'#cbd5e1');tx(`${difficultyName(diff)}${gs!==1?'  '+gs+'x':''}  ${(S.t/60|0)}:${String(S.t%60|0).padStart(2,'0')}`,CW-20,32,24,'#cbd5e1','right');
+function hud(){const r=S.res[0];topbar(r);if(cmp)cmpHud();{const a=vm===5?(S.kh||[]):(S.vc||[]),lead=a.reduce((best,v,i)=>v>(a[best]||0)?i:best,0),progress=a[lead]||0;if(vm===4)tx('SCORE MODE · '+Math.ceil(Math.max(0,scoreLimit-S.t)/60)+' MIN LEFT · YOUR SCORE '+((S.scoreCache||[])[0]||0),CW/2,CH-134,22,'#f2d28a','center');else if(vm===5)tx(progress>0?(lead===0?'YOUR KINGDOM':'KINGDOM '+(lead+1))+' CONTROLS THE HILL · '+Math.ceil(Math.max(0,300-progress))+'s TO WIN':'KING OF THE HILL · HOLD THE CENTRAL HILL FOR 5 MIN',CW/2,CH-134,20,progress>0?(lead===0?'#9ae6b4':'#ff9a9a'):'#f2d28a','center');else if(vm===6)tx('SUDDEN DEATH · DEFEND YOUR TOWN CENTRE',CW/2,CH-134,20,'#ff9a9a','center');else if(vm&&progress>0)tx((lead===0?'Your ':'Kingdom '+(lead+1)+' ')+(vm===1?'Wonder':'Relic')+' victory in '+Math.ceil((vm===1?300:240)-progress)+'s',CW/2,CH-134,24,lead===0?'#9ae6b4':'#ff9a9a','center')}/* Age, speed and match clock are now drawn in the responsive topbar. */
 panel(0,CH-120,mm.x-8,120);quickBar();
 const s=Array.isArray(S.sel)?S.sel.filter(a=>a&&a.hp>0):[],queueWait=s.length===1&&Array.isArray(s[0].q)&&s[0].q.every(q=>q&&typeof q.k==='string'&&Number.isFinite(q.t))&&B[s[0].k]?.n?productionQueueWait(s[0]):null;let l='Nothing selected - left stick pans camera; A selects at centre';
 if(s.length){
