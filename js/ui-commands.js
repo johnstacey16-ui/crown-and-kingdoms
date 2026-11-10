@@ -41,12 +41,70 @@ function listMenuPage(m){
  return {items,N,i}
 }
 
+/* Figma focus treatment for the existing controller-owned command wheels.
+ * Compact layouts only change the drawing: radialMenuPage and the gamepad
+ * direction/selection logic continue to use their unchanged item indices. */
+const CK_COMMAND_UI=Object.freeze({
+ focus:'#f2c14e',selected:'#354651',panel:'#111820',text:'#f1f5f9',
+ muted:'#cbd5e1',brass:'#d9b568',cream:'#f5d27b',danger:'#ff8b82'
+});
+function commandLabelFit(value,width,size){
+ const label=String(value??''),limit=Math.max(1,Math.floor(Math.max(0,width)/(Math.max(1,size)*.62)));
+ return label.length<=limit?label:label.slice(0,Math.max(0,limit-1))+'…';
+}
+function compactCommandLayout(width,height,count,selected){
+ const w=Math.max(200,Math.min(560,width-24));
+ const rh=48,visible=Math.min(count,Math.max(1,Math.floor((height-154)/rh)));
+ const focus=Math.max(0,Math.min(selected,count-1));
+ const start=Math.max(0,Math.min(focus-Math.floor(visible/2),count-visible));
+ const h=52+visible*rh+54;
+ return {w,x:(width-w)/2,y:Math.max(4,(height-h)/2),rh,visible,start,h};
+}
+function drawCompactRadialMenu(m,items,a0,n,pg,pageCount,title){
+ const raw=Number.isInteger(m?.i)?m.i:a0;
+ const focus=raw>=a0&&raw<a0+n?raw:a0;
+ const l=compactCommandLayout(CW,CH,n,focus-a0),x=l.x,y=l.y,w=l.w;
+ X.fillStyle='rgba(0,0,0,.65)';X.fillRect(0,0,CW,CH);
+ X.fillStyle=CK_COMMAND_UI.panel;X.fillRect(x,y,w,l.h);
+ X.strokeStyle=CK_COMMAND_UI.brass;X.lineWidth=2;X.strokeRect(x+.5,y+.5,w-1,l.h-1);
+ tx(commandLabelFit(title,w-110,19),x+14,y+35,19,CK_COMMAND_UI.cream);
+ tx((pg+1)+'/'+pageCount+(n>l.visible?'  •  '+(focus-a0+1)+'/'+n:''),
+  x+w-14,y+35,14,CK_COMMAND_UI.muted,'right');
+ for(let row=0;row<l.visible;row++){
+  const index=a0+l.start+row,it=items[index],yy=y+52+row*l.rh,
+   selected=index===focus;
+  X.fillStyle=selected?CK_COMMAND_UI.selected:'rgba(255,255,255,.035)';
+  X.fillRect(x+9,yy,w-18,l.rh-4);
+  if(selected){
+   X.strokeStyle=CK_COMMAND_UI.focus;X.lineWidth=2;
+   X.strokeRect(x+9.5,yy+.5,w-19,l.rh-5);
+   X.fillStyle=CK_COMMAND_UI.focus;X.fillRect(x+15,yy+8,4,l.rh-20);
+  }
+  tx(commandLabelFit(it.l,w-143,16),x+28,yy+30,16,
+   it.lk?CK_COMMAND_UI.muted:selected?CK_COMMAND_UI.cream:CK_COMMAND_UI.text);
+  const cost=it.lk||cs(it.c);
+  tx(commandLabelFit(cost,98,13),x+w-18,yy+29,13,
+   it.lk?CK_COMMAND_UI.danger:CK_COMMAND_UI.muted,'right');
+ }
+ const selectedItem=items[focus],info=selectedItem?(DS[selectedItem.l]||''):'';
+ tx(commandLabelFit(info||(!n?'No commands available — A or B to close':'A: confirm   Y: page   B: close'),
+  w-28,13),x+14,y+l.h-20,13,CK_COMMAND_UI.muted);
+ tx('LEFT STICK  CHOOSE     A  CONFIRM     Y  PAGE     B  CLOSE',
+  CW/2,Math.min(CH-7,y+l.h+20),12,CK_COMMAND_UI.muted,'center');
+}
 function drawRadial(){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m),vis=items.slice(a0,a0+n),cx=CW/2,cy=CH/2-10,R=Math.min(CW,CH)*.33;
-X.fillStyle='rgba(0,0,0,.55)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();X.fillStyle='#241709';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();X.stroke();
-const title=typeof m?.title==='string'?m.title:'Commands',ttl=title==='Build'?(pg===0?'Economic buildings':'Military buildings'):title;tx(ttl,cx,cy-R*.18,Math.min(24,R/10),'#f2c14e','center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),'#cbd5e1','center');
-if(!n)tx('No commands available — A or B to close',cx,cy+R*.26,17,'#cbd5e1','center');
- const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=42;vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=a0+j===m.i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-w/2,y-h/2,w,h);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);tx(it.l.slice(0,24),x,y-3,15,it.lk?'#aaa':'#fff','center');tx(it.lk||cs(it.c),x,y+13,12,it.lk?'#ffb0b0':'#f0dca6','center')});
-const sit=items[Number.isInteger(m.i)?m.i:0];if(sit)tx(DS[sit.l]||'',cx,cy+R*.26,15,'#cbd5e1','center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,'#cbd5e1','center')}
+const title=typeof m?.title==='string'?m.title:'Commands',ttl=title==='Build'?(pg===0?'Economic buildings':'Military buildings'):title;
+if(CW<720||CH<500){drawCompactRadialMenu(m,items,a0,n,pg,pr.length,ttl);return}
+X.fillStyle='rgba(0,0,0,.55)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+50,0,7);X.fill();X.strokeStyle=CK_COMMAND_UI.brass;X.lineWidth=3;X.stroke();X.fillStyle='#241709';X.beginPath();X.arc(cx,cy,R*.46,0,7);X.fill();X.stroke();
+tx(commandLabelFit(ttl,R*.86,Math.min(24,R/10)),cx,cy-R*.18,Math.min(24,R/10),CK_COMMAND_UI.cream,'center');if(pr.length>1)tx('Y: switch page ('+(pg+1)+'/'+pr.length+')',cx,cy+R*.04,Math.min(15,R/16),CK_COMMAND_UI.muted,'center');
+if(!n)tx('No commands available — A or B to close',cx,cy+R*.26,17,CK_COMMAND_UI.muted,'center');
+const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=48;
+vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=a0+j===m.i;
+X.fillStyle=sel?CK_COMMAND_UI.selected:'rgba(60,44,24,.95)';X.fillRect(x-w/2,y-h/2,w,h);
+X.strokeStyle=sel?CK_COMMAND_UI.focus:CK_COMMAND_UI.brass;X.lineWidth=sel?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
+tx(commandLabelFit(it.l,w-8,15),x,y-3,15,it.lk?CK_COMMAND_UI.muted:CK_COMMAND_UI.text,'center');
+tx(commandLabelFit(it.lk||cs(it.c),w-8,12),x,y+13,12,it.lk?CK_COMMAND_UI.danger:CK_COMMAND_UI.cream,'center')});
+const sit=items[Number.isInteger(m.i)?m.i:0];if(sit)tx(commandLabelFit(DS[sit.l]||'',Math.min(2*R,540),15),cx,cy+R*.26,15,CK_COMMAND_UI.muted,'center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,CK_COMMAND_UI.muted,'center')}
 
 
 function drawVillagerPriorityWheel(){
@@ -63,8 +121,8 @@ function drawVillagerPriorityWheel(){
  const w=Math.min(manual?156:140,2*R*Math.sin(Math.PI/n)*.9),h=manual?66:54;
  for(let i=0;i<n;i++){
   const a=i/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,selected=vpWheel.sel===i;
-  X.fillStyle=selected?'#2f63c4':'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
-  X.strokeStyle=selected?'#fff':'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
+  X.fillStyle=selected?CK_COMMAND_UI.selected:'rgba(60,44,24,.98)';X.fillRect(x-w/2,y-h/2,w,h);
+  X.strokeStyle=selected?CK_COMMAND_UI.focus:'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
   const name=manual?WORKER_TARGETS[i].n:i===VILLAGER_PRIORITY_PRESETS.length?'Auto Farms':VILLAGER_PRIORITY_PRESETS[i].name;
   const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):i===VILLAGER_PRIORITY_PRESETS.length?(p.autoFarms?'ON':'OFF'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
   tx(name,x,y-3,15,'#fff','center');tx(detail,x,y+17,13,'#e5d5ad','center');
@@ -77,7 +135,7 @@ function drawVillagerPriorityWheel(){
 
 function drawCg(){const cx=CW/2,cy=CH/2,R=Math.min(CW,CH)*.26;X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,CW,CH);X.fillStyle='rgba(30,22,12,.92)';X.beginPath();X.arc(cx,cy,R+55,0,7);X.fill();X.strokeStyle='#c9a24a';X.lineWidth=3;X.stroke();
 const current=new Set([...S.us,...S.bs]);
-for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?'#2f63c4':'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?'#fff':'#c9a24a';X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
+for(let i=0;i<8;i++){const a=i/8*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,g=controlGroupMembers(S.cg&&S.cg[i],current),sel=cgo.sel===i;X.fillStyle=sel?CK_COMMAND_UI.selected:'rgba(60,44,24,.95)';X.fillRect(x-48,y-24,96,48);X.strokeStyle=sel?CK_COMMAND_UI.focus:CK_COMMAND_UI.brass;X.lineWidth=sel?3:1.5;X.strokeRect(x-48,y-24,96,48);tx(String(i+1),x-38,y-4,20,'#f2c14e');tx(g.length?g.length+' units':'empty',x+8,y+10,15,g.length?'#fff':'#888','center')}
 tx('CONTROL GROUPS',cx,cy-6,26,'#f2c14e','center');tx('Left stick: pick   X: assign selection   Y: focus   release LB: select',cx,cy+22,15,'#cbd5e1','center')}
 
 function quickBar(){const iv=quickSelectionChoices('idle').length,mil=quickSelectionChoices('mil').length,sup=quickSelectionChoices('support').length,x0=mm.x-262,y0=CH-112;

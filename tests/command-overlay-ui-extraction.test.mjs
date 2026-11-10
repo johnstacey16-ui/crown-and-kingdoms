@@ -66,3 +66,54 @@ test('selected-unit stats include the owning kingdom’s real attack and armour 
   assert.equal(run('JSON.stringify(S)'),before,'inspection is read-only');
   assert.equal(run("stt({q:[],k:'stable'})"),'');
 });
+
+test('radial commands stay index-stable and visibly focused in compact Xbox-style layouts',async()=>{
+ const {default:vm}=await import('node:vm');
+ const before=commands.indexOf('function radialMenuPage(m){');
+ const after=commands.indexOf('function drawVillagerPriorityWheel()',before);
+ assert.ok(before>0&&after>before);
+ const frames=[],texts=[],X={
+  fillRect:(...v)=>frames.push(['fillRect',...v]),
+  strokeRect:(...v)=>frames.push(['strokeRect',...v]),
+  beginPath(){},arc(){},fill(){},stroke(){},
+ };
+ const ctx=vm.createContext({CW:360,CH:480,X,DS:{'Choice 10':'An important detailed description'},
+  cs:()=> '50 food',tx:(label,...args)=>texts.push([String(label),...args]),menu:null});
+ vm.runInContext(commands.slice(before,after),ctx);
+ for(const [width,height] of [[360,480],[480,720],[720,480],[1280,720]]){
+  ctx.CW=width;ctx.CH=height;
+  const choices=Array.from({length:12},(_,i)=>({l:'Choice '+i,c:{f:50},lk:'',fn:()=>{}}));
+  ctx.menu={title:'Build',items:choices,i:10,rad:1,pg:0};
+  const snapshot=JSON.stringify(ctx.menu);
+  texts.length=0;frames.length=0;
+  assert.doesNotThrow(()=>ctx.drawRadial());
+  assert.equal(JSON.stringify(ctx.menu),snapshot,'renderer must not mutate the command or selected action');
+  assert.ok(texts.some(([label])=>label==='Choice 10'),'selected command remains visible at '+width);
+  assert.ok(texts.every(([,x,y])=>Number.isFinite(x)&&Number.isFinite(y)));
+  if(width<720||height<500){
+   const l=ctx.compactCommandLayout(width,height,12,10);
+   assert.ok(l.y+l.h<=height,'compact command panel stays in the viewport');
+   assert.ok(texts.some(([label])=>label.includes('10')&&label.includes('12')));
+   assert.ok(frames.some(([kind])=>kind==='strokeRect'),'selected item has a non-colour focus border');
+  }else{
+   assert.ok(texts.some(([label])=>label.includes('Economic buildings')));
+  }
+ }
+ ctx.CW=360;ctx.CH=480;ctx.menu={title:null,items:[],i:999,rad:1,pg:500};
+ texts.length=0;assert.doesNotThrow(()=>ctx.drawRadial());
+ assert.ok(texts.some(([label])=>label.includes('No commands available')));
+});
+
+test('command wheel and group/preset selection use the Figma focus palette',()=>{
+ const reference=JSON.parse(readFileSync(new URL('../docs/game-ui-tokens.json',import.meta.url),'utf8'));
+ for(const [name,token] of [['focus','brand/gold'],['selected','surface/selected'],
+   ['panel','surface/panel'],['text','text/primary'],['muted','text/secondary'],
+   ['brass','brand/brass'],['cream','brand/cream'],['danger','status/danger']]){
+  assert.ok(commands.includes(name + ":'" + reference.colors[token] + "'"),
+   'command palette must match '+token);
+ }
+ assert.ok(commands.includes('function compactCommandLayout('));
+ assert.ok(commands.includes('function drawCompactRadialMenu('));
+ assert.ok(commands.includes("X.strokeStyle=selected?CK_COMMAND_UI.focus"));
+ assert.ok(commands.includes("X.strokeStyle=sel?CK_COMMAND_UI.focus"));
+});
