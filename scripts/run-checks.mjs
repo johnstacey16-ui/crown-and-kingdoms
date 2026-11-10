@@ -57,6 +57,7 @@ const FOCUSED=[
  "tests/painted-environment.test.mjs",
  "tests/painted-motion.test.mjs",
  "tests/elite-visual-identity.test.mjs",
+ "tests/reduced-cosmetic-effects.test.mjs",
  "tests/professional-readiness.test.mjs",
  "tests/painted-secondary-motion.test.mjs",
  "tests/projectile-art.test.mjs",
