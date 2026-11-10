@@ -99,3 +99,59 @@ test('unreachable shelters do not produce a false retreat order',()=>{
  assert.equal(h.pathCalls,1);
  assert.equal(u.retreatRepathAt,108,'failed route retries remain bounded');
 });
+test('active villager evacuation retargets a live Castle when the original refuge falls',()=>{
+ const begin=aiPolicy.indexOf('function aiVillagerEvacRoute'),end=aiPolicy.indexOf('/* Protect the AI Town Centre',begin);
+ assert.ok(begin>=0&&end>begin);
+ const dead={k:'tc',t:1,x:6,y:6,s:3,hp:0,done:true};
+ const castle={k:'castle',t:1,x:15,y:15,s:4,hp:500,done:true};
+ const work={k:'w',amt:40},enemy={t:0,k:'mil',hp:80,x:21,y:22};
+ const S={t:110},v={k:'vil',x:21,y:21,hp:40,o:'m',tg:dead,p:[[6,6]],
+  aiEvac:{o:'g',tg:work,ct:'w',shelter:dead,until:128}};
+ const calls=[];
+ const ctx=vm.createContext({S,W:96,H:96,gp:(x,y,r)=>({x,y,r}),
+  goalNear:b=>b,path:(u,target)=>{calls.push(target);return target===castle?[[16,16]]:target===work?[[20,20]]:null}});
+ vm.runInContext(aiPolicy.slice(begin,end),ctx);
+ ctx.aiEvacuateVillagers([v],[dead,castle],[enemy]);
+ assert.equal(v.tg,castle,'the villager no longer follows a ruined Town Centre');
+ assert.equal(v.aiEvac.shelter,castle);
+ assert.equal(v.aiEvac.tg,work,'the previously assigned gathering site stays saved');
+ assert.equal(v.aiEvac.until,128,'replacement shelter keeps the eighteen-second safety window');
+ assert.deepEqual(v.p,[[16,16]]);
+ assert.equal(calls.length,1,'no route retries to the destroyed building');
+ S.t=129;ctx.aiEvacuateVillagers([v],[dead,castle],[]);
+ assert.equal(v.o,'g');assert.equal(v.tg,work);
+ assert.equal(v.aiEvac,null,'original task resumes once the threat passes and the timeout expires');
+});
+
+test('evacuation escapes into open ground when the last reachable shelter is destroyed',()=>{
+ const begin=aiPolicy.indexOf('function aiVillagerEvacRoute'),end=aiPolicy.indexOf('/* Protect the AI Town Centre',begin);
+ const dead={k:'tc',t:1,x:8,y:8,s:3,hp:0,done:true},work={k:'w',amt:50};
+ const S={t:110},v={k:'vil',x:20,y:20,hp:30,o:'m',tg:dead,p:[[9,9]],
+  aiEvac:{o:'g',tg:work,ct:'w',shelter:dead,until:130}};
+ const seen=[],ctx=vm.createContext({S,W:96,H:96,goalNear:b=>b,
+  gp:(x,y,r)=>({kind:'field',x,y,r}),
+  path:(u,target)=>{seen.push(target);return target?.kind==='field'?[[27,27]]:target===work?[[21,21]]:null}});
+ vm.runInContext(aiPolicy.slice(begin,end),ctx);
+ ctx.aiEvacuateVillagers([v],[dead],[{k:'mil',x:19,y:20,hp:90}]);
+ assert.equal(v.aiEvac.shelter,null);assert.equal(v.aiEvac.tg,work);
+ assert.equal(v.aiEvac.until,118,'open-field escape has the existing eight-second timeout');
+ assert.equal(v.o,'m');assert.equal(v.tg,null);assert.deepEqual(v.p,[[27,27]]);
+ assert.equal(seen.length,1,'no path attempt to the destroyed shelter');
+ S.t=119;ctx.aiEvacuateVillagers([v],[dead],[]);
+ assert.equal(v.o,'g');assert.equal(v.tg,work);
+});
+
+test('when no evacuation route exists, stop an impossible move but preserve work for later',()=>{
+ const begin=aiPolicy.indexOf('function aiVillagerEvacRoute'),end=aiPolicy.indexOf('/* Protect the AI Town Centre',begin);
+ const dead={k:'tc',t:1,x:8,y:8,s:3,hp:0,done:true},work={k:'w',amt:50};
+ const S={t:110},v={k:'vil',x:20,y:20,hp:30,o:'m',tg:dead,p:[[9,9]],
+  aiEvac:{o:'g',tg:work,ct:'w',shelter:dead,until:130}};
+ const ctx=vm.createContext({S,W:96,H:96,path:()=>null,goalNear:b=>b,gp:(x,y,r)=>({x,y,r})});
+ vm.runInContext(aiPolicy.slice(begin,end),ctx);
+ ctx.aiEvacuateVillagers([v],[dead],[{k:'mil',x:19,y:20,hp:90}]);
+ assert.equal(v.o,'i');assert.equal(v.tg,null);assert.deepEqual(v.p,[]);
+ assert.equal(v.aiEvac.tg,work);
+ S.t=119;ctx.aiEvacuateVillagers([v],[dead],[]);
+ assert.equal(v.o,'i','unreachable worksite should not get a fake route');
+ assert.equal(v.aiEvac,null);
+});
