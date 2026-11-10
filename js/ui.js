@@ -138,7 +138,8 @@ if(s.length){
    l+=`  Training ${names} (${remaining})`;
   }else if(!a.done)l+=def?.bt>0&&Number.isFinite(a.pr)?`  Building ${(a.pr/def.bt*100)|0}%`:'  Building (details unavailable)';
   else if(!Array.isArray(a.q))l+='  Queue unavailable';
- }else l=`${unitName(a.k,a.t)}${s.length>1?' +'+(s.length-1)+' more':''}  HP ${a.hp|0}/${mhp(a)}  ${stt(a)}  ${TASK[a.o]||'Idle'}${a.cg&&a.cg.length?' - cargo '+a.cg.length+'/5':''}${a.car>0?' - carrying '+(a.car|0)+' '+(typeof a.ct==='string'?a.ct.toUpperCase():'resource'):''}`;
+ }else if(U[a.k]&&S.tech?.[a.t])l=`${unitName(a.k,a.t)}${s.length>1?' +'+(s.length-1)+' more':''}  HP ${a.hp|0}/${mhp(a)}  ${stt(a)}  ${TASK[a.o]||'Idle'}${a.cg&&a.cg.length?' - cargo '+a.cg.length+'/5':''}${a.car>0?' - carrying '+(a.car|0)+' '+(typeof a.ct==='string'?a.ct.toUpperCase():'resource'):''}`;
+ else l='Unit stats unavailable — B Deselect';
 }
 const production=s.filter(b=>b&&b.t===0&&b.hp>0&&b.done&&Array.isArray(b.q)&&B[b.k]?.tr?.length);
 if(Array.isArray(s[0]?.q)&&production.length>1)l=production.length+' production buildings selected · '+production.reduce((n,b)=>n+b.q.length,0)+' units queued';

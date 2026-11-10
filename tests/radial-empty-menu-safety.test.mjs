@@ -145,3 +145,25 @@ test('opening a radial menu never dereferences a missing contextual menu',()=>{
  assert.equal(ctx.menu.rad,1);
  assert.equal(ctx.menu.pg,0);
 });
+
+test('the complete game overlay continues drawing after a malformed radial menu',()=>{
+ const {ctx,labels}=fixture();
+ const start=listUi.indexOf('function drawGameOverlays(dt){');
+ const end=listUi.indexOf('\n// Full-screen views',start);
+ assert.ok(start>=0&&end>start);
+ let hudFrames=0;
+ Object.assign(ctx,{
+  mode:'play',cur:{x:640,y:360},s2w:(x,y)=>[x,y],
+  hud:()=>hudFrames++,ov:false,boxR:null,cgo:null,vpWheel:null,
+  pick:()=>null,pat:0,perfHud:0,window:{}
+ });
+ ctx.X.moveTo=()=>{};ctx.X.lineTo=()=>{};
+ vm.runInContext(listUi.slice(start,end)+'\nglobalThis.drawFull=drawGameOverlays;',ctx);
+ ctx.menu={title:null,items:null,i:99,rad:1,pg:9,pr:[[0,12]]};
+ assert.doesNotThrow(()=>ctx.drawFull(1/60),'full play-frame UI must survive empty radial commands');
+ assert.equal(hudFrames,1,'the in-game HUD is still called');
+ assert.ok(labels.includes('No commands available — A or B to close'));
+ ctx.E=[false,true];ctx.RE=[];ctx.control();assert.equal(ctx.menu,null);
+ assert.doesNotThrow(()=>ctx.drawFull(1/60),'the next frame remains playable after closing the menu');
+ assert.equal(hudFrames,2);
+});

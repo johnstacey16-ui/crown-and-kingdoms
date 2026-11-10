@@ -67,4 +67,22 @@ test('selected HUD safely renders stale buildings, corrupted queues and null/dea
  expect([null,{k:'tc',t:0,hp:0,mh:200,q:[]},{k:'mil',t:0,hp:22,o:'unknown',car:3,ct:null}], 'carrying 3 resource');
  expect(null,'Nothing selected');
  expect([{k:'tc',t:0,hp:100,mh:200,q:[],done:true},{k:'tc',t:0,hp:100,mh:200,q:[],done:true}], '2 production buildings selected');
+
+ // Use the actual production unit-stat formatter, and deliberately make the
+ // max-HP helper throw for invalid data. The HUD must guard both paths.
+ const commands=readFileSync(new URL('../js/ui-commands.js',import.meta.url),'utf8');
+ const sttStart=commands.indexOf('function stt(a){');
+ const sttEnd=commands.indexOf('\n// The radial renderer',sttStart);
+ assert.ok(sttStart>=0&&sttEnd>sttStart);
+ ctx.S.tech=[{}];
+ ctx.U.mil={n:'Militia',hp:50,rng:1,dmg:4};
+ ctx.mhp=a=>ctx.U[a.k].hp+(ctx.S.tech[a.t].hpb?.[a.k]||0);
+ ctx.meleeResearchAttackBonus=()=>0;ctx.arrowBonus=()=>0;
+ ctx.combatArmor=()=>0;ctx.attackRange=()=>3;ctx.conversionRange=()=>6;
+ vm.runInContext(commands.slice(sttStart,sttEnd),ctx);
+ expect([{k:'mil',t:0,hp:22,o:'i'}], 'Militia  HP 22/50  Atk 4');
+ expect([{k:'obsolete-unit',t:0,hp:12,o:'i'}], 'Unit stats unavailable');
+ expect([{k:'mil',t:7,hp:12,o:'i'}], 'Unit stats unavailable');
+ assert.equal(ctx.stt({k:'obsolete-unit',t:0}),'Stats unavailable');
+ assert.equal(ctx.stt({k:'mil',t:7}),'Stats unavailable');
 });
