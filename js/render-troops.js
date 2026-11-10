@@ -181,7 +181,7 @@ function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
  * Dedicated illustrated Elite sprites remain a separate unfinished art gate.
  * Only the owning team's completed technology enables these visual details. */
 function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
- if(kind!=='huskarl'&&kind!=='lbow'&&kind!=='mgd')return false;
+ if(kind!=='huskarl'&&kind!=='lbow'&&kind!=='mgd'&&kind!=='axe')return false;
  if(typeof eliteUniqueUnitUpgrade!=='function'||!eliteUniqueUnitUpgrade(kind,team))return false;
  const z=Math.max(.45,Math.min(2.4,scale));
  ctx.save();ctx.translate(x,y);ctx.scale(z,z);
@@ -204,7 +204,7 @@ function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
   ctx.strokeStyle='#eee6d1';ctx.lineWidth=.8;ctx.beginPath();
   ctx.moveTo(15,-52);ctx.lineTo(15,-14);ctx.stroke();
   ctx.fillStyle='#a43c31';ctx.fillRect(-12,-33,4,15);
- }else{
+ }else if(kind==='mgd'){
   ctx.fillStyle='#dfb45e';ctx.strokeStyle='#583522';ctx.lineWidth=1.25;
   ctx.beginPath();ctx.moveTo(-7,-50);ctx.lineTo(0,-55);ctx.lineTo(7,-50);
   ctx.lineTo(5,-45);ctx.lineTo(-5,-45);ctx.closePath();ctx.fill();ctx.stroke();
@@ -213,6 +213,20 @@ function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
   ctx.strokeStyle='#dfb45e';ctx.lineWidth=2.5;ctx.beginPath();
   ctx.moveTo(-14,-22);ctx.lineTo(14,-22);ctx.stroke();
   ctx.fillStyle='#a93635';ctx.fillRect(-3,-25,6,6);
+ }else{
+  // Temporary original Frankish Elite equipment, not a dedicated painted atlas.
+  ctx.fillStyle='#d4d9df';ctx.strokeStyle='#4b5059';ctx.lineWidth=1.35;
+  ctx.beginPath();ctx.moveTo(-7,-38);ctx.lineTo(-5,-45);ctx.lineTo(0,-48);
+  ctx.lineTo(5,-45);ctx.lineTo(7,-38);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#b33a33';ctx.beginPath();ctx.moveTo(-1,-48);
+  ctx.lineTo(4,-56);ctx.lineTo(7,-45);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#9b6d3a';ctx.lineWidth=2.1;
+  ctx.beginPath();ctx.moveTo(15,-49);ctx.lineTo(16,-15);ctx.stroke();
+  ctx.fillStyle='#e3bf70';ctx.strokeStyle='#57412d';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(15,-52);ctx.lineTo(25,-51);ctx.lineTo(27,-44);
+  ctx.lineTo(23,-38);ctx.lineTo(18,-43);ctx.lineTo(15,-40);ctx.lineTo(12,-43);
+  ctx.lineTo(7,-38);ctx.lineTo(5,-44);ctx.lineTo(7,-51);ctx.closePath();
+  ctx.fill();ctx.stroke();
  }
  ctx.restore();return true;
 }

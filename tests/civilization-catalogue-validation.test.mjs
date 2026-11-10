@@ -160,8 +160,9 @@ test('Goths Elite Huskarl upgrade is indexed, restricted and correctly registere
  }
 });
 
-test('Briton, Mongol and Goth Elite upgrades have valid registered Imperial definitions',()=>{
+test('Frank, Briton, Mongol and Goth Elite upgrades have valid registered Imperial definitions',()=>{
  for(const [id,key,cost,unit] of [
+  [0,'eliteAxeman',{f:950,g:750},'axe'],
   [1,'eliteLongbowman',{f:850,g:850},'lbow'],
   [2,'eliteMangudai',{f:1100,g:675},'mgd'],
   [18,'eliteHuskarl',{f:1200,g:550},'huskarl']
@@ -176,8 +177,23 @@ test('Briton, Mongol and Goth Elite upgrades have valid registered Imperial defi
   for(let other=0;other<runtime.civilizations.length;other++)if(other!==id)
    assert.equal(runtime.researchAvailability[other].castle.includes(key),false);
  }
- for(const [id,key] of [[1,'eliteLongbowman'],[2,'eliteMangudai']]){
+ for(const [id,key] of [[0,'eliteAxeman'],[1,'eliteLongbowman'],[2,'eliteMangudai']]){
   assert.ok(altered(c=>{delete c.civilizations[id].eliteUpgrade}).some(e=>/Elite unique-unit upgrade/.test(e)));
   assert.ok(altered(c=>{c.civilizations[id].eliteUpgrade='eliteHuskarl'}).some(e=>/Elite unique-unit upgrade/.test(e)));
  }
+});
+
+test('Frankish Bearded Axes second technology is Imperial and faction exclusive',()=>{
+ assert.equal(catalogue.civilizations[0].secondUniqueTechnology,'ut0p');
+ assert.equal(runtime.civilizations[0].secondUniqueTechnology,'ut0p');
+ assert.equal(runtime.technologies.ut0p.n,'Bearded Axes');
+ assert.equal(runtime.technologies.ut0p.age,3);
+ assert.ok(runtime.researchAvailability[0].castle.includes('ut0p'));
+ for(let id=1;id<runtime.civilizations.length;id++)
+  assert.equal(runtime.researchAvailability[id].castle.includes('ut0p'),false);
+ for(const value of [undefined,'ut18p','not-a-technology'])
+  assert.ok(altered(c=>{
+   if(value===undefined)delete c.civilizations[0].secondUniqueTechnology;
+   else c.civilizations[0].secondUniqueTechnology=value;
+  }).some(e=>/second unique technology/.test(e)));
 });

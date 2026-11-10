@@ -2,7 +2,7 @@
  * Ordered IDs remain stable for current-build network/selection. Civilization
  * entries may register multiple unique technologies; restrictions stay in kingdom.js. */
 'use strict';
-const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t,'knight',15),ut:{k:'ut0',n:'Chivalry',cost:{f:300,g:200},t:50,age:2,fx:t=>atkbF(t,'knight',2)}},
+const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t,'knight',15),ut:{k:'ut0',n:'Chivalry',cost:{f:300,g:200},t:50,age:2,fx:t=>atkbF(t,'knight',2)},ut2:{k:'ut0p',n:'Bearded Axes',cost:{f:350,g:350},t:40,age:3,fx:t=>{S.tech[t].beardedAxes=1}},elite:{k:'eliteAxeman',n:'Elite Throwing Axeman',cost:{f:950,g:750},t:55,age:3,hpb:{axe:10},atkb:{axe:1},armor:{p:1},bonus:{infantry:2}}},
 {n:'Britons',uu:'lbow',d:'Archers +1 attack; Longbowmen',fx:t=>{atkbF(t,'arc',1);atkbF(t,'xbow',1);atkbF(t,'hcan',1)},ut:{k:'ut1',n:'Yeomen',cost:{f:250,w:200},t:50,age:2,fx:t=>{atkbF(t,'arc',2);atkbF(t,'lbow',2);atkbF(t,'xbow',2)}},elite:{k:'eliteLongbowman',n:'Elite Longbowman',cost:{f:850,g:850},t:60,age:3,hpb:{lbow:5},armor:{p:1},range:1}},
 {n:'Mongols',uu:'mgd',d:'Scouts +30 HP, faster hunting; Mangudai',fx:t=>{hpbF(t,'scout',30);S.tech[t].hunt=1},ut:{k:'ut2',n:'Nomads',cost:{f:250,g:200},t:50,age:2,fx:t=>{hpbF(t,'mgd',30);atkbF(t,'mgd',2)}},baseBonus:{siege:3},elite:{k:'eliteMangudai',n:'Elite Mangudai',cost:{f:1100,g:675},t:50,age:3,atkb:{mgd:2},armor:{m:1},bonus:{siege:2}}},
 {n:'Byzantines',uu:'cata',d:'Buildings +15% HP; Cataphracts',fx:t=>{S.tech[t].bz=1},ut:{k:'ut3',n:'Greek Fire',cost:{f:300,g:250},t:50,age:2,fx:t=>{S.tech[t].gf=1}}},
@@ -46,6 +46,7 @@ function civilizationUniqueUnitTargetBonus(a,target){
  if(target.s)return (base.building||0)+(extra.building||0);
  let n=0;
  if(ARCHARM.has(target.k))n+=(base.archer||0)+(extra.archer||0);
+ if(INFARM.has(target.k))n+=(base.infantry||0)+(extra.infantry||0);
  if(U[target.k]?.sg||target.k==='scor')n+=(base.siege||0)+(extra.siege||0);
  return n;
 }

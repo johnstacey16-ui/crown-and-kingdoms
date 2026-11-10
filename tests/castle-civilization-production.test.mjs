@@ -241,3 +241,65 @@ test('AI ranks its own researched unique-unit Elite upgrade without hardcoded ci
  const context="({arm:aiUnits,vil:[],bl:[],my:aiUnits,humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]})";
  assert.ok(run("aiTechnologyPriority('eliteLongbowman',"+context+")")>run("aiTechnologyPriority('eliteLongbowman', {..."+context.slice(1,-1)+",my:[]})"));
 });
+
+test('Frankish Imperial upgrades increase axe reach, health, armour and anti-infantry damage',()=>{
+ const {run}=fixture();
+ run("S.civ=[0,1];S.age=[3,3];S.tech=[{},{}];S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.frank=addU(0,'axe',42.5,42.5);globalThis.foeInf=addU(1,'mil',46.5,42.5);globalThis.foeCav=addU(1,'knight',49.5,42.5)");
+ assert.equal(run("rsOf(castles[0]).includes('ut0p')"),true);
+ assert.equal(run("rsOf(castles[0]).includes('eliteAxeman')"),true);
+ assert.equal(run("rsOf(castles[1]).includes('ut0p')"),false);
+ assert.equal(run("rsOf(castles[1]).includes('eliteAxeman')"),false);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,castles[0]).some(o=>o.type==='research'&&o.value==='ut0p')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,castles[0]).some(o=>o.type==='research'&&o.value==='eliteAxeman')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,1,castles[1]).some(o=>o.value==='ut0p'||o.value==='eliteAxeman')"),false);
+ const enemyRes=run('JSON.stringify(S.res[1])');
+ assert.equal(run("research(castles[1],'ut0p')"),false);
+ assert.equal(run("research(castles[1],'eliteAxeman')"),false);
+ assert.equal(run('JSON.stringify(S.res[1])'),enemyRes);
+ const range=run('attackRange(frank)'),hp=run('frank.hp'),armor=run("combatArmor(frank,'p')");
+ const baseInf=run("foeInf.hp=100;dmgT(frank,foeInf);100-foeInf.hp");
+ const baseCav=run("foeCav.hp=100;dmgT(frank,foeCav);100-foeCav.hp");
+ assert.equal(run("unitName('axe',0)"),'Throwing Axeman');
+ run('S.age[0]=2');
+ assert.equal(run("research(castles[0],'ut0p')"),false);
+ assert.equal(run("research(castles[0],'eliteAxeman')"),false);
+ run('S.age[0]=3');
+ assert.equal(run("research(castles[0],'ut0p')"),true);
+ assert.equal(run('S.res[0].f'),9650);
+ assert.equal(run('S.res[0].g'),9650);
+ run('upB(castles[0],TE.ut0p.t)');
+ assert.equal(run('S.tech[0].beardedAxes'),1);
+ assert.equal(run('attackRange(frank)'),range+1);
+ assert.equal(run("attackRange({k:'axe',t:1})"),range);
+ assert.equal(run("research(castles[0],'eliteAxeman')"),true);
+ assert.equal(run('S.res[0].f'),8700);
+ assert.equal(run('S.res[0].g'),8900);
+ run('upB(castles[0],TE.eliteAxeman.t)');
+ assert.equal(run('S.tech[0].eliteAxeman'),1);
+ assert.equal(run('S.tech[0].atkb.axe'),1);
+ assert.equal(run('S.tech[0].hpb.axe'),10);
+ assert.equal(run('frank.hp'),hp+10);
+ assert.equal(run("combatArmor(frank,'p')"),armor+1);
+ assert.equal(run("unitName('axe',0)"),'Elite Throwing Axeman');
+ assert.equal(run("unitName('axe',1)"),'Throwing Axeman');
+ assert.equal(run("civilizationUniqueUnitTargetBonus(frank,foeInf)"),2);
+ assert.equal(run("civilizationUniqueUnitTargetBonus(frank,foeCav)"),0);
+ assert.equal(run("foeInf.hp=100;dmgT(frank,foeInf);100-foeInf.hp")-baseInf,3);
+ assert.equal(run("foeCav.hp=100;dmgT(frank,foeCav);100-foeCav.hp")-baseCav,1);
+ assert.equal(run('saveG()'),true);
+ assert.equal(run('loadG()'),true);
+ assert.equal(run("unitName('axe',0)"),'Elite Throwing Axeman');
+ assert.equal(run("S.tech[0].beardedAxes"),1);
+ assert.equal(run("attackRange(S.us.find(u=>u.t===0&&u.k==='axe'))"),range+1);
+ assert.equal(run("combatArmor(S.us.find(u=>u.t===0&&u.k==='axe'),'p')"),armor+1);
+});
+test('AI prioritizes Frankish secondary/Elite technologies after training Throwing Axemen',()=>{
+ const {run}=fixture();
+ run("S.civ=[0,1];S.age=[3,3];S.tech=[{},{}];globalThis.frankArmy=[{k:'axe',t:0,hp:50},{k:'axe',t:0,hp:50},{k:'axe',t:0,hp:50}]");
+ for(const key of ['ut0p','eliteAxeman']){
+  const ctx="({arm:frankArmy,vil:[],bl:[],my:frankArmy,humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]})";
+  const withArmy=run("aiTechnologyPriority('"+key+"',"+ctx+")");
+  const noArmy=run("aiTechnologyPriority('"+key+"',{..."+ctx.slice(1,-1)+",my:[],arm:[]})");
+  assert.ok(withArmy>noArmy,'AI prefers '+key+' with a real Throwing Axeman army');
+ }
+});

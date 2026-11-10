@@ -13,7 +13,7 @@ function create(){
 test('distinct Elite equipment requires the owning civilization and researched tier',()=>{
  const run=create();
  run('start();S.civ=[18,1];S.tech=[{},{}]');
- for(const k of ['huskarl','lbow','mgd'])assert.equal(run("drawEliteUniqueUnitMark(X,'"+k+"',0,10,10,1)"),false);
+ for(const k of ['huskarl','lbow','mgd','axe'])assert.equal(run("drawEliteUniqueUnitMark(X,'"+k+"',0,10,10,1)"),false);
  run('S.tech[0].eliteHuskarl=1');
  assert.equal(run("drawEliteUniqueUnitMark(X,'huskarl',0,10,10,1)"),true);
  assert.equal(run("drawEliteUniqueUnitMark(X,'huskarl',1,10,10,1)"),false);
@@ -24,6 +24,10 @@ test('distinct Elite equipment requires the owning civilization and researched t
  assert.equal(run("drawEliteUniqueUnitMark(X,'mgd',0,10,10,1)"),true);
  assert.equal(run("drawEliteUniqueUnitMark(X,'lbow',0,10,10,1)"),false);
  assert.equal(run("drawEliteUniqueUnitMark(X,'mil',0,10,10,1)"),false);
+ run('S.civ[0]=0;S.tech[0]={eliteAxeman:1}');
+ assert.equal(run("drawEliteUniqueUnitMark(X,'axe',0,10,10,1)"),true);
+ assert.equal(run("drawEliteUniqueUnitMark(X,'axe',1,10,10,1)"),false);
+ assert.equal(run("drawEliteUniqueUnitMark(X,'mgd',0,10,10,1)"),false);
 });
 test('Elite paint does not mutate simulation or random state',()=>{
  const run=create();
