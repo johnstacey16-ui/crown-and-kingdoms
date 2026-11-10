@@ -22,7 +22,9 @@ test('title, options, campaign and save-slot screens continue using the shared r
   assert.match(ui, /function drawTitle\(\)\{titleBg\(\)/);
   assert.match(ui, /function drawSetup\(\)\{titleBg\(\);drawList\(/);
   assert.match(ui, /function drawOpts\(\)\{titleBg\(\);drawList\(/);
-  assert.match(ui, /function drawCamp\(\)\{titleBg\(\);drawList\(/);
-  assert.match(ui, /function drawBrief\(\)\{titleBg\(\)/);
+  assert.match(ui, /function drawCamp\(\)\{briefScrollMission=-1;titleBg\(\);drawList\(/,
+    'the campaign list continues using the shared renderer and resets story scroll');
+  assert.match(ui, /function drawBrief\(\)\{[\s\S]*?titleBg\(\);X\.fillStyle=/,
+    'the mission briefing retains its shared background and bounded story panel');
   assert.match(ui, /function drawSlots\(\)\{titleBg\(\);drawList\(/);
 });
