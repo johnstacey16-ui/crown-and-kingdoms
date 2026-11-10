@@ -74,3 +74,18 @@ test('long controller menus scroll rather than draw the selected option off-scre
   const panel=rects.find(x=>x[0]==='panel');
   assert.ok(panel && panel[2]+panel[4] <= 720,'panel remains inside 720p game viewport');
 });
+
+test('multiplayer room consumes the shared palette without changing its native interaction layout', () => {
+  for (const rule of [
+    '.ck-room-shell { max-width: 1120px; margin: 0 auto; color: var(--ck-text-primary); }',
+    '.ck-room-brand { color: var(--ck-brand-brass);',
+    '.ck-room-card h2 { font: 600 1.2rem Georgia, serif; color: var(--ck-brand-cream);',
+    '.ck-room-overlay input::placeholder { color: var(--ck-text-muted); opacity: 1; }',
+    '.ck-room-overlay :is(button,input,canvas):focus-visible { outline: var(--ck-focus-stroke) solid var(--ck-brand-gold); outline-offset: var(--ck-space-1); }',
+    'touch-action: pan-y;',
+    'min-height: 50px;',
+    'grid-template-columns: minmax(0, 1fr); gap: 14px;'
+  ]) {
+    assert.ok(css.includes(rule), 'multiplayer room styling drifted: ' + rule);
+  }
+});
