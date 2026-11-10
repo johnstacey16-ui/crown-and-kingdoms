@@ -6,6 +6,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
 | Unit animation | partial | independent directions, work variants and dedicated death sheets |
+| Elite unit visuals | partial | four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md) |
 | Building artwork | partial | faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
 | Natural resources | partial | tree/death states and physical Xbox resource/wildlife readability |

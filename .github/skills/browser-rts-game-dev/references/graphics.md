@@ -18,3 +18,7 @@ Build the visual identity **alongside** the mechanic. Ground the art style in [o
 Profile simulation time, world drawing and compositor gaps **separately** before optimizing. Bound caches for team-tinted frames and sprite warmup rather than precomputing every unit × frame × team × zoom; cull safely, preserve painted terrain, stone, gold, berry, wildlife and troop assets, and protect fog/target legality. Diagnose black terrain as potential transition/cache/image/canvas faults, not automatically AI performance.
 
 **10 November art debt:** Goth Elite Huskarl, Briton Elite Longbowman and Mongol Elite Mangudai gameplay passed focused tests but still need distinct **verified Elite sprites**. Keep VISUAL PARTIAL until the real images are integrated and tested; don't call an entire civilization complete because the technology changes its label.
+
+## Creative stack in the 10 November production plan
+
+Connected **Canva, Adobe and Figma** support original concepts, image cleanup and editable game HUD/art-board review. They are not runtime dependencies or substitutes for game sprites. Use the [four-unit Elite sheet brief](../../../../docs/ELITE_ART_PRODUCTION.md), optional free frame editors, existing named WebP atlas scripts and verifiable cache/browser/physical Xbox checks. Stay within free features and verify usage/redistribution rights. Franks join Goths, Britons and Mongols as **gameplay-verified but dedicated-art partial**.
