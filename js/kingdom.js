@@ -286,8 +286,10 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
  if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(S?.tech?.[b.t]?.xbow?'xbow':'arc');
- // Castles in DE cannot independently create foot Crossbowmen. Campaign
- // scripted units and older save IDs remain valid.
+ // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
+ // This same trainability policy is shared by AI, solo and network validation.
+ if(b.k==='bar'&&c?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,c.uu])];
+ // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
  // Chemistry is a real training prerequisite, also for authenticated peers.
  if(b.k==='dock')return eligible.filter(k=>k!=='cgal'||!!techs?.[b.t]?.chem);
@@ -674,5 +676,5 @@ const rsOf=(b,civs=S?.civ)=>{
  // Use the same regional unit catalogue as Stable training and authenticated orders.
  const regional=finalList.filter(k=>k!=='hcamel'||REGIONAL_UNIT_ACCESS.some(rule=>
   rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
- return b.k==='castle'&&c?[...new Set([...regional,c.ut.k])]:regional;
+ return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[])])]:regional;
 };

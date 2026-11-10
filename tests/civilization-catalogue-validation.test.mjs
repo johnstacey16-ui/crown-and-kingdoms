@@ -127,3 +127,19 @@ test('a technology can depend on research available at another building in the s
  assert.ok(!crossBuilding.researchAvailability[0].castle.includes('forging'));
  assert.deepEqual(inspectCivilizationCatalogue(catalogue,crossBuilding),[],'prerequisites use the shared kingdom technology state');
 });
+
+test('Goths second Castle technology is unique, registered, indexed and validated',()=>{
+ assert.equal(catalogue.civilizations[18].name,'Goths');
+ assert.equal(catalogue.civilizations[18].secondUniqueTechnology,'ut18p');
+ assert.equal(runtime.civilizations[18].secondUniqueTechnology,'ut18p');
+ assert.equal(runtime.technologies.ut18p.n,'Perfusion');
+ assert.ok(runtime.researchAvailability[18].castle.includes('ut18p'));
+ for(let i=0;i<runtime.researchAvailability.length;i++)if(i!==18)
+  assert.ok(!runtime.researchAvailability[i].castle.includes('ut18p'));
+ for(const bad of [undefined,'ut0','does-not-exist']){
+  assert.ok(altered(c=>{
+   if(bad===undefined)delete c.civilizations[18].secondUniqueTechnology;
+   else c.civilizations[18].secondUniqueTechnology=bad;
+  }).some(e=>/second unique technology/.test(e)),'reject missing, borrowed or invented unique tech');
+ }
+});

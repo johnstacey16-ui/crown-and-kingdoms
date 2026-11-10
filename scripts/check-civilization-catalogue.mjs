@@ -9,7 +9,7 @@ const readHere=relative=>readFileSync(new URL(relative,import.meta.url),'utf8');
 export function currentCivilizationRuntime(roster=readHere('../js/civilizations.js'),config=readHere('../js/config.js'),kingdom=readHere('../js/kingdom.js')){
  // Evaluate the live definitions/selectors, rather than a copied tech tree.
  return vm.runInNewContext(config+'\n'+kingdom+'\n'+roster+`\n({
-  civilizations:CIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,fx:c.fx,ut:c.ut})),
+  civilizations:CIV.map((c,id)=>({id,name:c.n,uniqueUnit:c.uu,uniqueTechnology:c.ut?.k,secondUniqueTechnology:c.ut2?.k,fx:c.fx,ut:c.ut,ut2:c.ut2})),
   units:U,buildings:B,technologies:TE,regionalUnitAccess:REGIONAL_UNIT_ACCESS,
   researchGroups:[
    ['archery',CIV_ARCHERY_RESEARCH,{xbow:'x',arb:'a',thumb:'t'}],
@@ -55,6 +55,20 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
   if(entry.uniqueTechnology!==actual?.uniqueTechnology||!actual?.ut||techs.has(entry.uniqueTechnology))
    errors.push('Unknown/duplicate unique technology for '+entry.name);
   techs.add(entry.uniqueTechnology);
+  // A second Castle unique technology is optional for incomplete civilizations,
+  // but any declared one must be unique, live, and match the ordered catalogue.
+  const second=entry.secondUniqueTechnology;
+  if(second!==actual?.secondUniqueTechnology||
+   second!==undefined&&(typeof second!=='string'||!second||!actual?.ut2||techs.has(second)||
+    runtime.technologies?.[second]!==actual.ut2))
+   errors.push('Unknown/duplicate second unique technology for '+entry.name);
+  if(second!==undefined)techs.add(second);
+  if(second!==undefined&&(!actual?.ut2||typeof actual.ut2.fx!=='function'||
+   !Number.isInteger(actual.ut2.age)||actual.ut2.age<0||actual.ut2.age>3||
+   !Number.isFinite(actual.ut2.t)||actual.ut2.t<=0||!actual.ut2.cost||
+   Object.entries(actual.ut2.cost).some(([resource,amount])=>
+    !['f','w','g','s'].includes(resource)||!Number.isFinite(amount)||amount<0)))
+   errors.push('Invalid second unique technology definition for '+entry.name);
   if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
    errors.push('Missing live civilization/technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||

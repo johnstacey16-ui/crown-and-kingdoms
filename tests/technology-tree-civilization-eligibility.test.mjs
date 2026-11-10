@@ -44,3 +44,13 @@ test('reading the technology tree never changes queues, resources or saved state
  run('treeLines()');
  assert.equal(run(snapshot),before);
 });
+
+test('technology tree displays both Gothic unique techs only for Goths',()=>{
+ const run=fixture();
+ run('S.civ[0]=18');
+ const gothic=row(run,'Castle');
+ assert.match(gothic,/Anarchy/);
+ assert.match(gothic,/Perfusion/);
+ run('S.civ[0]=1');
+ assert.doesNotMatch(row(run,'Castle'),/Anarchy|Perfusion/);
+});
