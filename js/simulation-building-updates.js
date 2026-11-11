@@ -5,6 +5,8 @@ if(b.cg?.length)healGarrison(b,dt);
  if(b.k==='tc'&&S.civ?.[b.t]===32&&!b.lithFoodGranted){
   S.res[b.t].f+=100;b.lithFoodGranted=true;
  }
+if(b.k==='mill'&&S.civ?.[b.t]===39&&Number.isInteger(b.livestockCount)&&b.livestockCount>0)
+ S.res[b.t].f+=Math.min(5,b.livestockCount)*.08*dt;
 if(b.k==='feitoria'&&S.civ?.[b.t]===26){
  // A constructed Portuguese trade outpost produces modest resources
  // continuously. No fabricated villager/entity or local timer is needed.
