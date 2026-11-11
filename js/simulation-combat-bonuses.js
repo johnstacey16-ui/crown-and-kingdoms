@@ -201,7 +201,10 @@ function attackReload(u){
 }
 function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.atkR2?3:t.bodkin?2:t.atkR?1:0):0}
 function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
-function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
+function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)
+ +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
+ +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
+ +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
 // A shot records a fixed impact point at launch. Ballistics predicts constant
 // movement along the current path segment; later turns can still dodge it.
 function projectileSpeed(a){return U[a.k]?.ps||14}
@@ -237,6 +240,10 @@ function launchProjectile(a,t){
  // second projectile in the normal collision/damage path, not a visual effect.
  if(a.k==='scor'&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
   S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ // Shinkichon adds two more Korean Turtle Ship rockets via the same
+ // authoritative projectile simulation and normal damage/death accounting.
+ if(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24)
+  for(let rocket=0;rocket<2;rocket++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
 }
 /* Trample is a second, deterministic direct-damage pass after the primary
  * melee strike. It never re-enters hit(), so secondary victims cannot cause
