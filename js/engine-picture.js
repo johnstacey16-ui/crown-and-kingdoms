@@ -145,6 +145,8 @@ function clearGraphicsSurfaces(){
  NODE_TEXTURE_RECENCY.clear();NODE_TEXTURE_PIXELS=0;
  for(const image of BUILDING_DAMAGE_CACHE.entries.values())release(image);
  BUILDING_DAMAGE_CACHE.entries.clear();BUILDING_DAMAGE_CACHE.pixels=0;
+  for(const image of BUILDING_LOD_CACHE.entries.values())release(image);
+  BUILDING_LOD_CACHE.entries.clear();BUILDING_LOD_CACHE.pixels=0;
  clearProceduralSpriteCache();
 }
 // World and sharp-HUD losses have separate cache effects. Repeated world

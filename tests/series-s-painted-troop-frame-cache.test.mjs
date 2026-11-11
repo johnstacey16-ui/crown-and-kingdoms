@@ -123,7 +123,7 @@ test('painted troop painter retains original source dimensions, flip, anchor and
 test('production unit renderer remains atlas-first, with procedural fallback and model-free cropping',()=>{
  assert.match(code,/af=ASSET\.n\?assetFrame\(k,u\.t,st/);
  assert.match(code,/c=af\?null:spr\(/);
- assert.match(code,/const frame=troopFrameTexture\(art\)/);
+ assert.match(code,/const frame=troopFrameTexture\(art,false,lod\)/);
  assert.match(code,/else g\.drawImage\(art\.img,f\.x,f\.y,f\.w,f\.h/);
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
@@ -222,4 +222,29 @@ test('Xbox diagnostic unit pass separates original sprites from ground markings'
  assert.ok(results[2].includes('ellipse')&&!results[2].includes('sprite'),'ground isolation never paints a sprite');
  assert.deepEqual(results[3],[],'no-paint pass performs no canvas commands');
  assert.deepEqual(results[4],results[0],'the original full draw is unchanged after the diagnostic');
+});
+
+test('far-zoom original painted troop frames are cached at half source pixels, native unchanged',()=>{
+ const s=scene(),img={width:220,height:240,paintedSourceFrame:{x:10,y:20,w:220,h:240}};
+ const art={img,f:{x:0,y:0,w:220,h:240,ax:60,ay:230}};
+ assert.equal(s.troopFrameTexture(art),img);
+ const half=s.troopFrameTexture(art,false,.5);
+ assert.equal(half.width,110);assert.equal(half.height,120);
+ assert.equal(s.troopFrameTexture(art,false,.5),half);
+ const reverse=s.troopFrameTexture(art,true,.5);assert.notEqual(reverse,half);
+ assert.deepEqual(s.crops[0].slice(1),[0,0,220,240,0,0,110,120]);
+ assert.deepEqual(s.prepares.slice(-3).map(x=>x[0]),['translate','scale','crop']);
+ assert.equal(s.TROOP_TEXTURE_LRU.size,2);
+});
+test('far-zoom troop source changes but displayed size and foot anchor stay identical',()=>{
+ const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);
+ const samples=[],calls=[],stage={DPR:1,zm:.8,PAINT_SECONDARY:{},paintedSecondaryPose:()=>null,Math,Number,
+ troopFrameTexture:(a,m,l)=>{samples.push(l);return {width:100,height:120}}};
+ const painter=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
+ const art={img:{},f:{x:0,y:0,w:200,h:240,ax:60,ay:230},animated:true,referenceHeight:240};
+ const g={imageSmoothingEnabled:true,imageSmoothingQuality:'high',drawImage(...x){calls.push(x)}};
+ painter(g,art,320,280,.25,1,0,false,'mil');
+ assert.equal(samples[0],.5);assert.deepEqual(calls[0].slice(1),[305,222.5,50,60]);
+ stage.zm=2;calls.length=0;painter(g,art,320,280,.25,1,0,false,'mil');
+ assert.equal(samples[1],1);assert.deepEqual(calls[0].slice(1),[305,222.5,50,60]);
 });

@@ -81,33 +81,33 @@ function paintedSecondaryPose(kind,state,time,phase){
 // >1500px square. Series S Edge spends significant time sampling/reuploading the
 // large team-coloured sheet for each soldier. Crop each original-resolution
 // motion frame once and reuse the much smaller Canvas2D image every draw.
-// No downscaling or palette changes; always keep the original atlas fallback.
+// At distant zoom, use a smaller copy of the original art, never simplified markers.
 // A total-pixel budget protects Edge from an unbounded frame-texture cache.
 const TROOP_TEXTURE_PIXEL_LIMIT=6*1024*1024,TROOP_TEXTURE_ENTRY_LIMIT=160;
 const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
 let troopTextureSeq=0,troopTexturePixels=0;
-function troopFrameTexture(art,mirror=false){
+function troopFrameTexture(art,mirror=false,lod=1){
  const img=art?.img,f=art?.f;
  if(!img||!f||typeof img!=='object')return null;
- const {x,y,w,h}=f;
- // The bounded palette cache already supplies an exact native crop.
- if(!mirror&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
+ const {x,y,w,h}=f,ratio=lod===.5?.5:1;
+ if(ratio===1&&!mirror&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
  if(![x,y,w,h].every(Number.isFinite)||w<=0||h<=0||w*h>TROOP_TEXTURE_PIXEL_LIMIT)return null;
+ const dw=Math.max(1,Math.round(w*ratio)),dh=Math.max(1,Math.round(h*ratio));
  let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
- // Share the existing bounded native-resolution cache between forward and flipped frames.
- const key=id+'/'+x+'/'+y+'/'+w+'/'+h+(mirror?'/flip':'');
+ const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio+(mirror?'/flip':'');
  let cv=TROOP_TEXTURE_LRU.get(key);
+ if(cv?.getContext('2d')?.isContextLost?.()){TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=cv.width*cv.height;cv=null}
  if(cv){TROOP_TEXTURE_LRU.delete(key);TROOP_TEXTURE_LRU.set(key,cv);return cv}
  try{
-  cv=document.createElement('canvas');cv.width=w;cv.height=h;
-  const ctx=cv.getContext('2d');if(!ctx)return null;
-  // Pre-flip once so left-facing soldiers need no per-unit canvas transforms.
-  if(mirror){ctx.translate(w,0);ctx.scale(-1,1)}
-  ctx.drawImage(img,x,y,w,h,0,0,w,h);
-  TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=w*h;
+  cv=document.createElement('canvas');cv.width=dw;cv.height=dh;
+  const ctx=cv.getContext('2d');if(!ctx||ctx.isContextLost?.())return null;
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  if(mirror){ctx.translate(dw,0);ctx.scale(-1,1)}
+  ctx.drawImage(img,x,y,w,h,0,0,dw,dh);
+  if(ctx.isContextLost?.())return null;
+  TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=dw*dh;
   while(troopTexturePixels>TROOP_TEXTURE_PIXEL_LIMIT||TROOP_TEXTURE_LRU.size>TROOP_TEXTURE_ENTRY_LIMIT){
-   const oldKey=TROOP_TEXTURE_LRU.keys().next().value;
-   const old=TROOP_TEXTURE_LRU.get(oldKey);
+   const oldKey=TROOP_TEXTURE_LRU.keys().next().value,old=TROOP_TEXTURE_LRU.get(oldKey);
    TROOP_TEXTURE_LRU.delete(oldKey);troopTexturePixels-=old.width*old.height;
   }
   return cv;
@@ -116,6 +116,9 @@ function troopFrameTexture(art,mirror=false){
 function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase){
   const f=art.f,walk=state===1,attack=state===2,work=state===3;
   const motion=art.animated?null:paintedSecondaryPose(kind,state,time,phase);
+   // Render at identical size; only the cached *source* is reduced at far zoom.
+   const physicalScale=Math.abs(scale)*(typeof DPR==='number'?DPR:1);
+   const lod=typeof zm==='number'&&zm<=1&&physicalScale<=.55&&f.w>=48&&f.h>=48?.5:1;
   // Art width/height, feet anchor and image/team palette remain unchanged.
   // Scale the offset with visible body height rather than with the source sheet.
   const unitScale=Math.max(.25,Math.min(2.5,(art.referenceHeight||f.h)*scale/(PAINT_SECONDARY[kind]==='mounted'?60:46)));
@@ -124,7 +127,7 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   // mirrored frame also removes per-soldier save/translate/scale/restore.
   // Keep the old transform path for unsupported contexts/poses/canvas failures.
   if(!motion&&(art.animated||(!walk&&!attack))&&g.imageSmoothingEnabled===true&&g.imageSmoothingQuality==='high'){
-   const frame=troopFrameTexture(art,mirror);
+   const frame=troopFrameTexture(art,mirror,lod);
    if(frame){
     g.drawImage(frame,x-(mirror?f.w-f.ax:f.ax)*scale,y-bob-f.ay*scale,f.w*scale,f.h*scale);
     return;
@@ -140,7 +143,7 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   if(motion){g.rotate(motion.turn);g.scale(motion.sx,motion.sy)}
   else if(walk&&!art.animated)g.rotate(Math.sin(time*10)*.018);
   else if(attack&&!art.animated)g.rotate(Math.sin(time*12)*.055);
-  const frame=troopFrameTexture(art);
+  const frame=troopFrameTexture(art,false,lod);
   if(frame)g.drawImage(frame,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
   else g.drawImage(art.img,f.x,f.y,f.w,f.h,-f.ax*scale,-f.ay*scale,f.w*scale,f.h*scale);
   g.restore();

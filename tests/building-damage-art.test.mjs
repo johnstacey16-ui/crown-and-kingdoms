@@ -6,7 +6,7 @@ function fixture(){
  const source=readFileSync(new URL('../js/render-buildings.js',import.meta.url),'utf8'),calls=[];
  const context=new Proxy({createRadialGradient(){return {addColorStop(){}}},getImageData(x,y,w,h){return {data:new Uint8ClampedArray(w*h*4)}}},{get(o,k){return o[k]||((...args)=>calls.push([k,...args]))}});
  const sandbox={document:{createElement(){return {width:0,height:0,getContext:()=>context}}}};
- vm.createContext(sandbox);vm.runInContext(source.slice(source.indexOf('function buildingDamageStage('),source.indexOf('function drawBld('))+';globalThis.api={stage:buildingDamageStage,draw:drawBuildingArtwork,prepare:damagedBuildingArtwork,cache:BUILDING_DAMAGE_CACHE};',sandbox);
+ vm.createContext(sandbox);vm.runInContext(source.slice(source.indexOf('function buildingDamageStage('),source.indexOf('function drawBld('))+';globalThis.api={stage:buildingDamageStage,draw:drawBuildingArtwork,prepare:damagedBuildingArtwork,cache:BUILDING_DAMAGE_CACHE,lod:buildingFrameTexture,lodCache:BUILDING_LOD_CACHE};',sandbox);
  const art={painted:true,img:{paintedTeam:1},f:{x:10,y:20,w:20,h:30,ax:8,ay:28},sc:1};
  return {...sandbox.api,sandbox,calls,art};
 }
@@ -32,4 +32,19 @@ test('healthy, ghost and unfinished draws never allocate damage textures',()=>{
  f.draw(g,f.art,100,120,1,true,1,true,2);
  f.draw(g,f.art,100,120,1,false,.5,false,2);
  assert.equal(f.cache.creations,0);
+});
+
+test('building prefilter keeps original art size and foot anchor at far zoom',()=>{
+ const f=fixture(),art={painted:true,img:{},f:{x:10,y:15,w:200,h:240,ax:75,ay:232}};
+ f.sandbox.zm=.8;f.sandbox.DPR=1;
+ const reduced=f.lod(art,.4);assert.equal(reduced.width,100);assert.equal(reduced.height,120);
+ assert.equal(f.lod(art,.4),reduced);assert.equal(f.lod(art,.4,false),null);
+ const g=new Proxy({drawImage(...args){f.calls.push(args)}},{get(o,k){return o[k]||(()=>{})}});
+ f.calls.length=0;f.draw(g,art,300,400,.4,true,1,false,0,0,true,true);
+ assert.equal(f.calls[0].length,5);assert.equal(f.calls[0][0],reduced);
+ assert.deepEqual(f.calls[0].slice(1),[270,307.2,80,96]);
+ f.calls.length=0;f.draw(g,art,300,400,.4,true,1,false,0,0,true,false);
+ assert.equal(f.calls[0].length,9);assert.equal(f.calls[0][0],art.img);
+ f.sandbox.zm=2;f.calls.length=0;f.draw(g,art,300,400,.4,true,1,false,0,0,true,true);
+ assert.equal(f.calls[0].length,9);
 });

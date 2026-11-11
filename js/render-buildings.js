@@ -212,11 +212,41 @@ function drawBuildingAgeDetails(g,art,left,top,width,height){
 // Shared original construction presentation. Native artwork is revealed from
 // its foundation upward; finished roofs no longer appear at the start of a build.
 // Geometry uses only supplied visual progress, never another world's entities.
-function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=false,damage=0,time=0,effects=true){
+// Cached half-size copies of the same painted buildings when strongly
+// minified at far zoom. Original anchors, screen dimensions and team art stay.
+const BUILDING_LOD_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:2*1024*1024};
+function buildingFrameTexture(art,scale,allow=true){
+ if(!allow||typeof zm!=='number'||zm>1||!art?.painted||!art.img||!art.f)return null;
+ const f=art.f,img=art.img,physicalScale=Math.abs(scale)*(typeof DPR==='number'?DPR:1);
+ if(physicalScale>.55||f.w<48||f.h<48||![f.x,f.y,f.w,f.h].every(Number.isFinite))return null;
+ const dw=Math.max(1,Math.round(f.w*.5)),dh=Math.max(1,Math.round(f.h*.5));
+ const c=BUILDING_LOD_CACHE;if(dw*dh>c.limit)return null;
+ let id=c.ids.get(img);if(!id){id=c.next++;c.ids.set(img,id)}
+ const key=[id,f.x,f.y,f.w,f.h].join('/'),cache=c.entries;
+ let image=cache.get(key);
+ if(image?.getContext('2d')?.isContextLost?.()){cache.delete(key);c.pixels-=image.width*image.height;image=null}
+ if(image){cache.delete(key);cache.set(key,image);return image}
+ try{
+  image=document.createElement('canvas');image.width=dw;image.height=dh;
+  const g=image.getContext('2d');if(!g||g.isContextLost?.())return null;
+  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+  g.drawImage(img,f.x,f.y,f.w,f.h,0,0,dw,dh);
+  if(g.isContextLost?.())return null;
+  cache.set(key,image);c.pixels+=dw*dh;
+  while(c.pixels>c.limit){
+   const oldest=cache.keys().next().value,old=cache.get(oldest);
+   cache.delete(oldest);c.pixels-=old.width*old.height;
+  }
+  return image;
+ }catch(_){return null}
+}
+function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=false,damage=0,time=0,effects=true,allowLod=true){
  const f=art.f,left=x-f.ax*scale,top=y-f.ay*scale,width=f.w*scale,height=f.h*scale;
  if(!art.painted||complete||ghost){
   const display=art.painted&&complete&&!ghost&&damage>0?damagedBuildingArtwork(art,damage):art,q=display.f;
-  g.drawImage(display.img,q.x,q.y,q.w,q.h,left,top,width,height);
+  const reduced=complete&&!ghost?buildingFrameTexture(display,scale,allowLod):null;
+   if(reduced)g.drawImage(reduced,left,top,width,height);
+   else g.drawImage(display.img,q.x,q.y,q.w,q.h,left,top,width,height);
   if(art.painted&&complete&&!ghost)drawBuildingAgeDetails(g,art,left,top,width,height);
   if(art.painted&&complete&&!ghost&&effects&&damage>0)drawBuildingDamageEffects(g,x,y,width,height,damage,time);
   return;
@@ -259,7 +289,7 @@ function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=fals
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,
 dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b)):null,
 c=baf?null:spr('b|'+b.k+'|'+b.t+'|'+st+'|'+dm,w,hgt,g=>paintBld(g,b.k,s,teamColor(b.t),ff,dm)),Z=w2s(b.x+s,b.y+s),E=w2s(b.x+s,b.y),N=w2s(b.x,b.y),Wv=w2s(b.x,b.y+s);
-X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay,construction=buildingVisualConstruction(b);drawBuildingArtwork(X,{...baf,f:{...q,ax,ay}},Z[0],Z[1],sc,construction.complete,construction.progress,!!ghost,buildingVisualDamage(b),gt,buildingInSight(b))}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost&&!baf?.painted){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
+X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay,construction=buildingVisualConstruction(b);drawBuildingArtwork(X,{...baf,f:{...q,ax,ay}},Z[0],Z[1],sc,construction.complete,construction.progress,!!ghost,buildingVisualDamage(b),gt,buildingInSight(b),!ghost&&!S.sel.includes(b))}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost&&!baf?.painted){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
 if(b.done){if(o.fl&&!baf?.painted){const by=topY-(o.cren?4:0)*z;X.strokeStyle='#3a2a1a';X.lineWidth=2*z;X.beginPath();X.moveTo(cx,by);X.lineTo(cx,by-22*z);X.stroke();X.fillStyle=teamColor(b.t);poly([[cx,by-22*z],[cx+14*z,by-17*z+Math.sin(gt*4)*2.5*z],[cx,by-10*z]]);X.fill();X.lineWidth=1}
 if(o.chim){for(let i=0;i<3;i++){const t=(gt*.6+i/3)%1;X.fillStyle='rgba(205,205,205,'+(.5-t*.5)+')';X.beginPath();X.arc(cx+s*8*z+Math.sin(t*6+i)*3*z,topY+10*z-t*30*z,(3+t*5)*z,0,7);X.fill()}}
 if(o.blades&&!baf?.painted){const hx=cx+2*z,hy=Z[1]-(s*16+o.h*.85)*z;X.strokeStyle='#5a3a1a';X.lineWidth=2.4*z;for(let i=0;i<4;i++){const a=gt*.9+i*1.5708;X.beginPath();X.moveTo(hx,hy);X.lineTo(hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z);X.stroke();X.fillStyle='rgba(240,230,200,.9)';poly([[hx+Math.cos(a)*8*z,hy+Math.sin(a)*8*z],[hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z],[hx+Math.cos(a)*24*z-Math.sin(a)*7*z,hy+Math.sin(a)*24*z+Math.cos(a)*7*z],[hx+Math.cos(a)*8*z-Math.sin(a)*7*z,hy+Math.sin(a)*8*z+Math.cos(a)*7*z]]);X.fill()}X.lineWidth=1}
