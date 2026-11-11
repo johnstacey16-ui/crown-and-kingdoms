@@ -144,7 +144,7 @@ test('Burmese military upgrades modify real cavalry-vs-ranged and Battle Elephan
  assert.equal(run("combatArmor({k:'batele',t:0},'p')"),p0+1);
  assert.equal(run("combatArmor({k:'batele',t:0},'m')"),run("combatArmor({k:'batele',t:1},'m')")+2);
  run('S.civ[0]=0');
- assert.equal(anti(),raw-3,'changing faction removes Burmese infantry/Manipur bonuses');
+ assert.equal(anti(),raw,'changing faction removes the researched Manipur bonus');
 });
 
 test('Vietnamese Chatras changes Battle Elephant HP and Paper Money rewards deposited wood',()=>{
