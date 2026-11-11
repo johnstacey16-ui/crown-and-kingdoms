@@ -34,6 +34,6 @@ function researchCost(b,k,civs=S?.civ,world=S){
 }
 function research(b,k){if(!b||b.hp<=0||!b.done||!S||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k])return false;const t=b.t;if(b.q&&b.q.length){if(!t)note('Finish or cancel training before researching');return false}if(b.rs){if(!t)note('Already researching here');return false}if(S.bs.some(x=>x!==b&&x.t===t&&x.hp>0&&x.rs&&x.rs.k===k)){if(!t)note(k==='age'?'Age advance already in progress':'Technology already being researched');return false}let d;
 if(k==='age'){if(b.k!=='tc'){if(!t)note('Advance Age requires a Town Centre');return false}const g=AG[S.age[t]+1];if(!g){if(!t)note('Already Imperial Age');return false}const gate=ageRequirements(t);if(!gate.ready){if(!t)note('Needs 2 different current-age buildings ('+gate.count+'/2)'+(g.single?' or a completed Castle':''));return false}d=g}
-else{d=TE[k];if(!d||!Array.isArray(B[b.k].rs)||!rsOf(b).includes(k)){if(!t)note('Research unavailable at this building');return false}if(S.tech[t][k]||researchEffectiveAge(b,k)>S.age[t]||(d.pre&&!S.tech[t][d.pre])){if(!t)note('Locked');return false}}
-if(k!=='age')d={...d,cost:researchCost(b,k)};
+else{d=TE[k];if(!d||!Array.isArray(B[b.k].rs)||!rsOf(b).includes(k)){if(!t)note('Research unavailable at this building');return false}if(S.tech[t][k]||(typeof researchEffectiveAge==='function'?researchEffectiveAge(b,k):d.age)>S.age[t]||(d.pre&&!S.tech[t][d.pre])){if(!t)note('Locked');return false}}
+if(k!=='age'&&typeof researchCost==='function')d={...d,cost:researchCost(b,k)};
 if(!can(t,d.cost)){if(!t)note('Not enough resources');return false}pay(t,d.cost);b.rs={k,t:d.t};return true}
