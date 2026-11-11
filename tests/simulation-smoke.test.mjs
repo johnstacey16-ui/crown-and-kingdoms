@@ -673,10 +673,23 @@ globalThis.__CK_TEST__ = {
       // towers must fall *before* its living Castle is destroyed.
       if(index===2)between('outpost','enemy',.33);
       if(index===3){
-        for(const id of cmp.d.relicRoadHunterIds||[]){
-          const hunter=S.us.find(u=>u.netId===id&&u.t===1);
-          if(hunter)hunter.hp=0;
+        // Deposit one original shrine relic first. This triggers actual
+        // Turkish pursuers while victory still requires two more relics.
+        addBuilding('monastery',1);
+        const monastery=S.bs.find(b=>b.t===0&&b.k==='monastery'&&b.done&&b.hp>0);
+        if(!monastery||S.rel.length!==3)
+          throw Error('Relic Road reachability requires three original shrines and a living Monastery');
+        S.rel[0].m=monastery;S.rel[0].c=null;
+        cmpTick(0.05);
+        const ids=cmp.d.relicRoadHunterIds;
+        if(!Array.isArray(ids)||ids.length<2)
+          throw Error('First genuine relic deposit must spawn the Turkish pursuit');
+        for(const id of ids){
+          const hunter=S.us.find(u=>u.netId===id&&u.t===1&&u.hp>0);
+          if(!hunter)throw Error('Relic Road pursuit must refer to living original enemy units');
+          hunter.hp=0;
         }
+        observe();
       }
       if(index===4){
         for(const id of cmp.d.kronburgFlankIds||[]){
@@ -803,8 +816,15 @@ globalThis.__CK_TEST__ = {
           addBuilding('monastery', 1);
           const monastery = S.bs.find(b => b.t === 0 && b.k === 'monastery' && b.done && b.hp > 0);
           if (!monastery) throw new Error('Relic-objective fixture must have a live player Monastery');
-          while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done && relic.m.hp > 0).length < count) {
-            S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: monastery });
+          if(index===3){
+            // Relic Road has exactly three authored shrine objects. Adding
+            // synthetic extra relics suppresses the real pursuit event.
+            if(S.rel.length!==3)throw Error('Relic Road lost its three authored relics');
+            for(const relic of S.rel){relic.m=monastery;relic.c=null;}
+          }else{
+            while (S.rel.filter(relic => relic.m && relic.m.t === 0 && relic.m.done && relic.m.hp > 0).length < count) {
+              S.rel.push({ rl: 1, x: W / 2, y: H / 2, c: null, m: monastery });
+            }
           }
         }
         if (/Destroy .*Castle/.test(title)) {

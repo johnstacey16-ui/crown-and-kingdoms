@@ -58,7 +58,10 @@ test('unchanged monk conversion helpers have one classic-script owner',()=>{
  for(const name of ['resetConversion','canConvert','beginConversion','tickConversion'])
   assert.match(unit,new RegExp(name+'\\('));
  const ctx={S:{tech:[{},{}],us:[],bs:[]},U:{mon:{},mil:{}},
-  isHostile:(a,b)=>a!==b,arrowSightBonus:()=>0};
+  isHostile:(a,b)=>a!==b,arrowSightBonus:()=>0,
+  // Runtime configuration declares this class set before combat; preserve
+  // that dependency in the isolated classic-script ownership fixture.
+  INFARM:new Set(['mil','spear'])};
  vm.createContext(ctx);
  vm.runInContext(bonuses+'\n;globalThis.monkHelpers={conversionRange,unitSight,canConvert,resetConversion};',ctx);
  const monk={k:'mon',t:0,hp:25,st:0},enemy={k:'mil',t:1,hp:40,x:2,y:2};
