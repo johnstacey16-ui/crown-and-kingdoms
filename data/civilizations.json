@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-35-v1",
-  "description": "35 active medieval civilizations with stable IDs 0–34. Gameplay, technology, DLC rules, regional units and original art remain partial.",
+  "inventoryVersion": "ck-current-medieval-roster-36-v1",
+  "description": "36 partial medieval civilizations; original-era IDs preserved and Polish Folwark/Obuch content appended. DLC and visual/hardware acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -84,7 +84,8 @@
           31,
           32,
           33,
-          34
+          34,
+          35
         ],
         "buildings": [
           "rng"
@@ -150,6 +151,18 @@
         ],
         "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-81058/",
         "note": "Burgundian Feudal Barracks regional infantry and Imperial villager transformation; dedicated motion art pending"
+      },
+      {
+        "unit": "winged",
+        "civilizations": [
+          32,
+          35
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/poles",
+        "note": "Winged Hussar after Hussar research, shared by Poles and Lithuanians. Original procedural appearance, partial detailed reference parity."
       }
     ]
   },
@@ -909,6 +922,28 @@
       "uniqueTechnology": "ut34",
       "secondUniqueTechnology": "ut34p",
       "eliteUpgrade": "eliteSerjeant",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 35,
+      "name": "Poles",
+      "uniqueUnit": "obuch",
+      "uniqueTechnology": "ut35",
+      "secondUniqueTechnology": "ut35p",
+      "eliteUpgrade": "eliteObuch",
       "rulepack": "medieval",
       "status": "partial",
       "researchFlags": {
