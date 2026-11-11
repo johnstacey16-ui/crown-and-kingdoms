@@ -50,19 +50,13 @@ function paintedTeamImage(atlas,team){
  }catch(_){atlas.teams[team]=atlas.img}
  return atlas.teams[team];
 }
-// Retain only requested, native-resolution tinted troop frames instead of full atlas
-// copies per kingdom. The budget bounds retained canvas pixels, not browser/GPU
-// resident memory; evicted frames can remain alive until callers/GC release them.
-const TEAM_FRAME_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:32*1024*1024,hits:0,creations:0,evictions:0};
+// Bound tinted native frames and use a single CPU readback scratch; the cached
+// Canvas2D images are GPU-eligible to avoid repeated Xbox software uploads.
+const TEAM_FRAME_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:16*1024*1024,hits:0,creations:0,evictions:0,scratch:null};
 function paintedTeamFrame(atlas,team,f,kind){
  if(!atlas.meta.painted||atlas.meta.neutral)return {img:atlas.img,f};
- // Native building crops avoid repeatedly sampling full multi-megapixel team-tinted
- // sheets on Xbox after a graphics context restoration. Retain unchanged full-
- // sheet sampling for non-building static/external art; the same crop LRU
- // already bounds painted motion frames and preserves their pixel/foot anchors.
- const building=typeof kind==='string'&&kind.startsWith('bld_');
- if(!atlas.meta.motion&&!building)return {img:paintedTeamImage(atlas,team),f};
- // External fractional-frame packs keep their former sampling behavior.
+ // All integer-coordinate painted frames use a small cached crop, not a full
+ // multi-megapixel team-tinted sheet. Fractional external packs keep fallback.
  if(![f.x,f.y,f.w,f.h].every(Number.isInteger))return {img:paintedTeamImage(atlas,team),f};
  let id=TEAM_FRAME_CACHE.ids.get(atlas.img);if(!id){id=TEAM_FRAME_CACHE.next++;TEAM_FRAME_CACHE.ids.set(atlas.img,id)}
  const color=teamColor(team),key=[id,team,color,f.x,f.y,f.w,f.h].join('/'),cache=TEAM_FRAME_CACHE.entries;
@@ -70,11 +64,15 @@ function paintedTeamFrame(atlas,team,f,kind){
  if(canvas?.getContext('2d')?.isContextLost?.()){cache.delete(key);TEAM_FRAME_CACHE.pixels-=canvas.width*canvas.height;canvas=null}
  if(canvas){cache.delete(key);cache.set(key,canvas);TEAM_FRAME_CACHE.hits++}
  else try{
-  canvas=document.createElement('canvas');canvas.width=f.w;canvas.height=f.h;
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx||ctx.isContextLost?.())return {img:atlas.img,f};
-  ctx.drawImage(atlas.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);
-  const pixels=ctx.getImageData(0,0,f.w,f.h),p=pixels.data,n=parseInt(color.slice(1),16),target=[n>>16&255,n>>8&255,n&255];
+  const scratch=TEAM_FRAME_CACHE.scratch||(TEAM_FRAME_CACHE.scratch=document.createElement('canvas'));
+  // Resizing the readback surface clears the previous frame's transparent edges.
+  scratch.width=f.w;scratch.height=f.h;
+  const read=scratch.getContext('2d',{willReadFrequently:true});if(!read||read.isContextLost?.())return {img:atlas.img,f};
+  read.drawImage(atlas.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);
+  const pixels=read.getImageData(0,0,f.w,f.h),p=pixels.data,n=parseInt(color.slice(1),16),target=[n>>16&255,n>>8&255,n&255];
   for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2];if(p[i+3]>8&&b-r>26&&b-g>8&&b>r*1.25){const light=Math.max(.25,Math.min(1.35,(r*.21+g*.52+b*.27)/110));for(let k=0;k<3;k++)p[i+k]=Math.min(255,target[k]*light)}}
+  canvas=document.createElement('canvas');canvas.width=f.w;canvas.height=f.h;
+  const ctx=canvas.getContext('2d');if(!ctx||ctx.isContextLost?.())return {img:atlas.img,f};
   ctx.putImageData(pixels,0,0);if(ctx.isContextLost?.())return {img:atlas.img,f};canvas.paintedAtlas=true;canvas.paintedTeam=team;
   canvas.paintedSourceFrame={x:f.x,y:f.y,w:f.w,h:f.h};TEAM_FRAME_CACHE.creations++;
   const count=f.w*f.h;

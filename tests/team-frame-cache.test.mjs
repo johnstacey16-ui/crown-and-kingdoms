@@ -31,7 +31,7 @@ test('neutral art bypasses tint allocation and failed canvas creation retains th
 
 test('lost palette surfaces are evicted and rebuilt without retaining blank pixels or corrupting accounting',()=>{
  const f=fixture(),a={img:{},meta:{painted:true,motion:true}},frame={x:0,y:0,w:2,h:3,ax:1,ay:2};
- const first=f.draw(a,0,frame);assert.equal(first.img.options.willReadFrequently,true);
+ const first=f.draw(a,0,frame);assert.equal(f.canvases[0].options.willReadFrequently,true,'readback scratch uses software pixels');assert.notEqual(first.img.options?.willReadFrequently,true,'retained display is GPU-eligible');
  first.img.lost=true;first.img.events.contextlost();assert.equal(f.cache.pixels,0);assert.equal(f.cache.entries.size,0);
  const rebuilt=f.draw(a,0,frame);assert.notEqual(rebuilt.img,first.img);assert.equal(f.cache.pixels,6);
  rebuilt.img.lost=true;const early=f.draw(a,0,frame);assert.notEqual(early.img,rebuilt.img,'isContextLost protects the interval before the event is delivered');assert.equal(f.cache.pixels,6);
@@ -67,7 +67,7 @@ test('native painted building crops preserve anchors, reuse a small image and av
  assert.equal(first.f.ax,121);assert.equal(first.f.ay,238);
  assert.equal(first.sourceFrame,frame);
  assert.equal(first.img,again.img,'the next frame reuses the same native crop');
- assert.equal(f.canvases.length,1,'no 1536x1024 full-team tint canvas was allocated');
+ assert.equal(f.canvases.length,2,'one scratch and one native display, no full-team tint');
  assert.equal(f.cache.creations,1);assert.equal(f.cache.pixels,243*248);
  assert.deepEqual(f.calls[0],[img,120,240,243,248,0,0,243,248]);
  assert.equal(f.cache.entries.size,1,'only the native sprite region is retained');
@@ -81,4 +81,17 @@ test('building crop context loss replaces a damaged derived surface without chan
  assert.notEqual(first.img,next.img);assert.equal(f.cache.pixels,80*90);
  assert.equal(next.f.ax,frame.ax);assert.equal(next.f.ay,frame.ay);
  assert.equal(frame.x,3,'source atlas coordinates remain unmodified');
+});
+
+test('shared readback canvas creates GPU-eligible native crops for static architecture',()=>{
+ const f=fixture(),a={img:{width:1536,height:1024},meta:{painted:true}};
+ const one=f.draw(a,0,{x:0,y:0,w:20,h:30,ax:10,ay:29},'bld_mill');
+ const two=f.draw(a,1,{x:40,y:60,w:25,h:35,ax:12,ay:33},'bld_house');
+ assert.equal(f.canvases.length,3,'one scratch reused for two display canvases');
+ assert.equal(f.canvases[0].options.willReadFrequently,true);
+ assert.notEqual(one.img.options?.willReadFrequently,true);
+ assert.notEqual(two.img.options?.willReadFrequently,true);
+ assert.equal(f.cache.pixels,20*30+25*35);
+ assert.equal(f.cache.scratch.width,25);assert.equal(f.cache.scratch.height,35);
+ assert.equal(one.f.ax,10);assert.equal(two.f.ay,33);
 });
