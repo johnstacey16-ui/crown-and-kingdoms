@@ -16,7 +16,8 @@ function ageRequirements(t,world=S){
 const BURGUNDIAN_ECONOMIC_TECHS=new Set(['loom','wheel','handcart','gath','carry','axe','saw','gmine','smine','coll','plow','crop']);
 function researchEffectiveAge(b,k,civs=S?.civ){
  const age=TE[k]?.age||0;
- return civs?.[b?.t]===33&&(BURGUNDIAN_ECONOMIC_TECHS.has(k)||k==='cavl')?
+ return civs?.[b?.t]===36&&k==='chem'?Math.max(0,age-1):
+  civs?.[b?.t]===33&&(BURGUNDIAN_ECONOMIC_TECHS.has(k)||k==='cavl')?
   Math.max(0,age-1):age;
 }
 function researchCost(b,k,civs=S?.civ,world=S){
@@ -24,6 +25,12 @@ function researchCost(b,k,civs=S?.civ,world=S){
  if(b?.k==='smith'&&Number.isInteger(index)&&CIV[index]?.n==='Spanish'&&cost.g)
   return {...cost,g:0};
  if(index===35&&['blood','lcav','huss'].includes(k)&&cost.f)return {...cost,f:Math.ceil(cost.f*.5)};
+ if(index===36){
+  if(b?.k==='mine'&&(k==='gmine'||k==='smine'))return {};
+  if(b?.k==='monastery'&&S?.tech?.[b.t]?.ut36p&&cost.g){
+   const {g,...other}=cost;return {...other,f:(other.f||0)+g};
+  }
+ }
  if(index!==33)return cost;
  if(k==='ut33p'){
   const villagers=(world?.us||[]).filter(u=>u.k==='vil'&&u.t===b.t&&u.hp>0&&!u.ld).length;
