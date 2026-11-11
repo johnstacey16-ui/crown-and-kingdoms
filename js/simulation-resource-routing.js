@@ -212,3 +212,33 @@ function resumeMuleCart(b){
  if(!S?.bs?.includes(b)||b.k!=='mule'||!b.done||b.hp<=0)return false;
  b.mulePath=[];b.muleProgress=0;b.muleAuto=true;b.muleCheck=0;return true;
 }
+
+/* Spend 50% of a building's base cost over its entire missing HP. The
+ * diplomacy-sensitive Georgian team bonus reduces repair resource prices 25%.
+ * The worker pays; never heal a structure beyond what is affordable. */
+function repairBuildingWithResources(worker,building,dt){
+ if(!S||!worker||!building||!building.done||building.hp<=0||
+  building.hp>=building.mh||!Number.isFinite(dt)||dt<=0||
+  !Number.isFinite(building.mh)||building.mh<=0||
+  !S.res?.[worker.t]||!B[building.k]||
+  (building.t!==worker.t&&diplomacyRelation(worker.t,building.t)!=='ally'))return 0;
+ const rate=building.mh*dt/(S.tech[worker.t]?.crane?32:40)*
+  (worker.k==='vil'&&S.civ?.[worker.t]===40?1.05:1)*
+  (typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(worker):1);
+ let gain=Math.min(Math.max(0,building.mh-building.hp),Math.max(0,rate));
+ const price=typeof civilizationBuildingCost==='function'?
+  civilizationBuildingCost(building.k,building.t):B[building.k].cost||{};
+ const share=typeof civilizationTeamBonusFactor==='function'?
+  civilizationTeamBonusFactor(worker.t,'buildingRepairCost'):1;
+ const resource=S.res[worker.t],cost={};
+ for(const k of ['f','w','g','s']){
+  // Town Centres consume twice their original wood but no stone on repair.
+  const base=building.k==='tc'?(k==='w'?(price.w||0)*2: k==='s'?0:(price[k]||0)):(price[k]||0);
+  const unit=base*.5*share/building.mh;
+  if(unit>0){cost[k]=unit;gain=Math.min(gain,Math.max(0,resource[k])/unit)}
+ }
+ if(gain<=1e-9)return 0;
+ for(const [k,unit] of Object.entries(cost))resource[k]=Math.max(0,resource[k]-gain*unit);
+ building.hp=Math.min(building.mh,building.hp+gain);
+ return gain;
+}

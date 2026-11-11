@@ -181,7 +181,9 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
  ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
- const raw=secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
+ const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
+  const raw=minorGalleyArrow?Math.max(1,1-combatArmor(t,'p')):
+    secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
  t.hp-=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
  if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
    typeof chakramPierceTargets==='function'&&S.civ?.[a.t]===39){
@@ -416,6 +418,8 @@ function launchProjectile(a,t){
   aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
  }
  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ if(a.k==='gal'&&S.civ?.[a.t]===41&&S.us?.includes(a)&&a.hp>0&&!a.ld)
+  S.pj.push({x:a.x,y:a.y,t,a:{k:'gal',t:a.t,galleySecondary:true},...aim});
  if(a.k==='chakram'&&S.civ?.[a.t]===39&&S.us.includes(a)){
   const projectile=S.pj[S.pj.length-1];
   projectile.a.sourceNetId=a.netId;

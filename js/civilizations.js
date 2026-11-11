@@ -155,7 +155,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  }},
  elite:{k:'eliteComposite',n:'Elite Composite Bowman',cost:{w:800,g:600},t:50,age:3,
   hpb:{composite:10},atkb:{composite:2},armor:{p:1}}},
-{n:'Georgians',uu:'monaspa',
+{n:'Georgians',uu:'monaspa',teamEconomic:{buildingRepairCost:.75},
  d:'Monaspa formation cavalry, mounted regeneration, Svan Towers and Aznauri',
  fx:t=>{S.tech[t].georgianCavalry=1},
  ut:{k:'ut42',n:'Svan Towers',cost:{w:450,g:300},t:45,age:2,
