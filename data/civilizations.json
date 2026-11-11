@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v11",
+  "inventoryVersion": "ck-current-medieval-roster-26-v12",
   "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
   "rulesets": [
     {
@@ -81,7 +81,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteLongbowman"
+      "eliteUpgrade": "eliteLongbowman",
+      "secondUniqueTechnology": "ut1p"
     },
     {
       "id": 2,
@@ -146,7 +147,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteWarElephant"
+      "eliteUpgrade": "eliteWarElephant",
+      "secondUniqueTechnology": "ut4p"
     },
     {
       "id": 5,
@@ -233,7 +235,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteMameluke"
+      "eliteUpgrade": "eliteMameluke",
+      "secondUniqueTechnology": "ut8p"
     },
     {
       "id": 9,
@@ -254,7 +257,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteJanissary"
+      "eliteUpgrade": "eliteJanissary",
+      "secondUniqueTechnology": "ut9p"
     },
     {
       "id": 10,
@@ -319,7 +323,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteBattleElephant"
+      "eliteUpgrade": "eliteBattleElephant",
+      "secondUniqueTechnology": "ut12p"
     },
     {
       "id": 13,
@@ -361,7 +366,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteConquistador"
+      "eliteUpgrade": "eliteConquistador",
+      "secondUniqueTechnology": "ut14p"
     },
     {
       "id": 15,
@@ -403,7 +409,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteBoyar"
+      "eliteUpgrade": "eliteBoyar",
+      "secondUniqueTechnology": "ut16p"
     },
     {
       "id": 17,
@@ -510,7 +517,8 @@
         "cavalryArmor": "",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteKamayuk"
+      "eliteUpgrade": "eliteKamayuk",
+      "secondUniqueTechnology": "ut21p"
     },
     {
       "id": 22,
@@ -531,7 +539,8 @@
         "cavalryArmor": "c",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteShotelWarrior"
+      "eliteUpgrade": "eliteShotelWarrior",
+      "secondUniqueTechnology": "ut22p"
     },
     {
       "id": 23,
@@ -552,7 +561,8 @@
         "cavalryArmor": "cp",
         "melee": "fi"
       },
-      "eliteUpgrade": "eliteGbeto"
+      "eliteUpgrade": "eliteGbeto",
+      "secondUniqueTechnology": "ut23p"
     },
     {
       "id": 24,
