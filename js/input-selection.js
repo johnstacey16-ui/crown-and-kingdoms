@@ -145,6 +145,9 @@ const it=trOf(s).map(k=>{const age=unitEffectiveAge(s.t,k),lk=age>S.age[0]?'Need
 if(s.k==='tc'){it.push({l:'Town Bell: Garrison villagers',c:{},lk:'',fn:()=>{townBell(s.t);menu=null}});const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?(ageRequirements(0).ready?'':'Needs two different current-age buildings'+(g.single?' or one Castle':'')):'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
 for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:researchCost(s,k),lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
 if(d.tx)for(const r of mkTrades())it.push(r);
+if(s.k==='mill'&&S.civ?.[s.t]===39)it.push({l:'Garrison nearby sheep',c:{},lk:'',
+ fn:()=>{const ok=typeof garrisonLivestockMill==='function'&&garrisonLivestockMill(s);
+  note(ok?'Sheep sheltered in Mill — passive food enabled':'No nearby herdable sheep or Mill is full')} });
 if(s.cg&&s.cg.length&&GAR[s.k])it.push({l:'Unload garrison ('+s.cg.length+')',c:{},lk:'',fn:()=>{unload(s);menu=null}});
 menu={title:d.n,b:s,i:0,items:it}}
 else if(S.sel.length&&S.sel.every(u=>u.k==='fish'))menu={title:'Fishing Ship',i:0,items:[{l:'Deploy Fish Trap (-100 Wood)',c:{w:100},lk:'',fn:()=>{deployFishTrap(S.sel);menu=null}},{l:'Stop fishing',c:{},lk:'',fn:()=>{stopSel();menu=null}}]}
