@@ -80,6 +80,7 @@ const FOCUSED=[
  "tests/aoe2-de-civilization-university-research.test.mjs",
  "tests/aoe2-de-infantry-armor-tiers.test.mjs",
  "tests/civilization-catalogue-validation.test.mjs",
+ "tests/mongol-drill-unique-tech.test.mjs",
  "tests/castle-civilization-production.test.mjs",
  "tests/regional-camel-production.test.mjs",
  // Visual frame pacing, Xbox terrain/HUD fidelity and canonical rendering ownership.
