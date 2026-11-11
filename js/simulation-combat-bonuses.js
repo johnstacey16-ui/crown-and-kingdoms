@@ -69,6 +69,7 @@ function combatArmor(t,cls){
  // model resolves siege-class hits against melee armour as well; pierce armour
  // is unchanged. Gate on the researched technology and real civilization,
  // never on a unit-supplied flag or a forged foreign team's research ledger.
+ const bengaliMonk=S.civ?.[t.t]===38&&t.k==='mon'?3:0;
  const incaShield=t.k==='kamayuk'&&S.civ?.[t.t]===21&&ta.ut21p?(cls==='p'?2:1):0;
  const lastKhansArmor=(S.civ?.[t.t]===29&&ta.ut29p&&t.k==='mil'&&cls!=='p'?3:0)+
   (S.civ?.[t.t]===30&&ta.ut30&&['scout','steppe','cavarch','kipchak'].includes(t.k)?1:0);
@@ -78,7 +79,7 @@ function combatArmor(t,cls){
  const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+bengaliMonk+(t.k==='turtle'&&ta.eliteTurtle?1:0);
  const strip=!t.s&&Number.isInteger(t.obuchArmorShred)?Math.max(0,Math.min(10,t.obuchArmorShred)):0;
  return t.s?armor:armor-Math.min(Math.max(0,armor),strip);
 }
@@ -236,8 +237,10 @@ function beginConversion(units,target){
 }
 function conversionWindow(target){
  const tech=S.tech[target.t]||{},resistance=(tech.devotion?1:0)+(tech.faith?4:0);
- const scout=target.k==='scout',ship=!!U[target.k]?.sh;
- return {min:(target.s?15:5)+resistance+(scout?3:ship?2:0),max:(target.s?25:9)+resistance+(scout?1:ship?2:0)};
+ const scout=target.k==='scout',ship=!!U[target.k]?.sh,
+  bengaliResist=S.civ?.[target.t]===38&&
+   (target.k==='mon'||['eled','batele','ele'].includes(target.k))?3:0;
+ return {min:(target.s?15:5)+resistance+bengaliResist+(scout?3:ship?2:0),max:(target.s?25:9)+resistance+bengaliResist+(scout?1:ship?2:0)};
 }
 function completeConversion(u,target){
  const team=u.t,oldTeam=target.t;
@@ -289,6 +292,8 @@ function rangedAccuracy(a){
 }
 function attackReload(u){
  const base=(u.k==='knight'&&S.tech[u.t]?.pala)||(u.k==='scout'&&S.tech[u.t]?.huss)?1.9:u.k==='fire'&&S.tech[u.t]?.fastFire?.25:U[u.k]?.cd||2;
+ if(S.civ?.[u.t]===38&&S.tech?.[u.t]?.ut38&&['ratha','rathaM','batele','eled','ele'].includes(u.k))
+  return base/1.2;
  if(S.civ?.[u.t]===37&&['skirm','eled'].includes(u.k))return base/1.25;
  if(u.k==='treb'&&S.civ?.[u.t]===11&&S.tech[u.t]?.ut11p)return base/1.33;
  if(S.civ?.[u.t]===29&&S.tech?.[u.t]?.ut29&&['scout','knight','konnik'].includes(u.k))return base/1.25;
