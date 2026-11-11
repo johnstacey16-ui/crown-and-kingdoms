@@ -70,7 +70,7 @@ test('native painted building crops preserve anchors, reuse a small image and av
  assert.equal(f.canvases.length,1,'no 1536x1024 full-team tint canvas was allocated');
  assert.equal(f.cache.creations,1);assert.equal(f.cache.pixels,243*248);
  assert.deepEqual(f.calls[0],[img,120,240,243,248,0,0,243,248]);
- const atlas=f.ASSET.atl.architecture;assert.equal(atlas.teams,undefined,'only a frame crop is held');
+ assert.equal(f.cache.entries.size,1,'only the native sprite region is retained');
 });
 test('building crop context loss replaces a damaged derived surface without changing artwork or age frame metadata',()=>{
  const f=fixture(),atlas={img:{},meta:{painted:true}},frame={x:3,y:5,w:80,h:90,ax:32,ay:86};
