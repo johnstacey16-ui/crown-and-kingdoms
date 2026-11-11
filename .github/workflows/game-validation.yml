@@ -129,6 +129,32 @@ jobs:
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
 
+  # Explicit per-commit acceptance gates. They never run on routine pushes,
+  # PRs or schedules; the weekly/manual game-regression workflow is unchanged.
+  full-standalone-regressions:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-regression-files]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run every current standalone test in its own Node process
+        run: node scripts/run-checks.mjs --regression-files
+
+  seeded-ai-acceptance:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-seeded-skirmishes]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run three deterministic production-AI skirmish scenarios
+        run: node scripts/run-checks.mjs --skirmishes
+
   # This is an explicit, single-revision UI visual review, not a normal push gate.
   # Leave the comprehensive battlefield-art workflow weekly/manual.
   hud-browser:
