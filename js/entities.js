@@ -13,7 +13,7 @@ function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:
   S.res[t].f+=100;b.lithFoodGranted=true;
  }
  for(let j=0;j<b.s;j++)for(let i=0;i<b.s;i++)S.g[(y+j)*W+x+i]=1;if(k==='gate')S.gt[y*W+x]=t+1;return b}
-function addU(t,k,x,y){const u={netId:nextNetworkEntityId('u'),t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb[k]||0),sh:U[k].sh,cg:U[k].cap?[]:undefined,o:'i',p:[],cd:0,rp:S.r()*.5,car:0,ct:null,tg:null,ret:0,autoWorker:0};if(k==='coust')u.chargeReadyAt=S.t+35;S.us.push(u);if(k==='vil'&&t===0&&S.vp&&S.vp.enabled)assignAutoVillager(u);return u}
+function addU(t,k,x,y){const u={netId:nextNetworkEntityId('u'),t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb[k]||0),sh:U[k].sh,cg:U[k].cap?[]:undefined,o:'i',p:[],cd:0,rp:S.r()*.5,car:0,ct:null,tg:null,ret:0,autoWorker:0};if(k==='coust')u.chargeReadyAt=S.t+35;if(k==='urumi')u.urumiReadyAt=S.t+15;S.us.push(u);if(k==='vil'&&t===0&&S.vp&&S.vp.enabled)assignAutoVillager(u);return u}
 
 /* Generated forests/deposits may be created in bulk rather than through addN.
  * Bind them once before a live match; IDs never depend on compacted array indices. */
