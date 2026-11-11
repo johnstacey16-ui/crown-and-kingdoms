@@ -160,10 +160,10 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  fx:t=>{S.tech[t].georgianCavalry=1},
  ut:{k:'ut42',n:'Svan Towers',cost:{w:450,g:300},t:45,age:2,
   fx:t=>{S.tech[t].svanTowers=1}},
- ut2:{k:'ut42p',n:'Aznauri Cavalry',cost:{f:700,g:600},t:60,age:3,
+ ut2:{k:'ut42p',n:'Aznauri Cavalry',cost:{f:550,g:250},t:60,age:3,
   fx:t=>{S.tech[t].aznauriCavalry=1}},
- elite:{k:'eliteMonaspa',n:'Elite Monaspa',cost:{f:900,g:650},t:55,age:3,
-  hpb:{monaspa:20},atkb:{monaspa:2},armor:{m:1,p:1}}}];
+ elite:{k:'eliteMonaspa',n:'Elite Monaspa',cost:{f:1000,g:700},t:55,age:3,
+  hpb:{monaspa:10},atkb:{monaspa:2},armor:{m:2}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with

@@ -327,6 +327,15 @@ function georgianChurchWorkRate(u){
    Math.hypot(u.x-(b.x+b.s/2),u.y-(b.y+b.s/2))<=9)return 1.1;
  return 1;
 }
+/* The first completed Armenian Fortified Church houses one granted Relic.
+ * State is in the team's research ledger, so construction/reconstruction and
+ * future save restores cannot mint repeated Relics. */
+function grantArmenianFirstChurchRelic(b){
+ if(!b||b.k!=='fchurch'||!b.done||b.hp<=0||S?.civ?.[b.t]!==41||
+   !S.tech?.[b.t]||!Array.isArray(S.rel)||S.tech[b.t].armenianFirstChurchRelic)return false;
+ S.rel.push({rl:1,x:b.x+b.s/2,y:b.y+b.s/2,c:null,m:b});
+ S.tech[b.t].armenianFirstChurchRelic=1;return true;
+}
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ){
  const cost=B[kind]?.cost||{};

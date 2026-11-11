@@ -132,10 +132,10 @@ Object.assign(U,{
 Object.assign(U,{
  composite:{n:'Composite Bowman',hp:45,sp:1.1,dmg:6,rng:5,cd:1.8,delay:.3,ps:9,acc:.9,arm:0,
   cost:{w:40,g:50},t:18,c:'#a27859',r:9,age:2,lk:'arc'},
- warpriest:{n:'Warrior Priest',hp:70,sp:1.08,dmg:7,rng:.9,cd:1.8,arm:1,
-  cost:{f:40,g:45},t:23,c:'#8f6b62',r:9,age:2,lk:'mil'},
- monaspa:{n:'Monaspa',hp:100,sp:1.5,dmg:11,rng:.9,cd:1.9,arm:2,mt:1,lk:'knight',
-  cost:{f:65,g:45},t:20,c:'#6e8b68',r:11,age:2}
+ warpriest:{n:'Warrior Priest',hp:80,sp:1.08,dmg:11,rng:.9,cd:2,arm:1,
+  cost:{f:40,g:50},t:30,c:'#8f6b62',r:9,age:2,lk:'mil'},
+ monaspa:{n:'Monaspa',hp:70,sp:1.4,dmg:12,rng:.9,cd:1.8,arm:3,mt:1,lk:'knight',
+  cost:{f:60,g:45},t:14,c:'#6e8b68',r:11,age:2}
 });
 const REGIONAL_UNIT_ACCESS=Object.freeze([
  Object.freeze({unit:'camel',civilizations:Object.freeze([2,3,4,8,9,13,22,23,39]),buildings:Object.freeze(['stable'])}),

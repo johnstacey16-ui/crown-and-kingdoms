@@ -12,7 +12,9 @@ function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:
  if(done&&k==='tc'&&S.civ?.[t]===32&&S.res?.[t]){
   S.res[t].f+=100;b.lithFoodGranted=true;
  }
- for(let j=0;j<b.s;j++)for(let i=0;i<b.s;i++)S.g[(y+j)*W+x+i]=1;if(k==='gate')S.gt[y*W+x]=t+1;return b}
+ for(let j=0;j<b.s;j++)for(let i=0;i<b.s;i++)S.g[(y+j)*W+x+i]=1;if(k==='gate')S.gt[y*W+x]=t+1;
+ if(done&&k==='fchurch'&&typeof grantArmenianFirstChurchRelic==='function')grantArmenianFirstChurchRelic(b);
+ return b}
 function addU(t,k,x,y){const u={netId:nextNetworkEntityId('u'),t,k,x,y,hp:U[k].hp+(S.tech[t].hpb&&S.tech[t].hpb[k]||0),sh:U[k].sh,cg:U[k].cap?[]:undefined,o:'i',p:[],cd:0,rp:S.r()*.5,car:0,ct:null,tg:null,ret:0,autoWorker:0};if(k==='coust')u.chargeReadyAt=S.t+35;if(S.civ?.[t]===40&&['mil','knight','centurion','legionary'].includes(k))u.romanChargeReadyAt=S.t+20;if(k==='urumi')u.urumiReadyAt=S.t+15;if(k==='shrivamsha'){u.dodgeCharges=5;u.dodgeRechargeAt=S.t+4}S.us.push(u);if(k==='vil'&&t===0&&S.vp&&S.vp.enabled)assignAutoVillager(u);return u}
 
 /* Generated forests/deposits may be created in bulk rather than through addN.
