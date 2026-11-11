@@ -82,6 +82,7 @@ const FOCUSED=[
  "tests/civilization-catalogue-validation.test.mjs",
  "tests/mongol-drill-unique-tech.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
+ "tests/byzantine-greek-fire.test.mjs",
  "tests/castle-civilization-production.test.mjs",
  "tests/regional-camel-production.test.mjs",
  // Visual frame pacing, Xbox terrain/HUD fidelity and canonical rendering ownership.
