@@ -18,7 +18,7 @@ assert.match(html, /S\.tech\[t\]\.mas\?1\.4:1/, 'new buildings must inherit Maso
 assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'new walls and gates must inherit Fortified Wall health');
 
 
-assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=t\.gath\?1\.25:1/,
+assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=\(t\.gath\?1\.25:1\)\*\(typeof georgianChurchWorkRate==='function'\?georgianChurchWorkRate\(u\):1\)/,
   'Gather Rate research must affect existing villagers on future collection ticks');
 assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
   'Double-bit Axe and Bow Saw must affect wood gathering');

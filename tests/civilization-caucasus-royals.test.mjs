@@ -8,7 +8,7 @@ function game(civ){
  vm.createContext(sandbox);
  vm.runInContext(source+'\nglobalThis.caucasusEval=code=>eval(code);',sandbox);
  const run=sandbox.caucasusEval;
- run("seedOv=411126;kingdoms=2;startAge=3;startRes=3;startArmy=0;start();S.civ=["+civ+",0];S.age=[3,3];S.tech=[{},{}];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.bar=addB(0,'bar',12,12,true);globalThis.castle=addB(0,'castle',23,12,true);globalThis.monastery=addB(0,'monastery',35,12,true);globalThis.dock=addB(0,'dock',46,12,true)");
+ run("seedOv=411126;kingdoms=2;startAge=3;startRes=3;startArmy=0;start();S.civ=["+civ+",0];S.age=[3,3];S.tech=[{},{}];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.bar=addB(0,'bar',12,12,true);globalThis.castle=addB(0,'castle',23,12,true);globalThis.monastery=addB(0,'fchurch',35,12,true);globalThis.dock=addB(0,'dock',46,12,true)");
  return run;
 }
 test('Caucasus factions append stable IDs and faction-lock units and unique research',()=>{
