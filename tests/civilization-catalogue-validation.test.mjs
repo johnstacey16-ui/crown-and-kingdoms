@@ -10,8 +10,8 @@ const altered=change=>{const copy=structuredClone(catalogue);change(copy);return
 
 test('all active civilization IDs and unique units/technologies match actual game code',()=>{
  assert.deepEqual(inspectCivilizationCatalogue(catalogue,runtime),[]);
- assert.equal(catalogue.civilizations.length,40);
- assert.equal(runtime.civilizations.length,40);
+ assert.equal(catalogue.civilizations.length,41);
+ assert.equal(runtime.civilizations.length,41);
 });
 
 test('reordering, dropping or duplicating civs fails instead of changing save/network IDs silently',()=>{
