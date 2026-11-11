@@ -16,13 +16,14 @@ const SPEAR_ELEPHANTS=new Set(['ele','eled','batele']);
 function spearLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,tech=S.tech[a.t]||{};
  const tier=tech.halb?2:tech.pike?1:0;
- if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return [15,25,28][tier];
- if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return [12,18,26][tier];
+ const bohemian=value=>S.civ?.[a.t]===36?Math.round(value*1.25):value;
+ if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return bohemian([15,25,28][tier]);
+ if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return bohemian([12,18,26][tier]);
  if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias)){
   const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(key,t.t):null;
-  return Math.max(0,[15,22,32][tier]-(elite?.cavalryArmor||0));
+  return bohemian(Math.max(0,[15,22,32][tier]-(elite?.cavalryArmor||0)));
  }
- return U.spear.bn?.[key]||U.spear.bn?.[alias]||0;
+ return bohemian(U.spear.bn?.[key]||U.spear.bn?.[alias]||0);
 }
 // Counter bonuses are attached to AoE2 armour classes, not broadly to
 // villagers, siege and all ranged units. The compact roster still needs a
@@ -98,6 +99,22 @@ function burgundianChargeDamage(a){
  return Number.isFinite(a.chargeReadyAt)&&S.t>=a.chargeReadyAt?
   (S.tech[a.t]?.eliteCoustillier?30:25):0;
 }
+/* A wagon must actually stand between a ranged attacker and its protected
+ * ally. Proximity alone is not enough, and enemy/foreign wagons do not help. */
+function hussiteWagonCover(a,t){
+ if(!a||!t||t.s||!S.us.includes(t)||!Number.isFinite(a.x)||!Number.isFinite(a.y)||
+   !Number.isFinite(t.x)||!Number.isFinite(t.y)||!(U[a.k]?.rng>2))return false;
+ const dx=t.x-a.x,dy=t.y-a.y,dist2=dx*dx+dy*dy;
+ if(dist2<=0)return false;
+ for(const wagon of S.us)if(wagon&&wagon!==t&&wagon.k==='husswagon'&&
+    wagon.t===t.t&&S.civ?.[wagon.t]===36&&wagon.hp>0&&!wagon.ld){
+  const wx=wagon.x-a.x,wy=wagon.y-a.y,projection=(wx*dx+wy*dy)/dist2;
+  const sideways=Math.abs(wx*dy-wy*dx)/Math.sqrt(dist2);
+  if(projection>.1&&projection<.95&&sideways<=1.2&&
+     Math.hypot(wagon.x-t.x,wagon.y-t.y)<=4)return true;
+ }
+ return false;
+}
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
@@ -110,7 +127,9 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=a.k==='leitis'&&S.civ?.[a.t]===32&&!t.s?0:combatArmor(t,cls);const hpBeforeHit=t.hp;t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=a.k==='leitis'&&S.civ?.[a.t]===32&&!t.s?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
+ const raw=secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
+ t.hp-=!secondaryDamage&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
  // Persistent Obuch armour stripping requires a genuine attacker and victim.
  if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
   t.obuchArmorShred=Math.min(10,Math.max(0,t.obuchArmorShred|0)+1);
