@@ -98,7 +98,7 @@
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
-      const d=B[kind],req=kind==='farm'?'mill':d.req;
+      const d=B[kind],req=kind==='farm'?(world.civ?.[team]===35?'folwark':'mill'):d.req;
       const locked=!civilizationBuildingAllowed(kind,team,world.civ)?(kind==='donjon'?'Only Sicilians can construct a Donjon':kind==='folwark'?'Only Poles can construct a Folwark':kind==='mill'&&world.civ?.[team]===35?'Poles build Folwarks instead of Mills':'Only Portuguese can construct a Feitoria'):
         d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
         kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
