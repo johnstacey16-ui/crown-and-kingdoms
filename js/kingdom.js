@@ -368,7 +368,7 @@ const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
     [...eligible.filter(k=>k!=='mil'),'legionary']:eligible.filter(k=>k!=='legionary');
   if(civ?.n!=='Goths'||!techs?.[b.t]?.ut18)return eligible.filter(k=>k!=='legionary');
 }
- if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
+ if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible.filter(k=>k!=='legionary'),civ.uu])];
  // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu,
   ...(civs?.[b.t]===30&&techs?.[b.t]?.ut30p?['flamecamel']:[]),
