@@ -104,7 +104,7 @@
     }));
   }
   function construct(units,order,team) {
-    if(units.some(u=>u.k!=='vil'&&!(order.value==='donjon'&&u.k==='serjeant'&&S.civ?.[team]===34)))return false;
+    if(!activeUnits(units)||units.some(u=>u.k!=='vil'&&!(order.value==='donjon'&&u.k==='serjeant'&&S.civ?.[team]===34)))return false;
     const option=buildOptions(S,team).flat().find(o=>o.value===order.value);
     const point=order.point;
     if(!option||option.locked||!Number.isInteger(point.x)||!Number.isInteger(point.y)||
@@ -307,7 +307,7 @@
         // Allied garrison sharing is deliberately unavailable until unload ownership
         // and passenger restoration are modeled across different owners.
       } else {
-        if (building ? entities.some(u=>u.k!=='vil') || target.done&&target.hp>=target.mh :
+        if (building ? entities.some(u=>u.k!=='vil'&&!(u.k==='serjeant'&&target.k==='donjon'&&S.civ?.[team]===34&&target.t===team)) || target.done&&target.hp>=target.mh :
             !U[target.k]?.sh || target.hp>=mhp(target) || entities.some(u=>u.k!=='vil'&&!U[u.k].sh)) return false;
       }
       const reach=order.type==='garrison'?(building?1.3:1.7):building?1:1.2;
