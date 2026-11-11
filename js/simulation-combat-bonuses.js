@@ -134,7 +134,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  if(urumiCharge){
  a.urumiReadyAt=S.t+18;
  if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
-  dmgT({k:'urumi',t:a.t,[CK_TRAMPLE_DAMAGE]:Math.ceil(urumiCharge*.6)},victim);
+  dmgT({k:'urumi',t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:Math.ceil(urumiCharge*.6)},victim);
  }
  // Persistent Obuch armour stripping requires a genuine attacker and victim.
  if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
