@@ -4,6 +4,9 @@
  */
 function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;if(u.o!=='a'&&u.wind>0){u.wind=0;u.windTarget=null}let tg=u.tg;if(u.k==='mon'){u.faith=Math.min(100,(u.faith??100)+dt*1.6*(S.tech[u.t].illumination?2:1));if(u.o!=='v')resetConversion(u);}if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.t===u.t&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'))||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null;u.p=[];u.o='i'}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';// Shelter proximity alone does not heal military units. Monks and unit-specific abilities use their own rules.
 if(u.hp>=mhp(u)*.65||S.t>=(u.retreatRestUntil||(u.retreatRestUntil=S.t+8))){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null}}else{if((!u.p.length||u.rp<=0)&&S.t>=(u.retreatRouteRetryAt||0)){u.p=path(u,goalNear(shelter,1))||[];u.rp=1;u.retreatRouteRetryAt=S.t+(u.p.length?1:5)}if(u.p.length)walk(u,dt);return}if(u.retreating)return}}if((u.k==='cart'||u.k==='cog')&&u.o!=='B'&&u.o!=='rep'){if(u.tradePaused){u.o='i';u.p=[];u.rp=0;return}if(u.manualTradeMove&&u.o==='m'){if(walk(u,dt)){u.o='i';u.manualTradeMove=false;u.tradePaused=true;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;}return}u.manualTradeMove=false;tickTrader(u,dt);return}if(u.k==='bers'&&u.hp<mhp(u))u.hp=Math.min(mhp(u),u.hp+.5*dt);
+ // Polish Villagers regenerate 5/10/15/20 HP per minute by current Age.
+ if(u.k==='vil'&&S.civ?.[u.t]===35&&u.hp>0&&u.hp<mhp(u))
+  u.hp=Math.min(mhp(u),u.hp+(5+5*Math.max(0,Math.min(3,S.age?.[u.t]||0)))*dt/60);
 if(u.k==='mon'&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=16)continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+4)}}
 if(u.k==='mon'&&u.o==='a'){const target=u.tg;if(!beginConversion([u],target)){u.o='i';u.tg=null;u.p=[];}return;}
 // An automatic interception stays local or covers a nearby shooter firing at
@@ -99,6 +102,8 @@ if(u.ret){
  if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;
  if(u.k==='vil'&&u.ct==='f'&&u.tg?.fm&&S.civ?.[u.t]===33&&S.tech[u.t]?.ut33)
   S.res[u.t].g+=u.car*.15;
+ if(u.k==='vil'&&u.ct==='s'&&S.civ?.[u.t]===35)
+  S.res[u.t].g+=u.car/3;
  if(u.ct==='w'&&u.k==='vil'&&S.civ?.[u.t]===28&&S.tech?.[u.t]?.ut28p)
   S.res[u.t].g+=u.car*.10;
  if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
