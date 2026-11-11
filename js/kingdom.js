@@ -312,7 +312,20 @@ const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||
 /* Civilization-restricted structures are validated by both local placement
  * and the authoritative host. Never rely on a hidden menu item as legality. */
 function civilizationBuildingAllowed(kind,team,civs=S?.civ){
- const d=B[kind];return !!d&&!(kind==='mill'&&civs?.[team]===35)&&(!Number.isInteger(d.onlyCiv)||civs?.[team]===d.onlyCiv);
+ const d=B[kind],id=civs?.[team];return !!d&&
+  !(kind==='mill'&&id===35)&&
+  !(kind==='monastery'&&(id===41||id===42))&&
+  (!Number.isInteger(d.onlyCiv)||id===d.onlyCiv)&&
+  (!Array.isArray(d.onlyCivs)||d.onlyCivs.includes(id));
+}
+/* Georgian Fortified Church boosts friendly Villager gathering in a 9-tile
+ * radius. Reads the host world; destroyed and unfinished Churches do nothing. */
+function georgianChurchWorkRate(u){
+ if(!u||u.k!=='vil'||S?.civ?.[u.t]!==42||!Array.isArray(S.bs))return 1;
+ for(const b of S.bs)if(b&&b.t===u.t&&b.k==='fchurch'&&b.done&&b.hp>0&&
+   Number.isFinite(u.x)&&Number.isFinite(u.y)&&
+   Math.hypot(u.x-(b.x+b.s/2),u.y-(b.y+b.s/2))<=9)return 1.1;
+ return 1;
 }
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ){

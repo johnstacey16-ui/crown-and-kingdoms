@@ -88,8 +88,8 @@ if(u.o==='r'){if(!u.rel){if(!tg||!tg.rl||tg.c||tg.m){u.o='i';u.tg=null;return}if
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,.8));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 // A contextual return order honours its selected living home; an ordinary
 // relic pickup still chooses the nearest completed owned Monastery.
-const requestedHome=tg&&tg.k==='monastery'&&tg.t===u.t&&tg.done&&tg.hp>0?tg:null;
-let mb=null,bd=1e9;for(const q of S.bs)if(q.t===u.t&&q.done&&q.hp>0&&q.k==='monastery'&&(!requestedHome||q===requestedHome)){const d=d2(u.x,u.y,q);if(d<bd){bd=d;mb=q}}
+const requestedHome=tg&&['monastery','fchurch'].includes(tg.k)&&tg.t===u.t&&tg.done&&tg.hp>0?tg:null;
+let mb=null,bd=1e9;for(const q of S.bs)if(q.t===u.t&&q.done&&q.hp>0&&['monastery','fchurch'].includes(q.k)&&(!requestedHome||q===requestedHome)){const d=d2(u.x,u.y,q);if(d<bd){bd=d;mb=q}}
 if(!mb){u.o='i';return}if(bd<=1.3){u.rel.c=null;u.rel.m=mb;u.rel=null;u.o='i';if(u.t===0)note('Relic garrisoned: +0.5 gold/s');return}
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(mb,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(u.o==='p'){const radius=u.st===3||u.st===4?0:u.st===2?attackRange(u):u.st===1?4:6,e=radius>0?foe(u,radius):null;if(e){u.o='a';u.tg=e;u.p=[];return}const pt=u.pt;if(!pt){u.o='i';return}

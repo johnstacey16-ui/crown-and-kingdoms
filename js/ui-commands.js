@@ -33,7 +33,8 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 'Svan Towers':'Georgian defensive buildings gain +2 attack.',
 'Aznauri Cavalry':'Georgian mounted troops consume 20% less population capacity.',
 'Elite Composite Bowman':'Strengthens Armenian Composite Bowman combat.',
-'Elite Monaspa':'Strengthens Georgian Monaspa cavalry.'};
+'Elite Monaspa':'Strengthens Georgian Monaspa cavalry.',
+'Fortified Church':'Armenian and Georgian Monastery replacement. Stores relics, garrisons villagers and defends itself when occupied.'};
 
 function stt(a){
  if(!a||a.q)return '';

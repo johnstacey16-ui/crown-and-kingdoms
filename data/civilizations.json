@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "inventoryVersion": "ck-current-medieval-roster-43-v1",
-  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Carts, Fortified Churches, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
+  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Carts, finished Fortified Church artwork, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -219,10 +219,10 @@
           41
         ],
         "buildings": [
-          "monastery"
+          "fchurch"
         ],
         "source": "https://www.ageofempires.com/games/age-of-empires-ii-definitive-edition/",
-        "note": "Armenian fighting healer currently recruited at the Monastery; Fortified Church not implemented."
+        "note": "Armenian fighting healer recruited at the faction-exclusive Fortified Church."
       }
     ]
   },
