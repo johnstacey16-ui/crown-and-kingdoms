@@ -87,6 +87,7 @@ const FOCUSED=[
  "tests/building-siege-naval-upgrades.test.mjs",
  "tests/civilization-complete-elite-coverage.test.mjs",
  "tests/civilization-expanded-unique-technologies.test.mjs",
+ "tests/civilization-team-building-bonuses.test.mjs",
  "tests/civilization-economy-and-projectile-technologies.test.mjs",
  "tests/regional-eagle-cavarch-turtle.test.mjs",
  "tests/civilization-29-expansion.test.mjs",
