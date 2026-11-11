@@ -132,6 +132,9 @@ function clearGraphicsSurfaces(){
  for(const image of TEAM_FRAME_CACHE.entries.values())release(image);
  TEAM_FRAME_CACHE.entries.clear();TEAM_FRAME_CACHE.pixels=0;
  release(TEAM_FRAME_CACHE.scratch);TEAM_FRAME_CACHE.scratch=null;
+ // The retained readback context points at the old, released canvas.
+ // Without resetting it, the first post-recovery tint writes into 1x1 pixels.
+ teamFrameScratchContext=null;
  for(const atlas of Object.values(ASSET.atl)){
   for(const image of Object.values(atlas.teams||{}))if(image!==atlas.img)release(image);
   delete atlas.teams;

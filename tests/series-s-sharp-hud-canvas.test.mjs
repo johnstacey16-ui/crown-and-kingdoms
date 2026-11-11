@@ -78,3 +78,13 @@ test('test is opt-in, no input interception, no saved settings and reset when ex
  assert.equal(hud.style.display,'none');
  assert.equal(storage.has('ck_set'),false);
 });
+
+test('graphics recovery drops the old tint readback context before allocating new artwork',()=>{
+ const {run}=game();
+ run('const oldScratch=document.createElement("canvas");oldScratch.width=180;oldScratch.height=190;TEAM_FRAME_CACHE.scratch=oldScratch;teamFrameScratchContext=oldScratch.getContext("2d")');
+ assert.equal(run('TEAM_FRAME_CACHE.scratch.width'),180);
+ assert.equal(run('teamFrameScratchContext!==null'),true);
+ run('clearGraphicsSurfaces()');
+ assert.equal(run('TEAM_FRAME_CACHE.scratch'),null);
+ assert.equal(run('teamFrameScratchContext'),null,'recovery must not sample the released 1x1 backing store');
+});
