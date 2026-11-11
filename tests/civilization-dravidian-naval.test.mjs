@@ -15,7 +15,7 @@ const copy=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Dravidian stable ID, Castle Urumi line and distinct Dock Elite Thirisadai technology',()=>{
  const run=game();
- assert.equal(run('CIV.length'),40);
+ assert.equal(run('CIV.length'),41);
  assert.equal(run('CIV[36].n'),'Bohemians');
  assert.equal(run('CIV[37].n'),'Dravidians');
  assert.equal(run("trOf(castle).includes('urumi')"),true);
