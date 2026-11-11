@@ -15,7 +15,7 @@ const copy=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Gurjaras are stable ID 39 with exclusive unique-unit and Castle technologies',()=>{
  const run=game();
- assert.equal(run('CIV.length'),40);
+ assert.equal(run('CIV.length'),43);
  assert.equal(run('CIV[38].n'),'Bengalis');
  assert.equal(run('CIV[39].uu'),'chakram');
  assert.equal(run("trOf(castle).includes('chakram')"),true);

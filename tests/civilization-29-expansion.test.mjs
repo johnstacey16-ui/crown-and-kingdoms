@@ -15,7 +15,7 @@ const json=(run,code)=>JSON.parse(run('JSON.stringify('+code+')'));
 
 test('29 ordered civilizations retain earlier IDs and expose three priced Castle lines',()=>{
  const run=game();
- assert.equal(run('CIV.length'),34);
+ assert.equal(run('CIV.length'),43);
  assert.equal(run('CIV[25].n'),'Magyars');
  for(const [id,name,kind,first,second,elite] of [
   [26,'Portuguese','orgun','ut26','ut26p','eliteOrganGun'],

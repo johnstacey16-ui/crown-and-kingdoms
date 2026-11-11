@@ -15,7 +15,7 @@ const copy=(run,code)=>JSON.parse(run('JSON.stringify('+code+')'));
 
 test('Romans append stable ID 40 with unique technologies and faction-locked Legionary access',()=>{
  const run=game();
- assert.equal(run('CIV.length'),41);
+ assert.equal(run('CIV.length'),43);
  assert.equal(run('CIV[39].n'),'Gurjaras');
  assert.equal(run('CIV[40].uu'),'centurion');
  assert.equal(run("trOf(castle).includes('centurion')"),true);

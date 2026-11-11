@@ -15,7 +15,7 @@ const copy=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Bohemian ID 36 preserves the 36 prior civilizations and owns its Castle upgrades',()=>{
  const run=game();
- assert.equal(run('CIV.length'),41);
+ assert.equal(run('CIV.length'),43);
  assert.equal(run('CIV[35].n'),'Poles');
  assert.equal(run('CIV[36].uu'),'husswagon');
  assert.equal(run("trOf(castle).includes('husswagon')"),true);
