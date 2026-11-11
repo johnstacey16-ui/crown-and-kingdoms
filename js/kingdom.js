@@ -363,6 +363,9 @@ const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
   eligible.filter(k=>k!=='winged');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
+ if(b.k==='bar'&&civs?.[b.t]===40)
+  return techs?.[b.t]?.legionaryUpgrade?
+   [...eligible.filter(k=>k!=='mil'),'legionary']:eligible.filter(k=>k!=='legionary');
  if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
  // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu,
@@ -414,7 +417,8 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Bohemians':'xa',
  'Dravidians':'xa',
  'Bengalis':'xa',
- 'Gurjaras':'xt'
+ 'Gurjaras':'xt',
+ 'Romans':'x'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -461,7 +465,8 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Bohemians':'mltcphvesk',
  'Dravidians':'mltphves',
  'Bengalis':'mltphvesu',
- 'Gurjaras':'mltphvesu'
+ 'Gurjaras':'mltphvesu',
+ 'Romans':'mlphvaeskd'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -485,7 +490,8 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Bohemians':'rh',
  'Dravidians':'rh',
  'Bengalis':'rh',
- 'Gurjaras':'rh'
+ 'Gurjaras':'rh',
+ 'Romans':'rbh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -530,7 +536,8 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Bohemians':'dfhrasvbitm',
  'Dravidians':'dfsvbitm',
  'Bengalis':'dfrasvbitm',
- 'Gurjaras':'dfrasvbitm'
+ 'Gurjaras':'dfrasvbitm',
+ 'Romans':'dfrsvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -574,7 +581,8 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Bohemians':'msgkfcbh',
  'Dravidians':'msgkfcbh',
  'Bengalis':'msgkfcbh',
- 'Gurjaras':'msgkfcbh'
+ 'Gurjaras':'msgkfcbh',
+ 'Romans':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -617,7 +625,8 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Bohemians':'irc',
  'Dravidians':'irc',
  'Bengalis':'irc',
- 'Gurjaras':'irc'
+ 'Gurjaras':'irc',
+ 'Romans':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -660,7 +669,8 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Bohemians':'cp',
  'Dravidians':'cp',
  'Bengalis':'cp',
- 'Gurjaras':'cp'
+ 'Gurjaras':'cp',
+ 'Romans':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -704,7 +714,8 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Bohemians':'lr',
  'Dravidians':'lr',
  'Bengalis':'lr',
- 'Gurjaras':'lr'
+ 'Gurjaras':'lr',
+ 'Romans':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -749,7 +760,8 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Bohemians':'c',
  'Dravidians':'c',
  'Bengalis':'cp',
- 'Gurjaras':'cp'
+ 'Gurjaras':'cp',
+ 'Romans':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -790,7 +802,8 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Bohemians':'fib',
  'Dravidians':'fi',
  'Bengalis':'fib',
- 'Gurjaras':'fib'
+ 'Gurjaras':'fib',
+ 'Romans':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
@@ -825,7 +838,7 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)).filter(k=>{
+ const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
   // Regional upgrade research and production share the same legal roster for
   // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
   const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];
