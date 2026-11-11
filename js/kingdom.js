@@ -805,7 +805,7 @@ function technologyTreeModel(team=0,world=S){
   const building=B[kind],ref={k:kind,t:team};
   const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
    const d=U[key],requiredAge=typeof unitEffectiveAge==='function'?unitEffectiveAge(team,key,world.civ):Number.isInteger(d.age)?d.age:0;
-   return {id:key,name:d.n,age:requiredAge,cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ):d.cost||{})},
+   return {id:key,name:d.n,age:requiredAge,cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
     state:requiredAge>age?'locked':'available',
     reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
   });
