@@ -54,11 +54,14 @@ function paintedTeamImage(atlas,team){
 // copies per kingdom. The budget bounds retained canvas pixels, not browser/GPU
 // resident memory; evicted frames can remain alive until callers/GC release them.
 const TEAM_FRAME_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:32*1024*1024,hits:0,creations:0,evictions:0};
-function paintedTeamFrame(atlas,team,f){
+function paintedTeamFrame(atlas,team,f,kind){
  if(!atlas.meta.painted||atlas.meta.neutral)return {img:atlas.img,f};
- // Buildings/base fallbacks retain their established full-sheet sampling.
- // Animated troops already used a native crop in troopFrameTexture.
- if(!atlas.meta.motion)return {img:paintedTeamImage(atlas,team),f};
+ // Native building crops avoid repeatedly sampling full multi-megapixel team-tinted
+ // sheets on Xbox after a graphics context restoration. Retain unchanged full-
+ // sheet sampling for non-building static/external art; the same crop LRU
+ // already bounds painted motion frames and preserves their pixel/foot anchors.
+ const building=typeof kind==='string'&&kind.startsWith('bld_');
+ if(!atlas.meta.motion&&!building)return {img:paintedTeamImage(atlas,team),f};
  // External fractional-frame packs keep their former sampling behavior.
  if(![f.x,f.y,f.w,f.h].every(Number.isInteger))return {img:paintedTeamImage(atlas,team),f};
  let id=TEAM_FRAME_CACHE.ids.get(atlas.img);if(!id){id=TEAM_FRAME_CACHE.next++;TEAM_FRAME_CACHE.ids.set(atlas.img,id)}
@@ -91,7 +94,7 @@ function loadAtlas(id,src,meta){const a={img:null,meta,ok:false};ASSET.atl[id]=a
 function assetFrame(k,t,st,dir,time,heading,phase){const key=(SHIP_ART_FALLBACK[k]||k)+'/'+STN[st]+'/'+t;for(const a of ASSET_ANIM_INDEX.get(key)||[]){if(!a.ok||!a.img||!a.meta?.anims)continue;const an=a.meta.anims[key];if(!an)continue;const index=an.dirs&&Number.isFinite(heading)?((Math.round(heading/(Math.PI*2)*an.dirs.length)%an.dirs.length)+an.dirs.length)%an.dirs.length:an.dirs?((dir%an.dirs.length)+an.dirs.length)%an.dirs.length:0;const dl=an.dirs?an.dirs[index]:an.frames;if(!dl||!dl.length)continue;const frameIndex=Number.isFinite(phase)?Math.min(dl.length-1,Math.floor(Math.max(0,Math.min(1,phase))*dl.length)):Math.floor(Math.max(0,Number.isFinite(time)?time:0)/(an.dur>0?an.dur:.12))%dl.length;const f=dl[frameIndex];if(f&&f.w>0&&f.h>0){
  ASSET.hits++;
  // One descriptor per visible soldier, without spreading two temporary objects.
- const painted=paintedTeamFrame(a,t,f);
+ const painted=paintedTeamFrame(a,t,f,k);
  const frame={img:painted.img,f:painted.f,sourceFrame:f,sc:an.scale>0?an.scale:1,
   painted:!!a.meta.painted,animated:dl.length>1,referenceHeight:an.referenceHeight||f.h};
  if(an.referenceWidth)frame.referenceWidth=an.referenceWidth;

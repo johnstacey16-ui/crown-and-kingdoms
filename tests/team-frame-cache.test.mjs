@@ -55,3 +55,30 @@ test('asset readiness probes complete poses without allocating or tinting and tr
  assert.equal(f.hasReadyAssetPose('mil',1,1),false,'replacement metadata invalidates readiness');
  f.regAtlas('ready',{}, {anims:{[key]:{dirs:'invalid'}}});assert.equal(f.hasReadyAssetPose('mil',1,1),false,'malformed external directions cannot interrupt warming');
 });
+
+test('native painted building crops preserve anchors, reuse a small image and avoid a full tinted atlas',()=>{
+ const f=fixture(),img={width:1536,height:1024},frame={x:120,y:240,w:243,h:248,ax:121,ay:238};
+ f.regAtlas('architecture',img,{painted:true,anims:{
+  'bld_keep/idle/1':{dur:1,scale:1,frames:[frame]}
+ }});
+ const first=f.assetFrame('bld_keep',1,0,0,0),again=f.assetFrame('bld_keep',1,0,0,2);
+ assert.equal(first.painted,true);assert.equal(first.img.width,243);assert.equal(first.img.height,248);
+ assert.equal(first.f.x,0);assert.equal(first.f.y,0);
+ assert.equal(first.f.ax,121);assert.equal(first.f.ay,238);
+ assert.equal(first.sourceFrame,frame);
+ assert.equal(first.img,again.img,'the next frame reuses the same native crop');
+ assert.equal(f.canvases.length,1,'no 1536x1024 full-team tint canvas was allocated');
+ assert.equal(f.cache.creations,1);assert.equal(f.cache.pixels,243*248);
+ assert.deepEqual(f.calls[0],[img,120,240,243,248,0,0,243,248]);
+ const atlas=f.ASSET.atl.architecture;assert.equal(atlas.teams,undefined,'only a frame crop is held');
+});
+test('building crop context loss replaces a damaged derived surface without changing artwork or age frame metadata',()=>{
+ const f=fixture(),atlas={img:{},meta:{painted:true}},frame={x:3,y:5,w:80,h:90,ax:32,ay:86};
+ const first=f.draw(atlas,0,frame,'bld_house_age_3');
+ first.img.lost=true;first.img.events.contextlost();
+ assert.equal(f.cache.pixels,0);assert.equal(f.cache.entries.size,0);
+ const next=f.draw(atlas,0,frame,'bld_house_age_3');
+ assert.notEqual(first.img,next.img);assert.equal(f.cache.pixels,80*90);
+ assert.equal(next.f.ax,frame.ax);assert.equal(next.f.ay,frame.ay);
+ assert.equal(frame.x,3,'source atlas coordinates remain unmodified');
+});
