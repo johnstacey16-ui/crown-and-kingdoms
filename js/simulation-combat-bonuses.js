@@ -121,6 +121,20 @@ function hussiteWagonCover(a,t){
 function urumiChargeDamage(a){if(a?.k!=='urumi'||S.civ?.[a.t]!==37||!S.us.includes(a)||!Number.isFinite(S.t)||!Number.isFinite(a.urumiReadyAt)||S.t<a.urumiReadyAt)return 0;return 6+(S.tech?.[a.t]?.eliteUrumi?2:0)}
 /* Counter damage is evaluated after each civ's live age and alliances.
  * Only the bonus component is changed; ordinary attacks remain unchanged. */
+function chakramPierceTargets(a,t){
+ if(a?.k!=='chakram'||S.civ?.[a.t]!==39||!t||t.s||!S.us.includes(t))return [];
+ const origin=S.us.includes(a)?a:S.us.find(u=>u&&u.netId===a.sourceNetId&&
+    u.k==='chakram'&&u.t===a.t&&u.hp>0);
+ if(!origin)return [];
+ const x=Number.isFinite(a.sx)?a.sx:origin.x,y=Number.isFinite(a.sy)?a.sy:origin.y,
+  dx=t.x-x,dy=t.y-y,dist=dx*dx+dy*dy;
+ if(dist<.1||!Number.isFinite(dist))return [];
+ return S.us.filter(u=>u&&u!==origin&&u!==t&&u.hp>0&&!u.ld&&
+   isHostile(a.t,u.t)&&Number.isFinite(u.x)&&Number.isFinite(u.y)&&
+   ((u.x-x)*dx+(u.y-y)*dy)/dist>=.1&&
+   ((u.x-x)*dx+(u.y-y)*dy)/dist<=1.35&&
+   Math.abs((u.x-x)*dy-(u.y-y)*dx)/Math.sqrt(dist)<=.65).slice(0,3);
+}
 function factionCounterBonus(a,t,base){
  const bonus=Number.isFinite(base)?base:0;
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
@@ -151,6 +165,13 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
  const raw=secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
  t.hp-=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
+ if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
+   typeof chakramPierceTargets==='function'&&S.civ?.[a.t]===39){
+  const nearby=chakramPierceTargets(a,t),
+   splash=Math.max(1,Math.min(8,Math.round((hpBeforeHit-t.hp)*.6)));
+  for(const other of nearby)
+   dmgT({k:'chakram',t:a.t,[CK_TRAMPLE_DAMAGE]:splash},other);
+ }
  if(urumiCharge){
  a.urumiReadyAt=S.t+18;
  if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
