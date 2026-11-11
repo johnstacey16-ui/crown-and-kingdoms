@@ -578,6 +578,33 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "leitis",
+      "name": "Leitis",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "coust",
+      "name": "Coustillier",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "flemish",
+      "name": "Flemish Militia",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -802,14 +829,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "64 playable kinds; see catalogue",
+      "evidence": "67 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 64 kinds have painted multi-frame movement/activity art",
-      "remaining": "14 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "50 of 67 kinds have painted multi-frame movement/activity art",
+      "remaining": "17 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",

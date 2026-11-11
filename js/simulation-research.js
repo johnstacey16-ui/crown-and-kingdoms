@@ -11,13 +11,29 @@ function ageRequirements(t,world=S){
  * Keep the base TE catalogue immutable and calculate costs separately for each
  * owning team, so player, AI, synchronized command menus and payment agree.
  */
-function researchCost(b,k,civs=S?.civ){
+// Source-current Burgundian discounts and earlier economic research apply
+// to actual payment AND the read-only tech tree. Keep TE costs immutable.
+const BURGUNDIAN_ECONOMIC_TECHS=new Set(['loom','wheel','handcart','gath','carry','axe','saw','gmine','smine','coll','plow','crop']);
+function researchEffectiveAge(b,k,civs=S?.civ){
+ const age=TE[k]?.age||0;
+ return civs?.[b?.t]===33&&(BURGUNDIAN_ECONOMIC_TECHS.has(k)||k==='cavl')?
+  Math.max(0,age-1):age;
+}
+function researchCost(b,k,civs=S?.civ,world=S){
  const cost=TE[k]?.cost||{},index=civs?.[b?.t];
- return b?.k==='smith'&&Number.isInteger(index)&&CIV[index]?.n==='Spanish'&&cost.g
-  ?{...cost,g:0}:cost;
+ if(b?.k==='smith'&&Number.isInteger(index)&&CIV[index]?.n==='Spanish'&&cost.g)
+  return {...cost,g:0};
+ if(index!==33)return cost;
+ if(k==='ut33p'){
+  const villagers=(world?.us||[]).filter(u=>u.k==='vil'&&u.t===b.t&&u.hp>0&&!u.ld).length;
+  return {f:200+villagers*10,g:150+villagers*5};
+ }
+ if(b.k==='stable')return Object.fromEntries(Object.entries(cost).map(([x,n])=>[x,Math.ceil(n/2)]));
+ if(BURGUNDIAN_ECONOMIC_TECHS.has(k)&&cost.f)return {...cost,f:Math.ceil(cost.f*.6)};
+ return cost;
 }
 function research(b,k){if(!b||b.hp<=0||!b.done||!S||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k])return false;const t=b.t;if(b.q&&b.q.length){if(!t)note('Finish or cancel training before researching');return false}if(b.rs){if(!t)note('Already researching here');return false}if(S.bs.some(x=>x!==b&&x.t===t&&x.hp>0&&x.rs&&x.rs.k===k)){if(!t)note(k==='age'?'Age advance already in progress':'Technology already being researched');return false}let d;
 if(k==='age'){if(b.k!=='tc'){if(!t)note('Advance Age requires a Town Centre');return false}const g=AG[S.age[t]+1];if(!g){if(!t)note('Already Imperial Age');return false}const gate=ageRequirements(t);if(!gate.ready){if(!t)note('Needs 2 different current-age buildings ('+gate.count+'/2)'+(g.single?' or a completed Castle':''));return false}d=g}
-else{d=TE[k];if(!d||!Array.isArray(B[b.k].rs)||!rsOf(b).includes(k)){if(!t)note('Research unavailable at this building');return false}if(S.tech[t][k]||d.age>S.age[t]||(d.pre&&!S.tech[t][d.pre])){if(!t)note('Locked');return false}}
-if(k!=='age'&&b.k==='smith')d={...d,cost:researchCost(b,k)};
+else{d=TE[k];if(!d||!Array.isArray(B[b.k].rs)||!rsOf(b).includes(k)){if(!t)note('Research unavailable at this building');return false}if(S.tech[t][k]||researchEffectiveAge(b,k)>S.age[t]||(d.pre&&!S.tech[t][d.pre])){if(!t)note('Locked');return false}}
+if(k!=='age')d={...d,cost:researchCost(b,k)};
 if(!can(t,d.cost)){if(!t)note('Not enough resources');return false}pay(t,d.cost);b.rs={k,t:d.t};return true}

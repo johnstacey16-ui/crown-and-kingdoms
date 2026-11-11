@@ -54,7 +54,21 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
 {n:'Cumans',uu:'kipchak',d:'Fast mounted archers and Steppe Lancers; Steppe Husbandry and Cuman Mercenaries',fx:t=>{S.tech[t].cumanCavalry=1},
  ut:{k:'ut31',n:'Steppe Husbandry',cost:{f:400,g:300},t:50,age:2,fx:t=>{S.tech[t].steppeHusbandry=1}},
  ut2:{k:'ut31p',n:'Cuman Mercenaries',cost:{f:650,g:500},t:55,age:3,fx:t=>{S.tech[t].cumanMercenaries=1}},
- elite:{k:'eliteKipchak',n:'Elite Kipchak',cost:{w:1000,g:700},t:55,age:3,hpb:{kipchak:10},atkb:{kipchak:1},armor:{p:1}}}];
+ elite:{k:'eliteKipchak',n:'Elite Kipchak',cost:{w:1000,g:700},t:55,age:3,hpb:{kipchak:10},atkb:{kipchak:1},armor:{p:1}}},
+{n:'Lithuanians',uu:'leitis',d:'Mobile spears/skirmishers and relic-backed Leitis cavalry; Hill Forts and Tower Shields',fx:t=>{S.tech[t].lithMobility=1},
+ ut:{k:'ut32',n:'Hill Forts',cost:{f:250,g:250},t:40,age:2,fx:t=>{S.tech[t].hillForts=1}},
+ ut2:{k:'ut32p',n:'Tower Shields',cost:{f:500,g:200},t:40,age:3,fx:t=>{S.tech[t].towerShields=1}},
+ elite:{k:'eliteLeitis',n:'Elite Leitis',cost:{f:750,g:750},t:50,age:3,hpb:{leitis:20},atkb:{leitis:2},armor:{p:1}}},
+{n:'Burgundians',uu:'coust',d:'Charged Coustillier cavalry and Flemish Militia, cheaper early economy; Vineyards and Flemish Revolution',fx:t=>{S.tech[t].burgundianEconomy=1},
+ ut:{k:'ut33',n:'Burgundian Vineyards',cost:{f:400,g:300},t:50,age:2,fx:t=>{S.tech[t].vineyards=1}},
+ ut2:{k:'ut33p',n:'Flemish Revolution',cost:{f:200,g:150},t:10,age:3,fx:t=>{
+  for(const u of S.us)if(u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld){
+   u.k='flemish';u.hp=U.flemish.hp+(S.tech[t].hpb?.flemish||0);
+   u.o='i';u.tg=null;u.p=[];u.ret=0;u.car=0;u.ct=null;u.autoWorker=0;
+   u.cd=0;u.wind=0;u.windTarget=null;
+  }
+ }},
+ elite:{k:'eliteCoustillier',n:'Elite Coustillier',cost:{f:950,g:800},t:60,age:3,hpb:{coust:20},atkb:{coust:2},armor:{p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with

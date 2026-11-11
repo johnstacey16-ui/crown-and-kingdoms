@@ -97,6 +97,8 @@ if(u.o==='g'){
 if(u.ret){
  const b=S.bs.find(q=>dropoffKey(q)===u.dropKey&&dropoffCompatible(u,q));
  if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;
+ if(u.k==='vil'&&u.ct==='f'&&u.tg?.fm&&S.civ?.[u.t]===33&&S.tech[u.t]?.ut33)
+  S.res[u.t].g+=u.car*.15;
  if(u.ct==='w'&&u.k==='vil'&&S.civ?.[u.t]===28&&S.tech?.[u.t]?.ut28p)
   S.res[u.t].g+=u.car*.10;
  if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}

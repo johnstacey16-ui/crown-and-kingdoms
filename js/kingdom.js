@@ -736,11 +736,11 @@ function technologyTreeModel(team=0,world=S){
     reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
   });
   const research=rsOf(ref,world.civ).filter(key=>!!TE[key]).map(key=>{
-   const d=TE[key],pre=d.pre,requiredAge=Number.isInteger(d.age)?d.age:0;
+   const d=TE[key],pre=d.pre,requiredAge=typeof researchEffectiveAge==='function'?researchEffectiveAge(ref,key,world.civ):(Number.isInteger(d.age)?d.age:0);
    const reason=requiredAge>age?'Needs '+AG[requiredAge].n:
     pre&&!known[pre]?'Needs '+(TE[pre]?.n||pre):'';
    return {id:key,name:d.n,age:requiredAge,pre:pre||null,
-    cost:{...(typeof researchCost==='function'?researchCost(ref,key,world.civ):d.cost||{})},
+    cost:{...(typeof researchCost==='function'?researchCost(ref,key,world.civ,world):d.cost||{})},
     duration:d.t,state:known[key]?'researched':reason?'locked':'available',
     reason:known[key]?'Completed':reason};
   });

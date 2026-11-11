@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-32-v1",
+  "inventoryVersion": "ck-current-medieval-roster-34-v1",
   "description": "29 active medieval civilizations (3 newly appended). IDs 0–25 retained; content remains partial and unaccepted across DLC.",
   "rulesets": [
     {
@@ -81,7 +81,9 @@
           28,
           29,
           30,
-          31
+          31,
+          32,
+          33
         ],
         "buildings": [
           "rng"
@@ -136,6 +138,17 @@
         ],
         "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/tatars",
         "note": "Regional Steppe Lancer for Mongols, Tatars and Cumans; Elite line and full patch-specific stats pending"
+      },
+      {
+        "unit": "flemish",
+        "civilizations": [
+          33
+        ],
+        "buildings": [
+          "bar"
+        ],
+        "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-81058/",
+        "note": "Burgundian Feudal Barracks regional infantry and Imperial villager transformation; dedicated motion art pending"
       }
     ]
   },
@@ -839,6 +852,50 @@
         "university": "msgkfcbh",
         "blacksmith": "irc",
         "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 32,
+      "name": "Lithuanians",
+      "uniqueUnit": "leitis",
+      "uniqueTechnology": "ut32",
+      "secondUniqueTechnology": "ut32p",
+      "eliteUpgrade": "eliteLeitis",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaeskd",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 33,
+      "name": "Burgundians",
+      "uniqueUnit": "coust",
+      "uniqueTechnology": "ut33",
+      "secondUniqueTechnology": "ut33p",
+      "eliteUpgrade": "eliteCoustillier",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"

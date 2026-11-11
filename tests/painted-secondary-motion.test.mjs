@@ -6,11 +6,11 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const groups={
   ship:['fish','gal','fire','demo','cgal','trn','cog','turtle','caravel'],
-  mounted:['mamel','mgd','cata','camel','conq','boyar','tarkan','huszar','cavarch','arambai','konnik','keshik','kipchak','steppe','flamecamel'],
+  mounted:['mamel','mgd','cata','camel','conq','boyar','tarkan','huszar','cavarch','arambai','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust'],
   elephant:['eled','ele','batele'],
   siege:['cart','ram','bomb','treb','mang','scor','wagon','orgun'],
   ranged:['jan','chuko','hcan','genoa','plumed','rattan'],
-  foot:['king','gbeto','eagle','footkonnik']
+  foot:['king','gbeto','eagle','footkonnik','flemish']
 };
 const fullPainted=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'];
 function evaluator(){
@@ -19,18 +19,18 @@ function evaluator(){
   vm.runInContext(source+'\n;globalThis.evaluateSecondary=code=>eval(code)',sandbox);
   return sandbox.evaluateSecondary;
 }
-test('secondary fallback covers 45 base portraits with six family tempos',()=>{
+test('secondary fallback covers 48 base portraits with six family tempos',()=>{
   const run=evaluator(),kindList=Object.values(groups).flat();
-  assert.equal(kindList.length,45);
-  assert.equal(new Set(kindList).size,45);
-  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),45);
+  assert.equal(kindList.length,48);
+  assert.equal(new Set(kindList).size,48);
+  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),48);
   for(const [group,kinds] of Object.entries(groups)){
     for(const kind of kinds)assert.equal(run(`PAINT_SECONDARY['${kind}']`),group);
   }
   for(const kind of fullPainted){
     assert.equal(run(`PAINT_SECONDARY['${kind}']`),undefined,'do not alter individually painted animations');
   }
-  assert.equal(new Set([...kindList,...fullPainted]).size,64);
+  assert.equal(new Set([...kindList,...fullPainted]).size,67);
 });
 test('walking pose is repeatable, state-specific and varies over game time across all six families',()=>{
   const run=evaluator();

@@ -10,7 +10,7 @@ const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai','konnik','keshik','steppe','kipchak','flamecamel']);
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai','konnik','keshik','steppe','kipchak','flamecamel','leitis','coust']);
 const SPEAR_CAMELS=new Set(['camel','mamel']);
 const SPEAR_ELEPHANTS=new Set(['ele','eled','batele']);
 function spearLineBonus(a,t){
@@ -30,7 +30,7 @@ function spearLineBonus(a,t){
 const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','rattan']);
 const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch','arambai','kipchak']);
 // Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
-const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele','konnik','keshik','steppe','kipchak','flamecamel']);
+const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele','konnik','keshik','steppe','kipchak','flamecamel','leitis','coust']);
 const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
@@ -73,27 +73,42 @@ function combatArmor(t,cls){
   (S.civ?.[t.t]===30&&ta.ut30&&['scout','steppe','cavarch','kipchak'].includes(t.k)?1:0);
  const regionalArmor=(S.civ?.[t.t]===26&&U[t.k]?.sh&&ta.ut26?1:0)+
   (S.civ?.[t.t]===27&&t.k==='batele'?(ta.ut27p?2:1):0);
+ const lithShields=S.civ?.[t.t]===32&&ta.ut32p&&(t.k==='spear'||t.k==='skirm')&&cls==='p'?2:0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+(t.k==='turtle'&&ta.eliteTurtle?1:0);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
 // A non-serializable private marker prevents saved/network-provided attacker
 // properties from pretending their ordinary hits are armour-piercing trample.
 const CK_TRAMPLE_DAMAGE=Symbol('ck.trample');
-function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+// Count living Monasteries holding real relics. Enemy and destroyed relic
+// buildings cannot contribute the current-version Lithuanian cavalry bonus.
+function lithuanianRelicAttack(a){
+ if(S.civ?.[a.t]!==32||!['knight','leitis'].includes(a.k))return 0;
+ return Math.min(4,S.rel.filter(r=>r.m&&r.m.t===a.t&&r.m.k==='monastery'&&
+  r.m.hp>0&&r.m.done).length);
+}
+function burgundianChargeDamage(a){
+ if(a.k!=='coust'||S.civ?.[a.t]!==33||!S.us.includes(a))return 0;
+ return Number.isFinite(a.chargeReadyAt)&&S.t>=a.chargeReadyAt?
+  (S.tech[a.t]?.eliteCoustillier?30:25):0;
+}
+function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
- (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+
+ (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+
+ (S.civ?.[a.t]===33&&['hcan','bomb','cgal'].includes(a.k)?Math.round(ak.dmg*.25):0)+
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=combatArmor(t,cls);t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);// Reward only real, living Keshiks striking a real hostile combat unit.
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=a.k==='leitis'&&S.civ?.[a.t]===32&&!t.s?0:combatArmor(t,cls);t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);// Reward only real, living Keshiks striking a real hostile combat unit.
  // Fake attacker objects and building hits must not mint gold.
  if(a.k==='keshik'&&S.civ?.[a.t]===30&&!t.s&&t.hp>0&&
     S.us.includes(a)&&S.us.includes(t))S.res[a.t].g+=1;
+ if(a.k==='coust'&&S.civ?.[a.t]===33&&S.us.includes(a))a.chargeReadyAt=S.t+35;
  fx.push({x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,l:.2,k:'h'});if(!t.s)t.hit=gt;emit('spark',t.x+(t.s||0)/2,t.y+(t.s||0)/2,t.s?3:5,{s:2.2,vz:2.6,l:.35,c:ak.rng>2?'#e8d8a0':'#ffb050',r:1.6});
 hitSnd(a,t);
 if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.al=S.t;note('Under attack! L3 with nothing selected jumps there');sfx('horn');rumble(260,.6,.3)}}
@@ -244,6 +259,7 @@ function attackReload(u){
 function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.atkR2?3:t.bodkin?2:t.atkR?1:0):0}
 function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)
+ +(a.k==='tca'&&S.civ?.[a.t]===32&&S.tech[a.t]?.ut32?3:0)
  +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
  +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
  +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='treb'&&S.civ?.[a.t]===30&&S.tech[a.t]?.ut30p?2:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}

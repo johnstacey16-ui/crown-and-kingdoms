@@ -52,7 +52,7 @@ const checks = [
   ['player-built farms record ownership and charge only after creation', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);\s*if\(!n\)return note\('Cannot build there'\);\s*n\.t=0;pay\(0,d\.cost\)/.test(source)],
   ['AI-built farms record ownership', /const farm=addN\('f',x,y,farmFood\(t\),1\);if\(!farm\)continue;pay\(t,B\.farm\.cost\);farm\.t=t/.test(source)],
   ['farm technology only affects the researching kingdom', /n\.k==='f'&&n\.fm&&n\.t===b\.t&&S\.nd\[n\.y\*W\+n\.x\]===n/.test(source)],
-  ['infantry armour upgrades use explicit unit classes', source.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto','eagle','footkonnik'])")],
+  ['infantry armour upgrades use explicit unit classes', source.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto','eagle','footkonnik','flemish'])")],
   ['archer armour upgrades use explicit unit classes', source.includes("const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan','hcan','conq','wagon','eled','mgd','cavarch','arambai','rattan','kipchak'])")],
   ['combat damage applies both armour class upgrades', source.includes("ib=(INFARM.has(t.k)?((ta.armI?1:0)+(ta.armI2?1:0)+(ta.armI3?(cls==='p'?2:1):0)):0)+(ARCHARM.has(t.k)?((ta.armR?1:0)+(ta.armR2?1:0)+(ta.armR3?(cls==='p'?2:1):0)):0)+(CAVARM.has(t.k)?((ta.armC?1:0)+(ta.armC2?1:0)+(ta.armC3?(cls==='p'?2:1):0)):0)")],
   ['siege splash damages hostile units only', source.includes('(e!==p.t||!direct)&&isHostile(p.a.t,e.t)&&e.hp>0&&!e.ld&&(e.x-ix)*(e.x-ix)+(e.y-iy)*(e.y-iy)<splash2')],

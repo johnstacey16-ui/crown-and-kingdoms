@@ -44,7 +44,7 @@ function unitVisualPose(u,time){
 // This includes Janissaries/Genoese Crossbowmen if their new sheets fail to load.
 // Fallback transforms are distinct from individually painted motion frames.
 const PAINT_SECONDARY=Object.freeze({
-  orgun:'siege',caravel:'ship',arambai:'mounted',rattan:'ranged',batele:'elephant',konnik:'mounted',footkonnik:'foot',keshik:'mounted',kipchak:'mounted',steppe:'mounted',flamecamel:'mounted',eagle:'foot',cavarch:'mounted',turtle:'ship',cart:'siege',fish:'ship',gal:'ship',fire:'ship',demo:'ship',cgal:'ship',trn:'ship',cog:'ship',
+  orgun:'siege',caravel:'ship',arambai:'mounted',rattan:'ranged',batele:'elephant',leitis:'mounted',coust:'mounted',flemish:'foot',konnik:'mounted',footkonnik:'foot',keshik:'mounted',kipchak:'mounted',steppe:'mounted',flamecamel:'mounted',eagle:'foot',cavarch:'mounted',turtle:'ship',cart:'siege',fish:'ship',gal:'ship',fire:'ship',demo:'ship',cgal:'ship',trn:'ship',cog:'ship',
   ram:'siege',mamel:'mounted',jan:'ranged',chuko:'ranged',
   eled:'elephant',hcan:'ranged',bomb:'siege',mgd:'mounted',
   cata:'mounted',ele:'elephant',treb:'siege',camel:'mounted',

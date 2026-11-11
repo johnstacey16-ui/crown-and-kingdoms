@@ -2,6 +2,9 @@
  * Rally dispatch is owned by simulation-building-production.js. */
 function upB(b,dt){if(!b||!b.done||b.hp<=0||!Number.isFinite(dt)||dt<=0)return;
 if(b.cg?.length)healGarrison(b,dt);
+ if(b.k==='tc'&&S.civ?.[b.t]===32&&!b.lithFoodGranted){
+  S.res[b.t].f+=100;b.lithFoodGranted=true;
+ }
 if(b.k==='feitoria'&&S.civ?.[b.t]===26){
  // A constructed Portuguese trade outpost produces modest resources
  // continuously. No fabricated villager/entity or local timer is needed.
@@ -11,7 +14,10 @@ if(b.k==='feitoria'&&S.civ?.[b.t]===26){
 if(b.k==='monastery'){
  // Hunnic Atheism halves relic income of hostile kingdoms, not allies.
  const atheist=S.civ?.some((id,team)=>id===17&&S.tech?.[team]?.ut17p&&isHostile(team,b.t));
- S.res[b.t].g+=S.rel.filter(q=>q.m===b).length*.5*(atheist?.5:1)*dt;
+ const relics=S.rel.filter(q=>q.m===b).length;
+ S.res[b.t].g+=relics*.5*(atheist?.5:1)*dt;
+ const burgTeam=S.civ?.some((id,t)=>id===33&&(t===b.t||diplomacyRelation(t,b.t)==='ally'));
+ if(burgTeam)S.res[b.t].f+=relics*.5*dt;
 }// Celtic Stronghold heals allied infantry near a living Castle at 30 HP/min.
 // Scan once per second per Castle, not at the full simulation tick rate.
 if(b.k==='castle'&&S.civ?.[b.t]===6&&S.tech[b.t]?.ut6p){
