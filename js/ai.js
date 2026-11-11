@@ -146,6 +146,7 @@ aiRebal(vil,R,t);
 aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders);
 aiRelieveAlliedBases(t,A,arm,nearbyRaiders);
 aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders);
+aiGeorgianRidgeDefence(t,A,arm,tc,nearbyRaiders);
 aiManageMarketTrade(t,A,bl,R);
 if(S.civ?.[t]===39&&typeof garrisonLivestockMill==='function')
  for(const b of bl)if(b.k==='mill'&&garrisonLivestockMill(b))break;
