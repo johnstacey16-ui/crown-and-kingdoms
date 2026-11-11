@@ -5,7 +5,7 @@
  * Unit catalogue remains immutable and cancellation refunds the paid amount. */
 function unitEffectiveAge(team,kind,civs=S?.civ){
  const age=Number.isInteger(U[kind]?.age)?U[kind].age:0;
- return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):civs?.[team]===37&&kind==='eled'?Math.max(0,age-1):age;
+ return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):([37,38,39].includes(civs?.[team]))&&kind==='eled'?Math.max(0,age-1):age;
 }
 function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
  const cost=U[kind]?.cost||{};
