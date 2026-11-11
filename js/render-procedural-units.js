@@ -97,8 +97,29 @@ else{g.strokeStyle='#3a2a18';g.lineWidth=2.4;g.beginPath();g.moveTo(0,-11);g.lin
 if(['gal','fire','cgal'].includes(k)){g.strokeStyle='#5a3b1e';g.lineWidth=1.4;for(const o of[-12,-4,4,12]){g.beginPath();g.moveTo(o,-6);g.lineTo(o-2-Math.sin(ph+o)*3,4);g.stroke()}}
 if(k==='cgal'){g.fillStyle='#343940';g.strokeStyle='#b8aa81';for(const x0 of[-9,7]){g.fillRect(x0,-16,5,11);g.lineWidth=1;g.strokeRect(x0,-16,5,11)}}
 if(k==='trn'){g.fillStyle='#8a6a3a';g.fillRect(-10,-17,8,6);g.fillRect(-1,-17,8,6);g.strokeStyle=E;g.lineWidth=.6;g.strokeRect(-10,-17,8,6);g.strokeRect(-1,-17,8,6)}}}
-function paintUnit(g,k,tc,st,fr){if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun'||k==='husswagon'||k==='houfnice')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
+function paintRatha(g,k,tc,st,fr){
+ const bob=st===1?Math.sin(fr*1.57)*1.5:0;
+ g.save();g.translate(0,bob);
+ g.fillStyle='#8a5f42';g.beginPath();g.ellipse(9,-14,12,6,0,0,7);g.fill();
+ g.fillStyle='#44362e';for(const x of[3,8,13,17])g.fillRect(x,-8,2.5,9);
+ g.fillStyle='#a88158';g.beginPath();g.ellipse(19,-18,5,4,0,0,7);g.fill();
+ g.strokeStyle='#654a34';g.lineWidth=1.5;g.beginPath();g.moveTo(-16,-9);g.lineTo(7,-15);g.stroke();
+ g.fillStyle='#b58c53';g.fillRect(-20,-17,22,10);
+ g.fillStyle=tc;g.fillRect(-19,-20,18,4);
+ g.fillStyle='#503c2e';for(const x of[-14,-2]){g.beginPath();g.arc(x,-4,6,0,7);g.fill();
+  g.strokeStyle='#cbb07f';g.lineWidth=1.5;g.stroke()}
+ g.fillStyle='#e2b58c';g.beginPath();g.arc(-12,-28,4,0,7);g.fill();
+ g.fillStyle='#8c533e';g.fillRect(-17,-24,10,10);
+ g.strokeStyle=k==='ratha'?'#c8ac7d':'#b6bbc3';g.lineWidth=2;
+ g.beginPath();if(k==='ratha'){g.arc(-18,-25,8,-1.1,1.2)}
+ else {g.moveTo(-12,-20);g.lineTo(8,-35)}g.stroke();
+ g.restore();
+}
+function paintUnit(g,k,tc,st,fr){
+ if(k==='ratha'||k==='rathaM'){paintRatha(g,k,tc,st,fr);return}
+ if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun'||k==='husswagon'||k==='houfnice')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{
+ chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'axe',shield:'none',tab:1},
  urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'sword',shield:'round',mail:1,tab:1},
  obuch:{cloth:'#796456',pant:'#524d48',helm:'great',wpn:'mace',shield:'round',mail:1,tab:1},
  winged:{cloth:'#a17a55',pant:'#594536',helm:'helm',wpn:'spear',shield:'kite',mail:1,tab:1},
