@@ -119,6 +119,8 @@ function paintUnit(g,k,tc,st,fr){
  if(k==='ratha'||k==='rathaM'){paintRatha(g,k,tc,st,fr);return}
  if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun'||k==='husswagon'||k==='houfnice')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{
+ centurion:{cloth:'#8e3e35',pant:'#54372d',helm:'great',wpn:'spear',shield:'round',mail:1,tab:1},
+ legionary:{cloth:'#a85941',pant:'#4b3130',helm:'helm',wpn:'sword',shield:'kite',mail:1,tab:1},
  chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'axe',shield:'none',tab:1},
  urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'sword',shield:'round',mail:1,tab:1},
  obuch:{cloth:'#796456',pant:'#524d48',helm:'great',wpn:'mace',shield:'round',mail:1,tab:1},
