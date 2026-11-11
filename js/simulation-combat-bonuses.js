@@ -161,6 +161,16 @@ function georgianMonaspaFormationBonus(a){
   nearby++;
  return Math.min(4,nearby);
 }
+function terrainElevation(e){
+ if(!S?.el||!e||!Number.isFinite(e.x)||!Number.isFinite(e.y))return 0;
+ const x=Math.floor(e.x+(e.s||0)/2),y=Math.floor(e.y+(e.s||0)/2);
+ return x>=0&&y>=0&&x<W&&y<H?S.el[y*W+x]||0:0;
+}
+/* The defender must be Georgian and actually occupy higher ground.
+ * Ranged shots retain their attacker's launch position in their snapshot. */
+function georgianElevationDamageFactor(a,t){
+ return S?.civ?.[t?.t]===42&&terrainElevation(t)>terrainElevation(a)?.85:1;
+}
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t];
  if(t.k==='shrivamsha'&&S.civ?.[t.t]===39&&S.us.includes(t)&&ak.rng>2&&
    !a[CK_TRAMPLE_DAMAGE]&&(Number.isInteger(t.dodgeCharges)?t.dodgeCharges:5)>0){
@@ -184,7 +194,8 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
   const raw=minorGalleyArrow?Math.max(1,1-combatArmor(t,'p')):
     secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
- t.hp-=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
+ const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
+  t.hp-=strike*georgianElevationDamageFactor(a,t);
  if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
    typeof chakramPierceTargets==='function'&&S.civ?.[a.t]===39){
   const nearby=chakramPierceTargets(a,t),
@@ -417,9 +428,9 @@ function launchProjectile(a,t){
   aim.tx=Math.max(0,Math.min(W-.001,aim.tx-dy/distance*deviation));
   aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
  }
- S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
  if(a.k==='gal'&&S.civ?.[a.t]===41&&S.us?.includes(a)&&a.hp>0&&!a.ld)
-  S.pj.push({x:a.x,y:a.y,t,a:{k:'gal',t:a.t,galleySecondary:true},...aim});
+  S.pj.push({x:a.x,y:a.y,t,a:{k:'gal',t:a.t,x:a.x,y:a.y,galleySecondary:true},...aim});
  if(a.k==='chakram'&&S.civ?.[a.t]===39&&S.us.includes(a)){
   const projectile=S.pj[S.pj.length-1];
   projectile.a.sourceNetId=a.netId;
@@ -427,11 +438,11 @@ function launchProjectile(a,t){
  }
  if(a.k==='kipchak'&&S.civ?.[a.t]===31){
   const count=S.tech?.[a.t]?.eliteKipchak?2:1;
-  for(let i=0;i<count;i++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+  for(let i=0;i<count;i++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
  }
  if(a.k==='thirisadai'&&S.civ?.[a.t]===37){
   const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
-  for(const spread of [-.3,.3])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},
+  for(const spread of [-.3,.3])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},
    tx:Math.max(0,Math.min(W-.001,aim.tx-dy/length*spread)),
    ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*spread))});
  }
@@ -439,19 +450,19 @@ function launchProjectile(a,t){
  // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
  // second projectile in the normal collision/damage path, not a visual effect.
  if(a.k==='scor'&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
-  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
  // Original Portuguese Organ Gun salvo: three standard deterministic pellets
  // that retain normal collision, target death and save/network semantics.
  if(a.k==='orgun'&&S.civ?.[a.t]===26){
   const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
-  for(const spread of [-.35,.35])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},
+  for(const spread of [-.35,.35])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},
    tx:Math.max(0,Math.min(W-.001,aim.tx-dy/length*spread)),
    ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*spread))});
  }
  // Shinkichon adds two more Korean Turtle Ship rockets via the same
  // authoritative projectile simulation and normal damage/death accounting.
  if(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24)
-  for(let rocket=0;rocket<2;rocket++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+  for(let rocket=0;rocket<2;rocket++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
 }
 /* Trample is a second, deterministic direct-damage pass after the primary
  * melee strike. It never re-enters hit(), so secondary victims cannot cause

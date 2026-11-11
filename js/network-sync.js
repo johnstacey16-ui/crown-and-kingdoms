@@ -353,13 +353,14 @@
       result:world.over || null, resultReason:world.why || null,
       landGrid:world.g ? Array.from(world.g) : null,
       waterGrid:world.wt ? Array.from(world.wt) : null,
+       elevationGrid:world.el ? Array.from(world.el) : null,
       nodes:world.nodes.map(n => ({
         id:n.netId || null, kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
         farm:n.fm, animal:n.an, fish:n.fi, trap:n.trap
       })),
       units, buildings,
       projectiles:(world.pj || []).map(p => ({
-        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t,secondaryGalleyArrow:p.a.galleySecondary===true} : null
+        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t,secondaryGalleyArrow:p.a.galleySecondary===true,sourceX:p.a.x,sourceY:p.a.y} : null
       })),
       relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
       ai:(world.ai || []).map(a => ({
