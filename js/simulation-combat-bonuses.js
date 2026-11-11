@@ -42,7 +42,7 @@ function camelLineBonus(a,t){
  return U.camel.bn?.[key]||U.camel.bn?.[alias]||0;
 }
 function scoutLineBonus(a,t){
- return t.k==='mon'?(S.tech[a.t]?.huss?12:S.tech[a.t]?.lcav?10:6):0;
+ return t.k==='mon'?(a.k==='winged'||S.tech[a.t]?.huss?12:S.tech[a.t]?.lcav?10:6):0;
 }
 function skirmisherBonus(a,t){
  const tech=S.tech[a.t]||{},elite=!!tech.elsk,k=t.k;
@@ -77,7 +77,9 @@ function combatArmor(t,cls){
  const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ const strip=!t.s&&Number.isInteger(t.obuchArmorShred)?Math.max(0,Math.min(10,t.obuchArmorShred)):0;
+ return t.s?armor:armor-Math.min(Math.max(0,armor),strip);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
@@ -96,16 +98,32 @@ function burgundianChargeDamage(a){
  return Number.isFinite(a.chargeReadyAt)&&S.t>=a.chargeReadyAt?
   (S.tech[a.t]?.eliteCoustillier?30:25):0;
 }
-function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
  (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+
+ (['scout','winged'].includes(a.k)&&!t.s&&
+  (SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k))&&
+  typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(35)?1:0)+
  (S.civ?.[a.t]===33&&['hcan','bomb','cgal'].includes(a.k)?Math.round(ak.dmg*.25):0)+
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=a.k==='leitis'&&S.civ?.[a.t]===32&&!t.s?0:combatArmor(t,cls);t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);// Reward only real, living Keshiks striking a real hostile combat unit.
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=a.k==='leitis'&&S.civ?.[a.t]===32&&!t.s?0:combatArmor(t,cls);const hpBeforeHit=t.hp;t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
+ // Persistent Obuch armour stripping requires a genuine attacker and victim.
+ if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
+  t.obuchArmorShred=Math.min(10,Math.max(0,t.obuchArmorShred|0)+1);
+ // Lechitic Legacy deals bounded splash once on a genuine Scout-line hit.
+ if((a.k==='scout'||a.k==='winged')&&S.civ?.[a.t]===35&&tk.ut35p&&
+    !t.s&&S.us.includes(a)&&S.us.includes(t)){
+  const splash=Math.max(1,Math.min(8,Math.round(Math.max(1,hpBeforeHit-t.hp)/3)));
+  const secondary={k:a.k,t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:splash};
+  for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&
+    isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=.75)
+    dmgT(secondary,victim);
+ }
+ // Reward only real, living Keshiks striking a real hostile combat unit.
  // Fake attacker objects and building hits must not mint gold.
  if(a.k==='keshik'&&S.civ?.[a.t]===30&&!t.s&&t.hp>0&&
     S.us.includes(a)&&S.us.includes(t))S.res[a.t].g+=1;
