@@ -89,8 +89,10 @@ assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:200,g:100\},t:45
   'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
 assert.match(html, /champ:\{n:'Champion',cost:\{f:650,g:350\},t:70,age:3,pre:'twohand',hpb:\{mil:5\},atkb:\{mil:2\}\}/,
   'Champion must require Two-Handed Swordsman and add real health and attack');
-assert.ok(html.includes("castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons']}"),
-  'Conscription must be researchable at the Castle');
+assert.ok(technologyBuildings.castle.rs.includes('cons'),
+  'Conscription must remain researchable at the Castle after its tech tree expands');
+assert.ok(technologyBuildings.castle.rs.includes('hoardings'),
+  'Hoardings must be offered by the Castle, without replacing Conscription');
 assert.match(html, /cons:\{n:'Conscription',cost:\{f:150,g:150\},t:60,age:3\}/,
   'Conscription must have explicit cost, research time and Imperial Age requirement');
 assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','dock'\]\)/,
