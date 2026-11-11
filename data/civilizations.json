@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-38-v1",
-  "description": "38 partial medieval civilizations (stable IDs 0–37), including Dravidian infantry/naval mechanics. Exact patch parity, art and Xbox hardware remain incomplete.",
+  "inventoryVersion": "ck-current-medieval-roster-40-v1",
+  "description": "40 partial medieval civilizations; Bengalis and Gurjaras appended with ranged/melee Ratha, Chakram, Camel Scout and Shrivamsha rules. 2026 balance, alternate rulepacks and hardware acceptance incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -29,7 +29,8 @@
           9,
           13,
           22,
-          23
+          23,
+          39
         ],
         "buildings": [
           "stable"
@@ -121,7 +122,8 @@
         "civilizations": [
           12,
           27,
-          28
+          28,
+          38
         ],
         "buildings": [
           "stable"
@@ -168,7 +170,9 @@
       {
         "unit": "eled",
         "civilizations": [
-          37
+          37,
+          38,
+          39
         ],
         "buildings": [
           "rng"
@@ -186,6 +190,28 @@
         ],
         "source": "https://www.aoe2insights.com/civilization/dravidians/",
         "note": "Dravidian Imperial Age unique warship with multiple projectile attacks, separate Elite upgrade."
+      },
+      {
+        "unit": "shrivamsha",
+        "civilizations": [
+          39
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://age2hub.com/en/civs/gurjaras",
+        "note": "Gurjara Castle Age mounted raider with regenerating projectile dodge charges."
+      },
+      {
+        "unit": "camelscout",
+        "civilizations": [
+          39
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://age2hub.com/en/civs/gurjaras",
+        "note": "Gurjara Feudal Age Camel Scout trains before Camel Rider becomes available."
       }
     ]
   },
@@ -1024,6 +1050,50 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fi"
+      }
+    },
+    {
+      "id": 38,
+      "name": "Bengalis",
+      "uniqueUnit": "ratha",
+      "uniqueTechnology": "ut38",
+      "secondUniqueTechnology": "ut38p",
+      "eliteUpgrade": "eliteRatha",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphvesu",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 39,
+      "name": "Gurjaras",
+      "uniqueUnit": "chakram",
+      "uniqueTechnology": "ut39",
+      "secondUniqueTechnology": "ut39p",
+      "eliteUpgrade": "eliteChakram",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltphvesu",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
       }
     }
   ]
