@@ -18,7 +18,13 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 'Elite Urumi Swordsman':'Increase Urumi combat strength and hit points.',
 'Elite Thirisadai':'Improve Dravidian warship hit points and attack.',
 'Medical Corps':'Dravidian elephant units regenerate 30 hit points per minute.',
-'Wootz Steel':'Dravidian melee infantry and cavalry ignore enemy unit armour.'};
+'Wootz Steel':'Dravidian melee infantry and cavalry ignore enemy unit armour.',
+'Centurion':'Roman mounted commander; nearby Militia and Legionaries attack and move faster.',
+'Legionary':'Roman armoured infantry replacing the late Militia line after research.',
+'Legionary Upgrade':'Turns Roman Militia into Legionaries and unlocks Barracks production.',
+'Ballistas':'Roman Scorpions attack faster and Galleys deal more damage.',
+'Comitatenses':'Roman infantry and cavalry train faster and charge for bonus damage.',
+'Elite Centurion':'Roman Centurions gain strength and a wider infantry aura.'};
 
 function stt(a){
  if(!a||a.q)return '';
