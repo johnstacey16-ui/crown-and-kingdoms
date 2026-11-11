@@ -6,12 +6,8 @@ const MILITARY_PRODUCTION_BUILDINGS=new Set(['bar','rng','stable','siege','castl
  * Resolve on every queue tick so diplomacy changes and restored saves agree. */
 function civilizationTeamWorkRate(b,kind='train',researchKey=null){
  if(!S||!Array.isArray(S.civ)||!Number.isInteger(b?.t)||b.t<0||b.t>=S.civ.length)return 1;
- const seen=new Set();let rate=1;
- for(let team=0;team<S.civ.length;team++){
-  if(team!==b.t&&diplomacyRelation(team,b.t)!=='ally')continue;
-  const id=S.civ[team];
-  if(!Number.isInteger(id)||seen.has(id))continue;
-  seen.add(id);
+ let rate=1;
+ for(const id of alliedCivilizationIds(b.t)){
   const civ=CIV[id];
   if(!civ)continue;
   const buildingRate=civ.teamWork?.[b.k];
