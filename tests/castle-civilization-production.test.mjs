@@ -108,21 +108,21 @@ test('Goths research Anarchy and Perfusion as distinct Castle technologies with 
  assert.equal(run("research(castles[0],'ut18p')"),true);
  run("upB(castles[0],TE.ut18p.t)");
  assert.equal(run('S.tech[0].perfusion'),1);
- assert.equal(run("trainRate(barracks[0],'mil')"),2,'Perfusion doubles Barracks unit training');
+ assert.equal(run("trainRate(barracks[0],'mil')"),2.4,'Perfusion and Goth Barracks team bonus stack');
  assert.equal(run("trainRate(barracks[1],'mil')"),1,'enemy Barracks remain unchanged');
  run("S.tech[0].cons=1");
- assert.equal(run("trainRate(barracks[0],'mil')"),8/3,'Conscription still stacks');
+ assert.ok(Math.abs(run("trainRate(barracks[0],'mil')")-3.2)<1e-9,'Conscription still stacks');
  run("S.tech[0].cons=0;research(barracks[0],'man');research(barracks[1],'man')");
  assert.equal(run("barracks[0].rs.k"),'man');
  assert.equal(run("barracks[1].rs.k"),'man');
  run("upB(barracks[0],10);upB(barracks[1],10)");
- assert.equal(run("barracks[0].rs.t"),run('TE.man.t')-20,'Goth research completes twice as fast');
+ assert.equal(run("barracks[0].rs.t"),run('TE.man.t')-24,'Goth research includes the Barracks team bonus');
  assert.equal(run("barracks[1].rs.t"),run('TE.man.t')-10,'enemy research has normal speed');
  assert.equal(run('saveG()'),true);
  assert.equal(run('loadG()'),true);
  assert.equal(run('S.tech[0].perfusion'),1,'current-build save restores Perfusion');
  assert.equal(run("trOf(S.bs.find(b=>b.k==='bar'&&b.t===0)).includes('huskarl')"),true);
- assert.equal(run("trainRate(S.bs.find(b=>b.k==='bar'&&b.t===0),'mil')"),2);
+ assert.equal(run("trainRate(S.bs.find(b=>b.k==='bar'&&b.t===0),'mil')"),2.4);
 });
 
 test('Elite Huskarl upgrades only Gothic units, armor, counters and current-build saves',()=>{
