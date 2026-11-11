@@ -635,10 +635,103 @@ globalThis.__CK_TEST__ = {
     const addUnits = (kind, count) => {
       for (let n = 0; n < count; n++) addU(0, kind, 4 + (n % 12), 4 + (Math.floor(n / 12) % 12));
     };
+    // Build *real* original scenario entities for optional authored goals.
+    // No predicate is mocked, and actual campaign victory logic is unchanged.
+    const placeNear = (kind, centerX, centerY, radius=5) => {
+      const size=B[kind]?.s||1;
+      for(let ring=0;ring<=radius;ring++)
+      for(let dy=-ring;dy<=ring;dy++)
+      for(let dx=-ring;dx<=ring;dx++){
+        if(Math.max(Math.abs(dx),Math.abs(dy))!==ring)continue;
+        const x=Math.round(centerX-size/2+dx),y=Math.round(centerY-size/2+dy);
+        if(x<2||y<2||x+size>=W-2||y+size>=H-2)continue;
+        let clear=true;
+        for(let yy=y;yy<y+size&&clear;yy++)for(let xx=x;xx<x+size;xx++){
+          const cell=yy*W+xx;
+          if(S.wt[cell]===1||S.g[cell]||S.nd[cell]){clear=false;break}
+        }
+        if(clear)return addB(0,kind,x,y,true);
+      }
+      return null;
+    };
+    const between = (kind,goal,ratio=.35) => {
+      const home=tcOf(0),target=goal==='centre'?{x:W/2,y:H/2,s:0}:tcOf(1);
+      if(!home||!target)throw Error('Forward campaign objective needs both original bases');
+      const x=home.x+home.s/2+(target.x+target.s/2-home.x-home.s/2)*ratio;
+      const y=home.y+home.s/2+(target.y+target.s/2-home.y-home.s/2)*ratio;
+      const building=placeNear(kind,x,y);
+      if(!building)throw Error('No legal original '+kind+' forward site');
+      return building;
+    };
     for (let index = 0; index < CAMP.length; index++) {
       this.startCampaign(index);
       const scenario = CAMP[index];
       const initialTrue = scenario.goals.filter(goal => goal.ok()).map(goal => goal.t);
+      const observed=new Set();
+      const observe=()=>{for(const goal of scenario.goals)if(goal.ok()===true)observed.add(goal.id)};
+      // Stage temporal optional goals first: for example, Kronburg flank
+      // towers must fall *before* its living Castle is destroyed.
+      if(index===2)between('outpost','enemy',.33);
+      if(index===3){
+        for(const id of cmp.d.relicRoadHunterIds||[]){
+          const hunter=S.us.find(u=>u.netId===id&&u.t===1);
+          if(hunter)hunter.hp=0;
+        }
+      }
+      if(index===4){
+        for(const id of cmp.d.kronburgFlankIds||[]){
+          const flank=S.bs.find(b=>b.netId===id&&b.t===1&&b.k==='tower');
+          if(flank)flank.hp=0;
+        }
+      }
+      if(index===5){
+        const post=between('outpost','enemy',.33);
+        for(let n=0;n<3;n++)addU(0,'mil',post.x+post.s/2+n*.3,post.y+post.s/2);
+      }
+      if(index===6){
+        const tower=between('tower','enemy',.33);
+        for(let n=0;n<3;n++)addU(0,'arc',tower.x+tower.s/2+n*.3,tower.y+tower.s/2);
+      }
+      if(index===8){
+        const home=tcOf(0),castle=S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0);
+        if(home&&castle){
+          const cx=home.x+home.s/2,cy=home.y+home.s/2;
+          const tx=castle.x+castle.s/2,ty=castle.y+castle.s/2;
+          if(!placeNear('siege',cx+(tx-cx)*.72,cy+(ty-cy)*.72,9))
+            throw Error('No real Ashford forward Siege Workshop site');
+        }
+        for(const id of cmp.d.ashfordSignalIds||[]){
+          const signal=S.bs.find(b=>b.netId===id&&b.t===1);
+          if(signal)signal.hp=0;
+        }
+      }
+      if(index===9){
+        const relay=S.bs.find(b=>b.netId===cmp.d.greywatchRelayId&&b.t===1);
+        if(relay)relay.hp=0;
+      }
+      if(index===11)between('outpost','centre',.45);
+      if(index===15){
+        const ford=campaignBlackwoodFord(),home=tcOf(0);
+        if(!ford||!home)throw Error('Blackwood requires its reachable, authored ford');
+        const hx=home.x+home.s/2,hy=home.y+home.s/2;
+        const delta=Math.hypot(hx-ford[0],hy-ford[1]),ux=(hx-ford[0])/delta,uy=(hy-ford[1])/delta;
+        for(const [kind,advance,side] of [['tower',7,2],['tower',11,-2],['wall',5,3],['wall',8,-3],['wall',13,1]]){
+          if(!placeNear(kind,ford[0]+ux*advance-uy*side,ford[1]+uy*advance+ux*side,3))
+            throw Error('Could not fortify a genuine Blackwood ford approach');
+        }
+      }
+      if(index===16||index===17){
+        const home=tcOf(0),river=y=>W*.38+y*.24+Math.sin(y*.055)*2.2+Math.sin(y*.13)*.8;
+        const homeY=home.y+home.s/2,side=home.x+home.s/2<river(homeY)?-1:1;
+        const kind=index===16?'tower':'castle';
+        for(const frac of [.22,.78]){
+          const y=H*frac,x=river(y)+side*12;
+          if(!placeNear(kind,x,y,3))throw Error('No buildable royal Causeway ford position');
+        }
+      }
+      // These optional objectives are observed while their timing and living
+      // target conditions hold; they never grant themselves synthetic flags.
+      observe();
       const failedPredicates = [];
       for (const goal of scenario.goals) {
         const title = goal.t;
@@ -666,6 +759,18 @@ globalThis.__CK_TEST__ = {
         if (/ranged soldiers/.test(title)) addUnits('arc', 6);
         if (/3 War Galleys/.test(title)) addUnits('gal', 3);
         if (/Bombard Cannons/.test(title)) addUnits('bomb', 2);
+        if (/Escort a Redwater Trade Cart/.test(title)) {
+          const market=S.bs.find(b=>b.t===0&&b.k==='market'&&b.done&&b.hp>0);
+          if(!market)throw Error('Redwater convoy must reach a real living Market');
+          const cart=addU(0,'cart',market.x+market.s/2,market.y+market.s/2);
+          cart.campaignConvoy='redwater';
+        }
+        if (/Escort a royal supply wagon/.test(title)) {
+          const home=tcOf(0);
+          if(!home)throw Error('Royal supply wagon requires the player capital');
+          const cart=addU(0,'cart',home.x+home.s/2,home.y+home.s/2);
+          cart.campaignConvoy='iron-pass';
+        }
         if (/12 land soldiers/.test(title)) addUnits('knight', 12);
         if (/8 land soldiers/.test(title)) addUnits('spear', 8);
         if (/15 land soldiers/.test(title)) addUnits('spear', 15);
@@ -689,6 +794,8 @@ globalThis.__CK_TEST__ = {
           if (index === 4) cmp.d.cas = 1;
           S.bs.filter(building => building.t === 1 && building.k === 'castle').forEach(building => { building.hp = 0; });
         }
+        if (/Destroy the enemy Dock/.test(title))
+          S.bs.filter(b=>b.t===1&&b.k==='dock').forEach(b=>{b.hp=0});
         if (/Destroy .*Town Centre/.test(title)) {
           cmp.t = Math.max(cmp.t, 4);
           S.bs.filter(building => building.t === 1 && building.k === 'tc').forEach(building => { building.hp = 0; });
@@ -698,11 +805,18 @@ globalThis.__CK_TEST__ = {
           S.us.filter(unit => unit && unit.t === 1 && unit.k === 'king').forEach(unit => { unit.hp = 0; });
         }
       }
-      for (const goal of scenario.goals) {
-        try { if (goal.ok() !== true) failedPredicates.push(goal.t); }
-        catch { failedPredicates.push(goal.t + ' (threw)'); }
+      // The paid King's Road supply event needs the real Market, Towers,
+      // resources and its authored time/condition before marking progress.
+      if(index===10){
+        S.res[0].w=Math.max(S.res[0].w,150);S.res[0].s=Math.max(S.res[0].s,75);
       }
+      observe();
       for (let tick = 0; tick < 15; tick++) cmpTick(0.05);
+      observe();
+      for(const goal of scenario.goals){
+        try {if(!observed.has(goal.id)&&goal.ok()!==true)failedPredicates.push(goal.t);}
+        catch {failedPredicates.push(goal.t+' (threw)');}
+      }
       results.push({ index, initialTrue, failedPredicates, won: S.over === 'win', goals: scenario.goals.length });
     }
     const defeats = [];
