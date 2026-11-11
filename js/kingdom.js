@@ -292,7 +292,7 @@ const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||
 /* Civilization-restricted structures are validated by both local placement
  * and the authoritative host. Never rely on a hidden menu item as legality. */
 function civilizationBuildingAllowed(kind,team,civs=S?.civ){
- const d=B[kind];return !!d&&(!Number.isInteger(d.onlyCiv)||civs?.[team]===d.onlyCiv);
+ const d=B[kind];return !!d&&!(kind==='mill'&&civs?.[team]===35)&&(!Number.isInteger(d.onlyCiv)||civs?.[team]===d.onlyCiv);
 }
 /* One trainability boundary for solo, authenticated peer commands and AI. */
 function regionalTrainables(kind,civId){
@@ -323,6 +323,11 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
  if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(techs?.[b.t]?.xbow?'xbow':'arc');
+ // Regional Winged Hussar replaces the Scout production line after Hussar
+ // research, but only for the Polish and Lithuanian civilizations.
+ if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
+  techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
+  eligible.filter(k=>k!=='winged');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
  if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
