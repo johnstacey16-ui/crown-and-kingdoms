@@ -71,6 +71,17 @@ test('Serjeant build wheel allows Donjons only; villagers retain the complete bu
  assert.equal(run("bLock('donjon')"),'Only Sicilians can construct a Donjon');
 });
 
+test('multiplayer unit menu exposes only the faction-safe Donjon builder and repair actions',()=>{
+ const run=fixture();
+ const options=asObject(run,'CK_GAME_COMMANDS.unitOptions(S,0,serj)');
+ assert.ok(options.some(o=>o.type==='build'&&o.value==='donjon'&&o.targeted),'Serjeant is offered a real Donjon build command');
+ assert.ok(options.some(o=>o.type==='repair'&&o.label.includes('Donjon')),'Serjeant can repair owned Donjons');
+ assert.equal(options.some(o=>o.type==='build'&&o.value==='house'),false,'Serjeant cannot build houses');
+ run('S.civ[0]=0');
+ const foreign=asObject(run,'CK_GAME_COMMANDS.unitOptions(S,0,serj)');
+ assert.equal(foreign.some(o=>o.type==='build'||o.type==='repair'),false,'non-Sicilian Serjeant cannot act as a builder');
+});
+
 test('authenticated commands allow Serjeant Donjons but reject other construction and foreign faction',()=>{
  const run=fixture();
  run("globalThis.sendBuild=(value,x,y,unit=serj,team=0)=>CK_GAME_COMMANDS.execute({type:'build',entities:[unit.netId],point:{x,y},value},team,2)");
