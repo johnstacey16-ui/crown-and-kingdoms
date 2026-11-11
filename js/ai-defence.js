@@ -76,7 +76,7 @@ function aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders){let thr=false,intr=nu
  * response cooldown without pulling committed soldiers from their orders. */
 function aiRelieveAlliedBases(t,A,arm,nearbyRaiders){
 /* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
-const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
+const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','folwark','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
  const intruder=aiBaseDefenceThreat(nearbyRaiders,base);
