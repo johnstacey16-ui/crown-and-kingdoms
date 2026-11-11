@@ -81,15 +81,24 @@ function combatArmor(t,cls){
  const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
+ const romanInfantryArmor=S.civ?.[t.t]===40&&INFARM.has(t.k)?ib:0;
+ const romanGalleyArmor=S.civ?.[t.t]===40&&t.k==='gal'?1+(ta.galleon?1:0):0;
  const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+bengaliMonk+gurjaraGuard+(t.k==='turtle'&&ta.eliteTurtle?1:0);
  const strip=!t.s&&Number.isInteger(t.obuchArmorShred)?Math.max(0,Math.min(10,t.obuchArmorShred)):0;
- return t.s?armor:armor-Math.min(Math.max(0,armor),strip);
+ return t.s?armor:armor+romanInfantryArmor+romanGalleyArmor-Math.min(Math.max(0,armor+romanInfantryArmor+romanGalleyArmor),strip);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
 // A non-serializable private marker prevents saved/network-provided attacker
 // properties from pretending their ordinary hits are armour-piercing trample.
 const CK_TRAMPLE_DAMAGE=Symbol('ck.trample');
+function romanChargeDamage(a){
+ if(!a||S.civ?.[a.t]!==40||!S.tech?.[a.t]?.ut40p||
+  !['mil','legionary','knight','centurion'].includes(a.k)||!S.us.includes(a)||
+  !Number.isFinite(a.romanChargeReadyAt)||!Number.isFinite(S.t)||S.t<a.romanChargeReadyAt)
+  return 0;
+ return 5;
+}
 // Count living Monasteries holding real relics. Enemy and destroyed relic
 // buildings cannot contribute the current-version Lithuanian cavalry bonus.
 function lithuanianRelicAttack(a){
@@ -150,11 +159,11 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
   t.dodgeRechargeAt=Math.max(S.t+4,Number.isFinite(t.dodgeRechargeAt)?t.dodgeRechargeAt:0);
   return;
  }
- const charge=burgundianChargeDamage(a),urumiCharge=urumiChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(typeof factionCounterBonus==='function'?factionCounterBonus(a,t,(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))):(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+ const charge=burgundianChargeDamage(a),urumiCharge=urumiChargeDamage(a),romanCharge=romanChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(typeof factionCounterBonus==='function'?factionCounterBonus(a,t,(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))):(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
- (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+urumiCharge+
+ (S.civ?.[a.t]===40&&a.k==='gal'?1+(tk.ut40?2:0):0)+(a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+urumiCharge+romanCharge+
  (['scout','winged'].includes(a.k)&&!t.s&&
   (SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k))&&
   typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(35)?1:0)+
@@ -172,6 +181,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
   for(const other of nearby)
    dmgT({k:'chakram',t:a.t,[CK_TRAMPLE_DAMAGE]:splash},other);
  }
+ if(romanCharge)a.romanChargeReadyAt=S.t+20;
  if(urumiCharge){
  a.urumiReadyAt=S.t+18;
  if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
@@ -330,8 +340,17 @@ function rangedAccuracy(a){
  if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
+function romanCenturionAura(u){
+ if(!u||!['mil','legionary'].includes(u.k)||!Array.isArray(S?.us))return 1;
+ for(const c of S.us)if(c&&c.k==='centurion'&&c.t===u.t&&S.civ?.[c.t]===40&&c.hp>0&&!c.ld&&
+   Math.hypot(c.x-u.x,c.y-u.y)<=(S.tech?.[c.t]?.eliteCenturion?12:10))
+  return S.tech?.[c.t]?.eliteCenturion?1.33:1.25;
+ return 1;
+}
 function attackReload(u){
  const base=(u.k==='knight'&&S.tech[u.t]?.pala)||(u.k==='scout'&&S.tech[u.t]?.huss)?1.9:u.k==='fire'&&S.tech[u.t]?.fastFire?.25:U[u.k]?.cd||2;
+ if(S.civ?.[u.t]===40&&S.tech?.[u.t]?.ut40&&['scor','gal'].includes(u.k))return base/1.33;
+ if(romanCenturionAura(u)>1)return base/romanCenturionAura(u);
  if(S.civ?.[u.t]===38&&S.tech?.[u.t]?.ut38&&['ratha','rathaM','batele','eled','ele'].includes(u.k))
   return base/1.2;
  if(S.civ?.[u.t]===37&&['skirm','eled'].includes(u.k))return base/1.25;
