@@ -174,7 +174,7 @@ function automaticFarmAllowed(){
 }
 function tryAutomaticFarm(u){
  if(!automaticFarmAllowed()||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld||u.retreating)return false;
- const centres=(S.bs||[]).filter(b=>b&&b.t===0&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='mill')&&
+ const centres=(S.bs||[]).filter(b=>b&&b.t===0&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='mill'||b.k==='folwark')&&
   Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)<=24)
   .sort((a,b)=>Math.hypot(a.x+a.s/2-u.x,a.y+a.s/2-u.y)-
    Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)||a.x-b.x||a.y-b.y);
