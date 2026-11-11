@@ -130,12 +130,50 @@ function drawHill(o){
  X.fillStyle='rgba(245,225,169,.7)';poly([[px+5*z,py-37*z],[px+16*z,py-33*z+Math.sin(gt*4)*1.2*z],[px+5*z,py-32*z]]);X.fill();
  X.restore();
 }
-function chunkOf(cx,cy){const key=cx*4096+cy;let c=TCH.get(key);if(c){const cached=c.cv.getContext('2d');if(cached&&!cached.isContextLost?.()){TCH.delete(key);TCH.set(key,c);return c}TCH.delete(key)}
-const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,w=CKS*64,h=(2*CKS-2)*16+32,cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;const g=cv2.getContext('2d');if(!g||g.isContextLost?.())return null;
-cv2.addEventListener?.('contextlost',()=>{if(TCH.get(key)?.cv===cv2)TCH.delete(key);invalidateTerrainViewport()});
-for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++)paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny),paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
-if(g.isContextLost?.())return null;
-c={cv:cv2,ox:minx,oy:miny,w,h};TCH.set(key,c);return c}
+// Keep painted terrain at native detail whenever it needs those pixels. At
+// minimum zoom with a reduced Xbox backing store, a 512x256 chunk supplies
+// over four times the pixels the screen can display. Halve only the internal
+// cached texture; world positions, art, fog, dimensions and controller stay put.
+function terrainChunkDensity(){
+ const pixels=typeof DPR==='number'&&Number.isFinite(DPR)&&DPR>0?DPR:1;
+ return zm*pixels<=.55?.5:1;
+}
+function chunkOf(cx,cy,density=terrainChunkDensity()){
+ const key=cx*4096+cy,prior=TCH.get(key);
+ let available=false;
+ if(prior){
+  try{const ctx=prior.cv.getContext('2d');available=!!ctx&&!ctx.isContextLost?.()}catch(_){}
+  if(available&&prior.density===density){
+   TCH.delete(key);TCH.set(key,prior);return prior;
+  }
+ }
+ const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,
+  w=CKS*64,h=(2*CKS-2)*16+32;
+ let cv2,g;
+ try{
+  cv2=document.createElement('canvas');
+  cv2.width=Math.round(w*density);cv2.height=Math.round(h*density);
+  g=cv2.getContext('2d');
+  if(!g||g.isContextLost?.())return available?prior:null;
+  if(density!==1)g.scale(density,density);
+  cv2.addEventListener?.('contextlost',()=>{
+   if(TCH.get(key)?.cv===cv2){TCH.delete(key);invalidateTerrainViewport()}
+  });
+  for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++){
+   paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
+   paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
+  }
+  if(g.isContextLost?.())return available?prior:null;
+ }catch(_){return available?prior:null}
+ const c={cv:cv2,ox:minx,oy:miny,w,h,density};
+ TCH.delete(key);TCH.set(key,c);
+ // Retired backing stores must not retain full GPU allocation after a zoom
+ // change; the viewport cache replaces old chunk references on this draw.
+ if(prior&&prior.cv!==cv2){
+  try{prior.cv.width=1;prior.cv.height=1}catch(_){}
+ }
+ return c;
+}
 
 // Chunks behind unexplored fog never contribute visible terrain. Test the
 // local exploration mask every frame before allocating/uploading a chunk:
@@ -154,13 +192,13 @@ function chunkHasExploredLand(cx,cy){
 // Retain all visible chunks (even above 320 on unusually large screens),
 // plus a capped panning margin, then trim the least-recently-used canvases.
 function drawChunks(x0,x1,y0,y1){
- let visible=0,ready=true;const chunks=[];
+ let visible=0,ready=true;const chunks=[],density=terrainChunkDensity();
  for(let cy=y0>>3;cy<=y1>>3;cy++)for(let cx=x0>>3;cx<=x1>>3;cx++){
   const x=cx*CKS,y=cy*CKS,ox=(x-y-CKS+1)*32-32,oy=(x+y+1)*16-16;
   const sx=ox*zm-cam.x,sy=oy*zm-cam.y,sw=CKS*64*zm,sh=((2*CKS-2)*16+32)*zm;
   if(sx>=CW||sy>=CH||sx+sw<=0||sy+sh<=0)continue;
   if(!chunkHasExploredLand(cx,cy))continue;
-  let c;try{c=chunkOf(cx,cy)}catch(_){c=null}
+  let c;try{c=chunkOf(cx,cy,density)}catch(_){c=null}
   if(!c){ready=false;continue}
   chunks.push(c);
   visible++;

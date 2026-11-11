@@ -9,18 +9,18 @@ const to=render.length;
 assert.ok(from>=0&&to>from,'test extracts the exact production chunk painter');
 const production=render.slice(from,to);
 
-function scene({CW=2560,CH=1440,zoom=.8,center=128}={}){
+function scene({CW=2560,CH=1440,zoom=.8,DPR=1,center=128}={}){
  let paints=0,details=0;
- const blits=[],created=[];
+ const blits=[],created=[],scales=[];
  const TCH=new Map();
  const fake={
-  CKS:8,W:256,H:256,TCH,CW,CH,zm:zoom,S:{ex:new Uint8Array(256*256).fill(1)},
+  CKS:8,W:256,H:256,TCH,CW,CH,zm:zoom,DPR,S:{ex:new Uint8Array(256*256).fill(1)},
   cam:{x:0,y:0},
   document:{createElement(tag){
    assert.equal(tag,'canvas');
    // This suite exercises the original chunk fallback; the separate viewport
    // suite supplies a complete compositing context and checks its cache.
-   const cv={width:0,height:0,getContext(kind,options){assert.equal(kind,'2d');if(options?.alpha===false){const i=created.indexOf(cv);if(i>=0)created.splice(i,1);return null}return {};}};
+   const cv={width:0,height:0,getContext(kind,options){assert.equal(kind,'2d');if(options?.alpha===false){const i=created.indexOf(cv);if(i>=0)created.splice(i,1);return null}return {scale(...args){scales.push(args)}};}};
    created.push(cv);return cv;
   }},
   paintTile(){paints++},
@@ -61,7 +61,7 @@ function scene({CW=2560,CH=1440,zoom=.8,center=128}={}){
   return blits.map(b=>({...b}));
  }
  return {
-  fake,TCH,created,view,expected,draw,
+  fake,TCH,created,scales,view,expected,draw,
   get paints(){return paints;},get details(){return details;},
   get blits(){return blits;}
  };
@@ -168,4 +168,47 @@ test('unavailable or lost terrain chunks request tile fallback and can rebuild o
  assert.equal(s.fake.drawChunks(...rect),false,'drawWorld must paint its existing tile fallback');assert.equal(s.TCH.size,0);
  s.fake.document.createElement=()=>{throw Error('out of canvas storage')};
  assert.equal(s.fake.drawChunks(...rect),false,'allocation failure cannot leave a valid blank terrain cache');
+});
+
+test('half-resolution Xbox canvas retains the same terrain extent with 75% fewer chunk backing pixels',()=>{
+ const s=scene({CW:1280,CH:720,zoom:.8,DPR:.5}),rect=s.view(),expected=s.expected(rect);
+ const first=s.draw(rect);
+ assert.equal(first.length,expected.length);
+ assert.ok(first.length>0);
+ for(let i=0;i<first.length;i++){
+  assert.deepEqual([first[i].x,first[i].y,first[i].w,first[i].h],
+   [expected[i].sx,expected[i].sy,expected[i].sw,expected[i].sh],
+   'source prefilter cannot move or shrink buildings, units or terrain on screen');
+  assert.equal(first[i].image.width,256);assert.equal(first[i].image.height,128);
+ }
+ assert.equal(s.scales.length,first.length);
+ assert.ok(s.scales.every(args=>args[0]===.5&&args[1]===.5));
+ const firstPaints=s.paints;
+ for(let i=0;i<30;i++)s.draw(rect);
+ assert.equal(s.paints,firstPaints,'stationary reduced terrain does not rebuild');
+ assert.equal([...s.TCH.values()].reduce((n,c)=>n+c.cv.width*c.cv.height,0),first.length*256*128);
+});
+test('zoom/DPR upgrade restores native terrain pixels and releases obsolete cache surfaces',()=>{
+ const s=scene({CW:1280,CH:720,zoom:.8,DPR:.5}),rect=s.view(),reduced=s.draw(rect);
+ const first=reduced[0].image,n=reduced.length;
+ s.fake.DPR=1;
+ const sharp=s.draw(rect);
+ assert.equal(sharp.length,n);
+ assert.ok(sharp.every(d=>d.image.width===512&&d.image.height===256));
+ assert.deepEqual(sharp.map(d=>[d.x,d.y,d.w,d.h]),reduced.map(d=>[d.x,d.y,d.w,d.h]));
+ assert.equal(first.width,1,'the superseded reduced texture releases its GPU backing store');
+ assert.equal(s.TCH.size,n,'replacing density never doubles the terrain cache');
+ s.fake.DPR=.5;
+ const again=s.draw(rect);
+ assert.ok(again.every(d=>d.image.width===256&&d.image.height===128));
+ assert.equal(s.TCH.size,n);
+});
+test('failed higher-resolution terrain allocation continues using valid reduced tiles without a blank map',()=>{
+ const s=scene({CW:1280,CH:720,zoom:.8,DPR:.5}),rect=s.view(),first=s.draw(rect);
+ s.fake.DPR=1;
+ s.fake.document.createElement=()=>({width:0,height:0,getContext:()=>null});
+ const fallback=s.draw(rect);
+ assert.equal(fallback.length,first.length);
+ assert.ok(fallback.every((x,i)=>x.image===first[i].image&&x.w===first[i].w));
+ assert.ok([...s.TCH.values()].every(c=>c.density===.5));
 });
