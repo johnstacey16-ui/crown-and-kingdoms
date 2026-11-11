@@ -97,6 +97,7 @@ const FOCUSED=[
  "tests/civilization-polish-folwark.test.mjs",
  "tests/civilization-bohemian-hussite.test.mjs",
  "tests/civilization-dravidian-naval.test.mjs",
+ "tests/civilization-roman-legionary.test.mjs",
  "tests/graphics-inventory-live-roster.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",
