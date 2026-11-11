@@ -95,3 +95,14 @@ test('shared readback canvas creates GPU-eligible native crops for static archit
  assert.equal(f.cache.scratch.width,25);assert.equal(f.cache.scratch.height,35);
  assert.equal(one.f.ax,10);assert.equal(two.f.ay,33);
 });
+
+test('lost shared CPU readback canvas is replaced on the next tinted miss',()=>{
+ const f=fixture(),atlas={img:{},meta:{painted:true}},fr={x:0,y:0,w:20,h:30,ax:11,ay:29};
+ const one=f.draw(atlas,0,fr,'bld_house');
+ const scratch=f.cache.scratch;scratch.lost=true;
+ const two=f.draw(atlas,0,{...fr,x:40},'bld_house');
+ assert.notEqual(f.cache.scratch,scratch);
+ assert.notEqual(one.img,two.img);
+ assert.notEqual(two.img,atlas.img,'never permanently fall back to the untinted atlas');
+ assert.equal(f.cache.entries.size,2);
+});

@@ -82,7 +82,7 @@ test('Xbox pause menu displays adaptive percentage and game saving ignores resol
  assert.match(ui,/40% was removed because it looked too blurry/);
  assert.equal(run('CK_XBOX_PICTURE_PRESETS.length'),4);
  assert.match(picture,/ADAPTIVE_WINDOW_MS=8000/);
- assert.match(engine,/else sampleAdaptivePicture\(now,rafMs\)/);
+ assert.match(engine,/else\{sampleAdaptivePicture\(now,rafMs\);sampleGraphicsRecovery\(now,rafMs\)\}/);
  const cfg=engine.match(/function sset\(\)\{[\s\S]*?JSON\.stringify\(\{([\s\S]*?)\}\)\)/);
  assert.ok(cfg);
  assert.ok(!cfg[1].includes('adaptivePicture'));

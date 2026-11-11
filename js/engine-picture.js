@@ -7,11 +7,11 @@ let selectedXboxPicturePreset=-1,adaptivePictureScale=.5;
 const ADAPTIVE_WINDOW_MS=8000,ADAPTIVE_WARMUP_MS=1500;
 let adaptiveWindowStart=null,adaptiveSamples=[],adaptiveFastWindows=0;
 function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
-function resetAdaptivePictureSampling(){adaptiveWindowStart=null;adaptiveSamples=[];adaptiveFastWindows=0}
+function resetAdaptivePictureSampling(){adaptiveWindowStart=null;if(adaptiveSamples.length)adaptiveSamples=[];adaptiveFastWindows=0}
 // Following an Xbox world-context loss, detect sustained slow presentation.
 // Do not alter saves, controller coordinates or normal (loss-free) game sessions.
 let recoveryWindowStart=null,recoveryIntervals=[];
-function resetGraphicsRecoverySampling(){recoveryWindowStart=null;recoveryIntervals=[]}
+function resetGraphicsRecoverySampling(){recoveryWindowStart=null;if(recoveryIntervals.length)recoveryIntervals=[]}
 function sampleGraphicsRecovery(now,rafMs){
  const r=GRAPHICS_RECOVERY;
  if(!r.worldLosses||r.scale<=.5||selectedXboxPicturePreset===3||
