@@ -103,7 +103,16 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut36p',n:'Hussite Reforms',cost:{f:800,g:450},t:60,age:3,
   fx:t=>{S.tech[t].hussiteReforms=1}},
  elite:{k:'eliteHussiteWagon',n:'Elite Hussite Wagon',cost:{w:900,g:700},t:60,age:3,
-  hpb:{husswagon:30},atkb:{husswagon:2},armor:{p:1}}}];
+  hpb:{husswagon:30},atkb:{husswagon:2},armor:{p:1}}},
+{n:'Dravidians',uu:'urumi',teamDockPopulation:5,
+ d:'Urumi charge attacks, Thirisadai naval volleys, wood on advancing and skilled fishers',
+ fx:t=>{S.tech[t].dravidianNaval=1},
+ ut:{k:'ut37',n:'Medical Corps',cost:{f:300,g:200},t:45,age:2,
+  fx:t=>{S.tech[t].medicalCorps=1}},
+ ut2:{k:'ut37p',n:'Wootz Steel',cost:{f:650,g:550},t:60,age:3,
+  fx:t=>{S.tech[t].wootzSteel=1}},
+ elite:{k:'eliteUrumi',n:'Elite Urumi Swordsman',cost:{f:1000,g:750},t:55,age:3,
+  hpb:{urumi:10},atkb:{urumi:2},armor:{m:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
