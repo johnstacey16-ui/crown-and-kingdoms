@@ -18,7 +18,7 @@ const asObject=(run,expression)=>JSON.parse(run('JSON.stringify('+expression+')'
 
 test('Sicilians append stable civilization ID 34 with Serjeant, Donjon, and three Castle upgrades',()=>{
  const run=fixture();
- assert.equal(run('CIV.length'),40);
+ assert.equal(run('CIV.length'),41);
  assert.equal(run('CIV[34].n'),'Sicilians');
  assert.equal(run('CIV[33].n'),'Burgundians');
  assert.equal(run("civilizationBuildingAllowed('donjon',0)"),true);
