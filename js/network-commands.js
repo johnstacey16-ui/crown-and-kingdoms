@@ -89,12 +89,12 @@
   const BUILD_PAGES = Object.freeze([
     Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost','feitoria']),
     // Append new buildings; never shift existing Xbox RT wheel sectors.
-    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc'])
+    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc','donjon'])
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
       const d=B[kind],req=kind==='farm'?'mill':d.req;
-      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?'Only Portuguese can construct a Feitoria':
+      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?(kind==='donjon'?'Only Sicilians can construct a Donjon':'Only Portuguese can construct a Feitoria'):
         d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
         kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
         kind==='wonder'&&vm!==1?'Wonder victory is off':
@@ -104,7 +104,7 @@
     }));
   }
   function construct(units,order,team) {
-    if(units.some(u=>u.k!=='vil'))return false;
+    if(units.some(u=>u.k!=='vil'&&!(order.value==='donjon'&&u.k==='serjeant'&&S.civ?.[team]===34)))return false;
     const option=buildOptions(S,team).flat().find(o=>o.value===order.value);
     const point=order.point;
     if(!option||option.locked||!Number.isInteger(point.x)||!Number.isInteger(point.y)||
