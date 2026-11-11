@@ -127,15 +127,15 @@ test('Tatar Silk Armor protects cavalry, Timurid Siegecraft extends Trebuchets',
 
 test('Flaming Camels explode once, hit multiple enemies and cannot hurt allies',()=>{
  const run=fixture(30);
- run("globalThis.cam=addU(0,'flamecamel',30,30);globalThis.target=addU(1,'knight',30.9,30);globalThis.extra=addU(1,'scout',31.3,30);globalThis.friend=addU(0,'scout',31,31);cam.o='a';cam.tg=target;cam.cd=0");
+ run("globalThis.bomberCamel=addU(0,'flamecamel',30,30);globalThis.target=addU(1,'knight',30.9,30);globalThis.extra=addU(1,'scout',31.3,30);globalThis.friend=addU(0,'scout',31,31);bomberCamel.o='a';bomberCamel.tg=target;bomberCamel.cd=0");
  const start=run('target.hp'),extra=run('extra.hp'),friendly=run('friend.hp');
- assert.equal(run('detonateFlamingCamel(cam)'),true,
-  JSON.stringify(json(run,"({hp:cam.hp,o:cam.o,dead:cam.dead,cd:cam.cd,inArmy:S.us.includes(cam),target:cam.tg?.k,targetHp:target.hp,hostile:isHostile(cam.t,target.t),dist:Math.hypot(cam.x-target.x,cam.y-target.y),rng:U.flamecamel.rng,dip:S.dip[0][1],civ:S.civ[0]})")));
- assert.equal(run('cam.dead'),1);
+ assert.equal(run('detonateFlamingCamel(bomberCamel)'),true,
+  JSON.stringify(json(run,"({hp:bomberCamel.hp,o:bomberCamel.o,dead:bomberCamel.dead,cd:bomberCamel.cd,inArmy:S.us.includes(bomberCamel),target:bomberCamel.tg?.k,targetHp:target.hp,hostile:isHostile(bomberCamel.t,target.t),dist:Math.hypot(bomberCamel.x-target.x,bomberCamel.y-target.y),rng:U.flamecamel.rng,dip:S.dip[0][1],civ:S.civ[0]})")));
+ assert.equal(run('bomberCamel.dead'),1);
  assert.ok(run('target.hp')<start);
  assert.ok(run('extra.hp')<extra);
  assert.equal(run('friend.hp'),friendly);
- assert.equal(run('detonateFlamingCamel(cam)'),false);
+ assert.equal(run('detonateFlamingCamel(bomberCamel)'),false);
 });
 
 test('Cuman Kipchaks fire real multiple arrows and Steppe Husbandry trains cavalry faster',()=>{
