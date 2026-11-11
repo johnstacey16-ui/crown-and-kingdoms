@@ -102,6 +102,7 @@
         "cavalryArmor": "c",
         "melee": "fib"
       },
+      "secondUniqueTechnology": "ut2p",
       "eliteUpgrade": "eliteMangudai"
     },
     {
