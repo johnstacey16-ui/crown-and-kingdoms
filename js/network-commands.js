@@ -80,6 +80,9 @@
       const donjon=buildOptions(world,team).flat().find(entry=>entry.value==='donjon');
       if(donjon)options.push({...donjon,targeted:true});
     }
+    if(['ratha','rathaM'].includes(unit.k)&&world.civ?.[team]===38)
+      options.push({type:'ratha-mode',value:unit.k==='ratha'?'melee':'ranged',
+       label:unit.k==='ratha'?'Switch to melee':'Switch to ranged',cost:{},locked:''});
     if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
       options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
     if (militaryUnit(unit)) options.push(
@@ -407,6 +410,14 @@
       }
       return true;
     }
+    if(order.type==='ratha-mode'){
+      if(!activeUnits(entities)||S.civ?.[team]!==38||
+         !['melee','ranged'].includes(order.value)||
+         entities.some(u=>!['ratha','rathaM'].includes(u.k)))return false;
+      let changed=false;
+      for(const u of entities)if(setRathaMode(u,order.value))changed=true;
+      return changed;
+    }
     if (order.type === 'stance') {
       if (!Object.prototype.hasOwnProperty.call(STANCES, order.value) ||
           entities.some(u => u.k === 'vil')) return false;
@@ -421,7 +432,7 @@
     lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
