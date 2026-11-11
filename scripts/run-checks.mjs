@@ -88,6 +88,7 @@ const FOCUSED=[
  "tests/terrain-chunk-visible-cache.test.mjs",
  "tests/terrain-viewport-cache.test.mjs",
  "tests/team-frame-cache.test.mjs",
+ "tests/series-s-strategic-zoom-render.test.mjs",
  "tests/painted-resources.test.mjs",
  "tests/building-damage-art.test.mjs",
  "tests/house-ages.test.mjs",
