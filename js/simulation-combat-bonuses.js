@@ -115,11 +115,12 @@ function hussiteWagonCover(a,t){
  }
  return false;
 }
-function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+function urumiChargeDamage(a){if(a?.k!=='urumi'||S.civ?.[a.t]!==37||!S.us.includes(a)||!Number.isFinite(S.t)||!Number.isFinite(a.urumiReadyAt)||S.t<a.urumiReadyAt)return 0;return 6+(S.tech?.[a.t]?.eliteUrumi?2:0)}
+function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],charge=burgundianChargeDamage(a),urumiCharge=urumiChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
- (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+
+ (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+urumiCharge+
  (['scout','winged'].includes(a.k)&&!t.s&&
   (SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k))&&
   typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(35)?1:0)+
