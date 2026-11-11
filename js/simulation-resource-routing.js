@@ -116,6 +116,8 @@ function grantFolwarkFarmFood(farm,team){
  return food;
 }
 /* Gathering multipliers and upgraded farm capacity, preserved from simulation.js. */
-function gm(u,tg){const t=S.tech[u.t];let m=t.gath?1.25:1;const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;return m}
+function gm(u,tg){const t=S.tech[u.t];let m=t.gath?1.25:1;const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;
+ if(u.k==='vil'&&S.civ?.[u.t]===40)m*=1.05;
+ return m}
 /* AoE-style farm capacity upgrades add food, rather than incorrectly increasing the harvest rate. */
 function farmFood(t){const q=S.tech[t]||{};return 175+(q.coll?75:0)+(q.plow?125:0)+(q.crop?175:0)}
