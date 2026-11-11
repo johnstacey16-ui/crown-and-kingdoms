@@ -13,7 +13,7 @@ function game(){
 test('all 26 civilizations have distinct priced Imperial Elite Castle research and proper locks',()=>{
  const run=game();
  for(let id=0;id<26;id++){
-  run('S.civ[0]='+id+';S.tech[0]={};castle.rs=null;castle.q=[];S.age[0]=2');
+  run('S.civ[0]='+id+';S.civ[1]='+(id===0?1:0)+';S.tech[0]={};castle.rs=null;castle.q=[];S.age[0]=2');
   const [name,unit,key]=JSON.parse(run('JSON.stringify([CIV['+id+'].n,CIV['+id+'].uu,CIV['+id+'].elite.k])'));
   const tech=JSON.parse(run('JSON.stringify(TE['+JSON.stringify(key)+'])'));
   assert.equal(tech.age,3,name+' Elite age');
