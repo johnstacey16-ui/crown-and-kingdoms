@@ -12,7 +12,13 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 'Lechitic Legacy':'Polish Scout-line cavalry damages nearby hostile troops.',
 'Wagenburg Tactics':'Bohemian gunpowder units move faster.',
 'Hussite Reforms':'Bohemian monks and monastery technologies can use Food instead of Gold.',
-'Houfnice Upgrade':'Improves Bombard Cannons to Bohemian Houfnice.'};
+'Houfnice Upgrade':'Improves Bombard Cannons to Bohemian Houfnice.',
+'Urumi Swordsman':'Dravidian infantry. Real charged strikes damage nearby hostile troops.',
+'Thirisadai':'Imperial Age Dravidian warship firing three simulated arrows per volley.',
+'Elite Urumi Swordsman':'Increase Urumi combat strength and hit points.',
+'Elite Thirisadai':'Improve Dravidian warship hit points and attack.',
+'Medical Corps':'Dravidian elephant units regenerate 30 hit points per minute.',
+'Wootz Steel':'Dravidian melee infantry and cavalry ignore enemy unit armour.'};
 
 function stt(a){
  if(!a||a.q)return '';
