@@ -15,7 +15,7 @@ const copy=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Bengalis append ID 38 without moving earlier civilizations; their unique research stays faction locked',()=>{
  const run=game();
- assert.equal(run('CIV.length'),40);
+ assert.equal(run('CIV.length'),41);
  assert.equal(run('CIV[37].n'),'Dravidians');
  assert.equal(run('CIV[38].uu'),'ratha');
  assert.equal(run('CIV[39].n'),'Gurjaras');
