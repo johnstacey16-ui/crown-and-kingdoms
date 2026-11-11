@@ -420,7 +420,9 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Dravidians':'xa',
  'Bengalis':'xa',
  'Gurjaras':'xt',
- 'Romans':'x'
+ 'Romans':'x',
+ 'Armenians':'xat',
+ 'Georgians':'xa'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -468,7 +470,9 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Dravidians':'mltphves',
  'Bengalis':'mltphvesu',
  'Gurjaras':'mltphvesu',
- 'Romans':'mlphvaeskd'
+ 'Romans':'mlphvaeskd',
+ 'Armenians':'mltcphvaesk',
+ 'Georgians':'mltcphvaesku'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -493,7 +497,9 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Dravidians':'rh',
  'Bengalis':'rh',
  'Gurjaras':'rh',
- 'Romans':'rbh'
+ 'Romans':'rbh',
+ 'Armenians':'rh',
+ 'Georgians':'rbh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -539,7 +545,9 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Dravidians':'dfsvbitm',
  'Bengalis':'dfrasvbitm',
  'Gurjaras':'dfrasvbitm',
- 'Romans':'dfrsvbitm'
+ 'Romans':'dfrsvbitm',
+ 'Armenians':'dfrasvbitm',
+ 'Georgians':'dfrasvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -584,7 +592,9 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Dravidians':'msgkfcbh',
  'Bengalis':'msgkfcbh',
  'Gurjaras':'msgkfcbh',
- 'Romans':'msgkfcbh'
+ 'Romans':'msgkfcbh',
+ 'Armenians':'msgfcbh',
+ 'Georgians':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -628,7 +638,9 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Dravidians':'irc',
  'Bengalis':'irc',
  'Gurjaras':'irc',
- 'Romans':'irc'
+ 'Romans':'irc',
+ 'Armenians':'irc',
+ 'Georgians':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -672,7 +684,9 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Dravidians':'cp',
  'Bengalis':'cp',
  'Gurjaras':'cp',
- 'Romans':'cp'
+ 'Romans':'cp',
+ 'Armenians':'cp',
+ 'Georgians':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -717,7 +731,9 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Dravidians':'lr',
  'Bengalis':'lr',
  'Gurjaras':'lr',
- 'Romans':'lr'
+ 'Romans':'lr',
+ 'Armenians':'lr',
+ 'Georgians':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -763,7 +779,9 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Dravidians':'c',
  'Bengalis':'cp',
  'Gurjaras':'cp',
- 'Romans':'cp'
+ 'Romans':'cp',
+ 'Armenians':'c',
+ 'Georgians':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -805,7 +823,9 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Dravidians':'fi',
  'Bengalis':'fib',
  'Gurjaras':'fib',
- 'Romans':'fib'
+ 'Romans':'fib',
+ 'Armenians':'fib',
+ 'Georgians':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});

@@ -8,8 +8,10 @@ const capOf=t=>Math.min(popLimit,10+5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&
   alliedCivilizationIds(t).some(id=>CIV[id]?.teamDockPopulation===5)?
   5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&b.k==='dock').length:0));
 // Training reserves slots; spawning tests living units so its own reservation cannot block completion.
-const livePopulation=t=>S.us.reduce((n,u)=>n+(u&&u.t===t&&u.hp>0?(S.civ?.[t]===38&&S.tech?.[t]?.ut38p&&['vil','mon'].includes(u.k)?.9:1):0),0)+(S.bs?.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&b.k==='feitoria'?20:0),0)||0);
+const livePopulation=t=>S.us.reduce((n,u)=>n+(u&&u.t===t&&u.hp>0?(S.civ?.[t]===38&&S.tech?.[t]?.ut38p&&['vil','mon'].includes(u.k)?.9:S.civ?.[t]===42&&S.tech?.[t]?.ut42p&&U[u.k]?.mt?.8:1):0),0)+(S.bs?.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&b.k==='feitoria'?20:0),0)||0);
 const popOf=t=>livePopulation(t)+queuedPopulation(t)-
- (S.civ?.[t]===38&&S.tech?.[t]?.ut38p?.1*S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.filter(q=>q&&['vil','mon'].includes(q.k)).length:0),0):0);
+ (S.civ?.[t]===38&&S.tech?.[t]?.ut38p?.1*S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.filter(q=>q&&['vil','mon'].includes(q.k)).length:0),0):0)-
+ (S.civ?.[t]===42&&S.tech?.[t]?.ut42p?.2*S.bs.reduce((n,b)=>n+
+  (b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.filter(q=>q&&U[q.k]?.mt).length:0),0):0);
 const can=(t,c)=>Object.keys(c).every(k=>S.res[t][k]>=c[k]),pay=(t,c,m=-1)=>{for(const k in c)S.res[t][k]+=m*c[k]};
 const cs=c=>Object.entries(c).map(([k,v])=>v+k.toUpperCase()).join(' ')||'free';

@@ -24,7 +24,16 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 'Legionary Upgrade':'Turns Roman Militia into Legionaries and unlocks Barracks production.',
 'Ballistas':'Roman Scorpions attack faster and Galleys deal more damage.',
 'Comitatenses':'Roman infantry and cavalry train faster and charge for bonus damage.',
-'Elite Centurion':'Roman Centurions gain strength and a wider infantry aura.'};
+'Elite Centurion':'Roman Centurions gain strength and a wider infantry aura.',
+'Composite Bowman':'Armenian archer. Ignores enemy unit armour when dealing ranged damage.',
+'Warrior Priest':'Armenian fighting healer. Fereters improves its healing.',
+'Monaspa':'Georgian cavalry. Nearby friendly Knights and Monaspas boost its melee damage.',
+'Cilician Fleet':'Armenian War Galleys gain +1 range.',
+'Fereters':'Armenian infantry gains 30 hit points and Warrior Priests heal faster.',
+'Svan Towers':'Georgian defensive buildings gain +2 attack.',
+'Aznauri Cavalry':'Georgian mounted troops consume 20% less population capacity.',
+'Elite Composite Bowman':'Strengthens Armenian Composite Bowman combat.',
+'Elite Monaspa':'Strengthens Georgian Monaspa cavalry.'};
 
 function stt(a){
  if(!a||a.q)return '';

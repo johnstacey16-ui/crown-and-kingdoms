@@ -10,7 +10,7 @@ const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai','konnik','keshik','steppe','kipchak','flamecamel','leitis','coust']);
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai','konnik','keshik','steppe','kipchak','flamecamel','leitis','coust','monaspa']);
 const SPEAR_CAMELS=new Set(['camel','mamel']);
 const SPEAR_ELEPHANTS=new Set(['ele','eled','batele']);
 function spearLineBonus(a,t){
@@ -28,7 +28,7 @@ function spearLineBonus(a,t){
 // Counter bonuses are attached to AoE2 armour classes, not broadly to
 // villagers, siege and all ranged units. The compact roster still needs a
 // complete class table (especially regional unique units) in a later audit.
-const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','rattan']);
+const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','rattan','composite']);
 const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch','arambai','kipchak']);
 // Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
 const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele','konnik','keshik','steppe','kipchak','flamecamel','leitis','coust']);
@@ -152,6 +152,14 @@ function factionCounterBonus(a,t,base){
  const bengali=S.civ?.[t.t]===38&&['ele','eled','batele'].includes(t.k);
  return bengali?Math.round(boosted*.75):boosted;
 }
+function georgianMonaspaFormationBonus(a){
+ if(!a||a.k!=='monaspa'||S.civ?.[a.t]!==42||!S.us.includes(a)||a.hp<=0||a.ld)return 0;
+ let nearby=0;
+ for(const u of S.us)if(u&&u!==a&&u.t===a.t&&u.hp>0&&!u.ld&&
+  (u.k==='monaspa'||u.k==='knight')&&Math.hypot(u.x-a.x,u.y-a.y)<=6)
+  nearby++;
+ return Math.min(4,nearby);
+}
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t];
  if(t.k==='shrivamsha'&&S.civ?.[t.t]===39&&S.us.includes(t)&&ak.rng>2&&
    !a[CK_TRAMPLE_DAMAGE]&&(Number.isInteger(t.dodgeCharges)?t.dodgeCharges:5)>0){
@@ -163,7 +171,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
- (S.civ?.[a.t]===40&&a.k==='gal'?1+(tk.ut40?2:0):0)+(a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+urumiCharge+romanCharge+
+ (S.civ?.[a.t]===40&&a.k==='gal'?1+(tk.ut40?2:0):0)+(a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+lithuanianRelicAttack(a)+charge+urumiCharge+romanCharge+georgianMonaspaFormationBonus(a)+
  (['scout','winged'].includes(a.k)&&!t.s&&
   (SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k))&&
   typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(35)?1:0)+
@@ -171,7 +179,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
  const raw=secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
  t.hp-=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
  if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
@@ -329,11 +337,11 @@ function tickConversion(u,dt){
 
 /* Classic combat projectiles, ranged upgrades and deterministic hit resolution.
  * Function bodies are relocated unchanged from simulation.js. */
-const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','rattan','arambai','caravel','gal','tw','cs','tca','kipchak']);
+const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','rattan','arambai','composite','caravel','gal','tw','cs','tca','kipchak']);
 // AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
 // Skirmishers gain accuracy but no faster reload; mounted archers gain a
 // smaller firing-speed increase; Chu Ko Nu gains a larger one.
-const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled','rattan']);
+const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled','rattan','composite']);
 const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon','cavarch','kipchak']);
 function rangedAccuracy(a){
  const d=U[a.k];if(!d)return 1;
@@ -375,7 +383,7 @@ function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a
  +(a.k==='tca'&&S.civ?.[a.t]===32&&S.tech[a.t]?.ut32?3:0)
  +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
  +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
- +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='treb'&&S.civ?.[a.t]===30&&S.tech[a.t]?.ut30p?2:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
+ +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='treb'&&S.civ?.[a.t]===30&&S.tech[a.t]?.ut30p?2:0)+(S.civ?.[a.t]===41&&S.tech[a.t]?.ut41&&a.k==='gal'?1:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
 // A shot records a fixed impact point at launch. Ballistics predicts constant
 // movement along the current path segment; later turns can still dodge it.
 function projectileSpeed(a){return U[a.k]?.ps||14}

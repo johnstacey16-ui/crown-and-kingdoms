@@ -16,7 +16,8 @@ function ageRequirements(t,world=S){
 const BURGUNDIAN_ECONOMIC_TECHS=new Set(['loom','wheel','handcart','gath','carry','axe','saw','gmine','smine','coll','plow','crop']);
 function researchEffectiveAge(b,k,civs=S?.civ){
  const age=TE[k]?.age||0;
- return civs?.[b?.t]===36&&k==='chem'?Math.max(0,age-1):
+ return civs?.[b?.t]===41&&['longs','twohand','champ','pike','halb'].includes(k)?Math.max(0,age-1):
+  civs?.[b?.t]===36&&k==='chem'?Math.max(0,age-1):
   civs?.[b?.t]===33&&(BURGUNDIAN_ECONOMIC_TECHS.has(k)||k==='cavl')?
   Math.max(0,age-1):age;
 }

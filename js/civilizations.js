@@ -139,7 +139,31 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut40p',n:'Comitatenses',cost:{f:700,g:800},t:60,age:3,
   fx:t=>{S.tech[t].comitatenses=1}},
  elite:{k:'eliteCenturion',n:'Elite Centurion',cost:{f:950,g:800},t:55,age:3,
-  hpb:{centurion:20},atkb:{centurion:2},armor:{m:1,p:1}}}];
+  hpb:{centurion:20},atkb:{centurion:2},armor:{m:1,p:1}}},
+{n:'Armenians',uu:'composite',
+ d:'Composite Bowmen bypass armour, Warrior Priests heal and fight, early infantry upgrades',
+ fx:t=>{S.tech[t].armenianInfantry=1},
+ ut:{k:'ut41',n:'Cilician Fleet',cost:{w:350,g:300},t:45,age:2,
+  fx:t=>{S.tech[t].cilicianFleet=1}},
+ ut2:{k:'ut41p',n:'Fereters',cost:{f:550,g:400},t:45,age:3,fx:t=>{
+  for(const k of ['mil','woad','bers','tk','saml','huskarl','jaguar','kamayuk',
+   'shotel','gbeto','eagle','footkonnik','flemish','serjeant','obuch','urumi',
+   'legionary','warpriest']){
+   hpbF(t,k,30);
+   for(const u of S.us)if(u&&u.t===t&&u.k===k&&u.hp>0)u.hp+=30;
+  }
+ }},
+ elite:{k:'eliteComposite',n:'Elite Composite Bowman',cost:{w:800,g:600},t:50,age:3,
+  hpb:{composite:10},atkb:{composite:2},armor:{p:1}}},
+{n:'Georgians',uu:'monaspa',
+ d:'Monaspa formation cavalry, mounted regeneration, Svan Towers and Aznauri',
+ fx:t=>{S.tech[t].georgianCavalry=1},
+ ut:{k:'ut42',n:'Svan Towers',cost:{w:450,g:300},t:45,age:2,
+  fx:t=>{S.tech[t].svanTowers=1}},
+ ut2:{k:'ut42p',n:'Aznauri Cavalry',cost:{f:700,g:600},t:60,age:3,
+  fx:t=>{S.tech[t].aznauriCavalry=1}},
+ elite:{k:'eliteMonaspa',n:'Elite Monaspa',cost:{f:900,g:650},t:55,age:3,
+  hpb:{monaspa:20},atkb:{monaspa:2},armor:{m:1,p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-41-v1",
-  "description": "41 partial medieval civilizations (stable IDs 0–40), including Roman Centurion and Legionary gameplay. Exact patch rules, full dedicated artwork and physical Xbox acceptance remain incomplete.",
+  "inventoryVersion": "ck-current-medieval-roster-43-v1",
+  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Carts, Fortified Churches, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -212,6 +212,17 @@
         ],
         "source": "https://age2hub.com/en/civs/gurjaras",
         "note": "Gurjara Feudal Age Camel Scout trains before Camel Rider becomes available."
+      },
+      {
+        "unit": "warpriest",
+        "civilizations": [
+          41
+        ],
+        "buildings": [
+          "monastery"
+        ],
+        "source": "https://www.ageofempires.com/games/age-of-empires-ii-definitive-edition/",
+        "note": "Armenian fighting healer currently recruited at the Monastery; Fortified Church not implemented."
       }
     ]
   },
@@ -1110,6 +1121,50 @@
         "coreMilitary": "mlphvaeskd",
         "field": "rbh",
         "monastery": "dfrsvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 41,
+      "name": "Armenians",
+      "uniqueUnit": "composite",
+      "uniqueTechnology": "ut41",
+      "secondUniqueTechnology": "ut41p",
+      "eliteUpgrade": "eliteComposite",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 42,
+      "name": "Georgians",
+      "uniqueUnit": "monaspa",
+      "uniqueTechnology": "ut42",
+      "secondUniqueTechnology": "ut42p",
+      "eliteUpgrade": "eliteMonaspa",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
         "university": "msgkfcbh",
         "blacksmith": "irc",
         "infantryArmor": "cp",

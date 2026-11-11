@@ -119,6 +119,9 @@ function paintUnit(g,k,tc,st,fr){
  if(k==='ratha'||k==='rathaM'){paintRatha(g,k,tc,st,fr);return}
  if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun'||k==='husswagon'||k==='houfnice')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{
+ composite:{cloth:'#b28f69',pant:'#594a3e',helm:'hood',wpn:'bow',quiv:1,tab:1},
+ warpriest:{cloth:'#ba9b8f',pant:'#5a4752',helm:'hood',wpn:'mace',shield:'round',tab:1},
+ monaspa:{cloth:'#64896c',pant:'#3b5146',helm:'cone',wpn:'spear',shield:'kite',mail:1,tab:1},
  centurion:{cloth:'#8e3e35',pant:'#54372d',helm:'great',wpn:'spear',shield:'round',mail:1,tab:1},
  legionary:{cloth:'#a85941',pant:'#4b3130',helm:'helm',wpn:'sword',shield:'kite',mail:1,tab:1},
  chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'axe',shield:'none',tab:1},
