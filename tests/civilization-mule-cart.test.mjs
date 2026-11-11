@@ -123,8 +123,7 @@ test('Authenticated command schema admits cart moves but rejects forged or hosti
  assert.equal(run("CK_SIM_SYNC.validOrder({type:'move',entities:[mule.netId],point:{x:24,y:20}},W)"),true);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},1,8)"),false);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[tc.netId],point:{x:24,y:20}},0,8)"),false);
- assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},0,8)"),true,
-  run("JSON.stringify({mode,valid:CK_SIM_SYNC.validOrder({type:'move',entities:[mule.netId],point:{x:24,y:20}},W),lookup:CK_GAME_COMMANDS.lookup(mule.netId)===mule,civ:S.civ[0],ready:mule.done,destination:muleCartTileFree(mule,24,20),path:muleCartRoute(mule,24,20)?.length,entityId:mule.netId})"));
+ assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},0,8)"),true);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'stop',entities:[mule.netId]},0,9)"),true);
  assert.equal(run("mule.muleAuto"),false);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'mule-auto',entities:[mule.netId]},0,10)"),true);
@@ -159,4 +158,22 @@ test('Current-version save and load preserve a moving cart with stable ID and oc
  assert.equal(run("S.bs.find(b=>b.k==='mule').netId"),before);
  assert.ok(run("Array.isArray(S.bs.find(b=>b.k==='mule').mulePath)"));
  assert.equal(run("S.g[S.bs.find(b=>b.k==='mule').y*W+S.bs.find(b=>b.k==='mule').x]"),1);
+});
+
+test('Automatic carts respect unexplored fog while allowing known local resource routes',()=>{
+ const run=world(41);
+ run("globalThis.node={netId:'n1',k:'g',x:27,y:20,amt:250};S.nodes.push(node);S.nd[20*W+27]=node;S.g[20*W+27]=1;S.ex.fill(0);mule.muleCheck=0");
+ run("tickMuleCarts(7)");
+ assert.equal(run("mule.mulePath?.length||0"),0,'hidden gold cannot attract the human-owned cart');
+ run("for(let y=18;y<=22;y++)for(let x=23;x<=29;x++)S.ex[y*W+x]=1;mule.muleCheck=0;tickMuleCarts(7)");
+ assert.ok(run("mule.mulePath.length")>0,'explored gold can attract the cart');
+});
+test('Newly blocked diagonal corner does not allow the Mule Cart to clip past walls',()=>{
+ const run=world(41);
+ assert.equal(run("orderMuleCart(mule,24,24)"),true);
+ run("globalThis.wall=addB(0,'house',21,20,true);tickMuleCarts(2)");
+ assert.equal(run("mule.x"),20);
+ assert.equal(run("mule.y"),20);
+ assert.equal(run("S.g[20*W+20]"),1);
+ assert.equal(run("mule.mulePath.length"),0);
 });

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "inventoryVersion": "ck-current-medieval-roster-43-v1",
-  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Carts, finished Fortified Church artwork, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
+  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Cart dedicated artwork and detailed automation balance, finished Fortified Church artwork, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",

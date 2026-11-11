@@ -162,7 +162,11 @@ function tickMuleCarts(dt){
    for(let steps=0;steps<4&&route.length;steps++){
     const [nx,ny]=route[0],cost=nx!==b.x&&ny!==b.y?Math.SQRT2:1;
     if(b.muleProgress<cost)break;
-    if(Math.abs(nx-b.x)>1||Math.abs(ny-b.y)>1||!muleCartTileFree(b,nx,ny)){
+    const diagonalBlocked=nx!==b.x&&ny!==b.y&&(
+     S.wt[b.y*W+nx]===1||S.g[b.y*W+nx]||
+     S.wt[ny*W+b.x]===1||S.g[ny*W+b.x]);
+    if(Math.abs(nx-b.x)>1||Math.abs(ny-b.y)>1||
+       !muleCartTileFree(b,nx,ny)||diagonalBlocked){
      b.mulePath=[];b.muleProgress=0;break;
     }
     S.g[b.y*W+b.x]=0;b.x=nx;b.y=ny;S.g[b.y*W+b.x]=1;
@@ -177,7 +181,9 @@ function tickMuleCarts(dt){
   // Stay at a viable deposit; relocate only after its nearby resources run out.
   const usable=n=>n&&n.amt>0&&!n.fi&&!n.fm&&
    (n.k==='w'||n.k==='g'||n.k==='s'||n.k==='f'&&n.an)&&
-   Number.isInteger(n.x)&&Number.isInteger(n.y);
+   Number.isInteger(n.x)&&Number.isInteger(n.y)&&
+   n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&
+   (b.t!==0||!!S.ex?.[n.y*W+n.x]);
   if(S.nodes.some(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=2.5))continue;
   const nearby=S.nodes.filter(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=9)
     .sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y)||a.y-c.y||a.x-c.x);
@@ -187,7 +193,7 @@ function tickMuleCarts(dt){
    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
     if(!dx&&!dy)continue;
     const x=n.x+dx,y=n.y+dy;
-    if(muleCartTileFree(b,x,y))sites.push([x,y]);
+    if((b.t!==0||!!S.ex?.[y*W+x])&&muleCartTileFree(b,x,y))sites.push([x,y]);
    }
    sites.sort((a,c)=>Math.hypot(a[0]-b.x,a[1]-b.y)-Math.hypot(c[0]-b.x,c[1]-b.y));
    for(const [x,y] of sites.slice(0,8))
