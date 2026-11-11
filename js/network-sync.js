@@ -7,7 +7,7 @@
   const VERSION = 2;
   const MAX_UNITS_PER_ORDER = 96;
   const MAX_ORDER_BYTES = 1024;
-  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'patrol', 'follow', 'guard', 'attack', 'convert', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark', 'formation','ratha-mode']);
+  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'patrol', 'follow', 'guard', 'attack', 'convert', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark', 'formation','ratha-mode','livestock']);
   const HEX = n => (n >>> 0).toString(16).padStart(8, '0');
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
