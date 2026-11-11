@@ -74,9 +74,10 @@ function combatArmor(t,cls){
  const regionalArmor=(S.civ?.[t.t]===26&&U[t.k]?.sh&&ta.ut26?1:0)+
   (S.civ?.[t.t]===27&&t.k==='batele'?(ta.ut27p?2:1):0);
  const lithShields=S.civ?.[t.t]===32&&ta.ut32p&&(t.k==='spear'||t.k==='skirm')&&cls==='p'?2:0;
+ const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?1:0);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
