@@ -55,7 +55,8 @@ function assignTradeRoute(u,target,producer=null){
 function tradeTripGold(u,distance){
  if(!Number.isFinite(distance)||distance<0)return 0;
  const base=Math.max(2,Math.round(distance*.35));
- return S.civ?.[u.t]===13&&S.tech?.[u.t]?.ut13p?Math.round(base*1.1):base;
+ const own=S.civ?.[u.t]===13&&S.tech?.[u.t]?.ut13p?Math.round(base*1.1):base;
+ return Math.round(own*civilizationTeamBonusFactor(u.t,'tradeGold'));
 }
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
