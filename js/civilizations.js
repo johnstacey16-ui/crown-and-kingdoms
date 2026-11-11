@@ -130,7 +130,16 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut39p',n:'Frontier Guards',cost:{f:800,g:700},t:60,age:3,
   fx:t=>{S.tech[t].frontierGuards=1}},
  elite:{k:'eliteChakram',n:'Elite Chakram Thrower',cost:{f:800,g:600},t:55,age:3,
-  hpb:{chakram:10},atkb:{chakram:2},armor:{p:1}}}];
+  hpb:{chakram:10},atkb:{chakram:2},armor:{p:1}}},
+{n:'Romans',uu:'centurion',teamScorpionMinimumRange:1,
+ d:'Infantry armour and Centurion auras, faster villagers and legionary tactics',
+ fx:t=>{S.tech[t].romanLegions=1},
+ ut:{k:'ut40',n:'Ballistas',cost:{w:400,g:300},t:45,age:2,
+  fx:t=>{S.tech[t].romanBallistas=1}},
+ ut2:{k:'ut40p',n:'Comitatenses',cost:{f:700,g:800},t:60,age:3,
+  fx:t=>{S.tech[t].comitatenses=1}},
+ elite:{k:'eliteCenturion',n:'Elite Centurion',cost:{f:950,g:800},t:55,age:3,
+  hpb:{centurion:20},atkb:{centurion:2},armor:{m:1,p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
