@@ -61,6 +61,25 @@ function applyStartingCivilizationBonuses(team){
   const previous=b.mh,next=Math.round(previous*1.15);
   b.mh=next;b.hp=Math.min(next,b.hp+next-previous);
  }
+ if(S.civ?.[team]===39){
+  const tc=S.bs.find(b=>b&&b.t===team&&b.k==='tc'&&b.done&&b.hp>0);
+  if(tc){
+   const spawn=spawnPos(tc);
+   if(spawn)addU(team,'camelscout',spawn[0],spawn[1]);
+   // No map-generator random draws: preserve the deterministic seed stream.
+   let planted=0;
+   for(let radius=5;radius<=10&&planted<2;radius++)
+    for(let dy=-radius;dy<=radius&&planted<2;dy++)
+     for(let dx=-radius;dx<=radius&&planted<2;dx++){
+      if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+      const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+      if(x<2||y<2||x>=W-2||y>=H-2||S.g[i]||S.wt[i]||S.nd[i]||
+        S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+      const bush=addN('f',x,y,175);
+      if(bush){bush.gurjaraForage=true;planted++}
+     }
+  }
+ }
  applied.add(team);
 }
 
