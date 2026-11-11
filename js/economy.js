@@ -3,7 +3,10 @@ function trade(t,k,md){if(!S||!Number.isInteger(t)||!S.px?.[t]||!S.res?.[t]||!['
 
 /* Shared economy ledger and population capacity helpers. Keep the same
  * reserved-population, payment and cost-label semantics as the engine. */
-const capOf=t=>Math.min(popLimit,10+5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&(b.k==='house'||b.k==='folwark'&&S.civ?.[t]===35)).length);
+const capOf=t=>Math.min(popLimit,10+5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&(b.k==='house'||b.k==='folwark'&&S.civ?.[t]===35)).length+
+ (typeof alliedCivilizationIds==='function'&&typeof CIV!=='undefined'&&
+  alliedCivilizationIds(t).some(id=>CIV[id]?.teamDockPopulation===5)?
+  5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&b.k==='dock').length:0));
 // Training reserves slots; spawning tests living units so its own reservation cannot block completion.
 const livePopulation=t=>S.us.reduce((n,u)=>n+(u&&u.t===t&&u.hp>0?1:0),0)+(S.bs?.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&b.k==='feitoria'?20:0),0)||0);
 const popOf=t=>livePopulation(t)+queuedPopulation(t);
