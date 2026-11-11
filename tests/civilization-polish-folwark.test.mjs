@@ -15,7 +15,7 @@ const copy=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Polish ID 35, Obuch, Castle upgrades and Folwark access are faction locked',()=>{
  const run=game();
- assert.equal(run('CIV.length'),36);
+ assert.equal(run('CIV.length'),37);
  assert.equal(run('CIV[34].n'),'Sicilians');
  assert.equal(run('CIV[35].uu'),'obuch');
  assert.ok(run("trOf(castle).includes('obuch')"));
