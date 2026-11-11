@@ -148,7 +148,7 @@ function chakramPierceTargets(a,t){
 function factionCounterBonus(a,t,base){
  const bonus=Number.isFinite(base)?base:0;
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
- const mounted=S.civ?.[a.t]===39&&U[a.k]?.mt&&age>=1;
+ const mounted=S.civ?.[a.t]===39&&(U[a.k]?.mt||CAVARM.has(a.k))&&age>=1;
  const boosted=mounted?Math.round(bonus*(1+.1*(age+1))):bonus;
  const bengali=S.civ?.[t.t]===38&&['ele','eled','batele'].includes(t.k);
  return bengali?Math.round(boosted*.75):boosted;

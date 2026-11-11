@@ -179,7 +179,8 @@ test('real HTTP guest UI garrisons, unloads, repairs and lands transport passeng
     refresh();return;
    }
   }
-  assert.fail('Action did not complete within '+limit+' synchronized frames: '+condition);
+  const state=get("(()=>{const u=CK_GAME_COMMANDS.lookup(fixtureWorker),b=CK_GAME_COMMANDS.lookup(fixtureHouse);return JSON.stringify({worker:u&&{x:u.x,y:u.y,o:u.o,target:u.tg?.netId,route:u.p?.length,rp:u.rp},house:b&&{x:b.x,y:b.y,hp:b.hp,mh:b.mh,done:b.done},resources:S.res[1],lastResult:null})})()");
+   assert.fail('Action did not complete within '+limit+' synchronized frames: '+condition+'; guest state: '+state+'; last: '+JSON.stringify(p.guestLive.snapshot().lastResult));
  };
  refresh();map.choose({x:29.5,y:24.5});const before=get('CK_SIM_SYNC.worldCheckpoint(S,1).hash');
  wheel('garrison');assert.equal(p.guestLive.snapshot().commandPending,false);

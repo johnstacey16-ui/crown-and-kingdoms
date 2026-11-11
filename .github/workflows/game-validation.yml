@@ -155,6 +155,27 @@ jobs:
       - name: Run three deterministic production-AI skirmish scenarios
         run: node scripts/run-checks.mjs --skirmishes
 
+  # Focused diagnostics for the four formerly unverified standalone files.
+  # This separate one-off job preserves the cheap ordinary push path.
+  regression-recheck:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-regression-recheck]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Bengali, Gurjara, and HTTP multiplayer regressions
+        run: |
+          node tests/civilization-bengali-ratha.test.mjs
+          node tests/civilization-gurjara-camel.test.mjs
+          node tests/network-battlefield-live.test.mjs
+      - name: Audit all nineteen campaign goal predicates without scripted playthroughs
+        env:
+          CK_SKIP_CAMPAIGN: '1'
+        run: node tests/simulation-smoke.test.mjs
+
   # This is an explicit, single-revision UI visual review, not a normal push gate.
   # Leave the comprehensive battlefield-art workflow weekly/manual.
   hud-browser:

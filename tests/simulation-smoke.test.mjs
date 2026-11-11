@@ -655,7 +655,14 @@ globalThis.__CK_TEST__ = {
         if (/Watch Tower/.test(title)) addBuilding('tower', 1);
         if (/villagers/.test(title)) addUnits('vil', 10);
         if (/Train 4 soldiers/.test(title)) addUnits('mil', 4);
-        if (/Train 8 soldiers/.test(title)) addUnits('mil', 8);
+        if (/Train 8 soldiers|Muster 8 soldiers/.test(title)) addUnits('mil', 8);
+        if (/Guard the real river ford with 3 soldiers/.test(title)) {
+          const ford = campaignRaidersFord();
+          if (!ford) throw new Error('Mission ford-guard reachability requires a real traversable crossing');
+          // Actual live soldiers at the actual crossing, not a patched goal
+          // predicate or a fabricated completion flag.
+          for (let i = 0; i < 3; i++) addU(0, 'mil', ford[0] + i*.25, ford[1]);
+        }
         if (/ranged soldiers/.test(title)) addUnits('arc', 6);
         if (/3 War Galleys/.test(title)) addUnits('gal', 3);
         if (/Bombard Cannons/.test(title)) addUnits('bomb', 2);
