@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-40-v1",
-  "description": "40 partial medieval civilizations; Bengalis and Gurjaras appended with ranged/melee Ratha, Chakram, Camel Scout and Shrivamsha rules. 2026 balance, alternate rulepacks and hardware acceptance incomplete.",
+  "inventoryVersion": "ck-current-medieval-roster-41-v1",
+  "description": "41 partial medieval civilizations (stable IDs 0–40), including Roman Centurion and Legionary gameplay. Exact patch rules, full dedicated artwork and physical Xbox acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -1088,6 +1088,28 @@
         "coreMilitary": "mltphvesu",
         "field": "rh",
         "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 40,
+      "name": "Romans",
+      "uniqueUnit": "centurion",
+      "uniqueTechnology": "ut40",
+      "secondUniqueTechnology": "ut40p",
+      "eliteUpgrade": "eliteCenturion",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mlphvaeskd",
+        "field": "rbh",
+        "monastery": "dfrsvbitm",
         "university": "msgkfcbh",
         "blacksmith": "irc",
         "infantryArmor": "cp",
