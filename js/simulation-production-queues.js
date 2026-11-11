@@ -3,16 +3,23 @@
  * Queue rules are moved unchanged and keep current-build save/load contracts. */
 /* Canonical discounted unit costs, shared by AI, UI and authoritative host.
  * Unit catalogue remains immutable and cancellation refunds the paid amount. */
+function unitEffectiveAge(team,kind,civs=S?.civ){
+ const age=Number.isInteger(U[kind]?.age)?U[kind].age:0;
+ return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):age;
+}
 function unitTrainingCost(team,kind,civs=S?.civ){
  const cost=U[kind]?.cost||{};
  if(kind==='kipchak'&&civs?.[team]!==31&&
   typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
+ if(civs?.[team]===36&&kind==='mon'&&S?.tech?.[team]?.ut36p&&cost.g){
+  const {g,...other}=cost;return {...other,f:(other.f||0)+g};
+ }
  if(civs?.[team]===35&&kind==='knight'&&S?.tech?.[team]?.ut35&&cost.g)
   return {...cost,g:Math.ceil(cost.g*.4)};
  return civs?.[team]===26&&cost.g?{...cost,g:Math.ceil(cost.g*.85)}:cost;
 }
 function queuedPopulation(t){return S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.length:0),0)}
-function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k];if(d.age>S.age[t]){if(!t)note('Requires '+AG[d.age].n);return false}const cost=typeof unitTrainingCost==='function'?unitTrainingCost(t,k):d.cost;if(!can(t,cost)){if(!t)note('Not enough resources');return false}
+function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k];if(unitEffectiveAge(t,k)>S.age[t]){if(!t)note('Requires '+AG[unitEffectiveAge(t,k)].n);return false}const cost=typeof unitTrainingCost==='function'?unitTrainingCost(t,k):d.cost;if(!can(t,cost)){if(!t)note('Not enough resources');return false}
 if(popOf(t)>=capOf(t)){
  if(!t){
   const population=popOf(t),capacity=capOf(t);
