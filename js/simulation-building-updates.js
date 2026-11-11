@@ -46,5 +46,11 @@ if(b.rs){b.rs.t-=dt*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizati
  }if(b.t===0){note(AG[S.age[0]].n+' reached!');rumble(500,.7,.7);{const tc0=S.bs.find(x=>x.t===0&&x.k==='tc');if(tc0)emit('spark',tc0.x+1.5,tc0.y+1.5,40,{s:4,vz:5,l:1.2,c:'#f2c14e',r:2.4})}if(b.t===0)sfx('age')}}else{const T0=S.tech[b.t],e=TE[k];T0[k]=1;if(['coll','plow','crop'].includes(k)){const add=k==='coll'?75:k==='plow'?125:175;for(const n of S.nodes)if(n.k==='f'&&n.fm&&n.t===b.t&&S.nd[n.y*W+n.x]===n)n.amt+=add}if(e.hpb){T0.hpb=T0.hpb||{};for(const q in e.hpb){T0.hpb[q]=(T0.hpb[q]||0)+e.hpb[q];for(const x of S.us)if(x.t===b.t&&x.k===q&&x.hp>0)x.hp+=e.hpb[q]}}if(k==='sanctity'&&S.civ?.[b.t]===36){
  T0.hpb=T0.hpb||{};T0.hpb.vil=(T0.hpb.vil||0)+15;
  for(const villager of S.us)if(villager.t===b.t&&villager.k==='vil'&&villager.hp>0)villager.hp+=15;
-}if(e.atkb){T0.atkb=T0.atkb||{};for(const q in e.atkb)T0.atkb[q]=(T0.atkb[q]||0)+e.atkb[q]}if(k==='mas')for(const x of S.bs)if(x.t===b.t){x.mh=Math.round((x.mh||B[x.k].hp)*1.4);x.hp=Math.min(x.mh,Math.round(x.hp*1.4))}if(k==='fw')for(const x of S.bs)if(x.t===b.t&&(x.k==='wall'||x.k==='gate')){x.mh=Math.round((x.mh||B[x.k].hp)*1.8);x.hp=Math.min(x.mh,Math.round(x.hp*1.8))}if(e.fx)e.fx(b.t);if(b.t===0){note(e.n+' researched');sfx('tech')}}}}
+}if(e.atkb){T0.atkb=T0.atkb||{};for(const q in e.atkb)T0.atkb[q]=(T0.atkb[q]||0)+e.atkb[q]}if(k==='eliteRatha'&&S.civ?.[b.t]===38){
+ T0.hpb=T0.hpb||{};T0.hpb.rathaM=(T0.hpb.rathaM||0)+20;
+ T0.atkb=T0.atkb||{};T0.atkb.rathaM=(T0.atkb.rathaM||0)+2;
+ for(const ratha of S.us)if(ratha.t===b.t&&ratha.k==='rathaM'&&ratha.hp>0)
+  ratha.hp+=20;
+}
+if(k==='mas')for(const x of S.bs)if(x.t===b.t){x.mh=Math.round((x.mh||B[x.k].hp)*1.4);x.hp=Math.min(x.mh,Math.round(x.hp*1.4))}if(k==='fw')for(const x of S.bs)if(x.t===b.t&&(x.k==='wall'||x.k==='gate')){x.mh=Math.round((x.mh||B[x.k].hp)*1.8);x.hp=Math.min(x.mh,Math.round(x.hp*1.8))}if(e.fx)e.fx(b.t);if(b.t===0){note(e.n+' researched');sfx('tech')}}}}
 if(!b.q.length)return;const q=b.q[0];if(!q||!U[q.k]||!Number.isFinite(q.t)){b.q.shift();return}if(!Number.isFinite(dt)||dt<=0)return;q.t-=dt*trainRate(b,q.k);if(q.t<=0){if(livePopulation(b.t)>=capOf(b.t)){q.t=0;return}const p=spawnPos(b);if(!p){q.t=0;return}b.q.shift();if(b.t===0)sfx('train',b.x+b.s/2,b.y+b.s/2);const nu=addU(b.t,q.k,p[0],p[1]);if(q.k==='cart'||q.k==='cog')nu.tradeFromKey=[b.t,b.k,b.x,b.y].join(':');if(b.rally)applyProductionRally(nu,b.rally,b);if(b.t===0){S.pl.tr++;note(unitName(q.k,b.t)+' trained')}}}
