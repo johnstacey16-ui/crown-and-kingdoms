@@ -81,7 +81,7 @@ test('a single read-only tree model describes each existing civilization unique 
  for(let id=0;id<26;id++){
   const model=JSON.parse(run('JSON.stringify(technologyTreeModel(0,{civ:['+id+'],age:[1],tech:[{}]}))'));
   assert.equal(model.civilizationId,id);
-  assert.equal(model.buildings.length,Object.keys(JSON.parse(run('JSON.stringify(B)'))).length);
+  assert.equal(model.buildings.length,Object.keys(JSON.parse(run('JSON.stringify(B)'))).length-1,'foreign civilizations cannot access the Portuguese-only Feitoria');
   const castle=model.buildings.find(b=>b.id==='castle');
   const unique=JSON.parse(run('JSON.stringify(CIV['+id+'])'));
   assert.ok(castle.units.some(u=>u.id===unique.uu));

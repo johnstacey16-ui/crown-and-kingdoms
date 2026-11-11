@@ -22,9 +22,9 @@ function applyProductionRally(u,rally,producer=null){
 }
 
 /* Construction placement and occupied-ground protection, unchanged from simulation.js. */
-function okPlace(t,k,x,y){if(!S||!B[k]||!Number.isInteger(t)||!S.tech[t]||!Number.isInteger(x)||!Number.isInteger(y))return false;if(!civilizationBuildingAllowed(k,t))return false;
- if(B[k].pop&&popOf(t)+B[k].pop>capOf(t))return false;
- if(vm===6&&k==='tc')return false;const s=B[k].s;if(x<1||y<1||x+s>W-1||y+s>H-1)return false;
+function okPlace(t,k,x,y){if(!S||!B[k]||!Number.isInteger(t)||!S.tech[t]||!Number.isInteger(x)||!Number.isInteger(y))return false;if(vm===6&&k==='tc')return false;
+if(typeof civilizationBuildingAllowed==='function'&&!civilizationBuildingAllowed(k,t))return false;
+if(B[k].pop&&popOf(t)+B[k].pop>capOf(t))return false;const s=B[k].s;if(x<1||y<1||x+s>W-1||y+s>H-1)return false;
 // A solid foundation or farm would strand any unit already on these tiles:
 // pathfinding and movement correctly reject a blocked starting tile.
 for(const u of S.us||[])if(u&&u.hp>0&&!u.ld&&u.x>=x&&u.x<x+s&&u.y>=y&&u.y<y+s)return false;

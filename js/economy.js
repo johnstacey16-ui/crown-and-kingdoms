@@ -5,8 +5,7 @@ function trade(t,k,md){if(!S||!Number.isInteger(t)||!S.px?.[t]||!S.res?.[t]||!['
  * reserved-population, payment and cost-label semantics as the engine. */
 const capOf=t=>Math.min(popLimit,10+5*S.bs.filter(b=>b&&b.t===t&&b.k==='house'&&b.done&&b.hp>0).length);
 // Training reserves slots; spawning tests living units so its own reservation cannot block completion.
-const livePopulation=t=>S.us.reduce((n,u)=>n+(u&&u.t===t&&u.hp>0?1:0),0)+
- S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&B[b.k]?.pop||0),0);
+const livePopulation=t=>S.us.reduce((n,u)=>n+(u&&u.t===t&&u.hp>0?1:0),0)+(S.bs?.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&b.k==='feitoria'?20:0),0)||0);
 const popOf=t=>livePopulation(t)+queuedPopulation(t);
 const can=(t,c)=>Object.keys(c).every(k=>S.res[t][k]>=c[k]),pay=(t,c,m=-1)=>{for(const k in c)S.res[t][k]+=m*c[k]};
 const cs=c=>Object.entries(c).map(([k,v])=>v+k.toUpperCase()).join(' ')||'free';

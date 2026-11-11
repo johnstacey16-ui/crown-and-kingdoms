@@ -11,7 +11,7 @@ assert.match(cancel, /^function cancelQ\(b\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|
   'Cancellation must reject dead, unfinished, invalid-owner and empty-queue buildings');
 assert.match(cancel, /if\(!q\|\|!U\[q\.k\]\)\{b\.q\.pop\(\);return false\}/,
   'Malformed queue entries must not cause a refund');
-assert.match(cancel, /b\.q\.pop\(\);pay\(b\.t,U\[q\.k\]\.cost,1\);note\('Cancelled - full refund'\);return true/,
+assert.match(cancel, /b\.q\.pop\(\);pay\(b\.t,typeof unitTrainingCost==='function'\?unitTrainingCost\(b\.t,q\.k\):U\[q\.k\]\.cost,1\);note\('Cancelled - full refund'\);return true/,
   'Valid cancellation must remove the newest queue item and refund its unit cost');
 
 console.log('production-cancellation-validation: stale and malformed cancellation rejected');

@@ -11,9 +11,9 @@ assert.match(train, /^function train\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|!
   'Training must reject invalid buildings and owners');
 assert.match(train, /!Array\.isArray\(B\[b\.k\]\.tr\)\|\|!trOf\(b\)\.includes\(k\)\|\|!U\[k\]\|\|!Array\.isArray\(b\.q\)/,
   'Training must validate supported unit types and the production queue before reading its length');
-assert.match(train, /if\(!can\(t,d\.cost\)\)/,
+assert.match(train, /if\(!can\(t,cost\)\)/,
   'Resource affordability must be checked before spending');
-assert.match(train, /if\(b\.q\.length>=5\)return false;pay\(t,d\.cost\);b\.q\.push/,
+assert.match(train, /if\(b\.q\.length>=5\)return false;pay\(t,cost\);b\.q\.push/,
   'Queue capacity must be checked before spending resources and appending the unit');
 
 console.log('production-queue-validation: malformed queues are rejected before resource changes');

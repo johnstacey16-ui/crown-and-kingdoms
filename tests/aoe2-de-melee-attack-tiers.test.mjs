@@ -56,7 +56,7 @@ function fixture(){
 }
 test('all 26 DE civs use explicit three-tier melee attack availability',()=>{
  const c=fixture();
- assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.map(x=>[x.n,CIV_MELEE_RESEARCH[x.n]]))')),
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(x=>[x.n,CIV_MELEE_RESEARCH[x.n]]))')),
   Object.entries(EXPECTED));
  assert.equal(Object.keys(EXPECTED).length,26);
  assert.deepEqual(Object.keys(EXPECTED).filter(n=>!EXPECTED[n].includes('b')),

@@ -55,7 +55,7 @@ function fixture(){
 }
 test('all 26 source-pinned infantry armour trees preserve Scale and Chain, gate Plate Mail',()=>{
  const c=fixture();
- assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.map(v=>[v.n,CIV_INFANTRY_ARMOR_RESEARCH[v.n]]))')),
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(v=>[v.n,CIV_INFANTRY_ARMOR_RESEARCH[v.n]]))')),
   Object.entries(EXPECTED),'exactly the pinned per-civilization tech matrix');
  assert.equal(Object.keys(EXPECTED).length,26);
  assert.equal(Object.entries(EXPECTED).filter(([,flags])=>!flags.includes('p')).length,5);

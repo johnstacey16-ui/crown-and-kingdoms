@@ -56,7 +56,7 @@ function fixture(){
 }
 test('26 DE civilization technology trees expose only their source-supported Scale, Chain and Plate Barding',()=>{
  const c=fixture();
- assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.map(x=>[x.n,CIV_CAVALRY_ARMOR_RESEARCH[x.n]]))')),
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(x=>[x.n,CIV_CAVALRY_ARMOR_RESEARCH[x.n]]))')),
   Object.entries(EXPECTED),'complete 26-civ source access');
  assert.equal(Object.keys(EXPECTED).length,26);
  assert.deepEqual(Object.keys(EXPECTED).filter(n=>!EXPECTED[n]),
