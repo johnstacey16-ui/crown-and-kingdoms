@@ -9,6 +9,27 @@ function createDiplomacy(n,source=null){
  return d;
 }
 function diplomacyRelation(a,b){if(a===b)return 'self';return S&&S.dip&&S.dip[a]&&S.dip[a][b]||'enemy'}
+/* Team bonuses follow current alliances, apply to the owner and never
+ * duplicate when multiple allies choose the same civilization. */
+function alliedCivilizationIds(team,world=S){
+ if(!Number.isInteger(team)||team<0||!Array.isArray(world?.civ)||team>=world.civ.length)return [];
+ const found=new Set();
+ for(let other=0;other<world.civ.length;other++){
+  if(other!==team&&world.dip?.[team]?.[other]!=='ally')continue;
+  const id=world.civ[other];
+  if(Number.isInteger(id)&&CIV[id])found.add(id);
+ }
+ return [...found];
+}
+function civilizationTeamBonusFactor(team,kind,world=S){
+ let factor=1;
+ for(const id of alliedCivilizationIds(team,world)){
+  const value=CIV[id].teamEconomic?.[kind];
+  if(Number.isFinite(value)&&value>0)factor*=value;
+ }
+ return factor;
+}
+
 function isHostile(a,b){return a!==b&&diplomacyRelation(a,b)==='enemy'}
 function relationLabel(r){return r==='ally'?'Ally':r==='neutral'?'Neutral':r==='self'?'Self':'Enemy'}
 function setDiplomacy(a,b,rel){
