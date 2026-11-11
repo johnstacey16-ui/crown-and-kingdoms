@@ -197,7 +197,7 @@ function tryAutomaticFarm(u){
    if(!route||!route.length)continue;
    const farm=addN('f',x,y,farmFood(0),1);
    if(!farm)continue;
-   farm.t=0;pay(0,B.farm.cost);
+   farm.t=0;pay(0,B.farm.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(farm,0);
    u.o='g';u.tg=farm;u.ct='f';u.p=route;u.pt=null;u.rp=1;u.ret=0;
    u.autoWorker=1;u.autoFarmWaiting=0;
    note('Automatic farm built (-'+B.farm.cost.w+' wood)');
