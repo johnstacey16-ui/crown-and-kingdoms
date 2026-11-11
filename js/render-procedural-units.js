@@ -82,6 +82,16 @@ if(k==='turtle'){
  g.fillStyle='#2b3032';g.fillRect(13,-20,11,4);
  if(st===2&&fr){g.fillStyle='#ffcc69';g.beginPath();g.arc(27,-18,4,0,7);g.fill()}
 }
+else if(k==='thirisadai'){
+ // Wide original South Indian-inspired ocean vessel with triple decks.
+ pg(g,[[-23,-12],[-18,-30],[0,-35],[18,-30],[23,-12],[15,-7],[-15,-7]],
+  lin(g,0,-35,0,-7,'#b59a67','#5e4c38'),E,1.2);
+ g.strokeStyle='#e4c184';g.lineWidth=1.2;
+ for(const x of[-12,0,12]){g.beginPath();g.moveTo(x,-29);g.lineTo(x,-12);g.stroke()}
+ g.fillStyle=tc;g.fillRect(-18,-25,36,4);
+ for(const y of[-22,-16,-10]){g.fillStyle='#222d35';g.fillRect(12,y,11,3)}
+ if(st===2&&fr){g.fillStyle='#edc968';g.beginPath();g.arc(26,-19,4,0,7);g.fill()}
+}
 else if(k==='fish'){g.strokeStyle='#e8e0c0';g.lineWidth=1.4;g.beginPath();g.moveTo(-r*.4,-11);g.lineTo(r*.9,-23);g.lineTo(r*.9,-12);g.stroke();g.fillStyle='#8cc0d6';g.beginPath();g.ellipse(-r*.6,-13,5,2,0,0,7);g.fill()}
 else{g.strokeStyle='#3a2a18';g.lineWidth=2.4;g.beginPath();g.moveTo(0,-11);g.lineTo(0,-38);g.stroke();pg(g,[[1,-37],[16,-27+Math.sin(ph)*1.5],[15,-17],[1,-14]],lin(g,-10,-36,12,-16,'#f4efe0','#cfc7b0'),E,.8);g.fillStyle=tc;g.fillRect(2,-27,13,3);
 if(['gal','fire','cgal'].includes(k)){g.strokeStyle='#5a3b1e';g.lineWidth=1.4;for(const o of[-12,-4,4,12]){g.beginPath();g.moveTo(o,-6);g.lineTo(o-2-Math.sin(ph+o)*3,4);g.stroke()}}
@@ -89,6 +99,7 @@ if(k==='cgal'){g.fillStyle='#343940';g.strokeStyle='#b8aa81';for(const x0 of[-9,
 if(k==='trn'){g.fillStyle='#8a6a3a';g.fillRect(-10,-17,8,6);g.fillRect(-1,-17,8,6);g.strokeStyle=E;g.lineWidth=.6;g.strokeRect(-10,-17,8,6);g.strokeRect(-1,-17,8,6)}}}
 function paintUnit(g,k,tc,st,fr){if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun'||k==='husswagon'||k==='houfnice')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{
+ urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'sword',shield:'round',mail:1,tab:1},
  obuch:{cloth:'#796456',pant:'#524d48',helm:'great',wpn:'mace',shield:'round',mail:1,tab:1},
  winged:{cloth:'#a17a55',pant:'#594536',helm:'helm',wpn:'spear',shield:'kite',mail:1,tab:1},
  serjeant:{cloth:'#8793a6',pant:'#3c4354',helm:'great',wpn:'sword',shield:'kite',mail:1,tab:1},
