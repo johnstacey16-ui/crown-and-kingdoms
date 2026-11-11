@@ -143,11 +143,12 @@ function aiGeorgianRidgeDefence(t,A,arm,tc,nearbyRaiders){
   spots.push({x,y,dist});
  }
  spots.sort((a,b)=>a.dist-b.dist||a.y-b.y||a.x-b.x);
- let posted=0,probes=0;
+ let posted=0,probes=0,inspected=0;
  for(const soldier of reserves){
   let selected=null;
   for(const spot of spots){
-   if(probes>=16)break;
+   // Occupancy checks also scan troops: cap them before testing each site.
+   if(probes>=16||inspected++>=40)break;
    if(Math.hypot(spot.x+.5-soldier.x,spot.y+.5-soldier.y)>21)continue;
    if(S.us.some(u=>u!==soldier&&u.hp>0&&!u.ld&&u.t===t&&
      Math.hypot(u.x-spot.x-.5,u.y-spot.y-.5)<1.4))continue;

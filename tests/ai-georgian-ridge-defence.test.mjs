@@ -97,3 +97,11 @@ test('Multiplayer checkpoint detects an otherwise invisible ridge-cooldown diver
  run("S.ai[1].georgianRidgeAt=321");
  assert.notEqual(run("CK_SIM_SYNC.worldCheckpoint(S,0).hash"),first);
 });
+
+test('Crowded base checks have a strict inspection budget even when routes are never attempted',()=>{
+ const h=fixture();let checks=0;
+ h.S.us.some=()=>{checks++;return true};
+ assert.equal(h.post(),0);
+ assert.ok(checks>0&&checks<=40);
+ assert.equal(h.probes,0);
+});
