@@ -42,6 +42,20 @@ test('Architecture is Imperial, requires paid Masonry, and affects old and new b
  assert.equal(run("combatArmor({k:'house',t:1,s:2},'m')"),2,'no foreign building bonus');
 });
 
+test('Architecture cannot be ordered by civilizations without the Masonry prerequisite',()=>{
+ const run=game();
+ for(const civ of [3,19]){
+  run('S.civ[0]='+civ+';S.tech[0]={};university.rs=null');
+  assert.equal(run("rsOf(university).includes('mas')"),false);
+  assert.equal(run("rsOf(university).includes('arch')"),false);
+  assert.equal(run("research(university,'arch')"),false);
+  assert.equal(run('university.rs'),null);
+ }
+ run('S.civ[0]=5;S.tech[0]={}');
+ assert.equal(run("rsOf(university).includes('mas')"),true);
+ assert.equal(run("rsOf(university).includes('arch')"),true);
+});
+
 test('Hoardings grants Castle HP to existing and later Castles, not towers, for the paying team',()=>{
  const run=game();
  const tech=JSON.parse(run('JSON.stringify(TE.hoardings)'));

@@ -662,7 +662,11 @@ const rsOf=(b,civs=S?.civ)=>{
  const monastery=c&&CIV_MONASTERY_RESEARCH[c.n];
  const monastic=monastery==null?permitted:permitted.filter(k=>!MONASTERY_RESEARCH_KEYS[k]||monastery.includes(MONASTERY_RESEARCH_KEYS[k]));
  const university=b.k==='univ'&&c&&CIV_UNIVERSITY_RESEARCH[c.n];
- const academic=university==null?monastic:monastic.filter(k=>!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]));
+ // Architecture requires Masonry, so factions without Masonry must not
+ // receive an unactionable upgrade in menus, tech trees or host validation.
+ const academic=university==null?monastic:monastic.filter(k=>
+  (!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]))&&
+  (k!=='arch'||university.includes(UNIVERSITY_RESEARCH_KEYS.mas)));
  const blacksmith=b.k==='smith'&&c&&CIV_BLACKSMITH_RESEARCH[c.n];
  const forged=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
  const infantry=b.k==='smith'&&c&&CIV_INFANTRY_ARMOR_RESEARCH[c.n];
