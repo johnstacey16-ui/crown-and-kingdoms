@@ -15,7 +15,7 @@ const obj=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('Lithuanians and Burgundians append 32/33 without renumbering earlier civilizations',()=>{
  const run=game();
- assert.equal(run('CIV.length'),40);
+ assert.equal(run('CIV.length'),41);
  assert.equal(run('CIV[31].n'),'Cumans');
  for(const [id,name,unique] of [[32,'Lithuanians','leitis'],[33,'Burgundians','coust']]){
   assert.equal(run('CIV['+id+'].n'),name);
