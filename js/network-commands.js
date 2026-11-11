@@ -65,7 +65,8 @@
         locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
-    if(building.k==='mill'&&world.civ?.[team]===39)
+    if(building.k==='mule')options.push({type:'move',label:'Move Mule Cart',targeted:true,cost:{},locked:''},{type:'mule-auto',label:'Follow nearby resources',cost:{},locked:''},{type:'stop',label:'Stop Mule Cart',cost:{},locked:''});
+     if(building.k==='mill'&&world.civ?.[team]===39)
       options.push({type:'livestock',label:'Garrison nearby sheep',cost:{},locked:''});
     if (GAR[building.k] && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
       options.push({type:'unload',label:'Unload garrison',cost:{},locked:''});
@@ -99,12 +100,12 @@
   const BUILD_PAGES = Object.freeze([
     Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost','feitoria']),
     // Append new buildings; never shift existing Xbox RT wheel sectors.
-    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc','donjon','folwark','fchurch'])
+    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc','donjon','folwark','fchurch','mule'])
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
       const d=B[kind],req=kind==='farm'?(world.civ?.[team]===35?'folwark':'mill'):d.req;
-      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?(kind==='donjon'?'Only Sicilians can construct a Donjon':kind==='folwark'?'Only Poles can construct a Folwark':kind==='mill'&&world.civ?.[team]===35?'Poles build Folwarks instead of Mills':kind==='monastery'?'Build a Fortified Church instead':kind==='fchurch'?'Only Armenians and Georgians build Fortified Churches':'Only Portuguese can construct a Feitoria'):
+      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?(kind==='donjon'?'Only Sicilians can construct a Donjon':kind==='folwark'?'Only Poles can construct a Folwark':kind==='mill'&&world.civ?.[team]===35?'Poles build Folwarks instead of Mills':kind==='monastery'?'Build a Fortified Church instead':kind==='fchurch'?'Only Armenians and Georgians build Fortified Churches':kind==='mule'?'Only Armenians and Georgians build Mule Carts':(kind==='lumber'||kind==='mine')?'Build a Mule Cart instead':'Only Portuguese can construct a Feitoria'):
         d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
         kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
         kind==='wonder'&&vm!==1?'Wonder victory is off':
@@ -371,7 +372,11 @@
       return true;
     }
     if (order.type === 'build') return construct(entities,order,team);
-    if (order.type === 'stop') {
+    if(order.type==='mule-auto')return entities.length===1&&activeBuildings(entities)&&
+       entities[0].k==='mule'&&resumeMuleCart(entities[0]);
+     if (order.type === 'stop') {
+      if(entities.some(e=>e.netId[0]==='b'))return entities.length===1&&
+        activeBuildings(entities)&&entities[0].k==='mule'&&stopMuleCart(entities[0]);
       for (const u of entities) {
         u.o = 'i'; u.p = []; u.tg = null; u.pt = null; u.rp = 0;
         u.as = 0; u.autoWorker = 0; u.guardTarget = null; u.ret = 0;
@@ -384,7 +389,12 @@
       }
       return true;
     }
-    if (order.type === 'move') return moveUnits(entities, order.point);
+    if (order.type === 'move'){
+      if(entities.some(e=>e.netId[0]==='b'))return entities.length===1&&
+        activeBuildings(entities)&&entities[0].k==='mule'&&
+        orderMuleCart(entities[0],Math.floor(order.point.x),Math.floor(order.point.y));
+      return moveUnits(entities, order.point);
+     }
     if (order.type === 'attack-move' || order.type === 'patrol') {
       if (entities.some(u => !militaryUnit(u) || !Number.isFinite(u.x) || !Number.isFinite(u.y) ||
           u.x<0 || u.y<0 || u.x>=W || u.y>=H)) return false;
@@ -438,7 +448,7 @@
     lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode', 'livestock'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode', 'livestock', 'mule-auto'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
