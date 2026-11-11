@@ -5,7 +5,7 @@ const MILITARY_PRODUCTION_BUILDINGS=new Set(['bar','rng','stable','siege','castl
  * Apply each allied civilization once, even when several allies choose it.
  * Resolve on every queue tick so diplomacy changes and restored saves agree. */
 function civilizationTeamWorkRate(b,kind='train',researchKey=null){
- if(!S||!Array.isArray(S.civ)||!Number.isInteger(b?.t)||b.t<0||b.t>=S.civ.length)return 1;
+ if(!S||!Array.isArray(S.civ)||!Number.isInteger(b?.t)||b.t<0||b.t>=S.civ.length||typeof alliedCivilizationIds!=='function')return 1;
  let rate=1;
  for(const id of alliedCivilizationIds(b.t)){
   const civ=CIV[id];
