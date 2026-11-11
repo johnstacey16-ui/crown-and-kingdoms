@@ -79,6 +79,7 @@ if(k==='cgal'){g.fillStyle='#343940';g.strokeStyle='#b8aa81';for(const x0 of[-9,
 if(k==='trn'){g.fillStyle='#8a6a3a';g.fillRect(-10,-17,8,6);g.fillRect(-1,-17,8,6);g.strokeStyle=E;g.lineWidth=.6;g.strokeRect(-10,-17,8,6);g.strokeRect(-1,-17,8,6)}}}
 function paintUnit(g,k,tc,st,fr){if(U[k].sh)shp(g,k,tc,st,fr);else if(k==='ram'||k==='mang'||k==='scor'||k==='treb'||k==='bomb'||k==='cart'||k==='wagon'||k==='orgun')sgp(g,k,tc,st,fr);else if(U[k].mt||k==='scout'||k==='knight'||k==='camel'||k==='mgd'||k==='cata'||k==='ele'||k==='mamel'||k==='eled')mnt(g,k,tc,st,fr);else man(g,k,tc,st,fr)}
 Object.assign(MP,{
+ serjeant:{cloth:'#8793a6',pant:'#3c4354',helm:'great',wpn:'sword',shield:'kite',mail:1,tab:1},
  konnik:{cloth:'#885544',pant:'#4a3b39',helm:'helm',wpn:'spear',mail:1,tab:1},
  footkonnik:{cloth:'#88624b',pant:'#453934',helm:'kettle',wpn:'sword',shield:'kite',mail:1},
  keshik:{cloth:'#a47746',pant:'#584431',helm:'cone',wpn:'sword',mail:1},
