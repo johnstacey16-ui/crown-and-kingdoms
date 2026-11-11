@@ -131,7 +131,11 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
  const raw=secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
  t.hp-=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
- if(urumiCharge)a.urumiReadyAt=S.t+18;
+ if(urumiCharge){
+ a.urumiReadyAt=S.t+18;
+ if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
+  dmgT({k:'urumi',t:a.t,[CK_TRAMPLE_DAMAGE]:Math.ceil(urumiCharge*.6)},victim);
+ }
  // Persistent Obuch armour stripping requires a genuine attacker and victim.
  if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
   t.obuchArmorShred=Math.min(10,Math.max(0,t.obuchArmorShred|0)+1);
