@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v13",
+  "inventoryVersion": "ck-current-medieval-roster-26-v14",
   "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
   "rulesets": [
     {
@@ -36,6 +36,63 @@
         ],
         "source": "https://ageofempires.fandom.com/wiki/Camel_Rider_(Age_of_Empires_II)",
         "note": "C&K Indians maps to reference Hindustanis; Chinese no longer have Camel Riders."
+      },
+      {
+        "unit": "eagle",
+        "civilizations": [
+          19,
+          20,
+          21
+        ],
+        "buildings": [
+          "bar"
+        ],
+        "source": "https://liquipedia.net/ageofempires/Eagle_Warrior",
+        "note": "Regional Eagle Warrior at Barracks, Castle Age; dedicated motion art pending"
+      },
+      {
+        "unit": "cavarch",
+        "civilizations": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          22,
+          23,
+          24,
+          25
+        ],
+        "buildings": [
+          "rng"
+        ],
+        "source": "https://liquipedia.net/ageofempires/Recurve_Bow",
+        "note": "Provisional non-Mesoamerican Cavalry Archer availability; exact individual faction exclusions remain partial"
+      },
+      {
+        "unit": "turtle",
+        "civilizations": [
+          24
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-169123/",
+        "note": "Korean Turtle Ship line; original procedural sprite fallback"
       }
     ]
   },

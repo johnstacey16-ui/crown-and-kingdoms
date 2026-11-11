@@ -10,7 +10,7 @@ const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon']);
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch']);
 const SPEAR_CAMELS=new Set(['camel','mamel']);
 const SPEAR_ELEPHANTS=new Set(['ele','eled']);
 function spearLineBonus(a,t){
@@ -28,9 +28,9 @@ function spearLineBonus(a,t){
 // villagers, siege and all ranged units. The compact roster still needs a
 // complete class table (especially regional unique units) in a later audit.
 const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko']);
-const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon']);
+const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch']);
 // Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
-const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled']);
+const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch']);
 const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
@@ -71,7 +71,7 @@ function combatArmor(t,cls){
  const incaShield=t.k==='kamayuk'&&S.civ?.[t.t]===21&&ta.ut21p?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield:(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield;
+ return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+(t.k==='turtle'&&ta.eliteTurtle?1:0);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
@@ -176,15 +176,15 @@ function tickConversion(u,dt){
 
 /* Classic combat projectiles, ranged upgrades and deterministic hit resolution.
  * Function bodies are relocated unchanged from simulation.js. */
-const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','gal','tw','cs','tca']);
+const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','gal','tw','cs','tca']);
 // AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
 // Skirmishers gain accuracy but no faster reload; mounted archers gain a
 // smaller firing-speed increase; Chu Ko Nu gains a larger one.
 const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled']);
-const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon']);
+const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon','cavarch']);
 function rangedAccuracy(a){
  const d=U[a.k];if(!d)return 1;
- if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm'].includes(a.k)))return 1;
+ if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
 function attackReload(u){

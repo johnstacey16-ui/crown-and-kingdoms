@@ -678,8 +678,13 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>k!=='hcamel'||REGIONAL_UNIT_ACCESS.some(rule=>
-  rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
+ const regional=finalList.filter(k=>{
+  // Regional upgrade research and production share the same legal roster for
+  // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
+  const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle'}[k];
+  return !upgradeUnit||REGIONAL_UNIT_ACCESS.some(rule=>rule.unit===upgradeUnit&&
+   rule.buildings.includes(b.k)&&rule.civilizations.includes(index));
+ });
  return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[]),...(c.elite?[c.elite.k]:[])])]:regional;
 };
 
