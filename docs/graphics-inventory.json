@@ -524,6 +524,60 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "konnik",
+      "name": "Konnik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "footkonnik",
+      "name": "Dismounted Konnik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "keshik",
+      "name": "Keshik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "kipchak",
+      "name": "Kipchak",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "steppe",
+      "name": "Steppe Lancer",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "flamecamel",
+      "name": "Flaming Camel",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -733,20 +787,29 @@
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "krepost",
+      "name": "Krepost",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
   "checklist": [
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "58 playable kinds; see catalogue",
+      "evidence": "64 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 58 kinds have painted multi-frame movement/activity art",
-      "remaining": "8 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "50 of 64 kinds have painted multi-frame movement/activity art",
+      "remaining": "14 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
@@ -757,7 +820,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "23 building kinds; 22 painted, 1 original procedural fallback; fog-safe age presentation",
+      "evidence": "24 building kinds; 22 painted, 2 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

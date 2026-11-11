@@ -10,8 +10,8 @@ const altered=change=>{const copy=structuredClone(catalogue);change(copy);return
 
 test('all active civilization IDs and unique units/technologies match actual game code',()=>{
  assert.deepEqual(inspectCivilizationCatalogue(catalogue,runtime),[]);
- assert.equal(catalogue.civilizations.length,29);
- assert.equal(runtime.civilizations.length,29);
+ assert.equal(catalogue.civilizations.length,32);
+ assert.equal(runtime.civilizations.length,32);
 });
 
 test('reordering, dropping or duplicating civs fails instead of changing save/network IDs silently',()=>{
@@ -48,7 +48,7 @@ test('catalogue validation reads roster data directly and catches an altered ord
 
 test('Camel Rider regional availability and indexed source/running rules match',()=>{
  assert.equal(catalogue.regionalUnitAccess.implementation,'partial');
- assert.equal(catalogue.regionalUnitAccess.entries.length,6);
+ assert.equal(catalogue.regionalUnitAccess.entries.length,7);
  assert.deepEqual(catalogue.regionalUnitAccess.entries[0].civilizations,[2,3,4,8,9,13,22,23]);
  assert.ok(altered(c=>{c.regionalUnitAccess.entries[0].civilizations=[0,1]})
   .some(e=>/Regional production runtime differs/.test(e)));
