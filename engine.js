@@ -3,14 +3,33 @@
 const cv=document.getElementById('c'),WORLD_X=cv.getContext('2d'),
   hudCanvas=document.getElementById('ck-hud'),HUD_X=hudCanvas?.getContext('2d')||null;
 let X=WORLD_X,CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
-const rs=()=>{const hudDpr=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);DPR=hudDpr*perfRenderScale;CW=innerWidth/ui|0;CH=innerHeight/ui|0;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';cv.style.filter=br===1?'none':'brightness('+br+')';
-if(hudCanvas&&HUD_X){
- const sharp=!!perfSharpHud&&perfRenderScale<1;
- hudCanvas.style.display=sharp?'block':'none';
- if(sharp){hudCanvas.width=Math.round(CW*hudDpr);hudCanvas.height=Math.round(CH*hudDpr);hudCanvas.style.width=innerWidth+'px';hudCanvas.style.height=innerHeight+'px';hudCanvas.style.filter=cv.style.filter}
- else{hudCanvas.width=1;hudCanvas.height=1}
-}
-const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1}};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
+// Only reallocate Canvas2D backing stores when dimensions change. Reassigning
+// the same size destroys GPU contents and can trigger black flashes on Xbox Edge.
+const rs=()=>{
+ const hudDpr=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);
+ DPR=hudDpr*perfRenderScale*GRAPHICS_RECOVERY.scale;
+ CW=innerWidth/ui|0;CH=innerHeight/ui|0;
+ const w=Math.max(1,Math.round(CW*DPR)),h=Math.max(1,Math.round(CH*DPR));
+ if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
+ cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+ cv.style.filter=br===1?'none':'brightness('+br+')';
+ if(hudCanvas&&HUD_X){
+  // Repeated context losses disable the extra full-size HUD backing store;
+  // gamepad coordinates, UI scale, simulation and saved preferences stay put.
+  const sharp=!!perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1;
+  hudCanvas.style.display=sharp?'block':'none';
+  const hw=sharp?Math.max(1,Math.round(CW*hudDpr)):1;
+  const hh=sharp?Math.max(1,Math.round(CH*hudDpr)):1;
+  if(hudCanvas.width!==hw)hudCanvas.width=hw;
+  if(hudCanvas.height!==hh)hudCanvas.height=hh;
+  if(sharp){
+   hudCanvas.style.width=innerWidth+'px';hudCanvas.style.height=innerHeight+'px';
+   hudCanvas.style.filter=cv.style.filter;
+  }
+ }
+ const m=Math.max(140,Math.min(300,CH*.45|0,CW*.3|0));
+ mm={x:CW-m-14,y:CH-(m>>1)-14,w:m,h:m>>1};
+};let resizeTimer=0;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(rs,80)});rs();
 /* ===== GAME STATE / MAP ===== */
 /* ===== GENERATED MAP CONNECTIVITY AUDIT =====
    Terrain semantics: wt=0 land, wt=1 navigable water, wt=2 shallow ford.

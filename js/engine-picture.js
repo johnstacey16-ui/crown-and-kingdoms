@@ -73,7 +73,7 @@ if(mode==='play'||mode==='pause'){
 /* World/HUD canvas selection belongs to picture presentation, not the fixed
  * simulation frame loop. Always restore the world context after UI rendering. */
 function drawXboxHudOverlays(dt){
-if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
+if(perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
  // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
  // Keep the original canvas/control coordinate system and guaranteed context
  // restoration even if an overlay renderer throws.
@@ -93,22 +93,49 @@ function resetGraphicsDiagnostics(){
 // Discard only derived pixels. Observation/age/damage knowledge, game state,
 // saves and source images are deliberately retained across canvas restoration.
 function clearGraphicsSurfaces(){
+ // Promptly release derived graphics backing stores after a world context loss;
+ // otherwise Xbox Edge may hold the old GPU surfaces until a later GC pass.
+ // Decoded source atlases, simulation state and local saves are never touched.
+ const release=c=>{if(c&&Number.isFinite(c.width)&&Number.isFinite(c.height)){
+  if(c.width>1)c.width=1;if(c.height>1)c.height=1;
+ }};
  clearFogMaskCache();clearTerrainBlend();
- TCH.clear();TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];
+ for(const chunk of TCH.values())release(chunk?.cv);
+ TCH.clear();release(TERRAIN_VIEW.canvas);
+ TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];
+ for(const image of TEAM_FRAME_CACHE.entries.values())release(image);
  TEAM_FRAME_CACHE.entries.clear();TEAM_FRAME_CACHE.pixels=0;
- for(const atlas of Object.values(ASSET.atl))delete atlas.teams;
+ release(TEAM_FRAME_CACHE.scratch);TEAM_FRAME_CACHE.scratch=null;
+ for(const atlas of Object.values(ASSET.atl)){
+  for(const image of Object.values(atlas.teams||{}))if(image!==atlas.img)release(image);
+  delete atlas.teams;
+ }
+ for(const image of TROOP_TEXTURE_LRU.values())release(image);
  TROOP_TEXTURE_LRU.clear();troopTexturePixels=0;
- for(const entry of NODE_TEXTURE_RECENCY.values())entry.frames.delete(entry.key);
+ for(const entry of NODE_TEXTURE_RECENCY.values()){
+  for(const image of entry.frames.values())release(image);
+  entry.frames.clear();
+ }
  NODE_TEXTURE_RECENCY.clear();NODE_TEXTURE_PIXELS=0;
+ for(const image of BUILDING_DAMAGE_CACHE.entries.values())release(image);
  BUILDING_DAMAGE_CACHE.entries.clear();BUILDING_DAMAGE_CACHE.pixels=0;
  clearProceduralSpriteCache();
 }
-const GRAPHICS_RECOVERY={lost:new Set(),losses:0,status:null};
+// World and sharp-HUD losses have separate cache effects. Repeated world
+// losses activate a session-only physical pixel cap to avoid a black-screen loop.
+const GRAPHICS_RECOVERY={lost:new Set(),losses:0,worldLosses:0,worldLost:false,status:null,scale:1};
 function installCanvasRecovery(canvas){
  if(!canvas)return;
  canvas.addEventListener('contextlost',()=>{
-  // Canvas2D restores by default; cancelling this event would block recovery.
+  // Canvas2D restores by default. Do not call preventDefault.
+  if(GRAPHICS_RECOVERY.lost.has(canvas))return;
   GRAPHICS_RECOVERY.lost.add(canvas);GRAPHICS_RECOVERY.losses++;
+  if(canvas===cv){
+   GRAPHICS_RECOVERY.worldLost=true;
+   GRAPHICS_RECOVERY.worldLosses++;
+   const count=GRAPHICS_RECOVERY.worldLosses;
+   GRAPHICS_RECOVERY.scale=Math.min(GRAPHICS_RECOVERY.scale,count>=3?.5:count>=2?.75:1);
+  }
   if(mode==='play'&&!window.CK_NET?.isRunning?.()){
    cancelGameplayGestures();mode='pause';pm=0;acc=0;
   }
@@ -120,10 +147,15 @@ function installCanvasRecovery(canvas){
   }
  });
  canvas.addEventListener('contextrestored',()=>{
+  if(!GRAPHICS_RECOVERY.lost.has(canvas))return;
   GRAPHICS_RECOVERY.lost.delete(canvas);
   if(GRAPHICS_RECOVERY.lost.size)return;
-  clearGraphicsSurfaces();rs();resetGraphicsDiagnostics();
+  // HUD-only loss must not throw away the entire terrain and atlas cache.
+  if(GRAPHICS_RECOVERY.worldLost)clearGraphicsSurfaces();
+  GRAPHICS_RECOVERY.worldLost=false;
+  rs();resetGraphicsDiagnostics();
   GRAPHICS_RECOVERY.status?.remove();GRAPHICS_RECOVERY.status=null;
-  note(mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.');
+  const safe=GRAPHICS_RECOVERY.scale<1?' Recovery scale '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%.':'';
+  note((mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.')+safe);
  });
 }

@@ -139,3 +139,45 @@ test('performance display reports unclamped RAF time through a one-second stall'
  assert.match(run('perfLabels.find(text=>text.startsWith("CHUNK"))'),/FOG 0.0/);
  assert.match(run('perfLabels.find(text=>text.startsWith("CANVAS"))'),/ZOOM/);
 });
+
+test('repeated Xbox world context losses cap only backing pixels while preserving the match',()=>{
+ const {run,storage,events}=game();
+ run('start();perfHud=1');
+ const state=run('JSON.stringify(S)'),saved=JSON.stringify([...storage]);
+ const target=[1,.75,.5];
+ for(let i=0;i<target.length;i++){
+  run('mode="play"');
+  events.get('contextlost')({preventDefault(){throw Error('must restore naturally')}});
+  assert.equal(run('mode'),'pause');
+  events.get('contextrestored')();
+  assert.equal(run('GRAPHICS_RECOVERY.worldLosses'),i+1);
+  assert.equal(run('GRAPHICS_RECOVERY.scale'),target[i]);
+  assert.equal(run('DPR'),target[i]);
+  assert.equal(snap(run).canvas[0],Math.round(1280*target[i]));
+  assert.equal(run('JSON.stringify(S)'),state,'no entity or sim state is modified');
+  assert.equal(JSON.stringify([...storage]),saved,'no local save or preference is rewritten');
+ }
+ run('perfFrameIntervalMs=70;perfFps=0;globalThis.perfLabels=[];tx=x=>perfLabels.push(x);mode="play";drawPerfOverlay(.07)');
+ assert.match(run('perfLabels.find(x=>x.startsWith("CANVAS"))'),/SCALE 50%.*SAFE 50%/);
+});
+test('repeated canvas resize with the same dimensions does not invalidate the drawing surface',()=>{
+ const {run}=game();run('start();mode="pause"');
+ run('globalThis.canvasResizeWrites=0;(()=>{let w=cv.width,h=cv.height;Object.defineProperty(cv,"width",{configurable:true,get:()=>w,set:v=>{canvasResizeWrites++;w=v}});Object.defineProperty(cv,"height",{configurable:true,get:()=>h,set:v=>{canvasResizeWrites++;h=v}})})()');
+ run('rs();rs();rs()');
+ assert.equal(run('canvasResizeWrites'),0,'same-size rs should not destroy the GPU backing store');
+ run('perfRenderScale=.75;rs()');
+ assert.equal(run('canvasResizeWrites'),2,'new pixel scale reconfigures each dimension once');
+ run('rs()');
+ assert.equal(run('canvasResizeWrites'),2,'unchanged new size stays allocated');
+});
+test('HUD-only graphics restoration keeps healthy world caches and does not lower resolution',()=>{
+ const {run}=game();run('start();mode="pause"');
+ run('globalThis.hudEvents={};installCanvasRecovery({addEventListener:(name,fn)=>hudEvents[name]=fn})');
+ run('TCH.set(321,{cv:{width:80,height:90}});TEAM_FRAME_CACHE.entries.set("sprite",{width:40,height:50});TEAM_FRAME_CACHE.pixels=2000');
+ run('hudEvents.contextlost();hudEvents.contextrestored()');
+ assert.equal(run('GRAPHICS_RECOVERY.losses'),1);
+ assert.equal(run('GRAPHICS_RECOVERY.worldLosses'),0);
+ assert.equal(run('GRAPHICS_RECOVERY.scale'),1);
+ assert.equal(run('TCH.size'),1);
+ assert.equal(run('TEAM_FRAME_CACHE.entries.size'),1);
+});
