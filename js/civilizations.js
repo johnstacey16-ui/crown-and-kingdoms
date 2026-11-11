@@ -112,7 +112,25 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut37p',n:'Wootz Steel',cost:{f:650,g:550},t:60,age:3,
   fx:t=>{S.tech[t].wootzSteel=1}},
  elite:{k:'eliteUrumi',n:'Elite Urumi Swordsman',cost:{f:1000,g:750},t:55,age:3,
-  hpb:{urumi:10},atkb:{urumi:2},armor:{m:1}}}];
+  hpb:{urumi:10},atkb:{urumi:2},armor:{m:1}}},
+{n:'Bengalis',uu:'ratha',teamEconomic:{tradeFood:.1},
+ d:'Ratha switches ranged/melee attacks; elephants resist counters; Town Centres add villagers upon age advance',
+ fx:t=>{S.tech[t].bengaliElephants=1},
+ ut:{k:'ut38',n:'Paiks',cost:{f:375,g:200},t:45,age:2,
+  fx:t=>{S.tech[t].paiks=1}},
+ ut2:{k:'ut38p',n:'Mahayana',cost:{w:800,g:650},t:60,age:3,
+  fx:t=>{S.tech[t].mahayana=1}},
+ elite:{k:'eliteRatha',n:'Elite Ratha',cost:{w:900,g:750},t:60,age:3,
+  hpb:{ratha:20,rathaM:20},atkb:{ratha:2,rathaM:2},armor:{m:1,p:1}}},
+{n:'Gurjaras',uu:'chakram',teamTraining:{camel:1.25,elephant:1.25},
+ d:'Chakram Throwers and swift Shrivamsha Riders; camel scouts and cost-conscious cavalry',
+ fx:t=>{S.tech[t].gurjaraCavalry=1},
+ ut:{k:'ut39',n:'Kshatriyas',cost:{f:500,g:450},t:45,age:2,
+  fx:t=>{S.tech[t].kshatriyas=1}},
+ ut2:{k:'ut39p',n:'Frontier Guards',cost:{f:800,g:700},t:60,age:3,
+  fx:t=>{S.tech[t].frontierGuards=1}},
+ elite:{k:'eliteChakram',n:'Elite Chakram Thrower',cost:{f:800,g:600},t:55,age:3,
+  hpb:{chakram:10},atkb:{chakram:2},armor:{p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
