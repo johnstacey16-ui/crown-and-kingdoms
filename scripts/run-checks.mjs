@@ -94,6 +94,7 @@ const FOCUSED=[
  "tests/civilization-last-khans.test.mjs",
  "tests/civilization-lithuanian-burgundian.test.mjs",
  "tests/civilization-sicilian-donjon.test.mjs",
+ "tests/civilization-polish-folwark.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",
  "tests/castle-civilization-production.test.mjs",
