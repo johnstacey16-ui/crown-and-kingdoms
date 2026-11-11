@@ -73,3 +73,38 @@ test('Only completed friendly Georgian churches boost nearby villagers',()=>{
  assert.equal(run('georgianChurchWorkRate(villager)'),1);
  assert.ok(run('fast')>run('gm(villager,node)'));
 });
+
+test('first completed Armenian Church grants exactly one persistent owned relic',()=>{
+ const a=game(41),g=game(42);
+ assert.equal(a('S.rel.length'),1);
+ assert.equal(a('S.rel[0].m===church'),true);
+ assert.equal(a('S.tech[0].armenianFirstChurchRelic'),1);
+ a("globalThis.extra=addB(0,'fchurch',48,12,true)");
+ assert.equal(a('S.rel.length'),1,'a second Church must not mint more relics');
+ assert.equal(g('S.rel.length'),0,'Georgian Churches do not receive the Armenian bonus');
+});
+test('normal Villager construction grants the first Armenian relic upon completion',()=>{
+ const run=game(41);
+ run("S.rel=[];S.tech[0].armenianFirstChurchRelic=0;church.done=false;church.pr=B.fchurch.bt-.5;church.hp=church.mh-4;globalThis.builder=addU(0,'vil',24,14);builder.o='b';builder.tg=church;upU(builder,1)");
+ assert.equal(run('church.done'),true);
+ assert.equal(run('S.rel.length'),1);
+ assert.equal(run('S.rel[0].m===church'),true);
+ assert.equal(run("grantArmenianFirstChurchRelic(church)"),false);
+});
+test('Georgian Church work aura applies to building progress as well as gathering',()=>{
+ const run=game(42);
+ run("globalThis.worker=addU(0,'vil',28,14);globalThis.house=addB(0,'house',27,13,false);worker.o='b';worker.tg=house;upU(worker,1)");
+ assert.ok(Math.abs(run('house.pr')-1.1)<1e-9);
+ run("church.hp=0;house.pr=0;upU(worker,1)");
+ assert.ok(Math.abs(run('house.pr')-1)<1e-9,'destroyed Church must not boost building');
+});
+test('Fereters grants 2 melee and pierce infantry armour without improving spearmen or foreign troops',()=>{
+ const a=game(41),f=game(0);
+ const before=a("combatArmor({t:0,k:'mil'},'m')"),beforePierce=a("combatArmor({t:0,k:'mil'},'p')"),spear=a("combatArmor({t:0,k:'spear'},'m')");
+ a("S.tech[0].ut41p=1");
+ assert.equal(a("combatArmor({t:0,k:'mil'},'m')"),before+2);
+ assert.equal(a("combatArmor({t:0,k:'mil'},'p')"),beforePierce+2);
+ assert.equal(a("combatArmor({t:0,k:'spear'},'m')"),spear);
+ const other=f("combatArmor({t:0,k:'mil'},'m')");f("S.tech[0].ut41p=1");
+ assert.equal(f("combatArmor({t:0,k:'mil'},'m')"),other);
+});
