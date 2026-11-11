@@ -15,7 +15,7 @@ assert.match(roster, /if\(u\.k==='vil'&&!u\.ld\)vil\.push\(u\)/,
   'Garrisoned villagers must not be counted as available workers');
 assert.match(roster, /else if\(!u\.ld&&!U\[u\.k\]\.sh&&u\.k!=='scout'/,
   'Garrisoned units must not inflate the active army used for AI strategy');
-assert.match(roster, /if\(\['gal','fire','demo','cgal'\]\.includes\(u\.k\)&&!u\.ld\)galleys\.push\(u\)/,
+assert.match(roster, /if\(\['gal','fire','demo','cgal','turtle','caravel','thirisadai'\]\.includes\(u\.k\)&&!u\.ld\)galleys\.push\(u\)/,
   'Garrisoned warships must not be treated as available naval units');
 
 console.log('ai-live-active-roster: dead and garrisoned units do not inflate AI planning counts');

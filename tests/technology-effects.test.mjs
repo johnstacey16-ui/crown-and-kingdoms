@@ -43,8 +43,14 @@ context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
 assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)\?\(\(ta\.armR\?1:0\)\+\(ta\.armR2\?1:0\)\+\(ta\.armR3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(CAVARM\.has\(t\.k\)\?\(\(ta\.armC\?1:0\)\+\(ta\.armC2\?1:0\)\+\(ta\.armC3\?\(cls==='p'\?2:1\):0\)\):0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele','konnik','keshik','steppe','flamecamel','leitis','coust'\]\)/,
-  'Cavalry armour must be restricted to mounted units in the current roster');
+const mountedClass=html.match(/const CAVARM=new Set\(\[([^\]]+)\]\)/)?.[1];
+assert.ok(mountedClass,'explicit mounted-class table must exist');
+const cavalryKinds=new Set((mountedClass.match(/'[^']+'/g)||[]).map(k=>k.slice(1,-1)));
+for(const kind of ['scout','knight','camel','centurion','monaspa','winged','shrivamsha'])
+ assert.ok(cavalryKinds.has(kind),'mounted cavalry '+kind+' receives appropriate armour');
+for(const kind of ['mil','spear','composite','warpriest','vil'])
+ assert.equal(cavalryKinds.has(kind),false,'foot unit '+kind+' cannot receive cavalry armour');
+
 assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Scale Barding Armor \(\+1\/\+1 cavalry\)',cost:\{f:150\},t:45,age:1\}/,
