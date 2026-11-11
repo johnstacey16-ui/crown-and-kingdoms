@@ -106,18 +106,34 @@ Object.assign(U,{
  thirisadai:{n:'Thirisadai',hp:300,sp:1.55,dmg:12,rng:6.5,cd:2.3,delay:.45,ps:12,acc:.92,arm:2,sh:1,
   cost:{w:180,g:85},t:36,c:'#7c9da4',r:14,age:3}
 });
+/* Bengali and Gurjara identities. The Ratha's melee form shares its health,
+ * population and upgrades with ranged Ratha; only ranged form is trained. */
+Object.assign(U,{
+ ratha:{n:'Ratha (Ranged)',hp:105,sp:1.4,dmg:6,rng:5,cd:2,delay:.3,ps:9,acc:.88,arm:1,mt:1,
+  cost:{w:60,g:60},t:23,c:'#9f755a',r:11,age:2,lk:'cavarch'},
+ rathaM:{n:'Ratha (Melee)',hp:105,sp:1.4,dmg:9,rng:.9,cd:1.9,arm:1,mt:1,
+  cost:{},t:0,c:'#9f755a',r:11,age:2,lk:'knight'},
+ chakram:{n:'Chakram Thrower',hp:45,sp:1.1,dmg:6,rng:3.2,cd:2,delay:.3,ps:12,acc:1,arm:0,
+  cost:{f:65,g:30},t:15,c:'#b68a54',r:9,age:2,lk:'mil'},
+ shrivamsha:{n:'Shrivamsha Rider',hp:70,sp:1.8,dmg:7,rng:.9,cd:1.8,arm:0,mt:1,
+  cost:{f:70,g:30},t:24,c:'#c39a64',r:11,age:2,lk:'scout'},
+ camelscout:{n:'Camel Scout',hp:70,sp:1.4,dmg:5,rng:.9,cd:2,arm:0,mt:1,
+  cost:{f:55,g:60},t:30,c:'#bc9f71',r:10,age:1,lk:'camel',bn:{scout:5}}
+});
 const REGIONAL_UNIT_ACCESS=Object.freeze([
- Object.freeze({unit:'camel',civilizations:Object.freeze([2,3,4,8,9,13,22,23]),buildings:Object.freeze(['stable'])}),
+ Object.freeze({unit:'camel',civilizations:Object.freeze([2,3,4,8,9,13,22,23,39]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'eagle',civilizations:Object.freeze([19,20,21]),buildings:Object.freeze(['bar'])}),
  Object.freeze({unit:'cavarch',civilizations:Object.freeze([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36]),buildings:Object.freeze(['rng'])}),
  Object.freeze({unit:'turtle',civilizations:Object.freeze([24]),buildings:Object.freeze(['dock'])}),
  Object.freeze({unit:'caravel',civilizations:Object.freeze([26]),buildings:Object.freeze(['dock'])}),
- Object.freeze({unit:'batele',civilizations:Object.freeze([12,27,28]),buildings:Object.freeze(['stable'])}),
+ Object.freeze({unit:'batele',civilizations:Object.freeze([12,27,28,38]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'steppe',civilizations:Object.freeze([2,30,31]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'flemish',civilizations:Object.freeze([33]),buildings:Object.freeze(['bar'])}),
  Object.freeze({unit:'winged',civilizations:Object.freeze([32,35]),buildings:Object.freeze(['stable'])}),
- Object.freeze({unit:'eled',civilizations:Object.freeze([37]),buildings:Object.freeze(['rng'])}),
- Object.freeze({unit:'thirisadai',civilizations:Object.freeze([37]),buildings:Object.freeze(['dock'])})
+ Object.freeze({unit:'eled',civilizations:Object.freeze([37,38,39]),buildings:Object.freeze(['rng'])}),
+ Object.freeze({unit:'thirisadai',civilizations:Object.freeze([37]),buildings:Object.freeze(['dock'])}),
+ Object.freeze({unit:'shrivamsha',civilizations:Object.freeze([39]),buildings:Object.freeze(['stable'])}),
+ Object.freeze({unit:'camelscout',civilizations:Object.freeze([39]),buildings:Object.freeze(['stable'])})
 ]);
 
 // Founding Town Centres are granted directly by newGame(); additional centres
@@ -125,7 +141,7 @@ const REGIONAL_UNIT_ACCESS=Object.freeze([
 const B={tc:{n:'Town Centre',s:3,hp:900,cost:{w:275,s:100},bt:1,age:2,tr:['vil'],rs:['loom','wheel','handcart','gath','carry'],atk:'tca'},house:{n:'House',s:2,hp:200,cost:{w:25},bt:12},
 lumber:{n:'Lumber Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['axe','saw']},mine:{n:'Mining Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['gmine','smine']},mill:{n:'Mill',s:2,hp:250,cost:{w:100},bt:15,rs:['coll','plow','crop']},farm:{n:'Farm',s:1,hp:480,cost:{w:60},bt:15},
 bar:{n:'Barracks',s:3,hp:500,cost:{w:150},bt:25,tr:['mil','spear','eagle','flemish'],rs:['man','longs','twohand','champ','pike','halb','squires','arson','eliteEagle'],age:0},rng:{n:'Archery Range',s:3,hp:500,cost:{w:150},bt:25,tr:['arc','skirm','xbow','hcan','cavarch','eled'],rs:['xbow','elsk','thumb','arb','heavyCavArch'],req:'bar',age:1},
-stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight','batele','steppe','winged'],rs:['lcav','cavl','hcamel','blood','husb','pala','huss','heavyBatele'],req:'bar',age:1},smith:{n:'Blacksmith',s:3,hp:400,cost:{w:150},bt:25,rs:['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'],req:'bar',age:1},
+stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight','batele','steppe','winged','shrivamsha','camelscout'],rs:['lcav','cavl','hcamel','blood','husb','pala','huss','heavyBatele'],req:'bar',age:1},smith:{n:'Blacksmith',s:3,hp:400,cost:{w:150},bt:25,rs:['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'],req:'bar',age:1},
 market:{n:'Market',s:3,hp:400,cost:{w:175},bt:25,tr:['cart'],tx:1,age:1},palisade:{n:'Palisade Wall',s:1,hp:150,cost:{w:3},bt:3,age:0},wall:{n:'Stone Wall',s:1,hp:300,cost:{s:5},bt:3,age:1},dock:{n:'Dock',s:2,hp:600,cost:{w:150},bt:25,tr:['fish','gal','fire','demo','cgal','trn','cog','turtle','caravel','thirisadai'],rs:['navalAtk','navalHull','galleon','fastFire','eliteCgal','eliteTurtle','eliteCaravel','eliteThirisadai'],age:0,wat:1},siege:{n:'Siege Workshop',s:3,hp:500,cost:{w:200},bt:30,tr:['ram','mang','scor','bomb','houfnice'],rs:['siegeup','onager','siegeOnager','cappedRam','siegeRam','heavyScorp','houfniceUpgrade'],req:'bar',age:2},univ:{n:'University',s:3,hp:550,cost:{w:200,s:50},bt:35,rs:['crane','mas','arch','slit','gtow','keep','fw','chem','ballistics','murderHoles'],req:'smith',age:2},gate:{n:'Gate',s:1,hp:300,cost:{s:20},bt:6,age:1},outpost:{n:'Outpost',s:1,hp:150,cost:{w:25,s:10},bt:8,age:1},wonder:{n:'Wonder',s:4,hp:2400,cost:{f:400,w:600,g:600,s:600},bt:120,age:3},monastery:{n:'Monastery',s:3,hp:500,cost:{w:175,g:50},bt:30,tr:['mon'],rs:['devotion','faith','heresy','redemption','atonement','sanctity','fervor','blockPrinting','illumination','theocracy','herbalMedicine'],req:'bar',age:2},tower:{n:'Watch Tower',s:2,hp:400,cost:{w:50,s:100},bt:20,age:1,atk:'tw'},castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons','hoardings']}};
 B.feitoria={n:'Feitoria',s:3,hp:900,cost:{w:250,s:250},bt:75,age:3,req:'market',pop:20,onlyCiv:26};
 B.krepost={n:'Krepost',s:3,hp:1100,cost:{w:150,s:350},bt:45,age:2,req:'bar',tr:['konnik'],atk:'cs',onlyCiv:29};
