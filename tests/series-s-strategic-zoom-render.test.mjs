@@ -23,7 +23,10 @@ test('farthest zoom uses cheap building footprints in a crowded visible scene an
   zm=.8;TW=64*zm;TH=32*zm;ctr(23,23);
   globalThis.normalBuildings=[];globalThis.strategicBuildings=[];
   drawBld=b=>normalBuildings.push(b.id);
-  drawStrategicBuilding=b=>strategicBuildings.push(b.id);`);
+  drawStrategicBuilding=b=>strategicBuildings.push(b.id);
+  // This test checks world dispatch, not the standalone asset rasterizers.
+  drawChunks=()=>true;drawNode=()=>{};drawUnit=()=>{};
+  drawRelic=()=>{};drawHill=()=>{};drawP=()=>{};`);
  const state=run('JSON.stringify(S)'),save=JSON.stringify([...storage]);
  run('drawWorld()');
  const near=JSON.parse(run('JSON.stringify({lod:strategicBuildings,normal:normalBuildings})'));
