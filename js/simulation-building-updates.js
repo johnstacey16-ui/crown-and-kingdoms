@@ -15,7 +15,7 @@ if(b.k==='monastery'){
  // Hunnic Atheism halves relic income of hostile kingdoms, not allies.
  const atheist=S.civ?.some((id,team)=>id===17&&S.tech?.[team]?.ut17p&&isHostile(team,b.t));
  const relics=S.rel.filter(q=>q.m===b).length;
- S.res[b.t].g+=relics*.5*(atheist?.5:1)*dt;
+ S.res[b.t].g+=relics*.5*(atheist?.5:1)*civilizationTeamBonusFactor(b.t,'relicGold')*dt;
  const burgTeam=S.civ?.some((id,t)=>id===33&&(t===b.t||diplomacyRelation(t,b.t)==='ally'));
  if(burgTeam)S.res[b.t].f+=relics*.5*dt;
 }// Celtic Stronghold heals allied infantry near a living Castle at 30 HP/min.
