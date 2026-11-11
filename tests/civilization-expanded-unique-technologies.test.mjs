@@ -55,7 +55,7 @@ test('Saracen Counterweights and Malian Farimba change deterministic siege and S
  run("attacker.k='treb'");
  const siege=hit();
  run('S.tech[0].ut8p=0');
- assert.equal(siege-hit(),Math.round(run('U.treb.dmg')*.15));
+ assert.equal(siege-hit(),Math.round(run('U.treb.dmg')*.15)*run('U.treb.du'));
  run('S.civ[0]=23;S.tech[0]={};attacker.k="knight"');
  const knight=hit();
  run('S.tech[0].ut23p=1');
@@ -112,12 +112,12 @@ test('Slavic Druzhina triggers a bounded hostile-only melee splash through live 
 });
 test('Inca Fabric Shields adds melee/pierce armour exclusively to Kamayuks',()=>{
  const run=game(21);
- const beforeM=run("combatArmor({k:'kamayuk',t:0},'m'"),beforeP=run("combatArmor({k:'kamayuk',t:0},'p'");
+ const beforeM=run("combatArmor({k:'kamayuk',t:0},'m')"),beforeP=run("combatArmor({k:'kamayuk',t:0},'p')");
  run('S.tech[0].ut21p=1');
- assert.equal(run("combatArmor({k:'kamayuk',t:0},'m'"),beforeM+1);
- assert.equal(run("combatArmor({k:'kamayuk',t:0},'p'"),beforeP+2);
- assert.equal(run("combatArmor({k:'kamayuk',t:1},'p'"),beforeP);
- assert.equal(run("combatArmor({k:'mil',t:0},'p'"),run("combatArmor({k:'mil',t:1},'p'"));
+ assert.equal(run("combatArmor({k:'kamayuk',t:0},'m')"),beforeM+1);
+ assert.equal(run("combatArmor({k:'kamayuk',t:0},'p')"),beforeP+2);
+ assert.equal(run("combatArmor({k:'kamayuk',t:1},'p')"),beforeP);
+ assert.equal(run("combatArmor({k:'mil',t:0},'p')"),run("combatArmor({k:'mil',t:1},'p')"));
 });
 test('Warwolf and Torsion Engines extend live splash radii with strict faction checks',()=>{
  const run=game(1);
@@ -137,10 +137,10 @@ test('Warwolf and Torsion Engines extend live splash radii with strict faction c
 test('new siege and infantry research flags survive save/reload in the current build',()=>{
  const run=game(21);
  run("S.tech[0].ut21p=1;S.tech[0].fabricShields=1;S.tech[0].eliteKamayuk=1;S.tech[0].hpb={kamayuk:15};S.tech[0].atkb={kamayuk:2}");
- const pierce=run("combatArmor({k:'kamayuk',t:0},'p'");
+ const pierce=run("combatArmor({k:'kamayuk',t:0},'p')");
  assert.equal(run("saveG(false,'ck_second_unique_batch_test')"),true);
  run('S.civ[0]=0;S.tech[0]={}');
  assert.equal(run("loadG(false,'ck_second_unique_batch_test')"),true);
- assert.equal(run("combatArmor({k:'kamayuk',t:0},'p'"),pierce);
+ assert.equal(run("combatArmor({k:'kamayuk',t:0},'p')"),pierce);
  assert.equal(run('S.tech[0].ut21p'),1);
 });
