@@ -14,7 +14,7 @@ test('all 84 registered unit kinds are defined by config instead of late engine 
  assert.match(config,/Object\.assign\(U,\{conq:\{/);
  assert.doesNotMatch(engine,/Object\.assign\(U,\{/);
  for(const kind of ['conq','genoa','boyar','tarkan','huskarl','jaguar',
-  'plumed','kamayuk','shotel','gbeto','wagon','huszar','eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust','flemish','serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','ratha','rathaM','chakram','shrivamsha','camelscout']){
+  'plumed','kamayuk','shotel','gbeto','wagon','huszar','eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust','flemish','serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','ratha','rathaM','chakram','shrivamsha','camelscout','centurion','legionary']){
   assert.ok(units[kind],'missing unique troop '+kind);
   assert.ok(Number.isFinite(units[kind].hp)&&units[kind].hp>0);
   assert.ok(Number.isFinite(units[kind].t)&&units[kind].t>0);
