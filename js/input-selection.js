@@ -33,7 +33,7 @@ if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  continue
 }
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
- if((u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&S.civ?.[u.t]===34)&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
+ if((u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&tg.t===u.t&&S.civ?.[u.t]===34)&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
  if(tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg;continue}
  u.o='i';u.tg=null;u.p=[];continue
 }
