@@ -75,7 +75,8 @@ for(const s of S.us)if(s.cg&&s.cg.length){
       c.y=s.y
     })
   }
-  for(const b of S.bs)upB(b,dt);
+  if(typeof tickMuleCarts==='function')tickMuleCarts(dt);
+   for(const b of S.bs)upB(b,dt);
   pjs(dt);
   if(!(cmp&&CAMP[cmp.i].noai))ai(dt);
   

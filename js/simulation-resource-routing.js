@@ -48,7 +48,8 @@ function knownResource(u,n){
 }
 function findNode(u,k,r=16){if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;let b=null,bd2=r*r;for(const n of S.nodes)if(n&&n.k===k&&n.amt>0&&!n.an&&!!n.fi===!!u.sh&&(!n.trap||n.t===u.t)&&knownResource(u,n)&&resourceHasWorksite(u,n)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&(u.sh||S.wt[n.y*W+n.x]!==1)){const dx=n.x-u.x,dy=n.y-u.y,d2=dx*dx+dy*dy;if(d2<bd2){bd2=d2;b=n}}return b}
 function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
-function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||((q.k==='mill'||q.k==='folwark')&&u.ct==='f'))}
+function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='mule'&&(u.ct==='w'||u.ct==='g'||u.ct==='s'||
+ (u.ct==='f'&&u.tg?.an)))||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||((q.k==='mill'||q.k==='folwark')&&u.ct==='f'))}
 function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
 function findDropoffRoute(u){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H)return null;
@@ -116,8 +117,82 @@ function grantFolwarkFarmFood(farm,team){
  return food;
 }
 /* Gathering multipliers and upgraded farm capacity, preserved from simulation.js. */
-function gm(u,tg){const t=S.tech[u.t];let m=(t.gath?1.25:1)*(typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(u):1);const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;
+function gm(u,tg){const t=S.tech[u.t];let m=(t.gath?1.25:1)*(typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(u):1);const k=tg.k,armenian=S.civ?.[u.t]===41;if(k==='w'){m*=1+(armenian?.28:.2)*!!t.axe+(armenian?.28:.2)*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+(armenian?.21:.15)*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+(armenian?.21:.15)*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;
  if(u.k==='vil'&&S.civ?.[u.t]===40)m*=1.05;
  return m}
 /* AoE-style farm capacity upgrades add food, rather than incorrectly increasing the harvest rate. */
 function farmFood(t){const q=S.tech[t]||{};return 175+(q.coll?75:0)+(q.plow?125:0)+(q.crop?175:0)}
+
+/* Mountain Royals Mule Cart: genuine mobile 1×1 building, not Trade Cart.
+ * Grid occupancy and deterministic movement travel with the saved building ID.
+ * Research pauses movement; manual orders override automatic resource chasing. */
+function muleCartTileFree(b,x,y){
+ if(!S||!Number.isInteger(x)||!Number.isInteger(y)||x<1||y<1||x>=W-1||y>=H-1)return false;
+ const i=y*W+x;
+ return S.wt[i]!==1&&!S.g[i]&&!S.nd[i]&&
+  !S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y);
+}
+function muleCartRoute(b,x,y){
+ if(!b||!Number.isInteger(b.x)||!Number.isInteger(b.y)||!muleCartTileFree(b,x,y))return null;
+ const start=b.y*W+b.x,held=S.g[start];S.g[start]=0;
+ let route;
+ try{route=path({t:b.t,x:b.x+.5,y:b.y+.5,sh:false},gp(x+.5,y+.5,.6))}
+ finally{S.g[start]=held}
+ if(!Array.isArray(route)||!route.length||route.length>W*H)return null;
+ return route.map(p=>[Math.floor(p[0]),Math.floor(p[1])]);
+}
+function orderMuleCart(b,x,y,automatic=false){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||b.hp<=0||!b.done||
+  ![41,42].includes(S.civ?.[b.t])||!Number.isInteger(x)||!Number.isInteger(y))return false;
+ if(b.x===x&&b.y===y){b.mulePath=[];b.muleProgress=0;b.muleAuto=!!automatic;return true}
+ const route=muleCartRoute(b,x,y);
+ if(!route)return false;
+ b.mulePath=route;b.muleProgress=0;b.muleAuto=!!automatic;
+ return true;
+}
+function tickMuleCarts(dt){
+ if(!S||!Number.isFinite(dt)||dt<=0)return;
+ for(const b of S.bs){
+  if(!b||b.k!=='mule'||!b.done||b.hp<=0)continue;
+  const route=b.mulePath;
+  if(Array.isArray(route)&&route.length){
+   if(b.rs)continue;
+   b.muleProgress=Math.min(8,Math.max(0,(b.muleProgress||0)+dt*.8));
+   // Max four grid moves per tick after an interrupted browser frame.
+   for(let steps=0;steps<4&&route.length;steps++){
+    const [nx,ny]=route[0],cost=nx!==b.x&&ny!==b.y?Math.SQRT2:1;
+    if(b.muleProgress<cost)break;
+    if(Math.abs(nx-b.x)>1||Math.abs(ny-b.y)>1||!muleCartTileFree(b,nx,ny)){
+     b.mulePath=[];b.muleProgress=0;break;
+    }
+    S.g[b.y*W+b.x]=0;b.x=nx;b.y=ny;S.g[b.y*W+b.x]=1;
+    route.shift();b.muleProgress-=cost;
+   }
+   continue;
+  }
+  if(b.muleAuto===false||b.rs)continue;
+  b.muleCheck=(b.muleCheck||0)-dt;
+  if(b.muleCheck>0)continue;
+  b.muleCheck=7;
+  // Stay at a viable deposit; relocate only after its nearby resources run out.
+  const usable=n=>n&&n.amt>0&&!n.fi&&!n.fm&&
+   (n.k==='w'||n.k==='g'||n.k==='s'||n.k==='f'&&n.an)&&
+   Number.isInteger(n.x)&&Number.isInteger(n.y);
+  if(S.nodes.some(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=2.5))continue;
+  const nearby=S.nodes.filter(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=9)
+    .sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y)||a.y-c.y||a.x-c.x);
+  let moved=false;
+  for(const n of nearby.slice(0,8)){
+   const sites=[];
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    if(!dx&&!dy)continue;
+    const x=n.x+dx,y=n.y+dy;
+    if(muleCartTileFree(b,x,y))sites.push([x,y]);
+   }
+   sites.sort((a,c)=>Math.hypot(a[0]-b.x,a[1]-b.y)-Math.hypot(c[0]-b.x,c[1]-b.y));
+   for(const [x,y] of sites.slice(0,8))
+    if(orderMuleCart(b,x,y,true)){moved=true;break}
+   if(moved)break;
+  }
+ }
+}
