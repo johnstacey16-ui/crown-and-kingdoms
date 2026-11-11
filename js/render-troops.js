@@ -191,7 +191,6 @@ function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
  * Dedicated illustrated Elite sprites remain a separate unfinished art gate.
  * Only the owning team's completed technology enables these visual details. */
 function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
- if(kind!=='huskarl'&&kind!=='lbow'&&kind!=='mgd'&&kind!=='axe')return false;
  if(typeof eliteUniqueUnitUpgrade!=='function'||!eliteUniqueUnitUpgrade(kind,team))return false;
  const z=Math.max(.45,Math.min(2.4,scale));
  ctx.save();ctx.translate(x,y);ctx.scale(z,z);
@@ -223,7 +222,7 @@ function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
   ctx.strokeStyle='#dfb45e';ctx.lineWidth=2.5;ctx.beginPath();
   ctx.moveTo(-14,-22);ctx.lineTo(14,-22);ctx.stroke();
   ctx.fillStyle='#a93635';ctx.fillRect(-3,-25,6,6);
- }else{
+ }else if(kind==='axe'){
   // Temporary original Frankish Elite equipment, not a dedicated painted atlas.
   ctx.fillStyle='#d4d9df';ctx.strokeStyle='#4b5059';ctx.lineWidth=1.35;
   ctx.beginPath();ctx.moveTo(-7,-38);ctx.lineTo(-5,-45);ctx.lineTo(0,-48);
@@ -237,6 +236,16 @@ function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
   ctx.lineTo(23,-38);ctx.lineTo(18,-43);ctx.lineTo(15,-40);ctx.lineTo(12,-43);
   ctx.lineTo(7,-38);ctx.lineTo(5,-44);ctx.lineTo(7,-51);ctx.closePath();
   ctx.fill();ctx.stroke();
+ }else{
+  // Readable original interim Elite crest for every remaining unique-unit
+  // tier; not a claim of dedicated hand-painted Elite sprite coverage.
+  ctx.fillStyle='#efd087';ctx.strokeStyle='#4c3722';ctx.lineWidth=1.25;
+  ctx.beginPath();ctx.moveTo(0,-54);ctx.lineTo(8,-48);ctx.lineTo(7,-40);
+  ctx.lineTo(0,-36);ctx.lineTo(-7,-40);ctx.lineTo(-8,-48);ctx.closePath();
+  ctx.fill();ctx.stroke();
+  ctx.fillStyle='#873b3b';ctx.fillRect(-4,-48,8,5);
+  ctx.strokeStyle='#fff0bb';ctx.lineWidth=1.2;ctx.beginPath();
+  ctx.moveTo(-3,-42);ctx.lineTo(0,-39);ctx.lineTo(3,-42);ctx.stroke();
  }
  ctx.restore();return true;
 }
