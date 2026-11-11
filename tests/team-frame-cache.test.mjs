@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 function fixture(){
- let colors=['#2277ee','#ee3322'];const calls=[],canvases=[];
- const sandbox={teamColor:t=>colors[t],document:{createElement(){const events={};const canvas={width:0,height:0,events,lost:false,addEventListener(name,fn){events[name]=fn},getContext(type,options){canvas.options=options;return {isContextLost(){return canvas.lost},drawImage(...args){calls.push(args)},getImageData(x,y,w,h){return {data:new Uint8ClampedArray(w*h*4)}},putImageData(){}}}};canvases.push(canvas);return canvas}}};
+ let colors=['#2277ee','#ee3322'];const calls=[],canvases=[],clearCalls=[];
+ const sandbox={teamColor:t=>colors[t],document:{createElement(){const events={};const canvas={width:0,height:0,events,lost:false,acquisitions:0,addEventListener(name,fn){events[name]=fn},getContext(type,options){canvas.options=options;canvas.acquisitions++;return {isContextLost(){return canvas.lost},drawImage(...args){calls.push(args)},clearRect(...args){clearCalls.push({canvas,args})},getImageData(x,y,w,h){return {data:new Uint8ClampedArray(w*h*4)}},putImageData(){}}}};canvases.push(canvas);return canvas}}};
  vm.createContext(sandbox);vm.runInContext(readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+';globalThis.draw=paintedTeamFrame;globalThis.cache=TEAM_FRAME_CACHE;',sandbox);
- return {...sandbox,calls,colors,canvases};
+ return {...sandbox,calls,colors,canvases,clearCalls};
 }
 test('native cropped team frames reuse pixels while preserving per-animation anchors and reload/palette boundaries',()=>{
  const f=fixture(),a={img:{},meta:{painted:true,motion:true}},frame={x:12,y:18,w:20,h:30,ax:9,ay:28};
@@ -105,4 +105,32 @@ test('lost shared CPU readback canvas is replaced on the next tinted miss',()=>{
  assert.notEqual(one.img,two.img);
  assert.notEqual(two.img,atlas.img,'never permanently fall back to the untinted atlas');
  assert.equal(f.cache.entries.size,2);
+});
+
+test('a busy battlefield reuses tint texture contexts instead of reacquiring per soldier',()=>{
+ const f=fixture(),atlas={img:{},meta:{painted:true,motion:true}},frame={x:0,y:0,w:70,h:90,ax:35,ay:86};
+ const first=f.draw(atlas,0,frame);
+ const display=first.img,originalReadback=f.canvases[0],displayAcquisitions=display.acquisitions;
+ for(let i=0;i<1000;i++)assert.equal(f.draw(atlas,0,frame).img,display);
+ assert.equal(f.cache.hits,1000);
+ assert.equal(display.acquisitions,displayAcquisitions,'each cache hit checks its retained context');
+ assert.equal(originalReadback.acquisitions,1,'readback context is not reacquired on a tint cache hit');
+ display.lost=true; // Before the async contextlost event is delivered.
+ assert.notEqual(f.draw(atlas,0,frame).img,display);
+ assert.equal(f.cache.entries.size,1);
+ assert.equal(f.cache.pixels,70*90);
+});
+test('equal-size tint readbacks clear stale alpha without repeated canvas resizing',()=>{
+ const f=fixture(),atlas={img:{},meta:{painted:true,motion:true}},first={x:0,y:0,w:60,h:75,ax:25,ay:70};
+ f.draw(atlas,0,first);
+ const scratch=f.cache.scratch;
+ f.draw(atlas,0,{...first,x:65});
+ assert.equal(f.cache.scratch,scratch);
+ assert.equal(scratch.acquisitions,1,'same-size crops reuse their readback context');
+ assert.equal(f.clearCalls.length,1,'transparent pixels from the prior frame must be cleared');
+ assert.deepEqual(f.clearCalls[0].args,[0,0,60,75]);
+ assert.equal(f.cache.entries.size,2);
+ scratch.lost=true;
+ f.draw(atlas,0,{...first,x:130});
+ assert.notEqual(f.cache.scratch,scratch,'a lost scratch is replaced before its pixels are sampled');
 });

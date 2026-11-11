@@ -53,6 +53,11 @@ function paintedTeamImage(atlas,team){
 // Bound tinted native frames and use a single CPU readback scratch; the cached
 // Canvas2D images are GPU-eligible to avoid repeated Xbox software uploads.
 const TEAM_FRAME_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:16*1024*1024,hits:0,creations:0,evictions:0,scratch:null};
+// Store the context alongside each cached image without retaining evicted
+// surfaces. Every painted unit used to call getContext() on the same cached
+// tint each frame; on Edge this browser call is avoidable in the hot path.
+const TEAM_FRAME_CONTEXTS=new WeakMap();
+let teamFrameScratchContext=null;
 function paintedTeamFrame(atlas,team,f,kind){
  if(!atlas.meta.painted||atlas.meta.neutral)return {img:atlas.img,f};
  // All integer-coordinate painted frames use a small cached crop, not a full
@@ -61,20 +66,37 @@ function paintedTeamFrame(atlas,team,f,kind){
  let id=TEAM_FRAME_CACHE.ids.get(atlas.img);if(!id){id=TEAM_FRAME_CACHE.next++;TEAM_FRAME_CACHE.ids.set(atlas.img,id)}
  const color=teamColor(team),key=[id,team,color,f.x,f.y,f.w,f.h].join('/'),cache=TEAM_FRAME_CACHE.entries;
  let canvas=cache.get(key);
- if(canvas?.getContext('2d')?.isContextLost?.()){cache.delete(key);TEAM_FRAME_CACHE.pixels-=canvas.width*canvas.height;canvas=null}
+ if(canvas){
+  let usable=false;
+  try{
+   const ctx=TEAM_FRAME_CONTEXTS.get(canvas)||canvas.getContext('2d');
+   usable=!!ctx&&!ctx.isContextLost?.();
+   if(usable)TEAM_FRAME_CONTEXTS.set(canvas,ctx);
+  }catch(_){}
+  if(!usable){cache.delete(key);TEAM_FRAME_CACHE.pixels-=canvas.width*canvas.height;canvas=null}
+ }
  if(canvas){cache.delete(key);cache.set(key,canvas);TEAM_FRAME_CACHE.hits++}
  else try{
-  if(TEAM_FRAME_CACHE.scratch?.getContext('2d')?.isContextLost?.())TEAM_FRAME_CACHE.scratch=null;
+  if(teamFrameScratchContext?.isContextLost?.()){
+   TEAM_FRAME_CACHE.scratch=null;teamFrameScratchContext=null;
+  }
   const scratch=TEAM_FRAME_CACHE.scratch||(TEAM_FRAME_CACHE.scratch=document.createElement('canvas'));
-  // Resizing the readback surface clears the previous frame's transparent edges.
-  scratch.width=f.w;scratch.height=f.h;
-  const read=scratch.getContext('2d',{willReadFrequently:true});if(!read||read.isContextLost?.())return {img:atlas.img,f};
+  // A size assignment, even to the same dimensions, destroys Canvas2D
+  // contents/state and can force an avoidable GPU/software reallocation.
+  const resized=scratch.width!==f.w||scratch.height!==f.h;
+  if(scratch.width!==f.w)scratch.width=f.w;
+  if(scratch.height!==f.h)scratch.height=f.h;
+  const read=teamFrameScratchContext||(teamFrameScratchContext=scratch.getContext('2d',{willReadFrequently:true}));
+  if(!read||read.isContextLost?.())return {img:atlas.img,f};
+  if(!resized)read.clearRect(0,0,f.w,f.h); // Same-size crops must not retain old alpha.
   read.drawImage(atlas.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);
   const pixels=read.getImageData(0,0,f.w,f.h),p=pixels.data,n=parseInt(color.slice(1),16),target=[n>>16&255,n>>8&255,n&255];
   for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2];if(p[i+3]>8&&b-r>26&&b-g>8&&b>r*1.25){const light=Math.max(.25,Math.min(1.35,(r*.21+g*.52+b*.27)/110));for(let k=0;k<3;k++)p[i+k]=Math.min(255,target[k]*light)}}
   canvas=document.createElement('canvas');canvas.width=f.w;canvas.height=f.h;
   const ctx=canvas.getContext('2d');if(!ctx||ctx.isContextLost?.())return {img:atlas.img,f};
-  ctx.putImageData(pixels,0,0);if(ctx.isContextLost?.())return {img:atlas.img,f};canvas.paintedAtlas=true;canvas.paintedTeam=team;
+  ctx.putImageData(pixels,0,0);if(ctx.isContextLost?.())return {img:atlas.img,f};
+  TEAM_FRAME_CONTEXTS.set(canvas,ctx);
+  canvas.paintedAtlas=true;canvas.paintedTeam=team;
   canvas.paintedSourceFrame={x:f.x,y:f.y,w:f.w,h:f.h};TEAM_FRAME_CACHE.creations++;
   const count=f.w*f.h;
   canvas.addEventListener?.('contextlost',()=>{if(cache.get(key)===canvas){cache.delete(key);TEAM_FRAME_CACHE.pixels-=count}});
