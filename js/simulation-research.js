@@ -23,6 +23,7 @@ function researchCost(b,k,civs=S?.civ,world=S){
  const cost=TE[k]?.cost||{},index=civs?.[b?.t];
  if(b?.k==='smith'&&Number.isInteger(index)&&CIV[index]?.n==='Spanish'&&cost.g)
   return {...cost,g:0};
+ if(index===35&&['blood','lcav','huss'].includes(k)&&cost.f)return {...cost,f:Math.ceil(cost.f*.5)};
  if(index!==33)return cost;
  if(k==='ut33p'){
   const villagers=(world?.us||[]).filter(u=>u.k==='vil'&&u.t===b.t&&u.hp>0&&!u.ld).length;
