@@ -6,10 +6,10 @@ const read=p=>JSON.parse(readFileSync(new URL('../'+p,import.meta.url),'utf8'));
 const inventory=read('data/civilizations.json'),graphics=read('docs/graphics-inventory.json'),atlas=read('assets/atlas-manifest.json');
 test('readiness metrics report actual content without claiming full completion',()=>{
  const r=professionalReadiness(inventory,graphics,atlas);
- assert.equal(r.metrics.civilizations,41);
- assert.equal(r.metrics.eliteResearchLines,41);
- assert.equal(r.metrics.secondUniqueTechnologies,41);
- assert.equal(r.metrics.totalUnits,81);
+ assert.equal(r.metrics.civilizations,43);
+ assert.equal(r.metrics.eliteResearchLines,43);
+ assert.equal(r.metrics.secondUniqueTechnologies,43);
+ assert.equal(r.metrics.totalUnits,84);
  assert.equal(r.metrics.paintedUnitBases,50);
  assert.equal(r.metrics.movementAndAttackSheets,50);
  assert.equal(r.metrics.independentDirectionArt,0);

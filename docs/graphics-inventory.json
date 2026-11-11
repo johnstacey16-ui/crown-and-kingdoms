@@ -731,6 +731,33 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "composite",
+      "name": "Composite Bowman",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "warpriest",
+      "name": "Warrior Priest",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "monaspa",
+      "name": "Monaspa",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -973,14 +1000,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "81 non-defence unit identities; 50 have painted bases and 31 rely on original procedural drawing",
-      "remaining": "31 unit base variants plus independent direction and Elite appearances"
+      "evidence": "84 non-defence unit identities; 50 have painted bases and 34 rely on original procedural drawing",
+      "remaining": "34 unit base variants plus independent direction and Elite appearances"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 81 units have painted movement and activity sheets",
-      "remaining": "31 original procedural-only kinds, independent direction and death/Elite art"
+      "evidence": "50 of 84 units have painted movement and activity sheets",
+      "remaining": "34 original procedural-only kinds, independent direction and death/Elite art"
     },
     {
       "category": "Elite unit visuals",

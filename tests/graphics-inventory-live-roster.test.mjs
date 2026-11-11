@@ -17,8 +17,8 @@ test('art inventory covers every playable unit and building without phantom comp
  assert.equal(new Set(built).size,built.length,'no duplicate building asset record');
  assert.deepEqual(built,buildings,'new buildings must be explicitly inventoried');
 });
-test('all new Sicilian through Roman source-only assets are honestly procedural',()=>{
- for(const kind of ['serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','centurion','legionary']){
+test('all new Sicilian through Georgian source-only assets are honestly procedural',()=>{
+ for(const kind of ['serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','centurion','legionary','composite','warpriest','monaspa']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.ok(entry,kind+' missing');
   assert.equal(entry.paintedBase,false,kind+' has no dedicated painted artwork yet');
