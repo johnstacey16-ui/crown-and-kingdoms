@@ -161,7 +161,7 @@ assert.match(html, /if\(k==='scout'&&tech\.lcav\)return 'Light Cavalry'/,
   'Scouts must display as Light Cavalry after that upgrade');
 assert.match(html, /if\(k==='knight'&&tech\.cavl\)return 'Cavalier'/,
   'Knights must display as Cavaliers after that upgrade');
-assert.match(html, /return\{l:unitName\(k,s\.t\),c:U\[k\]\.cost/,
+assert.match(html, /return\{l:unitName\(k,s\.t\),c:unitTrainingCost\(s\.t,k\)/,
   'Production menu labels must use the selected kingdom upgrade state');
 assert.match(html, /note\(unitName\(q\.k,b\.t\)\+' trained'\)/,
   'Training feedback must use the researched unit name');
