@@ -100,6 +100,7 @@ const FOCUSED=[
  "tests/civilization-roman-legionary.test.mjs",
  "tests/civilization-caucasus-royals.test.mjs",
  "tests/civilization-fortified-church.test.mjs",
+ "tests/civilization-mule-cart.test.mjs",
  "tests/graphics-inventory-live-roster.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",

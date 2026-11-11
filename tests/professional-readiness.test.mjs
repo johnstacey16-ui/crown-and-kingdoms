@@ -15,7 +15,7 @@ test('readiness metrics report actual content without claiming full completion',
  assert.equal(r.metrics.independentDirectionArt,0);
  assert.equal(r.metrics.dedicatedDeathArt,0);
  assert.equal(r.metrics.factionArchitecture,0);
- assert.equal(r.metrics.totalBuildings,27);
+ assert.equal(r.metrics.totalBuildings,28);
  assert.equal(r.metrics.atlasEntries,atlas.atlases.length);
  assert.match(r.gates.graphics,/PARTIAL/);
  assert.match(r.gates.xbox,/UNVERIFIED/);
