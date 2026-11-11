@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-36-v1",
-  "description": "36 partial medieval civilizations; original-era IDs preserved and Polish Folwark/Obuch content appended. DLC and visual/hardware acceptance remain incomplete.",
+  "inventoryVersion": "ck-current-medieval-roster-37-v1",
+  "description": "37 partial medieval civilizations, including Polish and Bohemian mechanics. Historic IDs and existing research/multiplayer contracts retained; exact per-patch balance and original painted animations remain unfinished.",
   "rulesets": [
     {
       "id": "medieval",
@@ -85,7 +85,8 @@
           32,
           33,
           34,
-          35
+          35,
+          36
         ],
         "buildings": [
           "rng"
@@ -956,6 +957,28 @@
         "infantryArmor": "cp",
         "archerArmor": "lr",
         "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 36,
+      "name": "Bohemians",
+      "uniqueUnit": "husswagon",
+      "uniqueTechnology": "ut36",
+      "secondUniqueTechnology": "ut36p",
+      "eliteUpgrade": "eliteHussiteWagon",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvesk",
+        "field": "rh",
+        "monastery": "dfhrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
         "melee": "fib"
       }
     }
