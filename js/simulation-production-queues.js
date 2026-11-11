@@ -5,12 +5,13 @@
  * Unit catalogue remains immutable and cancellation refunds the paid amount. */
 function unitEffectiveAge(team,kind,civs=S?.civ){
  const age=Number.isInteger(U[kind]?.age)?U[kind].age:0;
- return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):age;
+ return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):civs?.[team]===37&&kind==='eled'?Math.max(0,age-1):age;
 }
 function unitTrainingCost(team,kind,civs=S?.civ){
  const cost=U[kind]?.cost||{};
  if(kind==='kipchak'&&civs?.[team]!==31&&
   typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
+ if(civs?.[team]===37&&B.siege?.tr?.includes(kind)&&cost.w)return {...cost,w:Math.ceil(cost.w*2/3)};
  if(civs?.[team]===36&&kind==='mon'&&S?.tech?.[team]?.ut36p&&cost.g){
   const {g,...other}=cost;return {...other,f:(other.f||0)+g};
  }
