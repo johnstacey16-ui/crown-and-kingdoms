@@ -82,6 +82,28 @@ function WL(dt){for(const n of S.nodes)if(n.an&&(n.w=(n.w||0)-dt)<=0){n.w=3+S.r(
 
 /* Folwark grants food when a newly purchased, owned farm is placed nearby.
  * The one-off claim is part of the farm state, so save/load cannot mint twice. */
+/* Gurjara Mills hold a finite number of actual sheep resource nodes.
+ * The transfer removes a node from the map and persists in the building;
+ * no resource is earned simply by issuing a command. */
+function garrisonLivestockMill(b){
+ if(!b||!S?.bs?.includes(b)||b.k!=='mill'||!b.done||b.hp<=0||
+   !Number.isInteger(b.t)||S.civ?.[b.t]!==39||
+   !Number.isInteger(W)||!Array.isArray(S.nodes)||!Array.isArray(S.nd))return false;
+ const held=Number.isInteger(b.livestockCount)?b.livestockCount:0;
+ if(held<0||held>=5)return false;
+ const eligible=S.nodes.filter(n=>n&&n.herdable===1&&n.k==='f'&&n.amt>0&&
+   Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&
+   S.nd[n.y*W+n.x]===n&&
+   Math.hypot(n.x+.5-(b.x+b.s/2),n.y+.5-(b.y+b.s/2))<=10)
+  .sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y)||
+    a.y-c.y||a.x-c.x);
+ if(!eligible.length)return false;
+ const sheep=eligible[0],i=S.nodes.indexOf(sheep);
+ if(i<0)return false;
+ S.nd[sheep.y*W+sheep.x]=null;
+ S.nodes.splice(i,1);b.livestockCount=held+1;
+ return true;
+}
 function grantFolwarkFarmFood(farm,team){
  if(!farm||farm.k!=='f'||!farm.fm||farm.t!==team||farm.folwarkClaimed||
    S?.civ?.[team]!==35||!S.res?.[team]||S.nd?.[farm.y*W+farm.x]!==farm)return 0;
