@@ -33,7 +33,7 @@ if(tradeTarget&&u.k===(tg.k==='market'?'cart':'cog')){
  continue
 }
 if(tg&&tg.t>0&&diplomacyRelation(u.t,tg.t)==='ally'){
- if(u.k==='vil'&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
+ if((u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&S.civ?.[u.t]===34)&&tg.q&&(!tg.done||tg.hp<tg.mh)){u.o='b';u.tg=tg;continue}
  if(tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg;continue}
  u.o='i';u.tg=null;u.p=[];continue
 }
@@ -51,7 +51,7 @@ else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){
   if(u.ct!==tg.k)u.car=0;u.o='g';u.tg=tg;u.ct=tg.k;u.ret=0
  }
 else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg}
-else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&u.k==='vil'){u.o='b';u.tg=tg}
+else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&(u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&S.civ?.[u.t]===34)){u.o='b';u.tg=tg}
 else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.k==='trn'&&Array.isArray(u.cg)&&u.cg.some(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const landing=transportLandingRoute(u,wx,wy);if(landing?.route?.length){u.o='U';u.ut=[wx,wy];u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
 else{const i=unitIndex,fo=(u.sh?navalSlots:landSlots)(i),gx=wx+fo[0],gy=wy+fo[1],gl=r=>cachedGoal(formationGoals,gx,gy,r);
@@ -152,7 +152,7 @@ else if(selectedBuilders('donjon').length)menu={title:'Build',i:0,items:(selecte
 return{l:d.n,c:d.cost,get lk(){return bLock(k)},fn:()=>{const currentLock=bLock(k);if(currentLock)return note(currentLock);if(!selectedBuilders(k).length)return note(k==='donjon'?'Select a Sicilian Serjeant or villager':'Select an available villager');if(!can(0,d.cost))return note('Not enough resources');menu=null;place={k}}}})}
 else menu={title:'Soldiers',i:0,items:[{l:'Stop',c:{},lk:'',fn:()=>{stopSel();menu=null}},{l:'Regroup here',c:{},lk:'',fn:()=>{regroup();menu=null}},{l:'Queue march waypoints',c:{},lk:'',fn:()=>{menu=null;pat=5;note('Move camera to each waypoint and press A to add; B finishes. Idle or moving military only.')}},{l:'Patrol to cursor point',c:{},lk:'',fn:()=>{menu=null;pat=1;note('Move the cursor to the patrol point, then A (B cancels)')}},{l:'Follow friendly target',c:{},lk:'',fn:()=>{menu=null;pat=3;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Guard friendly target',c:{},lk:'',fn:()=>{menu=null;pat=4;note('Move the cursor to a friendly unit/building, then A (B cancels)')}},{l:'Stance: Aggressive',c:{},lk:'',fn:()=>setStance(0)},{l:'Stance: Defensive',c:{},lk:'',fn:()=>setStance(1)},{l:'Stance: Stand ground',c:{},lk:'',fn:()=>setStance(2)},{l:'Stance: Passive',c:{},lk:'',fn:()=>setStance(3)},{l:'Stance: No Attack',c:{},lk:'',fn:()=>setStance(4)},{l:'Formation: '+FMN[fm]+' (change)',c:{},lk:'',fn:()=>{fm=(fm+1)%FMN.length;menu=null;note('Formation: '+FMN[fm])}},{l:'Attack Move',c:{},lk:'',fn:()=>{menu=null;pat=2;note('Move the cursor to the target point, then A (B cancels)')}},{l:'Auto-scout (scouts)',c:{},lk:'',fn:()=>{for(const u of S.sel)if(u.k==='scout'||u.k==='mgd')u.as=1;menu=null;note('Auto-scouting on; any order turns it off')}}]}
 if(menu&&menu.title==='Soldiers'&&S.sel.some(u=>u.k==='cart'||u.k==='cog'))menu.items.splice(1,0,{l:'Resume automatic trading',c:{},lk:'',fn:()=>{let n=0;for(const u of S.sel)if(u.k==='cart'||u.k==='cog'){u.tradePaused=false;u.manualTradeMove=false;u.o='i';u.p=[];u.rp=0;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;n++}menu=null;note('Automatic trading resumed for '+n+' merchant'+(n===1?'':'s'))}});
-if(menu&&menu.title==='Build'){menu.items.splice(ECO.length,0,{l:'Stop (go idle)',c:{},lk:'',fn:()=>{stopSel();menu=null}});menu.pr=[[0,ECO.length+1],[ECO.length+1,menu.items.length]]}}
+if(menu&&menu.title==='Build'){const stop=Math.min(ECO.length,menu.items.length);menu.items.splice(stop,0,{l:'Stop (go idle)',c:{},lk:'',fn:()=>{stopSel();menu=null}});menu.pr=Array.from({length:Math.ceil(menu.items.length/12)},(_,i)=>[i*12,Math.min(menu.items.length,(i+1)*12)])}}
 
 /* Xbox controller interaction state and selection policy helpers.
  * State is kept session-local; no save, command, or button mapping changes. */
