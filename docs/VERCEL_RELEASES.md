@@ -1,8 +1,12 @@
 # Crown & Kingdoms — controlled Vercel releases
 
+**Branch policy adopted 11 November 2026:** `development` is for daily commits and free GitHub Actions checks; `main` stays the GitHub default and the Vercel Production branch. The committed `vercel.json` uses `git.deploymentEnabled: { "development": false }` to block automatic preview **creation** on that branch rather than merely cancel the build. This is source-verified; the Vercel project's API isn't currently accessible to verify project-side behaviour. Do not claim quota savings until activity confirms it. Manual API/CLI deployments can bypass this Git integration setting.
+
+**Normal release route:** Explicitly fetch and commit `development` (GitHub defaults to `main` when no branch/ref is given), validate the exact candidate with relevant quick/focused and acceptance gates, then merge the reviewed candidate into `main` with **one intentionally marked `[deploy]` commit** where practical. Preserve the existing main ignored-build gate, the ~weekly optional release cadence and the free-only hosting policy.
+
 The repository's `vercel.json` configures an **Ignored Build Step**: `node scripts/vercel-deployment-gate.mjs`. This overrides the equivalent project-dashboard ignored-build command. Vercel runs this script on Git-backed deployments; the script first uses Vercel's `VERCEL_GIT_COMMIT_MESSAGE` system environment variable, falling back to `git log` for local checks.
 
-- Ordinary work on `main` (gameplay, tests, docs, fixes) still commits and runs existing GitHub Actions, but **does not build or publish a new Vercel deployment**.
+- Ordinary work on `development` (gameplay, tests, docs, fixes) runs GitHub Actions but **does not create automatic Vercel deployments**; the older ignored-build gate still guards non-release `main` commits.
 - To release an accepted version, include **`[deploy]`** in the commit message, e.g. `feat(campaign): finish mission fixes [deploy]`. The latest commit is released with all preceding commits. A deliberate empty release commit with `[deploy]` can also publish the already-tested current `main`.
 - Vercel's Ignored Build Step uses **exit code 0 to skip** and **exit code 1 to build** (the inverse of what a typical command's success might suggest). Skipped Git events may still show a canceled deployment; they do not produce a new game build. Vercel may still count them toward deployment quotas.
 - An urgent manual redeploy can bypass the ignored-build step from the deployment's **Redeploy** dialog by unchecking **Use project's Ignore Build Step**. Do not create paid resources or disable protection to do so.
@@ -14,10 +18,10 @@ The repository's `vercel.json` configures an **Ignored Build Step**: `node scrip
 
 | Work | Default action |
 | --- | --- |
-| Daily/ongoing game development | Commit normally to `main`; run appropriate quick, focused and behavioural GitHub tests; **omit `[deploy]`**. |
-| Weekly release candidate | Group approved gameplay/campaign/graphics/Xbox changes; review failures and run the relevant regressions and acceptance checks. Hold the release if required checks fail. |
+| Daily/ongoing game development | Commit to `development`, run quick/focused GitHub checks without a Vercel preview, and omit `[deploy]`. |
+| Weekly release candidate | Review accumulated `development` changes, run relevant regressions and acceptance checks on the exact tree; keep `main` untouched if they fail. |
 | Major finished feature or critical live bug | Release sooner **only after** suitable verification; record why this release breaks the weekly cadence. |
-| Next Production release | Publish the accumulated, accepted `main` commit explicitly with `[deploy]`; the repository gate allows a Vercel build. |
+| Next Production release | Merge accepted `development` changes into `main` as a single `[deploy]` release commit when possible, then verify the live build. |
 | After release | Verify Vercel Ready and correct public Production alias/SHA, run **bounded** browser/offline/artwork and relevant multiplayer/Xbox smoke, preserve rollback options, and record usage. |
 
 ### One-line release request
