@@ -141,3 +141,13 @@ test('current-build save retains Bohemian research, upgraded Houfnice and the Hu
  assert.equal(run("S.us.some(u=>u.k==='houfnice'&&u.t===0)"),true);
  assert.equal(run('S.tech[0].houfniceUpgrade'),1);
 });
+
+
+test('Monastery preview prices use supplied Hussite Reforms research ledger',()=>{
+ const run=game();
+ const get=world=>copy(run,"technologyTreeModel(0,"+world+").buildings.find(b=>b.id==='monastery').units.find(u=>u.id==='mon').cost");
+ assert.equal(get('S').g,100);
+ const shifted=get("{civ:[36,0],tech:[{ut36p:1},{}],age:[3,3]}");
+ assert.deepEqual(shifted,{f:100});
+ assert.equal(run('S.tech[0].ut36p'),undefined);
+});
