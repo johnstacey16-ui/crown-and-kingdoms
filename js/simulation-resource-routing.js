@@ -47,7 +47,7 @@ function knownResource(u,n){
 }
 function findNode(u,k,r=16){if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;let b=null,bd2=r*r;for(const n of S.nodes)if(n&&n.k===k&&n.amt>0&&!n.an&&!!n.fi===!!u.sh&&(!n.trap||n.t===u.t)&&knownResource(u,n)&&resourceHasWorksite(u,n)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&(u.sh||S.wt[n.y*W+n.x]!==1)){const dx=n.x-u.x,dy=n.y-u.y,d2=dx*dx+dy*dy;if(d2<bd2){bd2=d2;b=n}}return b}
 function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
-function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))}
+function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||((q.k==='mill'||q.k==='folwark')&&u.ct==='f'))}
 function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
 function findDropoffRoute(u){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H)return null;
@@ -79,6 +79,19 @@ function killNode(n){if(!n||!S.nodes.includes(n))return false;const i=n.y*W+n.x;
 /* Wildlife position and resource-node occupancy tick, source-identical. */
 function WL(dt){for(const n of S.nodes)if(n.an&&(n.w=(n.w||0)-dt)<=0){n.w=3+S.r()*4;const[dx,dy]=D8[(S.r()*4)|0],x=n.x+dx,y=n.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;n.x=x;n.y=y;S.g[y*W+x]=1;S.nd[y*W+x]=n}}}
 
+/* Folwark grants food when a newly purchased, owned farm is placed nearby.
+ * The one-off claim is part of the farm state, so save/load cannot mint twice. */
+function grantFolwarkFarmFood(farm,team){
+ if(!farm||farm.k!=='f'||!farm.fm||farm.t!==team||farm.folwarkClaimed||
+   S?.civ?.[team]!==35||!S.res?.[team]||S.nd?.[farm.y*W+farm.x]!==farm)return 0;
+ const eligible=S.bs?.some(b=>b&&b.t===team&&b.k==='folwark'&&b.done&&b.hp>0&&
+  Math.hypot(farm.x+.5-(b.x+b.s/2),farm.y+.5-(b.y+b.s/2))<=6);
+ if(!eligible)return 0;
+ const food=Math.max(0,Math.round((farm.amt||0)*.10));
+ farm.folwarkClaimed=1;
+ S.res[team].f+=food;
+ return food;
+}
 /* Gathering multipliers and upgraded farm capacity, preserved from simulation.js. */
 function gm(u,tg){const t=S.tech[u.t];let m=t.gath?1.25:1;const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;return m}
 /* AoE-style farm capacity upgrades add food, rather than incorrectly increasing the harvest rate. */
