@@ -294,6 +294,12 @@ const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||
 function civilizationBuildingAllowed(kind,team,civs=S?.civ){
  const d=B[kind];return !!d&&!(kind==='mill'&&civs?.[team]===35)&&(!Number.isInteger(d.onlyCiv)||civs?.[team]===d.onlyCiv);
 }
+/* Shared faction-adjusted construction prices for UI, AI and host commands. */
+function civilizationBuildingCost(kind,team,civs=S?.civ){
+ const cost=B[kind]?.cost||{};
+ return civs?.[team]===36&&['smith','univ','monastery'].includes(kind)&&cost.w?
+  {...cost,w:Math.max(0,cost.w-100)}:cost;
+}
 /* One trainability boundary for solo, authenticated peer commands and AI. */
 function regionalTrainables(kind,civId){
  const available=(B[kind]?.tr||[]).filter(unit=>{
@@ -325,6 +331,8 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(techs?.[b.t]?.xbow?'xbow':'arc');
  // Regional Winged Hussar replaces the Scout production line after Hussar
  // research, but only for the Polish and Lithuanian civilizations.
+ if(b.k==='siege')return civs?.[b.t]===36&&techs?.[b.t]?.houfniceUpgrade?
+  [...eligible.filter(k=>k!=='bomb'),'houfnice']:eligible.filter(k=>k!=='houfnice');
  if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
   techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
   eligible.filter(k=>k!=='winged');
@@ -377,7 +385,8 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Magyars':'xat',
  'Portuguese':'xat','Burmese':'xa','Vietnamese':'xat','Bulgarians':'xat','Tatars':'xat','Cumans':'xt','Lithuanians':'xat','Burgundians':'xa',
  'Sicilians':'xa',
- 'Poles':'xa'
+ 'Poles':'xa',
+ 'Bohemians':'xa'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -420,7 +429,8 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Magyars':'mltcphvaeskdu',
  'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku',
  'Sicilians':'mltcphvaesku',
- 'Poles':'mltcphvaesku'
+ 'Poles':'mltcphvaesku',
+ 'Bohemians':'mltcphvesk'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -440,7 +450,8 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Koreans':'rh','Magyars':'rbh',
  'Portuguese':'rbh','Burmese':'rbh','Vietnamese':'rbh','Bulgarians':'rbh','Tatars':'rbh','Cumans':'rbh','Lithuanians':'rbh','Burgundians':'rbh',
  'Sicilians':'rbh',
- 'Poles':'rbh'
+ 'Poles':'rbh',
+ 'Bohemians':'rh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -481,7 +492,8 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Magyars':'dhsvbitm',
  'Portuguese':'dfrasvbitm','Burmese':'dfrsvitm','Vietnamese':'dfasvbitm','Bulgarians':'dfrsvitm','Tatars':'dfrasvbitm','Cumans':'dfrsvitm','Lithuanians':'dfrasvbitm','Burgundians':'dfrsvitm',
  'Sicilians':'dfrsvitm',
- 'Poles':'dfrsvitm'
+ 'Poles':'dfrsvitm',
+ 'Bohemians':'dfhrasvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -521,7 +533,8 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Magyars':'mgcbh',
  'Portuguese':'msgkfcbh','Burmese':'mgkfcbh','Vietnamese':'msgkfcbh','Bulgarians':'msgkfcbh','Tatars':'msgkfcbh','Cumans':'msgkfcbh','Lithuanians':'msgkfcbh','Burgundians':'msgkfcbh',
  'Sicilians':'msgkfcbh',
- 'Poles':'msgkfcbh'
+ 'Poles':'msgkfcbh',
+ 'Bohemians':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -560,7 +573,8 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Magyars':'irc',
  'Portuguese':'irc','Burmese':'irc','Vietnamese':'irc','Bulgarians':'irc','Tatars':'irc','Cumans':'irc','Lithuanians':'irc','Burgundians':'irc',
  'Sicilians':'irc',
- 'Poles':'irc'
+ 'Poles':'irc',
+ 'Bohemians':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -599,7 +613,8 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'c',
  'Portuguese':'cp','Burmese':'c','Vietnamese':'cp','Bulgarians':'cp','Tatars':'cp','Cumans':'c','Lithuanians':'cp','Burgundians':'cp',
  'Sicilians':'cp',
- 'Poles':'cp'
+ 'Poles':'cp',
+ 'Bohemians':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -639,7 +654,8 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'lr',
  'Portuguese':'lr','Burmese':'lr','Vietnamese':'lr','Bulgarians':'lr','Tatars':'lr','Cumans':'lr','Lithuanians':'lr','Burgundians':'lr',
  'Sicilians':'lr',
- 'Poles':'lr'
+ 'Poles':'lr',
+ 'Bohemians':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -680,7 +696,8 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Magyars':'cp',
  'Portuguese':'cp','Burmese':'cp','Vietnamese':'cp','Bulgarians':'cp','Tatars':'c','Cumans':'cp','Lithuanians':'cp','Burgundians':'cp',
  'Sicilians':'cp',
- 'Poles':'cp'
+ 'Poles':'cp',
+ 'Bohemians':'c'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -717,7 +734,8 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Magyars':'fib',
  'Portuguese':'fib','Burmese':'fib','Vietnamese':'fib','Bulgarians':'fib','Tatars':'fib','Cumans':'fib','Lithuanians':'fib','Burgundians':'fib',
  'Sicilians':'fib',
- 'Poles':'fib'
+ 'Poles':'fib',
+ 'Bohemians':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
@@ -752,7 +770,7 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>{
+ const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)).filter(k=>{
   // Regional upgrade research and production share the same legal roster for
   // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
   const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];
@@ -776,7 +794,7 @@ function technologyTreeModel(team=0,world=S){
   if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
   const building=B[kind],ref={k:kind,t:team};
   const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
-   const d=U[key],requiredAge=Number.isInteger(d.age)?d.age:0;
+   const d=U[key],requiredAge=typeof unitEffectiveAge==='function'?unitEffectiveAge(team,key,world.civ):Number.isInteger(d.age)?d.age:0;
    return {id:key,name:d.n,age:requiredAge,cost:{...(d.cost||{})},
     state:requiredAge>age?'locked':'available',
     reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
