@@ -61,7 +61,7 @@ if(place){if(E[1]){place=null;return}
 const d=place&&typeof place.k==='string'&&Object.prototype.hasOwnProperty.call(B,place.k)?B[place.k]:null;
 if(!d||!Number.isInteger(d.s)||d.s<1||d.s>W||d.s>H){place=null;note('Building placement cancelled: unavailable building');return}
 const s=d.s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=!lock&&okPlace(0,place.k,place.x,place.y)&&can(0,d.cost);
-if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');
+if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders(k);if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note(k==='donjon'?'No available Sicilian Serjeants or villagers':'No available villagers');
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);
 if(!n)return note('Cannot build there');
 n.t=0;pay(0,d.cost);for(const u of vs){
