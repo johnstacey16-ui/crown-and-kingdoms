@@ -31,7 +31,7 @@ test('Celtic Stronghold has paid Castle research, tower fire bonus and nearby in
  assert.equal(run('ally.hp'),20.5);
  assert.equal(run('far.hp'),20);
  run("globalThis.tower={k:'tower',t:0,x:25,y:20,s:2,hp:400,mh:400,done:true,cd:0,q:[],rs:null};S.bs.push(tower)");
- run("globalThis.enemy={k:'mil',t:1,x:25,y:22,hp:500,p:[]};S.us.push(enemy)");
+ run("globalThis.enemy={k:'mil',t:1,x:25,y:25,hp:500,p:[]};S.us.push(enemy)");
  run('upB(tower,.1)');
  assert.ok(Math.abs(run('tower.cd')-run('U.tw.cd')/1.33)<1e-9,'Stronghold reduces actual defensive fire cooldown');
  run('S.civ[0]=1;tower.cd=0;upB(tower,.1)');
