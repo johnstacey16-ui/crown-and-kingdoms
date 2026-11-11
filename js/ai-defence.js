@@ -94,7 +94,7 @@ if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
 /* Local four-defender anti-raid response for buildings and farm sites. */
 function aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders){
 /* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
-const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
+const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','folwark','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
  .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
 let raid=null;
 for(const site of economicSites){
