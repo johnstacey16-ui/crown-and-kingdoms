@@ -144,3 +144,25 @@ test('new siege and infantry research flags survive save/reload in the current b
  assert.equal(run("combatArmor({k:'kamayuk',t:0},'p')"),pierce);
  assert.equal(run('S.tech[0].ut21p'),1);
 });
+
+
+test('Castle completion applies each faction attack upgrade exactly once through live combat',()=>{
+ const run=game();
+ for(const [id,tech,unit,expected] of [
+  [19,'ut19','mil',4],        // Aztec Garland Wars
+  [23,'ut23p','knight',5],    // Malian Farimba
+  [25,'ut25p','cavarch',1]    // Magyar Recurve Bow
+ ]){
+  run('S.civ[0]='+id+';S.tech[0]={};S.age[0]=3;S.res[0]={f:10000,w:10000,g:10000,s:10000};castle.rs=null;castle.q=[]');
+  run("globalThis.attacker={k:'"+unit+"',t:0,x:10,y:10,hp:100,p:[]};globalThis.victim={k:'mil',t:1,x:11,y:10,hp:1000,p:[]}");
+  const strike=()=>run('(()=>{victim.hp=1000;dmgT(attacker,victim);return 1000-victim.hp})()');
+  const baseline=strike();
+  assert.equal(run('research(castle,'+JSON.stringify(tech)+')'),true,tech+' is Castle-researchable');
+  assert.equal(strike(),baseline,'queued research changes no stats');
+  run('upB(castle,TE['+JSON.stringify(tech)+'].t+0.1)');
+  assert.equal(run('S.tech[0]['+JSON.stringify(tech)+']'),1,tech+' completes');
+  assert.equal(strike(),baseline+expected,tech+' applies the intended bonus once');
+  run('S.civ[0]=0');
+  assert.equal(strike(),baseline,'foreign civilization cannot inherit '+tech);
+ }
+});
