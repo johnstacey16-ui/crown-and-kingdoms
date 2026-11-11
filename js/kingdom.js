@@ -30,6 +30,26 @@ function civilizationTeamBonusFactor(team,kind,world=S){
  return factor;
 }
 
+/* Additive bonuses, such as food from trade, cannot use a multiplier
+ * defaulting to one. Civilizations are deduplicated across live allies. */
+function civilizationTeamBonusAdd(team,kind,world=S){
+ let bonus=0;
+ for(const id of alliedCivilizationIds(team,world)){
+  const value=CIV[id].teamEconomic?.[kind];
+  if(Number.isFinite(value)&&value>0)bonus+=value;
+ }
+ return bonus;
+}
+/* Ratha stance is an authoritative kind swap, not a client-controlled stat. */
+function setRathaMode(u,mode){
+ if(!u||!S?.us?.includes(u)||u.hp<=0||u.ld||S.civ?.[u.t]!==38||
+   !['ratha','rathaM'].includes(u.k)||!['ranged','melee'].includes(mode))return false;
+ const kind=mode==='melee'?'rathaM':'ratha';
+ if(u.k===kind)return false;
+ u.k=kind;u.wind=0;u.windTarget=null;u.cd=Math.max(0,u.cd||0);
+ u.o='i';u.tg=null;u.p=[];u.rp=0;
+ return true;
+}
 function isHostile(a,b){return a!==b&&diplomacyRelation(a,b)==='enemy'}
 function relationLabel(r){return r==='ally'?'Ally':r==='neutral'?'Neutral':r==='self'?'Self':'Enemy'}
 function setDiplomacy(a,b,rel){
