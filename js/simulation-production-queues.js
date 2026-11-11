@@ -5,6 +5,8 @@
  * Unit catalogue remains immutable and cancellation refunds the paid amount. */
 function unitTrainingCost(team,kind,civs=S?.civ){
  const cost=U[kind]?.cost||{};
+ if(kind==='kipchak'&&civs?.[team]!==31&&
+  typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
  return civs?.[team]===26&&cost.g?{...cost,g:Math.ceil(cost.g*.85)}:cost;
 }
 function queuedPopulation(t){return S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.length:0),0)}
@@ -20,8 +22,18 @@ if(popOf(t)>=capOf(t)){
   }
  }
  return false;
-}if(b.q.length>=5)return false;pay(t,cost);b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t});return true}
-function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();pay(b.t,typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):U[q.k].cost,1);note('Cancelled - full refund');return true}
+}if(b.q.length>=5)return false;
+ const merc=k==='kipchak'&&b.k==='castle'&&S.civ?.[t]!==31&&
+  typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(t);
+ pay(t,cost);
+ if(merc)S.tech[t].mercKipchakClaims=(S.tech[t].mercKipchakClaims||0)+1;
+ b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t,...(merc?{mercKipchak:true}:{})});
+ return true}
+function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();
+ if(q.mercKipchak===true&&q.k==='kipchak')S.tech[b.t].mercKipchakClaims=
+  Math.max(0,(S.tech[b.t].mercKipchakClaims||0)-1);
+ else pay(b.t,typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):U[q.k].cost,1);
+ note('Cancelled - full refund');return true}
 
 // Presentation-only explanation for a completed queue head. The same live
 // capacity and exit checks used by upB are read without advancing the queue.

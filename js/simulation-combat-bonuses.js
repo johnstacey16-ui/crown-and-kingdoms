@@ -90,10 +90,22 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=combatArmor(t,cls);t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);fx.push({x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,l:.2,k:'h'});if(!t.s)t.hit=gt;emit('spark',t.x+(t.s||0)/2,t.y+(t.s||0)/2,t.s?3:5,{s:2.2,vz:2.6,l:.35,c:ak.rng>2?'#e8d8a0':'#ffb050',r:1.6});
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0):0),cls=ak.sg?'s':ak.rng>2?'p':'m',ar=combatArmor(t,cls);t.hp-=(Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8)?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);// Reward only real, living Keshiks striking a real hostile combat unit.
+ // Fake attacker objects and building hits must not mint gold.
+ if(a.k==='keshik'&&S.civ?.[a.t]===30&&!t.s&&t.hp>0&&
+    S.us.includes(a)&&S.us.includes(t))S.res[a.t].g+=1;
+ fx.push({x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,l:.2,k:'h'});if(!t.s)t.hit=gt;emit('spark',t.x+(t.s||0)/2,t.y+(t.s||0)/2,t.s?3:5,{s:2.2,vz:2.6,l:.35,c:ak.rng>2?'#e8d8a0':'#ffb050',r:1.6});
 hitSnd(a,t);
 if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.al=S.t;note('Under attack! L3 with nothing selected jumps there');sfx('horn');rumble(260,.6,.3)}}
-if(t.hp<=0&&!t.dead){t.dead=1;if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
+if(t.hp<=0&&!t.dead){t.dead=1;
+ // A killed mounted Konnik becomes a new infantry entity rather than an
+ // immortal health reset; this retains kill accounting and deterministic IDs.
+ if(!t.s&&t.k==='konnik'&&S.civ?.[t.t]===29&&S.us.includes(t)&&
+   livePopulation(t.t)<capOf(t.t)){
+  const foot=addU(t.t,'footkonnik',t.x,t.y);
+  if(t.tg&&t.tg.hp>0&&isHostile(foot.t,t.tg.t)){foot.o='a';foot.tg=t.tg}
+ }
+ if(t.s){for(let j=0;j<t.s;j++)for(let i=0;i<t.s;i++){S.g[(t.y+j)*W+t.x+i]=0;S.gt[(t.y+j)*W+t.x+i]=0}if(t.cg)for(const c of t.cg)c.ld=null;rub.push({x:t.x,y:t.y,s:t.s,t:gt});emit('smk',t.x+t.s/2,t.y+t.s/2,18,{s:1.6,vz:1.4,l:2.4,c:'#777',r:5});emit('deb',t.x+t.s/2,t.y+t.s/2,14,{s:3,vz:4,l:1,c:'#8a7a62',r:2.2});sfx('collapse',t.x+t.s/2,t.y+t.s/2);if(t.t===0)rumble(400,.9,.5);if(t.k==='tc'&&tcEnds(t)){if(cmp){if(t.t===0)endGame('lose','Your Town Centre fell');else if(CAMP[cmp.i].tcw)endGame('win','The enemy Town Centre fell')}else if(vm===0){if(t.t===0)endGame('lose','Your Town Centre fell');else if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen');else note('A rival Town Centre has fallen')}else if(vm===6){if(t.t===0)endGame('lose','Your Town Centre fell in Sudden Death');else{for(const b of S.bs)if(b.t===t.t)b.hp=0;for(const u of S.us)if(u.t===t.t)u.hp=0;S.pj=S.pj.filter(p=>!p.a||p.a.t!==t.t);note(CIV[S.civ[t.t]].n+' was eliminated — Town Centre destroyed');if(!S.bs.some(b=>b.k==='tc'&&isHostile(0,b.t)&&b.hp>0))endGame('win','All hostile Town Centres have fallen in Sudden Death')}}}}else{sfx(U[t.k].sh?'sink':'death',t.x,t.y,{k:t.k});corp.push({x:t.x,y:t.y,k:t.k,tm:t.t,fd:t.fd||1,sh:!!U[t.k].sh,t:gt});emit('puff',t.x,t.y,6,{s:1.2,vz:1,l:.8,c:'#c8c0b0',r:3});if(corp.length>60)corp.shift();if(a.t===0)S.pl.kills++}}}
 
 // Demolition Ships explode once upon reaching a valid hostile target. All combat
 // mutations use the same deterministic tick as ordinary attacks: no timers,
@@ -110,6 +122,27 @@ function detonateShip(ship){
  corp.push({x:ship.x,y:ship.y,k:ship.k,tm:ship.t,fd:ship.fd||1,sh:true,t:gt});if(corp.length>60)corp.shift();
  emit('spark',ship.x,ship.y,22,{s:3,vz:4,l:.6,c:'#f5a64d',r:3});
  sfx('sink',ship.x,ship.y,{k:'demo'});
+ return true;
+}
+
+/* Tatar Flaming Camels detonate once in real combat. All victims are
+ * checked for hostility, and no client-supplied blast radius is trusted. */
+function detonateFlamingCamel(u){
+ if(!u||u.k!=='flamecamel'||u.hp<=0||u.dead||u.ld||u.o!=='a'||u.cd>0||
+    !S.us.includes(u))return false;
+ const target=u.tg;
+ if(!target||target.hp<=0||target.ld||!isHostile(u.t,target.t)||
+    !Number.isFinite(target.x)||!Number.isFinite(target.y)||
+    Math.hypot(u.x-target.x,u.y-target.y)>U.flamecamel.rng)return false;
+ const hit={k:'flamecamel',t:u.t,x:u.x,y:u.y};
+ for(const enemy of S.us)if(enemy!==u&&enemy.hp>0&&!enemy.ld&&isHostile(u.t,enemy.t)&&
+   Math.hypot(enemy.x-u.x,enemy.y-u.y)<=2.5)dmgT(hit,enemy);
+ for(const b of S.bs)if(b.hp>0&&isHostile(u.t,b.t)&&
+   Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)<=2.5)dmgT(hit,b);
+ u.hp=0;u.dead=1;u.o='i';u.tg=null;u.p=[];
+ corp.push({x:u.x,y:u.y,k:u.k,tm:u.t,fd:u.fd||1,sh:false,t:gt});
+ if(corp.length>60)corp.shift();
+ emit('spark',u.x,u.y,20,{s:2,vz:4,l:.7,c:'#f5a64d',r:3});
  return true;
 }
 
@@ -184,12 +217,12 @@ function tickConversion(u,dt){
 
 /* Classic combat projectiles, ranged upgrades and deterministic hit resolution.
  * Function bodies are relocated unchanged from simulation.js. */
-const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','rattan','arambai','caravel','gal','tw','cs','tca']);
+const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','rattan','arambai','caravel','gal','tw','cs','tca','kipchak']);
 // AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
 // Skirmishers gain accuracy but no faster reload; mounted archers gain a
 // smaller firing-speed increase; Chu Ko Nu gains a larger one.
 const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled','rattan']);
-const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon','cavarch']);
+const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon','cavarch','kipchak']);
 function rangedAccuracy(a){
  const d=U[a.k];if(!d)return 1;
  if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
@@ -245,6 +278,10 @@ function launchProjectile(a,t){
   aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
  }
  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ if(a.k==='kipchak'&&S.civ?.[a.t]===31){
+  const count=S.tech?.[a.t]?.eliteKipchak?2:1;
+  for(let i=0;i<count;i++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ }
  if(a.k==='hcan'){const shot=S.pj[S.pj.length-1];shot.sx=a.x;shot.sy=a.y;}
  // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
  // second projectile in the normal collision/damage path, not a visual effect.

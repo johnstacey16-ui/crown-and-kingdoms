@@ -284,7 +284,18 @@ function regionalTrainables(kind,civId){
  }
  return available;
 }
+/* Cuman Mercenaries: up to five free Kipchaks across each allied team's
+ * Castles. Claimed slots are stored in the recipient's technology ledger,
+ * so paid queues, cancellation, save/load and host orders agree. */
+function mercenaryKipchakAvailable(team,civs=S?.civ,techs=S?.tech){
+ if(!Number.isInteger(team)||!techs?.[team]||!Array.isArray(civs))return false;
+ if(!civs.some((id,other)=>other!==team&&id===31&&techs?.[other]?.ut31p&&
+   typeof diplomacyRelation==='function'&&diplomacyRelation(team,other)==='ally'))return false;
+ const used=techs[team].mercKipchakClaims||0;
+ return Number.isInteger(used)&&used>=0&&used<5;
+}
 const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
+ if(b.k==='krepost'&&civs?.[b.t]!==29)return [];
  const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
@@ -296,7 +307,8 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
  // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
  if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu,
-  ...(civs?.[b.t]===30&&techs?.[b.t]?.ut30p?['flamecamel']:[])])]:eligible.filter(k=>k!=='xbow');
+  ...(civs?.[b.t]===30&&techs?.[b.t]?.ut30p?['flamecamel']:[]),
+  ...(mercenaryKipchakAvailable(b.t,civs,techs)?['kipchak']:[])])]:eligible.filter(k=>k!=='xbow');
  // Chemistry is a real training prerequisite, also for authenticated peers.
  if(b.k==='dock')return eligible.filter(k=>k!=='cgal'||!!techs?.[b.t]?.chem);
  return eligible;

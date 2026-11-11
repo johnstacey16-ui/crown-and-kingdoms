@@ -83,6 +83,7 @@ if(u.wind>0&&(u.windTarget!==tg.netId||dist>range||minR&&dist<minR)){u.wind=0;u.
 if(minR&&dist<minR){if(u.st===2){u.p=[];return}if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,Math.max(minR+.5,range-.4),minR));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(dist<=range){u.p=[];
  if(u.k==='demo'){if(u.cd<=0)detonateShip(u);return}
+ if(u.k==='flamecamel'){if(u.cd<=0)detonateFlamingCamel(u);return}
  if(u.wind>0){
   u.wind=Math.max(0,u.wind-dt);
   if(u.wind===0){u.windTarget=null;hit(u,tg);u.cd=Math.max(0,attackReload(u)-(d.delay||0))}
