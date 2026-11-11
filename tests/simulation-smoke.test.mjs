@@ -702,7 +702,15 @@ globalThis.__CK_TEST__ = {
         for(let n=0;n<3;n++)addU(0,'mil',post.x+post.s/2+n*.3,post.y+post.s/2);
       }
       if(index===6){
-        const tower=between('tower','enemy',.33);
+        // The Northern Watch beacon must lie 10-36 tiles along the enemy
+        // approach. One-third of a large map can overshoot that actual rule.
+        const home=tcOf(0),enemy=tcOf(1);
+        if(!home||!enemy)throw Error('Northern Watch beacon needs both original capitals');
+        const dist=Math.hypot(enemy.x+enemy.s/2-home.x-home.s/2,
+          enemy.y+enemy.s/2-home.y-home.s/2);
+        const tower=between('tower','enemy',Math.min(24,dist*.35)/dist);
+        if(campaignNorthernBeaconTower()!==tower)
+          throw Error('Northern Watch audit must build an eligible forward pine-line Tower');
         for(let n=0;n<3;n++)addU(0,'arc',tower.x+tower.s/2+n*.3,tower.y+tower.s/2);
       }
       if(index===8){
