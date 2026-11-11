@@ -16,8 +16,9 @@ test('Armenian Galley fires two real projectiles but only one extra point of dam
  run("launchProjectile(ship,enemy)");
  assert.equal(run('S.pj.length'),2);
  assert.equal(run('S.pj.filter(p=>p.a.galleySecondary).length'),1);
+ const primary=run("(()=>{const hp=enemy.hp;dmgT({k:'gal',t:0},enemy);const dealt=hp-enemy.hp;enemy.hp=hp;return dealt})()");
  run('pjs(20)');
- assert.equal(run('enemy.hp'),491);
+ assert.equal(run('enemy.hp'),500-primary-1);
  assert.equal(run('S.pj.length'),0);
 });
 test('Bonus projectile requires an actual living Armenian Galley',()=>{
