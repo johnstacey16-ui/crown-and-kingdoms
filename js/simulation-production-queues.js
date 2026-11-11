@@ -7,6 +7,8 @@ function unitTrainingCost(team,kind,civs=S?.civ){
  const cost=U[kind]?.cost||{};
  if(kind==='kipchak'&&civs?.[team]!==31&&
   typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
+ if(civs?.[team]===35&&kind==='knight'&&S?.tech?.[team]?.ut35&&cost.g)
+  return {...cost,g:Math.ceil(cost.g*.4)};
  return civs?.[team]===26&&cost.g?{...cost,g:Math.ceil(cost.g*.85)}:cost;
 }
 function queuedPopulation(t){return S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.length:0),0)}
@@ -27,12 +29,20 @@ if(popOf(t)>=capOf(t)){
   typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(t);
  pay(t,cost);
  if(merc)S.tech[t].mercKipchakClaims=(S.tech[t].mercKipchakClaims||0)+1;
- b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t,...(merc?{mercKipchak:true}:{})});
+ b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t,paidCost:{...cost},...(merc?{mercKipchak:true}:{})});
  return true}
 function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();
  if(q.mercKipchak===true&&q.k==='kipchak')S.tech[b.t].mercKipchakClaims=
   Math.max(0,(S.tech[b.t].mercKipchakClaims||0)-1);
- else pay(b.t,typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):U[q.k].cost,1);
+ else{
+  // Refund the amount actually paid, even if Szlachta research completed
+  // while the unit was waiting. Bound restored save payloads to base prices.
+  const paid=q.paidCost,base=U[q.k].cost||{};
+  const valid=paid&&typeof paid==='object'&&!Array.isArray(paid)&&
+   Object.entries(paid).every(([resource,amount])=>['f','w','g','s'].includes(resource)&&
+    Number.isFinite(amount)&&amount>=0&&amount<=(base[resource]||0));
+  pay(b.t,valid?paid:typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):base,1);
+ }
  note('Cancelled - full refund');return true}
 
 // Presentation-only explanation for a completed queue head. The same live
