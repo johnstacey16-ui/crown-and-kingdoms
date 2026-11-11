@@ -101,7 +101,7 @@ assert.ok(technologyBuildings.castle.rs.includes('hoardings'),
   'Hoardings must be offered by the Castle, without replacing Conscription');
 assert.match(html, /cons:\{n:'Conscription',cost:\{f:150,g:150\},t:60,age:3\}/,
   'Conscription must have explicit cost, research time and Imperial Age requirement');
-assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','dock'\]\)/,
+assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','fchurch','dock'\]\)/,
   'Conscription must cover all military production buildings');
 // Exercise the production source rather than pinning one minified function body.
 const productionSource=readFileSync(new URL('../js/simulation-building-production.js',import.meta.url),'utf8');
