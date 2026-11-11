@@ -53,7 +53,7 @@
     const options = [], tech = world.tech?.[team] || {};
     const training = trOf(building,world.civ,world.tech);
     for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
-      label:unitName(kind,team),cost:{...unitTrainingCost(team,kind,world.civ)},locked:U[kind].age > world.age[team] ? 'Requires '+AG[U[kind].age].n : ''});
+      label:unitName(kind,team),cost:{...unitTrainingCost(team,kind,world.civ)},locked:unitEffectiveAge(team,kind,world.civ) > world.age[team] ? 'Requires '+AG[unitEffectiveAge(team,kind,world.civ)].n : ''});
     const research = rsOf(building,world.civ);
     if (building.k === 'tc' && AG[world.age[team]+1]) {
       const age = AG[world.age[team]+1];
@@ -105,7 +105,7 @@
         kind==='wonder'&&vm!==1?'Wonder victory is off':
         d.age>world.age[team]?'Requires '+AG[d.age].n:
         req&&!world.bs.some(b=>b.t===team&&b.k===req&&b.hp>0&&b.done)?'Requires '+B[req].n:'';
-      return {type:'build',value:kind,label:d.n,cost:{...d.cost},size:d.s,locked};
+      return {type:'build',value:kind,label:d.n,cost:{...civilizationBuildingCost(kind,team,world.civ)},size:d.s,locked};
     }));
   }
   function construct(units,order,team) {
