@@ -1,5 +1,5 @@
 {
-  "scope": "Current 38-partial-civilization runtime artwork ledger; procedural-only unique units and structures are explicitly unfinished",
+  "scope": "40 partial medieval civilizations; 79 non-defence unit identities including the Ratha alternate form. Procedural-only new sprites are explicitly unaccepted painted art.",
   "complete": false,
   "atlases": 57,
   "units": [
@@ -668,6 +668,51 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "ratha",
+      "name": "Ratha (Ranged)",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "rathaM",
+      "name": "Ratha (Melee)",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "chakram",
+      "name": "Chakram Thrower",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "shrivamsha",
+      "name": "Shrivamsha Rider",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "camelscout",
+      "name": "Camel Scout",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -910,14 +955,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "74 playable kinds, including seven newly integrated procedural-only DLC kinds",
-      "remaining": "Review all 24 procedural-only troops and independent directions at play scale"
+      "evidence": "79 non-defence unit identities including Ratha's alternate stance; 50 painted, 29 procedural only",
+      "remaining": "Review unpainted troop silhouettes, Ratha mode distinction and original independent directions on Xbox"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 74 kinds have painted multi-frame movement/activity art",
-      "remaining": "24 procedural-only kinds, independent direction, work, Elite and death variants"
+      "evidence": "50 of 79 identities have painted multi-frame movement/activity art",
+      "remaining": "29 procedural-only identities including newly added DLC forms, independent direction, work, Elite and death variants"
     },
     {
       "category": "Elite unit visuals",
