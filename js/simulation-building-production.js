@@ -21,7 +21,8 @@ function trainRate(b,k){const tech=S.tech[b.t]||{},conscription=tech.cons&&MILIT
  const elephant=['ele','eled','batele'].includes(k),
    camel=['camel','camelscout','mamel'].includes(k),
    allyGurjara=typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(b.t).includes(39);
- return conscription*cuman*(b.k==='bar'&&tech.perfusion?2:1)*
+ const roman=S.civ?.[b.t]===40&&tech.ut40p&&['mil','legionary','knight','centurion'].includes(k)?1.5:1;
+ return roman*conscription*cuman*(b.k==='bar'&&tech.perfusion?2:1)*
    (allyGurjara&&(camel||elephant)?1.25:1)*civilizationTeamWorkRate(b,'train',k)}
 
 /* Shared rally dispatch for newly trained workers, merchants and military.
