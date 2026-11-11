@@ -85,7 +85,16 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  }},
  ut2:{k:'ut34p',n:'Hauberk',cost:{f:500,g:400},t:60,age:3,fx:t=>{S.tech[t].hauberk=1}},
  elite:{k:'eliteSerjeant',n:'Elite Serjeant',cost:{f:800,g:650},t:45,age:3,
-  hpb:{serjeant:15},atkb:{serjeant:2},armor:{m:1,p:1}}}];
+  hpb:{serjeant:15},atkb:{serjeant:2},armor:{m:1,p:1}}},
+{n:'Poles',uu:'obuch',d:'Folwark farming, armour-stripping Obuch and discounted Knights',
+ fx:t=>{S.tech[t].polishFarms=1},
+ teamCombat:{scoutVsArcher:1},
+ ut:{k:'ut35',n:'Szlachta Privileges',cost:{f:500,g:300},t:45,age:2,
+  fx:t=>{S.tech[t].szlachtaPrivileges=1}},
+ ut2:{k:'ut35p',n:'Lechitic Legacy',cost:{f:750,g:550},t:60,age:3,
+  fx:t=>{S.tech[t].lechiticLegacy=1}},
+ elite:{k:'eliteObuch',n:'Elite Obuch',cost:{f:800,g:600},t:55,age:3,
+  hpb:{obuch:15},atkb:{obuch:2},armor:{m:1,p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
