@@ -64,7 +64,7 @@ const s=d.s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(
 if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders(k);if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note(k==='donjon'?'No available Sicilian Serjeants or villagers':'No available villagers');
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);
 if(!n)return note('Cannot build there');
-n.t=0;pay(0,d.cost);for(const u of vs){
+n.t=0;pay(0,d.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(n,0);for(const u of vs){
  const own=farmAvailableTo(u,n),other=!own?findReachableAutoNode(u,'f',36):null;
  if(own||other){u.o='g';u.tg=own?n:other.n;u.ct='f';u.p=own?[]:other.route;u.rp=own?0:1;u.ret=0;u.car=0}
  else{u.o='i';u.tg=null;u.p=[];u.rp=0}
