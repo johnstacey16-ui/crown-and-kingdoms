@@ -19,7 +19,7 @@ test('queued population is counted once when training',()=>{
  assert.equal(b.q.length,2);
 });
 test('full population prevents new training',()=>{
- const source=sim.slice(sim.indexOf('function train(b,k)'),sim.indexOf('function cancelQ('));
+ const source=sim.slice(sim.indexOf('function unitEffectiveAge('),sim.indexOf('function cancelQ('));
  const B={tc:{tr:['vil']}},U={vil:{age:0,cost:{f:50},t:10}};
  const b={t:0,k:'tc',hp:900,done:true,q:[],rs:null};
  const S={tech:[{}],age:[0],res:[{f:1000}]};

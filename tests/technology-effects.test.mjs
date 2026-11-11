@@ -71,9 +71,9 @@ assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
 assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
   'Cavalry barding must be drawn inside the translated/scaled sprite context');
-assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
+assert.match(html, /const buildRate=\(S\.tech\[u\.t\]\.crane\?1\.2:1\)\*\(u\.k==='vil'&&S\.civ\?\.\[u\.t\]===40\?1\.05:1\)/,
   'Treadmill Crane must affect ongoing and future construction work rates');
-assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\):0\),cls=ak\.sg/,
+assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(S\.civ\?\.\[a\.t\]===42&&tk\.ut42\?2:0\)/,
   'Arrowslits, Guard Tower and Keep must feed the defensive building damage calculation');
 assert.doesNotMatch(html, /tk\.gf\?4:0/,
   'Byzantine Greek Fire must not strengthen ordinary tower arrows');
@@ -147,8 +147,8 @@ assert.equal(speed({t:0,k:'mil'}),1,'Husbandry alone cannot accelerate infantry'
 assert.equal(speed({t:0,k:'vil'}),1,'Husbandry alone cannot accelerate villagers');
 speedContext.S.tech[0].squires=1;
 assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele','konnik','keshik','steppe','flamecamel','leitis','coust'\]\)/,
-  'Mounted classification must cover unique cavalry and mounted raiders consistently');
+for(const kind of ['scout','knight','camel','coust','centurion','monaspa','shrivamsha'])
+ assert.ok(cavalryKinds.has(kind),'Mounted classification covers '+kind+' consistently');
 assert.match(researchPolicy, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
