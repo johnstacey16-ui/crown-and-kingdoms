@@ -1,5 +1,5 @@
 {
-  "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
+  "scope": "Current 38-partial-civilization runtime artwork ledger; procedural-only unique units and structures are explicitly unfinished",
   "complete": false,
   "atlases": 57,
   "units": [
@@ -605,6 +605,69 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "serjeant",
+      "name": "Serjeant",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "obuch",
+      "name": "Obuch",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "winged",
+      "name": "Winged Hussar",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "husswagon",
+      "name": "Hussite Wagon",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "houfnice",
+      "name": "Houfnice",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "urumi",
+      "name": "Urumi Swordsman",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "thirisadai",
+      "name": "Thirisadai",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -823,20 +886,38 @@
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "donjon",
+      "name": "Donjon",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "folwark",
+      "name": "Folwark",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
   "checklist": [
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "67 playable kinds; see catalogue",
-      "remaining": "play-scale faction/direction review"
+      "evidence": "74 playable kinds, including seven newly integrated procedural-only DLC kinds",
+      "remaining": "Review all 24 procedural-only troops and independent directions at play scale"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 67 kinds have painted multi-frame movement/activity art",
-      "remaining": "17 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "50 of 74 kinds have painted multi-frame movement/activity art",
+      "remaining": "24 procedural-only kinds, independent direction, work, Elite and death variants"
     },
     {
       "category": "Elite unit visuals",
@@ -847,7 +928,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "24 building kinds; 22 painted, 2 original procedural fallback; fog-safe age presentation",
+      "evidence": "26 building kinds; 22 painted, 4 original procedural fallback",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {
