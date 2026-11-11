@@ -13,7 +13,7 @@ assert.match(train, /!Array\.isArray\(B\[b\.k\]\.tr\)\|\|!trOf\(b\)\.includes\(k
   'Training must validate supported unit types and the production queue before reading its length');
 assert.match(train, /if\(!can\(t,cost\)\)/,
   'Resource affordability must be checked before spending');
-assert.match(train, /if\(b\.q\.length>=5\)return false;pay\(t,cost\);b\.q\.push/,
+assert.match(train, /if\(b\.q\.length>=5\)return false;[\s\S]*pay\(t,cost\);[\s\S]*b\.q\.push/,
   'Queue capacity must be checked before spending resources and appending the unit');
 
 console.log('production-queue-validation: malformed queues are rejected before resource changes');

@@ -129,7 +129,8 @@ test('Flaming Camels explode once, hit multiple enemies and cannot hurt allies',
  const run=fixture(30);
  run("globalThis.cam=addU(0,'flamecamel',30,30);globalThis.target=addU(1,'knight',30.9,30);globalThis.extra=addU(1,'scout',31.3,30);globalThis.friend=addU(0,'scout',31,31);cam.o='a';cam.tg=target;cam.cd=0");
  const start=run('target.hp'),extra=run('extra.hp'),friendly=run('friend.hp');
- assert.equal(run('detonateFlamingCamel(cam)'),true);
+ assert.equal(run('detonateFlamingCamel(cam)'),true,
+  json(run,"({hp:cam.hp,o:cam.o,dead:cam.dead,cd:cam.cd,inArmy:S.us.includes(cam),target:cam.tg?.k,targetHp:target.hp,hostile:isHostile(cam.t,target.t),dist:Math.hypot(cam.x-target.x,cam.y-target.y),rng:U.flamecamel.rng})"));
  assert.equal(run('cam.dead'),1);
  assert.ok(run('target.hp')<start);
  assert.ok(run('extra.hp')<extra);

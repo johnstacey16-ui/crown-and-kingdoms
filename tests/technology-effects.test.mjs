@@ -43,7 +43,7 @@ context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
 assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)\?\(\(ta\.armR\?1:0\)\+\(ta\.armR2\?1:0\)\+\(ta\.armR3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(CAVARM\.has\(t\.k\)\?\(\(ta\.armC\?1:0\)\+\(ta\.armC2\?1:0\)\+\(ta\.armC3\?\(cls==='p'\?2:1\):0\)\):0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele'\]\)/,
+assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele','konnik','keshik','steppe','flamecamel'\]\)/,
   'Cavalry armour must be restricted to mounted units in the current roster');
 assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
@@ -141,7 +141,7 @@ assert.equal(speed({t:0,k:'mil'}),1,'Husbandry alone cannot accelerate infantry'
 assert.equal(speed({t:0,k:'vil'}),1,'Husbandry alone cannot accelerate villagers');
 speedContext.S.tech[0].squires=1;
 assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele'\]\)/,
+assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan','batele','konnik','keshik','steppe','flamecamel'\]\)/,
   'Mounted classification must cover unique cavalry and mounted raiders consistently');
 assert.match(researchPolicy, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
