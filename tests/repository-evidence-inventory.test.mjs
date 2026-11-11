@@ -49,3 +49,20 @@ test('active working documents keep one compact status and preserve the 48-task 
   assert.match(text,/ef2a6356692626bd60900a60c9d3e42db94da694/,
    'Preserve a navigable revision containing the unabridged historical checkpoint log');
 });
+
+test('development branch runs GitHub validation without automatic Vercel previews',()=>{
+ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+ const vercel=JSON.parse(read('vercel.json'));
+ assert.equal(vercel.git?.deploymentEnabled?.development,false,
+  'disable deployment creation, not merely the build step');
+ assert.notEqual(vercel.git?.deploymentEnabled?.main,false,
+  'intentional production releases on main remain possible');
+ assert.equal(vercel.ignoreCommand,'node scripts/vercel-deployment-gate.mjs',
+  'retain the existing deliberate production [deploy] gate');
+ const workflow=read('.github/workflows/game-validation.yml');
+ assert.match(workflow,/push:\s*\n\s*branches: \[main, development\]/,
+  'both development and main must keep quick/focused GitHub checks');
+ assert.match(workflow,/pull_request:\s*\n\s*branches: \[main\]/);
+ assert.match(read('AGENTS.md'),/Working branch:\*\* `development`/);
+ assert.match(read('docs/VERCEL_RELEASES.md'),/merge.*development.*main/i);
+});

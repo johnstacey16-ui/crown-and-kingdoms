@@ -20,7 +20,7 @@
 
 ## Implementation order for the next conversation
 
-The owner has approved autonomous incremental continuation. Make meaningful changes, verify in hosted CI, and merge focused PRs to `main` without routine approval prompts. **Prioritize the owner-directed full game/content completion batches above; address cleanup and reliability where needed to make each increment correct and shippable.** Maintain a single honest VERIFIED / PARTIAL / UNVERIFIED status, not a stream of duplicate audit notes.
+The owner approves autonomous work on `development` with GitHub CI; merge accepted work into production `main` only for an explicit tested `[deploy]` release. `vercel.json` disables automatic `development` previews. **Prioritize full-game content completion** over cleanup. Keep VERIFIED / PARTIAL / UNVERIFIED status accurate. See [controlled releases](docs/VERCEL_RELEASES.md).
 
 ### P0 — deployed revision, remaining correctness, and acceptance
 
