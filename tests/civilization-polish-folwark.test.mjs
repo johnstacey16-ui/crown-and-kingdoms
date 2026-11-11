@@ -150,3 +150,13 @@ test('current-build saves retain Polish Folwark, farm food claim, Obuch armour l
  assert.equal(run("S.us.some(u=>u.k==='obuch'&&u.obuchArmorShred===2)"),true);
  assert.equal(run('S.tech[0].ut35'),1);
 });
+
+
+test('technology-tree cost preview reads supplied research state, not unrelated live flags',()=>{
+ const run=game();
+ const normal=copy(run,"technologyTreeModel(0,S).buildings.find(b=>b.id==='stable').units.find(u=>u.id==='knight').cost");
+ const preview=copy(run,"technologyTreeModel(0,{civ:[35,0],tech:[{ut35:1},{}],age:[3,3]}).buildings.find(b=>b.id==='stable').units.find(u=>u.id==='knight').cost");
+ assert.equal(normal.g,75);
+ assert.equal(preview.g,30);
+ assert.equal(run('S.tech[0].ut35'),undefined,'preview cannot change real research state');
+});
