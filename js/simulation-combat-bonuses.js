@@ -94,7 +94,7 @@ function combatArmor(t,cls){
 const CK_TRAMPLE_DAMAGE=Symbol('ck.trample');
 function romanChargeDamage(a){
  if(!a||S.civ?.[a.t]!==40||!S.tech?.[a.t]?.ut40p||
-  !['mil','legionary','knight','centurion'].includes(a.k)||!S.us.includes(a)||
+  !['mil','legionary','knight','centurion'].includes(a.k)||!S.us.includes(a)||a.hp<=0||a.ld||
   !Number.isFinite(a.romanChargeReadyAt)||!Number.isFinite(S.t)||S.t<a.romanChargeReadyAt)
   return 0;
  return 5;
