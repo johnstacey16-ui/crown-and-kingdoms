@@ -8,7 +8,7 @@ test('readiness metrics report actual content without claiming full completion',
  const r=professionalReadiness(inventory,graphics,atlas);
  assert.equal(r.metrics.civilizations,26);
  assert.equal(r.metrics.eliteResearchLines,26);
- assert.equal(r.metrics.secondUniqueTechnologies,20);
+ assert.equal(r.metrics.secondUniqueTechnologies,23);
  assert.equal(r.metrics.totalUnits,50);
  assert.equal(r.metrics.paintedUnitBases,50);
  assert.equal(r.metrics.movementAndAttackSheets,50);

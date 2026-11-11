@@ -2,7 +2,11 @@
  * Rally dispatch is owned by simulation-building-production.js. */
 function upB(b,dt){if(!b||!b.done||b.hp<=0||!Number.isFinite(dt)||dt<=0)return;
 if(b.cg?.length)healGarrison(b,dt);
-if(b.k==='monastery')S.res[b.t].g+=S.rel.filter(q=>q.m===b).length*.5*dt;// Celtic Stronghold heals allied infantry near a living Castle at 30 HP/min.
+if(b.k==='monastery'){
+ // Hunnic Atheism halves relic income of hostile kingdoms, not allies.
+ const atheist=S.civ?.some((id,team)=>id===17&&S.tech?.[team]?.ut17p&&isHostile(team,b.t));
+ S.res[b.t].g+=S.rel.filter(q=>q.m===b).length*.5*(atheist?.5:1)*dt;
+}// Celtic Stronghold heals allied infantry near a living Castle at 30 HP/min.
 // Scan once per second per Castle, not at the full simulation tick rate.
 if(b.k==='castle'&&S.civ?.[b.t]===6&&S.tech[b.t]?.ut6p){
  b.strongholdHealCd=(b.strongholdHealCd||0)-dt;
