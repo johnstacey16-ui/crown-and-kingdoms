@@ -11,7 +11,7 @@ function aiTeamRoster(t){
   if(u.k==='vil'&&!u.ld)vil.push(u);
   else if(!u.ld&&!U[u.k].sh&&u.k!=='scout'&&u.k!=='king'&&u.k!=='cart'&&!u.retreating)arm.push(u);
   if(u.k==='fish'&&!u.ld)fish.push(u);
-  if(u.k==='scout'&&!u.ld)scouts.push(u);
+  if(['scout','camelscout'].includes(u.k)&&!u.ld)scouts.push(u);
   if(['gal','fire','demo','cgal','turtle','caravel','thirisadai'].includes(u.k)&&!u.ld)galleys.push(u)
  }
  for(const b of S.bs)if(b&&b.t===t&&b.hp>0){
