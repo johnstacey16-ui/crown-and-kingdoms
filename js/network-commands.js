@@ -279,7 +279,11 @@
       return false;
     }
 
-    if (!activeUnits(entities)) return false;
+    // Mule Carts are the sole movable buildings. Keep every other order behind
+    // the normal live-unit gate, including hostile/forged building commands.
+    const muleBuildingOrder=entities.length===1&&activeBuildings(entities)&&
+      entities[0].k==='mule'&&['move','stop','mule-auto'].includes(order.type);
+    if (!activeUnits(entities)&&!muleBuildingOrder) return false;
     if (order.type === 'formation') {
       if (entities.some(u=>!militaryUnit(u)||!Number.isFinite(u.x)||!Number.isFinite(u.y)||
           u.x<0||u.y<0||u.x>=W||u.y>=H)) return false;
