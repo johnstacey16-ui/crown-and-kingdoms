@@ -80,7 +80,12 @@ test('test is opt-in, no input interception, no saved settings and reset when ex
 });
 
 test('graphics recovery drops the old tint readback context before allocating new artwork',()=>{
- const {run}=game();
+ // The standard simulation harness excludes the optional art loader. Include
+ // its real module for this recovery test instead of inventing a cache stub.
+ const {source,sandbox}=headlessGame();
+ vm.createContext(sandbox);
+ vm.runInContext(source+'\n'+readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+'\nglobalThis.evaluate=code=>eval(code);',sandbox);
+ const run=sandbox.evaluate;
  run('const oldScratch=document.createElement("canvas");oldScratch.width=180;oldScratch.height=190;TEAM_FRAME_CACHE.scratch=oldScratch;teamFrameScratchContext=oldScratch.getContext("2d")');
  assert.equal(run('TEAM_FRAME_CACHE.scratch.width'),180);
  assert.equal(run('teamFrameScratchContext!==null'),true);
