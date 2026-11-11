@@ -93,6 +93,19 @@ function applyStartingCivilizationBonuses(team){
      }
   }
  }
+ if(S.civ?.[team]===42){
+  // One free Georgian starting Mule Cart; no random draws or paid construction.
+  const tc=S.bs.find(b=>b?.t===team&&b.k==='tc'&&b.done&&b.hp>0);
+  if(tc)for(let radius=3,placed=false;radius<=9&&!placed;radius++)
+   for(let dy=-radius;dy<=radius&&!placed;dy++)
+    for(let dx=-radius;dx<=radius&&!placed;dx++){
+     if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+     const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+     if(x<1||y<1||x>=W-1||y>=H-1||S.g[i]||S.wt[i]===1||S.nd[i]||
+       S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+     addB(team,'mule',x,y,true);placed=true;
+    }
+ }
  applied.add(team);
 }
 

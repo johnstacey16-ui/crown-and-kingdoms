@@ -127,8 +127,7 @@ Object.assign(U,{
  legionary:{n:'Legionary',hp:75,sp:1.02,dmg:12,rng:.9,cd:1.9,arm:2,lk:'mil',
   cost:{f:60,g:20},t:22,c:'#a76b4f',r:10,age:3,bn:{mil:3,spear:3}}
 });
-/* Distinct Caucasus faction troops; Fortified Church and Mule Cart mechanics
- * remain unimplemented rather than masquerading as existing buildings. */
+/* Distinct Caucasus faction troops retain their own combat and economic roles. */
 Object.assign(U,{
  composite:{n:'Composite Bowman',hp:45,sp:1.1,dmg:6,rng:5,cd:1.8,delay:.3,ps:9,acc:.9,arm:0,
   cost:{w:40,g:50},t:18,c:'#a27859',r:9,age:2,lk:'arc'},
@@ -170,9 +169,12 @@ B.folwark={n:'Folwark',s:2,hp:300,cost:{w:100},bt:15,age:0,
 /* Mountain Royals monastery replacement: faction-locked and fully paid. */
 B.fchurch={...B.monastery,n:'Fortified Church',hp:2400,cost:{w:200},bt:50,
  tr:['mon','warpriest'],atk:'tw',onlyCivs:[41,42]};
+/* Regional mobile economic building; never the merchant Trade Cart unit. */
+B.mule={n:'Mule Cart',s:1,hp:300,cost:{f:20,w:80},bt:25,age:0,
+ rs:['axe','saw','gmine','smine'],onlyCivs:[41,42]};
 const NM={w:'Tree',f:'Food',g:'Gold',s:'Stone'},TASK={i:'Idle',m:'Moving',a:'Attacking',g:'Gathering',b:'Building',p:'Patrolling',v:'Converting',r:'Fetching relic',B:'Boarding',U:'Unloading'};
 const RN={f:'Food',w:'Wood',g:'Gold',s:'Stone'},TR=[['w',100,'g',70],['f',100,'g',70],['g',80,'w',100],['g',80,'f',100],['g',90,'s',100]];
-const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','folwark','mine','bar','dock']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['rng','stable','smith','market','donjon']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','fchurch'],single:'castle'}];
+const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','folwark','mine','mule','bar','dock']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['rng','stable','smith','market','donjon']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','fchurch'],single:'castle'}];
 const TE={devotion:{n:'Devotion',cost:{f:100,g:200},t:40,age:2},faith:{n:'Faith',cost:{f:550,g:750},t:60,age:3,pre:'devotion'},heresy:{n:'Heresy',cost:{g:1000},t:60,age:2},redemption:{n:'Redemption',cost:{g:475},t:50,age:2},atonement:{n:'Atonement',cost:{g:325},t:40,age:2},sanctity:{n:'Sanctity',cost:{g:175},t:60,age:2,hpb:{mon:15}},fervor:{n:'Fervor',cost:{g:140},t:50,age:2},blockPrinting:{n:'Block Printing',cost:{g:200},t:55,age:3},illumination:{n:'Illumination',cost:{g:120},t:65,age:3},theocracy:{n:'Theocracy',cost:{g:200},t:75,age:3},herbalMedicine:{n:'Herbal Medicine',cost:{g:200},t:35,age:2},
 arch:{n:'Architecture',cost:{f:300,w:200},t:70,age:3,pre:'mas',fx:t=>{
  for(const b of S.bs)if(b.t===t&&b.hp>0){

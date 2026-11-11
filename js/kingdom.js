@@ -315,6 +315,7 @@ function civilizationBuildingAllowed(kind,team,civs=S?.civ){
  const d=B[kind],id=civs?.[team];return !!d&&
   !(kind==='mill'&&id===35)&&
   !(kind==='monastery'&&(id===41||id===42))&&
+  !(('lumber'===kind||'mine'===kind)&&(id===41||id===42))&&
   (!Number.isInteger(d.onlyCiv)||id===d.onlyCiv)&&
   (!Array.isArray(d.onlyCivs)||d.onlyCivs.includes(id));
 }
@@ -339,7 +340,8 @@ function grantArmenianFirstChurchRelic(b){
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ){
  const cost=B[kind]?.cost||{};
- return civs?.[team]===36&&['smith','univ','monastery'].includes(kind)&&cost.w?
+ return kind==='mule'&&civs?.[team]===41?{f:15,w:60}:
+  civs?.[team]===36&&['smith','univ','monastery'].includes(kind)&&cost.w?
   {...cost,w:Math.max(0,cost.w-100)}:cost;
 }
 /* One trainability boundary for solo, authenticated peer commands and AI. */
