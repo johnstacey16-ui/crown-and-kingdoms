@@ -12,7 +12,8 @@ function resourceGatherRate(n){
  return GR;
 }
 function baseGatherRate(u,n){return u.k==='vil'||n.fi?resourceGatherRate(n):GR}
-function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)}
+function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)+
+ (S.civ?.[u.t]===37&&(u.k==='fish'||u.k==='vil'&&u.tg?.k==='f'&&!u.tg?.fm)?15:0)}
 
 function farmAvailableTo(u,n){
  if(!n?.fm)return true;
