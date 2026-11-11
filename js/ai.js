@@ -103,6 +103,7 @@ if(S.age[t]>=1&&vil.length>=6&&!cnt('bar'))aiBuild(vil,'bar',t);
 if(S.age[t]>=1&&!cnt('market')&&vil.length>=14&&arm.length>=6)aiBuild(vil,'market',t);
 // Paid Castle/Imperial expansions stop at two/three live centres, including foundations.
 if(cnt('tc')<aiTownCentreLimit(S.age[t],S.t,vil.length,vm)&&can(t,B.tc.cost))aiBuild(vil,'tc',t);
+if(S.age[t]>=1&&S.civ?.[t]===34&&cnt('donjon')<2&&vil.length>=12&&can(t,B.donjon.cost))aiBuild(vil,'donjon',t);
 if(S.age[t]>=1&&vil.length>=12&&bl.filter(b=>b.k==='wall'&&b.hp>0).length<PERS[aip].wl&&(cnt('tower')>=Math.min(PERS[aip].tw,2)||R.s>=130))aiWall(vil,tc,t);
 if(S.age[t]>=1&&vil.length>=9&&!cnt('dock')&&(arm.length>=6||navalThreatCount>0)&&(navalThreatCount>0||S.nodes.some(n=>n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<24)))aiDock(vil,tc,t);
 aiManageFishingShips(fish,hostileFleet,R);
