@@ -68,7 +68,24 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
    u.cd=0;u.wind=0;u.windTarget=null;
   }
  }},
- elite:{k:'eliteCoustillier',n:'Elite Coustillier',cost:{f:950,g:800},t:60,age:3,hpb:{coust:20},atkb:{coust:2},armor:{p:1}}}];
+ elite:{k:'eliteCoustillier',n:'Elite Coustillier',cost:{f:950,g:800},t:60,age:3,hpb:{coust:20},atkb:{coust:2},armor:{p:1}}},
+{n:'Sicilians',uu:'serjeant',d:'Fortified infantry can build Donjons; First Crusade and Hauberk',
+ fx:t=>{hpbF(t,'serjeant',5)},
+ ut:{k:'ut34',n:'First Crusade',cost:{f:300,g:600},t:50,age:2,fx:t=>{
+  // Grant up to five real Serjeants per owned Town Centre, at most 25,
+  // respecting current population limits and open spawn cells.
+  let summoned=0;
+  for(const tc of S.bs)if(tc.t===t&&tc.k==='tc'&&tc.hp>0&&tc.done){
+   for(let i=0;i<5&&summoned<25;i++){
+    if(livePopulation(t)>=capOf(t))return;
+    const pos=spawnPos(tc);if(!pos)break;
+    addU(t,'serjeant',pos[0],pos[1]);summoned++;
+   }
+  }
+ }},
+ ut2:{k:'ut34p',n:'Hauberk',cost:{f:500,g:400},t:60,age:3,fx:t=>{S.tech[t].hauberk=1}},
+ elite:{k:'eliteSerjeant',n:'Elite Serjeant',cost:{f:800,g:650},t:45,age:3,
+  hpb:{serjeant:15},atkb:{serjeant:2},armor:{m:1,p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
