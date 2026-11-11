@@ -648,7 +648,7 @@ globalThis.__CK_TEST__ = {
         let clear=true;
         for(let yy=y;yy<y+size&&clear;yy++)for(let xx=x;xx<x+size;xx++){
           const cell=yy*W+xx;
-          if(S.wt[cell]===1||S.g[cell]||S.nd[cell]){clear=false;break}
+          if(S.wt[cell]!==0||S.g[cell]||S.nd[cell]){clear=false;break}
         }
         if(clear)return addB(0,kind,x,y,true);
       }
@@ -725,8 +725,26 @@ globalThis.__CK_TEST__ = {
         const homeY=home.y+home.s/2,side=home.x+home.s/2<river(homeY)?-1:1;
         const kind=index===16?'tower':'castle';
         for(const frac of [.22,.78]){
-          const y=H*frac,x=river(y)+side*12;
-          if(!placeNear(kind,x,y,3))throw Error('No buildable royal Causeway ford position');
+          let built=null;
+          // The original Causeway is not a rectangular flat field: search
+          // along its actual banks and validate the real fortification rule.
+          for(const shift of [0,-2,2,-4,4,-7,7,-10,10,-13,13]){
+            if(built)break;
+            const y=H*frac+shift;
+            for(const bank of [12,16,9,20,6,24,4,28]){
+              const x=river(y)+side*bank;
+              const candidate=placeNear(kind,x,y,0);
+              if(!candidate)continue;
+              const actual=index===16?campaignCausewayFordTower(frac):campaignCausewayFordCastle(frac);
+              if(actual===candidate){built=candidate;break}
+              // An ineligible test-placement attempt must not leave phantom
+              // structures blocking a later, genuinely valid candidate.
+              S.bs.splice(S.bs.indexOf(candidate),1);
+              for(let yy=candidate.y;yy<candidate.y+candidate.s;yy++)
+              for(let xx=candidate.x;xx<candidate.x+candidate.s;xx++)S.g[yy*W+xx]=0;
+            }
+          }
+          if(!built)throw Error('No actual legal royal Causeway ford position for '+kind+' at '+frac);
         }
       }
       // These optional objectives are observed while their timing and living

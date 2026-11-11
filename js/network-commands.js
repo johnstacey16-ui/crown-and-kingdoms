@@ -33,7 +33,7 @@
         for (let x = Math.max(0,cx-radius); x <= Math.min(width-1,cx+radius); x++)
           if ((x-cx)**2+(y-cy)**2 <= radius*radius) cells[y*width+x] = 1;
     }
-    for (const u of world.us) reveal(u,unitSight(u));
+    for (const u of world.us) reveal(u,unitSight(u,world));
     for (const b of world.bs) reveal(b,(b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8)+arrowSightBonus(b));
     return cells;
   }

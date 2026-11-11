@@ -99,6 +99,7 @@ const FOCUSED=[
  "tests/civilization-dravidian-naval.test.mjs",
  "tests/civilization-roman-legionary.test.mjs",
  "tests/civilization-caucasus-royals.test.mjs",
+ "tests/civilization-armenian-infantry-sight.test.mjs",
  "tests/civilization-caucasus-projectiles-repairs.test.mjs",
  "tests/civilization-georgian-elevation.test.mjs",
  "tests/civilization-fortified-church.test.mjs",

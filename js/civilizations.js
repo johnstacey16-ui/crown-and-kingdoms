@@ -140,7 +140,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
   fx:t=>{S.tech[t].comitatenses=1}},
  elite:{k:'eliteCenturion',n:'Elite Centurion',cost:{f:950,g:800},t:55,age:3,
   hpb:{centurion:20},atkb:{centurion:2},armor:{m:1,p:1}}},
-{n:'Armenians',uu:'composite',
+{n:'Armenians',uu:'composite',teamEconomic:{infantrySight:2},
  d:'Composite Bowmen bypass armour, Warrior Priests heal and fight, early infantry upgrades',
  fx:t=>{S.tech[t].armenianInfantry=1},
  ut:{k:'ut41',n:'Cilician Fleet',cost:{w:350,g:300},t:45,age:2,

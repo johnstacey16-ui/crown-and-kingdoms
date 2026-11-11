@@ -282,7 +282,14 @@ function detonateFlamingCamel(u){
 // Unchanged source relocated from simulation.js; retain classic global names.
 function resetConversion(u){u.cv=0;u.cvNext=0;u.cvTargetId=null;u.cvTeam=null}
 function conversionRange(u,target){return target?.s||['ram','treb'].includes(target?.k)?1:9+(S.tech[u.t]?.blockPrinting?3:0)}
-function unitSight(u){return u.k==='vil'?4:u.k==='mon'?11+(S.tech[u.t]?.blockPrinting?3:0):8+arrowSightBonus(u)}
+function unitSight(u,world=S){
+ const base=u.k==='vil'?4:u.k==='mon'?11+(world?.tech?.[u.t]?.blockPrinting?3:0):8+arrowSightBonus(u);
+ // The Armenian +2 infantry sight is an allied TEAM bonus, not an individual
+ // researched flag. Use supplied host world for authenticated team visibility.
+ const team=INFARM.has(u.k)&&typeof civilizationTeamBonusAdd==='function'?
+  civilizationTeamBonusAdd(u.t,'infantrySight',world):0;
+ return base+team;
+}
 const CONVERSION_SIEGE=new Set(['ram','mang','scor','treb','bomb','husswagon','houfnice']);
 function canConvert(u,target){
  if(!u||u.k!=='mon'||u.hp<=0||u.ld||u.rel||u.st===4||!S.us.includes(u)||
