@@ -283,6 +283,7 @@ function rangedAccuracy(a){
 }
 function attackReload(u){
  const base=(u.k==='knight'&&S.tech[u.t]?.pala)||(u.k==='scout'&&S.tech[u.t]?.huss)?1.9:u.k==='fire'&&S.tech[u.t]?.fastFire?.25:U[u.k]?.cd||2;
+ if(S.civ?.[u.t]===37&&['skirm','eled'].includes(u.k))return base/1.25;
  if(u.k==='treb'&&S.civ?.[u.t]===11&&S.tech[u.t]?.ut11p)return base/1.33;
  if(S.civ?.[u.t]===29&&S.tech?.[u.t]?.ut29&&['scout','knight','konnik'].includes(u.k))return base/1.25;
  // Byzantines fire their Fire Ships 25% more often even before Greek Fire.
