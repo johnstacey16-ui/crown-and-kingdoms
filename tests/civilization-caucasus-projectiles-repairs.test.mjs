@@ -90,3 +90,23 @@ test('Foreign enemies, destroyed buildings and foundations cannot receive repair
  run("house.done=true;house.hp=0");
  assert.equal(run("repairBuildingWithResources(worker,house,1)"),0);
 });
+
+test('Completed paid repairs reach exact max HP and stop repair orders despite float rounding',()=>{
+ const run=game(0);
+ run("house.hp=house.mh-1;worker.x=house.x-.5;worker.y=house.y+.5;worker.o='b';worker.tg=house");
+ for(let i=0;i<30;i++)run("upU(worker,1/30)");
+ assert.equal(run("house.hp"),run("house.mh"));
+ run("upU(worker,1/30)");
+ assert.equal(run("worker.o"),'i','the Villager stops repairing after reaching max HP');
+ assert.equal(run("worker.tg"),null);
+ assert.ok(run("S.res[0].w")<10000);
+});
+test('Only microscopic repair rounding error is snapped; unfunded damage is never restored',()=>{
+ const run=game(0);
+ run("house.hp=house.mh-1;S.res[0].w=0;worker.x=house.x-.5;worker.y=house.y+.5");
+ assert.equal(run("repairBuildingWithResources(worker,house,2)"),0);
+ assert.equal(run("house.hp"),run("house.mh-1"));
+ run("house.hp=house.mh-Number.EPSILON*house.mh");
+ assert.equal(run("repairBuildingWithResources(worker,house,1/30)"),0);
+ assert.equal(run("house.hp"),run("house.mh"));
+});

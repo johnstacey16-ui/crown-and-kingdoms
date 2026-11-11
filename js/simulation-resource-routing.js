@@ -222,6 +222,9 @@ function repairBuildingWithResources(worker,building,dt){
   !Number.isFinite(building.mh)||building.mh<=0||
   !S.res?.[worker.t]||!B[building.k]||
   (building.t!==worker.t&&diplomacyRelation(worker.t,building.t)!=='ally'))return 0;
+ // Binary fractions can leave a 200-HP house at 199.99999999999994.
+ // Close only machine-scale remainders; ordinary health needs paid repairs.
+ if(building.mh-building.hp<1e-8){building.hp=building.mh;return 0}
  const rate=building.mh*dt/(S.tech[worker.t]?.crane?32:40)*
   (worker.k==='vil'&&S.civ?.[worker.t]===40?1.05:1)*
   (typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(worker):1);
@@ -240,5 +243,6 @@ function repairBuildingWithResources(worker,building,dt){
  if(gain<=1e-9)return 0;
  for(const [k,unit] of Object.entries(cost))resource[k]=Math.max(0,resource[k]-gain*unit);
  building.hp=Math.min(building.mh,building.hp+gain);
+ if(building.mh-building.hp<1e-8)building.hp=building.mh;
  return gain;
 }
