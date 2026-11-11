@@ -74,7 +74,12 @@
     const options=[{type:'stop',label:'Stop',cost:{},locked:''}];
     if(unit.k==='mon')options.push({type:'convert',label:'Convert',targeted:true,cost:{},locked:unit.rel?'Carrying a relic':(unit.faith??100)<100?'Faith recharging':''});
     if (!U[unit.k].sh) options.push({type:'garrison',label:'Garrison / board transport',targeted:true,cost:{},locked:''});
-    if (unit.k==='vil' || U[unit.k].sh) options.push({type:'repair',label:unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
+    if (unit.k==='vil' || U[unit.k].sh || unit.k==='serjeant'&&world.civ?.[team]===34)
+      options.push({type:'repair',label:unit.k==='serjeant'?'Repair owned Donjon':unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
+    if (unit.k==='serjeant' && world.civ?.[team]===34) {
+      const donjon=buildOptions(world,team).flat().find(entry=>entry.value==='donjon');
+      if(donjon)options.push({...donjon,targeted:true});
+    }
     if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
       options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
     if (militaryUnit(unit)) options.push(
