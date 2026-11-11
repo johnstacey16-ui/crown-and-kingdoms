@@ -139,7 +139,7 @@ CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite
  * confirmed research and matching unique unit. */
 function eliteUniqueUnitUpgrade(k,t){
  const civ=Number.isInteger(t)?CIV[S?.civ?.[t]]:null;
- return civ?.uu===k&&civ.elite&&S?.tech?.[t]?.[civ.elite.k]?civ.elite:null;
+ return (civ?.uu===k||civ?.uu==='ratha'&&k==='rathaM')&&civ.elite&&S?.tech?.[t]?.[civ.elite.k]?civ.elite:null;
 }
 function civilizationUniqueUnitTargetBonus(a,target){
  const civ=Number.isInteger(a?.t)?CIV[S?.civ?.[a.t]]:null;
