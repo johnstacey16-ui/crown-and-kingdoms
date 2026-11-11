@@ -340,6 +340,10 @@ function rangedAccuracy(a){
  if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
+function romanScorpionMinimumRange(u){
+ if(u?.k!=='scor')return 0;
+ return typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(u.t).includes(40)?1:2;
+}
 function romanCenturionAura(u){
  if(!u||!['mil','legionary'].includes(u.k)||!Array.isArray(S?.us))return 1;
  for(const c of S.us)if(c&&c.k==='centurion'&&c.t===u.t&&S.civ?.[c.t]===40&&c.hp>0&&!c.ld&&
