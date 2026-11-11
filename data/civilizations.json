@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-34-v1",
-  "description": "29 active medieval civilizations (3 newly appended). IDs 0–25 retained; content remains partial and unaccepted across DLC.",
+  "inventoryVersion": "ck-current-medieval-roster-35-v1",
+  "description": "35 active medieval civilizations with stable IDs 0–34. Gameplay, technology, DLC rules, regional units and original art remain partial.",
   "rulesets": [
     {
       "id": "medieval",
@@ -83,7 +83,8 @@
           30,
           31,
           32,
-          33
+          33,
+          34
         ],
         "buildings": [
           "rng"
@@ -886,6 +887,28 @@
       "uniqueTechnology": "ut33",
       "secondUniqueTechnology": "ut33p",
       "eliteUpgrade": "eliteCoustillier",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 34,
+      "name": "Sicilians",
+      "uniqueUnit": "serjeant",
+      "uniqueTechnology": "ut34",
+      "secondUniqueTechnology": "ut34p",
+      "eliteUpgrade": "eliteSerjeant",
       "rulepack": "medieval",
       "status": "partial",
       "researchFlags": {
