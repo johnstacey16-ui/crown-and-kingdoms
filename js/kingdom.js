@@ -316,7 +316,7 @@ function mercenaryKipchakAvailable(team,civs=S?.civ,techs=S?.tech){
  return Number.isInteger(used)&&used>=0&&used<5;
 }
 const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
- if(b.k==='krepost'&&civs?.[b.t]!==29)return [];
+ if((b.k==='krepost'&&civs?.[b.t]!==29)||(b.k==='donjon'&&civs?.[b.t]!==34))return [];
  const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
@@ -370,7 +370,8 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Malians':'xat',
  'Koreans':'xat',
  'Magyars':'xat',
- 'Portuguese':'xat','Burmese':'xa','Vietnamese':'xat','Bulgarians':'xat','Tatars':'xat','Cumans':'xt','Lithuanians':'xat','Burgundians':'xa'
+ 'Portuguese':'xat','Burmese':'xa','Vietnamese':'xat','Bulgarians':'xat','Tatars':'xat','Cumans':'xt','Lithuanians':'xat','Burgundians':'xa',
+ 'Sicilians':'xa'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -411,7 +412,8 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Malians':'mltcpvaesk',
  'Koreans':'mltcphvaesku',
  'Magyars':'mltcphvaeskdu',
- 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku'
+ 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku',
+ 'Sicilians':'mltcphvaesku'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -429,7 +431,8 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Slavs':'bh','Huns':'rbh','Goths':'rbh','Aztecs':'r',
  'Mayans':'r','Incas':'r','Ethiopians':'rh','Malians':'bh',
  'Koreans':'rh','Magyars':'rbh',
- 'Portuguese':'rbh','Burmese':'rbh','Vietnamese':'rbh','Bulgarians':'rbh','Tatars':'rbh','Cumans':'rbh','Lithuanians':'rbh','Burgundians':'rbh'
+ 'Portuguese':'rbh','Burmese':'rbh','Vietnamese':'rbh','Bulgarians':'rbh','Tatars':'rbh','Cumans':'rbh','Lithuanians':'rbh','Burgundians':'rbh',
+ 'Sicilians':'rbh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -468,7 +471,8 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Malians':'dfhrasvbtm',
  'Koreans':'dfsvbtm',
  'Magyars':'dhsvbitm',
- 'Portuguese':'dfrasvbitm','Burmese':'dfrsvitm','Vietnamese':'dfasvbitm','Bulgarians':'dfrsvitm','Tatars':'dfrasvbitm','Cumans':'dfrsvitm','Lithuanians':'dfrasvbitm','Burgundians':'dfrsvitm'
+ 'Portuguese':'dfrasvbitm','Burmese':'dfrsvitm','Vietnamese':'dfasvbitm','Bulgarians':'dfrsvitm','Tatars':'dfrasvbitm','Cumans':'dfrsvitm','Lithuanians':'dfrasvbitm','Burgundians':'dfrsvitm',
+ 'Sicilians':'dfrsvitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -506,7 +510,8 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Malians':'mgkfcbh',
  'Koreans':'msgkfcbh',
  'Magyars':'mgcbh',
- 'Portuguese':'msgkfcbh','Burmese':'mgkfcbh','Vietnamese':'msgkfcbh','Bulgarians':'msgkfcbh','Tatars':'msgkfcbh','Cumans':'msgkfcbh','Lithuanians':'msgkfcbh','Burgundians':'msgkfcbh'
+ 'Portuguese':'msgkfcbh','Burmese':'mgkfcbh','Vietnamese':'msgkfcbh','Bulgarians':'msgkfcbh','Tatars':'msgkfcbh','Cumans':'msgkfcbh','Lithuanians':'msgkfcbh','Burgundians':'msgkfcbh',
+ 'Sicilians':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -543,7 +548,8 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Malians':'irc',
  'Koreans':'irc',
  'Magyars':'irc',
- 'Portuguese':'irc','Burmese':'irc','Vietnamese':'irc','Bulgarians':'irc','Tatars':'irc','Cumans':'irc','Lithuanians':'irc','Burgundians':'irc'
+ 'Portuguese':'irc','Burmese':'irc','Vietnamese':'irc','Bulgarians':'irc','Tatars':'irc','Cumans':'irc','Lithuanians':'irc','Burgundians':'irc',
+ 'Sicilians':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -580,7 +586,8 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Malians':'cp',
  'Koreans':'cp',
  'Magyars':'c',
- 'Portuguese':'cp','Burmese':'c','Vietnamese':'cp','Bulgarians':'cp','Tatars':'cp','Cumans':'c','Lithuanians':'cp','Burgundians':'cp'
+ 'Portuguese':'cp','Burmese':'c','Vietnamese':'cp','Bulgarians':'cp','Tatars':'cp','Cumans':'c','Lithuanians':'cp','Burgundians':'cp',
+ 'Sicilians':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -618,7 +625,8 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Malians':'lr',
  'Koreans':'lr',
  'Magyars':'lr',
- 'Portuguese':'lr','Burmese':'lr','Vietnamese':'lr','Bulgarians':'lr','Tatars':'lr','Cumans':'lr','Lithuanians':'lr','Burgundians':'lr'
+ 'Portuguese':'lr','Burmese':'lr','Vietnamese':'lr','Bulgarians':'lr','Tatars':'lr','Cumans':'lr','Lithuanians':'lr','Burgundians':'lr',
+ 'Sicilians':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -657,7 +665,8 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Malians':'cp',
  'Koreans':'c',
  'Magyars':'cp',
- 'Portuguese':'cp','Burmese':'cp','Vietnamese':'cp','Bulgarians':'cp','Tatars':'c','Cumans':'cp','Lithuanians':'cp','Burgundians':'cp'
+ 'Portuguese':'cp','Burmese':'cp','Vietnamese':'cp','Bulgarians':'cp','Tatars':'c','Cumans':'cp','Lithuanians':'cp','Burgundians':'cp',
+ 'Sicilians':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -692,7 +701,8 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Malians':'fi',
  'Koreans':'fi',
  'Magyars':'fib',
- 'Portuguese':'fib','Burmese':'fib','Vietnamese':'fib','Bulgarians':'fib','Tatars':'fib','Cumans':'fib','Lithuanians':'fib','Burgundians':'fib'
+ 'Portuguese':'fib','Burmese':'fib','Vietnamese':'fib','Bulgarians':'fib','Tatars':'fib','Cumans':'fib','Lithuanians':'fib','Burgundians':'fib',
+ 'Sicilians':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
