@@ -152,6 +152,7 @@
       "name": "Teutons",
       "uniqueUnit": "tk",
       "uniqueTechnology": "ut5",
+      "secondUniqueTechnology": "ut5p",
       "rulepack": "medieval",
       "status": "partial",
       "researchFlags": {

@@ -81,6 +81,7 @@ const FOCUSED=[
  "tests/aoe2-de-infantry-armor-tiers.test.mjs",
  "tests/civilization-catalogue-validation.test.mjs",
  "tests/mongol-drill-unique-tech.test.mjs",
+ "tests/teuton-ironclad-unique-tech.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",
  "tests/castle-civilization-production.test.mjs",

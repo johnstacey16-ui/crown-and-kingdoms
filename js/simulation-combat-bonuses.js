@@ -64,7 +64,13 @@ function combatArmor(t,cls){
  // Combat helpers are also run in isolated deterministic damage tests.
  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(t.k,t.t):null;
  const ta=S.tech[t.t]||{},ib=(INFARM.has(t.k)?((ta.armI?1:0)+(ta.armI2?1:0)+(ta.armI3?(cls==='p'?2:1):0)):0)+(ARCHARM.has(t.k)?((ta.armR?1:0)+(ta.armR2?1:0)+(ta.armR3?(cls==='p'?2:1):0)):0)+(CAVARM.has(t.k)?((ta.armC?1:0)+(ta.armC2?1:0)+(ta.armC3?(cls==='p'?2:1):0)):0);
- return t.s?(cls==='p'?8:2):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0);
+ // Ironclad grants the Teutons' siege weapons +4 melee armour. This combat
+ // model resolves siege-class hits against melee armour as well; pierce armour
+ // is unchanged. Gate on the researched technology and real civilization,
+ // never on a unit-supplied flag or a forged foreign team's research ledger.
+ const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
+  (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
+ return t.s?(cls==='p'?8:2):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad;
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
