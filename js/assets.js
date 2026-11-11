@@ -64,6 +64,7 @@ function paintedTeamFrame(atlas,team,f,kind){
  if(canvas?.getContext('2d')?.isContextLost?.()){cache.delete(key);TEAM_FRAME_CACHE.pixels-=canvas.width*canvas.height;canvas=null}
  if(canvas){cache.delete(key);cache.set(key,canvas);TEAM_FRAME_CACHE.hits++}
  else try{
+  if(TEAM_FRAME_CACHE.scratch?.getContext('2d')?.isContextLost?.())TEAM_FRAME_CACHE.scratch=null;
   const scratch=TEAM_FRAME_CACHE.scratch||(TEAM_FRAME_CACHE.scratch=document.createElement('canvas'));
   // Resizing the readback surface clears the previous frame's transparent edges.
   scratch.width=f.w;scratch.height=f.h;

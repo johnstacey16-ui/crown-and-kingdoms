@@ -181,3 +181,19 @@ test('HUD-only graphics restoration keeps healthy world caches and does not lowe
  assert.equal(run('TCH.size'),1);
  assert.equal(run('TEAM_FRAME_CACHE.entries.size'),1);
 });
+
+test('sustained low FPS after one graphics loss uses a non-compounding resolution cap',()=>{
+ const {run,storage,events}=game();run('start();mode="play";perfHud=1');
+ const state=run('JSON.stringify(S)'),saved=JSON.stringify([...storage]);
+ events.get('contextlost')({preventDefault(){throw Error('must allow Canvas2D restore')}});
+ events.get('contextrestored')();
+ assert.equal(run('GRAPHICS_RECOVERY.scale'),1);
+ run('mode="play";perfDrawMs=46;perfGapMs=33;perfStepMs=3;for(let i=0;i<=160;i++)sampleGraphicsRecovery(i*100,83)');
+ assert.equal(run('GRAPHICS_RECOVERY.scale'),.5,'two sustained windows lower output to 50%');
+ assert.equal(run('DPR'),.5);
+ run('perfRenderScale=.5;rs()');
+ assert.equal(run('DPR'),.5,'manual 50% and recovery 50% never compound to 25%');
+ assert.equal(run('cv.width'),640);
+ assert.equal(run('JSON.stringify(S)'),state);
+ assert.equal(JSON.stringify([...storage]),saved);
+});

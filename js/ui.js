@@ -12,7 +12,7 @@ function drawPerfOverlay(dt){
  tx('LOOP '+perfLoopMs.toFixed(1)+'  PAD '+perfPadMs.toFixed(1)+'  CTL '+perfControlMs.toFixed(1)+'  GAP '+perfGapMs.toFixed(1)+' ms',x+9,y+108,11,'#cbd5e1');
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';
  tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus+'  LOSS '+GRAPHICS_RECOVERY.losses,x+9,y+126,11,'#cbd5e1');
- tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*GRAPHICS_RECOVERY.scale*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2)+(GRAPHICS_RECOVERY.scale<1?'  SAFE '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%':''),x+9,y+144,11,'#f8e6b5');
+ tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(Math.min(perfRenderScale,GRAPHICS_RECOVERY.scale)*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2)+(GRAPHICS_RECOVERY.scale<1?'  SAFE '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%':''),x+9,y+144,11,'#f8e6b5');
  tx('TINT  HIT '+TEAM_FRAME_CACHE.hits+'  NEW '+TEAM_FRAME_CACHE.creations+'  EVICT '+TEAM_FRAME_CACHE.evictions+'  CACHE '+(TEAM_FRAME_CACHE.pixels*4/1048576).toFixed(1)+' MiB  |  TROOP CROPS '+TROOP_TEXTURE_LRU.size,x+9,y+162,11,'#cbd5e1');
  const saveStat=perfSaveMetrics;
  tx('SAVE '+(saveStat.kind==='NONE'?'waiting for next checkpoint':saveStat.kind+' '+(saveStat.ok?'OK':'FAILED')+' '+saveStat.total.toFixed(1)+'ms  PEAK '+saveStat.peak.toFixed(1)+'ms  N '+saveStat.count+(saveStat.failures?'  ERR '+saveStat.failures:'')),x+9,y+180,11,'#f8e6b5');

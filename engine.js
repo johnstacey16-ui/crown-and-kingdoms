@@ -7,7 +7,7 @@ let X=WORLD_X,CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
 // the same size destroys GPU contents and can trigger black flashes on Xbox Edge.
 const rs=()=>{
  const hudDpr=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);
- DPR=hudDpr*perfRenderScale*GRAPHICS_RECOVERY.scale;
+ DPR=hudDpr*Math.min(perfRenderScale,GRAPHICS_RECOVERY.scale);
  CW=innerWidth/ui|0;CH=innerHeight/ui|0;
  const w=Math.max(1,Math.round(CW*DPR)),h=Math.max(1,Math.round(CH*DPR));
  if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
@@ -96,7 +96,7 @@ function frame2(now){
  try{
   const dt=Math.min(.25,(now-last)/1000);last=now;
   if(canvasBenchmark)sampleCanvasBenchmark(now,rafMs);
-  else sampleAdaptivePicture(now,rafMs);
+  else{sampleAdaptivePicture(now,rafMs);sampleGraphicsRecovery(now,rafMs)}
   const padStart=timing?performance.now():0;
   readPad();
   if(timing)perfPadMs=performance.now()-padStart;

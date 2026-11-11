@@ -8,6 +8,31 @@ const ADAPTIVE_WINDOW_MS=8000,ADAPTIVE_WARMUP_MS=1500;
 let adaptiveWindowStart=null,adaptiveSamples=[],adaptiveFastWindows=0;
 function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
 function resetAdaptivePictureSampling(){adaptiveWindowStart=null;adaptiveSamples=[];adaptiveFastWindows=0}
+// Following an Xbox world-context loss, detect sustained slow presentation.
+// Do not alter saves, controller coordinates or normal (loss-free) game sessions.
+let recoveryWindowStart=null,recoveryIntervals=[];
+function resetGraphicsRecoverySampling(){recoveryWindowStart=null;recoveryIntervals=[]}
+function sampleGraphicsRecovery(now,rafMs){
+ const r=GRAPHICS_RECOVERY;
+ if(!r.worldLosses||r.scale<=.5||selectedXboxPicturePreset===3||
+    mode!=='play'||!S||canvasBenchmark||document.hidden||r.lost.size){
+  resetGraphicsRecoverySampling();return;
+ }
+ if(!Number.isFinite(rafMs)||rafMs<1||rafMs>1000){resetGraphicsRecoverySampling();return}
+ if(recoveryWindowStart===null){recoveryWindowStart=now;return}
+ const elapsed=now-recoveryWindowStart;
+ if(elapsed>=8000){
+  const median=canvasBenchmarkMedian(recoveryIntervals);
+  if(recoveryIntervals.length>=16&&median!==null&&median>48&&
+     perfStepMs<18&&(perfDrawMs>22||perfGapMs>22)){
+   r.scale=r.scale===1?.75:.5;
+   rs();perfFps=0;
+   note('Graphics recovery: physical canvas capped at '+Math.round(r.scale*100)+'% to stabilize Xbox FPS.');
+  }
+  recoveryWindowStart=now;recoveryIntervals=[];return;
+ }
+ if(elapsed>=1500&&recoveryIntervals.length<1000)recoveryIntervals.push(rafMs);
+}
 // Optional conservative frame-pacing governor. Only when expressly selected.
 // Warm up for 1.5s after each window, and resize at most once every 8s.
 function sampleAdaptivePicture(now,rafMs){
@@ -88,6 +113,7 @@ if(perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1&&HUD_X&&hudCanva
 function resetGraphicsDiagnostics(){
  perfFps=0;perfStepPeak=0;perfDrawPeak=0;perfStepCount=0;perfFogMs=0;
  perfFrameIntervalMs=0;perfGapMs=0;perfLoopMs=0;
+ resetGraphicsRecoverySampling();
  perfFlatField=0;perfLayerMode=0;perfObjectPass=0;perfUnitPass=0;
 }
 // Discard only derived pixels. Observation/age/damage knowledge, game state,
