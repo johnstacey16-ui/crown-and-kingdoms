@@ -42,7 +42,19 @@ elite:{k:'eliteArambai',n:'Elite Arambai',cost:{f:1000,g:750},t:55,age:3,hpb:{ar
  for(const k of ['arc','xbow','skirm','cavarch'])hpbF(t,k,Math.round(U[k].hp*.2));
 },ut:{k:'ut28',n:'Chatras',cost:{f:400,g:300},t:50,age:2,hpb:{batele:100},fx:t=>{S.tech[t].chatras=1}},
 ut2:{k:'ut28p',n:'Paper Money',cost:{w:300,g:450},t:55,age:3,fx:t=>{S.tech[t].paperMoney=1}},
-elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,age:3,hpb:{rattan:5},atkb:{rattan:1},armor:{p:1}}}];
+elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,age:3,hpb:{rattan:5},atkb:{rattan:1},armor:{p:1}}},
+{n:'Bulgarians',uu:'konnik',d:'Dismounting Konnik cavalry and Krepost stronghold; Stirrups and Bagains',fx:t=>{S.tech[t].bulgarianInfantry=1},
+ ut:{k:'ut29',n:'Stirrups',cost:{f:300,g:200},t:40,age:2,fx:t=>{S.tech[t].stirrups=1}},
+ ut2:{k:'ut29p',n:'Bagains',cost:{f:900,g:450},t:60,age:3,fx:t=>{S.tech[t].bagains=1}},
+ elite:{k:'eliteKonnik',n:'Elite Konnik',cost:{f:1000,g:750},t:65,age:3,hpb:{konnik:20},atkb:{konnik:2},armor:{m:1}}},
+{n:'Tatars',uu:'keshik',d:'Keshik raiding cavalry and Steppe Lancers; Silk Armor and Timurid Siegecraft',fx:t=>{S.tech[t].tatarPasture=1},
+ ut:{k:'ut30',n:'Silk Armor',cost:{w:400,g:300},t:40,age:2,fx:t=>{S.tech[t].silkArmor=1}},
+ ut2:{k:'ut30p',n:'Timurid Siegecraft',cost:{w:500,g:400},t:60,age:3,fx:t=>{S.tech[t].timuridSiegecraft=1}},
+ elite:{k:'eliteKeshik',n:'Elite Keshik',cost:{f:950,g:700},t:60,age:3,hpb:{keshik:20},atkb:{keshik:2},armor:{p:1}}},
+{n:'Cumans',uu:'kipchak',d:'Fast mounted archers and Steppe Lancers; Steppe Husbandry and Cuman Mercenaries',fx:t=>{S.tech[t].cumanCavalry=1},
+ ut:{k:'ut31',n:'Steppe Husbandry',cost:{f:400,g:300},t:50,age:2,fx:t=>{S.tech[t].steppeHusbandry=1}},
+ ut2:{k:'ut31p',n:'Cuman Mercenaries',cost:{f:650,g:500},t:55,age:3,fx:t=>{S.tech[t].cumanMercenaries=1}},
+ elite:{k:'eliteKipchak',n:'Elite Kipchak',cost:{w:1000,g:700},t:55,age:3,hpb:{kipchak:10},atkb:{kipchak:1},armor:{p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with

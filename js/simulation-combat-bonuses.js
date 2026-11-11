@@ -10,7 +10,7 @@ const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai']);
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai','konnik','keshik','steppe','kipchak','flamecamel']);
 const SPEAR_CAMELS=new Set(['camel','mamel']);
 const SPEAR_ELEPHANTS=new Set(['ele','eled','batele']);
 function spearLineBonus(a,t){
@@ -28,9 +28,9 @@ function spearLineBonus(a,t){
 // villagers, siege and all ranged units. The compact roster still needs a
 // complete class table (especially regional unique units) in a later audit.
 const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','rattan']);
-const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch','arambai']);
+const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch','arambai','kipchak']);
 // Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
-const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele']);
+const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele','konnik','keshik','steppe','kipchak','flamecamel']);
 const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
@@ -69,11 +69,13 @@ function combatArmor(t,cls){
  // is unchanged. Gate on the researched technology and real civilization,
  // never on a unit-supplied flag or a forged foreign team's research ledger.
  const incaShield=t.k==='kamayuk'&&S.civ?.[t.t]===21&&ta.ut21p?(cls==='p'?2:1):0;
+ const lastKhansArmor=(S.civ?.[t.t]===29&&ta.ut29p&&t.k==='mil'&&cls!=='p'?3:0)+
+  (S.civ?.[t.t]===30&&ta.ut30&&['scout','steppe','cavarch','kipchak'].includes(t.k)?1:0);
  const regionalArmor=(S.civ?.[t.t]===26&&U[t.k]?.sh&&ta.ut26?1:0)+
   (S.civ?.[t.t]===27&&t.k==='batele'?(ta.ut27p?2:1):0);
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+(t.k==='turtle'&&ta.eliteTurtle?1:0);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
@@ -196,6 +198,7 @@ function rangedAccuracy(a){
 function attackReload(u){
  const base=(u.k==='knight'&&S.tech[u.t]?.pala)||(u.k==='scout'&&S.tech[u.t]?.huss)?1.9:u.k==='fire'&&S.tech[u.t]?.fastFire?.25:U[u.k]?.cd||2;
  if(u.k==='treb'&&S.civ?.[u.t]===11&&S.tech[u.t]?.ut11p)return base/1.33;
+ if(S.civ?.[u.t]===29&&S.tech?.[u.t]?.ut29&&['scout','knight','konnik'].includes(u.k))return base/1.25;
  // Byzantines fire their Fire Ships 25% more often even before Greek Fire.
  // 25% faster attack rate means a cooldown of 1 / 1.25 (not -25%).
  if(u.k==='fire'&&S.civ?.[u.t]===3)return base/1.25;
@@ -210,7 +213,7 @@ function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)
  +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
  +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
- +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
+ +(a.k==='cavarch'&&S.civ?.[a.t]===25&&S.tech[a.t]?.ut25p?1:0)+(a.k==='treb'&&S.civ?.[a.t]===30&&S.tech[a.t]?.ut30p?2:0)+(a.k==='axe'&&S.tech[a.t]?.beardedAxes?1:0)+(typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(a.k,a.t)?.range||0:0)}
 // A shot records a fixed impact point at launch. Ballistics predicts constant
 // movement along the current path segment; later turns can still dodge it.
 function projectileSpeed(a){return U[a.k]?.ps||14}

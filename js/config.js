@@ -61,15 +61,26 @@ Object.assign(U,{
  rattan:{n:'Rattan Archer',hp:45,sp:1.18,dmg:6,rng:5.5,cd:1.8,delay:.35,ps:7,acc:.9,arm:0,cost:{w:50,g:45},t:17,c:'#4b8663',r:8,age:2},
  batele:{n:'Battle Elephant',hp:250,sp:.85,dmg:14,rng:.9,cd:2.1,arm:0,mt:1,cost:{f:120,g:70},t:36,c:'#a38c75',r:13,age:2,lk:'ele'}
 });
+/* Last Khans medieval factions. Explicit unit identities preserve damage,
+ * production, save and host command validation across all teams. */
+Object.assign(U,{
+ konnik:{n:'Konnik',hp:105,sp:1.45,dmg:10,rng:.9,cd:1.9,arm:0,mt:1,lk:'knight',cost:{f:60,g:70},t:20,c:'#925a4c',r:11,age:2},
+ footkonnik:{n:'Dismounted Konnik',hp:45,sp:1.05,dmg:7,rng:.9,cd:1.7,arm:0,lk:'mil',cost:{},t:0,c:'#825647',r:9,age:2},
+ keshik:{n:'Keshik',hp:115,sp:1.5,dmg:9,rng:.9,cd:1.9,arm:1,mt:1,lk:'knight',cost:{f:50,g:40},t:20,c:'#aa7747',r:11,age:2},
+ kipchak:{n:'Kipchak',hp:50,sp:1.65,dmg:6,rng:4,cd:1.8,delay:.35,ps:7,acc:.8,arm:0,mt:1,lk:'cavarch',cost:{w:40,g:35},t:20,c:'#997750',r:10,age:2},
+ steppe:{n:'Steppe Lancer',hp:65,sp:1.65,dmg:8,rng:1.5,cd:1.8,arm:0,mt:1,lk:'knight',cost:{f:70,g:40},t:24,c:'#9b8057',r:10,age:2},
+ flamecamel:{n:'Flaming Camel',hp:55,sp:1.9,dmg:24,rng:1.2,cd:1,arm:0,mt:1,cost:{f:75,g:30},t:20,c:'#c0773b',r:10,age:3,bn:{scout:35,knight:35,camel:30,ele:50,batele:50,konnik:35,keshik:35,steppe:35}}
+});
 /* Synchronous regional production eligibility, versioned in data/civilizations.json.
  * The catalogue check ensures the runtime table matches the maintained JSON. */
 const REGIONAL_UNIT_ACCESS=Object.freeze([
  Object.freeze({unit:'camel',civilizations:Object.freeze([2,3,4,8,9,13,22,23]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'eagle',civilizations:Object.freeze([19,20,21]),buildings:Object.freeze(['bar'])}),
- Object.freeze({unit:'cavarch',civilizations:Object.freeze([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,27,28]),buildings:Object.freeze(['rng'])}),
+ Object.freeze({unit:'cavarch',civilizations:Object.freeze([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,27,28,29,30,31]),buildings:Object.freeze(['rng'])}),
  Object.freeze({unit:'turtle',civilizations:Object.freeze([24]),buildings:Object.freeze(['dock'])}),
  Object.freeze({unit:'caravel',civilizations:Object.freeze([26]),buildings:Object.freeze(['dock'])}),
- Object.freeze({unit:'batele',civilizations:Object.freeze([12,27,28]),buildings:Object.freeze(['stable'])})
+ Object.freeze({unit:'batele',civilizations:Object.freeze([12,27,28]),buildings:Object.freeze(['stable'])}),
+ Object.freeze({unit:'steppe',civilizations:Object.freeze([2,30,31]),buildings:Object.freeze(['stable'])})
 ]);
 
 // Founding Town Centres are granted directly by newGame(); additional centres
@@ -77,9 +88,10 @@ const REGIONAL_UNIT_ACCESS=Object.freeze([
 const B={tc:{n:'Town Centre',s:3,hp:900,cost:{w:275,s:100},bt:1,age:2,tr:['vil'],rs:['loom','wheel','handcart','gath','carry'],atk:'tca'},house:{n:'House',s:2,hp:200,cost:{w:25},bt:12},
 lumber:{n:'Lumber Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['axe','saw']},mine:{n:'Mining Camp',s:2,hp:250,cost:{w:100},bt:15,rs:['gmine','smine']},mill:{n:'Mill',s:2,hp:250,cost:{w:100},bt:15,rs:['coll','plow','crop']},farm:{n:'Farm',s:1,hp:480,cost:{w:60},bt:15},
 bar:{n:'Barracks',s:3,hp:500,cost:{w:150},bt:25,tr:['mil','spear','eagle'],rs:['man','longs','twohand','champ','pike','halb','squires','arson','eliteEagle'],age:0},rng:{n:'Archery Range',s:3,hp:500,cost:{w:150},bt:25,tr:['arc','skirm','xbow','hcan','cavarch'],rs:['xbow','elsk','thumb','arb','heavyCavArch'],req:'bar',age:1},
-stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight','batele'],rs:['lcav','cavl','hcamel','blood','husb','pala','huss','heavyBatele'],req:'bar',age:1},smith:{n:'Blacksmith',s:3,hp:400,cost:{w:150},bt:25,rs:['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'],req:'bar',age:1},
+stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight','batele','steppe'],rs:['lcav','cavl','hcamel','blood','husb','pala','huss','heavyBatele'],req:'bar',age:1},smith:{n:'Blacksmith',s:3,hp:400,cost:{w:150},bt:25,rs:['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'],req:'bar',age:1},
 market:{n:'Market',s:3,hp:400,cost:{w:175},bt:25,tr:['cart'],tx:1,age:1},palisade:{n:'Palisade Wall',s:1,hp:150,cost:{w:3},bt:3,age:0},wall:{n:'Stone Wall',s:1,hp:300,cost:{s:5},bt:3,age:1},dock:{n:'Dock',s:2,hp:600,cost:{w:150},bt:25,tr:['fish','gal','fire','demo','cgal','trn','cog','turtle','caravel'],rs:['navalAtk','navalHull','galleon','fastFire','eliteCgal','eliteTurtle','eliteCaravel'],age:0,wat:1},siege:{n:'Siege Workshop',s:3,hp:500,cost:{w:200},bt:30,tr:['ram','mang','scor','bomb'],rs:['siegeup','onager','siegeOnager','cappedRam','siegeRam','heavyScorp'],req:'bar',age:2},univ:{n:'University',s:3,hp:550,cost:{w:200,s:50},bt:35,rs:['crane','mas','arch','slit','gtow','keep','fw','chem','ballistics','murderHoles'],req:'smith',age:2},gate:{n:'Gate',s:1,hp:300,cost:{s:20},bt:6,age:1},outpost:{n:'Outpost',s:1,hp:150,cost:{w:25,s:10},bt:8,age:1},wonder:{n:'Wonder',s:4,hp:2400,cost:{f:400,w:600,g:600,s:600},bt:120,age:3},monastery:{n:'Monastery',s:3,hp:500,cost:{w:175,g:50},bt:30,tr:['mon'],rs:['devotion','faith','heresy','redemption','atonement','sanctity','fervor','blockPrinting','illumination','theocracy','herbalMedicine'],req:'bar',age:2},tower:{n:'Watch Tower',s:2,hp:400,cost:{w:50,s:100},bt:20,age:1,atk:'tw'},castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons','hoardings']}};
 B.feitoria={n:'Feitoria',s:3,hp:900,cost:{w:250,s:250},bt:75,age:3,req:'market',pop:20,onlyCiv:26};
+B.krepost={n:'Krepost',s:3,hp:1100,cost:{w:150,s:350},bt:45,age:2,req:'bar',tr:['konnik'],atk:'cs',onlyCiv:29};
 const NM={w:'Tree',f:'Food',g:'Gold',s:'Stone'},TASK={i:'Idle',m:'Moving',a:'Attacking',g:'Gathering',b:'Building',p:'Patrolling',v:'Converting',r:'Fetching relic',B:'Boarding',U:'Unloading'};
 const RN={f:'Food',w:'Wood',g:'Gold',s:'Stone'},TR=[['w',100,'g',70],['f',100,'g',70],['g',80,'w',100],['g',80,'f',100],['g',90,'s',100]];
 const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','mine','bar','dock']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['rng','stable','smith','market']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery'],single:'castle'}];

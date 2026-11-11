@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-medieval-roster-29-v16",
+  "inventoryVersion": "ck-current-medieval-roster-32-v1",
   "description": "29 active medieval civilizations (3 newly appended). IDs 0–25 retained; content remains partial and unaccepted across DLC.",
   "rulesets": [
     {
@@ -78,7 +78,10 @@
           25,
           26,
           27,
-          28
+          28,
+          29,
+          30,
+          31
         ],
         "buildings": [
           "rng"
@@ -120,6 +123,19 @@
         ],
         "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/burmese",
         "note": "Separate Battle Elephant line. Additional regional availability and existing Khmer prototype require future audit."
+      },
+      {
+        "unit": "steppe",
+        "civilizations": [
+          2,
+          30,
+          31
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/tatars",
+        "note": "Regional Steppe Lancer for Mongols, Tatars and Cumans; Elite line and full patch-specific stats pending"
       }
     ]
   },
@@ -757,6 +773,72 @@
         "university": "msgkfcbh",
         "blacksmith": "irc",
         "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 29,
+      "name": "Bulgarians",
+      "uniqueUnit": "konnik",
+      "uniqueTechnology": "ut29",
+      "secondUniqueTechnology": "ut29p",
+      "eliteUpgrade": "eliteKonnik",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 30,
+      "name": "Tatars",
+      "uniqueUnit": "keshik",
+      "uniqueTechnology": "ut30",
+      "secondUniqueTechnology": "ut30p",
+      "eliteUpgrade": "eliteKeshik",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 31,
+      "name": "Cumans",
+      "uniqueUnit": "kipchak",
+      "uniqueTechnology": "ut31",
+      "secondUniqueTechnology": "ut31p",
+      "eliteUpgrade": "eliteKipchak",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
