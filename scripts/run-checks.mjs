@@ -84,6 +84,7 @@ const FOCUSED=[
  "tests/teuton-ironclad-unique-tech.test.mjs",
  "tests/civilization-castle-content-expansion.test.mjs",
  "tests/civilization-second-castle-content.test.mjs",
+ "tests/building-siege-naval-upgrades.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",
  "tests/castle-civilization-production.test.mjs",
