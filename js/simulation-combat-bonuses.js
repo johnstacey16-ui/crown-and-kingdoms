@@ -343,6 +343,12 @@ function launchProjectile(a,t){
   const count=S.tech?.[a.t]?.eliteKipchak?2:1;
   for(let i=0;i<count;i++)S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
  }
+ if(a.k==='thirisadai'&&S.civ?.[a.t]===37){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
+  for(const spread of [-.3,.3])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},
+   tx:Math.max(0,Math.min(W-.001,aim.tx-dy/length*spread)),
+   ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*spread))});
+ }
  if(a.k==='hcan'){const shot=S.pj[S.pj.length-1];shot.sx=a.x;shot.sy=a.y;}
  // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
  // second projectile in the normal collision/damage path, not a visual effect.
