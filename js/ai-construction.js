@@ -1,7 +1,7 @@
 /* Crown & Kingdoms — AI placement and construction actions. */
 // Uses earlier-loaded ai-policy builder selection and world placement guards.
 // Original orders, spending and random sampling are retained unchanged.
-function aiBuild(vs,k,t=1){if(k==='tc'&&vm===6)return;const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
+function aiBuild(vs,k,t=1){if(!civilizationBuildingAllowed(k,t))return;if(B[k]?.pop&&popOf(t)+B[k].pop>capOf(t))return;if(k==='tc'&&vm===6)return;const d=B[k],tc=S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0&&b.done)||S.bs.find(b=>b.t===t&&b.k==='tc'&&b.hp>0);if(!tc||!vs.some(aiAvailableBuilder)||d.age>S.age[t]||!can(t,d.cost))return;
 for(let i=0;i<60;i++){const sp=26+Math.min(60,S.bs.length),x=(tc.x+1+(S.r()-.5)*sp)|0,y=(tc.y+1+(S.r()-.5)*sp)|0;if(Math.hypot(x-tc.x,y-tc.y)<4||cor(tc,x,y))continue;if(k==='tc'&&S.bs.some(b=>b&&b.t===t&&b.k==='tc'&&b.hp>0&&Math.hypot(x-b.x,y-b.y)<12))continue;
 if(okPlace(t,k,x,y)){const target={x,y,s:d.s};const choice=aiReachableBuilder(vs,target);if(!choice)continue;const {builder,route}=choice;const b=addB(t,k,x,y,false);pay(t,d.cost);builder.o='b';builder.tg=b;builder.p=route;return}}}
 const cor=(tc,x,y)=>Math.abs(x-(tc.x+1))<=3||Math.abs(y-(tc.y+1))<=3;

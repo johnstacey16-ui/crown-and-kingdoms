@@ -27,7 +27,22 @@ const CIV=[{n:'Franks',uu:'axe',d:'Knights +15 HP; Throwing Axemen',fx:t=>hpbF(t
 {n:'Ethiopians',uu:'shotel',d:'Start +100 food and gold; Shotel Warriors',fx:t=>{S.res[t].f+=100;S.res[t].g+=100},ut:{k:'ut22',n:'Royal Heirs',cost:{f:300,g:200},t:50,age:2,fx:t=>{atkbF(t,'shotel',3);hpbF(t,'shotel',10)}},ut2:{k:'ut22p',n:'Torsion Engines',cost:{f:1000,g:600},t:60,age:3,fx:t=>{S.tech[t].torsionEngines=1}},elite:{k:'eliteShotelWarrior',n:'Elite Shotel Warrior',cost:{f:1200,g:550},t:40,age:3,hpb:{shotel:10},atkb:{shotel:2},armor:{p:1}}},
 {n:'Malians',uu:'gbeto',d:'Infantry +1 attack, farms +15%; Gbeto',fx:t=>{atkbF(t,'mil',1);atkbF(t,'spear',1);S.tech[t].fa=1},ut:{k:'ut23',n:'Tigui',cost:{f:250,g:200},t:50,age:2,fx:t=>{atkbF(t,'gbeto',2);hpbF(t,'gbeto',10)}},ut2:{k:'ut23p',n:'Farimba',cost:{f:650,g:400},t:60,age:3,fx:t=>{S.tech[t].farimba=1}},elite:{k:'eliteGbeto',n:'Elite Gbeto',cost:{f:900,g:600},t:40,age:3,hpb:{gbeto:10},atkb:{gbeto:3},armor:{p:1}}},
 {n:'Koreans',uu:'wagon',d:'Walls and gates +80% HP, siege +20 HP; War Wagons',fx:t=>{S.tech[t].fw=1;hpbF(t,'mang',20);hpbF(t,'ram',20)},ut:{k:'ut24',n:'Shinkichon',cost:{f:1100,g:800},t:60,age:3,fx:t=>{S.tech[t].shinkichon=1}},ut2:{k:'ut24p',n:'Eupseong',cost:{f:300,w:300},t:40,age:2,fx:t=>{S.tech[t].eupseong=1}},elite:{k:'eliteWarWagon',n:'Elite War Wagon',cost:{f:1000,g:600},t:75,age:3,hpb:{wagon:30},atkb:{wagon:4},armor:{p:1}}},
-{n:'Magyars',uu:'huszar',d:'Cavalry +1 attack, +100 wood; Magyar Huszars',fx:t=>{atkbF(t,'scout',1);atkbF(t,'knight',1);S.res[t].w+=100},ut:{k:'ut25',n:'Corvinian Army',cost:{f:300,g:200},t:50,age:2,fx:t=>{atkbF(t,'huszar',2);hpbF(t,'huszar',20)}},ut2:{k:'ut25p',n:'Recurve Bow',cost:{w:600,g:400},t:40,age:3,fx:t=>{S.tech[t].recurveBow=1}},elite:{k:'eliteMagyarHuszar',n:'Elite Magyar Huszar',cost:{f:800,g:600},t:40,age:3,hpb:{huszar:15},atkb:{huszar:3},armor:{m:1}}}];
+{n:'Magyars',uu:'huszar',d:'Cavalry +1 attack, +100 wood; Magyar Huszars',fx:t=>{atkbF(t,'scout',1);atkbF(t,'knight',1);S.res[t].w+=100},ut:{k:'ut25',n:'Corvinian Army',cost:{f:300,g:200},t:50,age:2,fx:t=>{atkbF(t,'huszar',2);hpbF(t,'huszar',20)}},ut2:{k:'ut25p',n:'Recurve Bow',cost:{w:600,g:400},t:40,age:3,fx:t=>{S.tech[t].recurveBow=1}},elite:{k:'eliteMagyarHuszar',n:'Elite Magyar Huszar',cost:{f:800,g:600},t:40,age:3,hpb:{huszar:15},atkb:{huszar:3},armor:{m:1}}},
+{n:'Portuguese',uu:'orgun',d:'Naval/gunpowder, discounted gold units; Organ Guns and Caravels',fx:t=>{
+ S.tech[t].portugueseGold=1;
+ for(const k of Object.keys(U))if(U[k].sh)hpbF(t,k,Math.round(U[k].hp*.1));
+},ut:{k:'ut26',n:'Carrack',cost:{w:400,g:300},t:50,age:2,fx:t=>{S.tech[t].carrack=1}},
+ut2:{k:'ut26p',n:'Arquebus',cost:{w:600,g:400},t:60,age:3,fx:t=>{S.tech[t].arquebus=1}},
+elite:{k:'eliteOrganGun',n:'Elite Organ Gun',cost:{f:900,g:650},t:60,age:3,hpb:{orgun:10},atkb:{orgun:2},armor:{p:1}}},
+{n:'Burmese',uu:'arambai',d:'Infantry and elephants; Arambai',fx:t=>{S.tech[t].burmeseInfantry=1},
+ut:{k:'ut27',n:'Manipur Cavalry',cost:{f:300,g:300},t:40,age:2,fx:t=>{S.tech[t].manipurCavalry=1}},
+ut2:{k:'ut27p',n:'Howdah',cost:{f:400,s:300},t:40,age:3,fx:t=>{S.tech[t].howdah=1}},
+elite:{k:'eliteArambai',n:'Elite Arambai',cost:{f:1000,g:750},t:55,age:3,hpb:{arambai:5},atkb:{arambai:2},armor:{p:1}}},
+{n:'Vietnamese',uu:'rattan',d:'Durable ranged units; Rattan Archers',fx:t=>{
+ for(const k of ['arc','xbow','skirm','cavarch'])hpbF(t,k,Math.round(U[k].hp*.2));
+},ut:{k:'ut28',n:'Chatras',cost:{f:400,g:300},t:50,age:2,hpb:{batele:100},fx:t=>{S.tech[t].chatras=1}},
+ut2:{k:'ut28p',n:'Paper Money',cost:{w:300,g:450},t:55,age:3,fx:t=>{S.tech[t].paperMoney=1}},
+elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,age:3,hpb:{rattan:5},atkb:{rattan:1},armor:{p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with

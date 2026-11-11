@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v15",
-  "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
+  "inventoryVersion": "ck-medieval-roster-29-v16",
+  "description": "29 active medieval civilizations (3 newly appended). IDs 0–25 retained; content remains partial and unaccepted across DLC.",
   "rulesets": [
     {
       "id": "medieval",
@@ -75,7 +75,10 @@
           22,
           23,
           24,
-          25
+          25,
+          26,
+          27,
+          28
         ],
         "buildings": [
           "rng"
@@ -93,6 +96,30 @@
         ],
         "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-169123/",
         "note": "Korean Turtle Ship line; original procedural sprite fallback"
+      },
+      {
+        "unit": "caravel",
+        "civilizations": [
+          26
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/portuguese",
+        "note": "Portuguese Caravel with Elite Caravel upgrade. Original procedural fallback; naval mechanics partial."
+      },
+      {
+        "unit": "batele",
+        "civilizations": [
+          12,
+          27,
+          28
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/burmese",
+        "note": "Separate Battle Elephant line. Additional regional availability and existing Khmer prototype require future audit."
       }
     ]
   },
@@ -668,6 +695,72 @@
       },
       "eliteUpgrade": "eliteMagyarHuszar",
       "secondUniqueTechnology": "ut25p"
+    },
+    {
+      "id": 26,
+      "name": "Portuguese",
+      "uniqueUnit": "orgun",
+      "uniqueTechnology": "ut26",
+      "secondUniqueTechnology": "ut26p",
+      "eliteUpgrade": "eliteOrganGun",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 27,
+      "name": "Burmese",
+      "uniqueUnit": "arambai",
+      "uniqueTechnology": "ut27",
+      "secondUniqueTechnology": "ut27p",
+      "eliteUpgrade": "eliteArambai",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "mgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 28,
+      "name": "Vietnamese",
+      "uniqueUnit": "rattan",
+      "uniqueTechnology": "ut28",
+      "secondUniqueTechnology": "ut28p",
+      "eliteUpgrade": "eliteRattanArcher",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
     }
   ]
 }

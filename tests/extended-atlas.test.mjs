@@ -19,18 +19,20 @@ test('every effective unit kind and every sprite-backed building resolves an atl
   assert.equal(sandbox.checkMeta(atlas.meta,width,height),true,atlas.id);
   sandbox.register(atlas.id,{id:atlas.id},atlas.meta);
  }
- // Three newly playable regional units use original procedural art until
+ // Eight newly playable regional/faction units use original procedural art until
  // dedicated painted atlases are produced; a null lookup is intentional.
- const procedural=new Set(['eagle','cavarch','turtle']);
+ const procedural=new Set(['eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele']);
  for(const kind of sandbox.runtimeKinds.units)for(let team=0;team<4;team++)for(let state=0;state<4;state++){
   const image=sandbox.artFrame(kind,team,state,0,.21,Math.PI);
   if(procedural.has(kind))assert.equal(image,null,'regional art must use fallback '+kind);
   else assert.ok(image,'Missing painted unit '+kind+'/'+state+'/'+team);
  }
  for(const kind of sandbox.runtimeKinds.buildings)for(let team=0;team<4;team++){
-  assert.ok(sandbox.artFrame('bld_'+kind,team,3,0,.21),'Missing building '+kind+'/'+team);
+  const image=sandbox.artFrame('bld_'+kind,team,3,0,.21);
+  if(kind==='feitoria')assert.equal(image,null,'new original Feitoria must use procedural building art');
+  else assert.ok(image,'Missing building '+kind+'/'+team);
  }
- assert.equal(sandbox.runtimeKinds.units.length,56,'53 playable troop kinds plus three defensive attack proxies');
+ assert.equal(sandbox.runtimeKinds.units.length,61,'58 playable troop kinds plus three defensive attack proxies');
 });
 
 test('painted raster pack uses bounded base poses and multi-frame motion, valid materials and castle proxies',()=>{

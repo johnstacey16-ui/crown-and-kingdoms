@@ -141,7 +141,7 @@ function reformMilitarySelection(units){
 }
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
-const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:U[k].cost,lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
+const it=trOf(s).map(k=>{const lk=U[k].age>S.age[0]?'Needs '+AG[U[k].age].n:'';return{l:unitName(k,s.t),c:unitTrainingCost(s.t,k),lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
 if(s.k==='tc'){it.push({l:'Town Bell: Garrison villagers',c:{},lk:'',fn:()=>{townBell(s.t);menu=null}});const g=AG[S.age[0]+1];it.push({l:g?'Advance: '+g.n:'Imperial Age reached',c:g?g.cost:{},lk:g?(ageRequirements(0).ready?'':'Needs two different current-age buildings'+(g.single?' or one Castle':'')):'Done',fn:()=>{if(g&&research(s,'age'))note('Advancing to '+g.n+'...')}})}
 for(const k of rsOf(s)){const e=TE[k],lk=S.tech[0][k]?'Done':e.age>S.age[0]?'Needs '+AG[e.age].n:e.pre&&!S.tech[0][e.pre]?'Needs '+TE[e.pre].n:'';it.push({l:e.n,c:researchCost(s,k),lk,fn:()=>{if(lk)return note(lk);if(research(s,k))note('Researching '+e.n)}})}
 if(d.tx)for(const r of mkTrades())it.push(r);
@@ -160,12 +160,12 @@ let aDown=null,lastTap=0,lastTapK=null,boxR=null,cgo=null,vpWheel=null,yc=0,yDow
 function cancelSelectionGesture(){aDown=boxR=null;lastTap=0;lastTapK=null}
 function cancelShortcutGesture(){yDown=false;yc=0}
 function cancelGameplayGestures(){cancelSelectionGesture();cancelShortcutGesture();vpWheel=null;window.CK_AUTH_LOBBY?.suspend?.()}
-const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost'];
+const SIEGE=['ram','mang','scor','treb','bomb'],ECO=['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost','feitoria'];
 const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','mon','cart','cog'].includes(u.k);
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
 const focus=a=>ctr(a.x+(a.s||0)/2,a.y+(a.s||0)/2);
 function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
-const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';if(k==='tc'&&vm===6)return 'Extra Town Centres disabled in Sudden Death';const req=k==='farm'?'mill':d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
+const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';if(!civilizationBuildingAllowed(k,0))return 'Only Portuguese can construct a Feitoria';if(d.pop&&popOf(0)+d.pop>capOf(0))return 'Requires '+d.pop+' free population slots';if(k==='tc'&&vm===6)return 'Extra Town Centres disabled in Sudden Death';const req=k==='farm'?'mill':d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
 function selectedBuilders(){return controlGroupMembers(S.sel).filter(u=>u.k==='vil'&&S.us.includes(u))}
 
 /* Xbox controller selection policy: category shortcuts, additive selection,

@@ -10,9 +10,9 @@ const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
-const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch']);
+const SPEAR_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','cavarch','arambai']);
 const SPEAR_CAMELS=new Set(['camel','mamel']);
-const SPEAR_ELEPHANTS=new Set(['ele','eled']);
+const SPEAR_ELEPHANTS=new Set(['ele','eled','batele']);
 function spearLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,tech=S.tech[a.t]||{};
  const tier=tech.halb?2:tech.pike?1:0;
@@ -27,10 +27,10 @@ function spearLineBonus(a,t){
 // Counter bonuses are attached to AoE2 armour classes, not broadly to
 // villagers, siege and all ranged units. The compact roster still needs a
 // complete class table (especially regional unique units) in a later audit.
-const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko']);
-const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch']);
+const SKIRM_ARCHER_KINDS=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','rattan']);
+const SKIRM_CAV_ARCHER_KINDS=new Set(['mgd','eled','wagon','cavarch','arambai']);
 // Pinned Camel and Heavy Camel combat bonuses share the existing cavalry classes.
-const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch']);
+const CAMEL_CAVALRY=new Set(['scout','knight','cata','boyar','tarkan','huszar','mgd','conq','wagon','ele','eled','cavarch','arambai','batele']);
 const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
@@ -69,9 +69,11 @@ function combatArmor(t,cls){
  // is unchanged. Gate on the researched technology and real civilization,
  // never on a unit-supplied flag or a forged foreign team's research ledger.
  const incaShield=t.k==='kamayuk'&&S.civ?.[t.t]===21&&ta.ut21p?(cls==='p'?2:1):0;
+ const regionalArmor=(S.civ?.[t.t]===26&&U[t.k]?.sh&&ta.ut26?1:0)+
+  (S.civ?.[t.t]===27&&t.k==='batele'?(ta.ut27p?2:1):0);
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
- return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ return t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+(t.k==='turtle'&&ta.eliteTurtle?1:0);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
@@ -80,6 +82,9 @@ function combatArmor(t,cls){
 const CK_TRAMPLE_DAMAGE=Symbol('ck.trample');
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
+ (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
+ (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
+ (a.k==='caravel'&&!t.s&&U[t.k]?.sh?3:0)+
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
@@ -177,11 +182,11 @@ function tickConversion(u,dt){
 
 /* Classic combat projectiles, ranged upgrades and deterministic hit resolution.
  * Function bodies are relocated unchanged from simulation.js. */
-const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','gal','tw','cs','tca']);
+const ARROW_WEAPONS=new Set(['arc','xbow','skirm','lbow','chuko','mgd','eled','genoa','plumed','wagon','cavarch','rattan','arambai','caravel','gal','tw','cs','tca']);
 // AoE2:DE Thumb Ring: +100% nominal accuracy against non-moving targets.
 // Skirmishers gain accuracy but no faster reload; mounted archers gain a
 // smaller firing-speed increase; Chu Ko Nu gains a larger one.
-const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled']);
+const THUMB_FOOT_ARCHERS=new Set(['arc','xbow','lbow','genoa','plumed','eled','rattan']);
 const THUMB_MOUNTED_ARCHERS=new Set(['mgd','wagon','cavarch']);
 function rangedAccuracy(a){
  const d=U[a.k];if(!d)return 1;
@@ -211,7 +216,8 @@ function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a
 function projectileSpeed(a){return U[a.k]?.ps||14}
 function projectileAim(a,t){
  let x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
- const next=t.p?.[0],predict=S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor');
+ const next=t.p?.[0],predict=(S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor'))||
+ (S.civ?.[a.t]===26&&S.tech[a.t]?.ut26p&&['orgun','hcan','bomb','cgal'].includes(a.k));
  if(predict&&!t.s&&!t.ld&&next&&U[t.k]){
   const dx=next[0]-t.x,dy=next[1]-t.y,length=Math.hypot(dx,dy);
   if(length>0&&Number.isFinite(length)){
@@ -241,6 +247,14 @@ function launchProjectile(a,t){
  // second projectile in the normal collision/damage path, not a visual effect.
  if(a.k==='scor'&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
   S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},...aim});
+ // Original Portuguese Organ Gun salvo: three standard deterministic pellets
+ // that retain normal collision, target death and save/network semantics.
+ if(a.k==='orgun'&&S.civ?.[a.t]===26){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
+  for(const spread of [-.35,.35])S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t},
+   tx:Math.max(0,Math.min(W-.001,aim.tx-dy/length*spread)),
+   ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*spread))});
+ }
  // Shinkichon adds two more Korean Turtle Ship rockets via the same
  // authoritative projectile simulation and normal damage/death accounting.
  if(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24)

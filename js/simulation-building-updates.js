@@ -2,6 +2,12 @@
  * Rally dispatch is owned by simulation-building-production.js. */
 function upB(b,dt){if(!b||!b.done||b.hp<=0||!Number.isFinite(dt)||dt<=0)return;
 if(b.cg?.length)healGarrison(b,dt);
+if(b.k==='feitoria'&&S.civ?.[b.t]===26){
+ // A constructed Portuguese trade outpost produces modest resources
+ // continuously. No fabricated villager/entity or local timer is needed.
+ S.res[b.t].f+=.30*dt;S.res[b.t].w+=.30*dt;
+ S.res[b.t].g+=.20*dt;S.res[b.t].s+=.10*dt;
+}
 if(b.k==='monastery'){
  // Hunnic Atheism halves relic income of hostile kingdoms, not allies.
  const atheist=S.civ?.some((id,team)=>id===17&&S.tech?.[team]?.ut17p&&isHostile(team,b.t));

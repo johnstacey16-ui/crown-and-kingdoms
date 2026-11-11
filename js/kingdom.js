@@ -268,6 +268,11 @@ function villagerPriorityMenuItems(){
 /* Civilization stat modifiers and regional production are kingdom rules,
  * not responsibilities of the engine frame dispatcher. */
 const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||0)+v},atkbF=(t,k,v)=>{const T0=S.tech[t];T0.atkb=T0.atkb||{};T0.atkb[k]=(T0.atkb[k]||0)+v};
+/* Civilization-restricted structures are validated by both local placement
+ * and the authoritative host. Never rely on a hidden menu item as legality. */
+function civilizationBuildingAllowed(kind,team,civs=S?.civ){
+ const d=B[kind];return !!d&&(!Number.isInteger(d.onlyCiv)||civs?.[team]===d.onlyCiv);
+}
 /* One trainability boundary for solo, authenticated peer commands and AI. */
 function regionalTrainables(kind,civId){
  const available=(B[kind]?.tr||[]).filter(unit=>{
@@ -330,7 +335,8 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Ethiopians':'xat',
  'Malians':'xat',
  'Koreans':'xat',
- 'Magyars':'xat'
+ 'Magyars':'xat',
+ 'Portuguese':'xat','Burmese':'xa','Vietnamese':'xat'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -370,7 +376,8 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Ethiopians':'mltphvaesku',
  'Malians':'mltcpvaesk',
  'Koreans':'mltcphvaesku',
- 'Magyars':'mltcphvaeskdu'
+ 'Magyars':'mltcphvaeskdu',
+ 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -387,7 +394,8 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Khmer':'rbh','Indians':'rbh','Spanish':'rbh','Italians':'rbh',
  'Slavs':'bh','Huns':'rbh','Goths':'rbh','Aztecs':'r',
  'Mayans':'r','Incas':'r','Ethiopians':'rh','Malians':'bh',
- 'Koreans':'rh','Magyars':'rbh'
+ 'Koreans':'rh','Magyars':'rbh',
+ 'Portuguese':'rbh','Burmese':'rbh','Vietnamese':'rbh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -425,7 +433,8 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Ethiopians':'dfhasvitm',
  'Malians':'dfhrasvbtm',
  'Koreans':'dfsvbtm',
- 'Magyars':'dhsvbitm'
+ 'Magyars':'dhsvbitm',
+ 'Portuguese':'dfrasvbitm','Burmese':'dfrsvitm','Vietnamese':'dfasvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -462,7 +471,8 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Ethiopians':'mgkfcbh',
  'Malians':'mgkfcbh',
  'Koreans':'msgkfcbh',
- 'Magyars':'mgcbh'
+ 'Magyars':'mgcbh',
+ 'Portuguese':'msgkfcbh','Burmese':'mgkfcbh','Vietnamese':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -498,7 +508,8 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Ethiopians':'irc',
  'Malians':'irc',
  'Koreans':'irc',
- 'Magyars':'irc'
+ 'Magyars':'irc',
+ 'Portuguese':'irc','Burmese':'irc','Vietnamese':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -534,7 +545,8 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'cp',
  'Malians':'cp',
  'Koreans':'cp',
- 'Magyars':'c'
+ 'Magyars':'c',
+ 'Portuguese':'cp','Burmese':'c','Vietnamese':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -571,7 +583,8 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'lr',
  'Malians':'lr',
  'Koreans':'lr',
- 'Magyars':'lr'
+ 'Magyars':'lr',
+ 'Portuguese':'lr','Burmese':'lr','Vietnamese':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -609,7 +622,8 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'c',
  'Malians':'cp',
  'Koreans':'c',
- 'Magyars':'cp'
+ 'Magyars':'cp',
+ 'Portuguese':'cp','Burmese':'cp','Vietnamese':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -643,7 +657,8 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Ethiopians':'fib',
  'Malians':'fi',
  'Koreans':'fi',
- 'Magyars':'fib'
+ 'Magyars':'fib',
+ 'Portuguese':'fib','Burmese':'fib','Vietnamese':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
@@ -681,7 +696,7 @@ const rsOf=(b,civs=S?.civ)=>{
  const regional=finalList.filter(k=>{
   // Regional upgrade research and production share the same legal roster for
   // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
-  const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle'}[k];
+  const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];
   return !upgradeUnit||REGIONAL_UNIT_ACCESS.some(rule=>rule.unit===upgradeUnit&&
    rule.buildings.includes(b.k)&&rule.civilizations.includes(index));
  });
@@ -699,6 +714,7 @@ function technologyTreeModel(team=0,world=S){
  const age=Number.isInteger(world.age?.[team])?world.age[team]:0,known=world.tech[team];
  const buildings=[];
  for(const kind of Object.keys(B)){
+  if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
   const building=B[kind],ref={k:kind,t:team};
   const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
    const d=U[key],requiredAge=Number.isInteger(d.age)?d.age:0;

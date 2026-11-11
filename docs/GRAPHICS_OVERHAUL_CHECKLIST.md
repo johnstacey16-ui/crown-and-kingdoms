@@ -5,7 +5,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Category | Status | Remaining work |
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
-| Unit animation | partial | 3 kinds, independent directions, work variants and dedicated death sheets |
+| Unit animation | partial | 8 kinds, independent directions, work variants and dedicated death sheets |
 | Elite unit visuals | partial | four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md) |
 | Building artwork | partial | faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
@@ -19,6 +19,6 @@ Tracks every current visual category, including unfinished art. Source catalogue
 
 ## Painted movement/activity roster
 
-Eagle Warrior, Cavalry Archer, Turtle Ship.
+Eagle Warrior, Cavalry Archer, Turtle Ship, Organ Gun, Caravel, Arambai, Rattan Archer, Battle Elephant.
 
-All 53 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.
+All 58 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.

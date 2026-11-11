@@ -95,7 +95,10 @@ else if(u.st===2){u.o='i';u.tg=null}else{if(!u.p.length||u.rp<=0){const p=path(u
 if(u.o==='g'){
 if(u.ret){
  const b=S.bs.find(q=>dropoffKey(q)===u.dropKey&&dropoffCompatible(u,q));
- if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
+ if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;
+ if(u.ct==='w'&&u.k==='vil'&&S.civ?.[u.t]===28&&S.tech?.[u.t]?.ut28p)
+  S.res[u.t].g+=u.car*.10;
+ if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
  if(!b||!u.p.length||u.rp<=0){
   if((u.dropRetry||0)>0){u.dropRetry-=dt;return}
   const dest=findDropoffRoute(u);
