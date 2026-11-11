@@ -112,7 +112,7 @@ Object.assign(U,{
  ratha:{n:'Ratha (Ranged)',hp:105,sp:1.4,dmg:6,rng:5,cd:2,delay:.3,ps:9,acc:.88,arm:1,mt:1,
   cost:{w:60,g:60},t:23,c:'#9f755a',r:11,age:2,lk:'cavarch'},
  rathaM:{n:'Ratha (Melee)',hp:105,sp:1.4,dmg:9,rng:.9,cd:1.9,arm:1,mt:1,
-  cost:{},t:0,c:'#9f755a',r:11,age:2,lk:'knight'},
+  cost:{},t:23,c:'#9f755a',r:11,age:2,lk:'knight'},
  chakram:{n:'Chakram Thrower',hp:45,sp:1.1,dmg:6,rng:3.2,cd:2,delay:.3,ps:12,acc:1,arm:0,
   cost:{f:65,g:30},t:15,c:'#b68a54',r:9,age:2,lk:'mil'},
  shrivamsha:{n:'Shrivamsha Rider',hp:70,sp:1.8,dmg:7,rng:.9,cd:1.8,arm:0,mt:1,
