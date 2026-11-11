@@ -40,7 +40,7 @@ camel:{n:'Camel Rider',hp:100,sp:1.45,dmg:6,rng:.9,cd:2,arm:0,cost:{f:55,g:60},t
 king:{n:'King',hp:150,sp:1.2,dmg:1,rng:.9,cd:2,arm:0,cost:{},t:0,c:'#c9a0ff',r:9,age:0},
 skirm:{n:'Skirmisher',hp:30,sp:.96,dmg:2,rng:4,minR:1,cd:3,acc:.9,arm:0,cost:{f:25,w:35},t:26,c:'#9ccf7a',r:8,age:1,bn:{arc:3,xbow:3,lbow:3,skirm:3,spear:3,mamel:2}},
 mang:{n:'Mangonel',hp:70,sp:.9,dmg:14,rng:7,cd:3.5,arm:0,cost:{w:160,g:135},t:26,c:'#8a6a3a',r:11,age:2,spl:1.6,sg:1},
-scor:{n:'Scorpion',hp:50,sp:1,dmg:10,rng:6.5,cd:2.6,arm:0,cost:{w:75,g:75},t:18,c:'#8a6a3a',r:10,age:2,bn:{mil:6,spear:6,arc:6,xbow:6,skirm:6,vil:6}},
+scor:{n:'Scorpion',hp:50,sp:1,dmg:10,rng:6.5,minR:2,cd:2.6,arm:0,cost:{w:75,g:75},t:18,c:'#8a6a3a',r:10,age:2,bn:{mil:6,spear:6,arc:6,xbow:6,skirm:6,vil:6}},
 tca:{n:'Town Centre',hp:1,sp:0,dmg:5,rng:7,cd:2.2,arm:0,cost:{},t:0,c:'#fff',r:0,age:0},
 tw:{n:'Tower',hp:1,sp:0,dmg:7,rng:7,cd:2,arm:0,cost:{},t:0,c:'#fff',r:0,age:0},cs:{n:'Castle',hp:1,sp:0,dmg:12,rng:9,cd:1.5,arm:0,cost:{},t:0,c:'#fff',r:0,age:0}};
 /* Original unique-unit definitions are followed below by regional troops. */
