@@ -11,6 +11,9 @@ function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
  const cost=U[kind]?.cost||{};
  if(kind==='kipchak'&&civs?.[team]!==31&&
   typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
+ if(civs?.[team]===39&&techs?.[team]?.ut39&&cost.f&&
+  kind!=='vil'&&kind!=='cart'&&kind!=='cog'&&kind!=='fish'&&kind!=='trn')
+  return {...cost,f:Math.ceil(cost.f*.75)};
  if(civs?.[team]===37&&B.siege?.tr?.includes(kind)&&cost.w)return {...cost,w:Math.ceil(cost.w*2/3)};
  if(civs?.[team]===36&&kind==='mon'&&techs?.[team]?.ut36p&&cost.g){
   const {g,...other}=cost;return {...other,f:(other.f||0)+g};
