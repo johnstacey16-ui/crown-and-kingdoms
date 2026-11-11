@@ -715,12 +715,24 @@ globalThis.__CK_TEST__ = {
       }
       if(index===8){
         const home=tcOf(0),castle=S.bs.find(b=>b.t===1&&b.k==='castle'&&b.hp>0);
-        if(home&&castle){
-          const cx=home.x+home.s/2,cy=home.y+home.s/2;
-          const tx=castle.x+castle.s/2,ty=castle.y+castle.s/2;
-          if(!placeNear('siege',cx+(tx-cx)*.72,cy+(ty-cy)*.72,9))
-            throw Error('No real Ashford forward Siege Workshop site');
+        if(!home||!castle)throw Error('Ashford siege camp needs both original capitals');
+        const cx=home.x+home.s/2,cy=home.y+home.s/2;
+        const tx=castle.x+castle.s/2,ty=castle.y+castle.s/2;
+        const dist=Math.hypot(tx-cx,ty-cy);
+        let camp=null;
+        // The objective checks both forward projection and distance from the
+        // actual Castle; a constant .72 fraction can be far outside its 36-tile
+        // circle on a long map. Try genuine buildable sites near the Castle.
+        for(const back of [24,28,20,32,16,34]){
+          const ratio=1-back/dist;
+          const candidate=placeNear('siege',cx+(tx-cx)*ratio,cy+(ty-cy)*ratio,9);
+          if(!candidate)continue;
+          if(campaignAshfordForwardSiegeCamp()===candidate){camp=candidate;break}
+          S.bs.splice(S.bs.indexOf(candidate),1);
+          for(let yy=candidate.y;yy<candidate.y+candidate.s;yy++)
+          for(let xx=candidate.x;xx<candidate.x+candidate.s;xx++)S.g[yy*W+xx]=0;
         }
+        if(!camp)throw Error('No real qualifying Ashford forward Siege Workshop site');
         for(const id of cmp.d.ashfordSignalIds||[]){
           const signal=S.bs.find(b=>b.netId===id&&b.t===1);
           if(signal)signal.hp=0;
@@ -2268,6 +2280,10 @@ console.log('campaign-matrix-smoke: all 19 campaign missions started and survive
 
 const campaignGoalAudit = timed('campaign-goal-reachability-19-missions', () => game.auditCampaignGoalReachability());
 assert.equal(campaignGoalAudit.results.length, 19, 'All 19 campaign missions must be audited');
+const incompleteCampaignGoals=campaignGoalAudit.results.filter(m=>
+  m.initialTrue.length||m.failedPredicates.length||!m.won);
+if(incompleteCampaignGoals.length)
+ console.log('campaign-goal-audit-unresolved: '+JSON.stringify(incompleteCampaignGoals));
 for (const mission of campaignGoalAudit.results) {
   assert.equal(mission.initialTrue.length, 0, `Mission ${mission.index + 1} must not start with a completed objective: ${mission.initialTrue.join(', ')}`);
   assert.equal(mission.failedPredicates.length, 0, `Mission ${mission.index + 1} goals must be satisfiable through direct game-state changes: ${mission.failedPredicates.join(', ')}`);
