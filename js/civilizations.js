@@ -94,7 +94,16 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut35p',n:'Lechitic Legacy',cost:{f:750,g:550},t:60,age:3,
   fx:t=>{S.tech[t].lechiticLegacy=1}},
  elite:{k:'eliteObuch',n:'Elite Obuch',cost:{f:800,g:600},t:55,age:3,
-  hpb:{obuch:15},atkb:{obuch:2},armor:{m:1,p:1}}}];
+  hpb:{obuch:15},atkb:{obuch:2},armor:{m:1,p:1}}},
+{n:'Bohemians',uu:'husswagon',teamWork:{market:1.8},
+ d:'Hussite Wagon cover, early gunpowder, mining and monastery reforms',
+ fx:t=>{S.tech[t].bohemianGunpowder=1},
+ ut:{k:'ut36',n:'Wagenburg Tactics',cost:{f:300,g:450},t:45,age:2,
+  fx:t=>{S.tech[t].wagenburg=1}},
+ ut2:{k:'ut36p',n:'Hussite Reforms',cost:{f:800,g:450},t:60,age:3,
+  fx:t=>{S.tech[t].hussiteReforms=1}},
+ elite:{k:'eliteHussiteWagon',n:'Elite Hussite Wagon',cost:{w:900,g:700},t:60,age:3,
+  hpb:{husswagon:30},atkb:{husswagon:2},armor:{p:1}}}];
 CIV.forEach(c=>{TE[c.ut.k]=c.ut;if(c.ut2)TE[c.ut2.k]=c.ut2;if(c.elite)TE[c.elite.k]=c.elite});
 
 /* Common Elite unique-unit research effects. Keep unit-specific values with
