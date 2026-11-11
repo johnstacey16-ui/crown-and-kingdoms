@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v9",
+  "inventoryVersion": "ck-current-medieval-roster-26-v10",
   "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
   "rulesets": [
     {
@@ -145,7 +145,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteWarElephant"
     },
     {
       "id": 5,
@@ -187,7 +188,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut6p",
+      "eliteUpgrade": "eliteWoadRaider"
     },
     {
       "id": 7,
@@ -207,7 +210,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut7p",
+      "eliteUpgrade": "eliteBerserk"
     },
     {
       "id": 8,
@@ -289,7 +294,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut11p",
+      "eliteUpgrade": "eliteSamurai"
     },
     {
       "id": 12,
