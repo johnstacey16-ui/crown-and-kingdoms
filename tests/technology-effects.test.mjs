@@ -20,9 +20,9 @@ assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'ne
 
 assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=\(t\.gath\?1\.25:1\)\*\(typeof georgianChurchWorkRate==='function'\?georgianChurchWorkRate\(u\):1\)/,
   'Gather Rate research must affect existing villagers on future collection ticks');
-assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
+assert.match(html, /if\(k==='w'\)\{m\*=1\+\(armenian\?\.28:\.2\)\*!!t\.axe\+\(armenian\?\.28:\.2\)\*!!t\.saw/,
   'Double-bit Axe and Bow Saw must affect wood gathering');
-assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\.15\*!!t\.smine/,
+assert.match(html, /if\(k==='g'\)m\*=1\+\(armenian\?\.21:\.15\)\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\(armenian\?\.21:\.15\)\*!!t\.smine/,
   'Gold Mining and Stone Mining must affect the matching resource gathering rates');
 assert.match(html, /function gatherCapacity\(u\).*\bhunt=.*\?35:CAP\).*tech\.handcart\?\(hunt\?22:7\)/,
   'Carrying capacity must use the actual researched upgrades for current workers');

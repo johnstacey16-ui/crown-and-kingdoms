@@ -123,7 +123,8 @@ test('Authenticated command schema admits cart moves but rejects forged or hosti
  assert.equal(run("CK_SIM_SYNC.validOrder({type:'move',entities:[mule.netId],point:{x:24,y:20}},W)"),true);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},1,8)"),false);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[tc.netId],point:{x:24,y:20}},0,8)"),false);
- assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},0,8)"),true);
+ assert.equal(run("CK_GAME_COMMANDS.execute({type:'move',entities:[mule.netId],point:{x:24,y:20}},0,8)"),true,
+  run("JSON.stringify({mode,valid:CK_SIM_SYNC.validOrder({type:'move',entities:[mule.netId],point:{x:24,y:20}},W),lookup:CK_GAME_COMMANDS.lookup(mule.netId)===mule,civ:S.civ[0],ready:mule.done,destination:muleCartTileFree(mule,24,20),path:muleCartRoute(mule,24,20)?.length,entityId:mule.netId})"));
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'stop',entities:[mule.netId]},0,9)"),true);
  assert.equal(run("mule.muleAuto"),false);
  assert.equal(run("CK_GAME_COMMANDS.execute({type:'mule-auto',entities:[mule.netId]},0,10)"),true);

@@ -38,7 +38,7 @@ assert.ok(orderStart >= 0 && orderEnd > orderStart, 'The central explicit order 
 const order = html.slice(orderStart, orderEnd);
 assert.ok(order.includes('u.autoWorker=0;') && order.includes("u.ct=tg.k"),
   'Direct site gathering must override automation and retain the selected resource type');
-contains("const dk=t.k==='w'?'lumber':(t.k==='g'||t.k==='s')?'mine':'mill';mk('Build '+B[dk].n+' here'",
-  'Contextual gather assignment must preserve the existing resource-side building shortcut');
+contains("const dk=[41,42].includes(S.civ?.[0])&&(['w','g','s'].includes(t.k)||t.k==='f'&&t.an)?'mule':t.k==='w'?'lumber':(t.k==='g'||t.k==='s')?'mine':'mill';mk('Build '+B[dk].n+' here'",
+  'Contextual gathering uses Mule Carts only for Armenian or Georgian wood, mineral and hunt sites; other civilizations retain their established shortcuts');
 
 console.log('villager-site-assignment: source and controller routing checks passed');
