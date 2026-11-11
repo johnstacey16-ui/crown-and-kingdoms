@@ -30,7 +30,7 @@ test('every effective unit kind and every sprite-backed building resolves an atl
  for(const kind of sandbox.runtimeKinds.buildings)for(let team=0;team<4;team++){
   assert.ok(sandbox.artFrame('bld_'+kind,team,3,0,.21),'Missing building '+kind+'/'+team);
  }
- assert.equal(sandbox.runtimeKinds.units.length,53);
+ assert.equal(sandbox.runtimeKinds.units.length,56,'53 playable troop kinds plus three defensive attack proxies');
 });
 
 test('painted raster pack uses bounded base poses and multi-frame motion, valid materials and castle proxies',()=>{

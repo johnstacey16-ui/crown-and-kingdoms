@@ -79,6 +79,7 @@ function combatArmor(t,cls){
 // properties from pretending their ordinary hits are armour-piercing trample.
 const CK_TRAMPLE_DAMAGE=Symbol('ck.trample');
 function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||t.hp<=0||t.ld||!S.tech[a.t]||!isHostile(a.t,t.t))return;const ak=U[a.k],tk=S.tech[a.t],bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+(a.k==='scout'&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):a.k==='scout'?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0)))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+ (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===4&&tk.ut4p&&a.k==='cs'?(4+(!t.s&&INFARM.has(t.k)?3:0)+(t.k==='ram'?3:0)):0)+
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
