@@ -321,7 +321,7 @@ function mercenaryKipchakAvailable(team,civs=S?.civ,techs=S?.tech){
  const used=techs[team].mercKipchakClaims||0;
  return Number.isInteger(used)&&used>=0&&used<5;
 }
-const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
+const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
  if((b.k==='krepost'&&civs?.[b.t]!==29)||(b.k==='donjon'&&civs?.[b.t]!==34))return [];
  const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
@@ -333,6 +333,11 @@ const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
  // research, but only for the Polish and Lithuanian civilizations.
  if(b.k==='siege')return civs?.[b.t]===36&&techs?.[b.t]?.houfniceUpgrade?
   [...eligible.filter(k=>k!=='bomb'),'houfnice']:eligible.filter(k=>k!=='houfnice');
+ if(b.k==='stable'&&civs?.[b.t]===39){
+  const age=ages?.[b.t]??0;
+  return eligible.filter(k=>!['scout','knight','winged','batele','steppe','camel','camelscout','shrivamsha'].includes(k))
+   .concat(age>=2?['camel','shrivamsha']:['camelscout']);
+ }
  if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
   techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
   eligible.filter(k=>k!=='winged');
@@ -387,7 +392,9 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Sicilians':'xa',
  'Poles':'xa',
  'Bohemians':'xa',
- 'Dravidians':'xa'
+ 'Dravidians':'xa',
+ 'Bengalis':'xa',
+ 'Gurjaras':'xt'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -432,7 +439,9 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Sicilians':'mltcphvaesku',
  'Poles':'mltcphvaesku',
  'Bohemians':'mltcphvesk',
- 'Dravidians':'mltphves'
+ 'Dravidians':'mltphves',
+ 'Bengalis':'mltphvesu',
+ 'Gurjaras':'mltphvesu'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -454,7 +463,9 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Sicilians':'rbh',
  'Poles':'rbh',
  'Bohemians':'rh',
- 'Dravidians':'rh'
+ 'Dravidians':'rh',
+ 'Bengalis':'rh',
+ 'Gurjaras':'rh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -497,7 +508,9 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Sicilians':'dfrsvitm',
  'Poles':'dfrsvitm',
  'Bohemians':'dfhrasvbitm',
- 'Dravidians':'dfsvbitm'
+ 'Dravidians':'dfsvbitm',
+ 'Bengalis':'dfrasvbitm',
+ 'Gurjaras':'dfrasvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -539,7 +552,9 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Sicilians':'msgkfcbh',
  'Poles':'msgkfcbh',
  'Bohemians':'msgkfcbh',
- 'Dravidians':'msgkfcbh'
+ 'Dravidians':'msgkfcbh',
+ 'Bengalis':'msgkfcbh',
+ 'Gurjaras':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -580,7 +595,9 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Sicilians':'irc',
  'Poles':'irc',
  'Bohemians':'irc',
- 'Dravidians':'irc'
+ 'Dravidians':'irc',
+ 'Bengalis':'irc',
+ 'Gurjaras':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -621,7 +638,9 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Sicilians':'cp',
  'Poles':'cp',
  'Bohemians':'cp',
- 'Dravidians':'cp'
+ 'Dravidians':'cp',
+ 'Bengalis':'cp',
+ 'Gurjaras':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -663,7 +682,9 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Sicilians':'lr',
  'Poles':'lr',
  'Bohemians':'lr',
- 'Dravidians':'lr'
+ 'Dravidians':'lr',
+ 'Bengalis':'lr',
+ 'Gurjaras':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -706,7 +727,9 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Sicilians':'cp',
  'Poles':'cp',
  'Bohemians':'c',
- 'Dravidians':'c'
+ 'Dravidians':'c',
+ 'Bengalis':'cp',
+ 'Gurjaras':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -745,7 +768,9 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Sicilians':'fib',
  'Poles':'fib',
  'Bohemians':'fib',
- 'Dravidians':'fi'
+ 'Dravidians':'fi',
+ 'Bengalis':'fib',
+ 'Gurjaras':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
@@ -803,7 +828,7 @@ function technologyTreeModel(team=0,world=S){
  for(const kind of Object.keys(B)){
   if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
   const building=B[kind],ref={k:kind,t:team};
-  const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
+  const units=trOf(ref,world.civ,world.tech,world.age).filter(key=>!!U[key]).map(key=>{
    const d=U[key],requiredAge=typeof unitEffectiveAge==='function'?unitEffectiveAge(team,key,world.civ):Number.isInteger(d.age)?d.age:0;
    return {id:key,name:d.n,age:requiredAge,cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
     state:requiredAge>age?'locked':'available',
