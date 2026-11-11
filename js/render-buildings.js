@@ -256,6 +256,37 @@ function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=fals
   }
  }finally{g.restore()}
 }
+// At minimum zoom a busy Xbox battlefield can show dozens of buildings at
+// once. Preserve painted landmarks and selected structures in drawBld(), but
+// render ordinary unselected buildings as inexpensive strategic footprints.
+// This operates only after normal screen/fog culling and never changes state,
+// simulation, save data or the underlying original artwork.
+function drawStrategicBuilding(b,position){
+ const P=position||w2s(b.x+b.s/2,b.y+b.s/2);
+ const x=P[0],y=P[1],r=Math.max(7,Math.min(24,Math.round(b.s*7*zm))),
+       h=Math.max(5,Math.min(14,Math.round(b.s*4*zm)));
+ if(b.k==='farm'){
+  X.fillStyle='#46532b';X.fillRect(x-r,y-h,r*2,h*2);
+  X.fillStyle='#90a84c';X.fillRect(x-r+2,y-h+2,Math.max(1,r*2-4),Math.max(2,h*2-5));
+ }else{
+  X.fillStyle='#332d25';X.fillRect(x-r,y-h*1.5,r*2,h*2.3);
+  X.fillStyle=teamColor(b.t);X.fillRect(x-r+1,y-h*1.5+1,Math.max(1,r*2-2),Math.max(3,h));
+  X.fillStyle='#c8b48d';X.fillRect(x-r+3,y+h*.25,Math.max(1,r*2-6),Math.max(2,h*.4));
+ }
+ // Keep construction, damage and queue information legible at strategy zoom.
+ if(!b.done){
+  const total=B[b.k]?.bt||1,progress=Math.max(0,Math.min(1,(b.pr||0)/total));
+  X.fillStyle='#15262c';X.fillRect(x-r,y+h+2,r*2,3);
+  X.fillStyle='#8ed7ef';X.fillRect(x-r,y+h+2,r*2*progress,3);
+ }else if(b.mh>0&&b.hp<b.mh){
+  const health=Math.max(0,Math.min(1,b.hp/b.mh));
+  X.fillStyle='#271b19';X.fillRect(x-r,y+h+2,r*2,3);
+  X.fillStyle='#8fd686';X.fillRect(x-r,y+h+2,r*2*health,3);
+ }
+ if(b.q?.length){
+  X.fillStyle='#ffcf63';X.fillRect(x+r-4,y-h*1.5-3,4,4);
+ }
+}
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,
 dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b)):null,
 c=baf?null:spr('b|'+b.k+'|'+b.t+'|'+st+'|'+dm,w,hgt,g=>paintBld(g,b.k,s,teamColor(b.t),ff,dm)),Z=w2s(b.x+s,b.y+s),E=w2s(b.x+s,b.y),N=w2s(b.x,b.y),Wv=w2s(b.x,b.y+s);
