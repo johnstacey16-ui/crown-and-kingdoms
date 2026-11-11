@@ -25,7 +25,7 @@ test('all new Sicilian through Georgian source-only assets are honestly procedur
   assert.equal(entry.walkFrames,0);
   assert.equal(entry.attackFrames,0);
  }
- for(const kind of ['donjon','folwark'])
+ for(const kind of ['donjon','folwark','fchurch'])
   assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,false);
  assert.equal(graphics.complete,false,'partial art never constitutes whole-game acceptance');
 });

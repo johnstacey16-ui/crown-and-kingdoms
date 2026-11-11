@@ -994,6 +994,15 @@
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "fchurch",
+      "name": "Fortified Church",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
   "checklist": [
@@ -1018,7 +1027,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "26 building kinds; 22 painted, 4 original procedural fallback; fog-safe age presentation",
+      "evidence": "27 building kinds; 22 painted, 5 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {
