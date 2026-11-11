@@ -19,8 +19,13 @@ test('every effective unit kind and every sprite-backed building resolves an atl
   assert.equal(sandbox.checkMeta(atlas.meta,width,height),true,atlas.id);
   sandbox.register(atlas.id,{id:atlas.id},atlas.meta);
  }
+ // Three newly playable regional units use original procedural art until
+ // dedicated painted atlases are produced; a null lookup is intentional.
+ const procedural=new Set(['eagle','cavarch','turtle']);
  for(const kind of sandbox.runtimeKinds.units)for(let team=0;team<4;team++)for(let state=0;state<4;state++){
-  assert.ok(sandbox.artFrame(kind,team,state,0,.21,Math.PI),'Missing unit '+kind+'/'+state+'/'+team);
+  const image=sandbox.artFrame(kind,team,state,0,.21,Math.PI);
+  if(procedural.has(kind))assert.equal(image,null,'regional art must use fallback '+kind);
+  else assert.ok(image,'Missing painted unit '+kind+'/'+state+'/'+team);
  }
  for(const kind of sandbox.runtimeKinds.buildings)for(let team=0;team<4;team++){
   assert.ok(sandbox.artFrame('bld_'+kind,team,3,0,.21),'Missing building '+kind+'/'+team);

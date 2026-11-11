@@ -24,7 +24,8 @@ function fixture(){
 
 test('Cannon Galleon is a distinct Imperial artillery ship, locked until paid Chemistry',()=>{
  const {U,B,TE}=config;
- assert.deepEqual(asJSON(B.dock.tr),['fish','gal','fire','demo','cgal','trn','cog']);
+ assert.deepEqual(asJSON(B.dock.tr.slice(0,7)),['fish','gal','fire','demo','cgal','trn','cog']);
+ assert.ok(B.dock.tr.includes('turtle'),'additional Korean ship must not displace Cannon Galleons');
  assert.equal(U.cgal.age,3);
  assert.equal(U.cgal.sh,1);
  assert.equal(U.cgal.minR,3);

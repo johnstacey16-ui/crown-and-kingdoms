@@ -88,6 +88,7 @@ const FOCUSED=[
  "tests/civilization-complete-elite-coverage.test.mjs",
  "tests/civilization-expanded-unique-technologies.test.mjs",
  "tests/civilization-economy-and-projectile-technologies.test.mjs",
+ "tests/regional-eagle-cavarch-turtle.test.mjs",
  "tests/byzantine-logistica-elite.test.mjs",
  "tests/byzantine-greek-fire.test.mjs",
  "tests/castle-civilization-production.test.mjs",
