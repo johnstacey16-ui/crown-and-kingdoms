@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-37-v1",
-  "description": "37 partial medieval civilizations, including Polish and Bohemian mechanics. Historic IDs and existing research/multiplayer contracts retained; exact per-patch balance and original painted animations remain unfinished.",
+  "inventoryVersion": "ck-current-medieval-roster-38-v1",
+  "description": "38 partial medieval civilizations (stable IDs 0–37), including Dravidian infantry/naval mechanics. Exact patch parity, art and Xbox hardware remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -164,6 +164,28 @@
         ],
         "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/poles",
         "note": "Winged Hussar after Hussar research, shared by Poles and Lithuanians. Original procedural appearance, partial detailed reference parity."
+      },
+      {
+        "unit": "eled",
+        "civilizations": [
+          37
+        ],
+        "buildings": [
+          "rng"
+        ],
+        "source": "https://www.aoe2insights.com/civilization/dravidians/",
+        "note": "Regional Elephant Archer at Castle Age with Dravidian attack bonus; other elephant lines await audit."
+      },
+      {
+        "unit": "thirisadai",
+        "civilizations": [
+          37
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.aoe2insights.com/civilization/dravidians/",
+        "note": "Dravidian Imperial Age unique warship with multiple projectile attacks, separate Elite upgrade."
       }
     ]
   },
@@ -980,6 +1002,28 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
+      }
+    },
+    {
+      "id": 37,
+      "name": "Dravidians",
+      "uniqueUnit": "urumi",
+      "uniqueTechnology": "ut37",
+      "secondUniqueTechnology": "ut37p",
+      "eliteUpgrade": "eliteUrumi",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphves",
+        "field": "rh",
+        "monastery": "dfsvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fi"
       }
     }
   ]
