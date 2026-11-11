@@ -353,7 +353,7 @@
       result:world.over || null, resultReason:world.why || null,
       landGrid:world.g ? Array.from(world.g) : null,
       waterGrid:world.wt ? Array.from(world.wt) : null,
-       elevationGrid:world.el ? Array.from(world.el) : null,
+       elevationGrid:world.el ? world.el.join('') : null,
       nodes:world.nodes.map(n => ({
         id:n.netId || null, kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
         farm:n.fm, animal:n.an, fish:n.fi, trap:n.trap
