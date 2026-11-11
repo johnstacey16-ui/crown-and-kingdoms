@@ -1,5 +1,5 @@
 {
-  "scope": "41 partial medieval civilizations; 81 non-defence unit identities (including alternate Ratha form); 50 painted and 31 procedural-only. Elite and independent facing/death art remain unverified.",
+  "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
   "atlases": 57,
   "units": [
@@ -1000,14 +1000,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "84 non-defence unit identities; 50 have painted bases and 34 rely on original procedural drawing",
-      "remaining": "34 unit base variants plus independent direction and Elite appearances"
+      "evidence": "84 playable kinds; see catalogue",
+      "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 84 units have painted movement and activity sheets",
-      "remaining": "34 original procedural-only kinds, independent direction and death/Elite art"
+      "evidence": "50 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "34 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
@@ -1018,7 +1018,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "26 building kinds; 22 painted, 4 original procedural fallback",
+      "evidence": "26 building kinds; 22 painted, 4 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {
