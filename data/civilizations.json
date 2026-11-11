@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v10",
+  "inventoryVersion": "ck-current-medieval-roster-26-v11",
   "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
   "rulesets": [
     {
@@ -232,7 +232,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteMameluke"
     },
     {
       "id": 9,
@@ -252,7 +253,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteJanissary"
     },
     {
       "id": 10,
@@ -316,7 +318,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteBattleElephant"
     },
     {
       "id": 13,
@@ -336,7 +339,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteElephantArcher"
     },
     {
       "id": 14,
@@ -356,7 +360,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteConquistador"
     },
     {
       "id": 15,
@@ -376,7 +381,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteGenoeseCrossbowman"
     },
     {
       "id": 16,
@@ -396,7 +402,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteBoyar"
     },
     {
       "id": 17,
@@ -416,7 +423,8 @@
         "archerArmor": "l",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteTarkan"
     },
     {
       "id": 18,
@@ -480,7 +488,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "elitePlumedArcher"
     },
     {
       "id": 21,
@@ -500,7 +509,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteKamayuk"
     },
     {
       "id": 22,
@@ -520,7 +530,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteShotelWarrior"
     },
     {
       "id": 23,
@@ -540,7 +551,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fi"
-      }
+      },
+      "eliteUpgrade": "eliteGbeto"
     },
     {
       "id": 24,
@@ -560,7 +572,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fi"
-      }
+      },
+      "eliteUpgrade": "eliteWarWagon"
     },
     {
       "id": 25,
@@ -580,7 +593,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteMagyarHuszar"
     }
   ]
 }

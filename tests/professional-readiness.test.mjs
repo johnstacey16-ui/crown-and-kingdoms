@@ -7,7 +7,7 @@ const inventory=read('data/civilizations.json'),graphics=read('docs/graphics-inv
 test('readiness metrics report actual content without claiming full completion',()=>{
  const r=professionalReadiness(inventory,graphics,atlas);
  assert.equal(r.metrics.civilizations,26);
- assert.equal(r.metrics.eliteResearchLines,12);
+ assert.equal(r.metrics.eliteResearchLines,26);
  assert.equal(r.metrics.secondUniqueTechnologies,10);
  assert.equal(r.metrics.totalUnits,50);
  assert.equal(r.metrics.paintedUnitBases,50);
