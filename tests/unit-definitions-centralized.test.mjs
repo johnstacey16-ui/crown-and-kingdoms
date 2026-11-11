@@ -8,9 +8,9 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const catalogue=currentCivilizationRuntime();
 
-test('all 82 registered unit kinds are defined by config instead of late engine mutation',()=>{
+test('all 84 registered unit kinds are defined by config instead of late engine mutation',()=>{
  const units=vm.runInNewContext(config+'\n;U');
- assert.equal(Object.keys(units).length,82);
+ assert.equal(Object.keys(units).length,84);
  assert.match(config,/Object\.assign\(U,\{conq:\{/);
  assert.doesNotMatch(engine,/Object\.assign\(U,\{/);
  for(const kind of ['conq','genoa','boyar','tarkan','huskarl','jaguar',
@@ -21,8 +21,8 @@ test('all 82 registered unit kinds are defined by config instead of late engine 
  }
 });
 
-test('all 40 castles retain their unique-unit definitions and technologies',()=>{
- assert.equal(catalogue.civilizations.length,40);
+test('all 41 castles retain their unique-unit definitions and technologies',()=>{
+ assert.equal(catalogue.civilizations.length,41);
  for(const civ of catalogue.civilizations){
   assert.ok(catalogue.units[civ.uniqueUnit],civ.name+' lost castle troop');
   assert.equal(typeof civ.ut.fx,'function',civ.name+' lost unique technology');
