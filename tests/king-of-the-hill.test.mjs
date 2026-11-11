@@ -10,7 +10,7 @@ assert.match(html, /for\(const b of starts\)carve\(b\[0\]\+\.5,b\[1\]\+\.5,hx,hy
   'Every starting position must have a cleared land route toward the hill');
 assert.match(html, /carve\(hx,hy,hx,hy,6\)/,
   'The centre of the map must be cleared for the capture area');
-assert.match(html, /if\(vm===5\)prepareHillMap\(bs\);bs\.forEach/,
+assert.match(html, /if\(vm===5\)prepareHillMap\(bs\);\s*generateElevation\(bs\);\s*bs\.forEach/,
   'Hill routes must be prepared before starting-base resources and buildings are added');
 assert.match(html, /S\.kh=Array\(S\.teamN\)\.fill\(0\)/,
   'Each match must start with zero hold progress for every kingdom');
