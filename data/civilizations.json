@@ -110,6 +110,8 @@
       "name": "Byzantines",
       "uniqueUnit": "cata",
       "uniqueTechnology": "ut3",
+      "secondUniqueTechnology": "ut3p",
+      "eliteUpgrade": "eliteCataphract",
       "rulepack": "medieval",
       "status": "partial",
       "researchFlags": {
