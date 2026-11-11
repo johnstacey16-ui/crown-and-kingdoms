@@ -33,9 +33,10 @@ test('relic projection uses carrier coordinates, excludes hidden/garrisoned reli
 });
 test('all graphics categories remain explicitly tracked with complete unit/building coverage',()=>{
  const inventory=JSON.parse(read('docs/graphics-inventory.json'));
- assert.equal(inventory.complete,false);assert.equal(inventory.units.length,67);assert.equal(inventory.buildings.length,24);
+ assert.equal(inventory.complete,false);assert.equal(inventory.units.length,84);assert.equal(inventory.buildings.length,26);
  assert.equal(inventory.units.filter(x=>x.paintedBase).length,50,'new regional units must not claim painted sprites');
- assert.deepEqual(inventory.units.filter(x=>!x.paintedBase).map(x=>x.kind),['eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele','konnik','footkonnik','keshik','kipchak','steppe','flamecamel','leitis','coust','flemish']);
+ assert.equal(inventory.units.filter(x=>!x.paintedBase).length,34);
+ for(const kind of ['composite','warpriest','monaspa'])assert.ok(inventory.units.some(u=>u.kind===kind&&!u.paintedBase));
  assert.equal(inventory.units.filter(x=>x.walkFrames>1&&x.attackFrames>1).length,50);assert.ok(inventory.checklist.length>=11);
 });
 

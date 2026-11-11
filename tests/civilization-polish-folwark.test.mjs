@@ -38,7 +38,7 @@ test('completed Polish Folwarks provide five population, food dropoff and Feudal
  assert.equal(run('capOf(0)'),15);
  assert.equal(run("dropoffCompatible({t:0,ct:'f',sh:false},fol)"),true);
  run('S.age[0]=0');
- assert.equal(run('ageRequirements(0).count'),1);
+ assert.equal(run('ageRequirements(0).count'),2,'the completed Folwark adds to the already existing Feudal prerequisites');
  run('fol.hp=0');
  assert.equal(run('capOf(0)'),10);
  assert.equal(run("dropoffCompatible({t:0,ct:'f',sh:false},fol)"),false);

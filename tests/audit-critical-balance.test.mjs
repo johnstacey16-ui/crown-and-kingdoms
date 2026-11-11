@@ -9,7 +9,7 @@ const roadmap = readFileSync(new URL('../AOE2_PARITY_ROADMAP.md', import.meta.ur
 
 test('critical balance regressions from the parity audit stay corrected', () => {
   assert.match(config, /farm:\{n:'Farm',s:1,hp:480,cost:\{w:60\},bt:15\}/);
-  assert.match(config, /needs:\['rng','stable','smith','market'\]/);
+  assert.match(config, /needs:\['rng','stable','smith','market','donjon'\]/);
   assert.match(config, /treb:\{[^}]*minR:3/);
   assert.match(simulation, /const dist=d2\(u\.x,u\.y,tg\),minR=u\.k==='mang'&&S\.tech\[u\.t\]\?\.onager\?3:d\.minR\|\|0/);
   assert.match(simulation, /if\(minR&&dist<minR\)/);

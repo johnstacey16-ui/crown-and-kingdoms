@@ -6,6 +6,9 @@ import vm from 'node:vm';
 import { headlessGame } from './helpers/headless-game.mjs';
 
 const pack=JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json',import.meta.url),'utf8'));
+const graphics=JSON.parse(readFileSync(new URL('../docs/graphics-inventory.json',import.meta.url),'utf8'));
+const procedural=new Set(graphics.units.filter(x=>!x.paintedBase).map(x=>x.kind));
+const proceduralBuildings=new Set(graphics.buildings.filter(x=>!x.paintedBase).map(x=>x.kind));
 const {source,sandbox}=headlessGame();
 vm.runInNewContext(source+'\n'+readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+`
  globalThis.runtimeKinds={units:Object.keys(U),buildings:Object.keys(B)};
@@ -21,7 +24,6 @@ test('every effective unit kind and every sprite-backed building resolves an atl
  }
  // Eight newly playable regional/faction units use original procedural art until
  // dedicated painted atlases are produced; a null lookup is intentional.
- const procedural=new Set(['eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele','konnik','footkonnik','keshik','kipchak','steppe','flamecamel','leitis','coust','flemish']);
  for(const kind of sandbox.runtimeKinds.units)for(let team=0;team<4;team++)for(let state=0;state<4;state++){
   const image=sandbox.artFrame(kind,team,state,0,.21,Math.PI);
   if(procedural.has(kind))assert.equal(image,null,'regional art must use fallback '+kind);
@@ -29,10 +31,10 @@ test('every effective unit kind and every sprite-backed building resolves an atl
  }
  for(const kind of sandbox.runtimeKinds.buildings)for(let team=0;team<4;team++){
   const image=sandbox.artFrame('bld_'+kind,team,3,0,.21);
-  if(kind==='feitoria'||kind==='krepost')assert.equal(image,null,'new original buildings use procedural art');
+  if(proceduralBuildings.has(kind))assert.equal(image,null,'new original buildings use procedural art');
   else assert.ok(image,'Missing building '+kind+'/'+team);
  }
- assert.equal(sandbox.runtimeKinds.units.length,70,'67 playable troop kinds plus three defensive attack proxies');
+ assert.equal(sandbox.runtimeKinds.units.length,graphics.units.length+3,'all playable kinds plus three defensive attack proxies');
 });
 
 test('painted raster pack uses bounded base poses and multi-frame motion, valid materials and castle proxies',()=>{

@@ -15,7 +15,7 @@ const json=(run,expr)=>JSON.parse(run('JSON.stringify('+expr+')'));
 
 test('32 appended factions preserve old IDs, have independent paid Castle lines and Elite upgrades',()=>{
  const run=fixture();
- assert.equal(run('CIV.length'),34);
+ assert.equal(run('CIV.length'),43);
  assert.equal(run('CIV[28].n'),'Vietnamese');
  for(const [id,name,kind] of [[29,'Bulgarians','konnik'],[30,'Tatars','keshik'],[31,'Cumans','kipchak']]){
   assert.equal(run('CIV['+id+'].n'),name);

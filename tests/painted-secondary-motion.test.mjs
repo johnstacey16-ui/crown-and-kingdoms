@@ -5,12 +5,12 @@ import vm from 'node:vm';
 import {headlessGame} from './helpers/headless-game.mjs';
 
 const groups={
-  ship:['fish','gal','fire','demo','cgal','trn','cog','turtle','caravel'],
-  mounted:['mamel','mgd','cata','camel','conq','boyar','tarkan','huszar','cavarch','arambai','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust'],
+  ship:['fish','gal','fire','demo','cgal','trn','cog','turtle','caravel','thirisadai'],
+  mounted:['mamel','mgd','cata','camel','conq','boyar','tarkan','huszar','cavarch','arambai','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust','centurion','monaspa','ratha','rathaM','winged','shrivamsha','camelscout'],
   elephant:['eled','ele','batele'],
-  siege:['cart','ram','bomb','treb','mang','scor','wagon','orgun'],
-  ranged:['jan','chuko','hcan','genoa','plumed','rattan'],
-  foot:['king','gbeto','eagle','footkonnik','flemish']
+  siege:['cart','ram','bomb','treb','mang','scor','wagon','orgun','husswagon','houfnice'],
+  ranged:['jan','chuko','hcan','genoa','plumed','rattan','composite'],
+  foot:['king','gbeto','eagle','footkonnik','flemish','legionary','warpriest','chakram','urumi','obuch','serjeant']
 };
 const fullPainted=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel'];
 function evaluator(){
@@ -19,18 +19,18 @@ function evaluator(){
   vm.runInContext(source+'\n;globalThis.evaluateSecondary=code=>eval(code)',sandbox);
   return sandbox.evaluateSecondary;
 }
-test('secondary fallback covers 48 base portraits with six family tempos',()=>{
+test('secondary fallback covers 65 base portraits with six family tempos',()=>{
   const run=evaluator(),kindList=Object.values(groups).flat();
-  assert.equal(kindList.length,48);
-  assert.equal(new Set(kindList).size,48);
-  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),48);
+  assert.equal(kindList.length,65);
+  assert.equal(new Set(kindList).size,65);
+  assert.equal(run('Object.keys(PAINT_SECONDARY).length'),65);
   for(const [group,kinds] of Object.entries(groups)){
     for(const kind of kinds)assert.equal(run(`PAINT_SECONDARY['${kind}']`),group);
   }
   for(const kind of fullPainted){
     assert.equal(run(`PAINT_SECONDARY['${kind}']`),undefined,'do not alter individually painted animations');
   }
-  assert.equal(new Set([...kindList,...fullPainted]).size,67);
+  assert.equal(new Set([...kindList,...fullPainted]).size,84);
 });
 test('walking pose is repeatable, state-specific and varies over game time across all six families',()=>{
   const run=evaluator();
