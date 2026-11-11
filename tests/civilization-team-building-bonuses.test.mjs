@@ -24,6 +24,7 @@ test('seven declarative team bonuses affect their own production or research bui
   [18,'bar','train',1.2],
   [32,'monastery','train',1.2],
   [23,'univ','research',1.8],
+  [29,'smith','research',1.8],
   [26,'rng','research',1.25]
  ]){
   run('S.civ[0]='+civ+';S.tech[0]={}');
@@ -64,6 +65,49 @@ test('live building ticks consume training and research queues at allied rates',
  close(run('range.rs.t'),18.9-1.375,'allied Portuguese research bonus applies next tick');
  run('range.rs=null;range.q=[];S.tech[0].cons=1');
  close(run("trainRate(range,'arc')"),1.1*4/3,'Conscription still stacks with team training speed');
+});
+
+test('Goth Barracks team speed stacks with completed Perfusion without repeated civ bonuses',()=>{
+ const run=fixture();
+ run('S.civ=[18,18,0];S.tech[0].perfusion=1');
+ close(run("trainRate({k:'bar',t:0},'mil')"),2*1.2,'Perfusion and Goth team bonus combine');
+ assert.equal(run("setDiplomacy(0,1,'ally')"),true);
+ close(run("trainRate({k:'bar',t:0},'mil')"),2*1.2,'duplicate Goth ally cannot stack again');
+ run('S.tech[0].perfusion=0');
+ close(run("trainRate({k:'bar',t:0},'mil')"),1.2,'team bonus remains without Perfusion');
+});
+
+test('Aztec relic team bonus scales live Monastery gold only while allied',()=>{
+ const run=fixture();
+ run("S.civ=[0,19,19];globalThis.monastery={k:'monastery',t:0,x:25,y:25,s:3,hp:600,mh:600,done:true,q:[],rs:null};S.bs.push(monastery);S.rel=[{m:monastery}]");
+ const tick=()=>run('(()=>{const gold=S.res[0].g;upB(monastery,1);return S.res[0].g-gold})()');
+ close(tick(),.5,'no Aztec team bonus while hostile');
+ assert.equal(run("setDiplomacy(0,1,'ally')"),true);
+ close(tick(),2/3,'one allied Aztec raises relic gold by one third');
+ assert.equal(run("setDiplomacy(0,2,'ally')"),true);
+ close(tick(),2/3,'two allied Aztecs still grant only one team bonus');
+ assert.equal(run("setDiplomacy(0,1,'neutral')"),true);
+ close(tick(),2/3,'remaining allied Aztec still grants bonus');
+ assert.equal(run("setDiplomacy(0,2,'enemy')"),true);
+ close(tick(),.5,'bonus is revoked when the alliance ends');
+ run('S.civ[0]=19');
+ close(tick(),2/3,'Aztec owner benefits from own team bonus');
+});
+
+test('Spanish trade team bonus scales both Trade Cart and Trade Cog cargo exactly once',()=>{
+ const run=fixture();
+ run('S.civ=[0,14,14]');
+ close(run('tradeTripGold({t:0,k:"cart"},100)'),35,'unaligned standard trade');
+ assert.equal(run("setDiplomacy(0,1,'ally')"),true);
+ close(run('tradeTripGold({t:0,k:"cart"},100)'),44,'allied Spanish trade cart');
+ close(run('tradeTripGold({t:0,k:"cog"},100)'),44,'allied Spanish trade cog');
+ assert.equal(run("setDiplomacy(0,2,'ally')"),true);
+ close(run('tradeTripGold({t:0},100)'),44,'duplicate Spanish alliance does not compound');
+ run('S.civ[0]=13;S.tech[0].ut13p=1');
+ close(run('tradeTripGold({t:0},100)'),49,'Grand Trunk Road and Spanish team bonus combine');
+ assert.equal(run("setDiplomacy(0,1,'enemy')"),true);
+ assert.equal(run("setDiplomacy(0,2,'neutral')"),true);
+ close(run('tradeTripGold({t:0},100)'),39,'only own completed research remains');
 });
 
 test('Portuguese team research applies to ordinary technologies, never age advances',()=>{
