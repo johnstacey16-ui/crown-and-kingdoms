@@ -34,7 +34,8 @@ const DS={'Villager':'Gathers, builds and repairs. Weak in combat.','Militia':'C
 'Aznauri Cavalry':'Georgian mounted troops consume 20% less population capacity.',
 'Elite Composite Bowman':'Strengthens Armenian Composite Bowman combat.',
 'Elite Monaspa':'Strengthens Georgian Monaspa cavalry.',
-'Fortified Church':'Armenian and Georgian Monastery replacement. Stores relics, garrisons villagers and defends itself when occupied.'};
+'Fortified Church':'Armenian and Georgian Monastery replacement. Stores relics, garrisons villagers and defends itself when occupied.',
+'Mule Cart':'Armenian and Georgian mobile wood, gold, stone and hunted-food drop-off. Move it or allow it to follow resources. Research wood and mining technologies here.'};
 
 function stt(a){
  if(!a||a.q)return '';

@@ -196,3 +196,13 @@ function tickMuleCarts(dt){
   }
  }
 }
+
+/* Shared unit-like cart actions; the building keeps its occupancy on stop. */
+function stopMuleCart(b){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||!b.done||b.hp<=0)return false;
+ b.mulePath=[];b.muleProgress=0;b.muleAuto=false;return true;
+}
+function resumeMuleCart(b){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||!b.done||b.hp<=0)return false;
+ b.mulePath=[];b.muleProgress=0;b.muleAuto=true;b.muleCheck=0;return true;
+}
