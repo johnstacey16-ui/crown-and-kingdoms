@@ -67,8 +67,12 @@ assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
   'Cavalry barding must be drawn inside the translated/scaled sprite context');
 assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
   'Treadmill Crane must affect ongoing and future construction work rates');
-assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(tk\.gf\?4:0\):0\),cls=ak\.sg/,
-  'Arrowslits must feed the defensive building damage calculation');
+assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\):0\),cls=ak\.sg/,
+  'Arrowslits, Guard Tower and Keep must feed the defensive building damage calculation');
+assert.doesNotMatch(html, /tk\.gf\?4:0/,
+  'Byzantine Greek Fire must not strengthen ordinary tower arrows');
+assert.match(html, /a\.k==='fire'&&S\.civ\?\.\[a\.t\]===3&&S\.tech\[a\.t\]\?\.gf\?1:0/,
+  'Greek Fire must instead extend a researched Byzantine Fire Ship attack range');
 assert.match(html, /tk\.gtow\?3:0/,
   'Guard Tower must feed the defensive building damage calculation');
 assert.match(html, /tk\.keep\?3:0/,
