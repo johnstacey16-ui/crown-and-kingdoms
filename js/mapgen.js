@@ -78,6 +78,19 @@ function applyStartingCivilizationBonuses(team){
       const bush=addN('f',x,y,175);
       if(bush){bush.gurjaraForage=true;planted++}
      }
+   // Herdable sheep are discrete food nodes. They may also be moved into the
+   // Gurjara Mill pen for continuous passive food instead of hunted outright.
+   let sheep=0;
+   for(let radius=3;radius<=7&&sheep<3;radius++)
+    for(let dy=-radius;dy<=radius&&sheep<3;dy++)
+     for(let dx=-radius;dx<=radius&&sheep<3;dx++){
+      if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+      const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+      if(x<2||y<2||x>=W-2||y>=H-2||S.g[i]||S.wt[i]||S.nd[i]||
+        S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+      const animal=addN('f',x,y,100);
+      if(animal){animal.an=1;animal.herdable=1;sheep++}
+     }
   }
  }
  applied.add(team);
