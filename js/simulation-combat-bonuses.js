@@ -204,7 +204,7 @@ function detonateFlamingCamel(u){
 function resetConversion(u){u.cv=0;u.cvNext=0;u.cvTargetId=null;u.cvTeam=null}
 function conversionRange(u,target){return target?.s||['ram','treb'].includes(target?.k)?1:9+(S.tech[u.t]?.blockPrinting?3:0)}
 function unitSight(u){return u.k==='vil'?4:u.k==='mon'?11+(S.tech[u.t]?.blockPrinting?3:0):8+arrowSightBonus(u)}
-const CONVERSION_SIEGE=new Set(['ram','mang','scor','treb','bomb']);
+const CONVERSION_SIEGE=new Set(['ram','mang','scor','treb','bomb','husswagon','houfnice']);
 function canConvert(u,target){
  if(!u||u.k!=='mon'||u.hp<=0||u.ld||u.rel||u.st===4||!S.us.includes(u)||
     !target||target.hp<=0||target.ld||!isHostile(u.t,target.t)||
