@@ -33,6 +33,8 @@ test('AI housing forecast uses actual plus queued population only once',()=>{
  assert.ok(economy.includes('const popOf=t=>livePopulation(t)+queuedPopulation(t)'));
 });
 test('Treadmill Crane increases repair rate as well as build rate',()=>{
- assert.match(runtime,/tg\.mh\*dt\/\(S\.tech\[u\.t\]\.crane\?32:40\)/);
+ const repair=fs.readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
+  assert.match(runtime,/if\(tg\.done\)repairBuildingWithResources\(u,tg,dt\)/);
+  assert.match(repair,/building\.mh\*dt\/\(S\.tech\[worker\.t\]\?\.crane\?32:40\)/);
  assert.match(runtime,/const buildRate=\(S\.tech\[u\.t\]\.crane\?1\.2:1\)\*\(u\.k==='vil'&&S\.civ\?\.\[u\.t\]===40\?1\.05:1\)/);
 });
