@@ -65,6 +65,8 @@
         locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
+    if(building.k==='mill'&&world.civ?.[team]===39)
+      options.push({type:'livestock',label:'Garrison nearby sheep',cost:{},locked:''});
     if (GAR[building.k] && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
       options.push({type:'unload',label:'Unload garrison',cost:{},locked:''});
     return options;
@@ -219,6 +221,10 @@
     if (!entities) return false;
 
 
+    if(order.type==='livestock')
+      return entities.length===1&&activeBuildings(entities)&&entities[0].k==='mill'&&
+        S.civ?.[team]===39&&typeof garrisonLivestockMill==='function'&&
+        garrisonLivestockMill(entities[0])===true;
     if (order.type === 'unload') {
       // One garrison per order: no partial multi-building mutation on failure.
       if (entities.length!==1 || !activeBuildings(entities) || !GAR[entities[0].k]) return false;
@@ -432,7 +438,7 @@
     lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode', 'livestock'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);
