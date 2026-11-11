@@ -248,3 +248,15 @@ test('far-zoom troop source changes but displayed size and foot anchor stay iden
  stage.zm=2;calls.length=0;painter(g,art,320,280,.25,1,0,false,'mil');
  assert.equal(samples[1],1);assert.deepEqual(calls[0].slice(1),[305,222.5,50,60]);
 });
+
+test('cached troop frames reuse the acquired context, but recover from individual context loss',()=>{
+ const s=scene(),art={img:{},f:{x:20,y:30,w:190,h:210}};
+ const first=s.troopFrameTexture(art),acquired=s.contexts.length;
+ for(let i=0;i<50;i++)assert.equal(s.troopFrameTexture(art),first);
+ assert.equal(s.contexts.length,acquired,'no repeated Canvas2D context acquisitions for each soldier');
+ s.contexts[0].isContextLost=()=>true;
+ const next=s.troopFrameTexture(art);
+ assert.notEqual(next,first,'a lost texture is rebuilt rather than reused as a blank sprite');
+ assert.equal(s.TROOP_TEXTURE_LRU.size,1);
+ assert.equal(s.contexts.length,acquired+1);
+});

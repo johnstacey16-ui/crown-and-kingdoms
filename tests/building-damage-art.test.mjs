@@ -5,10 +5,11 @@ import vm from 'node:vm';
 function fixture(){
  const source=readFileSync(new URL('../js/render-buildings.js',import.meta.url),'utf8'),calls=[];
  const context=new Proxy({isContextLost(){return false},createRadialGradient(){return {addColorStop(){}}},getImageData(x,y,w,h){return {data:new Uint8ClampedArray(w*h*4)}}},{get(o,k){return o[k]||((...args)=>calls.push([k,...args]))}});
- const sandbox={document:{createElement(){return {width:0,height:0,getContext:()=>context}}}};
+ let acquisitions=0;
+ const sandbox={document:{createElement(){return {width:0,height:0,getContext:()=>{acquisitions++;return context}}}}};
  vm.createContext(sandbox);vm.runInContext(source.slice(source.indexOf('function buildingDamageStage('),source.indexOf('function drawBld('))+';globalThis.api={stage:buildingDamageStage,draw:drawBuildingArtwork,prepare:damagedBuildingArtwork,cache:BUILDING_DAMAGE_CACHE,lod:buildingFrameTexture,lodCache:BUILDING_LOD_CACHE};',sandbox);
  const art={painted:true,img:{paintedTeam:1},f:{x:10,y:20,w:20,h:30,ax:8,ay:28},sc:1};
- return {...sandbox.api,sandbox,calls,art};
+ return {...sandbox.api,sandbox,calls,art,context,get acquisitions(){return acquisitions}};
 }
 test('damage thresholds depend only on valid completed-building health',()=>{
  const f=fixture();assert.equal(f.stage(true,66,100),0);assert.equal(f.stage(true,65,100),1);assert.equal(f.stage(true,33,100),1);assert.equal(f.stage(true,32,100),2);
@@ -47,4 +48,30 @@ test('building prefilter keeps original art size and foot anchor at far zoom',()
  assert.equal(f.calls[0].length,9);assert.equal(f.calls[0][0],art.img);
  f.sandbox.zm=2;f.calls.length=0;f.draw(g,art,300,400,.4,true,1,false,0,0,true,true);
  assert.equal(f.calls[0].length,9);
+});
+
+test('painted building LOD cache reuses its Canvas2D context and recovers from loss',()=>{
+ const f=fixture(),art={painted:true,img:{},f:{x:10,y:15,w:200,h:240,ax:75,ay:232}};
+ f.sandbox.zm=.8;f.sandbox.DPR=1;
+ const first=f.lod(art,.4),acquired=f.acquisitions;
+ for(let i=0;i<40;i++)assert.equal(f.lod(art,.4),first);
+ assert.equal(f.acquisitions,acquired,'many buildings sharing a frame must not reacquire the context');
+ f.context.isContextLost=()=>true;
+ const healthy=new Proxy({isContextLost(){return false},createRadialGradient(){return {addColorStop(){}}}},{get(o,k){return o[k]||(()=>{})}});
+ f.sandbox.document.createElement=()=>({width:0,height:0,getContext:()=>healthy});
+ const next=f.lod(art,.4);
+ assert.notEqual(next,first);assert.equal(next.width,100);
+ assert.equal(f.lodCache.entries.size,1);
+});
+test('damaged building textures discard independently lost canvases without a blank result',()=>{
+ const f=fixture(),first=f.prepare(f.art,1),acquired=f.acquisitions;
+ for(let i=0;i<10;i++)assert.equal(f.prepare(f.art,1).img,first.img);
+ assert.equal(f.acquisitions,acquired,'damage cache reuse must not reacquire the context');
+ f.context.isContextLost=()=>true;
+ const healthy=new Proxy({isContextLost(){return false},createRadialGradient(){return {addColorStop(){}}}},{get(o,k){return o[k]||(()=>{})}});
+ f.sandbox.document.createElement=()=>({width:0,height:0,getContext:()=>healthy});
+ const next=f.prepare(f.art,1);
+ assert.notEqual(next.img,first.img);
+ assert.equal(f.cache.entries.size,1);
+ assert.equal(f.cache.pixels,20*30);
 });

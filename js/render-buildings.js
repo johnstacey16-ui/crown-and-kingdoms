@@ -124,16 +124,22 @@ function buildingVisualDamage(b){
 // One global LRU bounds retained damage canvases to16MiB nominal RGBA pixels.
 // This is separate from decoded artwork, motion tints and process/GPU memory.
 const BUILDING_DAMAGE_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:4*1024*1024,creations:0,hits:0,evictions:0};
+const BUILDING_DAMAGE_CONTEXTS=new WeakMap();
 function damagedBuildingArtwork(art,stage){
  if(!art?.painted||!art.img||!art.f||(stage!==1&&stage!==2))return art;
  const c=BUILDING_DAMAGE_CACHE,f=art.f;
  if(![f.x,f.y,f.w,f.h].every(Number.isInteger)||f.w<=0||f.h<=0)return art;
  let id=c.ids.get(art.img);if(!id){id=c.next++;c.ids.set(art.img,id)}
  const key=[id,f.x,f.y,f.w,f.h,stage].join('/');let image=c.entries.get(key);
+ if(image){
+  let usable=false;
+  try{const ctx=BUILDING_DAMAGE_CONTEXTS.get(image)||image.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
+  if(!usable){c.entries.delete(key);c.pixels-=image.width*image.height;image=null}
+ }
  if(image){c.entries.delete(key);c.entries.set(key,image);c.hits++}
  else try{
   image=document.createElement('canvas');image.width=f.w;image.height=f.h;
-  const g=image.getContext('2d');if(!g)return art;
+  const g=image.getContext('2d');if(!g||g.isContextLost?.())return art;
   g.drawImage(art.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);
   g.globalCompositeOperation='source-atop';
   for(let i=0;i<(stage===2?7:4);i++){
@@ -148,7 +154,9 @@ function damagedBuildingArtwork(art,stage){
    g.beginPath();g.moveTo(x+radius*.12,y+radius*.13);g.lineTo(x+radius*.48,y+radius*.25);g.lineTo(x+radius*.62,y+radius*.53);g.stroke();
    g.strokeStyle='rgba(224,199,155,.42)';g.lineWidth=Math.max(.65,f.w*.0017);g.beginPath();g.moveTo(x+1,y-radius*.6);g.lineTo(x-radius*.16+1,y-radius*.18);g.lineTo(x+radius*.12+1,y+radius*.13);g.stroke();
   }
-  g.globalCompositeOperation='source-over';image.paintedAtlas=true;image.paintedTeam=art.img.paintedTeam;image.paintedDamageStage=stage;c.creations++;
+  g.globalCompositeOperation='source-over';if(g.isContextLost?.())return art;
+  BUILDING_DAMAGE_CONTEXTS.set(image,g);
+  image.paintedAtlas=true;image.paintedTeam=art.img.paintedTeam;image.paintedDamageStage=stage;c.creations++;
   const pixels=image.width*image.height;
   if(pixels<=c.limit){c.entries.set(key,image);c.pixels+=pixels;
    while(c.pixels>c.limit){const oldest=c.entries.keys().next().value,entry=c.entries.get(oldest);c.entries.delete(oldest);c.pixels-=entry.width*entry.height;c.evictions++}
@@ -215,6 +223,7 @@ function drawBuildingAgeDetails(g,art,left,top,width,height){
 // Cached half-size copies of the same painted buildings when strongly
 // minified at far zoom. Original anchors, screen dimensions and team art stay.
 const BUILDING_LOD_CACHE={entries:new Map(),ids:new WeakMap(),next:1,pixels:0,limit:2*1024*1024};
+const BUILDING_LOD_CONTEXTS=new WeakMap();
 function buildingFrameTexture(art,scale,allow=true){
  if(!allow||typeof zm!=='number'||zm>1||!art?.painted||!art.img||!art.f)return null;
  const f=art.f,img=art.img,physicalScale=Math.abs(scale)*(typeof DPR==='number'?DPR:1);
@@ -224,7 +233,11 @@ function buildingFrameTexture(art,scale,allow=true){
  let id=c.ids.get(img);if(!id){id=c.next++;c.ids.set(img,id)}
  const key=[id,f.x,f.y,f.w,f.h].join('/'),cache=c.entries;
  let image=cache.get(key);
- if(image?.getContext('2d')?.isContextLost?.()){cache.delete(key);c.pixels-=image.width*image.height;image=null}
+ if(image){
+  let usable=false;
+  try{const ctx=BUILDING_LOD_CONTEXTS.get(image)||image.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
+  if(!usable){cache.delete(key);c.pixels-=image.width*image.height;image=null}
+ }
  if(image){cache.delete(key);cache.set(key,image);return image}
  try{
   image=document.createElement('canvas');image.width=dw;image.height=dh;
@@ -232,6 +245,7 @@ function buildingFrameTexture(art,scale,allow=true){
   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
   g.drawImage(img,f.x,f.y,f.w,f.h,0,0,dw,dh);
   if(g.isContextLost?.())return null;
+  BUILDING_LOD_CONTEXTS.set(image,g);
   cache.set(key,image);c.pixels+=dw*dh;
   while(c.pixels>c.limit){
    const oldest=cache.keys().next().value,old=cache.get(oldest);

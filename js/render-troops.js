@@ -84,7 +84,7 @@ function paintedSecondaryPose(kind,state,time,phase){
 // At distant zoom, use a smaller copy of the original art, never simplified markers.
 // A total-pixel budget protects Edge from an unbounded frame-texture cache.
 const TROOP_TEXTURE_PIXEL_LIMIT=6*1024*1024,TROOP_TEXTURE_ENTRY_LIMIT=160;
-const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
+const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_CONTEXTS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
 let troopTextureSeq=0,troopTexturePixels=0;
 function troopFrameTexture(art,mirror=false,lod=1){
  const img=art?.img,f=art?.f;
@@ -96,7 +96,13 @@ function troopFrameTexture(art,mirror=false,lod=1){
  let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
  const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio+(mirror?'/flip':'');
  let cv=TROOP_TEXTURE_LRU.get(key);
- if(cv?.getContext('2d')?.isContextLost?.()){TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=cv.width*cv.height;cv=null}
+ if(cv){
+  // Context acquisition on each soldier was unnecessary. Keep the original
+  // Canvas2D context so an independently lost cached texture is still detected.
+  let usable=false;
+  try{const ctx=TROOP_TEXTURE_CONTEXTS.get(cv)||cv.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
+  if(!usable){TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=cv.width*cv.height;cv=null}
+ }
  if(cv){TROOP_TEXTURE_LRU.delete(key);TROOP_TEXTURE_LRU.set(key,cv);return cv}
  try{
   cv=document.createElement('canvas');cv.width=dw;cv.height=dh;
@@ -105,6 +111,7 @@ function troopFrameTexture(art,mirror=false,lod=1){
   if(mirror){ctx.translate(dw,0);ctx.scale(-1,1)}
   ctx.drawImage(img,x,y,w,h,0,0,dw,dh);
   if(ctx.isContextLost?.())return null;
+  TROOP_TEXTURE_CONTEXTS.set(cv,ctx);
   TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=dw*dh;
   while(troopTexturePixels>TROOP_TEXTURE_PIXEL_LIMIT||TROOP_TEXTURE_LRU.size>TROOP_TEXTURE_ENTRY_LIMIT){
    const oldKey=TROOP_TEXTURE_LRU.keys().next().value,old=TROOP_TEXTURE_LRU.get(oldKey);
