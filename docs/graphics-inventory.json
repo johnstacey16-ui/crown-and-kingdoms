@@ -1,5 +1,5 @@
 {
-  "scope": "40 partial medieval civilizations; 79 non-defence unit identities including the Ratha alternate form. Procedural-only new sprites are explicitly unaccepted painted art.",
+  "scope": "41 partial medieval civilizations; 81 non-defence unit identities (including alternate Ratha form); 50 painted and 31 procedural-only. Elite and independent facing/death art remain unverified.",
   "complete": false,
   "atlases": 57,
   "units": [
@@ -713,6 +713,24 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "centurion",
+      "name": "Centurion",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "legionary",
+      "name": "Legionary",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -955,14 +973,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "79 non-defence unit identities including Ratha's alternate stance; 50 painted, 29 procedural only",
-      "remaining": "Review unpainted troop silhouettes, Ratha mode distinction and original independent directions on Xbox"
+      "evidence": "81 non-defence unit identities; 50 have painted bases and 31 rely on original procedural drawing",
+      "remaining": "31 unit base variants plus independent direction and Elite appearances"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 79 identities have painted multi-frame movement/activity art",
-      "remaining": "29 procedural-only identities including newly added DLC forms, independent direction, work, Elite and death variants"
+      "evidence": "50 of 81 units have painted movement and activity sheets",
+      "remaining": "31 original procedural-only kinds, independent direction and death/Elite art"
     },
     {
       "category": "Elite unit visuals",
