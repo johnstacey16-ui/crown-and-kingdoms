@@ -115,9 +115,9 @@ const REGIONAL_UNIT_ACCESS=Object.freeze([
  Object.freeze({unit:'batele',civilizations:Object.freeze([12,27,28]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'steppe',civilizations:Object.freeze([2,30,31]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'flemish',civilizations:Object.freeze([33]),buildings:Object.freeze(['bar'])}),
+ Object.freeze({unit:'winged',civilizations:Object.freeze([32,35]),buildings:Object.freeze(['stable'])}),
  Object.freeze({unit:'eled',civilizations:Object.freeze([37]),buildings:Object.freeze(['rng'])}),
- Object.freeze({unit:'thirisadai',civilizations:Object.freeze([37]),buildings:Object.freeze(['dock'])}),
- Object.freeze({unit:'winged',civilizations:Object.freeze([32,35]),buildings:Object.freeze(['stable'])})
+ Object.freeze({unit:'thirisadai',civilizations:Object.freeze([37]),buildings:Object.freeze(['dock'])})
 ]);
 
 // Founding Town Centres are granted directly by newGame(); additional centres
