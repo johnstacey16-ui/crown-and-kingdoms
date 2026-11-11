@@ -121,7 +121,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut2:{k:'ut38p',n:'Mahayana',cost:{w:800,g:650},t:60,age:3,
   fx:t=>{S.tech[t].mahayana=1}},
  elite:{k:'eliteRatha',n:'Elite Ratha',cost:{w:900,g:750},t:60,age:3,
-  hpb:{ratha:20,rathaM:20},atkb:{ratha:2,rathaM:2},armor:{m:1,p:1}}},
+  hpb:{ratha:20},atkb:{ratha:2},armor:{m:1,p:1}}},
 {n:'Gurjaras',uu:'chakram',teamTraining:{camel:1.25,elephant:1.25},
  d:'Chakram Throwers and swift Shrivamsha Riders; camel scouts and cost-conscious cavalry',
  fx:t=>{S.tech[t].gurjaraCavalry=1},
