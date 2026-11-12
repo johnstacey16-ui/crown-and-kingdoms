@@ -76,8 +76,8 @@ The owner approves autonomous work on `development` with GitHub CI; merge accept
 ## New-chat launch checklist
 
 1. Read **this section**, `AGENTS.md`, the remaining 48-task register below, `docs/REFACTORING_INVENTORY.md`, `FREE_HOSTING.md`, and `XBOX_CONTROLLER_PARITY.md`; inspect actual current code and status.
-2. Identify the **highest uncompleted small P0** task, unless another urgent physical Xbox crash/blocker has appeared. Recheck GitHub `main`, PRs and CI; compare the Vercel production SHA **only after an intentional `[deploy]` release**, since ordinary commits should now be skipped.
-3. Implement a coherent batch, add/adjust **behavioural** regressions (prefer editing existing test files), run appropriate checks, merge a passing focused PR into `main`, and report actual commits, tests, and live deployment **separately**.
+2. Identify the **highest uncompleted small P0** task, unless another urgent physical Xbox crash/blocker has appeared. Recheck GitHub `development`/`main`, PRs and CI; compare the Vercel production SHA **only after an intentional `[deploy]` release**, since ordinary commits should now be skipped.
+3. Implement a coherent batch, add/adjust **behavioural** regressions (prefer editing existing test files), run appropriate checks, land tested work on `development`; report commits, tests, and deployment **separately**.
 4. Do not request approval for routine incremental implementation. Do not authorize payments, paid infrastructure, force-push, protected-content copying or destructive deployment changes without permission.
 5. Run: `node scripts/run-checks.mjs --quick`, `--focused`, `--regression-files`, `--skirmishes`, `--campaigns`, `--browser`, `--xbox-contracts` or `--full` as relevant. Headless/browser tests do not substitute for real Series S acceptance.
 6. At substantial development milestones, each intentional live release, and approximately weekly while work continues, review **P0 #6 Vercel bandwidth/storage** against the 9 November baseline. Prefer local/headless checks; document when hosted-browser tests occur. Keep the release gate, free-only policy and rollback deployment intact.
@@ -89,22 +89,19 @@ The owner approves autonomous work on `development` with GitHub CI; merge accept
 
 Original browser RTS with **full functional-category parity** for Age of Empires II: Definitive Edition on Xbox Series X, including **all 11 Xbox gameplay DLC families in the 31 October 2026 baseline**; every default Xbox controller action must function on **Xbox Series S Edge** in solo, campaigns, menus and multiplayer. Preserve the existing engine, art and security safeguards. No copied commercial assets, music or protected scenarios. Only confirmed free hosting, no paid upgrades, credits, overages or Railway reactivation; fail closed on quotas.
 
-## Historical 31 October audit baseline — do not treat as current hosted status
+## 12 November 2026 — consolidated five-AI audit triage
 
-| Workstream | Established at audited SHA | Acceptance still open |
-|---|---|---|
-| Local tests | Claude reports 219/219 standalone regressions passed and atlas validation succeeded locally | Latest-commit hosted and Xbox tests |
-| GitHub Actions | Recent runs reportedly failed before job steps | Root cause unknown, green hosted jobs required |
-| Civilizations, units, ages | 26 listed civs, core RTS loop works | Complete reference roster, bonuses, unique techs, unit lines |
-| Campaign | 19 original missions run, automated outcome 7 wins / 7 losses / 5 timeouts | Human controller win paths, full scenario engine |
-| Xbox controls | LS pan, RS zoom, A, RT radial, LB groups and other core paths exist | R3, View, X, LT, sector and multiplayer parity; physical acceptance |
-| Multiplayer | Authenticated two-human WebRTC/host-validated preview | Independent-network match to victory, reconnect, player scale |
-| Graphics | 47/47 current-roster movement/activity art; resources **stone, gold, berry bushes**; construction, fire and projectiles | Directions/death/work, factions, DLC and console FPS |
-| Audio | Procedural Web Audio engine, buses and spatial panning | Resume quality, production event/audio coverage |
-| Xbox Edge | Not physically benchmarked after later rendering changes | Controller, HUD, FPS, memory, suspend/resume |
-| Hosting | Vercel free-only deployment policy, Supabase admission, Railway legacy records | Actual free quotas, live transport policy and account verification |
+**Audit baseline:** Claude, Grok, Kimi, DeepSeek and Gemini reviewed old `main` [`08b40826`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/08b40826dd25876119def63411278d789f0d3c16), not active `development` (**344 commits ahead** at `b5dfeaa`). Development now has **289** regression files and **43** civilization definitions with Elite/second-tech data; acceptance remains open.
 
-The historical 25 October ~4 FPS/613ms draw capture predates renderer changes; do not claim current FPS. 47/47 means *current troop art coverage*, not finished animation, gameplay or DLC. Past green CI at older SHAs proves neither this commit nor on-console acceptance.
+**Claude [RAN, old main]:** 5/5 quick, 260/261 regression files (1,458/1,459 cases), 18/19 campaign bot wins but **17 clean test exits** (mission 6 win/assertion failure; mission 18 bot defeat), 200/200 movement probe. Kimi/Grok [STATIC] add useful leads; DeepSeek includes unproven bug claims; Gemini lacked source access. None tested current development fully.
+
+**FIRST: reproduce on development:** Run `--quick`, `--focused`, `--regression-files`, `--campaigns`. Check mission 2 smoke's goal-title fixture/optional ford, mission 6's `objectives.every(...)` requiring an optional outpost, and mission 18's old-main bot defeat at 946.9s. First two patterns still exist in development source; fresh failure status is unknown. Older 9 Nov 19/19 CI success was on a different SHA. Preserve mandatory goals and defeat tests.
+
+**Resolved:** Historical radial `undefined[0]` was empty-menu pagination; `radialMenuPage` now guards it, and regression coverage exists. Selection uses object references; synchronous path buffers and AI guards do not prove new bugs. Do not duplicate fixes or harnesses.
+
+**Open:** Owner Xbox ~9 FPS at 372 units: same-scene hardware profiling (AUD-005/021/043/047). Legacy marker lobby != authenticated WebRTC command preview; WAN 1v1/reconnect/fog/RLS (AUD-014–018). Pin floating Supabase JS and test CSP/SRI. Preserve saves, controller, browser, AI/campaign and free-only release checks.
+
+**Continue:** Fix confirmed regressions, then owner-prioritized civ/tech/gameplay completion on the expanded roster (not old “5/26 Elite” figures); simplify brittle tests/docs incrementally. Preserve the 48 `AUD-###` and `CK-###` identifiers. Production `main` stays unchanged until accepted release. This docs-only merge ran no tests or deployment.
 
 ## Ordered milestones and gates
 
@@ -183,7 +180,7 @@ IDs `AUD-###` are suggestions for the existing master register; **do not overwri
 
 ## Working instructions and next steps
 
-- Always check the latest `main` against the dated baseline, follow `AGENTS.md`, work directly on `main` with no force push, and run relevant local checks for code changes. Documentation-only work does not establish game correctness.
+- Compare current `development` with production `main`; follow `AGENTS.md`, work on `development`, and verify before releasing.
 - **Immediate engineering order:** AUD-001 CI; AUD-002 First Hearth prompt; AUD-003 starting civ bonuses; AUD-004 held-button refocus; AUD-006 accurate README and baseline; AUD-005 real Xbox measurements; AUD-007/019/020 data/register scaffolding; AUD-010–018 controller/1v1.
 - Label findings **VERIFIED**, **PARTIAL**, **MISSING**, **UNVERIFIED** or **BLOCKED**, with test/commit/source evidence. Do not convert reported bugs into facts without reproduction. Never invent Xbox default bindings; no fixed-point or WebGL overhaul without evidence.
 - Update task acceptance/evidence **here**, append dated implementation checkpoints in `MASTER_AUDIT_AND_DELIVERY_REGISTER.md`; keep the source audit frozen as a historical evidence snapshot. Keep Xbox/DLC/reference entitlement version pinned and updated when verified.
