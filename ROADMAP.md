@@ -95,7 +95,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Claude [RAN, old main]:** 5/5 quick, 260/261 regression files (1,458/1,459 cases), 18/19 campaign bot wins but **17 clean test exits** (mission 6 win/assertion failure; mission 18 bot defeat), 200/200 movement probe. Kimi/Grok [STATIC] add useful leads; DeepSeek includes unproven bug claims; Gemini lacked source access. None tested current development fully.
 
-**FIRST: reproduce on development:** Run `--quick`, `--focused`, `--regression-files`, `--campaigns`. Check mission 2 smoke's goal-title fixture/optional ford, mission 6's `objectives.every(...)` requiring an optional outpost, and mission 18's old-main bot defeat at 946.9s. First two patterns still exist in development source; fresh failure status is unknown. Older 9 Nov 19/19 CI success was on a different SHA. Preserve mandatory goals and defeat tests.
+**FIRST: verify on development:** Run `--quick`, `--focused`, `--regression-files`, `--campaigns`. Mission 2's fixture already recognizes `Muster 8 soldiers` and the optional ford guard; verify results. Fix mission 6's `objectives.every(...)` including an optional outpost. Recheck mission 18's old-main bot defeat at 946.9s. Fresh execution is required; 9 Nov 19/19 CI success was on a different SHA. Preserve mandatory goal and defeat checks.
 
 **Resolved:** Historical radial `undefined[0]` was empty-menu pagination; `radialMenuPage` now guards it, and regression coverage exists. Selection uses object references; synchronous path buffers and AI guards do not prove new bugs. Do not duplicate fixes or harnesses.
 
