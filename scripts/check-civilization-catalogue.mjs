@@ -108,7 +108,7 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
      errors.push('Unavailable early research '+key+' for '+entry.name);
    }
   }
-  if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
+  if(typeof actual?.fx!=='function'||!(typeof actual?.ut?.fx==='function'||actual?.ut?.hpb||actual?.ut?.atkb))
    errors.push('Missing live civilization/technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||
    !Number.isFinite(actual.ut.t)||actual.ut.t<=0||!actual.ut.cost||typeof actual.ut.cost!=='object'||

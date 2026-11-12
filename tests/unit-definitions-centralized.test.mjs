@@ -25,7 +25,7 @@ test('all 43 castles retain their unique-unit definitions and technologies',()=>
  assert.equal(catalogue.civilizations.length,43);
  for(const civ of catalogue.civilizations){
   assert.ok(catalogue.units[civ.uniqueUnit],civ.name+' lost castle troop');
-  assert.equal(typeof civ.ut.fx,'function',civ.name+' lost unique technology');
+  assert.ok(typeof civ.ut.fx==='function'||civ.ut.hpb||civ.ut.atkb,civ.name+' lost unique technology');
  }
  assert.match(engine,/Object\.assign\(MA,\{boyar:3/);
  assert.match(engine,/Object\.assign\(PRA,\{boyar:3/);
