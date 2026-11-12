@@ -314,19 +314,34 @@ try{
   const names=[...Object.keys(U).filter(k=>!['tca','tw','cs'].includes(k)),...Object.keys(B).map(k=>'bld_'+k)],rows=Math.ceil(names.length/8);
   canvas.width=1280;canvas.height=rows*144;canvas.style.cssText='display:block;width:1280px;max-width:none';
   const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,canvas.width,canvas.height);
-  let count=0;
+  let count=0,fallbacks=0;
   for(let i=0;i<names.length;i++){
    const x=i%8*160,y=Math.floor(i/8)*144;
    ctx.fillStyle='#f4e6ba';ctx.font='10px system-ui';ctx.fillText(names[i],x+4,y+14);
    for(let team=0;team<2;team++){
-    const art=assetFrame(names[i],team,0,0,.1),f=art.f,scale=Math.min(64/f.w,48/f.h);
-    ctx.drawImage(art.img,f.x,f.y,f.w,f.h,x+80-f.ax*scale,y+66+team*60-f.ay*scale,f.w*scale,f.h*scale);count++;
+    const art=assetFrame(names[i],team,0,0,.1);
+    if(art?.f){
+     const f=art.f,scale=Math.min(64/f.w,48/f.h);
+     ctx.drawImage(art.img,f.x,f.y,f.w,f.h,x+80-f.ax*scale,y+66+team*60-f.ay*scale,f.w*scale,f.h*scale);
+    }else{
+     // The contact sheet exercises the same procedural fallback used by
+     // drawUnit/drawBld for every newly added regional troop or building.
+     const kind=names[i].startsWith('bld_')?names[i].slice(4):null;
+     ctx.save();ctx.translate(x+80,y+65+team*60);ctx.scale(.65,.65);
+     if(kind)paintBld(ctx,kind,B[kind].s,teamColor(team),1,0);
+     else paintUnit(ctx,names[i],teamColor(team),0,0);
+     ctx.restore();fallbacks++;
+    }
+    count++;
    }
   }
   document.querySelector('main').append(canvas);
-  return {icons:names.length,sprites:count,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  return {icons:names.length,sprites:count,fallbacks,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
- assert.equal(contact.icons,69);assert.equal(contact.sprites,138);assert.equal(contact.unchanged,true);
+ assert.ok(contact.icons>=69,'the expanded roster includes the original painted units/buildings');
+ assert.equal(contact.sprites,contact.icons*2,'every roster member renders for both teams');
+ assert.ok(contact.fallbacks>=diagnostics.fallbackUnitCount*2,'regional art must be drawn by real procedural fallbacks');
+ assert.equal(contact.unchanged,true);
  await page.setViewportSize({width:1320,height:1450});
  await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});
  await page.setViewportSize({width:960,height:850});
