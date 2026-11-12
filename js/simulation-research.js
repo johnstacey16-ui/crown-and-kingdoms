@@ -31,7 +31,7 @@ function researchCost(b,k,civs=S?.civ,world=S){
  if(index===35&&['blood','lcav','huss'].includes(k)&&cost.f)return {...cost,f:Math.ceil(cost.f*.5)};
  if(index===36){
   if(b?.k==='mine'&&(k==='gmine'||k==='smine'))return {};
-  if(b?.k==='monastery'&&S?.tech?.[b.t]?.ut36p&&cost.g){
+  if(b?.k==='monastery'&&world?.tech?.[b.t]?.ut36p&&cost.g){
    const {g,...other}=cost;return {...other,f:(other.f||0)+g};
   }
  }
