@@ -42,8 +42,8 @@ context.S.tech[0].carry=1;
 assert.equal(gatherCapacity(workingVillager),15,'an existing villager gains the carrying upgrade immediately');
 context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
-assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)\?\(\(ta\.armR\?1:0\)\+\(ta\.armR2\?1:0\)\+\(ta\.armR3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(CAVARM\.has\(t\.k\)\?\(\(ta\.armC\?1:0\)\+\(ta\.armC2\?1:0\)\+\(ta\.armC3\?\(cls==='p'\?2:1\):0\)\):0\)/,
-  'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
+assert.match(html, /const line=INFARM\.has\(t\.k\)\?'armI':ARCHARM\.has\(t\.k\)\|\|t\.k==='rathaM'\?'armR':CAVARM\.has\(t\.k\)\?'armC':null/,
+  'Blacksmith armour selects exactly one class, preserving Ratha stance continuity');
 const mountedClass=html.match(/const CAVARM=new Set\(\[([^\]]+)\]\)/)?.[1];
 assert.ok(mountedClass,'explicit mounted-class table must exist');
 const cavalryKinds=new Set((mountedClass.match(/'[^']+'/g)||[]).map(k=>k.slice(1,-1)));

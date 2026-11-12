@@ -171,3 +171,17 @@ test('save and load retain Bengali Mahayana, the Ratha mode and source unit iden
  assert.equal(run("S.us.some(u=>u.k==='rathaM'&&u.t===0)"),true);
  assert.equal(run('S.tech[0].ut38p'),1);
 });
+
+
+test('paid archer armour remains effective when Ratha changes combat stance',()=>{
+ const run=game();
+ run("globalThis.smith=addB(0,'smith',52,12,true);globalThis.r=addU(0,'ratha',20,30)");
+ const base=run("combatArmor(r,'p')");
+ assert.equal(run("research(smith,'armR')"),true);
+ run('upB(smith,TE.armR.t+1)');
+ assert.equal(run("combatArmor(r,'p')"),base+1);
+ assert.equal(run("setRathaMode(r,'melee')"),true);
+ assert.equal(run("combatArmor(r,'p')"),base+1);
+ assert.equal(run("setRathaMode(r,'ranged')"),true);
+ assert.equal(run("combatArmor(r,'p')"),base+1);
+});

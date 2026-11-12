@@ -64,7 +64,11 @@ function meleeResearchAttackBonus(tech){
 function combatArmor(t,cls){
  // Combat helpers are also run in isolated deterministic damage tests.
  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(t.k,t.t):null;
- const ta=S.tech[t.t]||{},ib=(INFARM.has(t.k)?((ta.armI?1:0)+(ta.armI2?1:0)+(ta.armI3?(cls==='p'?2:1):0)):0)+(ARCHARM.has(t.k)?((ta.armR?1:0)+(ta.armR2?1:0)+(ta.armR3?(cls==='p'?2:1):0)):0)+(CAVARM.has(t.k)?((ta.armC?1:0)+(ta.armC2?1:0)+(ta.armC3?(cls==='p'?2:1):0)):0);
+ // Mounted archer membership also serves movement/counters; armour lines
+ // are exclusive. Ratha keeps its researched armour when changing stance.
+ const ta=S.tech[t.t]||{};
+ const line=INFARM.has(t.k)?'armI':ARCHARM.has(t.k)||t.k==='rathaM'?'armR':CAVARM.has(t.k)?'armC':null;
+ const ib=line?((ta[line]?1:0)+(ta[line+'2']?1:0)+(ta[line+'3']?(cls==='p'?2:1):0)):0;
  // Ironclad grants the Teutons' siege weapons +4 melee armour. This combat
  // model resolves siege-class hits against melee armour as well; pierce armour
  // is unchanged. Gate on the researched technology and real civilization,
