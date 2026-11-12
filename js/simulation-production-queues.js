@@ -7,6 +7,21 @@ function unitEffectiveAge(team,kind,civs=S?.civ){
  const age=Number.isInteger(U[kind]?.age)?U[kind].age:0;
  return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):([37,38,39].includes(civs?.[team]))&&kind==='eled'?Math.max(0,age-1):age;
 }
+/* One read-only prerequisite check for player, AI, authenticated peer menus,
+ * actual queues and the technology tree. Do not mistake a queued Chemistry
+ * upgrade for a completed one. Bohemians explicitly recruit Hand Cannoneers
+ * in Castle Age before Chemistry; other gunpowder trainers need that tech. */
+function unitTrainingUnlock(b,kind,world=S){
+ const team=b?.t,civs=world?.civ,techs=world?.tech,age=world?.age?.[team];
+ const requiredAge=unitEffectiveAge(team,kind,civs);
+ const pre=kind==='bomb'||kind==='hcan'&&civs?.[team]!==36?'chem':null;
+ const offered=!!U[kind]&&!!B[b?.k]&&
+  typeof trOf==='function'&&trOf(b,civs,techs,world?.age).includes(kind);
+ const reason=!offered?'Unit unavailable at this building':
+  requiredAge>age?'Requires '+(AG[requiredAge]?.n||'later age'):
+  pre&&!techs?.[team]?.[pre]?'Requires '+TE[pre].n:'';
+ return {age:requiredAge,pre,state:reason?'locked':'available',reason};
+}
 function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
  const cost=U[kind]?.cost||{};
  if(kind==='kipchak'&&civs?.[team]!==31&&
@@ -24,7 +39,7 @@ function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
  return civs?.[team]===26&&cost.g?{...cost,g:Math.ceil(cost.g*.85)}:cost;
 }
 function queuedPopulation(t){return S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.length:0),0)}
-function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k];if(unitEffectiveAge(t,k)>S.age[t]){if(!t)note('Requires '+AG[unitEffectiveAge(t,k)].n);return false}const cost=typeof unitTrainingCost==='function'?unitTrainingCost(t,k):d.cost;if(!can(t,cost)){if(!t)note('Not enough resources');return false}
+function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k],unlock=unitTrainingUnlock(b,k,S);if(unlock.state!=='available'){if(!t)note(unlock.reason);return false}const cost=typeof unitTrainingCost==='function'?unitTrainingCost(t,k):d.cost;if(!can(t,cost)){if(!t)note('Not enough resources');return false}
 if(popOf(t)>=capOf(t)){
  if(!t){
   const population=popOf(t),capacity=capOf(t);

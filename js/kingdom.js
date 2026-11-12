@@ -931,10 +931,10 @@ function technologyTreeModel(team=0,world=S){
   if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
   const building=B[kind],ref={k:kind,t:team},unlock=buildingUnlock(kind,team,world);
   const units=trOf(ref,world.civ,world.tech,world.age).filter(key=>!!U[key]).map(key=>{
-   const d=U[key],requiredAge=typeof unitEffectiveAge==='function'?unitEffectiveAge(team,key,world.civ):Number.isInteger(d.age)?d.age:0;
-   return {id:key,name:d.n,age:requiredAge,cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
-    state:requiredAge>age?'locked':'available',
-    reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
+   const d=U[key],unlock=unitTrainingUnlock(ref,key,world);
+   return {id:key,name:d.n,age:unlock.age,pre:unlock.pre,
+    cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
+    state:unlock.state,reason:unlock.reason.replace(/^Requires /,'Needs ')};
   });
   const research=rsOf(ref,world.civ).filter(key=>!!TE[key]).map(key=>{
    const d=TE[key],pre=d.pre,requiredAge=typeof researchEffectiveAge==='function'?researchEffectiveAge(ref,key,world.civ):(Number.isInteger(d.age)?d.age:0);

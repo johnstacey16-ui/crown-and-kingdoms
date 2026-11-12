@@ -51,9 +51,12 @@
     if (!building || building.t !== team || building.hp <= 0 || !building.done ||
         !world.bs.includes(building) || !B[building.k]) return [];
     const options = [], tech = world.tech?.[team] || {};
-    const training = trOf(building,world.civ,world.tech);
-    for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
-      label:unitName(kind,team),cost:{...unitTrainingCost(team,kind,world.civ,world.tech)},locked:(typeof unitEffectiveAge==='function'?unitEffectiveAge(team,kind,world.civ):U[kind].age) > world.age[team] ? 'Requires '+AG[typeof unitEffectiveAge==='function'?unitEffectiveAge(team,kind,world.civ):U[kind].age].n : ''});
+    const training = trOf(building,world.civ,world.tech,world.age);
+    for (const kind of training) if (U[kind]) {
+      const unlock=unitTrainingUnlock(building,kind,world);
+      options.push({type:'train',value:kind,label:unitName(kind,team),
+        cost:{...unitTrainingCost(team,kind,world.civ,world.tech)},locked:unlock.reason});
+    }
     const research = rsOf(building,world.civ);
     if (building.k === 'tc' && AG[world.age[team]+1]) {
       const age = AG[world.age[team]+1];

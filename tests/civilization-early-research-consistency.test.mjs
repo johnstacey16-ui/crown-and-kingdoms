@@ -76,7 +76,7 @@ function uiGame(){
  vm.runInContext(loadCoreGameSource({includeUI:true})+'\n'+hostCommands+
   '\nglobalThis.earlyEval=code=>eval(code);',sandbox);
  const run=sandbox.earlyEval;
- run("seedOv=261113;kingdoms=2;startAge=3;startRes=3;startArmy=0;start();S.civ=[0,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.rel=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.nd.fill(null);S.res[0]={f:10000,w:10000,g:10000,s:10000};S.res[1]={f:10000,w:10000,g:10000,s:10000};globalThis.tc=addB(0,'tc',9,9,true);globalThis.bar=addB(0,'bar',18,9,true);globalThis.univ=addB(0,'univ',27,9,true);globalThis.stable=addB(0,'stable',36,9,true);globalThis.worker=addU(0,'vil',15.5,23.5);");
+ run("seedOv=261113;kingdoms=2;startAge=3;startRes=3;startArmy=0;start();S.civ=[0,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.rel=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.nd.fill(null);S.res[0]={f:10000,w:10000,g:10000,s:10000};S.res[1]={f:10000,w:10000,g:10000,s:10000};globalThis.tc=addB(0,'tc',9,9,true);globalThis.bar=addB(0,'bar',18,9,true);globalThis.univ=addB(0,'univ',27,9,true);globalThis.stable=addB(0,'stable',36,9,true);globalThis.worker=addU(0,'vil',15.5,23.5);globalThis.range=addB(0,'rng',44,18,true);globalThis.siege=addB(0,'siege',53,18,true);");
  return run;
 }
 
@@ -159,4 +159,61 @@ test('local and authoritative build menus agree on ages and completed prerequisi
  compare('monastery','Build a Fortified Church instead');
  compare('fchurch','');
  compare('lumber','Build a Mule Cart instead');
+});
+
+test('Chemistry unlocks paid Hand Cannoneer and Bombard queues across Xbox, host and the tech tree',()=>{
+ const run=uiGame();
+ run("S.civ[0]=0;S.age[0]=3;S.tech[0]={};S.sel=[range]");
+ const host=(building,kind)=>snapshot(run,"CK_GAME_COMMANDS.buildingOptions(S,0,"+building+").find(o=>o.type==='train'&&o.value==='"+kind+"')");
+ const tree=(building,kind)=>snapshot(run,"technologyTreeModel(0,S).buildings.find(b=>b.id==='"+building+"').units.find(u=>u.id==='"+kind+"')");
+ for(const [building,site,unit] of [['range','rng','hcan'],['siege','siege','bomb']]){
+  const before=run('JSON.stringify(S.res[0])');
+  assert.equal(run("unitTrainingUnlock("+building+",'"+unit+"').reason"),'Requires Chemistry');
+  assert.equal(host(building,unit).locked,'Requires Chemistry');
+  assert.equal(tree(site,unit).state,'locked');
+  assert.equal(tree(site,unit).pre,'chem');
+  assert.equal(tree(site,unit).reason,'Needs Chemistry');
+  run('S.sel=['+building+'];openMenu()');
+  assert.equal(run("menu.items.find(i=>i.l===U."+unit+".n).lk"),'Needs Chemistry');
+  assert.equal(run("train("+building+",'"+unit+"')"),false,'unresearched gunpowder must not queue');
+  assert.equal(run('JSON.stringify(S.res[0])'),before,'locked gunpowder costs nothing');
+  assert.equal(run(building+'.q.length'),0);
+ }
+ run("S.sel=[range];S.tech[0]={};globalThis.future={...S,tech:[{chem:1},{}]}");
+ assert.equal(snapshot(run,"technologyTreeModel(0,future).buildings.find(b=>b.id==='siege').units.find(u=>u.id==='bomb')").state,'available');
+ assert.equal(run("technologyTreeModel(0,S).buildings.find(b=>b.id==='siege').units.find(u=>u.id==='bomb').state"),'locked',
+  'a projected peer must not grant Chemistry to the live match');
+ assert.equal(run("research(univ,'chem')"),true);
+ assert.equal(run("train(range,'hcan')"),false,'in-progress Chemistry is not completed research');
+ run("upB(univ,TE.chem.t+1)");
+ assert.equal(run('S.tech[0].chem'),1);
+ for(const [building,site,unit] of [['range','rng','hcan'],['siege','siege','bomb']]){
+  assert.equal(host(building,unit).locked,'');
+  assert.equal(tree(site,unit).state,'available');
+  assert.equal(run("train("+building+",'"+unit+"')"),true);
+  assert.equal(run(building+'.q[0].k'),unit);
+ }
+});
+test('Bohemian Hand Cannoneers remain trainable in Castle Age without Chemistry, not Bombards',()=>{
+ const run=uiGame();
+ run("S.civ=[36,0];S.age=[2,3];S.tech=[{},{}]");
+ assert.equal(run("unitTrainingUnlock(range,'hcan',S).state"),'available');
+ assert.equal(run("unitTrainingUnlock(siege,'bomb',S).reason"),'Requires Imperial Age');
+ assert.equal(run("train(range,'hcan')"),true,'Bohemian Castle Age unit remains independent of Chemistry');
+ run("S.age[0]=3");
+ assert.equal(run("unitTrainingUnlock(siege,'bomb',S).reason"),'Requires Chemistry');
+ assert.equal(run("train(siege,'bomb')"),false);
+ run("S.civ[0]=0;S.tech[0]={};range.q=[]");
+ assert.equal(run("unitTrainingUnlock(range,'hcan',S).reason"),'Requires Chemistry');
+});
+test('authenticated options use projected Gurjara age for Camel Scout replacement, not live age',()=>{
+ const run=uiGame();
+ run("S.civ[0]=39;S.age[0]=3;S.tech[0]={}");
+ const options=age=>snapshot(run,"CK_GAME_COMMANDS.buildingOptions({...S,age:["+age+",3]},0,stable).filter(o=>o.type==='train').map(o=>o.value)");
+ assert.ok(options(1).includes('camelscout'));
+ assert.ok(!options(1).includes('camel'));
+ assert.ok(options(2).includes('camel'));
+ assert.ok(!options(2).includes('camelscout'));
+ assert.ok(options(3).includes('camel'));
+ assert.equal(run('S.age[0]'),3,'projected host age cannot change live game');
 });

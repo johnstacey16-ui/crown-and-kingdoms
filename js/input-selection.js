@@ -144,7 +144,7 @@ function reformMilitarySelection(units){
 }
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
 if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
-const it=trOf(s).map(k=>{const age=unitEffectiveAge(s.t,k),lk=age>S.age[0]?'Needs '+AG[age].n:'';return{l:unitName(k,s.t),c:unitTrainingCost(s.t,k),lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
+const it=trOf(s).map(k=>{const unlock=unitTrainingUnlock(s,k,S),lk=unlock.reason.replace(/^Requires /,'Needs ');return{l:unitName(k,s.t),c:unitTrainingCost(s.t,k),lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
 if(s.k==='mule')it.push(
   {l:'Move Mule Cart',c:{},lk:'',fn:()=>{menu=null;pat=6;note('Choose a land tile and press A to move (B cancels)')}},
   {l:'Follow nearby resources',c:{},lk:'',fn:()=>{if(resumeMuleCart(s))note('Mule Cart following nearby resources');menu=null}},
