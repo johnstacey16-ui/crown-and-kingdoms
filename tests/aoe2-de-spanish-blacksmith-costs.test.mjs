@@ -125,5 +125,5 @@ test('controller menu and AI research policy use shared actual research cost',()
  assert.match(input,/it\.push\(\{l:e\.n,c:researchCost\(s,k\),lk/);
  assert.match(ai,/!can\(t,researchCost\(b,k\)\)/);
  assert.match(ai,/aiCanResearchWhileSaving\(R,researchCost\(b,k\),nextAge\.cost\)/);
- assert.match(net,/cost:\{\.\.\.researchCost\(building,key,world\.civ\)\}/);
+ assert.match(net,/cost:\{\.\.\.researchCost\(building,key,world\.civ,world\)\}/);
 });

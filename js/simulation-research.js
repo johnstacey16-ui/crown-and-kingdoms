@@ -16,7 +16,7 @@ function ageRequirements(t,world=S){
 const BURGUNDIAN_ECONOMIC_TECHS=new Set(['loom','wheel','handcart','gath','carry','axe','saw','gmine','smine','coll','plow','crop']);
 function researchEffectiveAge(b,k,civs=S?.civ){
  const age=TE[k]?.age||0;
- const rule=CIV[civs?.[b?.t]]?.earlyResearch;
+ const rule=typeof CIV==='undefined'?null:CIV[civs?.[b?.t]]?.earlyResearch;
  // The live civilization roster owns early-unlock exceptions. Economic
  // groups reuse the same set that controls Burgundian research discounts.
  const early=!!rule&&(rule.techs?.includes(k)||rule.economic===true&&
