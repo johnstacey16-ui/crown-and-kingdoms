@@ -224,3 +224,24 @@ jobs:
         run: node scripts/run-checks.mjs --browser
       - name: Verify Xbox controller and performance software contracts
         run: node scripts/run-checks.mjs --xbox-contracts
+
+  # Opt-in parallel isolation of the six failing missions. Do not relax the
+  # natural victory gate or infer matrix acceptance from this subset.
+  repair-campaign-matrix:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-campaign-repairs]')
+    strategy:
+      fail-fast: false
+      matrix:
+        mission: [8, 9, 10, 11, 14, 16]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Natural victory on campaign mission index ${{ matrix.mission }}
+        env:
+          CK_MISSION: ${{ matrix.mission }}
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs
