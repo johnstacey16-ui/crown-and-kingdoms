@@ -297,3 +297,18 @@ do not prove complete civilization effects, AI strategy, reference parity or Xbo
 `7168a45b` fills later AI military categories while preserving seeded draw count.
 `8d4db12c` also rejects duplicate production entries: filtering only the replaced
 base unit can append an upgraded kind already in the regional catalogue twice.
+
+
+## 12 November 2026 — replacement units and exclusive armour
+
+`52caa8c3`: replacement HP must compare researched old and new maxima, not
+bare unit definitions. Test both upgrade orders, wounds, paid queues and reload;
+Houfnice needs the same shared cannon research ledger entries, while Camel Scout
+promotion belongs to actual Castle Age completion.
+
+`ca2bea08`: a mounted movement/counter class is not an additional armour line.
+Overlapping classes had doubled Blacksmith armour for mounted archers. Select
+one armour family, and test stance changes against the same researched defence.
+Keep movement/counter classes intact rather than removing mounted identity to
+repair armour. Targeted regressions and quick validation pass; broader acceptance
+is recorded separately against the exact code tree.

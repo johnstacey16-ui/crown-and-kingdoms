@@ -39,6 +39,15 @@ rules; presence and reachability alone do not establish complete behavior.
   removed duplicate Winged Hussar, Houfnice and Legionary production entries.
   Current matrix checks 3,273 research contexts and 2,456 training contexts.
 
+- `52caa8c3`: Houfnice retains shared cannon HP/attack effects in either
+  research order, including Chemistry, future production and save/reload.
+  Gurjara Camel Scouts promote on Castle Age completion; live wounds and paid
+  queue entries carry forward into Camels and later Heavy Camel research.
+- `ca2bea08`: Blacksmith armour selects one line for mounted archers instead of
+  adding both archer and cavalry upgrades. Both Ratha stances retain the archer
+  armour line. Regression checks reproduce the former overlap and exercise real
+  paid research followed by stance changes.
+
 ### Open implementation and verification work
 
 - Every civilization remains **PARTIAL**. Queue tests establish real payment,
@@ -48,8 +57,8 @@ rules; presence and reachability alone do not establish complete behavior.
   Mangudai HP/attack, Mahouts adds elephant HP, and Marauders adds Tarkan stats.
   Do not silently describe these as the AoE II mechanics or replace original
   design decisions without tracing the intended specification.
-- Audit overlapping ranged/cavalry armour membership and remaining class-wide
-  effects, all transformation lines, ability counters, naval bonuses, conversions,
+- Audit remaining class-wide effects and transformation lines, ability counters,
+  naval bonuses, conversions,
   garrisons, formations, repair and placement. The production matrix exercises
   normal queues; it does not certify tactical behavior or every special spawn.
 - AI personality classification is repaired for twelve newer military kinds
@@ -58,9 +67,9 @@ rules; presence and reachability alone do not establish complete behavior.
 - Old save schemas/IDs remain unchanged. Personal historical saves were not
   provided; automated save validation cannot certify every personal save.
 - [Current verification evidence](verification/gameplay-content-2026-11-12.json):
-  290/290 standalone files, 1,663 focused assertions, 5/5 quick gates,
+  290/290 standalone files, 1,666 focused assertions, 5/5 quick gates,
   19/19 scripted campaigns, 3/3 seeded AI scenarios and 8/8 Xbox software
-  contracts passed on the published code tree. Chromium is **BLOCKED** by this
+  contracts passed on code tree `4d9836fa` (`ca2bea08`). Chromium is **BLOCKED** by this
   environment's socket permission and failed browser download. Physical Series S
   play, performance, controls and graphics recovery require the owner's testing.
   The three standard seeded games only reached Feudal before natural victory;

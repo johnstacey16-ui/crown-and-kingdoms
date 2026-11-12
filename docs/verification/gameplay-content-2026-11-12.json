@@ -1,9 +1,9 @@
 {
   "date": "2026-11-12",
   "productionBaseline": "9d431c1a201d52c58db1298cfce2677f1e230a6d",
-  "verifiedCodeCommit": "8d4db12c118be92de629a32cd1adbf49164a397c",
-  "verifiedCodeTree": "4f5537242e91dfc656218714f11a19e2929e3715",
-  "localCommitWithIdenticalTree": "99cdd350031598624def04c3130566dab03c194f",
+  "verifiedCodeCommit": "ca2bea08297ae86d522e98de78e601216fbece08",
+  "verifiedCodeTree": "4d9836fa4236f8576216f10f374a97e0a1076740",
+  "localCommitWithIdenticalTree": "80e1833ca893c3676d9d5dfc155272795e21d66b",
   "pullRequest": "https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/105",
   "runtime": "v24.22.1",
   "inventory": {
@@ -19,25 +19,25 @@
       "command": "node scripts/run-checks.mjs --quick",
       "status": "passed",
       "summary": "Completed 5/5 checks.",
-      "logSha256": "ad0a059db53c422eec360d50d75cadd88474d30af046027fd4db3119188d9c49"
+      "logSha256": "706f86a089ce8e1b08e1af6c9dfaadbf71fd9c5e2d73cc2ae733e9999751dfb6"
     },
     "focused": {
       "command": "node scripts/run-checks.mjs --focused",
       "status": "passed",
-      "summary": "\u2139 pass 1663",
-      "logSha256": "5901a5316c8c5075a67ac8729293296248c2a7b7ec01ec386bc50f455e0dce92"
+      "summary": "\u2139 pass 1666",
+      "logSha256": "724bce8b9c6d09633ca4154fb6f79e584833e2d36e4a52bb97638d781b4c3298"
     },
     "regression-final": {
       "command": "node scripts/run-checks.mjs --regression-files",
       "status": "passed",
       "summary": "Completed 290/290 checks.",
-      "logSha256": "9263e0f5984facceeb0bb22bdaed6e82c58cd9491f512a8ee3c54251b5ab49b9"
+      "logSha256": "b176f549c933813ab506443be23662ec5825677c3a76c3d481f07c595f0fb48d"
     },
     "campaigns-final": {
       "command": "node scripts/run-checks.mjs --campaigns",
       "status": "passed",
       "summary": "Completed 19/19 checks.",
-      "logSha256": "222d5705931428d93c2641d9bbc54affa0e4f2af11475e7f58bcc683b19de34d"
+      "logSha256": "cf74ef6b0484b0d38c07f8a4e83322a8255ac686b950bd7ce4fdb628e79d8ea7"
     },
     "skirmishes-final": {
       "command": "node scripts/run-checks.mjs --skirmishes",
@@ -49,7 +49,7 @@
       "command": "node scripts/run-checks.mjs --xbox-contracts",
       "status": "passed",
       "summary": "Completed 8/8 checks.",
-      "logSha256": "40740c0b15aeaac63d38b218d48cea8cc4b036b76487ed80bdb5ff9e3085b7b4"
+      "logSha256": "3db8b8525d551c6fcb0f554e09e59e7a3d45234e83dacea5e13690c259183770"
     }
   },
   "contentMatrix": {
@@ -292,7 +292,7 @@
   "remaining": [
     "Per-civilization effect/reference-design reconciliation and complete balance review",
     "All-faction natural-match AI strategy and ability use",
-    "Special transformations, overlapping armour classes and remaining class-wide upgrade effects",
+    "Remaining transformations, counter classes and class-wide upgrade effects",
     "Chromium acceptance",
     "Personal historical-save acceptance and physical Xbox testing"
   ],
