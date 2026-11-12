@@ -8,7 +8,33 @@ function nextNetworkEntityId(kind){
   return kind+(S.netNext++);
 }
 function addN(k,x,y,amt,fm){x|=0;y|=0;if(x<1||y<1||x>=W-1||y>=H-1||S.g[y*W+x]||S.wt[y*W+x])return null;const n={netId:nextNetworkEntityId('n'),k,x,y,s:1,amt,fm};S.nodes.push(n);S.nd[y*W+x]=n;S.g[y*W+x]=1;return n}
-function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:1)*(S.tech[t].bz?1.15:1)*(S.tech[t].fw&&(k==='wall'||k==='gate')?1.8:1)*(S.tech[t].arch?1.1:1))+(S.tech[t].hoardings&&k==='castle'?1000:0),b={netId:nextNetworkEntityId('b'),t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);
+/* One stat calculation for construction and researched upgrades. Additive
+ * Hoardings HP must not be multiplied by later Masonry or Architecture. */
+function buildingMaxHP(team,kind,techs=S.tech){
+ const tech=techs[team]||{},wall=kind==='wall'||kind==='gate';
+ return Math.round(B[kind].hp*(tech.mas?1.4:1)*(tech.bz?1.15:1)*
+  (tech.fw&&wall?1.8:1)*(tech.arch?1.1:1)*
+  (tech.ut10&&(wall||kind==='tower')?1.5:1))+
+  (tech.hoardings&&kind==='castle'?1000:0);
+}
+function refreshResearchedBuildingHP(team,key){
+ const prior={...S.tech[team]};delete prior[key];
+ const before=[];before[team]=prior;
+ for(const b of S.bs)if(b.t===team&&b.hp>0){
+  const oldStandard=buildingMaxHP(team,b.k,before),newStandard=buildingMaxHP(team,b.k);
+  if(oldStandard===newStandard)continue;
+  const previous=b.mh||B[b.k].hp;
+  // Campaign structures may intentionally have custom HP. Preserve that
+  // scenario scaling while keeping the additive Castle upgrade separate.
+  const oldFlat=prior.hoardings&&b.k==='castle'?1000:0;
+  const newFlat=S.tech[team].hoardings&&b.k==='castle'?1000:0;
+  const next=previous===oldStandard?newStandard:
+   Math.round((previous-oldFlat)*(newStandard-newFlat)/(oldStandard-oldFlat))+newFlat;
+  b.mh=next;
+  b.hp=Math.min(next,key==='hoardings'?b.hp+next-previous:Math.round(b.hp*next/previous));
+ }
+}
+function addB(t,k,x,y,done){const d=B[k],mh0=buildingMaxHP(t,k),b={netId:nextNetworkEntityId('b'),t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);
  if(done&&k==='tc'&&S.civ?.[t]===32&&S.res?.[t]){
   S.res[t].f+=100;b.lithFoodGranted=true;
  }

@@ -125,3 +125,46 @@ test('new building and naval upgrades survive a same-build save/load',()=>{
  assert.equal(run("attackRange({k:'gal',t:0})"),range);
  assert.equal(run("mhp({k:'scor',t:0})"),60);
 });
+
+for(const order of [['hoardings','mas','arch'],['mas','hoardings','arch'],['mas','arch','hoardings']])
+ test('Castle HP matches future construction regardless of upgrade order: '+order.join(' → '),()=>{
+  const run=game();run('castle.hp=castle.mh/2');
+  for(const key of order){
+   const b=key==='hoardings'?'castle':'university';
+   assert.equal(run(`research(${b},'${key}')`),true);
+   run(`upB(${b},TE['${key}'].t+1)`);
+  }
+  assert.equal(run('castle.mh'),3156,'Hoardings adds 1000 after structural multipliers');
+  assert.equal(run("addB(0,'castle',40,40,true).mh"),run('castle.mh'));
+  assert.ok(run('castle.hp>0&&castle.hp<castle.mh'),'research retains damage');
+ });
+
+test('Great Wall is consistent for existing, unfinished and later walls, gates and towers',()=>{
+ const run=game();run(`S.civ[0]=10;
+ globalThis.wall=addB(0,'wall',40,40,true);wall.hp=wall.mh/2;
+ globalThis.gate=addB(0,'gate',42,40,false);
+ globalThis.tower=addB(0,'tower',44,40,true);
+ globalThis.enemy=addB(1,'wall',48,40,true);`);
+ assert.equal(run("research(castle,'ut10')"),true);run('upB(castle,TE.ut10.t+1)');
+ assert.equal(run('wall.mh'),450);assert.equal(run('wall.hp'),225);
+ assert.equal(run('gate.mh'),450);assert.equal(run('tower.mh'),600);
+ assert.equal(run("addB(0,'wall',40,45,true).mh"),run('wall.mh'));
+ assert.equal(run("addB(0,'tower',44,45,true).mh"),run('tower.mh'));
+ assert.equal(run('enemy.mh'),300);
+ assert.equal(run('S.tech[0].fw'),undefined,'Great Wall must not consume Fortified Wall research');
+ assert.equal(run("research(university,'fw')"),true);run('upB(university,TE.fw.t+1)');
+ assert.equal(run('wall.mh'),810);assert.equal(run('tower.mh'),600);
+ assert.equal(run("addB(0,'wall',50,45,true).mh"),run('wall.mh'));
+});
+
+test('research preserves custom campaign structure strength and never resurrects ruins',()=>{
+ const run=game();run(`castle.mh=2800;castle.hp=1400;
+ globalThis.tower=addB(0,'tower',40,40,true);tower.mh=800;tower.hp=400;
+ globalThis.ruin=addB(0,'castle',46,40,true);ruin.hp=0;`);
+ assert.equal(run("research(castle,'hoardings')"),true);run('upB(castle,76)');
+ assert.equal(run('castle.mh'),3800);assert.equal(run('castle.hp'),2400);
+ assert.equal(run('tower.mh'),800);assert.equal(run('tower.hp'),400);
+ assert.equal(run("research(university,'mas')"),true);run('upB(university,51)');
+ assert.equal(run('castle.mh'),4920);assert.equal(run('tower.mh'),1120);
+ assert.equal(run('ruin.hp'),0);assert.equal(run('ruin.mh'),1400);
+});

@@ -56,5 +56,5 @@ if(b.rs){b.rs.t-=dt*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizati
  for(const ratha of S.us)if(ratha.t===b.t&&ratha.k==='rathaM'&&ratha.hp>0)
   ratha.hp+=20;
 }
-if(k==='mas')for(const x of S.bs)if(x.t===b.t){x.mh=Math.round((x.mh||B[x.k].hp)*1.4);x.hp=Math.min(x.mh,Math.round(x.hp*1.4))}if(k==='fw')for(const x of S.bs)if(x.t===b.t&&(x.k==='wall'||x.k==='gate')){x.mh=Math.round((x.mh||B[x.k].hp)*1.8);x.hp=Math.min(x.mh,Math.round(x.hp*1.8))}if(e.fx)e.fx(b.t);if(b.t===0){note(e.n+' researched');sfx('tech')}}}}
+if(k==='mas'||k==='fw')refreshResearchedBuildingHP(b.t,k);if(e.fx)e.fx(b.t);if(b.t===0){note(e.n+' researched');sfx('tech')}}}}
 if(!b.q.length)return;const q=b.q[0];if(!q||!U[q.k]||!Number.isFinite(q.t)){b.q.shift();return}if(!Number.isFinite(dt)||dt<=0)return;q.t-=dt*trainRate(b,q.k);if(q.t<=0){if(livePopulation(b.t)>=capOf(b.t)){q.t=0;return}const p=spawnPos(b);if(!p){q.t=0;return}b.q.shift();if(b.t===0)sfx('train',b.x+b.s/2,b.y+b.s/2);const nu=addU(b.t,q.k,p[0],p[1]);if(q.k==='cart'||q.k==='cog')nu.tradeFromKey=[b.t,b.k,b.x,b.y].join(':');if(b.rally)applyProductionRally(nu,b.rally,b);if(b.t===0){S.pl.tr++;note(unitName(q.k,b.t)+' trained')}}}

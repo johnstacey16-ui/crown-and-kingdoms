@@ -12,10 +12,11 @@ assert.match(html, /if\(e\.hpb\)\{T0\.hpb=T0\.hpb\|\|\{\};for\(const q in e\.hpb
 assert.match(html, /hp:U\[k\]\.hp\+\(S\.tech\[t\]\.hpb&&S\.tech\[t\]\.hpb\[k\]\|\|0\)/, 'newly created units must inherit researched hit-point upgrades');
 assert.match(html, /if\(e\.atkb\)\{T0\.atkb=T0\.atkb\|\|\{\};for\(const q in e\.atkb\)T0\.atkb\[q\]=\(T0\.atkb\[q\]\|\|0\)\+e\.atkb\[q\]\}/, 'unit attack upgrades must update the shared tech ledger');
 assert.match(html, /tk\.atkb&&tk\.atkb\[a\.k\]\|\|0/, 'combat damage must apply researched unit-specific attack bonuses');
-assert.match(html, /if\(k==='mas'\)for\(const x of S\.bs\)if\(x\.t===b\.t\)\{x\.mh=Math\.round\(\(x\.mh\|\|B\[x\.k\]\.hp\)\*1\.4\);x\.hp=Math\.min\(x\.mh,Math\.round\(x\.hp\*1\.4\)\)\}/, 'Masonry must strengthen existing buildings');
-assert.match(html, /if\(k==='fw'\)for\(const x of S\.bs\)if\(x\.t===b\.t&&\(x\.k==='wall'\|\|x\.k==='gate'\)\)/, 'Fortified Wall must strengthen existing walls and gates');
-assert.match(html, /S\.tech\[t\]\.mas\?1\.4:1/, 'new buildings must inherit Masonry health');
-assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'new walls and gates must inherit Fortified Wall health');
+assert.match(html, /if\(k==='mas'\|\|k==='fw'\)refreshResearchedBuildingHP\(b.t,k\)/, 'structural research refreshes existing buildings through the shared calculation');
+assert.match(html, /mh0=buildingMaxHP\(t,k\)/, 'new buildings use the same health calculation');
+assert.match(html, /tech\.mas\?1\.4:1/, 'Masonry retains its health multiplier');
+assert.match(html, /tech\.fw&&wall\?1\.8:1/, 'Fortified Wall retains its wall and gate multiplier');
+
 
 
 assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=\(t\.gath\?1\.25:1\)\*\(typeof georgianChurchWorkRate==='function'\?georgianChurchWorkRate\(u\):1\)/,
