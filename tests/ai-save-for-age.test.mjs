@@ -19,6 +19,8 @@ test('AI saves food after reaching a productive village and meeting age requirem
  assert.equal(policy({villagers:20}),true);
  assert.equal(policy({villagers:11}),false,'small early economies continue to grow');
  assert.equal(policy({villagers:15,age:1}),false,'Castle Age requires a larger productive economy');
+ assert.equal(policy({villagers:16,age:1}),true,'Castle Age retains the normal worker threshold');
+ assert.equal(policy({villagers:12,ready:false}),false,'Feudal saving must wait for real prerequisite buildings');
  assert.equal(policy({villagers:25,ready:false}),false,'missing prerequisite buildings need workers');
  assert.equal(policy({villagers:30,age:3}),false,'Imperial Age has no next age');
 });
