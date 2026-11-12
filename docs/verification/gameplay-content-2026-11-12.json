@@ -1,0 +1,305 @@
+{
+  "date": "2026-11-12",
+  "productionBaseline": "9d431c1a201d52c58db1298cfce2677f1e230a6d",
+  "verifiedCodeCommit": "8d4db12c118be92de629a32cd1adbf49164a397c",
+  "verifiedCodeTree": "4f5537242e91dfc656218714f11a19e2929e3715",
+  "localCommitWithIdenticalTree": "99cdd350031598624def04c3130566dab03c194f",
+  "pullRequest": "https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/105",
+  "runtime": "v24.22.1",
+  "inventory": {
+    "civilizations": 43,
+    "technologies": 217,
+    "unitDefinitions": 87,
+    "buildings": 28,
+    "standaloneFiles": 290,
+    "focusedFiles": 285
+  },
+  "checks": {
+    "quick": {
+      "command": "node scripts/run-checks.mjs --quick",
+      "status": "passed",
+      "summary": "Completed 5/5 checks.",
+      "logSha256": "ad0a059db53c422eec360d50d75cadd88474d30af046027fd4db3119188d9c49"
+    },
+    "focused": {
+      "command": "node scripts/run-checks.mjs --focused",
+      "status": "passed",
+      "summary": "\u2139 pass 1663",
+      "logSha256": "5901a5316c8c5075a67ac8729293296248c2a7b7ec01ec386bc50f455e0dce92"
+    },
+    "regression-final": {
+      "command": "node scripts/run-checks.mjs --regression-files",
+      "status": "passed",
+      "summary": "Completed 290/290 checks.",
+      "logSha256": "9263e0f5984facceeb0bb22bdaed6e82c58cd9491f512a8ee3c54251b5ab49b9"
+    },
+    "campaigns-final": {
+      "command": "node scripts/run-checks.mjs --campaigns",
+      "status": "passed",
+      "summary": "Completed 19/19 checks.",
+      "logSha256": "222d5705931428d93c2641d9bbc54affa0e4f2af11475e7f58bcc683b19de34d"
+    },
+    "skirmishes-final": {
+      "command": "node scripts/run-checks.mjs --skirmishes",
+      "status": "passed",
+      "summary": "Completed 3/3 checks.",
+      "logSha256": "286519f85352619c7885c816a0159630a26475e358e2b683bb4d4ac1c0693317"
+    },
+    "xbox": {
+      "command": "node scripts/run-checks.mjs --xbox-contracts",
+      "status": "passed",
+      "summary": "Completed 8/8 checks.",
+      "logSha256": "40740c0b15aeaac63d38b218d48cea8cc4b036b76487ed80bdb5ff9e3085b7b4"
+    }
+  },
+  "contentMatrix": {
+    "paidResearchContexts": 3273,
+    "trainingContexts": 2456,
+    "command": "node tests/technology-catalogue.test.mjs",
+    "status": "passed",
+    "scope": "Valid paid queues, timers, completion, duplicate rejection, regional reachability and inventory drift. Does not certify every combat/economy effect."
+  },
+  "campaigns": [
+    {
+      "mission": 0,
+      "title": "First Hearth",
+      "seed": 11,
+      "outcome": "win",
+      "campaignTime": 163.5,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 1,
+      "title": "Raiders at the Ford",
+      "seed": 22,
+      "outcome": "win",
+      "campaignTime": 480,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 2,
+      "title": "The Feudal Frontier",
+      "seed": 33,
+      "outcome": "win",
+      "campaignTime": 671.5,
+      "incompleteObjectives": [
+        "Optional: Fortify the forward frontier with an Outpost"
+      ]
+    },
+    {
+      "mission": 3,
+      "title": "The Relic Road",
+      "seed": 44,
+      "outcome": "win",
+      "campaignTime": 273,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 4,
+      "title": "Siege of Kronburg",
+      "seed": 55,
+      "outcome": "win",
+      "campaignTime": 205.5,
+      "incompleteObjectives": [
+        "Optional: Silence both flank Towers before the Castle breach"
+      ]
+    },
+    {
+      "mission": 5,
+      "title": "The Last Crown",
+      "seed": 66,
+      "outcome": "win",
+      "campaignTime": 557.5,
+      "incompleteObjectives": [
+        "Optional: Defend a forward Outpost with 3 land soldiers"
+      ]
+    },
+    {
+      "mission": 6,
+      "title": "The Northern Watch",
+      "seed": 77,
+      "outcome": "win",
+      "campaignTime": 600,
+      "incompleteObjectives": [
+        "Optional: Secure the pine-line Tower with 3 nearby ranged troops"
+      ]
+    },
+    {
+      "mission": 7,
+      "title": "Crossing at Redwater",
+      "seed": 88,
+      "outcome": "win",
+      "campaignTime": 480,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 8,
+      "title": "Crown of Ashford",
+      "seed": 99,
+      "outcome": "win",
+      "campaignTime": 431,
+      "incompleteObjectives": [
+        "Optional: Destroy both Ashford signal towers",
+        "Optional: Establish a forward Siege Workshop near Ashford Castle"
+      ]
+    },
+    {
+      "mission": 9,
+      "title": "Siege of Greywatch",
+      "seed": 910,
+      "outcome": "win",
+      "campaignTime": 304.5,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 10,
+      "title": "The King\u2019s Road",
+      "seed": 911,
+      "outcome": "win",
+      "campaignTime": 480,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 11,
+      "title": "The Reliquary Trail",
+      "seed": 912,
+      "outcome": "win",
+      "campaignTime": 257,
+      "incompleteObjectives": [
+        "Optional: Build a completed forward Outpost on the pilgrim shore road"
+      ]
+    },
+    {
+      "mission": 12,
+      "title": "The Golden Coast",
+      "seed": 913,
+      "outcome": "win",
+      "campaignTime": 309.5,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 13,
+      "title": "The Strait's Last Relic",
+      "seed": 914,
+      "outcome": "win",
+      "campaignTime": 376,
+      "incompleteObjectives": []
+    },
+    {
+      "mission": 14,
+      "title": "The Siege of Tidewatch",
+      "seed": 915,
+      "outcome": "win",
+      "campaignTime": 483.5,
+      "incompleteObjectives": [
+        "Optional: Destroy the enemy Dock"
+      ]
+    },
+    {
+      "mission": 15,
+      "title": "The Bridge at Blackwood",
+      "seed": 916,
+      "outcome": "win",
+      "campaignTime": 480,
+      "incompleteObjectives": [
+        "Optional: Secure the forest ford with 2 Towers and 3 nearby walls"
+      ]
+    },
+    {
+      "mission": 16,
+      "title": "The Causeway Muster",
+      "seed": 917,
+      "outcome": "win",
+      "campaignTime": 668.5,
+      "incompleteObjectives": [
+        "Optional: Secure both Causeway fords with Towers"
+      ]
+    },
+    {
+      "mission": 17,
+      "title": "The Crown Holds the Crossing",
+      "seed": 918,
+      "outcome": "win",
+      "campaignTime": 1107.5,
+      "incompleteObjectives": [
+        "Optional: Fortify the north Causeway ford",
+        "Optional: Fortify the south Causeway ford"
+      ]
+    },
+    {
+      "mission": 18,
+      "title": "The Iron Pass",
+      "seed": 919,
+      "outcome": "win",
+      "campaignTime": 540,
+      "incompleteObjectives": []
+    }
+  ],
+  "seededAI": [
+    {
+      "seed": 123456,
+      "difficulty": 2,
+      "reloaded": false,
+      "seconds": 1476.3999999993146,
+      "result": "lose",
+      "reason": "Your Town Centre fell",
+      "age": [
+        0,
+        1
+      ]
+    },
+    {
+      "seed": 123456,
+      "difficulty": 3,
+      "reloaded": true,
+      "seconds": 1678.633333332464,
+      "result": "lose",
+      "reason": "Your Town Centre fell",
+      "age": [
+        0,
+        1
+      ]
+    },
+    {
+      "seed": 123456,
+      "difficulty": 3,
+      "reloaded": true,
+      "seconds": 1983.233333332187,
+      "result": "lose",
+      "reason": "Your Town Centre fell",
+      "age": [
+        1,
+        1
+      ]
+    }
+  ],
+  "browser": {
+    "status": "blocked",
+    "command": "CK_BROWSER_EXECUTABLE=/usr/bin/chromium node tests/browser/battlefield-art.mjs",
+    "reason": "Chromium process_singleton socket() failed: Operation not permitted. Playwright default browser absent; headless-shell download also failed with invalid/truncated ZIP. No Chromium acceptance pass claimed."
+  },
+  "hardware": {
+    "status": "requires_owner_testing",
+    "target": "Physical Xbox Series S Edge",
+    "includes": [
+      "controller operation",
+      "large-battle performance",
+      "graphics-context recovery",
+      "extended play"
+    ]
+  },
+  "overallContentPhase": "partial",
+  "remaining": [
+    "Per-civilization effect/reference-design reconciliation and complete balance review",
+    "All-faction natural-match AI strategy and ability use",
+    "Special transformations, overlapping armour classes and remaining class-wide upgrade effects",
+    "Chromium acceptance",
+    "Personal historical-save acceptance and physical Xbox testing"
+  ],
+  "deployment": "Not requested; main unchanged; draft PR only",
+  "limitations": [
+    "Three standard seeded scenarios ended naturally with AI victories and reached Feudal Age; this does not establish all 43 factions reaching Imperial in natural games.",
+    "Campaign wins are scripted simulation outcomes; optional objectives and human/controller quality remain separate.",
+    "No graphics overhaul or low-detail fallback was added."
+  ]
+}

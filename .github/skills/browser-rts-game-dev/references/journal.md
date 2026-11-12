@@ -280,3 +280,20 @@ After every substantial, verified feature, graphics, AI, networking or acceptanc
 **Correction:** Initial Actions run [43141239161](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/43141239161) had 1 existing source-regex failure out of 1,640 after the new AI condition was inserted ahead of affordability. Reordered AI checks to preserve the baseline contract, added a lock policy source assertion; subsequent Actions run [43141583644](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/43141583644) passed all tests.
 **Open acceptance:** Full 289-file standalone test suite, seeded long AI skirmishes, all 19 complete scripted campaign playthroughs, Chromium live visual checks, cross-device WAN multiplayer and real Xbox Series S performance/testing have not been run for this revision. No merge to main or production deployment.
 **Lesson:** Gate unit unlocks through the same world-aware policy in menus, queues, AI and technology browsing; make in-progress technology different from researched technology, and guard projected-world calculations from global match state.
+
+
+## 12 November 2026 — content research continuity
+
+Production baseline `9d431c1a`; implemented batches `9076cebe`, `ffc3d4e2`,
+`a258ea5d`. Test real paid completion with living wounded units, later units,
+queued replacements and existing/new buildings. Ledger-only callbacks can miss
+current HP; repeated building multipliers can make research order alter maximum
+HP. Use the existing declarative unit-effect path and one construction/research
+building calculation, while preserving custom campaign strength. A fixed-point
+availability audit exposed the Lithuanian Winged Hussar prerequisite gap that
+manually setting research flags in a fixture had hidden. Counts and legal queues
+do not prove complete civilization effects, AI strategy, reference parity or Xbox.
+
+`7168a45b` fills later AI military categories while preserving seeded draw count.
+`8d4db12c` also rejects duplicate production entries: filtering only the replaced
+base unit can append an upgraded kind already in the regional catalogue twice.

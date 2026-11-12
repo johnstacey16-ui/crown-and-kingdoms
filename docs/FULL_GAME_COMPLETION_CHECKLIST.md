@@ -1,5 +1,122 @@
 # Full game completion — implementation reference
 
+## Active gameplay-content register — 12 November 2026
+
+**Scope supersedes the older expansion/save instructions below:** finish the existing
+43-civilization production roster; do not add civilizations, deploy, discard old
+saves, or reintroduce automatic low-detail troops. Artwork and the reported 5 FPS /
+graphics-context loss require separate work. The starting production source is
+`9d431c1a`; no claim is made that every existing mechanic matches modern AoE II.
+
+[Machine-readable inventory](gameplay-content-register.json) records every live
+civilization, all 217 technologies with civilization eligibility, all 87 unit
+**definitions** (including building-attack proxies and special non-trained kinds),
+all 28 buildings, costs, durations, prerequisites, declarative upgrade effects,
+and reachable per-age training options. Generate it with
+`node scripts/gameplay-content-inventory.mjs --write`. It is derived from runtime
+rules; presence and reachability alone do not establish complete behavior.
+
+### Implemented batches
+
+- `9076cebe`: twelve unique technologies now grant HP to living existing units as
+  well as the persistent ledger used by future units. El Dorado uses the same
+  standard path without changing its already-correct effect. Regression checks
+  wounded/garrisoned units, enemies, corpses, duplicate research, and in-flight /
+  completed research save/reload.
+- `ffc3d4e2`: construction and building upgrades share HP calculations. Masonry /
+  Architecture no longer multiply Hoardings' flat HP based on research order.
+  Great Wall consistently affects existing and future walls/gates/towers without
+  silently consuming Fortified Wall research. Custom campaign HP is preserved.
+- `a258ea5d`: Bloodlines covers later mounted troops, Husbandry covers mounted
+  definitions and Cavalry Archers, and Magyar Huszars receive cavalry armour.
+  Lithuanian Winged Hussars now have a reachable paid prerequisite; both eligible
+  civilizations transform existing and queued scouts, retaining wounds and costs.
+
+- `7168a45b`: twelve later cavalry/ranged/siege kinds receive the correct AI
+  personality category instead of silently falling back to infantry; weighted
+  choices retain exactly one seeded random draw.
+- `8d4db12c`: generated content reachability/register and real paid queue matrix;
+  removed duplicate Winged Hussar, Houfnice and Legionary production entries.
+  Current matrix checks 3,273 research contexts and 2,456 training contexts.
+
+### Open implementation and verification work
+
+- Every civilization remains **PARTIAL**. Queue tests establish real payment,
+  timers and completion, not every economic/combat/team effect or reference parity.
+- Reconcile each original unique technology's name/description with its intended
+  C&K effect: for example Chivalry currently adds Knight attack, Nomads adds
+  Mangudai HP/attack, Mahouts adds elephant HP, and Marauders adds Tarkan stats.
+  Do not silently describe these as the AoE II mechanics or replace original
+  design decisions without tracing the intended specification.
+- Audit overlapping ranged/cavalry armour membership and remaining class-wide
+  effects, all transformation lines, ability counters, naval bonuses, conversions,
+  garrisons, formations, repair and placement. The production matrix exercises
+  normal queues; it does not certify tactical behavior or every special spawn.
+- AI personality classification is repaired for twelve newer military kinds
+  (`7168a45b`). Deeper composition scoring, unique-tech priorities, counters,
+  ability use and multi-seed recruitment across all 43 factions remain open.
+- Old save schemas/IDs remain unchanged. Personal historical saves were not
+  provided; automated save validation cannot certify every personal save.
+- [Current verification evidence](verification/gameplay-content-2026-11-12.json):
+  290/290 standalone files, 1,663 focused assertions, 5/5 quick gates,
+  19/19 scripted campaigns, 3/3 seeded AI scenarios and 8/8 Xbox software
+  contracts passed on the published code tree. Chromium is **BLOCKED** by this
+  environment's socket permission and failed browser download. Physical Series S
+  play, performance, controls and graphics recovery require the owner's testing.
+  The three standard seeded games only reached Feudal before natural victory;
+  they do not prove all factions can reach Imperial in a natural full match.
+
+### Civilization register
+
+| ID | Civilization | Unique unit | Unique technologies | Gameplay status |
+|---|---|---|---|---|
+| 0 | Franks | Throwing Axeman | Chivalry; Bearded Axes | PARTIAL — production/research paths checked; full mechanics review open |
+| 1 | Britons | Longbowman | Yeomen; Warwolf | PARTIAL — production/research paths checked; full mechanics review open |
+| 2 | Mongols | Mangudai | Nomads; Drill | PARTIAL — production/research paths checked; full mechanics review open |
+| 3 | Byzantines | Cataphract | Greek Fire; Logistica | PARTIAL — production/research paths checked; full mechanics review open |
+| 4 | Persians | War Elephant | Mahouts; Citadels | PARTIAL — production/research paths checked; full mechanics review open |
+| 5 | Teutons | Teutonic Knight | Crenellations; Ironclad | PARTIAL — production/research paths checked; full mechanics review open |
+| 6 | Celts | Woad Raider | Furor Celtica; Stronghold | PARTIAL — production/research paths checked; full mechanics review open |
+| 7 | Vikings | Berserk | Chieftains; Bogsveigar | PARTIAL — production/research paths checked; full mechanics review open |
+| 8 | Saracens | Mameluke | Zealotry; Counterweights | PARTIAL — production/research paths checked; full mechanics review open |
+| 9 | Turks | Janissary | Sipahi; Artillery | PARTIAL — production/research paths checked; full mechanics review open |
+| 10 | Chinese | Chu Ko Nu | Great Wall; Rocketry | PARTIAL — production/research paths checked; full mechanics review open |
+| 11 | Japanese | Samurai | Yasama; Kataparuto | PARTIAL — production/research paths checked; full mechanics review open |
+| 12 | Khmer | War Elephant | Tusk Swords; Double Crossbow | PARTIAL — production/research paths checked; full mechanics review open |
+| 13 | Indians | Elephant Archer | Shatagni; Grand Trunk Road | PARTIAL — production/research paths checked; full mechanics review open |
+| 14 | Spanish | Conquistador | Supremacy; Inquisition | PARTIAL — production/research paths checked; full mechanics review open |
+| 15 | Italians | Genoese Crossbowman | Pavise; Pirotechnia | PARTIAL — production/research paths checked; full mechanics review open |
+| 16 | Slavs | Boyar | Detinets; Druzhina | PARTIAL — production/research paths checked; full mechanics review open |
+| 17 | Huns | Tarkan | Marauders; Atheism | PARTIAL — production/research paths checked; full mechanics review open |
+| 18 | Goths | Huskarl | Anarchy; Perfusion | PARTIAL — production/research paths checked; full mechanics review open |
+| 19 | Aztecs | Jaguar Warrior | Garland Wars; Atlatl | PARTIAL — production/research paths checked; full mechanics review open |
+| 20 | Mayans | Plumed Archer | Hulche Javelins; El Dorado | PARTIAL — production/research paths checked; full mechanics review open |
+| 21 | Incas | Kamayuk | Andean Sling; Fabric Shields | PARTIAL — production/research paths checked; full mechanics review open |
+| 22 | Ethiopians | Shotel Warrior | Royal Heirs; Torsion Engines | PARTIAL — production/research paths checked; full mechanics review open |
+| 23 | Malians | Gbeto | Tigui; Farimba | PARTIAL — production/research paths checked; full mechanics review open |
+| 24 | Koreans | War Wagon | Shinkichon; Eupseong | PARTIAL — production/research paths checked; full mechanics review open |
+| 25 | Magyars | Magyar Huszar | Corvinian Army; Recurve Bow | PARTIAL — production/research paths checked; full mechanics review open |
+| 26 | Portuguese | Organ Gun | Carrack; Arquebus | PARTIAL — production/research paths checked; full mechanics review open |
+| 27 | Burmese | Arambai | Manipur Cavalry; Howdah | PARTIAL — production/research paths checked; full mechanics review open |
+| 28 | Vietnamese | Rattan Archer | Chatras; Paper Money | PARTIAL — production/research paths checked; full mechanics review open |
+| 29 | Bulgarians | Konnik | Stirrups; Bagains | PARTIAL — production/research paths checked; full mechanics review open |
+| 30 | Tatars | Keshik | Silk Armor; Timurid Siegecraft | PARTIAL — production/research paths checked; full mechanics review open |
+| 31 | Cumans | Kipchak | Steppe Husbandry; Cuman Mercenaries | PARTIAL — production/research paths checked; full mechanics review open |
+| 32 | Lithuanians | Leitis | Hill Forts; Tower Shields | PARTIAL — production/research paths checked; full mechanics review open |
+| 33 | Burgundians | Coustillier | Burgundian Vineyards; Flemish Revolution | PARTIAL — production/research paths checked; full mechanics review open |
+| 34 | Sicilians | Serjeant | First Crusade; Hauberk | PARTIAL — production/research paths checked; full mechanics review open |
+| 35 | Poles | Obuch | Szlachta Privileges; Lechitic Legacy | PARTIAL — production/research paths checked; full mechanics review open |
+| 36 | Bohemians | Hussite Wagon | Wagenburg Tactics; Hussite Reforms | PARTIAL — production/research paths checked; full mechanics review open |
+| 37 | Dravidians | Urumi Swordsman | Medical Corps; Wootz Steel | PARTIAL — production/research paths checked; full mechanics review open |
+| 38 | Bengalis | Ratha (Ranged) | Paiks; Mahayana | PARTIAL — production/research paths checked; full mechanics review open |
+| 39 | Gurjaras | Chakram Thrower | Kshatriyas; Frontier Guards | PARTIAL — production/research paths checked; full mechanics review open |
+| 40 | Romans | Centurion | Ballistas; Comitatenses | PARTIAL — production/research paths checked; full mechanics review open |
+| 41 | Armenians | Composite Bowman | Cilician Fleet; Fereters | PARTIAL — production/research paths checked; full mechanics review open |
+| 42 | Georgians | Monaspa | Svan Towers; Aznauri Cavalry | PARTIAL — production/research paths checked; full mechanics review open |
+
+### Historical completion guidance (superseded where stated above)
+
+
 **Owner decision, 10 November 2026.** This document expands the content-completion workstream from [ROADMAP.md](../ROADMAP.md); it is a *supporting implementation checklist*, not a second live priority register. Keep the 48 AUD tasks, P0–P4 safety/acceptance rules and release gate in ROADMAP.md.
 
 **Active goal: complete the entire intended game, not merely polish the current 26-civilization slice.** The owner explicitly chooses civilization/technology-tree expansion, remaining gameplay and Xbox feature parity as the priority for future autonomous work. Treat small refactors, tests and crash/performance fixes as enablers, not a permanent substitute for finishing content. The audited 48 AUD items and the P0–P4 technical and release requirements below still apply; this section controls **development priority**, not permission to skip safety, hosting or physical Xbox acceptance.

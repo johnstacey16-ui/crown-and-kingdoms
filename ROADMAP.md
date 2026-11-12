@@ -1,5 +1,12 @@
 # Crown & Kingdoms — active roadmap and new-chat handover
 
+**Active owner scope, 12 November 2026:** complete the **43 existing** runtime
+civilizations and their gameplay content before the graphics overhaul; no roster
+expansion, production deployment or low-detail troop fallback. Preserve old saves.
+See the [current content register](docs/FULL_GAME_COMPLETION_CHECKLIST.md#active-gameplay-content-register--12-november-2026)
+and [generated inventory](docs/gameplay-content-register.json). Earlier references
+to 26 civilizations and permission to discard personal saves are superseded.
+
 **Audited 2 November 2026; completion priority updated by the owner on 10 November 2026; campaign verification and free-tier release limits refreshed 9 November 2026.** This remains the **single active execution plan**. The original 48 numbered `AUD-###` tasks, their identifiers, and original acceptance requirements are retained **below**. [AGENTS.md](AGENTS.md) provides operating instructions; [docs/REFACTORING_INVENTORY.md](docs/REFACTORING_INVENTORY.md) records module ownership. The large [delivery register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md) is historical. For original audit context, use [the 31 October consolidated audit](docs/audits/2026-10-31-consolidated-audit.md) and [historical snapshot](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694).
 
 **Professional quality criteria:** [docs/PROFESSIONAL_QUALITY.md](docs/PROFESSIONAL_QUALITY.md) contains human Xbox, gameplay feel/balance, accessibility, security, original sprite, production and multiplayer quality gates. `node scripts/professional-readiness.mjs` reports verifiable source counts only; this is not a second backlog.
