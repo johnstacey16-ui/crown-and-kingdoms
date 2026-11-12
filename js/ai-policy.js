@@ -41,12 +41,12 @@ function aiReachableBuilder(vs,target){
 }
 
 // Once Dark Age prerequisite structures are ready, reserve Feudal food early.
-// In the 720-second seeded match, reserving at 13 villagers started but did
-// not complete the 500-food Feudal research; reserve at 12 instead.
+// Lower difficulties need earlier Feudal food reservation, but hard AI relies
+// on more villagers to sustain a full natural siege and long-match victory.
 // Castle/Imperial decisions retain the established larger worker threshold.
 function aiSavingAgeFood(t,villagers){
  const next=AG[S.age[t]+1];
- const needed=S.age[t]===0?12:16;
+ const needed=S.age[t]===0?(diff>=3?16:12):16;
  return !!(next&&villagers>=needed&&ageRequirements(t).ready);
 }
 function aiTownTechReady(t,tc,villagers){if(villagers<8||!tc.done||tc.hp<=0||tc.rs||!Array.isArray(tc.q)||!S.tech[t])return false;for(const k of ['loom','wheel','handcart']){const e=TE[k];if(e&&B.tc.rs&&B.tc.rs.includes(k)&&!S.tech[t][k]&&!S.bs.some(other=>other!==tc&&other.t===t&&other.hp>0&&other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost))return true}return false}
