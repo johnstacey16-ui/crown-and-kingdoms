@@ -66,6 +66,7 @@ function treeLines(){
   const tr=entry.units.map(u=>unitName(u.id,0));
   const research=entry.research.map(t=>t.name);
   rows.push([entry.name+(entry.age?' ('+AG[entry.age].n+')':' (Founding Age)'),
+   (entry.reason?'Unlock: '+entry.reason+'. ':'')+
    (tr.length?'Units: '+tr.join(', ')+'. ':'')+
    (research.length?'Tech: '+research.join(', '):'')]);
  }

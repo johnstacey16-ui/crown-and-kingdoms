@@ -183,7 +183,15 @@ const isMil=u=>u&&u.t===0&&u.hp>0&&!u.ld&&U[u.k]&&!['vil','fish','trn','king','m
 const onScr=(x,y)=>{const p=w2s(x,y);return p[0]>-20&&p[0]<CW+20&&p[1]>-20&&p[1]<CH+20};
 const focus=a=>ctr(a.x+(a.s||0)/2,a.y+(a.s||0)/2);
 function nearV(x,y){let b=null,bd=1e9;for(const u of S.us)if(u&&u.t===0&&u.hp>0&&!u.ld&&u.k==='vil'){const d=Math.hypot(u.x-x,u.y-y)+(u.o==='i'?-20:0);if(d<bd){bd=d;b=u}}return b}
-const bLock=k=>{const d=B[k];if(!d)return 'Building unavailable';if(!civilizationBuildingAllowed(k,0))return k==='donjon'?'Only Sicilians can construct a Donjon':k==='folwark'?'Only Poles can construct a Folwark':k==='mill'&&S.civ?.[0]===35?'Poles build Folwarks instead of Mills':k==='monastery'?'Build a Fortified Church instead':k==='fchurch'?'Only Armenians and Georgians build Fortified Churches':'Only Portuguese can construct a Feitoria';if(d.pop&&popOf(0)+d.pop>capOf(0))return 'Requires '+d.pop+' free population slots';if(k==='tc'&&vm===6)return 'Extra Town Centres disabled in Sudden Death';const req=k==='farm'?(S.civ?.[0]===35?'folwark':'mill'):d.req;return k==='wonder'&&vm!==1?'Wonder victory is off':d.age>S.age[0]?'Needs '+AG[d.age].n:req&&!S.bs.some(b=>b&&b.t===0&&b.hp>0&&b.k===req&&b.done)?'Needs '+B[req].n:''};
+const bLock=k=>{
+ const d=B[k];if(!d)return 'Building unavailable';
+ const unlock=buildingUnlock(k,0,S);
+ if(!civilizationBuildingAllowed(k,0))return unlock.reason;
+ if(d.pop&&popOf(0)+d.pop>capOf(0))return 'Requires '+d.pop+' free population slots';
+ if(k==='tc'&&vm===6)return 'Extra Town Centres disabled in Sudden Death';
+ if(k==='wonder'&&vm!==1)return 'Wonder victory is off';
+ return unlock.reason.replace(/^Requires /,'Needs ');
+};
 function selectedBuilders(kind=null){return controlGroupMembers(S.sel).filter(u=>S.us.includes(u)&&(u.k==='vil'||kind==='donjon'&&u.k==='serjeant'&&S.civ?.[u.t]===34))}
 
 /* Xbox controller selection policy: category shortcuts, additive selection,

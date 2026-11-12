@@ -105,13 +105,11 @@
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
-      const d=B[kind],req=kind==='farm'?(world.civ?.[team]===35?'folwark':'mill'):d.req;
-      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?(kind==='donjon'?'Only Sicilians can construct a Donjon':kind==='folwark'?'Only Poles can construct a Folwark':kind==='mill'&&world.civ?.[team]===35?'Poles build Folwarks instead of Mills':kind==='monastery'?'Build a Fortified Church instead':kind==='fchurch'?'Only Armenians and Georgians build Fortified Churches':kind==='mule'?'Only Armenians and Georgians build Mule Carts':(kind==='lumber'||kind==='mine')?'Build a Mule Cart instead':'Only Portuguese can construct a Feitoria'):
+      const d=B[kind],unlock=buildingUnlock(kind,team,world);
+      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?unlock.reason:
         d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
         kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
-        kind==='wonder'&&vm!==1?'Wonder victory is off':
-        d.age>world.age[team]?'Requires '+AG[d.age].n:
-        req&&!world.bs.some(b=>b.t===team&&b.k===req&&b.hp>0&&b.done)?'Requires '+B[req].n:'';
+        kind==='wonder'&&vm!==1?'Wonder victory is off':unlock.reason;
       return {type:'build',value:kind,label:d.n,cost:{...(typeof civilizationBuildingCost==='function'?civilizationBuildingCost(kind,team,world.civ):d.cost)},size:d.s,locked};
     }));
   }

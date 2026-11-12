@@ -133,3 +133,30 @@ test('projected tech tree uses its own Hussite Reforms ledger for research cost'
  assert.deepEqual(unresearched,snapshot(run,'TE.fervor.cost'),
   'unresearched projected tree must not inherit current live effects');
 });
+
+test('local and authoritative build menus agree on ages and completed prerequisites',()=>{
+ const run=uiGame();
+ run("S.civ[0]=0;S.age[0]=1;S.sel=[worker]");
+ const option=key=>snapshot(run,"CK_GAME_COMMANDS.buildOptions(S,0).flat().find(o=>o.value==='"+key+"')");
+ const compare=(kind,expected)=>{
+  const host=option(kind).locked,local=run("bLock('"+kind+"')");
+  assert.equal(host,expected,'host building lock for '+kind);
+  assert.equal(local,expected.replace(/^Requires /,'Needs '),'Xbox building lock for '+kind);
+ };
+ compare('rng','');
+ compare('univ','Requires Castle Age');
+ compare('farm','Requires Mill');
+ run("globalThis.mill=addB(0,'mill',44,9,true)");
+ compare('farm','');
+ run('mill.done=false');
+ compare('farm','Requires Mill');
+ run("S.civ[0]=35;S.age[0]=0");
+ compare('farm','Requires Folwark');
+ run("globalThis.folwark=addB(0,'folwark',53,9,true)");
+ compare('farm','');
+ compare('mill','Poles build Folwarks instead of Mills');
+ run("S.civ[0]=41;S.age[0]=2");
+ compare('monastery','Build a Fortified Church instead');
+ compare('fchurch','');
+ compare('lumber','Build a Mule Cart instead');
+});

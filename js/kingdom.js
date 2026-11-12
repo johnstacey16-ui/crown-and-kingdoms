@@ -319,6 +319,29 @@ function civilizationBuildingAllowed(kind,team,civs=S?.civ){
   (!Number.isInteger(d.onlyCiv)||id===d.onlyCiv)&&
   (!Array.isArray(d.onlyCivs)||d.onlyCivs.includes(id));
 }
+/* Pure construction-unlock policy shared by Xbox wheel, host build orders
+ * and the technology-tree preview. Population, world placement and victory
+ * mode checks are evaluated by the respective command layer afterward.
+ * Never read global S when a projected world is supplied. */
+function buildingUnlock(kind,team,world=S){
+ const d=B[kind],civs=world?.civ,id=civs?.[team];
+ const age=Number.isInteger(d?.age)?d.age:0;
+ const pre=kind==='farm'?(id===35?'folwark':'mill'):d?.req||null;
+ const reason=!d?'Building unavailable':
+  !civilizationBuildingAllowed(kind,team,civs)?
+   (kind==='donjon'?'Only Sicilians can construct a Donjon':
+    kind==='folwark'?'Only Poles can construct a Folwark':
+    kind==='mill'&&id===35?'Poles build Folwarks instead of Mills':
+    kind==='monastery'?'Build a Fortified Church instead':
+    kind==='fchurch'?'Only Armenians and Georgians build Fortified Churches':
+    kind==='mule'?'Only Armenians and Georgians build Mule Carts':
+    (kind==='lumber'||kind==='mine')?'Build a Mule Cart instead':
+    'Only Portuguese can construct a Feitoria'):
+  age>(world?.age?.[team]??0)?'Requires '+(AG[age]?.n||'later age'):
+  pre&&!world?.bs?.some(b=>b&&b.t===team&&b.k===pre&&b.done&&b.hp>0)?
+   'Requires '+(B[pre]?.n||pre):'';
+ return {age,pre,state:reason?'locked':'available',reason};
+}
 /* Georgian Fortified Church boosts friendly Villager gathering in a 9-tile
  * radius. Reads the host world; destroyed and unfinished Churches do nothing. */
 function georgianChurchWorkRate(u){
@@ -906,7 +929,7 @@ function technologyTreeModel(team=0,world=S){
  const buildings=[];
  for(const kind of Object.keys(B)){
   if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
-  const building=B[kind],ref={k:kind,t:team};
+  const building=B[kind],ref={k:kind,t:team},unlock=buildingUnlock(kind,team,world);
   const units=trOf(ref,world.civ,world.tech,world.age).filter(key=>!!U[key]).map(key=>{
    const d=U[key],requiredAge=typeof unitEffectiveAge==='function'?unitEffectiveAge(team,key,world.civ):Number.isInteger(d.age)?d.age:0;
    return {id:key,name:d.n,age:requiredAge,cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
@@ -922,8 +945,9 @@ function technologyTreeModel(team=0,world=S){
     duration:d.t,state:known[key]?'researched':reason?'locked':'available',
     reason:known[key]?'Completed':reason};
   });
-  buildings.push({id:kind,name:building.n,age:Number.isInteger(building.age)?building.age:0,
-   units,research});
+  buildings.push({id:kind,name:building.n,age:unlock.age,pre:unlock.pre,
+   cost:{...civilizationBuildingCost(kind,team,world.civ)},state:unlock.state,
+   reason:unlock.reason,units,research});
  }
  return {civilization:c.n,civilizationId:id,age,buildings};
 }
