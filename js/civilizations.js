@@ -59,7 +59,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut:{k:'ut32',n:'Hill Forts',cost:{f:250,g:250},t:40,age:2,fx:t=>{S.tech[t].hillForts=1}},
  ut2:{k:'ut32p',n:'Tower Shields',cost:{f:500,g:200},t:40,age:3,fx:t=>{S.tech[t].towerShields=1}},
  elite:{k:'eliteLeitis',n:'Elite Leitis',cost:{f:750,g:750},t:50,age:3,hpb:{leitis:20},atkb:{leitis:2},armor:{p:1}}},
-{n:'Burgundians',uu:'coust',d:'Charged Coustillier cavalry and Flemish Militia, cheaper early economy; Vineyards and Flemish Revolution',fx:t=>{S.tech[t].burgundianEconomy=1},
+{n:'Burgundians',earlyResearch:{economic:true,techs:['cavl']},uu:'coust',d:'Charged Coustillier cavalry and Flemish Militia, cheaper early economy; Vineyards and Flemish Revolution',fx:t=>{S.tech[t].burgundianEconomy=1},
  ut:{k:'ut33',n:'Burgundian Vineyards',cost:{f:400,g:300},t:50,age:2,fx:t=>{S.tech[t].vineyards=1}},
  ut2:{k:'ut33p',n:'Flemish Revolution',cost:{f:200,g:150},t:10,age:3,fx:t=>{
   for(const u of S.us)if(u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld){
@@ -95,7 +95,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
   fx:t=>{S.tech[t].lechiticLegacy=1}},
  elite:{k:'eliteObuch',n:'Elite Obuch',cost:{f:800,g:600},t:55,age:3,
   hpb:{obuch:15},atkb:{obuch:2},armor:{m:1,p:1}}},
-{n:'Bohemians',uu:'husswagon',teamWork:{market:1.8},
+{n:'Bohemians',earlyResearch:{techs:['chem']},uu:'husswagon',teamWork:{market:1.8},
  d:'Hussite Wagon cover, early gunpowder, mining and monastery reforms',
  fx:t=>{S.tech[t].bohemianGunpowder=1},
  ut:{k:'ut36',n:'Wagenburg Tactics',cost:{f:300,g:450},t:45,age:2,
@@ -140,7 +140,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
   fx:t=>{S.tech[t].comitatenses=1}},
  elite:{k:'eliteCenturion',n:'Elite Centurion',cost:{f:950,g:800},t:55,age:3,
   hpb:{centurion:20},atkb:{centurion:2},armor:{m:1,p:1}}},
-{n:'Armenians',uu:'composite',teamEconomic:{infantrySight:2},
+{n:'Armenians',earlyResearch:{techs:['longs','twohand','champ','pike','halb']},uu:'composite',teamEconomic:{infantrySight:2},
  d:'Composite Bowmen bypass armour, Warrior Priests heal and fight, early infantry upgrades',
  fx:t=>{S.tech[t].armenianInfantry=1},
  ut:{k:'ut41',n:'Cilician Fleet',cost:{w:350,g:300},t:45,age:2,

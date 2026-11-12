@@ -16,10 +16,12 @@ function ageRequirements(t,world=S){
 const BURGUNDIAN_ECONOMIC_TECHS=new Set(['loom','wheel','handcart','gath','carry','axe','saw','gmine','smine','coll','plow','crop']);
 function researchEffectiveAge(b,k,civs=S?.civ){
  const age=TE[k]?.age||0;
- return civs?.[b?.t]===41&&['longs','twohand','champ','pike','halb'].includes(k)?Math.max(0,age-1):
-  civs?.[b?.t]===36&&k==='chem'?Math.max(0,age-1):
-  civs?.[b?.t]===33&&(BURGUNDIAN_ECONOMIC_TECHS.has(k)||k==='cavl')?
-  Math.max(0,age-1):age;
+ const rule=CIV[civs?.[b?.t]]?.earlyResearch;
+ // The live civilization roster owns early-unlock exceptions. Economic
+ // groups reuse the same set that controls Burgundian research discounts.
+ const early=!!rule&&(rule.techs?.includes(k)||rule.economic===true&&
+  BURGUNDIAN_ECONOMIC_TECHS.has(k));
+ return early?Math.max(0,age-1):age;
 }
 function researchCost(b,k,civs=S?.civ,world=S){
  const cost=TE[k]?.cost||{},index=civs?.[b?.t];

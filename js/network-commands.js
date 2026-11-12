@@ -61,8 +61,9 @@
     }
     for (const key of research) if (TE[key]) {
       const entry = TE[key];
-      options.push({type:'research',value:key,label:entry.n,cost:{...researchCost(building,key,world.civ)},
-        locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
+      const age=researchEffectiveAge(building,key,world.civ);
+      options.push({type:'research',value:key,label:entry.n,cost:{...researchCost(building,key,world.civ,world)},
+        locked:tech[key] ? 'Researched' : age > world.age[team] ? 'Requires '+AG[age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
     if(building.k==='mule')options.push({type:'move',label:'Move Mule Cart',targeted:true,cost:{},locked:''},{type:'mule-auto',label:'Follow nearby resources',cost:{},locked:''},{type:'stop',label:'Stop Mule Cart',cost:{},locked:''});
