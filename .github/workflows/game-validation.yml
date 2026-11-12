@@ -206,6 +206,8 @@ jobs:
           if-no-files-found: ignore
 
   # Deliberate one-off release acceptance, never included in routine pushes.
+  # Full pre-production acceptance is requested through explicit commit markers;
+  # docs-only commits do not trigger push CI because Markdown is paths-ignored.
   # Chromium and Xbox software contracts are distinct from actual Series S FPS.
   release-browser-xbox:
     if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-browser-xbox]')
