@@ -1081,3 +1081,17 @@ test('AI rebalancing routes a miner past a full worksite to an available deposit
  assert.equal(sandbox.run('actor.tg===free'),true);
  assert.equal(sandbox.run("actor.ct==='g'&&actor.p.length>0&&claimant.tg===full"),true);
 });
+
+test('AI personalities classify later cavalry, ranged and siege units without extra random draws',()=>{
+ const start=policy.indexOf('const PERS=[');let draws=0;
+ const context={S:{r:()=>{draws++;return .6}},aip:6};
+ const result=vm.runInNewContext(policy.slice(start)+';({CATU,pickW})',context);
+ const expected={winged:'cav',centurion:'cav',monaspa:'cav',shrivamsha:'cav',camelscout:'cav',
+  ratha:'rng',rathaM:'cav',composite:'rng',chakram:'rng',husswagon:'sg',houfnice:'sg',thirisadai:'sg'};
+ for(const [kind,category] of Object.entries(expected))assert.equal(result.CATU[kind],category,kind);
+ assert.equal(result.pickW(['monaspa','mil']),'monaspa','Raider favors mounted troops');
+ assert.equal(draws,1,'preserve one seeded draw per choice');
+ context.aip=2;
+ assert.equal(result.pickW(['composite','knight']),'composite','Defensive favors ranged troops');
+ assert.equal(draws,2);
+});
