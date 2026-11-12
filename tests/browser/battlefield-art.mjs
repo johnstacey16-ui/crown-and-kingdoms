@@ -125,7 +125,11 @@ try{
  const diagnostics=await page.evaluate(()=>{
   const missingUnits=[],missingBuildings=[];
   for(const k of Object.keys(U))for(let t=0;t<4;t++)for(let st=0;st<4;st++)if(!assetFrame(k,t,st,0,.1))missingUnits.push(k+'/'+t+'/'+st);
-  for(const k of Object.keys(B))for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
+  // Only the original 22 common buildings have mandatory painted atlas frames.
+  // Six later civilization-locked buildings use the tested drawBld procedural
+  // fallback and must not be reported as missing painted raster assets.
+  for(const k of Object.keys(B).filter(kind=>B[kind].onlyCiv===undefined&&!Array.isArray(B[kind].onlyCivs)))
+   for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
   const a=assetFrame('mil',0,0,0,0),b=assetFrame('mil',1,0,0,0);
   const pixels=a.img.getContext('2d').getImageData(0,0,a.img.width,a.img.height).data;
   const red=b.img.getContext('2d').getImageData(0,0,b.img.width,b.img.height).data;
