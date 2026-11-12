@@ -2416,7 +2416,9 @@ console.log('campaign-scripted-playthrough: Crossing at Redwater '+(redwaterPlay
 if (shouldRunCampaignMission(5)) {
 const lastCrownPlaythrough = playCampaignScenarioTimed(5, 2200);
 assert.equal(lastCrownPlaythrough.over,'win','The Last Crown requires a natural completed King elimination: '+JSON.stringify(lastCrownPlaythrough));
-assert.ok(lastCrownPlaythrough.objectives.every(g=>g.complete&&g.predicate),'King kill must complete the actual campaign goal, not just generic Regicide victory');
+const lastCrownRequiredGoals=lastCrownPlaythrough.objectives.filter(g=>!g.title.startsWith('Optional:'));
+assert.equal(lastCrownRequiredGoals.length,1,'The Last Crown must keep its original King elimination as a required objective');
+assert.ok(lastCrownRequiredGoals.every(g=>g.complete&&g.predicate),'King kill must complete the required campaign goal, not just generic Regicide victory');
 assert.equal(lastCrownPlaythrough.lastCrown.enemyKingAlive,false,'enemy King must actually die');
 assert.equal(lastCrownPlaythrough.lastCrown.playerKingAlive,true,'the defending King must survive');
 assert.equal(lastCrownPlaythrough.lastCrown.campaignRecorded,true,'the campaign unlock must be saved through campMark');
