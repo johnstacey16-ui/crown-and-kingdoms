@@ -216,6 +216,6 @@ test('two world-context losses select safe troop art without changing units, gam
  assert.equal(run('artCounts.procedural'),2,'safe art draws the existing team-coloured unit sprite');
  assert.equal(run('JSON.stringify(S)'),before);
  assert.equal(JSON.stringify([...storage]),saved);
- run('perfLabels=[];tx=text=>perfLabels.push(text);drawPerfOverlay(.016)');
+ run('mode="play";perfLabels=[];tx=text=>perfLabels.push(text);drawPerfOverlay(.016)');
  assert.match(run('perfLabels.find(x=>x.startsWith("CANVAS"))'),/TROOP ART SAFE/);
 });
