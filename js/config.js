@@ -228,3 +228,21 @@ TE.legionaryUpgrade={n:'Legionary Upgrade',cost:{f:400,g:250},t:50,age:3,pre:'lo
    q.k='legionary';q.t=Math.min(q.t,U.legionary.t);
   }
  }};
+
+/* Later mounted troops share the existing Bloodlines HP ledger. Keep the
+ * original cavalry entries and include mounted regional/unique definitions. */
+for(const [kind,unit] of Object.entries(U))if(unit.mt||kind==='conq')TE.blood.hpb[kind]=20;
+
+/* Polish/Lithuanian Hussar research replaces the Scout line in both live
+ * troops and queued orders, matching the existing trOf production selector. */
+TE.huss.fx=t=>{
+ if(![32,35].includes(S.civ?.[t]))return;
+ const tech=S.tech[t],oldMax=U.scout.hp+(tech.hpb?.scout||0);
+ const nextMax=U.winged.hp+(tech.hpb?.winged||0);
+ for(const u of S.us)if(u.t===t&&u.k==='scout'&&u.hp>0){
+  u.k='winged';u.hp=Math.min(nextMax,Math.max(1,u.hp+nextMax-oldMax));
+ }
+ for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='scout'){
+  q.k='winged';q.t=Math.min(q.t,U.winged.t);
+ }
+};

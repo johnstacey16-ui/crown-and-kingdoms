@@ -57,3 +57,42 @@ test('completed unique HP research and an in-flight research survive save/load w
  assert.equal(run(`S.us.find(u=>u.netId==='${id}').hp`),expected);
  assert.equal(run("addU(0,'mgd',26,26).hp"),run('U.mgd.hp+30'));
 });
+
+test('Bloodlines, Husbandry and cavalry armour cover later mounted units without buffing infantry',()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nglobalThis.run=code=>eval(code);',sandbox);
+ const run=sandbox.run;
+ run("kingdoms=2;startAge=3;startRes=3;start();S.civ=[25,0];S.age=[3,3];S.tech=[{},{}];S.res[0]={f:10000,w:10000,g:10000,s:10000};S.us=[];S.bs=[];globalThis.stable=addB(0,'stable',30,30,true)");
+ const kinds=['huszar','boyar','tarkan','conq','wagon','batele','arambai','kipchak','konnik','keshik','steppe','leitis','coust','winged','centurion','ratha','rathaM','shrivamsha','camelscout','monaspa','cavarch'];
+ for(const k of kinds)run(`addU(0,'${k}',20,20).hp-=3`);
+ run("addU(0,'mil',21,21)");
+ assert.equal(run("research(stable,'blood')"),true);run('upB(stable,41)');
+ for(const k of kinds){
+  assert.equal(run(`S.us.find(u=>u.k==='${k}').hp`),run(`U['${k}'].hp+17`),k+' existing Bloodlines');
+  assert.equal(run(`addU(0,'${k}',22,22).hp`),run(`U['${k}'].hp+20`),k+' future Bloodlines');
+ }
+ assert.equal(run("mhp({k:'mil',t:0})"),run('U.mil.hp'));
+ assert.equal(run("research(stable,'husb')"),true);run('upB(stable,41)');
+ for(const k of kinds)assert.equal(run(`unitSpeed({k:'${k}',t:0})`),run(`U['${k}'].sp*1.1`),k+' Husbandry');
+ assert.equal(run("unitSpeed({k:'mil',t:0})"),run('U.mil.sp'));
+ const armor=run("combatArmor({k:'huszar',t:0},'m')");run('S.tech[0].armC=1');
+ assert.equal(run("combatArmor({k:'huszar',t:0},'m')"),armor+1);
+});
+
+for(const id of [32,35])test('Winged Hussar research upgrades existing and queued scouts for civilization '+id,()=>{
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nglobalThis.run=code=>eval(code);',sandbox);
+ const run=sandbox.run;
+ run(`kingdoms=2;startAge=3;startRes=3;start();S.civ=[${id},0];S.age=[3,3];S.tech=[{},{}];S.res[0]={f:10000,w:10000,g:10000,s:10000};S.us=[];S.bs=[];
+ globalThis.stable=addB(0,'stable',30,30,true);globalThis.other=addB(0,'stable',40,40,true);
+ globalThis.scout=addU(0,'scout',20,20);scout.hp-=7;`);
+ for(const key of ['blood','lcav']){
+  assert.equal(run(`research(stable,'${key}')`),true);run(`upB(stable,TE['${key}'].t+1)`);
+ }
+ assert.equal(run("train(other,'scout')"),true);
+ assert.equal(run("research(stable,'huss')"),true);run('upB(stable,51)');
+ assert.equal(run('scout.k'),'winged');
+ assert.equal(run('scout.hp'),run('U.winged.hp+20-7'));
+ assert.equal(run('other.q[0].k'),'winged');
+ assert.equal(run("addU(0,'winged',21,21).hp"),run('U.winged.hp+20'));
+});

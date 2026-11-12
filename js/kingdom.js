@@ -510,7 +510,7 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Malians':'mltcpvaesk',
  'Koreans':'mltcphvaesku',
  'Magyars':'mltcphvaeskdu',
- 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku',
+ 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskdu','Burgundians':'mltcphvaesku',
  'Sicilians':'mltcphvaesku',
  'Poles':'mltcphvaesku',
  'Bohemians':'mltcphvesk',
