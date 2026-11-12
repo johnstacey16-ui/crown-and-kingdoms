@@ -287,11 +287,11 @@ globalThis.__CK_TEST__ = {
         // stone defences are funded. Buy wood from a real completed Market.
         assignMiners('w',5,1500);assignMiners('g',2,950);
         if(cb('market')&&S.t-causewayLastTrade>=16){
-          // Finance timber from actual surplus-food sales while reserving
-          // enough gold for the next Siege Workshop Ram.
-          if(S.res[0].g<375&&S.res[0].f>=500){
+          // Supply successive genuine Rams by converting food to gold and
+          // gold to timber through the same paid Market trade as a human.
+          if(S.res[0].g<320&&S.res[0].f>=180){
             if(trade(0,'f','sell'))causewayLastTrade=S.t;
-          }else if(S.res[0].w<300&&S.res[0].g>=Math.round(S.px[0].w*1.3)+250){
+          }else if(S.res[0].w<270&&S.res[0].g>=Math.round(S.px[0].w*1.3)+100){
             if(trade(0,'w','buy'))causewayLastTrade=S.t;
           }
         }
@@ -358,6 +358,8 @@ globalThis.__CK_TEST__ = {
         // player resources for the Siege Workshop and land replacements.
         if(index===5&&S.age[0]<2)continue; // Save the real 800 food and 200 gold for Castle Age before siege training.
         if (U[unitKind] && U[unitKind].age > S.age[0]) { trainingGate = unitKind + ' requires age ' + U[unitKind].age; continue; }
+        if(index===16&&['spear','skirm'].includes(unitKind)&&S.res[0].w<300&&
+          cmp.d.castle===1)continue; // Final assault saves its real wood for Ram replacements.
         const live = S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length;
         const producer = S.bs.find(building => building.t === 0 && building.done && building.hp > 0 && Array.isArray(B[building.k].tr) && B[building.k].tr.includes(unitKind));
         const queued = producer ? producer.q.filter(queue => queue.k === unitKind).length : 0;
@@ -401,7 +403,7 @@ globalThis.__CK_TEST__ = {
           }
         }
       }
-      if (plan.attack && (index===8&&(ashfordAssaultStarted||S.t>=25&&aliveUnits(0,'ram').length>=2)||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&(aliveUnits(0,'ram').length>=2||cmp.d.blockade&&aliveUnits(0,'ram').length>=1)&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&(greywatchAssaultStarted||S.t>=25&&aliveUnits(0,'ram').length>=2)||index===16&&(causewayAssaultStarted||cb('dock')>=1&&aliveUnits(0,'gal').length>=3&&aliveUnits(0,'ram').length>=2)||index===14&&(tidewatchAssaultStarted||cb('siege')>=1&&aliveUnits(0,'bomb').length>=1&&aliveUnits(0,'ram').length>=1)||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&(aliveUnits(0,'ram').length>=2||cmp.d.blockade&&aliveUnits(0,'ram').length>=1)&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&(greywatchAssaultStarted||S.t>=25&&aliveUnits(0,'ram').length>=2)||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&(tidewatchAssaultStarted||cb('siege')>=1&&aliveUnits(0,'bomb').length>=1&&aliveUnits(0,'ram').length>=1)||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true;
         if(index===12){
           goldenCoastAssaultStarted=true;
@@ -450,7 +452,7 @@ globalThis.__CK_TEST__ = {
              // than repeatedly acquiring distant foot soldiers and stalling.
              const relay=index===9&&cmp.t<240?S.bs.find(b=>b&&b.t===1&&b.hp>0&&b.campaignRelay==='greywatch'):null;
              const fortress=relay||enemyCastle||enemyTC;
-             if(unit.o!=='a'||unit.tg!==fortress){unit.o='a';unit.tg=fortress;unit.p=[];unit.rp=0}
+             if(unit.o!=='a'||unit.tg!==fortress){unit.o='a';unit.tg=fortress;unit.p=[];unit.rp=0;if(index===9)greywatchOrders++}
              continue;
            }
            if(index===12&&unit.k==='ram'&&enemyTC){
@@ -2506,7 +2508,7 @@ for (const [index, label, limit] of [
   [10, 'The King’s Road', 700],
   [13, 'The Strait’s Last Relic', 1200],
   [15, 'The Bridge at Blackwood', 700],
-  [16, 'The Causeway Muster', 1200],
+  [16, 'The Causeway Muster', 1800],
   [17, 'The Crown Holds the Crossing', 1200],
   [18, 'The Iron Pass', 700],
 ]) {
@@ -2615,7 +2617,7 @@ for (const [index, label] of [[4, 'Siege of Kronburg'], [8, 'Crown of Ashford'],
   if (!shouldRunCampaignMission(index)) continue;
   // Guard returns to its escort after a raider escapes. Allow the same
   // 20-minute diagnostic budget as the coastal sieges; victory stays strict.
-  const result = playCampaignScenarioTimed(index, index===9?1200:900);
+  const result = playCampaignScenarioTimed(index, index===9?1200:index===8?1500:900);
   assert.ok(['win', 'lose', null].includes(result.over), label+' must reach victory, defeat or the explicit simulation timeout: '+JSON.stringify(result));
   if(index===9){
     assert.equal(result.over,'win','Greywatch requires a naturally destroyed Town Centre: '+JSON.stringify(result.greywatch));

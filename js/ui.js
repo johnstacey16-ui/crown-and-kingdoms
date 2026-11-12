@@ -334,7 +334,7 @@ const h=place?'A Place   LT+A Place more   B Cancel   (green = valid)':menu?'RT 
 if(lower){
  const hintLines=place?['A Place  LT+A Repeat','B Cancel']:
   menu?['RT Menu  A Confirm','B Close  X Cancel Queue']:
-  queueWait?['RT Menu  LB Groups','B Deselect']:
+  queueWait?[queueWait.hint,'B Deselect']:
   ['A Select  RT Menu  LB Groups','RB Map  B Back  Menu Pause'];
  const hintSize=lower.w<430?12:13;
  if(lower.short){
