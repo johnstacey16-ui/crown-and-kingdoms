@@ -63,6 +63,21 @@ function drawWorldFog(points,halfWidth,halfHeight,colour){
  }catch(_){clearFogMaskCache();paintFogLayer(points,halfWidth,halfHeight,colour)}
 }
 
+/* Cached isometric artwork remains authoritative; this light contour pass
+ * marks simulation-owned high-ground edges without altering terrain textures. */
+function drawElevationRidge(cx,cy,x,y,i,hw,hh){
+ if(!S?.el?.[i]||!S.ex?.[i])return;
+ const west=x===0||S.el[i-1]<S.el[i],east=x===W-1||S.el[i+1]<S.el[i],
+       north=y===0||S.el[i-W]<S.el[i],south=y===H-1||S.el[i+W]<S.el[i];
+ if(!west&&!east&&!north&&!south)return;
+ X.strokeStyle='rgba(246,215,145,.72)';X.lineWidth=Math.max(.8,1.25*zm);
+ X.beginPath();
+ if(west){X.moveTo(cx-hw,cy);X.lineTo(cx,cy-hh)}
+ if(east){X.moveTo(cx+hw,cy);X.lineTo(cx,cy+hh)}
+ if(north){X.moveTo(cx+hw,cy);X.lineTo(cx,cy-hh)}
+ if(south){X.moveTo(cx-hw,cy);X.lineTo(cx,cy+hh)}
+ X.stroke();
+}
 function drawWorld(){const selectedUnits=new Set(S.sel);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';const cs4=[[0,0],[CW,0],[0,CH],[CW,CH]].map(p=>s2w(p[0],p[1])),xs=cs4.map(p=>p[0]),ys=cs4.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs))-1),x1=Math.min(W-1,Math.ceil(Math.max(...xs))+1),y0=Math.max(0,Math.floor(Math.min(...ys))-1),y1=Math.min(H-1,Math.ceil(Math.max(...ys))+1),hw=TW/2,hh2=TH/2,L=[],fogHidden=[],fogExplored=[],timed=!!perfHud,startChunk=timed?performance.now():0;const useChunks=CHK&&perfLayerMode!==2&&drawChunks(x0,x1,y0,y1)!==false;
 if(timed)perfChunksMs=performance.now()-startChunk;
 const startTiles=timed?performance.now():0;
@@ -73,6 +88,7 @@ if((x>0&&!S.wt[i-1])||(x<W-1&&!S.wt[i+1])||(y>0&&!S.wt[i-W])||(y<H-1&&!S.wt[i+W]
 else{const coast=(x>0&&S.wt[i-1]===1)||(x<W-1&&S.wt[i+1]===1)||(y>0&&S.wt[i-W]===1)||(y<H-1&&S.wt[i+W]===1),dirt=hsh(x>>2,y>>2)<.1,pn=hsh((x>>3)+99,(y>>3)+7);X.fillStyle=coast?'#cdbd82':dirt?(hv<.5?'#8d7b4c':'#867449'):(pn<.25?GCd:pn>.8?GCl:GC)[(hv*6)|0];dia(cx,cy,hw+1,hh2+1);X.fill();
 if(!coast&&!dirt){if(hv>.8){X.strokeStyle='#3e7a30';X.lineWidth=1;X.beginPath();X.moveTo(cx-6,cy+2);X.lineTo(cx-4,cy-3);X.moveTo(cx-3,cy+2);X.lineTo(cx-2,cy-4);X.moveTo(cx+3,cy+3);X.lineTo(cx+4,cy-2);X.stroke()}else if(hv<.03){X.fillStyle=hv<.015?'#f4e04d':'#f2f2f2';X.fillRect(cx+hv*100-1,cy-1,3,3)}const tuft=hsh(x*13+7,y*19+3);if(tuft>.91){const tx=cx+(hsh(x+31,y+17)-.5)*14,ty=cy+(hsh(x+11,y+41)-.5)*6;X.strokeStyle=tuft>.97?'#577d35':'#426d2d';X.lineWidth=1;X.beginPath();X.moveTo(tx-3,ty+2);X.lineTo(tx-4,ty-2);X.moveTo(tx,ty+2);X.lineTo(tx,ty-4);X.moveTo(tx+3,ty+2);X.lineTo(tx+5,ty-1);X.stroke();if(tuft>.985){X.fillStyle='#d8c57b';X.beginPath();X.arc(tx+1,ty-4,1.2,0,7);X.fill()}}}else if(dirt&&!coast&&hv>.45){const peb=hsh(x*5+81,y*7+29);if(peb>.87){X.fillStyle=peb>.96?'rgba(205,190,151,.7)':'rgba(63,51,35,.45)';X.beginPath();X.ellipse(cx+(hv-.5)*12,cy+(peb-.9)*12,1.8,1,0,0,7);X.fill()}}}
 }
+if(perfLayerMode!==2&&S.el?.[i])drawElevationRidge(cx,cy,x,y,i,hw,hh2);
 if(!S.ex[i]){if(perfLayerMode!==2)fogHidden.push(cx,cy)}else{if(!S.vs[i]&&perfLayerMode!==2)fogExplored.push(cx,cy);const n=S.nd[i];if(n&&n.amt>0)L.push([x+y+1,0,n])}}
 const startFog=timed?performance.now():0;
 if(perfLayerMode!==2){

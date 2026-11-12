@@ -81,7 +81,7 @@ test('a single read-only tree model describes each existing civilization unique 
  for(let id=0;id<26;id++){
   const model=JSON.parse(run('JSON.stringify(technologyTreeModel(0,{civ:['+id+'],age:[1],tech:[{}]}))'));
   assert.equal(model.civilizationId,id);
-  assert.equal(model.buildings.length,Object.keys(JSON.parse(run('JSON.stringify(B)'))).length);
+  assert.equal(model.buildings.length,Object.keys(JSON.parse(run('JSON.stringify(B)'))).length-6,'foreign civilizations cannot access Feitoria, Krepost, Donjon, Folwark, Fortified Church or Mule Cart');
   const castle=model.buildings.find(b=>b.id==='castle');
   const unique=JSON.parse(run('JSON.stringify(CIV['+id+'])'));
   assert.ok(castle.units.some(u=>u.id===unique.uu));
@@ -139,4 +139,46 @@ test('technology tree model returns detached cost snapshots, not mutable game co
  run("const r=modelSnapshot.buildings.find(b=>b.id==='rng'); r.units[0].cost.w=-999; r.research[0].cost.f=-999");
  assert.equal(run('JSON.stringify({units:U,tech:TE})'),original,
   'a menu consumer cannot rewrite canonical unit or research costs');
+});
+
+test('building unlock metadata reflects age, completed prerequisites and projected civilizations without mutating live play',()=>{
+ const run=fixture();
+ const before=run('JSON.stringify({age:S.age,civ:S.civ,tech:S.tech,bs:S.bs.map(b=>({k:b.k,done:b.done,hp:b.hp}))})');
+ const read=(world,kind)=>JSON.parse(run('JSON.stringify(technologyTreeModel(0,'+world+'))')).buildings.find(b=>b.id===kind);
+ const origin='{civ:[0],age:[1],tech:[{}],bs:[]}';
+ let entry=read(origin,'rng');
+ assert.equal(entry.state,'locked');
+ assert.equal(entry.pre,'bar');
+ assert.equal(entry.reason,'Requires Barracks');
+ assert.deepEqual(entry.cost,{w:150});
+ entry=read('{civ:[0],age:[1],tech:[{}],bs:[{t:0,k:"bar",done:false,hp:500}]}','rng');
+ assert.equal(entry.state,'locked','an unfinished Barracks cannot unlock an Archery Range');
+ entry=read('{civ:[0],age:[1],tech:[{}],bs:[{t:0,k:"bar",done:true,hp:500}]}','rng');
+ assert.equal(entry.state,'available');
+ entry=read('{civ:[0],age:[1],tech:[{}],bs:[{t:0,k:"bar",done:true,hp:0}]}','rng');
+ assert.equal(entry.state,'locked','destroyed prerequisites do not count');
+ entry=read(origin,'univ');
+ assert.equal(entry.reason,'Requires Castle Age','age gate comes first');
+ entry=read('{civ:[0],age:[2],tech:[{}],bs:[]}','univ');
+ assert.equal(entry.reason,'Requires Blacksmith');
+ entry=read('{civ:[0],age:[2],tech:[{}],bs:[{t:0,k:"smith",done:true,hp:500}]}','univ');
+ assert.equal(entry.state,'available');
+ entry=read(origin,'farm');
+ assert.equal(entry.pre,'mill');
+ assert.equal(entry.reason,'Requires Mill');
+ entry=read('{civ:[35],age:[1],tech:[{}],bs:[]}','farm');
+ assert.equal(entry.pre,'folwark');
+ assert.equal(entry.reason,'Requires Folwark');
+ entry=read('{civ:[35],age:[1],tech:[{}],bs:[{t:0,k:"folwark",done:true,hp:300}]}','farm');
+ assert.equal(entry.state,'available');
+ entry=read('{civ:[36],age:[1],tech:[{}],bs:[]}','smith');
+ assert.equal(entry.cost.w,50,'Bohemian structure preview uses paid price');
+ assert.equal(run('JSON.stringify({age:S.age,civ:S.civ,tech:S.tech,bs:S.bs.map(b=>({k:b.k,done:b.done,hp:b.hp}))})'),before);
+});
+test('Xbox technology tree lists building requirements from the live shared unlock policy',()=>{
+ const run=fixture();
+ run('S.civ[0]=0;S.age[0]=1;S.bs=[]');
+ assert.match(row(run,'Archery Range'),/Unlock: Requires Barracks/);
+ run("addB(0,'bar',16,16,true)");
+ assert.doesNotMatch(row(run,'Archery Range'),/Unlock:/);
 });

@@ -40,8 +40,8 @@ test('Palisade is a Founding Age wood building on the economic page and Y opens 
  assert.equal(c.run("bLock('palisade')"),'');
  c.run("openMenu()");
  assert.equal(c.run("menu.items.slice(...menu.pr[0]).filter(it=>it.l===B.palisade.n).length"),1);
- assert.equal(c.run("menu.items.slice(...menu.pr[1]).some(it=>it.l===B.bar.n)"),true);
- assert.equal(c.run("menu.pr[1][1]===menu.items.length"),true,'all build entries remain reachable');
+ assert.equal(c.run("menu.items.some(it=>it.l===B.bar.n)"),true);
+ assert.equal(c.run("menu.pr.at(-1)[1]===menu.items.length"),true,'all build entries remain reachable');
  c.run("menu.items.find(it=>it.l===B.palisade.n).fn()");
  assert.equal(state(c).preview,'palisade');assert.equal(state(c).wood,1000);
  c.run('place=null');c.openShortcut();assert.equal(state(c).preview,'palisade');

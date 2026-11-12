@@ -18,11 +18,11 @@ assert.match(html, /S\.tech\[t\]\.mas\?1\.4:1/, 'new buildings must inherit Maso
 assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'new walls and gates must inherit Fortified Wall health');
 
 
-assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=t\.gath\?1\.25:1/,
+assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=\(t\.gath\?1\.25:1\)\*\(typeof georgianChurchWorkRate==='function'\?georgianChurchWorkRate\(u\):1\)/,
   'Gather Rate research must affect existing villagers on future collection ticks');
-assert.match(html, /if\(k==='w'\)\{m\*=1\+\.2\*!!t\.axe\+\.2\*!!t\.saw/,
+assert.match(html, /if\(k==='w'\)\{m\*=1\+\(armenian\?\.28:\.2\)\*!!t\.axe\+\(armenian\?\.28:\.2\)\*!!t\.saw/,
   'Double-bit Axe and Bow Saw must affect wood gathering');
-assert.match(html, /if\(k==='g'\)m\*=1\+\.15\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\.15\*!!t\.smine/,
+assert.match(html, /if\(k==='g'\)m\*=1\+\(armenian\?\.21:\.15\)\*!!t\.gmine[\s\S]{0,100}if\(k==='s'\)m\*=1\+\(armenian\?\.21:\.15\)\*!!t\.smine/,
   'Gold Mining and Stone Mining must affect the matching resource gathering rates');
 assert.match(html, /function gatherCapacity\(u\).*\bhunt=.*\?35:CAP\).*tech\.handcart\?\(hunt\?22:7\)/,
   'Carrying capacity must use the actual researched upgrades for current workers');
@@ -43,8 +43,14 @@ context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
 assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)\?\(\(ta\.armR\?1:0\)\+\(ta\.armR2\?1:0\)\+\(ta\.armR3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(CAVARM\.has\(t\.k\)\?\(\(ta\.armC\?1:0\)\+\(ta\.armC2\?1:0\)\+\(ta\.armC3\?\(cls==='p'\?2:1\):0\)\):0\)/,
   'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
-  'Cavalry armour must be restricted to mounted units in the current roster');
+const mountedClass=html.match(/const CAVARM=new Set\(\[([^\]]+)\]\)/)?.[1];
+assert.ok(mountedClass,'explicit mounted-class table must exist');
+const cavalryKinds=new Set((mountedClass.match(/'[^']+'/g)||[]).map(k=>k.slice(1,-1)));
+for(const kind of ['scout','knight','camel','centurion','monaspa','winged','shrivamsha'])
+ assert.ok(cavalryKinds.has(kind),'mounted cavalry '+kind+' receives appropriate armour');
+for(const kind of ['mil','spear','composite','warpriest','vil'])
+ assert.equal(cavalryKinds.has(kind),false,'foot unit '+kind+' cannot receive cavalry armour');
+
 assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\['forging','ironCasting','blastFurnace','atkR','armI','armI2','armI3','armR','armR2','armR3','armC','armC2','armC3','atkR2','bodkin'\]/,
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Scale Barding Armor \(\+1\/\+1 cavalry\)',cost:\{f:150\},t:45,age:1\}/,
@@ -65,9 +71,9 @@ assert.match(html, /cav=!!\(T\.armC&&CAVARM\.has\(k\)\)/,
   'Researched cavalry armour must be visible on matching battlefield units');
 assert.match(html, /if\(cav\)\{[\s\S]*?X\.stroke\(\);[\s\S]*?X\.restore\(\)/,
   'Cavalry barding must be drawn inside the translated/scaled sprite context');
-assert.match(html, /const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/,
+assert.match(html, /const buildRate=\(S\.tech\[u\.t\]\.crane\?1\.2:1\)\*\(u\.k==='vil'&&S\.civ\?\.\[u\.t\]===40\?1\.05:1\)/,
   'Treadmill Crane must affect ongoing and future construction work rates');
-assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\):0\),cls=ak\.sg/,
+assert.match(html, /\(tk\.slit\?2:0\)\+\(tk\.gtow\?3:0\)\+\(tk\.keep\?3:0\)\+\(S\.civ\?\.\[a\.t\]===42&&tk\.ut42\?2:0\)/,
   'Arrowslits, Guard Tower and Keep must feed the defensive building damage calculation');
 assert.doesNotMatch(html, /tk\.gf\?4:0/,
   'Byzantine Greek Fire must not strengthen ordinary tower arrows');
@@ -89,11 +95,13 @@ assert.match(html, /twohand:\{n:'Two-Handed Swordsman',cost:\{f:200,g:100\},t:45
   'Two-Handed Swordsman must have explicit prerequisites and real unit effects');
 assert.match(html, /champ:\{n:'Champion',cost:\{f:650,g:350\},t:70,age:3,pre:'twohand',hpb:\{mil:5\},atkb:\{mil:2\}\}/,
   'Champion must require Two-Handed Swordsman and add real health and attack');
-assert.ok(html.includes("castle:{n:'Castle',s:4,hp:1400,cost:{w:200,s:350},bt:60,age:2,atk:'cs',tr:['knight','xbow','treb'],rs:['cons']}"),
-  'Conscription must be researchable at the Castle');
+assert.ok(technologyBuildings.castle.rs.includes('cons'),
+  'Conscription must remain researchable at the Castle after its tech tree expands');
+assert.ok(technologyBuildings.castle.rs.includes('hoardings'),
+  'Hoardings must be offered by the Castle, without replacing Conscription');
 assert.match(html, /cons:\{n:'Conscription',cost:\{f:150,g:150\},t:60,age:3\}/,
   'Conscription must have explicit cost, research time and Imperial Age requirement');
-assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','dock'\]\)/,
+assert.match(html, /const MILITARY_PRODUCTION_BUILDINGS=new Set\(\['bar','rng','stable','siege','castle','monastery','fchurch','dock'\]\)/,
   'Conscription must cover all military production buildings');
 // Exercise the production source rather than pinning one minified function body.
 const productionSource=readFileSync(new URL('../js/simulation-building-production.js',import.meta.url),'utf8');
@@ -123,7 +131,7 @@ assert.match(html, /T\.halb\?'halb':T\.pike\?'pike'/,
   'Battlefield sprites must use the highest researched spear-line rank');
 assert.match(html, /rank==='pike'\|\|rank==='halb'/,
   'Halberdiers must receive the upgraded polearm rendering path');
-assert.ok(html.includes("stable:{n:'Stable',s:3,hp:500,cost:{w:150},bt:25,tr:['scout','camel','knight'],rs:['lcav','cavl','hcamel','blood','husb','pala','huss'],req:'bar',age:1}"),
+assert.ok(technologyBuildings.stable.rs.includes('husb'),
   'Husbandry must be researchable at the Stable');
 assert.match(html, /husb:\{n:'Husbandry',cost:\{f:150,g:150\},t:40,age:2\}/,
   'Husbandry must have explicit cost, duration and Castle Age availability');
@@ -139,8 +147,8 @@ assert.equal(speed({t:0,k:'mil'}),1,'Husbandry alone cannot accelerate infantry'
 assert.equal(speed({t:0,k:'vil'}),1,'Husbandry alone cannot accelerate villagers');
 speedContext.S.tech[0].squires=1;
 assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
-assert.match(html, /const CAVARM=new Set\(\['scout','knight','camel','mamel','cata','ele','mgd','eled','conq','boyar','tarkan'\]\)/,
-  'Mounted classification must cover unique cavalry and mounted raiders consistently');
+for(const kind of ['scout','knight','camel','coust','centurion','monaspa','shrivamsha'])
+ assert.ok(cavalryKinds.has(kind),'Mounted classification covers '+kind+' consistently');
 assert.match(researchPolicy, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
@@ -159,7 +167,7 @@ assert.match(html, /if\(k==='scout'&&tech\.lcav\)return 'Light Cavalry'/,
   'Scouts must display as Light Cavalry after that upgrade');
 assert.match(html, /if\(k==='knight'&&tech\.cavl\)return 'Cavalier'/,
   'Knights must display as Cavaliers after that upgrade');
-assert.match(html, /return\{l:unitName\(k,s\.t\),c:U\[k\]\.cost/,
+assert.match(html, /return\{l:unitName\(k,s\.t\),c:unitTrainingCost\(s\.t,k\)/,
   'Production menu labels must use the selected kingdom upgrade state');
 assert.match(html, /note\(unitName\(q\.k,b\.t\)\+' trained'\)/,
   'Training feedback must use the researched unit name');

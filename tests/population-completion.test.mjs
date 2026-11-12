@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 const engine=read('engine.js'),economy=read('js/economy.js'),sim=read('js/simulation-building-updates.js'),queueSource=read('js/simulation-production-queues.js');
-const pop=economy.split('\n').filter(l=>/^const (capOf|popOf|livePopulation)=/.test(l)).join('\n');
+const pop=economy.slice(economy.indexOf('const capOf=t=>'),economy.indexOf('const can=',economy.indexOf('const capOf=t=>')));
 const queued=queueSource.slice(queueSource.indexOf('function queuedPopulation('),queueSource.indexOf('function train('));
 const production=sim.slice(sim.indexOf('function upB('));
 function fixture(count,queues){

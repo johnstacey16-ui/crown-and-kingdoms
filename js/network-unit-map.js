@@ -30,7 +30,7 @@
       for(let i=0;i<sight.length;i++)if(sight[i]){
         field.visible.push(i);
         const node=world.nd?.[i];
-        field.tiles.push({index:i,water:world.wt?.[i]===1?1:world.wt?.[i]===2?2:0,
+        field.tiles.push({index:i,water:world.wt?.[i]===1?1:world.wt?.[i]===2?2:0,elevation:world.el?.[i]||0,
           node:node&&node.amt>0&&['w','f','g','s'].includes(node.k)?{id:node.netId,owner:node.t,kind:node.k,amount:node.amt,fish:!!node.fi,farm:!!node.fm,animal:!!node.an,trap:!!node.trap}:null});
       }
       for(const e of [...world.us,...world.bs])if(e&&e.hp>0&&position(e)&&!e.ld){
@@ -151,6 +151,16 @@
         context.fillStyle=tile.water===1?['#234f65','#28596b','#2b5c70'][grain]:
           tile.water===2?'#719b91':['#526b3d','#586f42','#5d7446'][grain];
         if(!paintTerrain(context,rememberedKind(x,y),x,y,px,py,sx+.3,sy+.3,false,terrainNeighborKinds(x,y,rememberedKind,view.width,view.height),resolution))context.fillRect(px,py,sx+.3,sy+.3);
+        if(tile.elevation){
+          context.fillStyle='rgba(239,208,134,.10)';context.fillRect(px,py,sx+.3,sy+.3);
+          context.strokeStyle='rgba(243,208,132,.6)';context.lineWidth=Math.max(.65,Math.min(1.6,sx*.08));
+          context.beginPath();
+          if(!terrainMemory.get(tile.index-1)?.elevation){context.moveTo(px,py);context.lineTo(px,py+sy)}
+          if(!terrainMemory.get(tile.index+1)?.elevation){context.moveTo(px+sx,py);context.lineTo(px+sx,py+sy)}
+          if(!terrainMemory.get(tile.index-view.width)?.elevation){context.moveTo(px,py);context.lineTo(px+sx,py)}
+          if(!terrainMemory.get(tile.index+view.width)?.elevation){context.moveTo(px,py+sy);context.lineTo(px+sx,py+sy)}
+          context.stroke();
+        }
         if(tile.water&&sx>=5){
           context.strokeStyle=tile.water===2?'rgba(230,226,177,.3)':'rgba(163,221,227,.22)';
           const ripple=tile.water===1?Math.sin(field.time*.8+x*.7+y)*sy*.08:0;

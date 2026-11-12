@@ -7,9 +7,15 @@ export async function checkBuildingDamage(page,output){
   const samples=[],contact=document.createElement('canvas');contact.width=1200;contact.height=1120;
   const cg=contact.getContext('2d');cg.fillStyle='#435541';cg.fillRect(0,0,1200,1120);
   let alphaDifferences=0,healthyDifferences=0,peakPixels=0,peakCanvases=0;
-  const variants=Object.keys(B).flatMap(kind=>['house','tc'].includes(kind)?[0,1,2,3].map(age=>({kind,age})):[{kind,age:undefined}]);
+  // Dedicated painted art covers the original roster; civilization-locked
+  // buildings use the supported procedural drawBld fallback instead.
+  const regional=Object.keys(B).filter(kind=>B[kind].onlyCiv!==undefined||Array.isArray(B[kind].onlyCivs));
+  const variants=Object.keys(B).filter(kind=>!regional.includes(kind)).flatMap(kind=>
+    ['house','tc'].includes(kind)?[0,1,2,3].map(age=>({kind,age})):[{kind,age:undefined}]);
   for(const {kind,age} of variants)for(let team=0;team<4;team++){
-   const art=paintedBuildingFrame(kind,team,0,age),f=art.f,source=document.createElement('canvas');source.width=f.w;source.height=f.h;
+   const art=paintedBuildingFrame(kind,team,0,age);
+   if(!art?.f)throw Error('Missing native damage frame for '+kind+' team '+team);
+   const f=art.f,source=document.createElement('canvas');source.width=f.w;source.height=f.h;
    const g=source.getContext('2d');g.drawImage(art.img,f.x,f.y,f.w,f.h,0,0,f.w,f.h);const original=g.getImageData(0,0,f.w,f.h).data,changes=[];
    for(const stage of [1,2]){
     const damaged=damagedBuildingArtwork(art,stage),q=damaged.f;
@@ -28,6 +34,14 @@ export async function checkBuildingDamage(page,output){
      cg.fillStyle='#fff0ce';cg.font='16px system-ui';cg.fillText(kind+' '+['healthy','damaged','critical','repaired'][col],col*300+15,row*280+20);
     }
    }
+  }
+  const regionalDrawn=[];
+  for(const kind of regional){
+   const props=B[kind],b={netId:'damage-regional-'+kind,k:kind,t:0,x:20,y:20,
+    s:props.s,done:true,pr:props.bt,hp:props.hp,mh:props.hp,q:[]};
+   // Exercise the production fallback without stochastic damaged-unit FX.
+   // Native damage stages are audited above for every painted structure.
+   drawBld(b);regionalDrawn.push(kind);
   }
   const base={netId:'damage-fixture',k:'house',t:0,x:20,y:20,s:B.house.s,done:true,pr:B.house.bt,hp:B.house.hp*.2,mh:B.house.hp,q:[]};
   let hiddenRetained=false,hiddenRepairRetained=false,unknownFallback=false;
@@ -55,13 +69,14 @@ export async function checkBuildingDamage(page,output){
   const originalCreate=document.createElement,art=paintedBuildingFrame('house',0,0,3);let allocationFallback=false;
   c.entries.clear();c.pixels=0;
   try{document.createElement=function(tag,...a){if(tag==='canvas')throw Error('test canvas unavailable');return originalCreate.call(this,tag,...a)};allocationFallback=damagedBuildingArtwork(art,1)===art}finally{document.createElement=originalCreate}
-  return {samples,alphaDifferences,healthyDifferences,peakPixels,peakCanvases,limit:c.limit,warmAllocations,allocationFallback,hiddenRetained,hiddenRepairRetained,unknownFallback,soloStages,mapStages,effectHashes,
+  return {samples,regionalDrawn,alphaDifferences,healthyDifferences,peakPixels,peakCanvases,limit:c.limit,warmAllocations,allocationFallback,hiddenRetained,hiddenRepairRetained,unknownFallback,soloStages,mapStages,effectHashes,
    before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
  });
  await writeFile(output+'/building-damage.png',Buffer.from(result.image.split(',')[1],'base64'));delete result.image;
  await writeFile(output+'/building-damage.json',JSON.stringify(result,null,2));
  assert.equal(result.before,result.after);assert.equal(result.alphaDifferences,0);assert.equal(result.healthyDifferences,0);
  assert.ok(result.samples.length===112&&result.samples.every(s=>s.changedPixels.every(n=>n>100)));
+ assert.equal(result.regionalDrawn.length,6,'six civilization-specific buildings must use supported fallback rendering');
  assert.ok(result.peakPixels<=result.limit&&result.peakCanvases>0);assert.equal(result.warmAllocations,0);
  assert.ok(result.hiddenRetained&&result.hiddenRepairRetained&&result.unknownFallback&&result.allocationFallback);
  assert.deepEqual(result.soloStages,[2,0]);assert.ok(result.mapStages.includes(2)&&result.mapStages.at(-1)===0);

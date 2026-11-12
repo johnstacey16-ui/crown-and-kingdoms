@@ -9,7 +9,7 @@ const ai=fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const economy=fs.readFileSync(new URL('../js/economy.js',import.meta.url),'utf8');
 
 test('queued population is counted once when training',()=>{
- const source=sim.slice(sim.indexOf('function train(b,k)'),sim.indexOf('function cancelQ('));
+ const source=sim.slice(sim.indexOf('function unitEffectiveAge('),sim.indexOf('function cancelQ('));
  const B={tc:{tr:['vil']}},U={vil:{age:0,cost:{f:50},t:10}};
  const b={t:0,k:'tc',hp:900,done:true,q:[{k:'vil',t:5}],rs:null};
  const S={tech:[{}],age:[0],res:[{f:1000}]};
@@ -19,7 +19,7 @@ test('queued population is counted once when training',()=>{
  assert.equal(b.q.length,2);
 });
 test('full population prevents new training',()=>{
- const source=sim.slice(sim.indexOf('function train(b,k)'),sim.indexOf('function cancelQ('));
+ const source=sim.slice(sim.indexOf('function unitEffectiveAge('),sim.indexOf('function cancelQ('));
  const B={tc:{tr:['vil']}},U={vil:{age:0,cost:{f:50},t:10}};
  const b={t:0,k:'tc',hp:900,done:true,q:[],rs:null};
  const S={tech:[{}],age:[0],res:[{f:1000}]};
@@ -33,6 +33,8 @@ test('AI housing forecast uses actual plus queued population only once',()=>{
  assert.ok(economy.includes('const popOf=t=>livePopulation(t)+queuedPopulation(t)'));
 });
 test('Treadmill Crane increases repair rate as well as build rate',()=>{
- assert.match(runtime,/tg\.mh\*dt\/\(S\.tech\[u\.t\]\.crane\?32:40\)/);
- assert.match(runtime,/const buildRate=S\.tech\[u\.t\]\.crane\?1\.2:1/);
+ const repair=fs.readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
+  assert.match(runtime,/if\(tg\.done\)repairBuildingWithResources\(u,tg,dt\)/);
+  assert.match(repair,/building\.mh\*dt\/\(S\.tech\[worker\.t\]\?\.crane\?32:40\)/);
+ assert.match(runtime,/const buildRate=\(S\.tech\[u\.t\]\.crane\?1\.2:1\)\*\(u\.k==='vil'&&S\.civ\?\.\[u\.t\]===40\?1\.05:1\)/);
 });

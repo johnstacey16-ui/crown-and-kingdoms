@@ -72,7 +72,7 @@ test('regional trainability has one kingdom owner, not an engine duplicate',()=>
  const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
  const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
  assert.match(kingdom,/function regionalTrainables\(/);
- assert.match(kingdom,/const trOf=\(b,civs=S\?\.civ,techs=S\?\.tech\)=>/);
+ assert.match(kingdom,/const trOf=\(b,civs=S\?\.civ,techs=S\?\.tech,ages=S\?\.age\)=>/);
  assert.doesNotMatch(engine,/function regionalTrainables\(/);
  assert.doesNotMatch(engine,/const trOf=/);
 });

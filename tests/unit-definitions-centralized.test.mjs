@@ -8,21 +8,21 @@ const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const engine=readFileSync(new URL('../engine.js',import.meta.url),'utf8');
 const catalogue=currentCivilizationRuntime();
 
-test('all 53 implemented troops are defined by config instead of late engine mutation',()=>{
+test('all 87 registered unit kinds are defined by config instead of late engine mutation',()=>{
  const units=vm.runInNewContext(config+'\n;U');
- assert.equal(Object.keys(units).length,53);
+ assert.equal(Object.keys(units).length,87);
  assert.match(config,/Object\.assign\(U,\{conq:\{/);
  assert.doesNotMatch(engine,/Object\.assign\(U,\{/);
  for(const kind of ['conq','genoa','boyar','tarkan','huskarl','jaguar',
-  'plumed','kamayuk','shotel','gbeto','wagon','huszar']){
+  'plumed','kamayuk','shotel','gbeto','wagon','huszar','eagle','cavarch','turtle','orgun','caravel','arambai','rattan','batele','konnik','keshik','kipchak','steppe','flamecamel','leitis','coust','flemish','serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','ratha','rathaM','chakram','shrivamsha','camelscout','centurion','legionary','composite','warpriest','monaspa']){
   assert.ok(units[kind],'missing unique troop '+kind);
   assert.ok(Number.isFinite(units[kind].hp)&&units[kind].hp>0);
   assert.ok(Number.isFinite(units[kind].t)&&units[kind].t>0);
  }
 });
 
-test('all 26 castles retain their unique-unit definitions and technologies',()=>{
- assert.equal(catalogue.civilizations.length,26);
+test('all 43 castles retain their unique-unit definitions and technologies',()=>{
+ assert.equal(catalogue.civilizations.length,43);
  for(const civ of catalogue.civilizations){
   assert.ok(catalogue.units[civ.uniqueUnit],civ.name+' lost castle troop');
   assert.equal(typeof civ.ut.fx,'function',civ.name+' lost unique technology');

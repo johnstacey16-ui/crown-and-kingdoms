@@ -9,7 +9,9 @@ const simulation=readFileSync(new URL('../js/simulation.js',import.meta.url),'ut
 const logistics=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
 const buildingUpdates=readFileSync(new URL('../js/simulation-building-updates.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
-const start=logistics.indexOf('function tickTrader(u,dt){');
+// Include the deterministic trip-income helper when this test deliberately
+// evaluates the trader in isolation from the rest of the browser runtime.
+const start=logistics.indexOf('function tradeTripGold(u,distance){');
 const end=logistics.length;
 assert.ok(start>=0&&end>start,'Trade carts and cogs must retain their route simulator');
 const traderSource=logistics.slice(start,end);

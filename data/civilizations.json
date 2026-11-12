@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "inventoryVersion": "ck-current-medieval-roster-26-v8",
-  "description": "Existing Crown & Kingdoms game roster only; not the complete Xbox AoE II DE or DLC roster. Index positions are save/network relevant.",
+  "inventoryVersion": "ck-current-medieval-roster-43-v1",
+  "description": "43 partial medieval civilizations (stable IDs 0–42), including Armenian and Georgian unique troops, research and combat mechanics. Mule Cart dedicated artwork and detailed automation balance, finished Fortified Church artwork, exact patch rules, original painted art and Xbox hardware acceptance remain incomplete.",
   "rulesets": [
     {
       "id": "medieval",
@@ -29,13 +29,200 @@
           9,
           13,
           22,
-          23
+          23,
+          39
         ],
         "buildings": [
           "stable"
         ],
         "source": "https://ageofempires.fandom.com/wiki/Camel_Rider_(Age_of_Empires_II)",
         "note": "C&K Indians maps to reference Hindustanis; Chinese no longer have Camel Riders."
+      },
+      {
+        "unit": "eagle",
+        "civilizations": [
+          19,
+          20,
+          21
+        ],
+        "buildings": [
+          "bar"
+        ],
+        "source": "https://liquipedia.net/ageofempires/Eagle_Warrior",
+        "note": "Regional Eagle Warrior at Barracks, Castle Age; dedicated motion art pending"
+      },
+      {
+        "unit": "cavarch",
+        "civilizations": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "buildings": [
+          "rng"
+        ],
+        "source": "https://liquipedia.net/ageofempires/Recurve_Bow",
+        "note": "Provisional non-Mesoamerican Cavalry Archer availability; exact individual faction exclusions remain partial"
+      },
+      {
+        "unit": "turtle",
+        "civilizations": [
+          24
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-169123/",
+        "note": "Korean Turtle Ship line; original procedural sprite fallback"
+      },
+      {
+        "unit": "caravel",
+        "civilizations": [
+          26
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/portuguese",
+        "note": "Portuguese Caravel with Elite Caravel upgrade. Original procedural fallback; naval mechanics partial."
+      },
+      {
+        "unit": "batele",
+        "civilizations": [
+          12,
+          27,
+          28,
+          38
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/burmese",
+        "note": "Separate Battle Elephant line. Additional regional availability and existing Khmer prototype require future audit."
+      },
+      {
+        "unit": "steppe",
+        "civilizations": [
+          2,
+          30,
+          31
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/tatars",
+        "note": "Regional Steppe Lancer for Mongols, Tatars and Cumans; Elite line and full patch-specific stats pending"
+      },
+      {
+        "unit": "flemish",
+        "civilizations": [
+          33
+        ],
+        "buildings": [
+          "bar"
+        ],
+        "source": "https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-81058/",
+        "note": "Burgundian Feudal Barracks regional infantry and Imperial villager transformation; dedicated motion art pending"
+      },
+      {
+        "unit": "winged",
+        "civilizations": [
+          32,
+          35
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/civilizations/poles",
+        "note": "Winged Hussar after Hussar research, shared by Poles and Lithuanians. Original procedural appearance, partial detailed reference parity."
+      },
+      {
+        "unit": "eled",
+        "civilizations": [
+          37,
+          38,
+          39
+        ],
+        "buildings": [
+          "rng"
+        ],
+        "source": "https://www.aoe2insights.com/civilization/dravidians/",
+        "note": "Regional Elephant Archer at Castle Age with Dravidian attack bonus; other elephant lines await audit."
+      },
+      {
+        "unit": "thirisadai",
+        "civilizations": [
+          37
+        ],
+        "buildings": [
+          "dock"
+        ],
+        "source": "https://www.aoe2insights.com/civilization/dravidians/",
+        "note": "Dravidian Imperial Age unique warship with multiple projectile attacks, separate Elite upgrade."
+      },
+      {
+        "unit": "shrivamsha",
+        "civilizations": [
+          39
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://age2hub.com/en/civs/gurjaras",
+        "note": "Gurjara Castle Age mounted raider with regenerating projectile dodge charges."
+      },
+      {
+        "unit": "camelscout",
+        "civilizations": [
+          39
+        ],
+        "buildings": [
+          "stable"
+        ],
+        "source": "https://age2hub.com/en/civs/gurjaras",
+        "note": "Gurjara Feudal Age Camel Scout trains before Camel Rider becomes available."
+      },
+      {
+        "unit": "warpriest",
+        "civilizations": [
+          41
+        ],
+        "buildings": [
+          "fchurch"
+        ],
+        "source": "https://www.ageofempires.com/games/age-of-empires-ii-definitive-edition/",
+        "note": "Armenian fighting healer recruited at the faction-exclusive Fortified Church."
       }
     ]
   },
@@ -81,7 +268,8 @@
         "cavalryArmor": "cp",
         "melee": "fib"
       },
-      "eliteUpgrade": "eliteLongbowman"
+      "eliteUpgrade": "eliteLongbowman",
+      "secondUniqueTechnology": "ut1p"
     },
     {
       "id": 2,
@@ -145,13 +333,16 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteWarElephant",
+      "secondUniqueTechnology": "ut4p"
     },
     {
       "id": 5,
       "name": "Teutons",
       "uniqueUnit": "tk",
       "uniqueTechnology": "ut5",
+      "secondUniqueTechnology": "ut5p",
       "rulepack": "medieval",
       "status": "partial",
       "researchFlags": {
@@ -165,7 +356,8 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteTeutonicKnight"
     },
     {
       "id": 6,
@@ -185,7 +377,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut6p",
+      "eliteUpgrade": "eliteWoadRaider"
     },
     {
       "id": 7,
@@ -205,7 +399,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut7p",
+      "eliteUpgrade": "eliteBerserk"
     },
     {
       "id": 8,
@@ -225,7 +421,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteMameluke",
+      "secondUniqueTechnology": "ut8p"
     },
     {
       "id": 9,
@@ -245,7 +443,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteJanissary",
+      "secondUniqueTechnology": "ut9p"
     },
     {
       "id": 10,
@@ -265,7 +465,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut10p",
+      "eliteUpgrade": "eliteChuKoNu"
     },
     {
       "id": 11,
@@ -285,7 +487,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut11p",
+      "eliteUpgrade": "eliteSamurai"
     },
     {
       "id": 12,
@@ -305,7 +509,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteBattleElephant",
+      "secondUniqueTechnology": "ut12p"
     },
     {
       "id": 13,
@@ -325,7 +531,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteElephantArcher",
+      "secondUniqueTechnology": "ut13p"
     },
     {
       "id": 14,
@@ -345,7 +553,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteConquistador",
+      "secondUniqueTechnology": "ut14p"
     },
     {
       "id": 15,
@@ -365,7 +575,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteGenoeseCrossbowman",
+      "secondUniqueTechnology": "ut15p"
     },
     {
       "id": 16,
@@ -385,7 +597,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteBoyar",
+      "secondUniqueTechnology": "ut16p"
     },
     {
       "id": 17,
@@ -405,7 +619,9 @@
         "archerArmor": "l",
         "cavalryArmor": "cp",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteTarkan",
+      "secondUniqueTechnology": "ut17p"
     },
     {
       "id": 18,
@@ -447,7 +663,9 @@
         "archerArmor": "l",
         "cavalryArmor": "",
         "melee": "fib"
-      }
+      },
+      "secondUniqueTechnology": "ut19p",
+      "eliteUpgrade": "eliteJaguarWarrior"
     },
     {
       "id": 20,
@@ -467,7 +685,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "elitePlumedArcher",
+      "secondUniqueTechnology": "ut20p"
     },
     {
       "id": 21,
@@ -487,7 +707,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteKamayuk",
+      "secondUniqueTechnology": "ut21p"
     },
     {
       "id": 22,
@@ -507,7 +729,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fib"
-      }
+      },
+      "eliteUpgrade": "eliteShotelWarrior",
+      "secondUniqueTechnology": "ut22p"
     },
     {
       "id": 23,
@@ -527,7 +751,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fi"
-      }
+      },
+      "eliteUpgrade": "eliteGbeto",
+      "secondUniqueTechnology": "ut23p"
     },
     {
       "id": 24,
@@ -547,7 +773,9 @@
         "archerArmor": "lr",
         "cavalryArmor": "c",
         "melee": "fi"
-      }
+      },
+      "eliteUpgrade": "eliteWarWagon",
+      "secondUniqueTechnology": "ut24p"
     },
     {
       "id": 25,
@@ -564,6 +792,382 @@
         "university": "mgcbh",
         "blacksmith": "irc",
         "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      },
+      "eliteUpgrade": "eliteMagyarHuszar",
+      "secondUniqueTechnology": "ut25p"
+    },
+    {
+      "id": 26,
+      "name": "Portuguese",
+      "uniqueUnit": "orgun",
+      "uniqueTechnology": "ut26",
+      "secondUniqueTechnology": "ut26p",
+      "eliteUpgrade": "eliteOrganGun",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 27,
+      "name": "Burmese",
+      "uniqueUnit": "arambai",
+      "uniqueTechnology": "ut27",
+      "secondUniqueTechnology": "ut27p",
+      "eliteUpgrade": "eliteArambai",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "mgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 28,
+      "name": "Vietnamese",
+      "uniqueUnit": "rattan",
+      "uniqueTechnology": "ut28",
+      "secondUniqueTechnology": "ut28p",
+      "eliteUpgrade": "eliteRattanArcher",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rbh",
+        "monastery": "dfasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 29,
+      "name": "Bulgarians",
+      "uniqueUnit": "konnik",
+      "uniqueTechnology": "ut29",
+      "secondUniqueTechnology": "ut29p",
+      "eliteUpgrade": "eliteKonnik",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 30,
+      "name": "Tatars",
+      "uniqueUnit": "keshik",
+      "uniqueTechnology": "ut30",
+      "secondUniqueTechnology": "ut30p",
+      "eliteUpgrade": "eliteKeshik",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 31,
+      "name": "Cumans",
+      "uniqueUnit": "kipchak",
+      "uniqueTechnology": "ut31",
+      "secondUniqueTechnology": "ut31p",
+      "eliteUpgrade": "eliteKipchak",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltcpvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "c",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 32,
+      "name": "Lithuanians",
+      "uniqueUnit": "leitis",
+      "uniqueTechnology": "ut32",
+      "secondUniqueTechnology": "ut32p",
+      "eliteUpgrade": "eliteLeitis",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaeskd",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 33,
+      "name": "Burgundians",
+      "uniqueUnit": "coust",
+      "uniqueTechnology": "ut33",
+      "secondUniqueTechnology": "ut33p",
+      "eliteUpgrade": "eliteCoustillier",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 34,
+      "name": "Sicilians",
+      "uniqueUnit": "serjeant",
+      "uniqueTechnology": "ut34",
+      "secondUniqueTechnology": "ut34p",
+      "eliteUpgrade": "eliteSerjeant",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 35,
+      "name": "Poles",
+      "uniqueUnit": "obuch",
+      "uniqueTechnology": "ut35",
+      "secondUniqueTechnology": "ut35p",
+      "eliteUpgrade": "eliteObuch",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrsvitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 36,
+      "name": "Bohemians",
+      "uniqueUnit": "husswagon",
+      "uniqueTechnology": "ut36",
+      "secondUniqueTechnology": "ut36p",
+      "eliteUpgrade": "eliteHussiteWagon",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvesk",
+        "field": "rh",
+        "monastery": "dfhrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 37,
+      "name": "Dravidians",
+      "uniqueUnit": "urumi",
+      "uniqueTechnology": "ut37",
+      "secondUniqueTechnology": "ut37p",
+      "eliteUpgrade": "eliteUrumi",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphves",
+        "field": "rh",
+        "monastery": "dfsvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fi"
+      }
+    },
+    {
+      "id": 38,
+      "name": "Bengalis",
+      "uniqueUnit": "ratha",
+      "uniqueTechnology": "ut38",
+      "secondUniqueTechnology": "ut38p",
+      "eliteUpgrade": "eliteRatha",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltphvesu",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 39,
+      "name": "Gurjaras",
+      "uniqueUnit": "chakram",
+      "uniqueTechnology": "ut39",
+      "secondUniqueTechnology": "ut39p",
+      "eliteUpgrade": "eliteChakram",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xt",
+        "coreMilitary": "mltphvesu",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 40,
+      "name": "Romans",
+      "uniqueUnit": "centurion",
+      "uniqueTechnology": "ut40",
+      "secondUniqueTechnology": "ut40p",
+      "eliteUpgrade": "eliteCenturion",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "x",
+        "coreMilitary": "mlphvaeskd",
+        "field": "rbh",
+        "monastery": "dfrsvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "cp",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 41,
+      "name": "Armenians",
+      "uniqueUnit": "composite",
+      "uniqueTechnology": "ut41",
+      "secondUniqueTechnology": "ut41p",
+      "eliteUpgrade": "eliteComposite",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xat",
+        "coreMilitary": "mltcphvaesk",
+        "field": "rh",
+        "monastery": "dfrasvbitm",
+        "university": "msgfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
+        "archerArmor": "lr",
+        "cavalryArmor": "c",
+        "melee": "fib"
+      }
+    },
+    {
+      "id": 42,
+      "name": "Georgians",
+      "uniqueUnit": "monaspa",
+      "uniqueTechnology": "ut42",
+      "secondUniqueTechnology": "ut42p",
+      "eliteUpgrade": "eliteMonaspa",
+      "rulepack": "medieval",
+      "status": "partial",
+      "researchFlags": {
+        "archery": "xa",
+        "coreMilitary": "mltcphvaesku",
+        "field": "rbh",
+        "monastery": "dfrasvbitm",
+        "university": "msgkfcbh",
+        "blacksmith": "irc",
+        "infantryArmor": "cp",
         "archerArmor": "lr",
         "cavalryArmor": "cp",
         "melee": "fib"

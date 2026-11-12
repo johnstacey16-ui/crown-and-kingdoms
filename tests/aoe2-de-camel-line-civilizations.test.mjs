@@ -49,8 +49,8 @@ test('Camel Rider and Heavy Camel source values are reflected in real unit and t
 
 test('all 26 factions source-gate Camel production and Imperial Heavy Camel research',()=>{
  const c=game();
- assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.map(x=>x.n))')),CIV_NAMES);
- assert.deepEqual(JSON.parse(c('JSON.stringify(REGIONAL_UNIT_ACCESS.find(r=>r.unit==="camel").civilizations.map(i=>CIV[i].n))')),CAMEL_CIVS,
+ assert.deepEqual(JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(x=>x.n))')),CIV_NAMES);
+ assert.deepEqual(JSON.parse(c('JSON.stringify(REGIONAL_UNIT_ACCESS.find(r=>r.unit==="camel").civilizations.filter(i=>i<26).map(i=>CIV[i].n))')),CAMEL_CIVS,
   'Stable Camel and Heavy Camel research share the one regional availability catalogue');
  for(const [i,name] of CIV_NAMES.entries()){
   const yes=CAMEL_CIVS.includes(name);

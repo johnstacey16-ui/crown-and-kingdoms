@@ -8,15 +8,21 @@ const policySource=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'u
 const start=policySource.indexOf('function aiSavingAgeFood(t,villagers){');
 const end=policySource.indexOf('function aiTownTechReady(',start);
 assert.ok(start>=0&&end>start,'AI age-up food reservation helper is present');
-function policy({villagers,age=0,ready=true}){
+function policy({villagers,age=0,ready=true,difficulty=2}){
  const S={age:[age]};const AG=[{}, {cost:{f:500}},{cost:{f:800,g:200}},{cost:{f:1000,g:800}}];
  const ageRequirements=()=>({ready});
- return vm.runInNewContext(policySource.slice(start,end)+'\n;aiSavingAgeFood(0,'+villagers+');',{S,AG,ageRequirements});
+ return vm.runInNewContext(policySource.slice(start,end)+'\n;aiSavingAgeFood(0,'+villagers+');',{S,AG,ageRequirements,diff:difficulty});
 }
 test('AI saves food after reaching a productive village and meeting age requirements',()=>{
+ assert.equal(policy({villagers:12}),true,'Feudal food reserve begins once prerequisites and a twelve-villager economy exist');
+ assert.equal(policy({villagers:12,difficulty:3}),false,'hard AI keeps growing to support sustained military replacement');
+ assert.equal(policy({villagers:16,difficulty:3}),true,'hard AI reserves Feudal food after sixteen villagers');
  assert.equal(policy({villagers:16}),true);
  assert.equal(policy({villagers:20}),true);
- assert.equal(policy({villagers:15}),false,'small early economies continue to grow');
+ assert.equal(policy({villagers:11}),false,'small early economies continue to grow');
+ assert.equal(policy({villagers:15,age:1}),false,'Castle Age requires a larger productive economy');
+ assert.equal(policy({villagers:16,age:1}),true,'Castle Age retains the normal worker threshold');
+ assert.equal(policy({villagers:12,ready:false}),false,'Feudal saving must wait for real prerequisite buildings');
  assert.equal(policy({villagers:25,ready:false}),false,'missing prerequisite buildings need workers');
  assert.equal(policy({villagers:30,age:3}),false,'Imperial Age has no next age');
 });

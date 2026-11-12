@@ -129,6 +129,53 @@ jobs:
           CK_REQUIRE_CAMPAIGN_VICTORY: '1'
         run: node tests/simulation-smoke.test.mjs
 
+  # Explicit per-commit acceptance gates. They never run on routine pushes,
+  # PRs or schedules; the weekly/manual game-regression workflow is unchanged.
+  full-standalone-regressions:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-regression-files]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run every current standalone test in its own Node process
+        run: node scripts/run-checks.mjs --regression-files
+
+  seeded-ai-acceptance:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-seeded-skirmishes]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run three deterministic production-AI skirmish scenarios
+        run: node scripts/run-checks.mjs --skirmishes
+
+  # Focused diagnostics for the four formerly unverified standalone files.
+  # This separate one-off job preserves the cheap ordinary push path.
+  regression-recheck:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-regression-recheck]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Bengali, Gurjara, and HTTP multiplayer regressions
+        run: |
+          node tests/civilization-bengali-ratha.test.mjs
+          node tests/civilization-gurjara-camel.test.mjs
+          node tests/network-battlefield-live.test.mjs
+      - name: Audit all nineteen campaign goal predicates without scripted playthroughs
+        env:
+          CK_SKIP_CAMPAIGN: '1'
+        run: node tests/simulation-smoke.test.mjs
+
   # This is an explicit, single-revision UI visual review, not a normal push gate.
   # Leave the comprehensive battlefield-art workflow weekly/manual.
   hud-browser:
@@ -157,3 +204,46 @@ jobs:
             artifacts/battlefield-art/figma-live-*
             artifacts/battlefield-art/figma-world-*
           if-no-files-found: ignore
+
+  # Deliberate one-off release acceptance, never included in routine pushes.
+  # Full pre-production acceptance is requested through explicit commit markers;
+  # docs-only commits do not trigger push CI because Markdown is paths-ignored.
+  # Chromium and Xbox software contracts are distinct from actual Series S FPS.
+  release-browser-xbox:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-browser-xbox]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned Chromium tooling
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run complete battlefield and multiplayer-room browser checks
+        run: node scripts/run-checks.mjs --browser
+      - name: Verify Xbox controller and performance software contracts
+        run: node scripts/run-checks.mjs --xbox-contracts
+
+  # Opt-in parallel isolation of the six failing missions. Do not relax the
+  # natural victory gate or infer matrix acceptance from this subset.
+  repair-campaign-matrix:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development' && contains(github.event.head_commit.message, '[verify-campaign-repairs]')
+    strategy:
+      fail-fast: false
+      matrix:
+        mission: [8, 9, 10, 11, 14, 16]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Natural victory on campaign mission index ${{ matrix.mission }}
+        env:
+          CK_MISSION: ${{ matrix.mission }}
+          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
+        run: node tests/simulation-smoke.test.mjs

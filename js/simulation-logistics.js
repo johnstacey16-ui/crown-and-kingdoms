@@ -51,6 +51,13 @@ function assignTradeRoute(u,target,producer=null){
  u.tradePaused=false;u.manualTradeMove=false;u.tradeSourceWait=0;u.trWait=0;u.tg=null;u.o='m';u.p=route;u.rp=1;
  return true;
 }
+// Trade income for a completed trip is computed when cargo is earned.
+function tradeTripGold(u,distance){
+ if(!Number.isFinite(distance)||distance<0)return 0;
+ const base=Math.max(2,Math.round(distance*.35));
+ const own=S.civ?.[u.t]===13&&S.tech?.[u.t]?.ut13p?Math.round(base*1.1):base;
+ return Math.round(own*(typeof civilizationTeamBonusFactor==='function'?civilizationTeamBonusFactor(u.t,'tradeGold'):1));
+}
 function tickTrader(u,dt){
  const endpoint=u.k==='cog'?'dock':'market',keyOf=b=>[b.t,b.k,b.x,b.y].join(':');
  // AoE2 DE Xbox fidelity: trade units follow their assigned routes; they do not
@@ -94,10 +101,13 @@ function tickTrader(u,dt){
  const goal=u.tradeReturning?src:dest;
  if(d2(u.x,u.y,goal)<=1.1){
   u.p=[];u.rp=0;
-  if(u.tradeReturning){const earned=Number.isSafeInteger(u.tradeCargo)&&u.tradeCargo>0?u.tradeCargo:0,bank=S.res[u.t];if(earned&&bank&&Number.isFinite(bank.g)&&bank.g>=0&&bank.g<=Number.MAX_SAFE_INTEGER-earned){bank.g+=earned;if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold')}u.tradeCargo=0;u.tradeReturning=false;u.tradeSourceWait=0;}
+  if(u.tradeReturning){const earned=Number.isSafeInteger(u.tradeCargo)&&u.tradeCargo>0?u.tradeCargo:0,bank=S.res[u.t];if(earned&&bank&&Number.isFinite(bank.g)&&bank.g>=0&&bank.g<=Number.MAX_SAFE_INTEGER-earned){bank.g+=earned;
+ const fraction=typeof civilizationTeamBonusAdd==='function'?civilizationTeamBonusAdd(u.t,'tradeFood'):0;
+ if(fraction>0&&Number.isFinite(bank.f))bank.f+=Math.round(earned*fraction);
+ if(u.t===0)note(U[u.k].n+' delivered +'+earned+' gold')}u.tradeCargo=0;u.tradeReturning=false;u.tradeSourceWait=0;}
   else{
    const distance=Math.hypot((src.x+src.s/2)-(dest.x+dest.s/2),(src.y+src.s/2)-(dest.y+dest.s/2));
-   u.tradeCargo=Number.isFinite(distance)?Math.max(2,Math.round(distance*0.35)):0;
+   u.tradeCargo=tradeTripGold(u,distance);
    u.tradeReturning=true;u.rp=0;
   }
   u.o='i';return;

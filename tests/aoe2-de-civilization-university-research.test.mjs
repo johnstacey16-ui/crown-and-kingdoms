@@ -66,7 +66,7 @@ function fixture(){
  return code=>sandbox.evalResearch(code);
 }
 test('source-pinned University mask covers eight technologies for all 26 civilizations',()=>{
- const c=fixture(),actual=JSON.parse(c('JSON.stringify(CIV.map(x=>[x.n,CIV_UNIVERSITY_RESEARCH[x.n]]))'));
+ const c=fixture(),actual=JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(x=>[x.n,CIV_UNIVERSITY_RESEARCH[x.n]]))'));
  assert.deepEqual(actual,Object.entries(EXPECTED));
  assert.equal(Object.keys(EXPECTED).length,26);
  assert.equal(new Set(Object.values(TECHS)).size,8);

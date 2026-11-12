@@ -5,7 +5,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Category | Status | Remaining work |
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
-| Unit animation | partial | independent directions, work variants and dedicated death sheets |
+| Unit animation | partial | 34 kinds, independent directions, work variants and dedicated death sheets |
 | Elite unit visuals | partial | four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md) |
 | Building artwork | partial | faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
@@ -19,6 +19,6 @@ Tracks every current visual category, including unfinished art. Source catalogue
 
 ## Painted movement/activity roster
 
-All current playable kinds have painted movement/activity sheets; automatic activity-event integration still requires review.
+Eagle Warrior, Cavalry Archer, Turtle Ship, Organ Gun, Caravel, Arambai, Rattan Archer, Battle Elephant, Konnik, Dismounted Konnik, Keshik, Kipchak, Steppe Lancer, Flaming Camel, Leitis, Coustillier, Flemish Militia, Serjeant, Obuch, Winged Hussar, Hussite Wagon, Houfnice, Urumi Swordsman, Thirisadai, Ratha (Ranged), Ratha (Melee), Chakram Thrower, Shrivamsha Rider, Camel Scout, Centurion, Legionary, Composite Bowman, Warrior Priest, Monaspa.
 
-All 50 playable troops have base artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.
+All 84 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.

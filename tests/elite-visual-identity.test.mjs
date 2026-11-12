@@ -45,3 +45,17 @@ test('real painted/fallback troop paint invokes Elite accents in regular and spr
  run('marks=[];perfUnitPass=1;drawUnit(husk,new Set());perfUnitPass=0');
  assert.deepEqual(JSON.parse(run('JSON.stringify(marks)')),[['huskarl',0]]);
 });
+
+test('every current civilization has a visible researched Elite cue with team isolation',()=>{
+ const run=create();
+ run('start();S.civ=[0,1];S.tech=[{},{}]');
+ for(let id=0;id<26;id++){
+  run('S.civ[0]='+id+';S.tech[0]={}');
+  const [unit,upgrade,name]=JSON.parse(run('JSON.stringify([CIV['+id+'].uu,CIV['+id+'].elite.k,CIV['+id+'].n])'));
+  assert.equal(run('drawEliteUniqueUnitMark(X,'+JSON.stringify(unit)+',0,10,10,1)'),false,name+' before Elite');
+  run('S.tech[0]['+JSON.stringify(upgrade)+']=1');
+  assert.equal(run('drawEliteUniqueUnitMark(X,'+JSON.stringify(unit)+',0,10,10,1)'),true,name+' after Elite');
+  assert.equal(run('drawEliteUniqueUnitMark(X,'+JSON.stringify(unit)+',1,10,10,1)'),false,name+' cannot tint enemy');
+  assert.equal(run("drawEliteUniqueUnitMark(X,'vil',0,10,10,1)"),false,'normal units remain non-Elite');
+ }
+});

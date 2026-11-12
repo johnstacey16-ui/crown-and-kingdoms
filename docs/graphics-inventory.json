@@ -452,6 +452,312 @@
       "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "eagle",
+      "name": "Eagle Warrior",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "cavarch",
+      "name": "Cavalry Archer",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "turtle",
+      "name": "Turtle Ship",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "orgun",
+      "name": "Organ Gun",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "caravel",
+      "name": "Caravel",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "arambai",
+      "name": "Arambai",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "rattan",
+      "name": "Rattan Archer",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "batele",
+      "name": "Battle Elephant",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "konnik",
+      "name": "Konnik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "footkonnik",
+      "name": "Dismounted Konnik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "keshik",
+      "name": "Keshik",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "kipchak",
+      "name": "Kipchak",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "steppe",
+      "name": "Steppe Lancer",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "flamecamel",
+      "name": "Flaming Camel",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "leitis",
+      "name": "Leitis",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "coust",
+      "name": "Coustillier",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "flemish",
+      "name": "Flemish Militia",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "serjeant",
+      "name": "Serjeant",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "obuch",
+      "name": "Obuch",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "winged",
+      "name": "Winged Hussar",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "husswagon",
+      "name": "Hussite Wagon",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "houfnice",
+      "name": "Houfnice",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "urumi",
+      "name": "Urumi Swordsman",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "thirisadai",
+      "name": "Thirisadai",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "ratha",
+      "name": "Ratha (Ranged)",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "rathaM",
+      "name": "Ratha (Melee)",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "chakram",
+      "name": "Chakram Thrower",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "shrivamsha",
+      "name": "Shrivamsha Rider",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "camelscout",
+      "name": "Camel Scout",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "centurion",
+      "name": "Centurion",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "legionary",
+      "name": "Legionary",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "composite",
+      "name": "Composite Bowman",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "warpriest",
+      "name": "Warrior Priest",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
+      "kind": "monaspa",
+      "name": "Monaspa",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
     }
   ],
   "buildings": [
@@ -652,20 +958,74 @@
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "feitoria",
+      "name": "Feitoria",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "krepost",
+      "name": "Krepost",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "donjon",
+      "name": "Donjon",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "folwark",
+      "name": "Folwark",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "fchurch",
+      "name": "Fortified Church",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
+    },
+    {
+      "kind": "mule",
+      "name": "Mule Cart",
+      "paintedBase": false,
+      "factionArchitecture": "unfinished",
+      "ageArt": "four shared original vector age fittings over native art",
+      "constructionArt": "shared scaffolding overlay",
+      "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
   "checklist": [
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "50 playable kinds; see catalogue",
+      "evidence": "84 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 50 kinds have painted multi-frame movement/activity art",
-      "remaining": "independent directions, work variants and dedicated death sheets"
+      "evidence": "50 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "34 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
@@ -676,7 +1036,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "22 painted kinds including farm; all carry fog-safe age presentation",
+      "evidence": "28 building kinds; 22 painted, 6 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

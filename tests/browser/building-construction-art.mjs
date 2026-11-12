@@ -8,7 +8,8 @@ export async function checkBuildingConstruction(page,output){
   cg.fillStyle='#435541';cg.fillRect(0,0,contact.width,contact.height);
   const bytes=()=>g.getImageData(0,0,c.width,c.height).data;
   let completedDifferences=0;
-  for(const kind of Object.keys(B))for(let team=0;team<4;team++){
+  const regional=Object.keys(B).filter(kind=>B[kind].onlyCiv!==undefined||Array.isArray(B[kind].onlyCivs));
+  for(const kind of Object.keys(B).filter(kind=>!regional.includes(kind)))for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,3);if(!art?.painted)throw Error('Missing building '+kind);
    // Construction acceptance isolates the native reveal. Age fittings have
    // their own all-building test and are intentionally disabled here.
@@ -30,6 +31,15 @@ export async function checkBuildingConstruction(page,output){
    }
    samples.push({kind,team,distinct:new Set(hashes).size});
   }
+  // The newer civilization-specific buildings lack dedicated painted frames.
+  // Render unfinished, partially built real instances through drawBld's
+  // procedural fallback without weakening the painted construction assertions.
+  const regionalDrawn=[];
+  for(const kind of regional){
+   const props=B[kind],base={netId:'construction-regional-'+kind,k:kind,t:0,x:20,y:20,
+    s:props.s,hp:props.hp*.5,mh:props.hp,pr:props.bt*.5,done:false,q:[]};
+   drawBld(base);regionalDrawn.push(kind);
+  }
   // Exercise both callers with a real unfinished building and copied projection.
   const base={netId:'construction-fixture',k:'house',x:20,y:20,s:B.house.s,t:0,hp:100,mh:B.house.hp,pr:B.house.bt*.3,done:false,q:[]};
   const oldX=X.drawImage,oldRect=X.rect,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),oldMapRect=ctx.rect;
@@ -48,10 +58,12 @@ export async function checkBuildingConstruction(page,output){
    ctx.rect=function(...a){mapClips++;return oldMapRect.apply(this,a)};
    map.refresh({...S,us:[],bs:[base]},0,W,H,true);
   }finally{X.drawImage=oldX;X.rect=oldRect;ctx.rect=oldMapRect}
-  return {samples,completedDifferences,soloClips,mapClips,hiddenRetained,unknownFallback,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
+  return {samples,regionalDrawn,completedDifferences,soloClips,mapClips,hiddenRetained,unknownFallback,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);assert.ok(result.hiddenRetained&&result.unknownFallback);assert.equal(result.completedDifferences,0);
- assert.ok(result.samples.length>=88&&result.samples.every(s=>s.distinct===5));assert.ok(result.soloClips>0&&result.mapClips>0);
+ assert.ok(result.samples.length===88&&result.samples.every(s=>s.distinct===5));
+ assert.equal(result.regionalDrawn.length,6,'all faction-locked structures require working procedural construction visuals');
+ assert.ok(result.soloClips>0&&result.mapClips>0);
  await writeFile(output+'/building-construction.png',Buffer.from(result.image.split(',')[1],'base64'));delete result.image;
  await writeFile(output+'/building-construction.json',JSON.stringify(result,null,2));return result;
 }

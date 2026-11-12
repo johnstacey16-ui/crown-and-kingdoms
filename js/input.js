@@ -56,19 +56,19 @@ if(RE[4]){if(!cgo.done&&sl>=0&&live().length){S.sel=live();note('Group '+(sl+1)+
 if(menu){const m=menu,{items,pr,pg,a0,n}=radialMenuPage(m);if(!n){if(E[0]||E[1]||(RE[7]&&m.rad))menu=null;return}const sx=ax(0),sy=ax(1);
 if(Math.hypot(sx,sy)>.4){const a=(Math.atan2(sy,sx)+Math.PI/2+6.2832)%6.2832;m.i=a0+Math.floor(a/6.2832*n+.5)%n}else if(!Number.isInteger(m.i)||m.i<a0||m.i>=a0+n)m.i=a0;
 if(E[3])yc=1;if(RE[7]&&m.rad){menu=null;return}if(E[0]){const choice=items[m.i];if(choice&&typeof choice.fn==='function')choice.fn();return}if(E[2]&&m.b)cancelQ(m.b);if(E[3]&&pr.length>1){m.pg=(pg+1)%pr.length;m.i=pr[m.pg][0]}if(E[1])menu=null;return}
-if(pat){if(E[1])pat=0;else if(E[0]){if(pat===5)queueMarchWaypoint(wx,wy);else{if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}}return}
+if(pat){if(E[1])pat=0;else if(E[0]){if(pat===5)queueMarchWaypoint(wx,wy);else{if(pat===6){const b=S.sel.find(x=>x?.k==='mule'&&x.t===0&&x.done&&x.hp>0);if(!b||!orderMuleCart(b,Math.floor(wx),Math.floor(wy)))note('Mule Cart cannot move there');else note('Mule Cart moving')}else if(pat===3||pat===4)orderGuardFollow(wx,wy,pat===3?'F':'G');else patrol(wx,wy,pat===2);pat=0}}return}
 if(place){if(E[1]){place=null;return}
 const d=place&&typeof place.k==='string'&&Object.prototype.hasOwnProperty.call(B,place.k)?B[place.k]:null;
 if(!d||!Number.isInteger(d.s)||d.s<1||d.s>W||d.s>H){place=null;note('Building placement cancelled: unavailable building');return}
-const s=d.s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=!lock&&okPlace(0,place.k,place.x,place.y)&&can(0,d.cost);
-if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,d.cost))return note('Not enough resources');let vs=selectedBuilders();if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note('No available villagers');
+const s=d.s,lock=bLock(place.k);place.x=cl(Math.round(wx-s/2),0,W-s);place.y=cl(Math.round(wy-s/2),0,H-s);place.ok=!lock&&okPlace(0,place.k,place.x,place.y)&&can(0,civilizationBuildingCost(place.k,0));
+if(E[0]){const k=place.k,d=B[k];if(lock)return note(lock);if(!okPlace(0,k,place.x,place.y))return note('Cannot build there');if(!can(0,civilizationBuildingCost(k,0)))return note('Not enough resources');let vs=selectedBuilders(k);if(!vs.length){const v=nearV(place.x,place.y);if(v)vs=[v]}if(!vs.length)return note(k==='donjon'?'No available Sicilian Serjeants or villagers':'No available villagers');
 if(k==='farm'){const n=addN('f',place.x,place.y,farmFood(0),1);
 if(!n)return note('Cannot build there');
-n.t=0;pay(0,d.cost);for(const u of vs){
+n.t=0;pay(0,d.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(n,0);for(const u of vs){
  const own=farmAvailableTo(u,n),other=!own?findReachableAutoNode(u,'f',36):null;
  if(own||other){u.o='g';u.tg=own?n:other.n;u.ct='f';u.p=own?[]:other.route;u.rp=own?0:1;u.ret=0;u.car=0}
  else{u.o='i';u.tg=null;u.p=[];u.rp=0}
- }}else{const b=addB(0,k,place.x,place.y,false);if(!b)return note('Cannot build there');pay(0,d.cost);for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
+ }}else{const b=addB(0,k,place.x,place.y,false);if(!b)return note('Cannot build there');pay(0,civilizationBuildingCost(k,0));for(const u of vs){u.o='b';u.tg=b;u.p=[]}}
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){cancelGameplayGestures();ov=1;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cancelGameplayGestures();cgo={sel:-1,done:0};yc=1;return}
 if(E[1]&&!lt){cancelGameplayGestures();S.sel=[];return}

@@ -19,7 +19,7 @@ const context = {
 };
 context.trOf=b=>context.B[b.k]?.tr||[];
 vm.createContext(context);
-const begin = simulation.indexOf('function queuedPopulation(t){');
+const begin = simulation.indexOf('function unitEffectiveAge(');
 const end = simulation.length;
 assert.ok(begin >= 0 && end > begin);
 vm.runInContext(simulation.slice(begin, end), context);

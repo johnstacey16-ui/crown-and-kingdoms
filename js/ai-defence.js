@@ -76,7 +76,7 @@ function aiDefendTownCentre(A,tc,arm,vil,my,nearbyRaiders){let thr=false,intr=nu
  * response cooldown without pulling committed soldiers from their orders. */
 function aiRelieveAlliedBases(t,A,arm,nearbyRaiders){
 /* Allied AI kingdoms now send a limited relief detachment to threatened allied Town Centres and Castles. */
-const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','lumber','mine','dock'].includes(b.k));
+const alliedBases=S.bs.filter(b=>b.t!==t&&diplomacyRelation(t,b.t)==='ally'&&b.hp>0&&b.done&&['tc','castle','tower','market','mill','folwark','lumber','mine','dock'].includes(b.k));
 let distress=null;
 for(const base of alliedBases){
  const intruder=aiBaseDefenceThreat(nearbyRaiders,base);
@@ -94,7 +94,7 @@ if(distress&&S.t-(A.lastAllyHelp??-99)>=6){
 /* Local four-defender anti-raid response for buildings and farm sites. */
 function aiDefendEconomicSites(t,A,arm,bl,nearbyRaiders){
 /* Local anti-raid response: defend remote economic sites without pulling the entire army off its main plan. */
-const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
+const economicSites=bl.filter(b=>b.done&&b.hp>0&&['lumber','mine','mill','folwark','market','house','tc','castle','tower','gate','palisade','wall','dock'].includes(b.k))
  .concat(S.nodes.filter(n=>n.fm&&n.t===t&&n.amt>0));
 let raid=null;
 for(const site of economicSites){
@@ -109,4 +109,57 @@ if(raid&&S.t-(A.lastRaidDefense??-99)>=8){
  if(defenders.length)A.lastRaidDefense=S.t;
 }
 
+}
+
+/* Georgian base reserves favour nearby actual high ground only at peace.
+ * Never steal units from a wave, campaign, garrison or emergency response.
+ * Bound path probes to 16 every 24 simulation seconds. */
+function aiGeorgianRidgeDefence(t,A,arm,tc,nearbyRaiders){
+ if(S?.civ?.[t]!==42||!S?.el||S.el.length!==W*H||!tc?.done||
+  tc.hp<=0||vm===5||cmp||A?.on||A?.stg||!Number.isFinite(S.t)||
+  !Number.isInteger(t)||t<1||t>=S.teamN)return 0;
+ if(S.t<(A.georgianRidgeAt||0))return 0;
+ A.georgianRidgeAt=S.t+24;
+ const cx=tc.x+tc.s/2,cy=tc.y+tc.s/2;
+ if((nearbyRaiders||[]).some(e=>e&&e.hp>0&&Number.isFinite(e.x)&&
+  Number.isFinite(e.y)&&Math.hypot(e.x-cx,e.y-cy)<24))return 0;
+ const reserves=(arm||[]).filter(u=>u&&u.t===t&&u.hp>0&&!u.ld&&
+  !u.retreating&&u.o==='i'&&!U[u.k]?.sh&&U[u.k]?.dmg>0&&
+  !['ram','mang','scor','treb','bomb','demo','king'].includes(u.k)&&
+  Number.isFinite(u.x)&&Number.isFinite(u.y)&&
+  u.x>=0&&u.y>=0&&u.x<W&&u.y<H&&
+  Math.hypot(u.x-cx,u.y-cy)<=18&&
+  !S.el[Math.floor(u.y)*W+Math.floor(u.x)]).slice(0,2);
+ if(!reserves.length)return 0;
+ const spots=[];
+ for(let y=Math.max(1,Math.floor(cy-17));y<Math.min(H-1,Math.ceil(cy+17));y++)
+ for(let x=Math.max(1,Math.floor(cx-17));x<Math.min(W-1,Math.ceil(cx+17));x++){
+  const i=y*W+x,dist=Math.hypot(x+.5-cx,y+.5-cy);
+  if(dist<5||dist>17||S.el[i]!==1||S.wt[i]!==0||S.g[i]||S.nd[i])continue;
+  let adjacent=0;
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]])
+   if(S.el[(y+dy)*W+x+dx]===1&&S.wt[(y+dy)*W+x+dx]===0)adjacent++;
+  if(adjacent<2)continue;
+  spots.push({x,y,dist});
+ }
+ spots.sort((a,b)=>a.dist-b.dist||a.y-b.y||a.x-b.x);
+ let posted=0,probes=0,inspected=0;
+ for(const soldier of reserves){
+  let selected=null;
+  for(const spot of spots){
+   // Occupancy checks also scan troops: cap them before testing each site.
+   if(probes>=16||inspected++>=40)break;
+   if(Math.hypot(spot.x+.5-soldier.x,spot.y+.5-soldier.y)>21)continue;
+   if(S.us.some(u=>u!==soldier&&u.hp>0&&!u.ld&&u.t===t&&
+     Math.hypot(u.x-spot.x-.5,u.y-spot.y-.5)<1.4))continue;
+   probes++;
+   const route=path(soldier,gp(spot.x+.5,spot.y+.5,.6));
+   if(!Array.isArray(route)||!route.length||route.length>44)continue;
+   selected={spot,route};break;
+  }
+  if(!selected)break;
+  soldier.o='m';soldier.tg=null;soldier.p=selected.route;soldier.rp=1;
+  spots.splice(spots.indexOf(selected.spot),1);posted++;
+ }
+ return posted;
 }

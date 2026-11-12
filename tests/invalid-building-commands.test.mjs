@@ -15,7 +15,7 @@ function body(source, name, nextName) {
 const train = body(production, 'train', 'cancelQ');
 assert.match(train, /^function train\(b,k\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|!Number\.isInteger\(b\.t\)\|\|!S\|\|!S\.tech\[b\.t\]\|\|!B\[b\.k\]\|\|!Array\.isArray\(B\[b\.k\]\.tr\)\|\|!trOf\(b\)\.includes\(k\)\|\|!U\[k\]\|\|!Array\.isArray\(b\.q\)\|\|b\.rs\)return false;/,
   'Training must reject dead, unfinished, incompatible or concurrently researching buildings before spending resources');
-assert.match(train, /pay\(t,d\.cost\);b\.q\.push/,
+assert.match(train, /pay\(t,cost\);[\s\S]*b\.q\.push/,
   'Valid production must still charge resources and queue the unit');
 
 // Exercise the production function's preconditions without calling the economy.

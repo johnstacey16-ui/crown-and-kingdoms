@@ -7,7 +7,7 @@
   const VERSION = 2;
   const MAX_UNITS_PER_ORDER = 96;
   const MAX_ORDER_BYTES = 1024;
-  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'patrol', 'follow', 'guard', 'attack', 'convert', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark', 'formation']);
+  const VALID_TYPES = new Set(['stop', 'move', 'attack-move', 'patrol', 'follow', 'guard', 'attack', 'convert', 'gather', 'build', 'train', 'research', 'stance', 'rally', 'cancel', 'garrison', 'repair', 'unload', 'disembark', 'formation','ratha-mode','livestock','mule-auto']);
   const HEX = n => (n >>> 0).toString(16).padStart(8, '0');
 
   function isRecord(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
@@ -32,8 +32,9 @@
     if (['attack', 'convert', 'garrison', 'repair', 'follow', 'guard'].includes(order.type) && !validId(order.target)) return false;
     if (order.type === 'gather' && !validResourceId(order.target)) return false;
     if (order.type === 'formation' && (order.entities.length < 2 || !['line','split'].includes(order.value))) return false;
-    if (['build', 'train', 'research', 'stance'].includes(order.type) &&
+    if (['build', 'train', 'research', 'stance','ratha-mode'].includes(order.type) &&
         (typeof order.value !== 'string' || !/^[a-z][a-zA-Z0-9_-]{0,39}$/.test(order.value))) return false;
+    if(order.type==='ratha-mode'&&!['melee','ranged'].includes(order.value))return false;
     if (order.type === 'rally' && order.target != null && !validId(order.target) && !validResourceId(order.target)) return false;
     // Training admits only the ordinary request and the Xbox five-unit batch.
     if (Object.hasOwn(order, 'count') &&
@@ -42,7 +43,7 @@
     const fields = ['type', 'entities'];
     if (['move', 'attack-move', 'patrol', 'build', 'rally', 'disembark'].includes(order.type)) fields.push('point');
     if (['attack', 'convert', 'gather', 'garrison', 'repair', 'follow', 'guard'].includes(order.type) || order.type === 'rally' && order.target != null) fields.push('target');
-    if (['build', 'train', 'research', 'stance', 'formation'].includes(order.type)) fields.push('value');
+    if (['build', 'train', 'research', 'stance', 'formation','ratha-mode'].includes(order.type)) fields.push('value');
     if (order.type === 'train') fields.push('count');
     return Object.keys(order).every(k => fields.includes(k));
   }
@@ -352,19 +353,20 @@
       result:world.over || null, resultReason:world.why || null,
       landGrid:world.g ? Array.from(world.g) : null,
       waterGrid:world.wt ? Array.from(world.wt) : null,
+       elevationGrid:world.el ? world.el.join('') : null,
       nodes:world.nodes.map(n => ({
         id:n.netId || null, kind:n.k, x:n.x, y:n.y, amount:n.amt, owner:n.t,
         farm:n.fm, animal:n.an, fish:n.fi, trap:n.trap
       })),
       units, buildings,
       projectiles:(world.pj || []).map(p => ({
-        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t} : null
+        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t,secondaryGalleyArrow:p.a.galleySecondary===true,sourceX:p.a.x,sourceY:p.a.y} : null
       })),
       relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
       ai:(world.ai || []).map(a => ({
         cooldown:a.cd, wave:a.wave, nextAttack:a.nx, strategy:a.rn,
         lastMarketTrade:a.lastMarketTrade ?? -99, lastTributeAt:a.lastTributeAt ?? -90,
-        defenseAt:a.lastRaidDefense ?? -99, retryAt:a.targetRetryAt ?? 0,
+        defenseAt:a.lastRaidDefense ?? -99, georgianRidgeAt:a.georgianRidgeAt ?? 0, retryAt:a.targetRetryAt ?? 0,
         waveProbeAt:a.waveProbeAt ?? 0, waveProgressAt:a.waveProgressAt ?? 0,
         waveBestDistance:a.waveBestDistance ?? -1, waveTargetHP:a.waveTargetHP ?? -1,
         waveTargetKey:a.waveTargetKey ?? '', waveRecoveries:a.waveRecoveries ?? 0,

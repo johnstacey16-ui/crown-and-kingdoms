@@ -92,6 +92,22 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
      errors.push('Elite '+field+' affects foreign units for '+entry.name);
    }
   }
+  // Per-civilization early-age research must be explicit, version-safe and
+  // refer only to technologies actually present in that civilization's tree.
+  if(actual?.earlyResearch!==undefined){
+   const rule=actual.earlyResearch,keys=rule?.techs;
+   if(!rule||Array.isArray(rule)||typeof rule!=='object'||
+      Object.keys(rule).some(k=>!['economic','techs'].includes(k))||
+      rule.economic!==undefined&&typeof rule.economic!=='boolean'||
+      !Array.isArray(keys)||new Set(keys).size!==keys.length||
+      (!keys.length&&!rule.economic)){
+    errors.push('Invalid early research schema for '+entry.name);
+   }else for(const key of keys){
+    if(typeof key!=='string'||!runtime.technologies?.[key]||
+       !Object.values(runtime.researchAvailability?.[id]||{}).some(list=>list.includes(key)))
+     errors.push('Unavailable early research '+key+' for '+entry.name);
+   }
+  }
   if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
    errors.push('Missing live civilization/technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||

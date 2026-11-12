@@ -22,7 +22,8 @@ function fixture(){
 
 test('Fire and Demolition Ships are separately trainable in Castle Age using ordinary paid queues',()=>{
  const {U,B,TE}=catalogue;
- assert.deepEqual(json(B.dock.tr),['fish','gal','fire','demo','cgal','trn','cog']);
+ assert.deepEqual(json(B.dock.tr.slice(0,7)),['fish','gal','fire','demo','cgal','trn','cog']);
+ assert.ok(B.dock.tr.includes('turtle'),'regional ships extend rather than replace naval roster');
  for(const kind of ['fire','demo']){
   assert.ok(U[kind].sh);
   assert.equal(U[kind].age,2);

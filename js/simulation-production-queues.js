@@ -1,8 +1,45 @@
 /* Crown & Kingdoms — production queues, training payment and refunds.
  * Classic browser declarations loaded directly before js/simulation.js.
  * Queue rules are moved unchanged and keep current-build save/load contracts. */
+/* Canonical discounted unit costs, shared by AI, UI and authoritative host.
+ * Unit catalogue remains immutable and cancellation refunds the paid amount. */
+function unitEffectiveAge(team,kind,civs=S?.civ){
+ const age=Number.isInteger(U[kind]?.age)?U[kind].age:0;
+ return civs?.[team]===36&&kind==='hcan'?Math.max(0,age-1):([37,38,39].includes(civs?.[team]))&&kind==='eled'?Math.max(0,age-1):age;
+}
+/* One read-only prerequisite check for player, AI, authenticated peer menus,
+ * actual queues and the technology tree. Do not mistake a queued Chemistry
+ * upgrade for a completed one. Bohemians explicitly recruit Hand Cannoneers
+ * in Castle Age before Chemistry; other gunpowder trainers need that tech. */
+function unitTrainingUnlock(b,kind,world=S){
+ const team=b?.t,civs=world?.civ,techs=world?.tech,age=world?.age?.[team];
+ const requiredAge=unitEffectiveAge(team,kind,civs);
+ const pre=kind==='bomb'||kind==='hcan'&&civs?.[team]!==36?'chem':null;
+ const offered=!!U[kind]&&!!B[b?.k]&&
+  typeof trOf==='function'&&trOf(b,civs,techs,world?.age).includes(kind);
+ const reason=!offered?'Unit unavailable at this building':
+  requiredAge>age?'Requires '+(AG[requiredAge]?.n||'later age'):
+  pre&&!techs?.[team]?.[pre]?'Requires '+TE[pre].n:'';
+ return {age:requiredAge,pre,state:reason?'locked':'available',reason};
+}
+function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
+ const cost=U[kind]?.cost||{};
+ if(kind==='kipchak'&&civs?.[team]!==31&&
+  typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(team,civs))return {};
+ if(civs?.[team]===39&&techs?.[team]?.ut39&&cost.f&&
+  kind!=='vil'&&kind!=='cart'&&kind!=='cog'&&kind!=='fish'&&kind!=='trn')
+  return {...cost,f:Math.ceil(cost.f*.75)};
+ if(civs?.[team]===40&&kind==='scor'&&cost.g)return {...cost,g:Math.ceil(cost.g*.5)};
+ if(civs?.[team]===37&&B.siege?.tr?.includes(kind)&&cost.w)return {...cost,w:Math.ceil(cost.w*2/3)};
+ if(civs?.[team]===36&&kind==='mon'&&techs?.[team]?.ut36p&&cost.g){
+  const {g,...other}=cost;return {...other,f:(other.f||0)+g};
+ }
+ if(civs?.[team]===35&&kind==='knight'&&techs?.[team]?.ut35&&cost.g)
+  return {...cost,g:Math.ceil(cost.g*.4)};
+ return civs?.[team]===26&&cost.g?{...cost,g:Math.ceil(cost.g*.85)}:cost;
+}
 function queuedPopulation(t){return S.bs.reduce((n,b)=>n+(b&&b.t===t&&b.hp>0&&Array.isArray(b.q)?b.q.length:0),0)}
-function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k];if(d.age>S.age[t]){if(!t)note('Requires '+AG[d.age].n);return false}if(!can(t,d.cost)){if(!t)note('Not enough resources');return false}
+function train(b,k){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!B[b.k]||!Array.isArray(B[b.k].tr)||!trOf(b).includes(k)||!U[k]||!Array.isArray(b.q)||b.rs)return false;const t=b.t,d=U[k],unlock=unitTrainingUnlock(b,k,S);if(unlock.state!=='available'){if(!t)note(unlock.reason);return false}const cost=typeof unitTrainingCost==='function'?unitTrainingCost(t,k):d.cost;if(!can(t,cost)){if(!t)note('Not enough resources');return false}
 if(popOf(t)>=capOf(t)){
  if(!t){
   const population=popOf(t),capacity=capOf(t);
@@ -14,8 +51,26 @@ if(popOf(t)>=capOf(t)){
   }
  }
  return false;
-}if(b.q.length>=5)return false;pay(t,d.cost);b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t});return true}
-function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();pay(b.t,U[q.k].cost,1);note('Cancelled - full refund');return true}
+}if(b.q.length>=5)return false;
+ const merc=k==='kipchak'&&b.k==='castle'&&S.civ?.[t]!==31&&
+  typeof mercenaryKipchakAvailable==='function'&&mercenaryKipchakAvailable(t);
+ pay(t,cost);
+ if(merc)S.tech[t].mercKipchakClaims=(S.tech[t].mercKipchakClaims||0)+1;
+ b.q.push({k,t:k==='skirm'&&S.tech[t]?.elsk?22:d.t,paidCost:{...cost},...(merc?{mercKipchak:true}:{})});
+ return true}
+function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech[b.t]||!Array.isArray(b.q)||!b.q.length)return false;const q=b.q[b.q.length-1];if(!q||!U[q.k]){b.q.pop();return false}b.q.pop();
+ if(q.mercKipchak===true&&q.k==='kipchak')S.tech[b.t].mercKipchakClaims=
+  Math.max(0,(S.tech[b.t].mercKipchakClaims||0)-1);
+ else{
+  // Refund the amount actually paid, even if Szlachta research completed
+  // while the unit was waiting. Bound restored save payloads to base prices.
+  const paid=q.paidCost,base=U[q.k].cost||{};
+  const valid=paid&&typeof paid==='object'&&!Array.isArray(paid)&&
+   Object.entries(paid).every(([resource,amount])=>['f','w','g','s'].includes(resource)&&
+    Number.isFinite(amount)&&amount>=0&&amount<=(base[resource]||0));
+  pay(b.t,valid?paid:typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):base,1);
+ }
+ note('Cancelled - full refund');return true}
 
 // Presentation-only explanation for a completed queue head. The same live
 // capacity and exit checks used by upB are read without advancing the queue.

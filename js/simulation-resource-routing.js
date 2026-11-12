@@ -12,7 +12,8 @@ function resourceGatherRate(n){
  return GR;
 }
 function baseGatherRate(u,n){return u.k==='vil'||n.fi?resourceGatherRate(n):GR}
-function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)}
+function gatherCapacity(u){const tech=S.tech[u.t]||{},hunt=u.k==='vil'&&!!u.tg?.an;return (hunt?35:CAP)+(tech.carry?5:0)+(u.k==='vil'&&tech.wheel?(hunt?9:3):0)+(u.k==='vil'&&tech.handcart?(hunt?22:7):0)+
+ (S.civ?.[u.t]===37&&(u.k==='fish'||u.k==='vil'&&u.tg?.k==='f'&&!u.tg?.fm)?15:0)}
 
 function farmAvailableTo(u,n){
  if(!n?.fm)return true;
@@ -47,7 +48,8 @@ function knownResource(u,n){
 }
 function findNode(u,k,r=16){if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||!Number.isFinite(r)||r<=0)return null;let b=null,bd2=r*r;for(const n of S.nodes)if(n&&n.k===k&&n.amt>0&&!n.an&&!!n.fi===!!u.sh&&(!n.trap||n.t===u.t)&&knownResource(u,n)&&resourceHasWorksite(u,n)&&Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&(u.sh||S.wt[n.y*W+n.x]!==1)){const dx=n.x-u.x,dy=n.y-u.y,d2=dx*dx+dy*dy;if(d2<bd2){bd2=d2;b=n}}return b}
 function dropoffKey(q){return [q.t,q.k,q.x,q.y].join(':')}
-function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||(q.k==='mill'&&u.ct==='f'))}
+function dropoffCompatible(u,q){return q.t===u.t&&q.hp>0&&q.done&&Number.isFinite(q.x)&&Number.isFinite(q.y)&&q.x>=0&&q.y>=0&&q.x<W&&q.y<H&&(u.sh?q.k==='dock':q.k==='tc'||(q.k==='mule'&&(u.ct==='w'||u.ct==='g'||u.ct==='s'||
+ (u.ct==='f'&&!!u.tg?.an)))||(q.k==='lumber'&&u.ct==='w')||(q.k==='mine'&&(u.ct==='g'||u.ct==='s'))||((q.k==='mill'||q.k==='folwark')&&u.ct==='f'))}
 function skipDropoff(u,q){if(!u||!q)return;const key=dropoffKey(q);if(!Array.isArray(u.dropSkipKeys))u.dropSkipKeys=[];if(!u.dropSkipKeys.includes(key)){if(u.dropSkipKeys.length>=32)u.dropSkipKeys.shift();u.dropSkipKeys.push(key)}}
 function findDropoffRoute(u){
  if(!S||!u||!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.y<0||u.x>=W||u.y>=H)return null;
@@ -79,7 +81,168 @@ function killNode(n){if(!n||!S.nodes.includes(n))return false;const i=n.y*W+n.x;
 /* Wildlife position and resource-node occupancy tick, source-identical. */
 function WL(dt){for(const n of S.nodes)if(n.an&&(n.w=(n.w||0)-dt)<=0){n.w=3+S.r()*4;const[dx,dy]=D8[(S.r()*4)|0],x=n.x+dx,y=n.y+dy;if(x>0&&y>0&&x<W-1&&y<H-1&&!S.g[y*W+x]){S.g[n.y*W+n.x]=0;S.nd[n.y*W+n.x]=null;n.x=x;n.y=y;S.g[y*W+x]=1;S.nd[y*W+x]=n}}}
 
+/* Folwark grants food when a newly purchased, owned farm is placed nearby.
+ * The one-off claim is part of the farm state, so save/load cannot mint twice. */
+/* Gurjara Mills hold a finite number of actual sheep resource nodes.
+ * The transfer removes a node from the map and persists in the building;
+ * no resource is earned simply by issuing a command. */
+function garrisonLivestockMill(b){
+ if(!b||!S?.bs?.includes(b)||b.k!=='mill'||!b.done||b.hp<=0||
+   !Number.isInteger(b.t)||S.civ?.[b.t]!==39||
+   !Number.isInteger(W)||!Array.isArray(S.nodes)||!Array.isArray(S.nd))return false;
+ const held=Number.isInteger(b.livestockCount)?b.livestockCount:0;
+ if(held<0||held>=5)return false;
+ const eligible=S.nodes.filter(n=>n&&n.herdable===1&&n.k==='f'&&n.amt>0&&
+   Number.isInteger(n.x)&&Number.isInteger(n.y)&&n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&
+   S.nd[n.y*W+n.x]===n&&
+   Math.hypot(n.x+.5-(b.x+b.s/2),n.y+.5-(b.y+b.s/2))<=10)
+  .sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y)||
+    a.y-c.y||a.x-c.x);
+ if(!eligible.length)return false;
+ const sheep=eligible[0],i=S.nodes.indexOf(sheep);
+ if(i<0)return false;
+ S.nd[sheep.y*W+sheep.x]=null;
+ S.nodes.splice(i,1);b.livestockCount=held+1;
+ return true;
+}
+function grantFolwarkFarmFood(farm,team){
+ if(!farm||farm.k!=='f'||!farm.fm||farm.t!==team||farm.folwarkClaimed||
+   S?.civ?.[team]!==35||!S.res?.[team]||S.nd?.[farm.y*W+farm.x]!==farm)return 0;
+ const eligible=S.bs?.some(b=>b&&b.t===team&&b.k==='folwark'&&b.done&&b.hp>0&&
+  Math.hypot(farm.x+.5-(b.x+b.s/2),farm.y+.5-(b.y+b.s/2))<=6);
+ if(!eligible)return 0;
+ const food=Math.max(0,Math.round((farm.amt||0)*.10));
+ farm.folwarkClaimed=1;
+ S.res[team].f+=food;
+ return food;
+}
 /* Gathering multipliers and upgraded farm capacity, preserved from simulation.js. */
-function gm(u,tg){const t=S.tech[u.t];let m=t.gath?1.25:1;const k=tg.k;if(k==='w'){m*=1+.2*!!t.axe+.2*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+.15*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+.15*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;return m}
+function gm(u,tg){const t=S.tech[u.t];let m=(t.gath?1.25:1)*(typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(u):1);const k=tg.k,armenian=S.civ?.[u.t]===41;if(k==='w'){m*=1+(armenian?.28:.2)*!!t.axe+(armenian?.28:.2)*!!t.saw;if(t.wd)m*=1.15}else if(k==='g')m*=1+(armenian?.21:.15)*!!t.gmine+.15*!!t.mn;else if(k==='s')m*=1+(armenian?.21:.15)*!!t.smine+.15*!!t.mn;else if(k==='f'&&tg.fm)m*=1+.15*!!t.fa;
+ if(u.k==='vil'&&S.civ?.[u.t]===40)m*=1.05;
+ return m}
 /* AoE-style farm capacity upgrades add food, rather than incorrectly increasing the harvest rate. */
 function farmFood(t){const q=S.tech[t]||{};return 175+(q.coll?75:0)+(q.plow?125:0)+(q.crop?175:0)}
+
+/* Mountain Royals Mule Cart: genuine mobile 1×1 building, not Trade Cart.
+ * Grid occupancy and deterministic movement travel with the saved building ID.
+ * Research pauses movement; manual orders override automatic resource chasing. */
+function muleCartTileFree(b,x,y){
+ if(!S||!Number.isInteger(x)||!Number.isInteger(y)||x<1||y<1||x>=W-1||y>=H-1)return false;
+ const i=y*W+x;
+ return S.wt[i]!==1&&!S.g[i]&&!S.nd[i]&&
+  !S.us.some(u=>u&&u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y);
+}
+function muleCartRoute(b,x,y){
+ if(!b||!Number.isInteger(b.x)||!Number.isInteger(b.y)||!muleCartTileFree(b,x,y))return null;
+ const start=b.y*W+b.x,held=S.g[start];S.g[start]=0;
+ let route;
+ try{route=path({t:b.t,x:b.x+.5,y:b.y+.5,sh:false},gp(x+.5,y+.5,.6))}
+ finally{S.g[start]=held}
+ if(!Array.isArray(route)||!route.length||route.length>W*H)return null;
+ return route.map(p=>[Math.floor(p[0]),Math.floor(p[1])]);
+}
+function orderMuleCart(b,x,y,automatic=false){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||b.hp<=0||!b.done||
+  ![41,42].includes(S.civ?.[b.t])||!Number.isInteger(x)||!Number.isInteger(y))return false;
+ if(b.x===x&&b.y===y){b.mulePath=[];b.muleProgress=0;b.muleAuto=!!automatic;return true}
+ const route=muleCartRoute(b,x,y);
+ if(!route)return false;
+ b.mulePath=route;b.muleProgress=0;b.muleAuto=!!automatic;
+ return true;
+}
+function tickMuleCarts(dt){
+ if(!S||!Number.isFinite(dt)||dt<=0)return;
+ for(const b of S.bs){
+  if(!b||b.k!=='mule'||!b.done||b.hp<=0)continue;
+  const route=b.mulePath;
+  if(Array.isArray(route)&&route.length){
+   if(b.rs)continue;
+   b.muleProgress=Math.min(8,Math.max(0,(b.muleProgress||0)+dt*.8));
+   // Max four grid moves per tick after an interrupted browser frame.
+   for(let steps=0;steps<4&&route.length;steps++){
+    const [nx,ny]=route[0],cost=nx!==b.x&&ny!==b.y?Math.SQRT2:1;
+    if(b.muleProgress<cost)break;
+    const diagonalBlocked=nx!==b.x&&ny!==b.y&&(
+     S.wt[b.y*W+nx]===1||S.g[b.y*W+nx]||
+     S.wt[ny*W+b.x]===1||S.g[ny*W+b.x]);
+    if(Math.abs(nx-b.x)>1||Math.abs(ny-b.y)>1||
+       !muleCartTileFree(b,nx,ny)||diagonalBlocked){
+     b.mulePath=[];b.muleProgress=0;break;
+    }
+    S.g[b.y*W+b.x]=0;b.x=nx;b.y=ny;S.g[b.y*W+b.x]=1;
+    route.shift();b.muleProgress-=cost;
+   }
+   continue;
+  }
+  if(b.muleAuto===false||b.rs)continue;
+  b.muleCheck=(b.muleCheck||0)-dt;
+  if(b.muleCheck>0)continue;
+  b.muleCheck=7;
+  // Stay at a viable deposit; relocate only after its nearby resources run out.
+  const usable=n=>n&&n.amt>0&&!n.fi&&!n.fm&&
+   (n.k==='w'||n.k==='g'||n.k==='s'||n.k==='f'&&n.an)&&
+   Number.isInteger(n.x)&&Number.isInteger(n.y)&&
+   n.x>=0&&n.y>=0&&n.x<W&&n.y<H&&
+   (b.t!==0||!!S.ex?.[n.y*W+n.x]);
+  if(S.nodes.some(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=2.5))continue;
+  const nearby=S.nodes.filter(n=>usable(n)&&Math.hypot(n.x-b.x,n.y-b.y)<=9)
+    .sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y)||a.y-c.y||a.x-c.x);
+  let moved=false;
+  for(const n of nearby.slice(0,8)){
+   const sites=[];
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    if(!dx&&!dy)continue;
+    const x=n.x+dx,y=n.y+dy;
+    if((b.t!==0||!!S.ex?.[y*W+x])&&muleCartTileFree(b,x,y))sites.push([x,y]);
+   }
+   sites.sort((a,c)=>Math.hypot(a[0]-b.x,a[1]-b.y)-Math.hypot(c[0]-b.x,c[1]-b.y));
+   for(const [x,y] of sites.slice(0,8))
+    if(orderMuleCart(b,x,y,true)){moved=true;break}
+   if(moved)break;
+  }
+ }
+}
+
+/* Shared unit-like cart actions; the building keeps its occupancy on stop. */
+function stopMuleCart(b){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||!b.done||b.hp<=0)return false;
+ b.mulePath=[];b.muleProgress=0;b.muleAuto=false;return true;
+}
+function resumeMuleCart(b){
+ if(!S?.bs?.includes(b)||b.k!=='mule'||!b.done||b.hp<=0)return false;
+ b.mulePath=[];b.muleProgress=0;b.muleAuto=true;b.muleCheck=0;return true;
+}
+
+/* Spend 50% of a building's base cost over its entire missing HP. The
+ * diplomacy-sensitive Georgian team bonus reduces repair resource prices 25%.
+ * The worker pays; never heal a structure beyond what is affordable. */
+function repairBuildingWithResources(worker,building,dt){
+ if(!S||!worker||!building||!building.done||building.hp<=0||
+  building.hp>=building.mh||!Number.isFinite(dt)||dt<=0||
+  !Number.isFinite(building.mh)||building.mh<=0||
+  !S.res?.[worker.t]||!B[building.k]||
+  (building.t!==worker.t&&diplomacyRelation(worker.t,building.t)!=='ally'))return 0;
+ // Binary fractions can leave a 200-HP house at 199.99999999999994.
+ // Close only machine-scale remainders; ordinary health needs paid repairs.
+ if(building.mh-building.hp<1e-8){building.hp=building.mh;return 0}
+ const rate=building.mh*dt/(S.tech[worker.t]?.crane?32:40)*
+  (worker.k==='vil'&&S.civ?.[worker.t]===40?1.05:1)*
+  (typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(worker):1);
+ let gain=Math.min(Math.max(0,building.mh-building.hp),Math.max(0,rate));
+ const price=typeof civilizationBuildingCost==='function'?
+  civilizationBuildingCost(building.k,building.t):B[building.k].cost||{};
+ const share=typeof civilizationTeamBonusFactor==='function'?
+  civilizationTeamBonusFactor(worker.t,'buildingRepairCost'):1;
+ const resource=S.res[worker.t],cost={};
+ for(const k of ['f','w','g','s']){
+  // Town Centres consume twice their original wood but no stone on repair.
+  const base=building.k==='tc'?(k==='w'?(price.w||0)*2: k==='s'?0:(price[k]||0)):(price[k]||0);
+  const unit=base*.5*share/building.mh;
+  if(unit>0){cost[k]=unit;gain=Math.min(gain,Math.max(0,resource[k])/unit)}
+ }
+ if(gain<=1e-9)return 0;
+ for(const [k,unit] of Object.entries(cost))resource[k]=Math.max(0,resource[k]-gain*unit);
+ building.hp=Math.min(building.mh,building.hp+gain);
+ if(building.mh-building.hp<1e-8)building.hp=building.mh;
+ return gain;
+}

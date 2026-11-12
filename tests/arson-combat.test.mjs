@@ -9,7 +9,7 @@ assert.ok(B.bar.rs.includes('arson'), 'Barracks offers Arson');
 assert.equal(TE.arson.age, 2, 'Arson requires Castle Age');
 
 assert.ok(bonuses.includes('function dmgT(a,t){'), 'combat owner must retain direct damage');
-const S = { tech: [{ arson: 1 }, {}], ping: null, t: 0, al: 0 };
+const S = { tech: [{ arson: 1 }, {}], us: [], bs: [], ping: null, t: 0, al: 0 };
 const context = {
   U, S, INFARM: new Set(['mil']), ARCHARM: new Set(['arc']),
   CAVARM: new Set(['knight']), PRA: {}, MA: {},

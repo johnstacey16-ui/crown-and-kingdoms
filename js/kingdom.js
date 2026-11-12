@@ -9,6 +9,47 @@ function createDiplomacy(n,source=null){
  return d;
 }
 function diplomacyRelation(a,b){if(a===b)return 'self';return S&&S.dip&&S.dip[a]&&S.dip[a][b]||'enemy'}
+/* Team bonuses follow current alliances, apply to the owner and never
+ * duplicate when multiple allies choose the same civilization. */
+function alliedCivilizationIds(team,world=S){
+ if(!Number.isInteger(team)||team<0||!Array.isArray(world?.civ)||team>=world.civ.length)return [];
+ const found=new Set();
+ for(let other=0;other<world.civ.length;other++){
+  if(other!==team&&world.dip?.[team]?.[other]!=='ally')continue;
+  const id=world.civ[other];
+  if(Number.isInteger(id)&&CIV[id])found.add(id);
+ }
+ return [...found];
+}
+function civilizationTeamBonusFactor(team,kind,world=S){
+ let factor=1;
+ for(const id of alliedCivilizationIds(team,world)){
+  const value=CIV[id].teamEconomic?.[kind];
+  if(Number.isFinite(value)&&value>0)factor*=value;
+ }
+ return factor;
+}
+
+/* Additive bonuses, such as food from trade, cannot use a multiplier
+ * defaulting to one. Civilizations are deduplicated across live allies. */
+function civilizationTeamBonusAdd(team,kind,world=S){
+ let bonus=0;
+ for(const id of alliedCivilizationIds(team,world)){
+  const value=CIV[id].teamEconomic?.[kind];
+  if(Number.isFinite(value)&&value>0)bonus+=value;
+ }
+ return bonus;
+}
+/* Ratha stance is an authoritative kind swap, not a client-controlled stat. */
+function setRathaMode(u,mode){
+ if(!u||!S?.us?.includes(u)||u.hp<=0||u.ld||S.civ?.[u.t]!==38||
+   !['ratha','rathaM'].includes(u.k)||!['ranged','melee'].includes(mode))return false;
+ const kind=mode==='melee'?'rathaM':'ratha';
+ if(u.k===kind)return false;
+ u.k=kind;u.wind=0;u.windTarget=null;u.cd=Math.max(0,u.cd||0);
+ u.o='i';u.tg=null;u.p=[];u.rp=0;
+ return true;
+}
 function isHostile(a,b){return a!==b&&diplomacyRelation(a,b)==='enemy'}
 function relationLabel(r){return r==='ally'?'Ally':r==='neutral'?'Neutral':r==='self'?'Self':'Enemy'}
 function setDiplomacy(a,b,rel){
@@ -153,7 +194,7 @@ function automaticFarmAllowed(){
 }
 function tryAutomaticFarm(u){
  if(!automaticFarmAllowed()||!u||u.t!==0||u.k!=='vil'||u.hp<=0||u.ld||u.retreating)return false;
- const centres=(S.bs||[]).filter(b=>b&&b.t===0&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='mill')&&
+ const centres=(S.bs||[]).filter(b=>b&&b.t===0&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='mill'||b.k==='folwark')&&
   Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)<=24)
   .sort((a,b)=>Math.hypot(a.x+a.s/2-u.x,a.y+a.s/2-u.y)-
    Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)||a.x-b.x||a.y-b.y);
@@ -176,7 +217,7 @@ function tryAutomaticFarm(u){
    if(!route||!route.length)continue;
    const farm=addN('f',x,y,farmFood(0),1);
    if(!farm)continue;
-   farm.t=0;pay(0,B.farm.cost);
+   farm.t=0;pay(0,B.farm.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(farm,0);
    u.o='g';u.tg=farm;u.ct='f';u.p=route;u.pt=null;u.rp=1;u.ret=0;
    u.autoWorker=1;u.autoFarmWaiting=0;
    note('Automatic farm built (-'+B.farm.cost.w+' wood)');
@@ -268,6 +309,64 @@ function villagerPriorityMenuItems(){
 /* Civilization stat modifiers and regional production are kingdom rules,
  * not responsibilities of the engine frame dispatcher. */
 const hpbF=(t,k,v)=>{const T0=S.tech[t];T0.hpb=T0.hpb||{};T0.hpb[k]=(T0.hpb[k]||0)+v},atkbF=(t,k,v)=>{const T0=S.tech[t];T0.atkb=T0.atkb||{};T0.atkb[k]=(T0.atkb[k]||0)+v};
+/* Civilization-restricted structures are validated by both local placement
+ * and the authoritative host. Never rely on a hidden menu item as legality. */
+function civilizationBuildingAllowed(kind,team,civs=S?.civ){
+ const d=B[kind],id=civs?.[team];return !!d&&
+  !(kind==='mill'&&id===35)&&
+  !(kind==='monastery'&&(id===41||id===42))&&
+  !(('lumber'===kind||'mine'===kind)&&(id===41||id===42))&&
+  (!Number.isInteger(d.onlyCiv)||id===d.onlyCiv)&&
+  (!Array.isArray(d.onlyCivs)||d.onlyCivs.includes(id));
+}
+/* Pure construction-unlock policy shared by Xbox wheel, host build orders
+ * and the technology-tree preview. Population, world placement and victory
+ * mode checks are evaluated by the respective command layer afterward.
+ * Never read global S when a projected world is supplied. */
+function buildingUnlock(kind,team,world=S){
+ const d=B[kind],civs=world?.civ,id=civs?.[team];
+ const age=Number.isInteger(d?.age)?d.age:0;
+ const pre=kind==='farm'?(id===35?'folwark':'mill'):d?.req||null;
+ const reason=!d?'Building unavailable':
+  !civilizationBuildingAllowed(kind,team,civs)?
+   (kind==='donjon'?'Only Sicilians can construct a Donjon':
+    kind==='folwark'?'Only Poles can construct a Folwark':
+    kind==='mill'&&id===35?'Poles build Folwarks instead of Mills':
+    kind==='monastery'?'Build a Fortified Church instead':
+    kind==='fchurch'?'Only Armenians and Georgians build Fortified Churches':
+    kind==='mule'?'Only Armenians and Georgians build Mule Carts':
+    (kind==='lumber'||kind==='mine')?'Build a Mule Cart instead':
+    'Only Portuguese can construct a Feitoria'):
+  age>(world?.age?.[team]??0)?'Requires '+(AG[age]?.n||'later age'):
+  pre&&!world?.bs?.some(b=>b&&b.t===team&&b.k===pre&&b.done&&b.hp>0)?
+   'Requires '+(B[pre]?.n||pre):'';
+ return {age,pre,state:reason?'locked':'available',reason};
+}
+/* Georgian Fortified Church boosts friendly Villager gathering in a 9-tile
+ * radius. Reads the host world; destroyed and unfinished Churches do nothing. */
+function georgianChurchWorkRate(u){
+ if(!u||u.k!=='vil'||S?.civ?.[u.t]!==42||!Array.isArray(S.bs))return 1;
+ for(const b of S.bs)if(b&&b.t===u.t&&b.k==='fchurch'&&b.done&&b.hp>0&&
+   Number.isFinite(u.x)&&Number.isFinite(u.y)&&
+   Math.hypot(u.x-(b.x+b.s/2),u.y-(b.y+b.s/2))<=9)return 1.1;
+ return 1;
+}
+/* The first completed Armenian Fortified Church houses one granted Relic.
+ * State is in the team's research ledger, so construction/reconstruction and
+ * future save restores cannot mint repeated Relics. */
+function grantArmenianFirstChurchRelic(b){
+ if(!b||b.k!=='fchurch'||!b.done||b.hp<=0||S?.civ?.[b.t]!==41||
+   !S.tech?.[b.t]||!Array.isArray(S.rel)||S.tech[b.t].armenianFirstChurchRelic)return false;
+ S.rel.push({rl:1,x:b.x+b.s/2,y:b.y+b.s/2,c:null,m:b});
+ S.tech[b.t].armenianFirstChurchRelic=1;return true;
+}
+/* Shared faction-adjusted construction prices for UI, AI and host commands. */
+function civilizationBuildingCost(kind,team,civs=S?.civ){
+ const cost=B[kind]?.cost||{};
+ return kind==='mule'&&civs?.[team]===41?{f:15,w:60}:
+  civs?.[team]===36&&['smith','univ','monastery'].includes(kind)&&cost.w?
+  {...cost,w:Math.max(0,cost.w-100)}:cost;
+}
 /* One trainability boundary for solo, authenticated peer commands and AI. */
 function regionalTrainables(kind,civId){
  const available=(B[kind]?.tr||[]).filter(unit=>{
@@ -279,18 +378,48 @@ function regionalTrainables(kind,civId){
  }
  return available;
 }
-const trOf=(b,civs=S?.civ,techs=S?.tech)=>{
+/* Cuman Mercenaries: up to five free Kipchaks across each allied team's
+ * Castles. Claimed slots are stored in the recipient's technology ledger,
+ * so paid queues, cancellation, save/load and host orders agree. */
+function mercenaryKipchakAvailable(team,civs=S?.civ,techs=S?.tech){
+ if(!Number.isInteger(team)||!techs?.[team]||!Array.isArray(civs))return false;
+ if(!civs.some((id,other)=>other!==team&&id===31&&techs?.[other]?.ut31p&&
+   typeof diplomacyRelation==='function'&&diplomacyRelation(team,other)==='ally'))return false;
+ const used=techs[team].mercKipchakClaims||0;
+ return Number.isInteger(used)&&used>=0&&used<5;
+}
+const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
+ if((b.k==='krepost'&&civs?.[b.t]!==29)||(b.k==='donjon'&&civs?.[b.t]!==34))return [];
  const l=regionalTrainables(b.k,civs?.[b.t]),c=b.k==='castle'&&Number.isInteger(civs?.[b.t])&&CIV[civs[b.t]];
  const civ=Number.isInteger(civs?.[b.t])?CIV[civs[b.t]]:null,core=civ&&CIV_CORE_MILITARY[civ.n];
  const eligible=core==null?l:l.filter(k=>!CORE_MILITARY_UNIT_KEYS[k]||core.includes(CORE_MILITARY_UNIT_KEYS[k]));
  // AoE2 Archery Range recruits Archer until the Crossbowman tech replaces it.
  // Do not expose the legacy standalone Crossbowman before it is researched.
  if(b.k==='rng')return eligible.filter(k=>k!=='arc'&&k!=='xbow').concat(techs?.[b.t]?.xbow?'xbow':'arc');
+ // Regional Winged Hussar replaces the Scout production line after Hussar
+ // research, but only for the Polish and Lithuanian civilizations.
+ if(b.k==='siege')return civs?.[b.t]===36&&techs?.[b.t]?.houfniceUpgrade?
+  [...eligible.filter(k=>k!=='bomb'),'houfnice']:eligible.filter(k=>k!=='houfnice');
+ if(b.k==='stable'&&civs?.[b.t]===39){
+  const age=ages?.[b.t]??0;
+  return eligible.filter(k=>!['scout','knight','winged','batele','steppe','camel','camelscout','shrivamsha'].includes(k))
+   .concat(age>=2?['camel','shrivamsha']:['camelscout']);
+ }
+ if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
+  techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
+  eligible.filter(k=>k!=='winged');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
- if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible,civ.uu])];
+ if(b.k==='bar'){
+  if(civs?.[b.t]===40)return techs?.[b.t]?.legionaryUpgrade?
+    [...eligible.filter(k=>k!=='mil'),'legionary']:eligible.filter(k=>k!=='legionary');
+  if(civ?.n!=='Goths'||!techs?.[b.t]?.ut18)return eligible.filter(k=>k!=='legionary');
+}
+ if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible.filter(k=>k!=='legionary'),civ.uu])];
  // Castles cannot independently create foot Crossbowmen; scripted units may still exist.
- if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu])]:eligible.filter(k=>k!=='xbow');
+ if(b.k==='castle')return c?[...new Set([...eligible.filter(k=>k!=='xbow'),c.uu,
+  ...(civs?.[b.t]===30&&techs?.[b.t]?.ut30p?['flamecamel']:[]),
+  ...(mercenaryKipchakAvailable(b.t,civs,techs)?['kipchak']:[])])]:eligible.filter(k=>k!=='xbow');
  // Chemistry is a real training prerequisite, also for authenticated peers.
  if(b.k==='dock')return eligible.filter(k=>k!=='cgal'||!!techs?.[b.t]?.chem);
  return eligible;
@@ -330,7 +459,17 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  'Ethiopians':'xat',
  'Malians':'xat',
  'Koreans':'xat',
- 'Magyars':'xat'
+ 'Magyars':'xat',
+ 'Portuguese':'xat','Burmese':'xa','Vietnamese':'xat','Bulgarians':'xat','Tatars':'xat','Cumans':'xt','Lithuanians':'xat','Burgundians':'xa',
+ 'Sicilians':'xa',
+ 'Poles':'xa',
+ 'Bohemians':'xa',
+ 'Dravidians':'xa',
+ 'Bengalis':'xa',
+ 'Gurjaras':'xt',
+ 'Romans':'x',
+ 'Armenians':'xat',
+ 'Georgians':'xa'
 });
 /* Source-backed standard military lines for the 26 implemented factions.
  * SiegeEngineers/aoe2techtree data/data.json inspected 24 October 2026.
@@ -370,7 +509,17 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Ethiopians':'mltphvaesku',
  'Malians':'mltcpvaesk',
  'Koreans':'mltcphvaesku',
- 'Magyars':'mltcphvaeskdu'
+ 'Magyars':'mltcphvaeskdu',
+ 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku',
+ 'Sicilians':'mltcphvaesku',
+ 'Poles':'mltcphvaesku',
+ 'Bohemians':'mltcphvesk',
+ 'Dravidians':'mltphves',
+ 'Bengalis':'mltphvesu',
+ 'Gurjaras':'mltphvesu',
+ 'Romans':'mlphvaeskd',
+ 'Armenians':'mltcphvaesk',
+ 'Georgians':'mltcphvaesku'
 });
 /* Bracer / Bloodlines / Husbandry verified from
  * SiegeEngineers/aoe2techtree data/data.json @ c4f7da961e82a8231b1ba49459949c4d6e479bc8.
@@ -387,7 +536,17 @@ const CIV_FIELD_RESEARCH=Object.freeze({
  'Khmer':'rbh','Indians':'rbh','Spanish':'rbh','Italians':'rbh',
  'Slavs':'bh','Huns':'rbh','Goths':'rbh','Aztecs':'r',
  'Mayans':'r','Incas':'r','Ethiopians':'rh','Malians':'bh',
- 'Koreans':'rh','Magyars':'rbh'
+ 'Koreans':'rh','Magyars':'rbh',
+ 'Portuguese':'rbh','Burmese':'rbh','Vietnamese':'rbh','Bulgarians':'rbh','Tatars':'rbh','Cumans':'rbh','Lithuanians':'rbh','Burgundians':'rbh',
+ 'Sicilians':'rbh',
+ 'Poles':'rbh',
+ 'Bohemians':'rh',
+ 'Dravidians':'rh',
+ 'Bengalis':'rh',
+ 'Gurjaras':'rh',
+ 'Romans':'rbh',
+ 'Armenians':'rh',
+ 'Georgians':'rbh'
 });
 const FIELD_RESEARCH_KEYS=Object.freeze({atkR2:'r',blood:'b',husb:'h'});
 /* Version-pinned AoE2:DE monastery tech eligibility for our 26 civilizations.
@@ -425,7 +584,17 @@ const CIV_MONASTERY_RESEARCH=Object.freeze({
  'Ethiopians':'dfhasvitm',
  'Malians':'dfhrasvbtm',
  'Koreans':'dfsvbtm',
- 'Magyars':'dhsvbitm'
+ 'Magyars':'dhsvbitm',
+ 'Portuguese':'dfrasvbitm','Burmese':'dfrsvitm','Vietnamese':'dfasvbitm','Bulgarians':'dfrsvitm','Tatars':'dfrasvbitm','Cumans':'dfrsvitm','Lithuanians':'dfrasvbitm','Burgundians':'dfrsvitm',
+ 'Sicilians':'dfrsvitm',
+ 'Poles':'dfrsvitm',
+ 'Bohemians':'dfhrasvbitm',
+ 'Dravidians':'dfsvbitm',
+ 'Bengalis':'dfrasvbitm',
+ 'Gurjaras':'dfrasvbitm',
+ 'Romans':'dfrsvbitm',
+ 'Armenians':'dfrasvbitm',
+ 'Georgians':'dfrasvbitm'
 });
 const MONASTERY_RESEARCH_KEYS=Object.freeze({devotion:'d',faith:'f',heresy:'h',redemption:'r',atonement:'a',sanctity:'s',fervor:'v',blockPrinting:'b',illumination:'i',theocracy:'t',herbalMedicine:'m'});
 /* AoE2:DE update 185872 source-pinned University technology access.
@@ -462,7 +631,17 @@ const CIV_UNIVERSITY_RESEARCH=Object.freeze({
  'Ethiopians':'mgkfcbh',
  'Malians':'mgkfcbh',
  'Koreans':'msgkfcbh',
- 'Magyars':'mgcbh'
+ 'Magyars':'mgcbh',
+ 'Portuguese':'msgkfcbh','Burmese':'mgkfcbh','Vietnamese':'msgkfcbh','Bulgarians':'msgkfcbh','Tatars':'msgkfcbh','Cumans':'msgkfcbh','Lithuanians':'msgkfcbh','Burgundians':'msgkfcbh',
+ 'Sicilians':'msgkfcbh',
+ 'Poles':'msgkfcbh',
+ 'Bohemians':'msgkfcbh',
+ 'Dravidians':'msgkfcbh',
+ 'Bengalis':'msgkfcbh',
+ 'Gurjaras':'msgkfcbh',
+ 'Romans':'msgkfcbh',
+ 'Armenians':'msgfcbh',
+ 'Georgians':'msgkfcbh'
 });
 const UNIVERSITY_RESEARCH_KEYS=Object.freeze({mas:'m',slit:'s',gtow:'g',keep:'k',fw:'f',chem:'c',ballistics:'b',murderHoles:'h'});
 /* DE build 185872, SiegeEngineers tech tree blob
@@ -498,7 +677,17 @@ const CIV_BLACKSMITH_RESEARCH=Object.freeze({
  'Ethiopians':'irc',
  'Malians':'irc',
  'Koreans':'irc',
- 'Magyars':'irc'
+ 'Magyars':'irc',
+ 'Portuguese':'irc','Burmese':'irc','Vietnamese':'irc','Bulgarians':'irc','Tatars':'irc','Cumans':'irc','Lithuanians':'irc','Burgundians':'irc',
+ 'Sicilians':'irc',
+ 'Poles':'irc',
+ 'Bohemians':'irc',
+ 'Dravidians':'irc',
+ 'Bengalis':'irc',
+ 'Gurjaras':'irc',
+ 'Romans':'irc',
+ 'Armenians':'irc',
+ 'Georgians':'irc'
 });
 const BLACKSMITH_RESEARCH_KEYS=Object.freeze({armI:'i',armR:'r',armC:'c'});
 /* Infantry armour Tier II/III: SiegeEngineers aoe2techtree build 185872,
@@ -534,7 +723,17 @@ const CIV_INFANTRY_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'cp',
  'Malians':'cp',
  'Koreans':'cp',
- 'Magyars':'c'
+ 'Magyars':'c',
+ 'Portuguese':'cp','Burmese':'c','Vietnamese':'cp','Bulgarians':'cp','Tatars':'cp','Cumans':'c','Lithuanians':'cp','Burgundians':'cp',
+ 'Sicilians':'cp',
+ 'Poles':'cp',
+ 'Bohemians':'cp',
+ 'Dravidians':'cp',
+ 'Bengalis':'cp',
+ 'Gurjaras':'cp',
+ 'Romans':'cp',
+ 'Armenians':'cp',
+ 'Georgians':'cp'
 });
 const INFANTRY_ARMOR_RESEARCH_KEYS=Object.freeze({armI2:'c',armI3:'p'});
 /* Ranged armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -571,7 +770,17 @@ const CIV_ARCHER_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'lr',
  'Malians':'lr',
  'Koreans':'lr',
- 'Magyars':'lr'
+ 'Magyars':'lr',
+ 'Portuguese':'lr','Burmese':'lr','Vietnamese':'lr','Bulgarians':'lr','Tatars':'lr','Cumans':'lr','Lithuanians':'lr','Burgundians':'lr',
+ 'Sicilians':'lr',
+ 'Poles':'lr',
+ 'Bohemians':'lr',
+ 'Dravidians':'lr',
+ 'Bengalis':'lr',
+ 'Gurjaras':'lr',
+ 'Romans':'lr',
+ 'Armenians':'lr',
+ 'Georgians':'lr'
 });
 const ARCHER_ARMOR_RESEARCH_KEYS=Object.freeze({armR2:'l',armR3:'r'});
 /* Cavalry armour Tier II/III: AoE2 DE build 185872, SiegeEngineers
@@ -609,7 +818,17 @@ const CIV_CAVALRY_ARMOR_RESEARCH=Object.freeze({
  'Ethiopians':'c',
  'Malians':'cp',
  'Koreans':'c',
- 'Magyars':'cp'
+ 'Magyars':'cp',
+ 'Portuguese':'cp','Burmese':'cp','Vietnamese':'cp','Bulgarians':'cp','Tatars':'c','Cumans':'cp','Lithuanians':'cp','Burgundians':'cp',
+ 'Sicilians':'cp',
+ 'Poles':'cp',
+ 'Bohemians':'c',
+ 'Dravidians':'c',
+ 'Bengalis':'cp',
+ 'Gurjaras':'cp',
+ 'Romans':'cp',
+ 'Armenians':'c',
+ 'Georgians':'cp'
 });
 const CAVALRY_ARMOR_RESEARCH_KEYS=Object.freeze({armC2:'c',armC3:'p'});
 /* AoE2 DE 185872, SiegeEngineers tech tree blob c4f7da9.
@@ -643,7 +862,17 @@ const CIV_MELEE_RESEARCH=Object.freeze({
  'Ethiopians':'fib',
  'Malians':'fi',
  'Koreans':'fi',
- 'Magyars':'fib'
+ 'Magyars':'fib',
+ 'Portuguese':'fib','Burmese':'fib','Vietnamese':'fib','Bulgarians':'fib','Tatars':'fib','Cumans':'fib','Lithuanians':'fib','Burgundians':'fib',
+ 'Sicilians':'fib',
+ 'Poles':'fib',
+ 'Bohemians':'fib',
+ 'Dravidians':'fi',
+ 'Bengalis':'fib',
+ 'Gurjaras':'fib',
+ 'Romans':'fib',
+ 'Armenians':'fib',
+ 'Georgians':'fib'
 });
 const MELEE_RESEARCH_KEYS=Object.freeze({forging:'f',ironCasting:'i',blastFurnace:'b'});
 const CORE_MILITARY_RESEARCH_KEYS=Object.freeze({man:'m',longs:'l',twohand:'t',champ:'c',pike:'p',halb:'h',lcav:'v',cavl:'a',pala:'d',huss:'u',elsk:'e'});
@@ -662,7 +891,11 @@ const rsOf=(b,civs=S?.civ)=>{
  const monastery=c&&CIV_MONASTERY_RESEARCH[c.n];
  const monastic=monastery==null?permitted:permitted.filter(k=>!MONASTERY_RESEARCH_KEYS[k]||monastery.includes(MONASTERY_RESEARCH_KEYS[k]));
  const university=b.k==='univ'&&c&&CIV_UNIVERSITY_RESEARCH[c.n];
- const academic=university==null?monastic:monastic.filter(k=>!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]));
+ // Architecture requires Masonry, so factions without Masonry must not
+ // receive an unactionable upgrade in menus, tech trees or host validation.
+ const academic=university==null?monastic:monastic.filter(k=>
+  (!UNIVERSITY_RESEARCH_KEYS[k]||university.includes(UNIVERSITY_RESEARCH_KEYS[k]))&&
+  (k!=='arch'||university.includes(UNIVERSITY_RESEARCH_KEYS.mas)));
  const blacksmith=b.k==='smith'&&c&&CIV_BLACKSMITH_RESEARCH[c.n];
  const forged=blacksmith==null?academic:academic.filter(k=>!BLACKSMITH_RESEARCH_KEYS[k]||blacksmith.includes(BLACKSMITH_RESEARCH_KEYS[k]));
  const infantry=b.k==='smith'&&c&&CIV_INFANTRY_ARMOR_RESEARCH[c.n];
@@ -674,8 +907,13 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>k!=='hcamel'||REGIONAL_UNIT_ACCESS.some(rule=>
-  rule.unit==='camel'&&rule.buildings.includes(b.k)&&rule.civilizations.includes(index)));
+ const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
+  // Regional upgrade research and production share the same legal roster for
+  // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
+  const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];
+  return !upgradeUnit||REGIONAL_UNIT_ACCESS.some(rule=>rule.unit===upgradeUnit&&
+   rule.buildings.includes(b.k)&&rule.civilizations.includes(index));
+ });
  return b.k==='castle'&&c?[...new Set([...regional,c.ut.k,...(c.ut2?[c.ut2.k]:[]),...(c.elite?[c.elite.k]:[])])]:regional;
 };
 
@@ -690,24 +928,26 @@ function technologyTreeModel(team=0,world=S){
  const age=Number.isInteger(world.age?.[team])?world.age[team]:0,known=world.tech[team];
  const buildings=[];
  for(const kind of Object.keys(B)){
-  const building=B[kind],ref={k:kind,t:team};
-  const units=trOf(ref,world.civ,world.tech).filter(key=>!!U[key]).map(key=>{
-   const d=U[key],requiredAge=Number.isInteger(d.age)?d.age:0;
-   return {id:key,name:d.n,age:requiredAge,cost:{...(d.cost||{})},
-    state:requiredAge>age?'locked':'available',
-    reason:requiredAge>age?'Needs '+AG[requiredAge].n:''};
+  if(!civilizationBuildingAllowed(kind,team,world.civ))continue;
+  const building=B[kind],ref={k:kind,t:team},unlock=buildingUnlock(kind,team,world);
+  const units=trOf(ref,world.civ,world.tech,world.age).filter(key=>!!U[key]).map(key=>{
+   const d=U[key],unlock=unitTrainingUnlock(ref,key,world);
+   return {id:key,name:d.n,age:unlock.age,pre:unlock.pre,
+    cost:{...(typeof unitTrainingCost==='function'?unitTrainingCost(team,key,world.civ,world.tech):d.cost||{})},
+    state:unlock.state,reason:unlock.reason.replace(/^Requires /,'Needs ')};
   });
   const research=rsOf(ref,world.civ).filter(key=>!!TE[key]).map(key=>{
-   const d=TE[key],pre=d.pre,requiredAge=Number.isInteger(d.age)?d.age:0;
+   const d=TE[key],pre=d.pre,requiredAge=typeof researchEffectiveAge==='function'?researchEffectiveAge(ref,key,world.civ):(Number.isInteger(d.age)?d.age:0);
    const reason=requiredAge>age?'Needs '+AG[requiredAge].n:
     pre&&!known[pre]?'Needs '+(TE[pre]?.n||pre):'';
    return {id:key,name:d.n,age:requiredAge,pre:pre||null,
-    cost:{...(typeof researchCost==='function'?researchCost(ref,key,world.civ):d.cost||{})},
+    cost:{...(typeof researchCost==='function'?researchCost(ref,key,world.civ,world):d.cost||{})},
     duration:d.t,state:known[key]?'researched':reason?'locked':'available',
     reason:known[key]?'Completed':reason};
   });
-  buildings.push({id:kind,name:building.n,age:Number.isInteger(building.age)?building.age:0,
-   units,research});
+  buildings.push({id:kind,name:building.n,age:unlock.age,pre:unlock.pre,
+   cost:{...civilizationBuildingCost(kind,team,world.civ)},state:unlock.state,
+   reason:unlock.reason,units,research});
  }
  return {civilization:c.n,civilizationId:id,age,buildings};
 }

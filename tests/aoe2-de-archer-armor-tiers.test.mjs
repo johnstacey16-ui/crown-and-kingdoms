@@ -55,7 +55,7 @@ function fixture(){
  return code=>sandbox.tryTech(code);
 }
 test('pinned 26-civilization ranged armour tree gates Ring while retaining Padded and Leather',()=>{
- const c=fixture(),actual=JSON.parse(c('JSON.stringify(CIV.map(x=>[x.n,CIV_ARCHER_ARMOR_RESEARCH[x.n]]))'));
+ const c=fixture(),actual=JSON.parse(c('JSON.stringify(CIV.slice(0,26).map(x=>[x.n,CIV_ARCHER_ARMOR_RESEARCH[x.n]]))'));
  assert.deepEqual(actual,Object.entries(EXPECTED),'no omitted civilizations or silent eligibility default');
  assert.equal(Object.keys(EXPECTED).length,26);
  assert.deepEqual(Object.keys(EXPECTED).filter(n=>!EXPECTED[n].includes('r')),

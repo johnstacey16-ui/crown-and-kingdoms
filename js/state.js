@@ -19,6 +19,9 @@ function unitName(k,t){
  if(k==='knight'&&tech.pala)return 'Paladin';
  if(k==='knight'&&tech.cavl)return 'Cavalier';
  if(k==='camel'&&tech.hcamel)return 'Heavy Camel Rider';
+ if(k==='eagle'&&tech.eliteEagle)return 'Elite Eagle Warrior';
+ if(k==='cavarch'&&tech.heavyCavArch)return 'Heavy Cavalry Archer';
+ if(k==='turtle'&&tech.eliteTurtle)return 'Elite Turtle Ship';
  if(k==='mang'&&tech.siegeOnager)return 'Siege Onager';
  if(k==='mang'&&tech.onager)return 'Onager';
  if(k==='ram'&&tech.siegeRam)return 'Siege Ram';

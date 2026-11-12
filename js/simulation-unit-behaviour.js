@@ -2,9 +2,27 @@
  * Preserved source-identical from simulation.js. Loaded before gameplay ticks;
  * Xbox controls, authenticated multiplayer, AI and replay keep global upU.
  */
-function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;if(u.o!=='a'&&u.wind>0){u.wind=0;u.windTarget=null}let tg=u.tg;if(u.k==='mon'){u.faith=Math.min(100,(u.faith??100)+dt*1.6*(S.tech[u.t].illumination?2:1));if(u.o!=='v')resetConversion(u);}if(u.ld)return;if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.t===u.t&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'))||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null;u.p=[];u.o='i'}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';// Shelter proximity alone does not heal military units. Monks and unit-specific abilities use their own rules.
+function upU(u,dt){const d=U[u.k];u.cd-=dt;u.rp-=dt;if(u.o!=='a'&&u.wind>0){u.wind=0;u.windTarget=null}let tg=u.tg;if(u.k==='mon'){u.faith=Math.min(100,(u.faith??100)+dt*1.6*(S.tech[u.t].illumination?2:1));if(u.o!=='v')resetConversion(u);}if(u.ld)return;
+if(u.k==='shrivamsha'&&S.civ?.[u.t]===39){
+ if(!Number.isInteger(u.dodgeCharges))u.dodgeCharges=5;
+ if(u.dodgeCharges<5&&Number.isFinite(S.t)&&S.t>=(u.dodgeRechargeAt||0)){
+  u.dodgeCharges=Math.min(5,u.dodgeCharges+1);u.dodgeRechargeAt=S.t+4;
+ }
+}
+if(u.t===0&&u.k==='vil'&&u.o==='i'&&u.autoWorker&&S.vp&&S.vp.enabled){if((u.autoTry||0)<=0){u.autoTry=3;if(assignAutoVillager(u))return}else u.autoTry-=dt}if(u.retreating){const shelter=S.bs.find(b=>b===u.retreatTarget&&b.t===u.t&&b.hp>0&&b.done&&(b.k==='tc'||b.k==='castle'))||S.bs.filter(b=>b.t===u.t&&b.done&&b.hp>0&&(b.k==='tc'||b.k==='castle')).sort((a,b)=>d2(u.x,u.y,a)-d2(u.x,u.y,b))[0];if(!shelter){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null;u.p=[];u.o='i'}else{u.retreatTarget=shelter;if(d2(u.x,u.y,shelter)<=1.3){u.p=[];u.o='i';// Shelter proximity alone does not heal military units. Monks and unit-specific abilities use their own rules.
 if(u.hp>=mhp(u)*.65||S.t>=(u.retreatRestUntil||(u.retreatRestUntil=S.t+8))){u.retreating=false;u.retreatTarget=null;u.retreatRestUntil=0;u.tg=null}}else{if((!u.p.length||u.rp<=0)&&S.t>=(u.retreatRouteRetryAt||0)){u.p=path(u,goalNear(shelter,1))||[];u.rp=1;u.retreatRouteRetryAt=S.t+(u.p.length?1:5)}if(u.p.length)walk(u,dt);return}if(u.retreating)return}}if((u.k==='cart'||u.k==='cog')&&u.o!=='B'&&u.o!=='rep'){if(u.tradePaused){u.o='i';u.p=[];u.rp=0;return}if(u.manualTradeMove&&u.o==='m'){if(walk(u,dt)){u.o='i';u.manualTradeMove=false;u.tradePaused=true;u.tradeFromKey=null;u.tradeDestKey=null;u.tradeReturning=false;u.tradeCargo=0;}return}u.manualTradeMove=false;tickTrader(u,dt);return}if(u.k==='bers'&&u.hp<mhp(u))u.hp=Math.min(mhp(u),u.hp+.5*dt);
-if(u.k==='mon'&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=16)continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+4)}}
+if(S.civ?.[u.t]===37&&S.tech?.[u.t]?.ut37&&
+   ['batele','ele','eled'].includes(u.k)&&u.hp>0&&u.hp<mhp(u))
+ u.hp=Math.min(mhp(u),u.hp+.5*dt);
+ // Georgian mounted troops restore health by age, including live Monaspas.
+ if(S.civ?.[u.t]===42&&U[u.k]?.mt&&u.hp>0&&u.hp<mhp(u)){
+  const age=Math.max(0,Math.min(3,S.age?.[u.t]||0));
+  u.hp=Math.min(mhp(u),u.hp+[0,2,8,14][age]*dt/60);
+ }
+ // Polish Villagers regenerate 5/10/15/20 HP per minute by current Age.
+ if(u.k==='vil'&&S.civ?.[u.t]===35&&u.hp>0&&u.hp<mhp(u))
+  u.hp=Math.min(mhp(u),u.hp+(5+5*Math.max(0,Math.min(3,S.age?.[u.t]||0)))*dt/60);
+if((u.k==='mon'||u.k==='warpriest'&&S.civ?.[u.t]===41)&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=16)continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+(u.k==='warpriest'&&S.tech?.[u.t]?.ut41p?8:4))}}
 if(u.k==='mon'&&u.o==='a'){const target=u.tg;if(!beginConversion([u],target)){u.o='i';u.tg=null;u.p=[];}return;}
 // An automatic interception stays local or covers a nearby shooter firing at
 // the protected target. Resume Guard when that threat leaves its boundary.
@@ -70,19 +88,20 @@ if(u.o==='r'){if(!u.rel){if(!tg||!tg.rl||tg.c||tg.m){u.o='i';u.tg=null;return}if
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,.8));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 // A contextual return order honours its selected living home; an ordinary
 // relic pickup still chooses the nearest completed owned Monastery.
-const requestedHome=tg&&tg.k==='monastery'&&tg.t===u.t&&tg.done&&tg.hp>0?tg:null;
-let mb=null,bd=1e9;for(const q of S.bs)if(q.t===u.t&&q.done&&q.hp>0&&q.k==='monastery'&&(!requestedHome||q===requestedHome)){const d=d2(u.x,u.y,q);if(d<bd){bd=d;mb=q}}
+const requestedHome=tg&&['monastery','fchurch'].includes(tg.k)&&tg.t===u.t&&tg.done&&tg.hp>0?tg:null;
+let mb=null,bd=1e9;for(const q of S.bs)if(q.t===u.t&&q.done&&q.hp>0&&['monastery','fchurch'].includes(q.k)&&(!requestedHome||q===requestedHome)){const d=d2(u.x,u.y,q);if(d<bd){bd=d;mb=q}}
 if(!mb){u.o='i';return}if(bd<=1.3){u.rel.c=null;u.rel.m=mb;u.rel=null;u.o='i';if(u.t===0)note('Relic garrisoned: +0.5 gold/s');return}
 if(!u.p.length||u.rp<=0){const p=path(u,goalNear(mb,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(u.o==='p'){const radius=u.st===3||u.st===4?0:u.st===2?attackRange(u):u.st===1?4:6,e=radius>0?foe(u,radius):null;if(e){u.o='a';u.tg=e;u.p=[];return}const pt=u.pt;if(!pt){u.o='i';return}
 if(!u.p.length||u.rp<=0){const g=pt.to?pt.b:pt.a,p=path(u,gp(g[0],g[1],1.2));u.rp=2;if(!p){u.o='i';return}u.p=p}if(walk(u,dt)){if(pt.once){u.o='i';u.pt=null}else{pt.to^=1;u.p=[]}}return}
 if(u.o==='a'){if(!tg||tg.hp<=0||tg.t===u.t){const guard=u.guardTarget&&u.guardTarget.hp>0?u.guardTarget:null;u.o=guard?'G':u.pt?'p':'i';u.tg=guard;u.guardTarget=null;u.p=[];return}
 if(u.k!=='vil'&&tg.q&&(u.ac=(u.ac||0)-dt)<=0){u.ac=.6;const e=foe(u,4);if(e&&!e.q)u.tg=tg=e}
-const dist=d2(u.x,u.y,tg),minR=u.k==='mang'&&S.tech[u.t]?.onager?3:d.minR||0,range=attackRange(u);
+const dist=d2(u.x,u.y,tg),minR=u.k==='mang'&&S.tech[u.t]?.onager?3:u.k==='scor'&&typeof romanScorpionMinimumRange==='function'?romanScorpionMinimumRange(u):d.minR||0,range=attackRange(u);
 if(u.wind>0&&(u.windTarget!==tg.netId||dist>range||minR&&dist<minR)){u.wind=0;u.windTarget=null}
 if(minR&&dist<minR){if(u.st===2){u.p=[];return}if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,Math.max(minR+.5,range-.4),minR));u.rp=.7;if(!p){u.o='i';return}u.p=p}walk(u,dt);return}
 if(dist<=range){u.p=[];
  if(u.k==='demo'){if(u.cd<=0)detonateShip(u);return}
+ if(u.k==='flamecamel'){if(u.cd<=0)detonateFlamingCamel(u);return}
  if(u.wind>0){
   u.wind=Math.max(0,u.wind-dt);
   if(u.wind===0){u.windTarget=null;hit(u,tg);u.cd=Math.max(0,attackReload(u)-(d.delay||0))}
@@ -95,7 +114,14 @@ else if(u.st===2){u.o='i';u.tg=null}else{if(!u.p.length||u.rp<=0){const p=path(u
 if(u.o==='g'){
 if(u.ret){
  const b=S.bs.find(q=>dropoffKey(q)===u.dropKey&&dropoffCompatible(u,q));
- if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
+ if(b&&d2(u.x,u.y,b)<=1.1){S.res[u.t][u.ct]+=u.car;
+ if(u.k==='vil'&&u.ct==='f'&&u.tg?.fm&&S.civ?.[u.t]===33&&S.tech[u.t]?.ut33)
+  S.res[u.t].g+=u.car*.15;
+ if(u.k==='vil'&&u.ct==='s'&&S.civ?.[u.t]===35)
+  S.res[u.t].g+=u.car/3;
+ if(u.ct==='w'&&u.k==='vil'&&S.civ?.[u.t]===28&&S.tech?.[u.t]?.ut28p)
+  S.res[u.t].g+=u.car*.10;
+ if(u.t===0)S.pl.gath+=u.car;u.car=0;u.ret=0;u.p=[];u.dropKey='';u.dropRetry=0;return}
  if(!b||!u.p.length||u.rp<=0){
   if((u.dropRetry||0)>0){u.dropRetry-=dt;return}
   const dest=findDropoffRoute(u);
@@ -107,7 +133,7 @@ if(u.ret){
 if(!tg||tg.amt<=0||S.nd[tg.y*W+tg.x]!==tg||!!tg.fi!==!!u.sh||tg.trap&&tg.t!==u.t||!resourceHasWorksite(u,tg)){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else{u.o='i';u.tg=null;u.p=[]}return}
 if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;const g=Math.min(tg.amt,baseGatherRate(u,tg)*gm(u,tg)*(tg.an&&S.tech[u.t]?.hunt?1.4:1)*dt);tg.amt-=g;u.car+=g;u.ct=tg.k;if(gt>(u.sn||0)){u.sn=gt+.7+Math.random()*.5;if(tg.k==='w')sfx('chop',u.x,u.y);else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y)}if(tg.amt<=0){if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}else if(tg.fm){tg.amt=0;if(u.t===0)note('Farm exhausted; awaiting owner 60 wood to reseed')}else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}}if(u.car>=gatherCapacity(u)){u.ret=1;u.p=[]}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){if(u.t===0&&u.autoWorker)skipAutoNode(u,tg);u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
-if(u.o==='b'){if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||(tg.done&&tg.hp>=tg.mh)){u.o='i';u.tg=null;if(tg&&tg.done&&tg.hp>0){const ak={lumber:'w',mine:'g',mill:'f'}[tg.k],n=ak&&findNode(u,ak,16);if(n){u.o='g';u.tg=n;u.ct=n.k;u.p=[];u.ret=0}}return}
-if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;if(tg.done)tg.hp=Math.min(tg.mh,tg.hp+tg.mh*dt/(S.tech[u.t].crane?32:40));else{const buildRate=S.tech[u.t].crane?1.2:1;tg.pr+=dt*buildRate;if(gt>(u.sn||0)){u.sn=gt+.8+Math.random()*.4;sfx('hammer',u.x,u.y)}tg.hp=Math.min(tg.mh,tg.mh*tg.pr/B[tg.k].bt+1);
-if(tg.pr>=B[tg.k].bt){tg.done=true;tg.hp=tg.mh;sfx('built',tg.x+tg.s/2,tg.y+tg.s/2);if(tg.t===0){S.pl.bl++;note(B[tg.k].n+' complete')}}}}
+if(u.o==='b'){if(u.k!=='vil'&&!(u.k==='serjeant'&&tg?.k==='donjon'&&tg.t===u.t&&S.civ?.[u.t]===34)){u.o='i';u.tg=null;u.p=[];return}if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||(tg.done&&tg.hp>=tg.mh)){u.o='i';u.tg=null;if(tg&&tg.done&&tg.hp>0){const ak={lumber:'w',mine:'g',mill:'f'}[tg.k],n=ak&&findNode(u,ak,16);if(n){u.o='g';u.tg=n;u.ct=n.k;u.p=[];u.ret=0}}return}
+if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;if(tg.done)repairBuildingWithResources(u,tg,dt);else{const buildRate=(S.tech[u.t].crane?1.2:1)*(u.k==='vil'&&S.civ?.[u.t]===40?1.05:1)*(typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(u):1);tg.pr+=dt*buildRate;if(gt>(u.sn||0)){u.sn=gt+.8+Math.random()*.4;sfx('hammer',u.x,u.y)}tg.hp=Math.min(tg.mh,tg.mh*tg.pr/B[tg.k].bt+1);
+if(tg.pr>=B[tg.k].bt){tg.done=true;tg.hp=tg.mh;if(tg.k==='fchurch'&&typeof grantArmenianFirstChurchRelic==='function')grantArmenianFirstChurchRelic(tg);sfx('built',tg.x+tg.s/2,tg.y+tg.s/2);if(tg.t===0){S.pl.bl++;note(B[tg.k].n+' complete')}}}}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){u.o='i';return}u.p=p}walk(u,dt)}}}

@@ -8,7 +8,7 @@ const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8')
 const { B, U, TE, AG } = vm.runInNewContext(config + '\n;({B,U,TE,AG})');
 const a = source.indexOf('function research(b,k){');
 const b = source.length;
-const c = queueSource.indexOf('function train(b,k){');
+const c = queueSource.indexOf('function unitEffectiveAge(');
 const d = queueSource.indexOf('\nfunction cancelQ(', c);
 assert.ok(a >= 0 && b > a && c >= 0 && d > c);
 const S = { tech: [{}, {}], age: [0,0], bs: [], res: [{f:1000,w:1000,g:1000,s:1000},{f:1000,w:1000,g:1000,s:1000}] };

@@ -6,7 +6,8 @@ import vm from 'node:vm';
 const ai=fs.readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8')+'\n'+fs.readFileSync(new URL('../js/ai-offence.js',import.meta.url),'utf8')+'\n'+fs.readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 
 test('AI production filters unaffordable units before selecting counters',()=>{
- assert.match(ai,/trOf\(b\)\.filter\(k=>U\[k\]&&can\(t,U\[k\]\.cost\)/);
+ assert.match(ai,/trOf\(b\)\.filter\(k=>U\[k\]&&can\(t,typeof unitTrainingCost==='function'\?unitTrainingCost\(t,k\):U\[k\]\.cost\)/);
+ assert.match(ai,/unitTrainingUnlock\(b,k,S\)\.state==='available'/,'AI must also screen technology-locked units');
 });
 test('AI protects its full next-age budget from optional research',()=>{
  const canAfford=vm.runInNewContext(ai+'\n;aiCanResearchWhileSaving;');

@@ -11,7 +11,13 @@ assert.match(cancel, /^function cancelQ\(b\)\{if\(!b\|\|b\.hp<=0\|\|!b\.done\|\|
   'Cancellation must reject dead, unfinished, invalid-owner and empty-queue buildings');
 assert.match(cancel, /if\(!q\|\|!U\[q\.k\]\)\{b\.q\.pop\(\);return false\}/,
   'Malformed queue entries must not cause a refund');
-assert.match(cancel, /b\.q\.pop\(\);pay\(b\.t,U\[q\.k\]\.cost,1\);note\('Cancelled - full refund'\);return true/,
-  'Valid cancellation must remove the newest queue item and refund its unit cost');
+assert.match(cancel,/b\.q\.pop\(\);[\s\S]*if\(q\.mercKipchak===true&&q\.k==='kipchak'\)/,
+  'Cancelling a paid mercenary claim rolls back its count');
+assert.match(cancel,/const paid=q\.paidCost,base=U\[q\.k\]\.cost\|\|\{\}/,
+  'The refund uses the actual paid price, even after later upgrades');
+assert.match(cancel,/pay\(b\.t,valid\?paid:typeof unitTrainingCost==='function'\?unitTrainingCost\(b\.t,q\.k\):base,1\)/,
+  'Refund fallback remains bounded and uses the authoritative training-cost function');
+assert.match(cancel,/note\('Cancelled - full refund'\);return true/,
+  'The user is informed after refund completes');
 
 console.log('production-cancellation-validation: stale and malformed cancellation rejected');

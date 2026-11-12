@@ -33,7 +33,7 @@
         for (let x = Math.max(0,cx-radius); x <= Math.min(width-1,cx+radius); x++)
           if ((x-cx)**2+(y-cy)**2 <= radius*radius) cells[y*width+x] = 1;
     }
-    for (const u of world.us) reveal(u,unitSight(u));
+    for (const u of world.us) reveal(u,unitSight(u,world));
     for (const b of world.bs) reveal(b,(b?.k === 'tc' ? 11 : b?.k === 'outpost' ? 14 : 8)+arrowSightBonus(b));
     return cells;
   }
@@ -51,9 +51,12 @@
     if (!building || building.t !== team || building.hp <= 0 || !building.done ||
         !world.bs.includes(building) || !B[building.k]) return [];
     const options = [], tech = world.tech?.[team] || {};
-    const training = trOf(building,world.civ,world.tech);
-    for (const kind of training) if (U[kind]) options.push({type:'train',value:kind,
-      label:unitName(kind,team),cost:{...U[kind].cost},locked:U[kind].age > world.age[team] ? 'Requires '+AG[U[kind].age].n : ''});
+    const training = trOf(building,world.civ,world.tech,world.age);
+    for (const kind of training) if (U[kind]) {
+      const unlock=unitTrainingUnlock(building,kind,world);
+      options.push({type:'train',value:kind,label:unitName(kind,team),
+        cost:{...unitTrainingCost(team,kind,world.civ,world.tech)},locked:unlock.reason});
+    }
     const research = rsOf(building,world.civ);
     if (building.k === 'tc' && AG[world.age[team]+1]) {
       const age = AG[world.age[team]+1];
@@ -61,10 +64,14 @@
     }
     for (const key of research) if (TE[key]) {
       const entry = TE[key];
-      options.push({type:'research',value:key,label:entry.n,cost:{...researchCost(building,key,world.civ)},
-        locked:tech[key] ? 'Researched' : entry.age > world.age[team] ? 'Requires '+AG[entry.age].n :
+      const age=researchEffectiveAge(building,key,world.civ);
+      options.push({type:'research',value:key,label:entry.n,cost:{...researchCost(building,key,world.civ,world)},
+        locked:tech[key] ? 'Researched' : age > world.age[team] ? 'Requires '+AG[age].n :
           entry.pre && !tech[entry.pre] ? 'Requires '+TE[entry.pre].n : ''});
     }
+    if(building.k==='mule')options.push({type:'move',label:'Move Mule Cart',targeted:true,cost:{},locked:''},{type:'mule-auto',label:'Follow nearby resources',cost:{},locked:''},{type:'stop',label:'Stop Mule Cart',cost:{},locked:''});
+     if(building.k==='mill'&&world.civ?.[team]===39)
+      options.push({type:'livestock',label:'Garrison nearby sheep',cost:{},locked:''});
     if (GAR[building.k] && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
       options.push({type:'unload',label:'Unload garrison',cost:{},locked:''});
     return options;
@@ -74,7 +81,15 @@
     const options=[{type:'stop',label:'Stop',cost:{},locked:''}];
     if(unit.k==='mon')options.push({type:'convert',label:'Convert',targeted:true,cost:{},locked:unit.rel?'Carrying a relic':(unit.faith??100)<100?'Faith recharging':''});
     if (!U[unit.k].sh) options.push({type:'garrison',label:'Garrison / board transport',targeted:true,cost:{},locked:''});
-    if (unit.k==='vil' || U[unit.k].sh) options.push({type:'repair',label:unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
+    if (unit.k==='vil' || U[unit.k].sh || unit.k==='serjeant'&&world.civ?.[team]===34)
+      options.push({type:'repair',label:unit.k==='serjeant'?'Repair owned Donjon':unit.k==='vil'?'Repair / finish building or ship':'Repair ship',targeted:true,cost:{},locked:''});
+    if (unit.k==='serjeant' && world.civ?.[team]===34) {
+      const donjon=buildOptions(world,team).flat().find(entry=>entry.value==='donjon');
+      if(donjon)options.push({...donjon,targeted:true});
+    }
+    if(['ratha','rathaM'].includes(unit.k)&&world.civ?.[team]===38)
+      options.push({type:'ratha-mode',value:unit.k==='ratha'?'melee':'ranged',
+       label:unit.k==='ratha'?'Switch to melee':'Switch to ranged',cost:{},locked:''});
     if (unit.k==='trn' && (unit.cg||[]).some(u=>u.hp>0&&u.ld===unit&&u.t===team))
       options.push({type:'disembark',label:'Unload at shore',targeted:true,cost:{},locked:''});
     if (militaryUnit(unit)) options.push(
@@ -87,22 +102,22 @@
   }
 
   const BUILD_PAGES = Object.freeze([
-    Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost']),
+    Object.freeze(['house','farm','lumber','mine','mill','market','dock','palisade','wall','gate','outpost','feitoria']),
     // Append new buildings; never shift existing Xbox RT wheel sectors.
-    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc'])
+    Object.freeze(['bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc','donjon','folwark','fchurch','mule'])
   ]);
   function buildOptions(world,team) {
     return BUILD_PAGES.map(page=>page.map(kind=>{
-      const d=B[kind],req=kind==='farm'?'mill':d.req;
-      const locked=kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
-        kind==='wonder'&&vm!==1?'Wonder victory is off':
-        d.age>world.age[team]?'Requires '+AG[d.age].n:
-        req&&!world.bs.some(b=>b.t===team&&b.k===req&&b.hp>0&&b.done)?'Requires '+B[req].n:'';
-      return {type:'build',value:kind,label:d.n,cost:{...d.cost},size:d.s,locked};
+      const d=B[kind],unlock=buildingUnlock(kind,team,world);
+      const locked=!civilizationBuildingAllowed(kind,team,world.civ)?unlock.reason:
+        d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
+        kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
+        kind==='wonder'&&vm!==1?'Wonder victory is off':unlock.reason;
+      return {type:'build',value:kind,label:d.n,cost:{...(typeof civilizationBuildingCost==='function'?civilizationBuildingCost(kind,team,world.civ):d.cost)},size:d.s,locked};
     }));
   }
   function construct(units,order,team) {
-    if(units.some(u=>u.k!=='vil'))return false;
+    if(!activeUnits(units)||units.some(u=>u.k!=='vil'&&!(order.value==='donjon'&&u.k==='serjeant'&&S.civ?.[team]===34)))return false;
     const option=buildOptions(S,team).flat().find(o=>o.value===order.value);
     const point=order.point;
     if(!option||option.locked||!Number.isInteger(point.x)||!Number.isInteger(point.y)||
@@ -119,6 +134,7 @@
     if(!entity)return false;
     if(option.value==='farm')entity.t=team;
     pay(team,option.cost);
+    if(option.value==='farm'&&typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(entity,team);
     units.forEach((u,i)=>{
       u.o=option.value==='farm'?'g':'b';u.tg=entity;u.p=routes[i];u.pt=null;u.rp=1;
       u.as=0;u.autoWorker=0;u.guardTarget=null;u.ret=0;
@@ -208,6 +224,10 @@
     if (!entities) return false;
 
 
+    if(order.type==='livestock')
+      return entities.length===1&&activeBuildings(entities)&&entities[0].k==='mill'&&
+        S.civ?.[team]===39&&typeof garrisonLivestockMill==='function'&&
+        garrisonLivestockMill(entities[0])===true;
     if (order.type === 'unload') {
       // One garrison per order: no partial multi-building mutation on failure.
       if (entities.length!==1 || !activeBuildings(entities) || !GAR[entities[0].k]) return false;
@@ -261,7 +281,11 @@
       return false;
     }
 
-    if (!activeUnits(entities)) return false;
+    // Mule Carts are the sole movable buildings. Keep every other order behind
+    // the normal live-unit gate, including hostile/forged building commands.
+    const muleBuildingOrder=entities.length===1&&activeBuildings(entities)&&
+      entities[0].k==='mule'&&['move','stop','mule-auto'].includes(order.type);
+    if (!activeUnits(entities)&&!muleBuildingOrder) return false;
     if (order.type === 'formation') {
       if (entities.some(u=>!militaryUnit(u)||!Number.isFinite(u.x)||!Number.isFinite(u.y)||
           u.x<0||u.y<0||u.x>=W||u.y>=H)) return false;
@@ -305,7 +329,7 @@
         // Allied garrison sharing is deliberately unavailable until unload ownership
         // and passenger restoration are modeled across different owners.
       } else {
-        if (building ? entities.some(u=>u.k!=='vil') || target.done&&target.hp>=target.mh :
+        if (building ? entities.some(u=>u.k!=='vil'&&!(u.k==='serjeant'&&target.k==='donjon'&&S.civ?.[team]===34&&target.t===team)) || target.done&&target.hp>=target.mh :
             !U[target.k]?.sh || target.hp>=mhp(target) || entities.some(u=>u.k!=='vil'&&!U[u.k].sh)) return false;
       }
       const reach=order.type==='garrison'?(building?1.3:1.7):building?1:1.2;
@@ -354,7 +378,11 @@
       return true;
     }
     if (order.type === 'build') return construct(entities,order,team);
-    if (order.type === 'stop') {
+    if(order.type==='mule-auto')return entities.length===1&&activeBuildings(entities)&&
+       entities[0].k==='mule'&&resumeMuleCart(entities[0]);
+     if (order.type === 'stop') {
+      if(entities.some(e=>e.netId[0]==='b'))return entities.length===1&&
+        activeBuildings(entities)&&entities[0].k==='mule'&&stopMuleCart(entities[0]);
       for (const u of entities) {
         u.o = 'i'; u.p = []; u.tg = null; u.pt = null; u.rp = 0;
         u.as = 0; u.autoWorker = 0; u.guardTarget = null; u.ret = 0;
@@ -367,7 +395,12 @@
       }
       return true;
     }
-    if (order.type === 'move') return moveUnits(entities, order.point);
+    if (order.type === 'move'){
+      if(entities.some(e=>e.netId[0]==='b'))return entities.length===1&&
+        activeBuildings(entities)&&entities[0].k==='mule'&&
+        orderMuleCart(entities[0],Math.floor(order.point.x),Math.floor(order.point.y));
+      return moveUnits(entities, order.point);
+     }
     if (order.type === 'attack-move' || order.type === 'patrol') {
       if (entities.some(u => !militaryUnit(u) || !Number.isFinite(u.x) || !Number.isFinite(u.y) ||
           u.x<0 || u.y<0 || u.x>=W || u.y>=H)) return false;
@@ -399,6 +432,14 @@
       }
       return true;
     }
+    if(order.type==='ratha-mode'){
+      if(!activeUnits(entities)||S.civ?.[team]!==38||
+         !['melee','ranged'].includes(order.value)||
+         entities.some(u=>!['ratha','rathaM'].includes(u.k)))return false;
+      let changed=false;
+      for(const u of entities)if(setRathaMode(u,order.value))changed=true;
+      return changed;
+    }
     if (order.type === 'stance') {
       if (!Object.prototype.hasOwnProperty.call(STANCES, order.value) ||
           entities.some(u => u.k === 'vil')) return false;
@@ -413,7 +454,7 @@
     lookup, visibility, inSight, buildingOptions, unitOptions, buildOptions, militaryUnit,
     execute,
     implementedTypes: Object.freeze([
-      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation'
+      'garrison', 'repair', 'unload', 'disembark', 'gather', 'build', 'move', 'stop', 'patrol', 'follow', 'guard', 'convert', 'attack-move', 'attack', 'train', 'research', 'rally', 'stance', 'cancel', 'formation', 'ratha-mode', 'livestock', 'mule-auto'
     ])
   });
 })(typeof window !== 'undefined' ? window : globalThis);

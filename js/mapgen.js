@@ -40,6 +40,24 @@ function prepareHillMap(starts){
  S.mapAudit={...auditGeneratedMap(starts),hillReachable:true};
 }
 
+/* Broad traversable elevated plateaus. No random-stream consumption or
+ * pathing changes; sea and starting Town Centres remain at ground level. */
+function generateElevation(starts){
+ if(!S?.el||S.el.length!==W*H)return;
+ S.el.fill(0);
+ const radius=Math.max(5,Math.floor(W/16)),hills=[
+  [Math.floor(W*.29),Math.floor(H*.29),radius],
+  [Math.floor(W*.70),Math.floor(H*.36),radius+1],
+  [Math.floor(W*.40),Math.floor(H*.72),radius+1],
+  [Math.floor(W*.75),Math.floor(H*.76),radius],
+  [Math.floor(W/2),Math.floor(H/2),vm===5?Math.max(9,radius+3):radius]
+ ];
+ for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
+  const i=y*W+x;
+  if(S.wt[i]!==0||starts.some(([sx,sy])=>(sx-x)**2+(sy-y)**2<64))continue;
+  if(hills.some(([cx,cy,rad])=>(cx-x)**2+(cy-y)**2<=rad*rad))S.el[i]=1;
+ }
+}
 function applyMapLayout(){const p=[null,{mt:0,seed:202611},{mt:7,seed:202612},{mt:1,seed:202613},{mt:6,seed:202614},{mt:1,seed:202615},{mt:5,seed:202616},{mt:8,seed:202617},{mt:9,seed:202618},{mt:4,seed:202619},{mt:7,seed:202620},{mt:8,seed:202621},{mt:7,seed:202622},{mt:7,seed:202623}][mapLayout];if(p){mt=p.mt;seedOv=p.seed}else seedOv=null}
 
 
@@ -61,12 +79,57 @@ function applyStartingCivilizationBonuses(team){
   const previous=b.mh,next=Math.round(previous*1.15);
   b.mh=next;b.hp=Math.min(next,b.hp+next-previous);
  }
+ if(S.civ?.[team]===39){
+  const tc=S.bs.find(b=>b&&b.t===team&&b.k==='tc'&&b.done&&b.hp>0);
+  if(tc){
+   const spawn=spawnPos(tc);
+   if(spawn)addU(team,'camelscout',spawn[0],spawn[1]);
+   // No map-generator random draws: preserve the deterministic seed stream.
+   let planted=0;
+   for(let radius=5;radius<=10&&planted<2;radius++)
+    for(let dy=-radius;dy<=radius&&planted<2;dy++)
+     for(let dx=-radius;dx<=radius&&planted<2;dx++){
+      if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+      const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+      if(x<2||y<2||x>=W-2||y>=H-2||S.g[i]||S.wt[i]||S.nd[i]||
+        S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+      const bush=addN('f',x,y,175);
+      if(bush){bush.gurjaraForage=true;planted++}
+     }
+   // Herdable sheep are discrete food nodes. They may also be moved into the
+   // Gurjara Mill pen for continuous passive food instead of hunted outright.
+   let sheep=0;
+   for(let radius=3;radius<=7&&sheep<3;radius++)
+    for(let dy=-radius;dy<=radius&&sheep<3;dy++)
+     for(let dx=-radius;dx<=radius&&sheep<3;dx++){
+      if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+      const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+      if(x<2||y<2||x>=W-2||y>=H-2||S.g[i]||S.wt[i]||S.nd[i]||
+        S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+      const animal=addN('f',x,y,100);
+      if(animal){animal.an=1;animal.herdable=1;sheep++}
+     }
+  }
+ }
+ if(S.civ?.[team]===42){
+  // One free Georgian starting Mule Cart; no random draws or paid construction.
+  const tc=S.bs.find(b=>b?.t===team&&b.k==='tc'&&b.done&&b.hp>0);
+  if(tc)for(let radius=3,placed=false;radius<=9&&!placed;radius++)
+   for(let dy=-radius;dy<=radius&&!placed;dy++)
+    for(let dx=-radius;dx<=radius&&!placed;dx++){
+     if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+     const x=tc.x+1+dx,y=tc.y+1+dy,i=y*W+x;
+     if(x<1||y<1||x>=W-1||y>=H-1||S.g[i]||S.wt[i]===1||S.nd[i]||
+       S.us.some(u=>u.hp>0&&!u.ld&&Math.floor(u.x)===x&&Math.floor(u.y)===y))continue;
+     addB(team,'mule',x,y,true);placed=true;
+    }
+ }
  applied.add(team);
 }
 
 /* Map construction, game-state initialisation and starting-world seeding. */
 function newGame(tries){'use strict';if(tries===undefined)tries=0;setSize(SZ[msz]);const r=mk(seedOv!=null?(seedOv+tries)&0xffffff:(Date.now()+tries*104729)&0xffffff),teamN=cmp?2:cl(kingdoms,2,4);
-S={t:0,teamN,r,netNext:1,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
+S={t:0,teamN,r,netNext:1,g:new Uint8Array(W*H),gt:new Uint8Array(W*H),wt:new Uint8Array(W*H),el:new Uint8Array(W*H),nd:new Array(W*H).fill(null),nodes:[],us:[],bs:[],pj:[],ex:new Uint8Array(W*H),vs:new Uint8Array(W*H),
 res:Array.from({length:teamN},()=>{const v=[200,100,500,1000,2000,10000][startRes]||200;return startRes===0?{f:200,w:200,g:100,s:0}:{f:v,w:v,g:v,s:v}}),pl:{tr:0,bl:0,kills:0,gath:0},sel:[],vt:0,al:-99,age:Array(teamN).fill(startAge),tech:Array.from({length:teamN},()=>({})),dip:createDiplomacy(teamN),vp:createVillagerPriority(),scoreCache:Array(teamN).fill(0),kh:Array(teamN).fill(0),rel:[],px:Array.from({length:teamN},()=>({f:100,w:100,g:100,s:100})),civ:Array.from({length:teamN},(_,t)=>t),pal:MT[mt].pal||0,ai:Array.from({length:teamN},(_,t)=>({cd:4+t*.7,wave:0,nx:(vm===5?180:([480,360,240][diff]*PERS[aip].g))|0})),over:null};
 for(let i=0;i<Math.round(W*H/740*MT[mt].l);i++){const cx=r()*W,cy=r()*H,rad=2+r()*4;for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(Math.hypot(x-cx,y-cy)<rad)S.g[y*W+x]=S.wt[y*W+x]=1}
 const bs=teamN===2?[[9,H-10],[W-10,9]]:teamN===3?[[9,H-10],[W-10,9],[W-10,H-10]]:[[9,H-10],[W-10,9],[9,9],[W-10,H-10]];
@@ -113,7 +176,9 @@ const dr=(x,y)=>{if(bs.some(b=>Math.hypot(b[0]-x,b[1]-y)<10))return;const d=addN
 for(let i=0,k=0;i<300&&k<2+Math.round(W*H/3000);i++){const x=(W*.2+r()*W*.6)|0,y=(H*.2+r()*H*.6)|0;if(!S.g[y*W+x]&&!S.wt[y*W+x]){S.rel.push({rl:1,x:x+.5,y:y+.5,c:null,m:null});k++}}
 for(let c=0;c<Math.round(W*H/700*MT[mt].m);c++){const k2=r()<(MT[mt].gd?.85:.45)?'g':r()<.5?'s':'f',cx=4+r()*(W-8),cy=4+r()*(H-8);if(bs.some(b=>Math.hypot(b[0]-cx,b[1]-cy)<14))continue;for(let j=0;j<6;j++)addN(k2,cx+(r()-.5)*4,cy+(r()-.5)*4,k2==='f'?120:350)}
 for(let i=0;i<W*H;i++)if(S.wt[i]===1&&!S.nd[i]&&r()<.12&&D8.every(([dx,dy])=>S.wt[i+dy*W+dx]===1&&!S.nd[i+dy*W+dx])){const n={k:'f',x:i%W,y:i/W|0,s:1,amt:300,fi:1};S.nodes.push(n);S.nd[i]=n}
-if(vm===5)prepareHillMap(bs);bs.forEach(([bx,by],t)=>{const sx=bx<W/2?1:-1,sy=by<H/2?1:-1,Q=(k,dx,dy,n,a)=>{for(let i=0;i<n;i++)addN(k,bx+dx*sx+(r()-.5)*4,by+dy*sy+(r()-.5)*4,a)};
+if(vm===5)prepareHillMap(bs);
+generateElevation(bs);
+bs.forEach(([bx,by],t)=>{const sx=bx<W/2?1:-1,sy=by<H/2?1:-1,Q=(k,dx,dy,n,a)=>{for(let i=0;i<n;i++)addN(k,bx+dx*sx+(r()-.5)*4,by+dy*sy+(r()-.5)*4,a)};
 Q('f',6,-3,7,120);Q('w',-7,-2,18,100);Q('w',3,-8,14,100);Q('g',9,3,7,300);Q('s',4,8,7,300);
 const tc=addB(t,'tc',bx-1,by-1,true),villagers=cmp?5:[3,5,10,15][startVillagers]||5;for(let i=0;i<Math.min(5,villagers);i++)addU(t,'vil',bx+(i-2)*.8,by+2.5);for(let i=5;i<villagers;i++){const p=spawnPos(tc);if(p)addU(t,'vil',p[0],p[1])}});
 {const p=S.bs.find(b=>b.t===0&&b.k==='tc');if(tries<8&&p&&S.us.some(u=>u.t>0&&u.k==='vil'&&!path(u,goalNear(p,1))))return newGame(tries+1)}
