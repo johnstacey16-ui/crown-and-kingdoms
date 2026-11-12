@@ -286,8 +286,15 @@ globalThis.__CK_TEST__ = {
         // Gold is plentiful but timber becomes scarce once the Dock and
         // stone defences are funded. Buy wood from a real completed Market.
         assignMiners('w',5,1500);assignMiners('g',2,950);
-        if(cb('market')&&S.res[0].w<500&&S.res[0].g>=Math.round(S.px[0].w*1.3)+225&&
-           S.t-causewayLastTrade>=16&&trade(0,'w','buy'))causewayLastTrade=S.t;
+        if(cb('market')&&S.t-causewayLastTrade>=16){
+          // Finance timber from actual surplus-food sales while reserving
+          // enough gold for the next Siege Workshop Ram.
+          if(S.res[0].g<375&&S.res[0].f>=500){
+            if(trade(0,'f','sell'))causewayLastTrade=S.t;
+          }else if(S.res[0].w<300&&S.res[0].g>=Math.round(S.px[0].w*1.3)+250){
+            if(trade(0,'w','buy'))causewayLastTrade=S.t;
+          }
+        }
       }
       if(index===14){
         // Repair a real threatened capital with paid Villager labour while
@@ -322,8 +329,10 @@ globalThis.__CK_TEST__ = {
         // The siege loses gold to replacement Crossbowmen. Use the ordinary
         // paid Market exchange to convert surplus harvested wood into gold.
         const market=cb('market')>=1;
-        if(market&&S.res[0].g<340&&S.res[0].w>=550&&S.t-greywatchLastTrade>=25){
-          if(trade(0,'w','sell'))greywatchLastTrade=S.t;
+        if(market&&S.res[0].g<400&&S.t-greywatchLastTrade>=20){
+          // Sell actual excess food or timber to support paid siege replacements.
+          const goods=S.res[0].f>=550?'f':S.res[0].w>=450?'w':null;
+          if(goods&&trade(0,goods,'sell'))greywatchLastTrade=S.t;
         }
         const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
         if(range&&!range.rs&&!S.tech[0].xbow)research(range,'xbow');
@@ -392,7 +401,7 @@ globalThis.__CK_TEST__ = {
           }
         }
       }
-      if (plan.attack && (index===8&&ashfordAssaultStarted||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&(aliveUnits(0,'ram').length>=2||cmp.d.blockade&&aliveUnits(0,'ram').length>=1)&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&greywatchAssaultStarted||index===16&&(causewayAssaultStarted||cb('dock')>=1&&cb('tower')>=2&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===14&&tidewatchAssaultStarted||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
+      if (plan.attack && (index===8&&(ashfordAssaultStarted||S.t>=25&&aliveUnits(0,'ram').length>=2)||index===12&&(goldenCoastAssaultStarted||cb('dock')>=1&&cmil(0)>=12&&(aliveUnits(0,'ram').length>=2||cmp.d.blockade&&aliveUnits(0,'ram').length>=1)&&(aliveUnits(0,'gal').length>=3||S.t>=270))||index===9&&(greywatchAssaultStarted||S.t>=25&&aliveUnits(0,'ram').length>=2)||index===16&&(causewayAssaultStarted||cb('dock')>=1&&aliveUnits(0,'gal').length>=3&&aliveUnits(0,'ram').length>=2)||index===14&&(tidewatchAssaultStarted||cb('siege')>=1&&aliveUnits(0,'bomb').length>=1&&aliveUnits(0,'ram').length>=1)||index===13&&(straitAssaultStarted||!!cmp.d.relics&&S.us.some(u=>u&&u.t===0&&u.k==='ram'&&u.hp>0))||index===17&&(crownAssaultStarted||cb('castle')>=2&&cb('siege')>=1&&aliveUnits(0,'bomb').length>=2&&aliveUnits(0,'treb').length>=2)||index!==12&&index!==17&&Object.entries(plan.units || {}).every(([unitKind, targetCount]) => S.us.filter(unit => unit && unit.t === 0 && unit.k === unitKind && unit.hp > 0).length >= targetCount))) {
         if(index===8)ashfordAssaultStarted=true;
         if(index===12){
           goldenCoastAssaultStarted=true;
@@ -439,7 +448,8 @@ globalThis.__CK_TEST__ = {
            if((index===8||index===9||index===16)&&unit.k==='ram'&&(enemyCastle||enemyTC)){
              // Massed Rams must keep targeting enemy fortifications, rather
              // than repeatedly acquiring distant foot soldiers and stalling.
-             const fortress=enemyCastle||enemyTC;
+             const relay=index===9&&cmp.t<240?S.bs.find(b=>b&&b.t===1&&b.hp>0&&b.campaignRelay==='greywatch'):null;
+             const fortress=relay||enemyCastle||enemyTC;
              if(unit.o!=='a'||unit.tg!==fortress){unit.o='a';unit.tg=fortress;unit.p=[];unit.rp=0}
              continue;
            }

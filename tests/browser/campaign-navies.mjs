@@ -27,8 +27,9 @@ export async function checkCampaignNavies(browser,origin,output){
    const home=tcOf(0);ctr(home.x+home.s/2,home.y+home.s/2);
    const counts=team=>Object.fromEntries(['knight','xbow','spear','ram','bomb'].map(k=>
     [k,S.us.filter(u=>u.t===team&&u.k===k&&u.hp>0).length]));
-   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
    const population=popOf(0),capacity=capOf(0),trainingAccepted=train(home,'vil'),queued=home.q.filter(q=>q.k==='vil').length;
+   // Checkpoint after the intentional queue mutation; rendering alone must not change the game.
+   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
    draw(0);
    return {player:counts(0),enemy:counts(1),population,capacity,trainingAccepted,queued,
     before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash};
