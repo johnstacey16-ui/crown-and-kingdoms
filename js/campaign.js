@@ -147,13 +147,7 @@ function campaignTidewatchReserve(){
  grp(0,'spear',3);grp(0,'xbow',3);
  const reserve=S.us.filter(u=>u&&u.t===0&&u.hp>0&&!previous.has(u.netId));
  for(const u of reserve){u.o='G';u.tg=home;u.guardTarget=null;u.p=[];u.rp=0}
- if(reserve.length){
-  // Winning the real Castle siege earns the final royal column for the still
-  // living enemy capital. Reinforcements are mortal combat units and must
-  // travel and fire normally; no enemy health or objectives are altered.
-  campaignTidewatchBreachColumn();
-  note('Tidewatch Castle has fallen! The home reserve and final royal siege column have arrived. Protect the guns and destroy the enemy Town Centre.');
- }
+ if(reserve.length)note('Tidewatch Castle has fallen! The royal reserve joins your Town Centre defence. Press on to defeat the enemy capital.');
  return reserve.length;
 }
 
