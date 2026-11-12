@@ -20,7 +20,10 @@ export async function checkFrameTints(page,output){
      if(a.meta.motion&&(actual.f.x!==0||actual.f.y!==0||actual.f.ax!==f.ax||actual.f.ay!==f.ay||actual.img.width!==f.w||actual.img.height!==f.h))throw Error('Tint crop changed geometry');
      let sample=null;for(let i=0;i<old.length;i++)if(old[i]!==now[i]){nativeDifferences++;if(!sample){sample={atlas:atlasId,team,frame:{x:f.x,y:f.y,w:f.w,h:f.h},pixel:Math.floor(i/4),channel:i%4,expected:[...old.slice(i-i%4,i-i%4+4)],actual:[...now.slice(i-i%4,i-i%4+4)]}}}if(sample&&nativeSamples.length<10)nativeSamples.push(sample);components+=old.length;frames++;
      if(index===0||index===list.length-1)for(const factor of[1,2])for(const mirror of[false,true]){
-      const oldCrop=a.meta.motion?troopFrameTexture({img:legacy,f}):null;
+      // Compare scaled pixels after isolating the same native source crop.
+      // Sampling directly from a full atlas pulls neighboring frame colours
+      // into high-quality interpolation and is not the canonical crop render.
+      const oldCrop=troopFrameTexture({img:legacy,f});
       const expected=scaled(oldCrop||legacy,oldCrop?{...f,x:0,y:0}:f,mirror,factor),actualPixels=scaled(actual.img,actual.f,mirror,factor);
       for(let i=0;i<expected.length;i++)if(expected[i]!==actualPixels[i])scaledDifferences++;
      }
