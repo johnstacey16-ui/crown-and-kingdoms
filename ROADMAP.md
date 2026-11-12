@@ -93,15 +93,15 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Audit baseline:** Claude, Grok, Kimi, DeepSeek and Gemini reviewed old `main` [`08b40826`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/08b40826dd25876119def63411278d789f0d3c16), not active `development` (**344 commits ahead** at `b5dfeaa`). Development now has **289** regression files and **43** civilization definitions with Elite/second-tech data; acceptance remains open.
 
-**Claude [RAN, old main]:** 5/5 quick, 260/261 regression files (1,458/1,459 cases), 18/19 campaign bot wins but **17 clean test exits** (mission 6 win/assertion failure; mission 18 bot defeat), 200/200 movement probe. Kimi/Grok [STATIC] add useful leads; DeepSeek includes unproven bug claims; Gemini lacked source access. None tested current development fully.
+**Historical external audits:** Claude ran 260/261 regression files and 18/19 bot wins on old `main` (`08b40826`); Kimi/Grok reviewed source, DeepSeek's reported bugs were largely unverified and Gemini had no code access. Do not use old-main results for current acceptance.
 
-**FIRST: verify on development:** Run `--quick`, `--focused`, `--regression-files`, `--campaigns`. Mission 2's fixture already recognizes `Muster 8 soldiers` and the optional ford guard; verify results. Fix mission 6's `objectives.every(...)` including an optional outpost. Recheck mission 18's old-main bot defeat at 946.9s. Fresh execution is required; 9 Nov 19/19 CI success was on a different SHA. Preserve mandatory goal and defeat checks.
+**Release preflight [RAN, `8fc98b8`, 12 Nov]:** Quick 5/5, focused 1,640/1,640, seeded AI 3/3 and Chromium HUD passed. Full regressions **288/289**: `simulation-smoke.test.mjs` failed—no rival reached Feudal Age by 720s (all three age 0, food 277–399). Mission 18 (`CK_MISSION=17`) **timed out at 1,200s**, with enemy Town Centre alive. This stopped the separate 19-mission matrix before it ran. Mission 6's optional-objective assertion was corrected but not fully exercised. **HOLD release**: the connected Vercel account cannot see this project, verify quota/production/rollback; last documented storage was 12.23/10 GB. Reproduce/fix both live failures and retest.
 
 **Resolved:** Historical radial `undefined[0]` was empty-menu pagination; `radialMenuPage` now guards it, and regression coverage exists. Selection uses object references; synchronous path buffers and AI guards do not prove new bugs. Do not duplicate fixes or harnesses.
 
 **Open:** Owner Xbox ~9 FPS at 372 units: same-scene hardware profiling (AUD-005/021/043/047). Legacy marker lobby != authenticated WebRTC command preview; WAN 1v1/reconnect/fog/RLS (AUD-014–018). Pin floating Supabase JS and test CSP/SRI. Preserve saves, controller, browser, AI/campaign and free-only release checks.
 
-**Continue:** Fix confirmed regressions, then owner-prioritized civ/tech/gameplay completion on the expanded roster (not old “5/26 Elite” figures); simplify brittle tests/docs incrementally. Preserve the 48 `AUD-###` and `CK-###` identifiers. Production `main` stays unchanged until accepted release. This docs-only merge ran no tests or deployment.
+**Continue:** Fix verified AI age and Mission 18, then proceed with civ/tech/gameplay. Preserve 48 `AUD-###` and original `CK-###` tasks, current saves, Xbox/controller tests and free-only hosting. No production `main` merge until accepted release.
 
 ## Ordered milestones and gates
 
