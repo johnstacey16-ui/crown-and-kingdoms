@@ -154,10 +154,7 @@ function clearGraphicsSurfaces(){
 }
 // World and sharp-HUD losses have separate cache effects. Repeated world
 // losses activate a session-only physical pixel cap to avoid a black-screen loop.
-// Keep normal painted sprites in healthy sessions. After repeated world
-// canvas losses, avoid the large, recoloured atlas textures until page reload.
-// This affects drawing only: units, combat, input, saves and AI are unchanged.
-const GRAPHICS_RECOVERY={lost:new Set(),losses:0,worldLosses:0,worldLost:false,status:null,scale:1,unitArtSafe:false};
+const GRAPHICS_RECOVERY={lost:new Set(),losses:0,worldLosses:0,worldLost:false,status:null,scale:1};
 function installCanvasRecovery(canvas){
  if(!canvas)return;
  canvas.addEventListener('contextlost',()=>{
@@ -168,7 +165,6 @@ function installCanvasRecovery(canvas){
    GRAPHICS_RECOVERY.worldLost=true;
    GRAPHICS_RECOVERY.worldLosses++;
    const count=GRAPHICS_RECOVERY.worldLosses;
-   if(count>=2)GRAPHICS_RECOVERY.unitArtSafe=true;
    GRAPHICS_RECOVERY.scale=Math.min(GRAPHICS_RECOVERY.scale,count>=3?.5:count>=2?.75:1);
   }
   if(mode==='play'&&!window.CK_NET?.isRunning?.()){
@@ -191,6 +187,6 @@ function installCanvasRecovery(canvas){
   rs();resetGraphicsDiagnostics();
   GRAPHICS_RECOVERY.status?.remove();GRAPHICS_RECOVERY.status=null;
   const safe=GRAPHICS_RECOVERY.scale<1?' Recovery scale '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%.':'';
-  note((mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.')+safe+(GRAPHICS_RECOVERY.unitArtSafe?' Safe troop sprites enabled for this session.':''));
+  note((mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.')+safe);
  });
 }

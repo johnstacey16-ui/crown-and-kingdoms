@@ -197,25 +197,3 @@ test('sustained low FPS after one graphics loss uses a non-compounding resolutio
  assert.equal(run('JSON.stringify(S)'),state);
  assert.equal(JSON.stringify([...storage]),saved);
 });
-
-test('two world-context losses select safe troop art without changing units, gameplay or saves',()=>{
- const {run,storage,events}=game();
- run('start();mode="play";perfHud=1');
- const before=run('JSON.stringify(S)'),saved=JSON.stringify([...storage]);
- run('globalThis.artCounts={atlas:0,procedural:0};ASSET.n=1;assetFrame=function(){artCounts.atlas++;return null};spr=function(){artCounts.procedural++;return {width:8,height:8}};blit=function(){}');
- assert.equal(run('GRAPHICS_RECOVERY.unitArtSafe'),false);
- run('drawUnit(S.us[0],new Set())');
- assert.equal(run('artCounts.atlas'),1,'healthy units still request painted atlas frames');
- for(let i=0;i<2;i++){
-  events.get('contextlost')();
-  events.get('contextrestored')();
-  assert.equal(run('GRAPHICS_RECOVERY.unitArtSafe'),i===1);
- }
- run('drawUnit(S.us[0],new Set())');
- assert.equal(run('artCounts.atlas'),1,'safe art avoids every large painted atlas lookup');
- assert.equal(run('artCounts.procedural'),2,'safe art draws the existing team-coloured unit sprite');
- assert.equal(run('JSON.stringify(S)'),before);
- assert.equal(JSON.stringify([...storage]),saved);
- run('mode="play";perfLabels=[];tx=text=>perfLabels.push(text);drawPerfOverlay(.016)');
- assert.match(run('perfLabels.find(x=>x.startsWith("CANVAS"))'),/TROOP ART SAFE/);
-});

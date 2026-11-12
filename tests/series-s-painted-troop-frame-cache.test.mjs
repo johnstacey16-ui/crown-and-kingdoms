@@ -121,7 +121,7 @@ test('painted troop painter retains original source dimensions, flip, anchor and
  assert.ok(calls.some(x=>Array.isArray(x)&&x[0]==='scale'&&x[1]===-1),'face mirroring preserved');
 });
 test('production unit renderer remains atlas-first, with procedural fallback and model-free cropping',()=>{
- assert.match(code,/af=ASSET\.n&&!safeArt\?assetFrame\(k,u\.t,st/);
+ assert.match(code,/af=ASSET\.n\?assetFrame\(k,u\.t,st/);
  assert.match(code,/c=af\?null:spr\(/);
  assert.match(code,/const frame=troopFrameTexture\(art,false,lod\)/);
  assert.match(code,/else g\.drawImage\(art\.img,f\.x,f\.y,f\.w,f\.h/);
