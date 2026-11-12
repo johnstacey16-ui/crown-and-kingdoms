@@ -40,12 +40,14 @@ function aiReachableBuilder(vs,target){
  return null;
 }
 
-// Stop continuous food spending once a healthy Dark Age economy can save
-// for the next age. A food threshold alone is too late: the Town Centre
-// otherwise consumes the 50 food that should finish the age-up budget.
+// Once Dark Age prerequisite structures are ready, reserve Feudal food early.
+// With 16 workers the seeded rivals spent another 150 food on villagers and
+// still had not saved the 500-food age budget by twelve simulated minutes.
+// Castle/Imperial decisions retain the established larger worker threshold.
 function aiSavingAgeFood(t,villagers){
  const next=AG[S.age[t]+1];
- return !!(next&&villagers>=16&&ageRequirements(t).ready);
+ const needed=S.age[t]===0?13:16;
+ return !!(next&&villagers>=needed&&ageRequirements(t).ready);
 }
 function aiTownTechReady(t,tc,villagers){if(villagers<8||!tc.done||tc.hp<=0||tc.rs||!Array.isArray(tc.q)||!S.tech[t])return false;for(const k of ['loom','wheel','handcart']){const e=TE[k];if(e&&B.tc.rs&&B.tc.rs.includes(k)&&!S.tech[t][k]&&!S.bs.some(other=>other!==tc&&other.t===t&&other.hp>0&&other.rs&&other.rs.k===k)&&e.age<=S.age[t]&&(!e.pre||S.tech[t][e.pre])&&can(t,e.cost))return true}return false}
 

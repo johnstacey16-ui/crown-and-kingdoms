@@ -14,9 +14,11 @@ function policy({villagers,age=0,ready=true}){
  return vm.runInNewContext(policySource.slice(start,end)+'\n;aiSavingAgeFood(0,'+villagers+');',{S,AG,ageRequirements});
 }
 test('AI saves food after reaching a productive village and meeting age requirements',()=>{
+ assert.equal(policy({villagers:13}),true,'Feudal food reserve begins before three more paid villagers');
  assert.equal(policy({villagers:16}),true);
  assert.equal(policy({villagers:20}),true);
- assert.equal(policy({villagers:15}),false,'small early economies continue to grow');
+ assert.equal(policy({villagers:12}),false,'small early economies continue to grow');
+ assert.equal(policy({villagers:15,age:1}),false,'Castle Age requires a larger productive economy');
  assert.equal(policy({villagers:25,ready:false}),false,'missing prerequisite buildings need workers');
  assert.equal(policy({villagers:30,age:3}),false,'Imperial Age has no next age');
 });

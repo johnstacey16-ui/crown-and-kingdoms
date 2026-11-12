@@ -283,6 +283,10 @@ globalThis.__CK_TEST__ = {
       if(index===17){
         const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
         if(range&&!range.rs&&!S.tech[0].xbow)research(range,'xbow');
+        // Replace destroyed siege using gathered resources, not free grants.
+        // The assault exhausts its starting wood/gold after enemy waves.
+        assignMiners('g',4,650);
+        assignMiners('w',4,550);
       }
       if(index===9){
         const range=S.bs.find(b=>b.t===0&&b.k==='rng'&&b.done&&b.hp>0);
@@ -431,14 +435,21 @@ globalThis.__CK_TEST__ = {
             const siege=S.us.filter(u=>u&&u.t===0&&['treb','bomb'].includes(u.k)&&u.hp>0)
               .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
             if(siege){
-              if(!((unit.o==='G'&&unit.tg===siege)||(unit.o==='a'&&unit.guardTarget===siege))){
+              // Fight actual hostile attackers within siege range instead of
+              // merely following while the paid bombard/trebuchet is killed.
+              const threat=S.us.filter(e=>e&&e.t===1&&e.hp>0&&!e.ld&&U[e.k]?.dmg>0&&
+                Math.hypot(e.x-siege.x,e.y-siege.y)<11)
+                .sort((a,b)=>Math.hypot(a.x-unit.x,a.y-unit.y)-Math.hypot(b.x-unit.x,b.y-unit.y))[0];
+              if(threat){
+                if(unit.o!=='a'||unit.tg!==threat){unit.o='a';unit.tg=threat;unit.p=[];unit.rp=0}
+              }else if(!((unit.o==='G'&&unit.tg===siege)||(unit.o==='a'&&unit.guardTarget===siege))){
                 const selected=S.sel;S.sel=[unit];
                 try{orderGuardFollow(siege.x,siege.y,'G')}finally{S.sel=selected}
               }
               continue;
             }
           }
-          // Golden Coast: landing troops must contest repairs at the enemy
+                    // Golden Coast: landing troops must contest repairs at the enemy
           // capital rather than leave a breached Town Centre to regenerate.
           // Spearmen/Skirmishers still clear hostile military around the Rams.
           // Localize the landing escort's threat selection: do not abandon Rams
