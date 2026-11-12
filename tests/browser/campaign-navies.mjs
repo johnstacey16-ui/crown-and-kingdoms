@@ -28,15 +28,16 @@ export async function checkCampaignNavies(browser,origin,output){
    const counts=team=>Object.fromEntries(['knight','xbow','spear','ram','bomb'].map(k=>
     [k,S.us.filter(u=>u.t===team&&u.k===k&&u.hp>0).length]));
    const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
-   const trainingRejected=!train(home,'vil'),trainingHint=notes.at(-1).s;
+   const population=popOf(0),capacity=capOf(0),trainingAccepted=train(home,'vil'),queued=home.q.filter(q=>q.k==='vil').length;
    draw(0);
-   return {player:counts(0),enemy:counts(1),trainingRejected,trainingHint,
+   return {player:counts(0),enemy:counts(1),population,capacity,trainingAccepted,queued,
     before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash};
   });
   assert.deepEqual(tidewatch.player,{knight:5,xbow:10,spear:6,ram:2,bomb:0});
   assert.deepEqual(tidewatch.enemy,{knight:6,xbow:8,spear:0,ram:0,bomb:2});
-  assert.equal(tidewatch.trainingRejected,true);
-  assert.equal(tidewatch.trainingHint,'Population full (28/10): build 4 Houses');
+  assert.ok(tidewatch.capacity>tidewatch.population,'Tidewatch begins with five real Houses and available population');
+  assert.equal(tidewatch.trainingAccepted,true,'Houses permit ordinary paid Villager training');
+  assert.equal(tidewatch.queued,1,'the paid Villager must enter the real Town Centre queue');
   assert.equal(tidewatch.before,tidewatch.after,'rendering expanded armies preserves simulation state');
   await page.locator('#c').screenshot({path:output+'/tidewatch-complete-starting-armies.png'});
   await page.evaluate('(() => {\n'+campaignConstruction+'\nwindow.createCampaignBuilder=createCampaignBuilder;})()');
