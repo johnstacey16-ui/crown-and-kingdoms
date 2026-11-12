@@ -7,8 +7,9 @@ import {coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 const construction=readFileSync(new URL('../js/ai-construction.js',import.meta.url),'utf8');
 const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
+const economy=readFileSync(new URL('../js/ai-economy.js',import.meta.url),'utf8');
 
-function makeWorld({reachable=true}={}){
+function makeWorld({reachable=true,unlockState=null}={}){
  const tc={t:1,k:'tc',hp:100,done:true,x:16,y:16};
  const builder={t:1,k:'vil',hp:40,o:'i',x:18,y:18};
  const S={bs:[tc],nodes:[],wt:new Uint8Array(64*64),nd:Array(64*64).fill(null),
@@ -25,6 +26,7 @@ function makeWorld({reachable=true}={}){
   okPlace:(_team,k,x,y)=>k==='dock'?x===25&&y===25:true,
   addB:(t,k,x,y,done)=>{const b={t,k,x,y,done,hp:1};placed.push(b);S.bs.push(b);return b},
   pay:(t,cost)=>charges.push({t,cost})});
+ if(unlockState!==null)ctx.buildingUnlock=()=>({state:unlockState});
  vm.runInContext(construction+'\n;globalThis.actions={aiBuild,aiWall,aiDock,aiNear};',ctx);
  return {S,B,tc,builder,placed,charges,setMode:mode=>{ctx.vm=mode},...ctx.actions};
 }
@@ -139,4 +141,22 @@ test('AI does not spend stone on a crowded Town Centre placement',()=>{
  h.aiBuild([h.builder],'tc',1);
  assert.equal(h.placed.length,0,'no adjacent duplicate Town Centre is founded');
  assert.equal(h.charges.length,0,'failed placements cost nothing');
+});
+
+test('AI construction owners decline every structure blocked by the shared building policy before placement or payment',()=>{
+ const h=makeWorld({unlockState:'locked'});
+ h.S.nodes.push({k:'w',amt:120,x:25,y:25,an:0,fi:0});
+ h.aiBuild([h.builder],'house',1);
+ h.aiWall([h.builder],h.tc,1);
+ h.aiDock([h.builder],h.tc,1);
+ h.aiNear([h.builder],'lcamp',['w'],1);
+ assert.equal(h.placed.length,0);
+ assert.equal(h.charges.length,0);
+ assert.equal(h.builder.o,'i');
+});
+test('AI structure and farm production both honor the shared per-team unlock policy',()=>{
+ for(const call of ["buildingUnlock(k,t,S)","buildingUnlock('wall',t,S)","buildingUnlock('dock',t,S)"])
+  assert.ok(construction.includes(call),'AI construction must consult '+call);
+ assert.ok(economy.includes("buildingUnlock('farm',t,S).state==='available'"),
+  'AI farmers must not place farms without the completed faction-eligible dropoff prerequisite');
 });
