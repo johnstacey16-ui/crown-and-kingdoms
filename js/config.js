@@ -203,8 +203,10 @@ heavyBatele:{n:'Elite Battle Elephant',cost:{f:1000,g:800},t:80,age:3,hpb:{batel
  * units and waiting production transform once at research completion. */
 TE.houfniceUpgrade={n:'Houfnice Upgrade',cost:{f:900,g:800},t:65,age:3,pre:'chem',fx:t=>{
  if(S.civ?.[t]!==36)return;
+ const hp=S.tech[t].hpb||{},oldMax=U.bomb.hp+(hp.bomb||0);
+ const nextMax=U.houfnice.hp+(hp.houfnice||0);
  for(const u of S.us)if(u.t===t&&u.k==='bomb'&&u.hp>0){
-  u.k='houfnice';u.hp=Math.min(U.houfnice.hp,Math.max(1,u.hp+U.houfnice.hp-U.bomb.hp));
+  u.k='houfnice';u.hp=Math.min(nextMax,Math.max(1,u.hp+nextMax-oldMax));
  }
  for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='bomb'){
   q.k='houfnice';q.t=Math.min(q.t,U.houfnice.t);
@@ -246,3 +248,8 @@ TE.huss.fx=t=>{
   q.k='winged';q.t=Math.min(q.t,U.winged.t);
  }
 };
+
+// The replacement cannon inherits the same shared research in either order.
+TE.siegeup.hpb.houfnice=TE.siegeup.hpb.bomb;
+TE.siegeup.atkb.houfnice=TE.siegeup.atkb.bomb;
+TE.chem.atkb.houfnice=TE.chem.atkb.bomb;

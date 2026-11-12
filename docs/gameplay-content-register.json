@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceDigest": "57922962f706c59bbc7ab28e3c534a9b4bc4245c9d34b7f10cd53e61400ba43d",
+  "sourceDigest": "c21590e63e78a0b7571e5aa7202f2240278270a8d81d7af5bee2a4df8afb0b0f",
   "sources": [
     "js/config.js",
     "js/kingdom.js",
@@ -28253,12 +28253,14 @@
         "mang": 5,
         "scor": 3,
         "treb": 5,
-        "bomb": 8
+        "bomb": 8,
+        "houfnice": 8
       },
       "hpb": {
         "ram": 50,
         "treb": 15,
-        "bomb": 20
+        "bomb": 20,
+        "houfnice": 20
       },
       "effect": null,
       "status": "partial",
@@ -29373,7 +29375,8 @@
         "gal": 1,
         "fire": 1,
         "demo": 1,
-        "cgal": 1
+        "cgal": 1,
+        "houfnice": 1
       },
       "effect": null,
       "status": "partial",
@@ -29788,7 +29791,7 @@
       "t": 65,
       "age": 3,
       "pre": "chem",
-      "effect": "t=>{\n if(S.civ?.[t]!==36)return;\n for(const u of S.us)if(u.t===t&&u.k==='bomb'&&u.hp>0){\n  u.k='houfnice';u.hp=Math.min(U.houfnice.hp,Math.max(1,u.hp+U.houfnice.hp-U.bomb.hp));\n }\n for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='bomb'){\n  q.k='houfnice';q.t=Math.min(q.t,U.houfnice.t);\n }\n}",
+      "effect": "t=>{\n if(S.civ?.[t]!==36)return;\n const hp=S.tech[t].hpb||{},oldMax=U.bomb.hp+(hp.bomb||0);\n const nextMax=U.houfnice.hp+(hp.houfnice||0);\n for(const u of S.us)if(u.t===t&&u.k==='bomb'&&u.hp>0){\n  u.k='houfnice';u.hp=Math.min(nextMax,Math.max(1,u.hp+nextMax-oldMax));\n }\n for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='bomb'){\n  q.k='houfnice';q.t=Math.min(q.t,U.houfnice.t);\n }\n}",
       "status": "partial",
       "civilizations": [
         36
@@ -46392,7 +46395,10 @@
           "building": "siege"
         }
       ],
-      "upgrades": []
+      "upgrades": [
+        "siegeup",
+        "chem"
+      ]
     },
     "urumi": {
       "n": "Urumi Swordsman",
