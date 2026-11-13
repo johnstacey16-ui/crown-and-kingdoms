@@ -100,35 +100,39 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='pike'&&humanCav>=2)score+=90;
  if(k==='halb'&&humanCav>=2)score+=85;
  const ownInf=arm.filter(u=>INFARM.has(u.k)).length,ownRanged=arm.filter(u=>ARCHARM.has(u.k)).length,ownCav=arm.filter(u=>CAVARM.has(u.k)).length;
- if(k==='husb'&&ownCav>=3)score+=22;
- if(k==='blood'&&ownCav>=3)score+=26;
+ // Score armour by its actual benefit, independently of mounted speed/health.
+ const ownArcherArmor=arm.filter(u=>blacksmithArmorLine(u.k)==='armR').length;
+ const ownCavalryArmor=arm.filter(u=>blacksmithArmorLine(u.k)==='armC').length;
+ const ownMounted=arm.filter(u=>CAVARM.has(u.k)||(typeof U!=='undefined'&&U[u.k]?.mt)).length;
+ if(k==='husb'&&ownMounted>=3)score+=22;
+ if(k==='blood'&&ownMounted>=3)score+=26;
  if(k==='squires'&&ownInf>=3)score+=22;
  if(k==='arson'&&ownInf>=4)score+=18;
  if(k==='elsk'&&humanRanged>=4)score+=60;
   if(k==='thumb'&&arm.some(u=>['arc','xbow','skirm','mgd','chuko','genoa','plumed','lbow'].includes(u.k)))score+=25;
   if((k==='xbow'||k==='arb')&&ownRanged>=4)score+=26;
  /* Avoid spending scarce resources on upgrades for unit classes not yet fielded. */
- if(k==='husb'&&ownCav<2)score-=24;
- if(k==='blood'&&ownCav<2)score-=26;
+ if(k==='husb'&&ownMounted<2)score-=24;
+ if(k==='blood'&&ownMounted<2)score-=26;
  if(k==='squires'&&ownInf<2)score-=24;
  if(k==='arson'&&ownInf<3)score-=24;
- if(k==='armR'&&ownRanged<2)score-=28;
- if((k==='armR2'||k==='armR3')&&ownRanged<2)score-=28;
+ if(k==='armR'&&ownArcherArmor<2)score-=28;
+ if((k==='armR2'||k==='armR3')&&ownArcherArmor<2)score-=28;
  if(k==='armI'&&ownInf<2)score-=28;
  if((k==='armI2'||k==='armI3')&&ownInf<2)score-=28;
- if(k==='armC'&&ownCav<2)score-=28;
- if((k==='armC2'||k==='armC3')&&ownCav<2)score-=28;
+ if(k==='armC'&&ownCavalryArmor<2)score-=28;
+ if((k==='armC2'||k==='armC3')&&ownCavalryArmor<2)score-=28;
  if(['forging','ironCasting'].includes(k)&&ownInf+ownCav<2)score-=20;
  if(k==='blastFurnace'&&ownInf+ownCav<2)score-=28;
  if(['atkR','bodkin','atkR2','ballistics','thumb'].includes(k)&&ownRanged<2)score-=20;
  if(k==='atkR2'&&ownRanged<2)score-=28;
  /* Armour research should protect the army we actually field, not just react to the enemy's composition. */
- if(k==='armR'&&ownRanged>=3)score+=32;
- if((k==='armR2'||k==='armR3')&&ownRanged>=3)score+=32;
+ if(k==='armR'&&ownArcherArmor>=3)score+=32;
+ if((k==='armR2'||k==='armR3')&&ownArcherArmor>=3)score+=32;
  if(k==='armI'&&ownInf>=3)score+=30;
  if((k==='armI2'||k==='armI3')&&ownInf>=3)score+=30;
- if(k==='armC'&&ownCav>=3)score+=32;
- if((k==='armC2'||k==='armC3')&&ownCav>=3)score+=32;
+ if(k==='armC'&&ownCavalryArmor>=3)score+=32;
+ if((k==='armC2'||k==='armC3')&&ownCavalryArmor>=3)score+=32;
  if(k==='armI'&&humanRanged>=3)score+=12;
  if((k==='armI2'||k==='armI3')&&humanRanged>=3)score+=12;
  if(k==='armR'&&humanInf>=4)score+=10;
@@ -154,7 +158,7 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='navalAtk'&&humanShips.length)score+=105;
  if(k==='eliteCgal'){const n=my.filter(u=>u.k==='cgal'&&!u.ld&&u.hp>0).length;score+=n>=2?60:n?12:-48;}
  if(eliteCiv){const n=my.filter(u=>u.k===eliteCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?55:n?18:-35;}
- if(secondCiv){const n=my.filter(u=>u.k===secondCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?40:n?14:-30;}
+ if(secondCiv){const n=my.filter(u=>(k==='ut41p'?INFARM.has(u.k)&&u.k!=='spear':u.k===secondCiv.uu)&&!u.ld&&u.hp>0).length;score+=n>=3?40:n?14:-30;}
  if(k==='chem'&&my.some(u=>['gal','fire','cgal'].includes(u.k)))score+=16;
  if(k==='atkR'&&humanRanged>=4)score+=18;
  if(k==='loom'&&vil.length>=5)score+=16;

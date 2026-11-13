@@ -146,9 +146,7 @@ elite:{k:'eliteRattanArcher',n:'Elite Rattan Archer',cost:{w:1000,g:750},t:45,ag
  ut:{k:'ut41',n:'Cilician Fleet',cost:{w:350,g:300},t:45,age:2,
   fx:t=>{S.tech[t].cilicianFleet=1}},
  ut2:{k:'ut41p',n:'Fereters',cost:{f:550,g:400},t:45,age:3,fx:t=>{
-  for(const k of ['mil','woad','bers','tk','saml','huskarl','jaguar','kamayuk',
-   'shotel','gbeto','eagle','footkonnik','flemish','serjeant','obuch','urumi',
-   'legionary','warpriest']){
+  for(const k of INFARM)if(k!=='spear'){
    hpbF(t,k,30);
    for(const u of S.us)if(u&&u.t===t&&u.k===k&&u.hp>0)u.hp+=30;
   }

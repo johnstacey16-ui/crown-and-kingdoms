@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceDigest": "c21590e63e78a0b7571e5aa7202f2240278270a8d81d7af5bee2a4df8afb0b0f",
+  "sourceDigest": "df10f8bc21a3428ba873f7711254b1e53325fb589eae0089be98dba784707a08",
   "sources": [
     "js/config.js",
     "js/kingdom.js",
@@ -32156,7 +32156,7 @@
       },
       "t": 45,
       "age": 3,
-      "effect": "t=>{\n  for(const k of ['mil','woad','bers','tk','saml','huskarl','jaguar','kamayuk',\n   'shotel','gbeto','eagle','footkonnik','flemish','serjeant','obuch','urumi',\n   'legionary','warpriest']){\n   hpbF(t,k,30);\n   for(const u of S.us)if(u&&u.t===t&&u.k===k&&u.hp>0)u.hp+=30;\n  }\n }",
+      "effect": "t=>{\n  for(const k of INFARM)if(k!=='spear'){\n   hpbF(t,k,30);\n   for(const u of S.us)if(u&&u.t===t&&u.k===k&&u.hp>0)u.hp+=30;\n  }\n }",
       "status": "partial",
       "civilizations": [
         41

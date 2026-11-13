@@ -59,6 +59,11 @@ function meleeResearchAttackBonus(tech){
  return (tech.forging?1:0)+(tech.ironCasting?1:0)+(tech.blastFurnace?2:0);
 }
 
+// Shared research family: movement and counter classes can overlap, armour cannot.
+function blacksmithArmorLine(k){
+ return INFARM.has(k)?'armI':ARCHARM.has(k)||k==='rathaM'?'armR':CAVARM.has(k)?'armC':null;
+}
+
 // One read-only armour calculation for damage resolution and unit inspection.
 // Siege damage retains its existing melee-armour treatment.
 function combatArmor(t,cls){
@@ -67,7 +72,7 @@ function combatArmor(t,cls){
  // Mounted archer membership also serves movement/counters; armour lines
  // are exclusive. Ratha keeps its researched armour when changing stance.
  const ta=S.tech[t.t]||{};
- const line=INFARM.has(t.k)?'armI':ARCHARM.has(t.k)||t.k==='rathaM'?'armR':CAVARM.has(t.k)?'armC':null;
+ const line=blacksmithArmorLine(t.k);
  const ib=line?((ta[line]?1:0)+(ta[line+'2']?1:0)+(ta[line+'3']?(cls==='p'?2:1):0)):0;
  // Ironclad grants the Teutons' siege weapons +4 melee armour. This combat
  // model resolves siege-class hits against melee armour as well; pierce armour

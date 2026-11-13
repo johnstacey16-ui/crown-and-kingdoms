@@ -472,7 +472,7 @@ test('hostile roster policy ignores dead, allied, malformed and unknown records'
 function researchScoreFixture(){
  const ctx=vm.createContext({INFARM:new Set(['mil','spear']),ARCHARM:new Set(['arc','xbow']),
   CAVARM:new Set(['knight','camel'])});
- vm.runInContext(policy+'\n;globalThis.scoreTech=aiTechnologyPriority;',ctx);
+ vm.runInContext(read('js/simulation-combat-bonuses.js')+'\n'+policy+'\n;globalThis.scoreTech=aiTechnologyPriority;',ctx);
  const rosters=()=>({arm:[],vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]});
  return {score:(k,r)=>ctx.scoreTech(k,r),rosters};
 }
@@ -1094,4 +1094,37 @@ test('AI personalities classify later cavalry, ranged and siege units without ex
  context.aip=2;
  assert.equal(result.pickW(['composite','knight']),'composite','Defensive favors ranged troops');
  assert.equal(draws,2);
+});
+
+test('AI armour priorities follow effective defence while mounted troops still value Bloodlines',async()=>{
+ const {headlessGame}=await import('./helpers/headless-game.mjs');
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+'\nglobalThis.run=code=>eval(code);',sandbox);
+ const run=sandbox.run;
+ for(const kind of ['mgd','eled','conq','ratha','rathaM','cavarch','wagon','kipchak','arambai']){
+  run(`globalThis.roster={arm:Array.from({length:4},()=>({k:'${kind}'})),vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]}`);
+  for(const tier of ['',2,3])assert.ok(run(`aiTechnologyPriority('armR${tier}',roster)>aiTechnologyPriority('armC${tier}',roster)`),kind+' effective armour '+tier);
+  assert.ok(run("aiTechnologyPriority('blood',roster)>aiTechnologyPriority('blood',{...roster,arm:[]})"),kind+' mounted health');
+ }
+});
+
+test('AI buys and completes useful armour for a mounted archer army',async()=>{
+ const {headlessGame}=await import('./helpers/headless-game.mjs');
+ const {source,sandbox}=headlessGame();vm.createContext(sandbox);
+ vm.runInContext(source+`;globalThis.run=code=>eval(code);
+  kingdoms=2;startAge=3;startRes=3;start();S.civ=[8,0];S.age=[3,3];S.tech=[{},{}];S.us=[];S.bs=[];S.nodes=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);
+  globalThis.smith=addB(0,'smith',12,12,true);globalThis.tc=addB(0,'tc',22,12,true);
+  for(const k of B.smith.rs)if(!/^arm[RC]/.test(k))S.tech[0][k]=1;
+  globalThis.troops=Array.from({length:4},()=>addU(0,'mgd',20,25));
+  S.res[0]={f:10000,w:10000,g:10000,s:10000};
+  globalThis.oldFood=S.res[0].f;globalThis.oldArmor=combatArmor(troops[0],'p');
+  aiPlanResearch(0,{my:troops,arm:troops,vil:[],bl:[smith],tc,R:S.res[0],humanShips:[],composition:{humanCav:0,humanRanged:0,humanSiege:0,humanInf:0}});
+ `,sandbox);
+ const run=sandbox.run;
+ assert.equal(run('smith.rs.k'),'armR');
+ assert.equal(run('oldFood-S.res[0].f'),run('researchCost(smith,"armR").f'));
+ run('upB(smith,TE.armR.t+1)');
+ assert.equal(run('S.tech[0].armR'),1);
+ assert.equal(run("combatArmor(troops[0],'p')-oldArmor"),1);
+ assert.equal(run('S.tech[0].armC||0'),0);
 });
