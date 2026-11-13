@@ -6,9 +6,9 @@ const aiPolicy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'u
 const aiDefence = readFileSync(new URL('../js/ai-defence.js', import.meta.url), 'utf8');
 assert.match(aiPolicy, /const ownInf=arm\.filter\(u=>INFARM\.has\(u\.k\)\)\.length,ownRanged=arm\.filter\(u=>ARCHARM\.has\(u\.k\)\)\.length,ownCav=arm\.filter\(u=>CAVARM\.has\(u\.k\)\)\.length/,
   'AI research scoring must measure its own infantry, ranged and cavalry composition');
-assert.match(aiPolicy, /if\(k==='armR'&&ownRanged>=3\)score\+=32/);
+assert.match(aiPolicy, /if\(k==='armR'&&ownArcherArmor>=3\)score\+=32/);
 assert.match(aiPolicy, /if\(k==='armI'&&ownInf>=3\)score\+=30/);
-assert.match(aiPolicy, /if\(k==='armC'&&ownCav>=3\)score\+=32/);
+assert.match(aiPolicy, /if\(k==='armC'&&ownCavalryArmor>=3\)score\+=32/);
 assert.match(aiPolicy, /if\(\['forging','ironCasting','blastFurnace'\]\.includes\(k\)&&ownInf\+ownCav>=4\)score\+=24/);
 assert.match(aiPolicy, /if\(k==='atkR'&&ownRanged>=4\)score\+=24/);
 assert.match(aiPolicy, /forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60/, 'Advanced attack upgrades should be highly valued once their army-class penalties no longer apply');

@@ -174,3 +174,27 @@ test('save/load retains Gurjara researched costs, Mill livestock and Shrivamsha 
  assert.equal(run("S.bs.some(b=>b.k==='mill'&&b.livestockCount===3)"),true);
  assert.equal(run('S.tech[0].ut39p'),1);
 });
+
+test('Castle age promotes living and queued Camel Scouts without losing wounds or payments',()=>{
+ const run=game();run(`S.age[0]=1;
+ globalThis.scout=addU(0,'camelscout',20,25);scout.hp-=7;
+ globalThis.enemyScout=addU(1,'camelscout',21,25);
+ globalThis.deadScout=addU(0,'camelscout',22,25);deadScout.hp=0;
+ addB(0,'smith',40,40,true);`);
+ assert.equal(run("train(stable,'camelscout')"),true);
+ const paid=run('JSON.stringify(stable.q[0].paidCost)');
+ assert.equal(run("research(tc,'age')"),true);
+ run('upB(tc,AG[2].t+1)');
+ assert.equal(run('S.age[0]'),2);
+ assert.equal(run('scout.k'),'camel');
+ assert.equal(run('scout.hp'),run('U.camel.hp-7'));
+ assert.equal(run('stable.q[0].k'),'camel');
+ assert.equal(run('JSON.stringify(stable.q[0].paidCost)'),paid);
+ assert.equal(run('enemyScout.k'),'camelscout');assert.equal(run('deadScout.k'),'camelscout');
+ assert.equal(run("research(stable,'hcamel')"),false,'queued production still blocks research');
+ assert.equal(run('cancelQ(stable)'),true);
+ assert.equal(run("research(tc,'age')"),true);run('upB(tc,AG[3].t+1)');
+ assert.equal(run("research(stable,'hcamel')"),true);run('upB(stable,TE.hcamel.t+1)');
+ assert.equal(run('scout.hp'),run('U.camel.hp+20-7'));
+ assert.equal(run("addU(0,'camel',23,25).hp"),run('U.camel.hp+20'));
+});

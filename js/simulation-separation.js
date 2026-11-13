@@ -2,7 +2,7 @@
  * Invoked after all classic scripts have loaded. Ordinary movement retains
  * its endpoint tolerance; precise trade approaches opt out at the final tile. */
 /* Unit speed upgrades and terrain-safe movement share one owner. */
-function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lcav?1.5:U[u.k].sp)*((tech.husb&&CAVARM.has(u.k))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)*((u.k==='mil'&&tech.man)?(.96/.9):1)*(u.k==='vil'?1+(tech.wheel?.1:0)+(tech.handcart?.1:0):1)*((tech.fervor&&u.k==='mon')?1.15:1)*((tech.drill&&B.siege.tr.includes(u.k))?1.5:1)*
+function unitSpeed(u){const tech=S.tech[u.t]||{};return (u.k==='scout'&&tech.lcav?1.5:U[u.k].sp)*((tech.husb&&(CAVARM.has(u.k)||U[u.k].mt||u.k==='cavarch'))?1.1:1)*((tech.squires&&INFARM.has(u.k))?1.1:1)*((u.k==='mil'&&tech.man)?(.96/.9):1)*(u.k==='vil'?1+(tech.wheel?.1:0)+(tech.handcart?.1:0):1)*((tech.fervor&&u.k==='mon')?1.15:1)*((tech.drill&&B.siege.tr.includes(u.k))?1.5:1)*
  (S.civ?.[u.t]===32&&(u.k==='spear'||u.k==='skirm')?1.1:1)*
  (S.civ?.[u.t]===36&&tech.ut36&&['husswagon','houfnice','hcan','bomb','jan','orgun','conq'].includes(u.k)?1.1:1)*
  (S.civ?.[u.t]===36&&u.k==='vil'&&tech.fervor?1.15:1)*

@@ -280,3 +280,47 @@ After every substantial, verified feature, graphics, AI, networking or acceptanc
 **Correction:** Initial Actions run [43141239161](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/43141239161) had 1 existing source-regex failure out of 1,640 after the new AI condition was inserted ahead of affordability. Reordered AI checks to preserve the baseline contract, added a lock policy source assertion; subsequent Actions run [43141583644](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/43141583644) passed all tests.
 **Open acceptance:** Full 289-file standalone test suite, seeded long AI skirmishes, all 19 complete scripted campaign playthroughs, Chromium live visual checks, cross-device WAN multiplayer and real Xbox Series S performance/testing have not been run for this revision. No merge to main or production deployment.
 **Lesson:** Gate unit unlocks through the same world-aware policy in menus, queues, AI and technology browsing; make in-progress technology different from researched technology, and guard projected-world calculations from global match state.
+
+
+## 12 November 2026 — content research continuity
+
+Production baseline `9d431c1a`; implemented batches `9076cebe`, `ffc3d4e2`,
+`a258ea5d`. Test real paid completion with living wounded units, later units,
+queued replacements and existing/new buildings. Ledger-only callbacks can miss
+current HP; repeated building multipliers can make research order alter maximum
+HP. Use the existing declarative unit-effect path and one construction/research
+building calculation, while preserving custom campaign strength. A fixed-point
+availability audit exposed the Lithuanian Winged Hussar prerequisite gap that
+manually setting research flags in a fixture had hidden. Counts and legal queues
+do not prove complete civilization effects, AI strategy, reference parity or Xbox.
+
+`7168a45b` fills later AI military categories while preserving seeded draw count.
+`8d4db12c` also rejects duplicate production entries: filtering only the replaced
+base unit can append an upgraded kind already in the regional catalogue twice.
+
+
+## 12 November 2026 — replacement units and exclusive armour
+
+`52caa8c3`: replacement HP must compare researched old and new maxima, not
+bare unit definitions. Test both upgrade orders, wounds, paid queues and reload;
+Houfnice needs the same shared cannon research ledger entries, while Camel Scout
+promotion belongs to actual Castle Age completion.
+
+`ca2bea08`: a mounted movement/counter class is not an additional armour line.
+Overlapping classes had doubled Blacksmith armour for mounted archers. Select
+one armour family, and test stance changes against the same researched defence.
+Keep movement/counter classes intact rather than removing mounted identity to
+repair armour. Targeted regressions and quick validation pass; broader acceptance
+is recorded separately against the exact code tree.
+
+
+## 13 November 2026 — AI research beneficiaries
+
+`5d583574`: after changing a combat category, update research scoring against
+the same canonical helper. Mounted speed/health and Blacksmith armour need
+separate counts: a mounted archer still benefits from Bloodlines but not cavalry
+armour. Verify the AI's real paid research queue and completed defence, not only
+its numeric priority. Fereters' HP callback and AI now use affected infantry;
+the civilization's unique unit is not automatically the beneficiary of its
+unique technology. Avoid running competing broad suites during a slow execution
+window: retain timeout evidence and rerun affected files without relaxing limits.

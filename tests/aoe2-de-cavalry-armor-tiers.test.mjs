@@ -202,3 +202,22 @@ test('legacy paid forbidden cavalry upgrade and completed research survive save/
  assert.equal(c('loadG()'),true);
  assert.equal(c('S.tech[0].armC3'),1,'finished researched tier persists');
 });
+
+
+test('mounted archers receive one armour line and both Ratha modes retain archer armour',()=>{
+ const c=fixture();
+ const ranged={armR:1,armR2:1,armR3:1};
+ const cavalry={armC:1,armC2:1,armC3:1};
+ c('S.civ=[8,0]');
+ for(const kind of ['mgd','eled','conq','ratha','rathaM','cavarch','wagon','kipchak','arambai']){
+  c("globalThis.target=addU(0,'"+kind+"',20,25)");
+  for(const cls of ['m','p']){
+   c('S.tech[0]={}');
+   const base=c("combatArmor(target,'"+cls+"')");
+   for(const [tech,bonus] of [[ranged,cls==='p'?4:3],[cavalry,0],[{...ranged,...cavalry},cls==='p'?4:3]]){
+    c('S.tech[0]='+JSON.stringify(tech));
+    assert.equal(c("combatArmor(target,'"+cls+"')"),base+bonus,kind+' '+cls+' exclusive armour');
+   }
+  }
+ }
+});

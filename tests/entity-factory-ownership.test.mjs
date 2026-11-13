@@ -21,8 +21,8 @@ test('world entity factory functions have one owner outside engine orchestration
 
 test('entity factories retain placement checks, technology-derived health, and villager automation hookup', () => {
   assert.match(entities, /if\(x<1\|\|y<1\|\|x>=W-1\|\|y>=H-1\|\|S\.g\[y\*W\+x\]\|\|S\.wt\[y\*W\+x\]\)return null/);
-  assert.match(entities, /S\.tech\[t\]\.mas\?1\.4:1/);
-  assert.match(entities, /S\.tech\[t\]\.bz\?1\.15:1/);
+  assert.match(entities, /tech\.mas\?1\.4:1/);
+  assert.match(entities, /tech\.bz\?1\.15:1/);
   assert.match(entities, /if\(k==='vil'&&t===0&&S\.vp&&S\.vp\.enabled\)assignAutoVillager\(u\)/);
 });
 

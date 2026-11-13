@@ -104,3 +104,35 @@ test('Svan Towers adds defensive attack without leaking to another team',()=>{
  run("S.tech[0].ut42=1");
  assert.equal(hit(),before+2);
 });
+
+test('Fereters covers every infantry kind except spearmen with existing and future HP',()=>{
+ const run=game(41);
+ const kinds=JSON.parse(run('JSON.stringify([...INFARM])'));
+ run("globalThis.samples={};for(const k of INFARM){const u=addU(0,k,21,28);u.hp-=7;samples[k]={u,hp:u.hp};}globalThis.enemy=addU(1,'axe',25,28);globalThis.dead=addU(0,'chakram',26,28);dead.hp=0");
+ const enemy=run('enemy.hp');
+ assert.equal(run("research(castle,'ut41p')"),true);
+ run('upB(castle,TE.ut41p.t+1)');
+ for(const k of kinds){
+  const bonus=k==='spear'?0:30;
+  assert.equal(run(`samples['${k}'].u.hp-samples['${k}'].hp`),bonus,k+' living wounded');
+  assert.equal(run(`addU(0,'${k}',22,29).hp-U['${k}'].hp`),bonus,k+' future');
+ }
+ assert.equal(run('enemy.hp'),enemy);assert.equal(run('dead.hp'),0);
+});
+
+
+test('Armenian AI values Fereters for infantry rather than Composite Bowmen',()=>{
+ const run=game(41);
+ run("globalThis.ctx={arm:[],vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]}");
+ const empty=run("aiTechnologyPriority('ut41p',ctx)");
+ for(const k of ['mil','warpriest','axe','chakram']){
+  run(`ctx.my=Array.from({length:3},()=>({k:'${k}',hp:50}))`);
+  assert.ok(run("aiTechnologyPriority('ut41p',ctx)")>empty,k+' benefits');
+ }
+ for(const k of ['composite','spear']){
+  run(`ctx.my=Array.from({length:3},()=>({k:'${k}',hp:50}))`);
+  assert.equal(run("aiTechnologyPriority('ut41p',ctx)"),empty,k+' does not benefit');
+ }
+ run("ctx.my=[{k:'mil',hp:0},{k:'mil',hp:50,ld:1}]");
+ assert.equal(run("aiTechnologyPriority('ut41p',ctx)"),empty,'inactive troops do not drive research');
+});

@@ -399,20 +399,20 @@ const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
  // Regional Winged Hussar replaces the Scout production line after Hussar
  // research, but only for the Polish and Lithuanian civilizations.
  if(b.k==='siege')return civs?.[b.t]===36&&techs?.[b.t]?.houfniceUpgrade?
-  [...eligible.filter(k=>k!=='bomb'),'houfnice']:eligible.filter(k=>k!=='houfnice');
+  [...eligible.filter(k=>k!=='bomb'&&k!=='houfnice'),'houfnice']:eligible.filter(k=>k!=='houfnice');
  if(b.k==='stable'&&civs?.[b.t]===39){
   const age=ages?.[b.t]??0;
   return eligible.filter(k=>!['scout','knight','winged','batele','steppe','camel','camelscout','shrivamsha'].includes(k))
    .concat(age>=2?['camel','shrivamsha']:['camelscout']);
  }
  if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
-  techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
+  techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'&&k!=='winged'),'winged']:eligible.filter(k=>k!=='winged'):
   eligible.filter(k=>k!=='winged');
  // Anarchy unlocks the real Huskarl production option in Gothic Barracks.
  // This same trainability policy is shared by AI, solo and network validation.
  if(b.k==='bar'){
   if(civs?.[b.t]===40)return techs?.[b.t]?.legionaryUpgrade?
-    [...eligible.filter(k=>k!=='mil'),'legionary']:eligible.filter(k=>k!=='legionary');
+    [...eligible.filter(k=>k!=='mil'&&k!=='legionary'),'legionary']:eligible.filter(k=>k!=='legionary');
   if(civ?.n!=='Goths'||!techs?.[b.t]?.ut18)return eligible.filter(k=>k!=='legionary');
 }
  if(b.k==='bar'&&civ?.n==='Goths'&&techs?.[b.t]?.ut18)return [...new Set([...eligible.filter(k=>k!=='legionary'),civ.uu])];
@@ -510,7 +510,7 @@ const CIV_CORE_MILITARY=Object.freeze({
  'Malians':'mltcpvaesk',
  'Koreans':'mltcphvaesku',
  'Magyars':'mltcphvaeskdu',
- 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskd','Burgundians':'mltcphvaesku',
+ 'Portuguese':'mltcpvaesku','Burmese':'mltphvaesku','Vietnamese':'mltcphvaesk','Bulgarians':'mltcpvaesku','Tatars':'mltcpvaesku','Cumans':'mltcpvaesku','Lithuanians':'mltcphvaeskdu','Burgundians':'mltcphvaesku',
  'Sicilians':'mltcphvaesku',
  'Poles':'mltcphvaesku',
  'Bohemians':'mltcphvesk',

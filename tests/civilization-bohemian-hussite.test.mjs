@@ -151,3 +151,24 @@ test('Monastery preview prices use supplied Hussite Reforms research ledger',()=
  assert.deepEqual(shifted,{f:100});
  assert.equal(run('S.tech[0].ut36p'),undefined);
 });
+
+for(const order of [['siegeup','houfniceUpgrade'],['houfniceUpgrade','siegeup']])
+ test('Houfnice retains paid shared cannon upgrades and wounds: '+order.join(' then '),()=>{
+  const run=game();
+  run("globalThis.bombard=addU(0,'bomb',20,26);bombard.hp-=7");
+  assert.equal(run("research(univ,'chem')"),true);run('upB(univ,101)');
+  for(const key of order){
+   assert.equal(run(`research(siege,'${key}')`),true);run(`upB(siege,TE['${key}'].t+1)`);
+  }
+  assert.equal(run('bombard.k'),'houfnice');
+  assert.equal(run('bombard.hp'),run('U.houfnice.hp+20-7'));
+  assert.equal(run("addU(0,'houfnice',22,26).hp"),run('U.houfnice.hp+20'));
+  assert.equal(run('S.tech[0].atkb.houfnice'),9,'Chemistry and Siege Engineers both retained');
+  run("globalThis.target=addU(1,'vil',21,26);target.hp=1000;dmgT(bombard,target)");
+  assert.equal(run('1000-target.hp'),run('U.houfnice.dmg+9'));
+  const hp=run('bombard.hp'),id=run('bombard.netId');
+  assert.equal(run("saveG(false,'houfnice_upgrade_continuity')"),true);
+  assert.equal(run("loadG(false,'houfnice_upgrade_continuity')"),true);
+  assert.equal(run(`S.us.find(u=>u.netId==='${id}').hp`),hp);
+  assert.equal(run('S.tech[0].atkb.houfnice'),9);
+ });

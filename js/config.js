@@ -177,14 +177,10 @@ const RN={f:'Food',w:'Wood',g:'Gold',s:'Stone'},TR=[['w',100,'g',70],['f',100,'g
 const AG=[{n:'Founding Age'},{n:'Feudal Age',cost:{f:500},t:130,needs:['lumber','mill','folwark','mine','mule','bar','dock']},{n:'Castle Age',cost:{f:800,g:200},t:160,needs:['rng','stable','smith','market','donjon']},{n:'Imperial Age',cost:{f:1000,g:800},t:190,needs:['siege','univ','monastery','fchurch'],single:'castle'}];
 const TE={devotion:{n:'Devotion',cost:{f:100,g:200},t:40,age:2},faith:{n:'Faith',cost:{f:550,g:750},t:60,age:3,pre:'devotion'},heresy:{n:'Heresy',cost:{g:1000},t:60,age:2},redemption:{n:'Redemption',cost:{g:475},t:50,age:2},atonement:{n:'Atonement',cost:{g:325},t:40,age:2},sanctity:{n:'Sanctity',cost:{g:175},t:60,age:2,hpb:{mon:15}},fervor:{n:'Fervor',cost:{g:140},t:50,age:2},blockPrinting:{n:'Block Printing',cost:{g:200},t:55,age:3},illumination:{n:'Illumination',cost:{g:120},t:65,age:3},theocracy:{n:'Theocracy',cost:{g:200},t:75,age:3},herbalMedicine:{n:'Herbal Medicine',cost:{g:200},t:35,age:2},
 arch:{n:'Architecture',cost:{f:300,w:200},t:70,age:3,pre:'mas',fx:t=>{
- for(const b of S.bs)if(b.t===t&&b.hp>0){
-  b.mh=Math.round(b.mh*1.1);b.hp=Math.min(b.mh,Math.round(b.hp*1.1));
- }
+ refreshResearchedBuildingHP(t,'arch');
 }},
 hoardings:{n:'Hoardings',cost:{f:400,w:400},t:75,age:3,fx:t=>{
- for(const b of S.bs)if(b.t===t&&b.k==='castle'&&b.hp>0){
-  b.mh+=1000;b.hp+=1000;
- }
+ refreshResearchedBuildingHP(t,'hoardings');
 }},murderHoles:{n:'Murder Holes',cost:{f:200,s:100},t:35,age:2},bodkin:{n:'Bodkin Arrow',cost:{f:200,g:100},t:35,age:2,pre:'atkR'},ballistics:{n:'Ballistics',cost:{w:300,g:175},t:60,age:2},loom:{n:'Loom (Villager HP +15)',cost:{g:50},t:25,age:0,hpb:{vil:15}},wheel:{n:'Wheelbarrow',cost:{f:175,w:50},t:75,age:1},handcart:{n:'Hand Cart',cost:{f:300,w:200},t:55,age:2,pre:'wheel'},gath:{n:'Gather Rate +25%',cost:{f:200,w:100},t:30,age:1},carry:{n:'Carry Capacity +5',cost:{f:150,w:100},t:30,age:1},forging:{n:'Forging (+1 melee attack)',cost:{f:150},t:50,age:1},ironCasting:{n:'Iron Casting (+1 melee attack)',cost:{f:220,g:120},t:75,age:2,pre:'forging'},blastFurnace:{n:'Blast Furnace (+2 melee attack)',cost:{f:275,g:225},t:100,age:3,pre:'ironCasting'},atkR:{n:'Fletching',cost:{f:100,g:50},t:30,age:1},armI:{n:'Scale Mail Armor (+1/+1 infantry)',cost:{f:100},t:40,age:1},armI2:{n:'Chain Mail Armor (+1/+1 infantry)',cost:{f:200,g:100},t:55,age:2,pre:'armI'},armI3:{n:'Plate Mail Armor (+1/+2 infantry)',cost:{f:300,g:150},t:70,age:3,pre:'armI2'},armR:{n:'Padded Archer Armor (+1/+1 ranged)',cost:{f:100},t:40,age:1},armR2:{n:'Leather Archer Armor (+1/+1 ranged)',cost:{f:150,g:150},t:55,age:2,pre:'armR'},armR3:{n:'Ring Archer Armor (+1/+2 ranged)',cost:{f:250,g:250},t:70,age:3,pre:'armR2'},armC:{n:'Scale Barding Armor (+1/+1 cavalry)',cost:{f:150},t:45,age:1},armC2:{n:'Chain Barding Armor (+1/+1 cavalry)',cost:{f:250,g:150},t:60,age:2,pre:'armC'},armC3:{n:'Plate Barding Armor (+1/+2 cavalry)',cost:{f:350,g:200},t:75,age:3,pre:'armC2'},fw:{n:'Fortified Wall',cost:{f:200,w:100},t:50,age:2},gtow:{n:'Guard Tower',cost:{f:100,w:250},t:30,age:2},keep:{n:'Keep',cost:{f:500,w:350},t:75,age:3,pre:'gtow'},
 man:{n:'Man-at-Arms',cost:{f:100,g:40},t:40,age:1,hpb:{mil:5},atkb:{mil:2}},longs:{n:'Long Swordsman',cost:{f:150,g:65},t:40,age:2,pre:'man',hpb:{mil:15},atkb:{mil:3}},twohand:{n:'Two-Handed Swordsman',cost:{f:200,g:100},t:45,age:3,pre:'longs',hpb:{mil:5},atkb:{mil:3}},champ:{n:'Champion',cost:{f:650,g:350},t:70,age:3,pre:'twohand',hpb:{mil:5},atkb:{mil:2}},pike:{n:'Pikeman',cost:{f:160,g:90},t:35,age:2,hpb:{spear:10},atkb:{spear:1}},halb:{n:'Halberdier',cost:{f:300,g:600},t:50,age:3,pre:'pike',hpb:{spear:5},atkb:{spear:2}},xbow:{n:'Crossbowman',cost:{f:175,g:100},t:35,age:2,fx:t=>{
  const tech=S.tech[t]||{},oldMax=U.arc.hp+(tech.hpb?.arc||0),newMax=U.xbow.hp+(tech.hpb?.xbow||0);
@@ -207,8 +203,10 @@ heavyBatele:{n:'Elite Battle Elephant',cost:{f:1000,g:800},t:80,age:3,hpb:{batel
  * units and waiting production transform once at research completion. */
 TE.houfniceUpgrade={n:'Houfnice Upgrade',cost:{f:900,g:800},t:65,age:3,pre:'chem',fx:t=>{
  if(S.civ?.[t]!==36)return;
+ const hp=S.tech[t].hpb||{},oldMax=U.bomb.hp+(hp.bomb||0);
+ const nextMax=U.houfnice.hp+(hp.houfnice||0);
  for(const u of S.us)if(u.t===t&&u.k==='bomb'&&u.hp>0){
-  u.k='houfnice';u.hp=Math.min(U.houfnice.hp,Math.max(1,u.hp+U.houfnice.hp-U.bomb.hp));
+  u.k='houfnice';u.hp=Math.min(nextMax,Math.max(1,u.hp+nextMax-oldMax));
  }
  for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='bomb'){
   q.k='houfnice';q.t=Math.min(q.t,U.houfnice.t);
@@ -232,3 +230,26 @@ TE.legionaryUpgrade={n:'Legionary Upgrade',cost:{f:400,g:250},t:50,age:3,pre:'lo
    q.k='legionary';q.t=Math.min(q.t,U.legionary.t);
   }
  }};
+
+/* Later mounted troops share the existing Bloodlines HP ledger. Keep the
+ * original cavalry entries and include mounted regional/unique definitions. */
+for(const [kind,unit] of Object.entries(U))if(unit.mt||kind==='conq')TE.blood.hpb[kind]=20;
+
+/* Polish/Lithuanian Hussar research replaces the Scout line in both live
+ * troops and queued orders, matching the existing trOf production selector. */
+TE.huss.fx=t=>{
+ if(![32,35].includes(S.civ?.[t]))return;
+ const tech=S.tech[t],oldMax=U.scout.hp+(tech.hpb?.scout||0);
+ const nextMax=U.winged.hp+(tech.hpb?.winged||0);
+ for(const u of S.us)if(u.t===t&&u.k==='scout'&&u.hp>0){
+  u.k='winged';u.hp=Math.min(nextMax,Math.max(1,u.hp+nextMax-oldMax));
+ }
+ for(const b of S.bs)if(b.t===t&&Array.isArray(b.q))for(const q of b.q)if(q?.k==='scout'){
+  q.k='winged';q.t=Math.min(q.t,U.winged.t);
+ }
+};
+
+// The replacement cannon inherits the same shared research in either order.
+TE.siegeup.hpb.houfnice=TE.siegeup.hpb.bomb;
+TE.siegeup.atkb.houfnice=TE.siegeup.atkb.bomb;
+TE.chem.atkb.houfnice=TE.chem.atkb.bomb;

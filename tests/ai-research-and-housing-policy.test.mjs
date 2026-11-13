@@ -9,9 +9,9 @@ assert.ok(ai.includes("centres.reduce((n,b)=>n+b.q.filter(q=>q&&q.k==='vil').len
 assert.ok(ai.includes("popOf(t)+5>capOf(t)"),
   'AI housing includes all queued units');
 assert.ok(policy.includes('blood:68'), 'AI has explicit Bloodlines valuation');
-assert.ok(policy.includes("if(k==='blood'&&ownCav>=3)score+=26"),
+assert.ok(policy.includes("if(k==='blood'&&ownMounted>=3)score+=26"),
   'Bloodlines priority rises when fielding cavalry');
-assert.ok(policy.includes("if(k==='blood'&&ownCav<2)score-=26"),
+assert.ok(policy.includes("if(k==='blood'&&ownMounted<2)score-=26"),
   'Bloodlines priority falls when cavalry are absent');
 assert.ok(buildingUpdates.includes('x.k===q&&x.hp>0)x.hp+=e.hpb[q]'),
   'HP upgrades must not revive dead units');

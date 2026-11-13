@@ -12,10 +12,11 @@ assert.match(html, /if\(e\.hpb\)\{T0\.hpb=T0\.hpb\|\|\{\};for\(const q in e\.hpb
 assert.match(html, /hp:U\[k\]\.hp\+\(S\.tech\[t\]\.hpb&&S\.tech\[t\]\.hpb\[k\]\|\|0\)/, 'newly created units must inherit researched hit-point upgrades');
 assert.match(html, /if\(e\.atkb\)\{T0\.atkb=T0\.atkb\|\|\{\};for\(const q in e\.atkb\)T0\.atkb\[q\]=\(T0\.atkb\[q\]\|\|0\)\+e\.atkb\[q\]\}/, 'unit attack upgrades must update the shared tech ledger');
 assert.match(html, /tk\.atkb&&tk\.atkb\[a\.k\]\|\|0/, 'combat damage must apply researched unit-specific attack bonuses');
-assert.match(html, /if\(k==='mas'\)for\(const x of S\.bs\)if\(x\.t===b\.t\)\{x\.mh=Math\.round\(\(x\.mh\|\|B\[x\.k\]\.hp\)\*1\.4\);x\.hp=Math\.min\(x\.mh,Math\.round\(x\.hp\*1\.4\)\)\}/, 'Masonry must strengthen existing buildings');
-assert.match(html, /if\(k==='fw'\)for\(const x of S\.bs\)if\(x\.t===b\.t&&\(x\.k==='wall'\|\|x\.k==='gate'\)\)/, 'Fortified Wall must strengthen existing walls and gates');
-assert.match(html, /S\.tech\[t\]\.mas\?1\.4:1/, 'new buildings must inherit Masonry health');
-assert.match(html, /S\.tech\[t\]\.fw&&\(k==='wall'\|\|k==='gate'\)\?1\.8:1/, 'new walls and gates must inherit Fortified Wall health');
+assert.match(html, /if\(k==='mas'\|\|k==='fw'\)refreshResearchedBuildingHP\(b.t,k\)/, 'structural research refreshes existing buildings through the shared calculation');
+assert.match(html, /mh0=buildingMaxHP\(t,k\)/, 'new buildings use the same health calculation');
+assert.match(html, /tech\.mas\?1\.4:1/, 'Masonry retains its health multiplier');
+assert.match(html, /tech\.fw&&wall\?1\.8:1/, 'Fortified Wall retains its wall and gate multiplier');
+
 
 
 assert.match(html, /function gm\(u,tg\)\{const t=S\.tech\[u\.t\];let m=\(t\.gath\?1\.25:1\)\*\(typeof georgianChurchWorkRate==='function'\?georgianChurchWorkRate\(u\):1\)/,
@@ -41,8 +42,8 @@ context.S.tech[0].carry=1;
 assert.equal(gatherCapacity(workingVillager),15,'an existing villager gains the carrying upgrade immediately');
 context.S.tech[0].wheel=1;context.S.tech[0].handcart=1;
 assert.equal(gatherCapacity(workingVillager),25,'Wheelbarrow and Hand Cart upgrades stack for villagers');
-assert.match(html, /INFARM\.has\(t\.k\)\?\(\(ta\.armI\?1:0\)\+\(ta\.armI2\?1:0\)\+\(ta\.armI3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(ARCHARM\.has\(t\.k\)\?\(\(ta\.armR\?1:0\)\+\(ta\.armR2\?1:0\)\+\(ta\.armR3\?\(cls==='p'\?2:1\):0\)\):0\)\+\(CAVARM\.has\(t\.k\)\?\(\(ta\.armC\?1:0\)\+\(ta\.armC2\?1:0\)\+\(ta\.armC3\?\(cls==='p'\?2:1\):0\)\):0\)/,
-  'Infantry, ranged and cavalry armour upgrades must affect only their explicit target classes');
+assert.match(html, /const line=blacksmithArmorLine\(t\.k\)/,
+  'Blacksmith armour selects exactly one class, preserving Ratha stance continuity');
 const mountedClass=html.match(/const CAVARM=new Set\(\[([^\]]+)\]\)/)?.[1];
 assert.ok(mountedClass,'explicit mounted-class table must exist');
 const cavalryKinds=new Set((mountedClass.match(/'[^']+'/g)||[]).map(k=>k.slice(1,-1)));
@@ -55,15 +56,15 @@ assert.match(html, /smith:\{n:'Blacksmith',s:3,hp:400,cost:\{w:150\},bt:25,rs:\[
   'Cavalry armour must be researched at the Blacksmith');
 assert.match(html, /armC:\{n:'Scale Barding Armor \(\+1\/\+1 cavalry\)',cost:\{f:150\},t:45,age:1\}/,
   'Cavalry Armour matches the first source-pinned armor tier cost, research time and age');
-assert.match(researchPolicy, /if\(k==='armC'&&ownCav>=3\)score\+=32/,
+assert.match(researchPolicy, /if\(k==='armC'&&ownCavalryArmor>=3\)score\+=32/,
   'AI research priority must value cavalry armour when its own army fields cavalry');
 assert.match(researchPolicy, /if\(k==='armI'&&ownInf>=3\)score\+=30/,
   'AI research priority must value infantry armour when its own army fields infantry');
-assert.match(researchPolicy, /if\(k==='armR'&&ownRanged>=3\)score\+=32/,
+assert.match(researchPolicy, /if\(k==='armR'&&ownArcherArmor>=3\)score\+=32/,
   'AI research priority must value ranged armour when its own army fields ranged units');
-assert.match(researchPolicy, /if\(k==='armR'&&ownRanged<2\)score-=28/,
+assert.match(researchPolicy, /if\(k==='armR'&&ownArcherArmor<2\)score-=28/,
   'AI should delay ranged armour when it has no meaningful ranged force');
-assert.match(researchPolicy, /if\(k==='armC'&&ownCav<2\)score-=28/,
+assert.match(researchPolicy, /if\(k==='armC'&&ownCavalryArmor<2\)score-=28/,
   'AI should delay cavalry armour when it has no meaningful cavalry force');
 assert.match(researchPolicy, /if\(\['atkR','bodkin','atkR2','ballistics','thumb'\]\.includes\(k\)&&ownRanged<2\)score-=20/,
   'AI should avoid premature ranged attack research before fielding ranged units');
@@ -149,7 +150,7 @@ speedContext.S.tech[0].squires=1;
 assert.equal(speed({t:0,k:'mil'}),1.1,'Squires independently improves infantry mobility');
 for(const kind of ['scout','knight','camel','coust','centurion','monaspa','shrivamsha'])
  assert.ok(cavalryKinds.has(kind),'Mounted classification covers '+kind+' consistently');
-assert.match(researchPolicy, /if\(k==='husb'&&ownCav>=3\)score\+=22/,
+assert.match(researchPolicy, /if\(k==='husb'&&ownMounted>=3\)score\+=22/,
   'AI should value Husbandry when it has a meaningful mounted force');
 assert.match(html, /const rank=k==='mil'\?\(T\.champ\?'champ':T\.twohand\?'twohand':T\.longs\?'long':T\.man\?'man':''\)/,
   'The battlefield renderer must use the highest researched sword-line tier');
