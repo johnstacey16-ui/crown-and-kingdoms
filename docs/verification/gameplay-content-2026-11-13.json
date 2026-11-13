@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-13",
+  "productionBaseline": "9d431c1a201d52c58db1298cfce2677f1e230a6d",
+  "codeCommit": "5d58357449666ba4795272914be7d9f2546b8fb3",
+  "codeTree": "4063bb8a8697a4b7a333a9334b19c98900ee100b",
+  "localCommitWithIdenticalTree": "3c2eb2d661a9099abcf81c7f7bccf3a245f86395",
+  "pullRequest": "https://github.com/johnstacey16-ui/crown-and-kingdoms/pull/105",
+  "changes": [
+    "Shared combat/AI Blacksmith armour family",
+    "Mounted speed/health research priority retained independently of armour",
+    "Fereters covers all non-spear infantry, including Throwing Axemen and Chakram Throwers",
+    "Armenian AI values Fereters for infantry rather than Composite Bowmen"
+  ],
+  "checks": {
+    "quick": {
+      "command": "node scripts/run-checks.mjs --quick",
+      "status": "passed",
+      "summary": "5/5 checks",
+      "logSha256": "706f86a089ce8e1b08e1af6c9dfaadbf71fd9c5e2d73cc2ae733e9999751dfb6"
+    },
+    "targeted": {
+      "command": "node --test tests/ai-policy-ownership.test.mjs tests/civilization-caucasus-royals.test.mjs tests/technology-catalogue.test.mjs",
+      "status": "passed",
+      "summary": "80/80 tests; includes 3273 research and 2456 training contexts",
+      "logSha256": "6b45b265fbf8df64c1168fc0cf52413efc0f51f79ffe9ca184cb63240a9c8718"
+    },
+    "realAIResearch": {
+      "command": "node --test tests/ai-policy-ownership.test.mjs",
+      "status": "passed",
+      "summary": "68/68 tests including real paid armour selection and completion",
+      "logSha256": "23aad1631e3791d5e10a9e08cb7c443b4c6ea394a7a853ebd1a7f91a4e5659e6"
+    },
+    "skirmishes": {
+      "command": "node scripts/run-checks.mjs --skirmishes",
+      "status": "passed",
+      "summary": "3/3 scenarios",
+      "logSha256": "286519f85352619c7885c816a0159630a26475e358e2b683bb4d4ac1c0693317"
+    },
+    "cavalryRetry": {
+      "command": "node --test tests/aoe2-de-cavalry-skirmisher-parity.test.mjs",
+      "status": "passed",
+      "summary": "5/5 tests; unchanged limits; isolated retry after fixture timeouts",
+      "logSha256": "751050c36c93147a5b5d6097986d06da771669f8f829eb54d3205ed51ca6d0dc"
+    },
+    "regression": {
+      "command": "node scripts/run-checks.mjs --regression-files",
+      "status": "passed_with_isolated_retry",
+      "summary": "All 290 files executed: 289 passed in the suite, one fixture-timeout file passed all five tests in isolation with unchanged limits. Not a clean single-run 290/290 result.",
+      "logSha256": "dca7511b4e4211e427eb531500730db9fce29efaf5723fb0ea699f92a99dc22d"
+    },
+    "tidewatchRetry": {
+      "command": "tests/campaign-tidewatch-harbour.test.mjs within the serial regression runner",
+      "status": "passed",
+      "summary": "All Tidewatch assertions passed; child process finished in 24.86 seconds; campaign scripted win at 483.5 simulated seconds. The prior competing focused child exceeded its 210-second limit."
+    }
+  },
+  "attempts": {
+    "initialFocused": {
+      "command": "node scripts/run-checks.mjs --focused",
+      "status": "passed",
+      "summary": "1668/1668 assertions on intermediate batch before final Fereters AI scoring and paid-AI test",
+      "logSha256": "e471eb8b016d9db650fd4325c668650d7e88393d57c02b000dca89fd34a183b4"
+    },
+    "latestFocused": {
+      "command": "node scripts/run-checks.mjs --focused",
+      "status": "interrupted_after_timeout",
+      "summary": "Tidewatch child exceeded its 210-second limit; stopped competing focused run, then used serial regression coverage",
+      "logSha256": "2d57f8695bbe4cdb4dd9957ad9bd03f8ddf30e2d9589a4c0b16d55f870184be4"
+    }
+  },
+  "priorAcceptance": {
+    "evidence": "gameplay-content-2026-11-12.json",
+    "codeCommit": "ca2bea08297ae86d522e98de78e601216fbece08",
+    "scope": "19 campaign matrix and eight Xbox contracts passed on the prior revision, not rerun as complete matrices today"
+  },
+  "limits": [
+    "Content phase remains partial across all 43 civilizations",
+    "All-faction natural Castle/Imperial AI progression remains unverified",
+    "Chromium not retried today; previous socket restriction/browser download blocker unresolved",
+    "Physical Xbox Series S testing requires owner",
+    "Personal historical saves were not supplied; no schema or unit IDs changed",
+    "No merge or deployment; no paid services or hosted workflows triggered"
+  ],
+  "remainingImplementation": [
+    "AI melee attack scoring still counts mounted archers although actual melee research applies only below range 2",
+    "Systematic unique-technology beneficiary review",
+    "Per-civilization economy, team and special-mechanic completion",
+    "All-faction natural late-game AI progression"
+  ]
+}

@@ -312,3 +312,15 @@ one armour family, and test stance changes against the same researched defence.
 Keep movement/counter classes intact rather than removing mounted identity to
 repair armour. Targeted regressions and quick validation pass; broader acceptance
 is recorded separately against the exact code tree.
+
+
+## 13 November 2026 — AI research beneficiaries
+
+`5d583574`: after changing a combat category, update research scoring against
+the same canonical helper. Mounted speed/health and Blacksmith armour need
+separate counts: a mounted archer still benefits from Bloodlines but not cavalry
+armour. Verify the AI's real paid research queue and completed defence, not only
+its numeric priority. Fereters' HP callback and AI now use affected infantry;
+the civilization's unique unit is not automatically the beneficiary of its
+unique technology. Avoid running competing broad suites during a slow execution
+window: retain timeout evidence and rerun affected files without relaxing limits.

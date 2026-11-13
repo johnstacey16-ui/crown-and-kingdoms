@@ -48,6 +48,35 @@ rules; presence and reachability alone do not establish complete behavior.
   armour line. Regression checks reproduce the former overlap and exercise real
   paid research followed by stance changes.
 
+### 13 November follow-up — research decisions and infantry coverage
+
+Implemented in `5d583574`; [verification evidence](verification/gameplay-content-2026-11-13.json).
+
+AI armour research now shares the combat armour-family helper, so mounted
+archers and both Ratha stances prefer archer armour. Mounted troops retain
+Bloodlines/Husbandry priority independently of their armour family, including
+Cavalry Archers, War Wagons, Kipchaks and Arambai. An end-to-end AI test confirms
+real purchase, cost deduction, completion and the resulting defence increase.
+
+Fereters uses the canonical infantry roster (excluding spearmen) for its +30 HP,
+including Throwing Axemen and Chakram Throwers previously omitted by its manual
+list. Tests cover wounded existing units, future units, dead units and enemies.
+Armenian AI values the technology for affected infantry rather than Composite
+Bowmen. Other unique-technology target scoring still needs a systematic review.
+AI melee-attack priorities also still use overlapping infantry/cavalry counts,
+including some mounted archers, while damage applies Forging/Iron Casting/Blast
+Furnace only when `U[k].rng < 2`. This is a confirmed remaining scoring gap;
+the armour fix does not claim to repair every research decision.
+
+Today's verification: 5/5 quick gates, 80 targeted tests (including the paid
+content matrix), 68 AI tests including real paid armour research, and 3/3 seeded
+AI scenarios passed. All 290 regression files ran: 289 passed in the suite;
+the remaining cavalry file hit fixture timeouts and then passed all five tests
+in isolation without changing limits. Tidewatch's competing focused run timed
+out, but its serial regression rerun passed with a scripted win. This is not a
+clean single-run 290/290 result. The full 19-campaign and Xbox contract matrices
+remain evidenced against the previous revision; Chromium/hardware remain open.
+
 ### Open implementation and verification work
 
 - Every civilization remains **PARTIAL**. Queue tests establish real payment,
