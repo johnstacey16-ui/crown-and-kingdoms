@@ -46,7 +46,7 @@ The Xbox technology-tree screen consumes the same model, presents the chosen bui
 - [ ] Pin a single current Xbox DE reference build and reconcile every existing restriction table and value against it. Current code mixes older tables, approximated stats and newer content. Do not label a whole faction complete after one technology repair.
 - [ ] For **every** civilization verify starting resources/units, age-scaled bonuses, free technologies, economy, army, team effects, both unique technologies, Elite units, core/regional access, costs/times/prerequisites, armour classes/counters, AI use and human/controller readability.
 - [ ] For each repaired rule prove existing and future entities, wrong-civ/wrong-age/insufficient-resource rejection, authoritative host order, hypothetical-world isolation, current-build save/reload and no duplicate application.
-- [ ] Replace generic or misleading technology help with descriptions of actual implemented effects. Newly repaired Marauders, Corvinian Army, Sipahi, Detinets, Chivalry and Yeomen now have help text.
+- [ ] Replace generic or misleading technology help with descriptions of actual implemented effects. Newly repaired Marauders, Corvinian Army, Sipahi, Detinets, Chivalry, Yeomen and Nomads now have help text.
 - [ ] Complete multi-seed matchup/balance coverage, human skirmishes and dedicated original art separately from code acceptance.
 
 ### Every active civilization: specific remaining work

@@ -16,7 +16,7 @@ assert.equal(
 
 // Runtime population, destroyed housing and queue completion are exercised by
 // population-completion.test.mjs and training-population-reservation.test.mjs.
-assert.ok(html.includes('Math.min(popLimit,10+5*'), 'configured population limit remains an upper cap');
+assert.ok(html.includes('Math.min(popLimit,10+retainedNomadCapacity(t)+5*'), 'configured population limit remains an upper cap');
 assert.match(html, /if\(b\.q\.length>=5\)return false/, 'production queue limit remains intact');
 console.log('population-limits: setup limits and queue size passed');
 

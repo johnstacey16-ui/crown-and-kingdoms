@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 const engine=read('engine.js'),economy=read('js/economy.js'),sim=read('js/simulation-building-updates.js'),queueSource=read('js/simulation-production-queues.js');
-const pop=economy.slice(economy.indexOf('const capOf=t=>'),economy.indexOf('const can=',economy.indexOf('const capOf=t=>')));
+const pop=economy.slice(economy.indexOf('function retainedNomadCapacity('),economy.indexOf('const can=',economy.indexOf('const capOf=t=>')));
 const queued=queueSource.slice(queueSource.indexOf('function queuedPopulation('),queueSource.indexOf('function train('));
 const production=sim.slice(sim.indexOf('function upB('));
 function fixture(count,queues){
@@ -51,7 +51,7 @@ test('population and shared resource-transaction helpers belong to economy witho
   assert.match(economy,declaration);
   assert.doesNotMatch(engine,declaration);
  }
- const start=economy.indexOf('const capOf=t=>');
+ const start=economy.indexOf('function retainedNomadCapacity(');
  const end=economy.indexOf('const cs=c=>',start);
  assert.ok(start>=0&&end>start);
  const lineEnd=economy.indexOf('\n',end);
