@@ -100,6 +100,10 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Continue:** Rerun current-code full acceptance (289 standalone regressions, three seeded skirmishes, all nineteen required campaign victories, Chromium artwork/HUD and Xbox software contracts) on this one release-candidate tree. If green, merge the verified `development` tree into production `main` with one non-force expected-head `[deploy]` commit, then verify GitHub/public deployment evidence where accessible. Never infer physical Series S performance or Vercel Ready status from software checks. Preserve 48 `AUD-###` tasks, `CK-###` history, saves and free-only configuration.
 
+## 14 November 2026 — Hunnic Marauders completion increment
+
+**VERIFIED gameplay [`7a7a3cb`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/7a7a3cbdb681fc236aef26a80eef3cffa021e1d7):** Marauders unlocks real Stable Tarkans after Castle research, replacing placeholder stats. Saved queues are checked against saved research/ages. Five local quick gates and **1,641 focused tests** pass, including actual host training, projected tree isolation and positive/negative reloads. This does not complete Huns or the 43-civilization roster; other bonuses, artwork and full release/hardware acceptance remain open. Continue filling actual civilization/technology effects on `development`; no production deployment in this batch.
+
 ## Ordered milestones and gates
 
 1. **P0: Evidence and correctness (AUD-001–007).** Diagnose hosted Actions pre-step failures. Correct the First Hearth X-versus-A gathering guidance, apply civilization starting HP bonuses correctly, reproduce/fix gamepad refocus edge cases, record the first physical Xbox Series S baseline and establish a current Xbox reference/status matrix.
