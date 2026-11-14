@@ -100,17 +100,11 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Continue:** Rerun current-code full acceptance (289 standalone regressions, three seeded skirmishes, all nineteen required campaign victories, Chromium artwork/HUD and Xbox software contracts) on this one release-candidate tree. If green, merge the verified `development` tree into production `main` with one non-force expected-head `[deploy]` commit, then verify GitHub/public deployment evidence where accessible. Never infer physical Series S performance or Vercel Ready status from software checks. Preserve 48 `AUD-###` tasks, `CK-###` history, saves and free-only configuration.
 
-## 14 November 2026 — Hunnic Marauders completion increment
+## Current content continuation — 14 November 2026
 
-**VERIFIED gameplay [`7a7a3cb`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/7a7a3cbdb681fc236aef26a80eef3cffa021e1d7):** Marauders unlocks real Stable Tarkans after Castle research, replacing placeholder stats. Saved queues are checked against saved research/ages. Five local quick gates and **1,641 focused tests** pass, including actual host training, projected tree isolation and positive/negative reloads. This does not complete Huns or the 43-civilization roster; other bonuses, artwork and full release/hardware acceptance remain open. Continue filling actual civilization/technology effects on `development`; no production deployment in this batch.
+The owner requests **list everything missing and work through it all**. Use the [source-audited completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026): all 43 active factions, 13 confirmed absent medieval factions, absent rulepacks, units/buildings, exact art gaps and separate acceptance. Preserve this roadmap's AUD/CK identifiers.
 
-## Owner continuation — full missing-content checklist, 14 November 2026
-
-The owner explicitly requests **list everything missing and work through it all**. The detailed, source-audited [completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026) now contains all 43 active civilization rows, at least 13 confirmed absent medieval factions, two absent ruleset families, current unit/building system gaps, exact 34-unit/six-building painted-art gaps, and separate multiplayer/hardware/release evidence. Keep it current instead of creating another backlog; preserve the 48 AUD tasks and CK history.
-
-**Current batch:** Corvinian Army, Sipahi, Detinets, Chivalry and Yeomen replace placeholder effects with actual price/HP/building-work/range/damage rules. Shared prices cover host orders and projected trees, repairs, paid queues and current-build saves. See the commit-bound journal for completed test evidence. None of these repairs alone completes its civilization or authorizes an untested production release.
-
-**Continue without routine confirmation:** finish remaining legacy unique-tech placeholders (Nomads, Tigui, Hulche Javelins and current Royal Heirs/Shatagni/Andean Sling), reconcile obsolete techs and regional units before implementing old rules (Frankish Ordonnance Companies, Italian Pavise replacement, Persian/Chinese/Korean/Viking/Inca reworks), then complete each faction's start/economic/military/team rules and missing factions/rulepacks. Run scoped tests per batch and full release acceptance when publishing. Physical Xbox/WAN/human acceptance cannot be fabricated by automation.
+Marauders is repaired (`7a7a3cb`). The next tested batch replaces Corvinian Army, Sipahi, Detinets, Chivalry and Yeomen placeholders; the journal records commit-specific results. Nomads retained housing is implemented in the following batch. Continue with Tigui, Hulche Javelins and current Royal Heirs/Shatagni/Andean Sling. Reconcile obsolete techs and regional units before implementing old rules, then finish faction bonuses and missing factions/rulepacks. Work autonomously on `development`; physical Xbox/WAN/human acceptance and deliberate production publishing remain separate.
 
 ## Ordered milestones and gates
 

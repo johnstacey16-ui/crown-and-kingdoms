@@ -57,7 +57,7 @@ The source owners are `js/civilizations.js` (definitions), `js/kingdom.js` (elig
 | --- | --- | --- |
 | 0 | Franks | **Chivalry repaired in this batch:** Imperial technology speeds Stable training and research by 40%, replacing Knight attack. Bearded Axes remains registered despite the 2026 replacement: implement the appropriate Mounted Crossbowman line and Ordonnance Companies. Reconcile HP, resource and Castle/economy bonuses. |
 | 1 | Britons | **Yeomen repaired in this batch:** foot archer/Skirmisher range and Tower damage replace generic archer attack. Complete age-dependent civilization range, shepherd and Town Centre bonuses. Warwolf exists; verify hit/splash and unit eligibility. |
-| 2 | Mongols | Nomads currently adds Mangudai HP/attack; missing intended housing-loss rule. Drill exists. Verify hunting, scout/steppe HP, mounted-archer attack cadence and team sight. |
+| 2 | Mongols | **Nomads repaired in the following batch:** completed Houses destroyed after research retain capacity; foundations and prior losses do not. Drill exists. Verify hunting, scout/steppe HP, mounted-archer attack cadence and team sight. |
 | 3 | Byzantines | Greek Fire/Logistica/Cataphract effects exist. Complete age-scaled building HP, age-up and counter-unit prices, healing/team effects; reconcile Dromon and Varangian Guard access and splash. |
 | 4 | Persians | Legacy Mahouts HP effect and +150 food/wood start need replacement against current Persian rules. Missing Savar and newer unique-tech/unit access reconciliation; validate Town Centre/Dock work and HP, cavalry/gold and team bonuses. |
 | 5 | Teutons | Ironclad and Crenellations range exist. Verify infantry garrison arrows, conversion resistance, farm discount, garrison/healing capacity and age-scaled cavalry/infantry armour. |
@@ -163,7 +163,8 @@ At least **13 named medieval-roster gaps** are confirmed by comparing the active
 - [x] Sipahi +20 HP for living/future Turkish Cavalry Archers, no gunpowder attack placeholder — this batch.
 - [x] Detinets stone-for-wood construction/repair prices across actual host building and projected trees — this batch.
 - [x] Chivalry Stable training/research speed and Yeomen range/Tower attack — this batch.
-- [ ] Next: Nomads, the current Frankish regional line and remaining legacy unique technologies; then legacy faction effects above, with version reconciliation before obsolete technologies are repaired.
+- [x] Nomads retained housing, completion/ownership checks and saved-ledger validation — following batch.
+- [ ] Next: Tigui, Hulche Javelins, the current Frankish regional line and remaining legacy unique technologies; then legacy faction effects above, with version reconciliation before obsolete technologies are repaired.
 
 ### References and limits
 
@@ -176,3 +177,5 @@ Reference lookup date: **14 November 2026**. Official patch/expansion sources ar
 - [Official Detinets introduction, build 61321](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-61321/).
 - [Three Kingdoms official release](https://www.ageofempires.com/news/new-dlc-available-now-the-three-kingdoms/), [Last Chieftains official FAQ](https://www.ageofempires.com/news/faq-the-last-chieftains/), [Viking Sagas official FAQ](https://www.ageofempires.com/news/faq-the-viking-sagas/).
 - [Return of Rome official scope](https://www.ageofempires.com/games/aoeiide/return-of-rome/), [Battle for Greece release](https://www.ageofempires.com/news/new-dlc-available-now-chronicles-battle-for-greece/), [Alexander the Great official scope](https://www.ageofempires.com/games/aoeiide/chronicles-alexander-the-great/).
+
+Nomads reference: [developer balance changelog](https://www.forgottenempires.net/age-of-empires-ii-definitive-edition/balance-changelog) confirms destroyed foundations must not grant capacity; [current cost/effect listing](https://liquipedia.net/ageofempires/Nomads), checked 14 November 2026.

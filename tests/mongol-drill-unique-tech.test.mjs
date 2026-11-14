@@ -78,3 +78,49 @@ test('new-build save/load preserves the researched team bonus and actual siege s
  assert.equal(run('S.tech[0].drill'),1);
  assert.equal(run("unitSpeed({k:'ram',t:0})"),before);
 });
+
+test('Nomads retains completed destroyed House capacity once, without Mangudai stat placeholders',()=>{
+ const run=game();
+ run("S.bs=[];S.us=[];S.nodes=[];S.rel=[];S.nd.fill(null);S.g.fill(0);S.wt.fill(0);globalThis.castle=addB(0,'castle',20,20,true);globalThis.house=addB(0,'house',40,40,true);globalThis.enemy=addU(1,'ram',42,40);globalThis.foreign=addB(1,'house',50,40,true);globalThis.foundation=addB(0,'house',45,45,false)");
+ const startCap=run('capOf(0)');
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut2')"),false);
+ run('S.age[0]=2');assert.equal(run("research(castle,'ut2')"),true);
+ assert.equal(run('castle.rs.t'),40);
+ assert.equal(run('S.res[0].w'),9700);assert.equal(run('S.res[0].g'),9850);
+ run('upB(castle,40)');
+ assert.equal(run('S.tech[0].hpb?.mgd||0'),0);
+ assert.equal(run('S.tech[0].atkb?.mgd||0'),0);
+ run('house.hp=1;dmgT(enemy,house)');
+ assert.equal(run('house.hp<=0'),true);assert.equal(run('capOf(0)'),startCap);
+ assert.equal(run('S.tech[0].nomadHousing'),5);
+ assert.equal(run('retainNomadHousing(house)'),false);
+ assert.equal(run("retainNomadHousing({...house,nomadHousingRetained:false})"),false,'copied buildings cannot mint capacity');
+ run('foundation.hp=1;dmgT(enemy,foundation)');
+ assert.equal(run('S.tech[0].nomadHousing'),5,'unfinished houses grant no room');
+ run("foreign.hp=1;dmgT({k:'ram',t:0},foreign)");
+ assert.equal(run('S.tech[1].nomadHousing||0'),0);
+ run("compactPositive(S.bs,'hp')");
+ assert.equal(run('capOf(0)'),startCap,'removing rubble entities preserves room');
+ assert.equal(run('saveG()'),true);
+ run('S.tech=[{},{}]');assert.equal(run('loadG()'),true);
+ assert.equal(run('S.tech[0].nomadHousing'),5);assert.equal(run('capOf(0)'),startCap);
+ run('popLimit=10');assert.equal(run('capOf(0)'),10,'match population limit still applies');
+});
+
+test('Nomads does not restore houses lost before research and rejects forged saved capacity',()=>{
+ const run=game();
+ run("S.bs=[];S.us=[];S.nodes=[];S.rel=[];S.nd.fill(null);S.g.fill(0);S.wt.fill(0);globalThis.castle=addB(0,'castle',20,20,true);globalThis.house=addB(0,'house',40,40,true);house.hp=1;dmgT({k:'ram',t:1},house);compactPositive(S.bs,'hp')");
+ assert.equal(run('capOf(0)'),10);
+ assert.equal(run("research(castle,'ut2')"),true);run('upB(castle,40)');
+ assert.equal(run('capOf(0)'),10);
+ run("globalThis.later=addB(0,'house',40,40,true);later.hp=1;dmgT({k:'ram',t:1},later);compactPositive(S.bs,'hp');saveG()");
+ const saved=JSON.parse(run('localStorage.getItem(skey(0))'));
+ for(const value of [-5,2,1005,'5',null]){
+  const bad=structuredClone(saved);bad.tech[0].nomadHousing=value;
+  run('localStorage.setItem(skey(0),'+JSON.stringify(JSON.stringify(bad))+')');
+  const world=run('S');assert.equal(run('loadG()'),false);assert.equal(run('S'),world);
+ }
+ const bad=structuredClone(saved);bad.civ[0]=1;
+ run('localStorage.setItem(skey(0),'+JSON.stringify(JSON.stringify(bad))+')');
+ assert.equal(run('loadG()'),false,'foreign civilization cannot restore retained housing');
+});

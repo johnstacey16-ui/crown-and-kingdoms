@@ -3,7 +3,23 @@ function trade(t,k,md){if(!S||!Number.isInteger(t)||!S.px?.[t]||!S.res?.[t]||!['
 
 /* Shared economy ledger and population capacity helpers. Keep the same
  * reserved-population, payment and cost-label semantics as the engine. */
-const capOf=t=>Math.min(popLimit,10+5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&(b.k==='house'||b.k==='folwark'&&S.civ?.[t]===35)).length+
+// Only a real completed Mongol House lost after Nomads earns retained room.
+// The dead-entity marker makes repeated damage/cleanup calls idempotent; the
+// team ledger survives removal of the building, current saves and checkpoints.
+function retainNomadHousing(b){
+ if(!b||!S?.bs?.includes(b)||b.k!=='house'||!b.done||b.hp>0||
+    b.nomadHousingRetained||S.civ?.[b.t]!==2||!S.tech?.[b.t]?.ut2)return false;
+ const tech=S.tech[b.t],prior=Number.isInteger(tech.nomadHousing)?tech.nomadHousing:0;
+ tech.nomadHousing=Math.min(1000,Math.max(0,prior)+5);
+ b.nomadHousingRetained=true;
+ return true;
+}
+function retainedNomadCapacity(team){
+ const value=S?.tech?.[team]?.nomadHousing;
+ return S?.civ?.[team]===2&&S.tech?.[team]?.ut2&&
+  Number.isInteger(value)&&value>=0&&value<=1000&&value%5===0?value:0;
+}
+const capOf=t=>Math.min(popLimit,10+retainedNomadCapacity(t)+5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&(b.k==='house'||b.k==='folwark'&&S.civ?.[t]===35)).length+
  (typeof alliedCivilizationIds==='function'&&typeof CIV!=='undefined'&&
   alliedCivilizationIds(t).some(id=>CIV[id]?.teamDockPopulation===5)?
   5*S.bs.filter(b=>b&&b.t===t&&b.done&&b.hp>0&&b.k==='dock').length:0));

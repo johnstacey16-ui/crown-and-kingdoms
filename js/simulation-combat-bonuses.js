@@ -231,6 +231,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
 hitSnd(a,t);
 if(t.t===0){S.ping={x:t.x+(t.s||0)/2,y:t.y+(t.s||0)/2,t:S.t};if(S.t-S.al>12){S.al=S.t;note('Under attack! L3 with nothing selected jumps there');sfx('horn');rumble(260,.6,.3)}}
 if(t.hp<=0&&!t.dead){t.dead=1;
+ if(typeof retainNomadHousing==='function')retainNomadHousing(t);
  // A killed mounted Konnik becomes a new infantry entity rather than an
  // immortal health reset; this retains kill accounting and deterministic IDs.
  if(!t.s&&t.k==='konnik'&&S.civ?.[t.t]===29&&S.us.includes(t)&&
