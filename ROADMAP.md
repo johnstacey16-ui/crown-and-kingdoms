@@ -104,6 +104,14 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **VERIFIED gameplay [`7a7a3cb`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/7a7a3cbdb681fc236aef26a80eef3cffa021e1d7):** Marauders unlocks real Stable Tarkans after Castle research, replacing placeholder stats. Saved queues are checked against saved research/ages. Five local quick gates and **1,641 focused tests** pass, including actual host training, projected tree isolation and positive/negative reloads. This does not complete Huns or the 43-civilization roster; other bonuses, artwork and full release/hardware acceptance remain open. Continue filling actual civilization/technology effects on `development`; no production deployment in this batch.
 
+## Owner continuation — full missing-content checklist, 14 November 2026
+
+The owner explicitly requests **list everything missing and work through it all**. The detailed, source-audited [completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026) now contains all 43 active civilization rows, at least 13 confirmed absent medieval factions, two absent ruleset families, current unit/building system gaps, exact 34-unit/six-building painted-art gaps, and separate multiplayer/hardware/release evidence. Keep it current instead of creating another backlog; preserve the 48 AUD tasks and CK history.
+
+**Current batch:** Corvinian Army, Sipahi, Detinets, Chivalry and Yeomen replace placeholder effects with actual price/HP/building-work/range/damage rules. Shared prices cover host orders and projected trees, repairs, paid queues and current-build saves. See the commit-bound journal for completed test evidence. None of these repairs alone completes its civilization or authorizes an untested production release.
+
+**Continue without routine confirmation:** finish remaining legacy unique-tech placeholders (Nomads, Tigui, Hulche Javelins and current Royal Heirs/Shatagni/Andean Sling), reconcile obsolete techs and regional units before implementing old rules (Frankish Ordonnance Companies, Italian Pavise replacement, Persian/Chinese/Korean/Viking/Inca reworks), then complete each faction's start/economic/military/team rules and missing factions/rulepacks. Run scoped tests per batch and full release acceptance when publishing. Physical Xbox/WAN/human acceptance cannot be fabricated by automation.
+
 ## Ordered milestones and gates
 
 1. **P0: Evidence and correctness (AUD-001–007).** Diagnose hosted Actions pre-step failures. Correct the First Hearth X-versus-A gathering guidance, apply civilization starting HP bonuses correctly, reproduce/fix gamepad refocus edge cases, record the first physical Xbox Series S baseline and establish a current Xbox reference/status matrix.

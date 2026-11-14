@@ -361,8 +361,12 @@ function grantArmenianFirstChurchRelic(b){
  S.tech[b.t].armenianFirstChurchRelic=1;return true;
 }
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
-function civilizationBuildingCost(kind,team,civs=S?.civ){
+function civilizationBuildingCost(kind,team,civs=S?.civ,techs=S?.tech){
  const cost=B[kind]?.cost||{};
+ if(civs?.[team]===16&&techs?.[team]?.ut16&&['castle','tower'].includes(kind)&&cost.s){
+  const replaced=Math.floor(cost.s*.4);
+  return {...cost,w:(cost.w||0)+replaced,s:cost.s-replaced};
+ }
  return kind==='mule'&&civs?.[team]===41?{f:15,w:60}:
   civs?.[team]===36&&['smith','univ','monastery'].includes(kind)&&cost.w?
   {...cost,w:Math.max(0,cost.w-100)}:cost;
@@ -949,7 +953,7 @@ function technologyTreeModel(team=0,world=S){
     reason:known[key]?'Completed':reason};
   });
   buildings.push({id:kind,name:building.n,age:unlock.age,pre:unlock.pre,
-   cost:{...civilizationBuildingCost(kind,team,world.civ)},state:unlock.state,
+   cost:{...civilizationBuildingCost(kind,team,world.civ,world.tech)},state:unlock.state,
    reason:unlock.reason,units,research});
  }
  return {civilization:c.n,civilizationId:id,age,buildings};

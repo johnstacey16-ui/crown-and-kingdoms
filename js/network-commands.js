@@ -113,7 +113,7 @@
         d.pop&&popOf(team)+d.pop>capOf(team)?'Requires 20 free population slots':
         kind==='tc'&&vm===6?'Extra Town Centres disabled in Sudden Death':
         kind==='wonder'&&vm!==1?'Wonder victory is off':unlock.reason;
-      return {type:'build',value:kind,label:d.n,cost:{...(typeof civilizationBuildingCost==='function'?civilizationBuildingCost(kind,team,world.civ):d.cost)},size:d.s,locked};
+      return {type:'build',value:kind,label:d.n,cost:{...(typeof civilizationBuildingCost==='function'?civilizationBuildingCost(kind,team,world.civ,world.tech):d.cost)},size:d.s,locked};
     }));
   }
   function construct(units,order,team) {

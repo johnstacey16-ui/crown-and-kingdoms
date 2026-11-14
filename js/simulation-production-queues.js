@@ -31,7 +31,8 @@ function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
   return {...cost,f:Math.ceil(cost.f*.75)};
  if(civs?.[team]===40&&kind==='scor'&&cost.g)return {...cost,g:Math.ceil(cost.g*.5)};
  if(civs?.[team]===37&&B.siege?.tr?.includes(kind)&&cost.w)return {...cost,w:Math.ceil(cost.w*2/3)};
- if(civs?.[team]===36&&kind==='mon'&&techs?.[team]?.ut36p&&cost.g){
+ if((civs?.[team]===36&&kind==='mon'&&techs?.[team]?.ut36p||
+     civs?.[team]===25&&kind==='huszar'&&techs?.[team]?.ut25)&&cost.g){
   const {g,...other}=cost;return {...other,f:(other.f||0)+g};
  }
  if(civs?.[team]===35&&kind==='knight'&&techs?.[team]?.ut35&&cost.g)
@@ -62,12 +63,17 @@ function cancelQ(b){if(!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S||!S.tech
  if(q.mercKipchak===true&&q.k==='kipchak')S.tech[b.t].mercKipchakClaims=
   Math.max(0,(S.tech[b.t].mercKipchakClaims||0)-1);
  else{
-  // Refund the amount actually paid, even if Szlachta research completed
-  // while the unit was waiting. Bound restored save payloads to base prices.
+  // Preserve pre-research payments, and recognize exact legal food-for-gold
+  // prices. A converted price can exceed the base food amount without being
+  // forged; mixed base+converted overpayments must still be rejected.
   const paid=q.paidCost,base=U[q.k].cost||{};
-  const valid=paid&&typeof paid==='object'&&!Array.isArray(paid)&&
-   Object.entries(paid).every(([resource,amount])=>['f','w','g','s'].includes(resource)&&
-    Number.isFinite(amount)&&amount>=0&&amount<=(base[resource]||0));
+  const current=unitTrainingCost(b.t,q.k);
+  const resources=['f','w','g','s'];
+  const finite=paid&&typeof paid==='object'&&!Array.isArray(paid)&&
+   Object.entries(paid).every(([resource,amount])=>resources.includes(resource)&&
+    Number.isFinite(amount)&&amount>=0);
+  const valid=finite&&(resources.every(r=>(paid[r]||0)<=(base[r]||0))||
+   resources.every(r=>(paid[r]||0)===(current[r]||0)));
   pay(b.t,valid?paid:typeof unitTrainingCost==='function'?unitTrainingCost(b.t,q.k):base,1);
  }
  note('Cancelled - full refund');return true}

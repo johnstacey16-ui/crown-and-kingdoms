@@ -37,7 +37,7 @@ const ak=B[b.k].atk;
  const churchRelics=b.k==='fchurch'?(S.rel||[]).filter(q=>q?.m===b).length:0;
  if(ak&&(b.k!=='fchurch'||churchVillagers+churchRelics>0)){b.cd=(b.cd||0)-dt;if(b.cd<=0){const o={k:ak,t:b.t,x:b.x+b.s/2,y:b.y+b.s/2},e=foe(o,attackRange(o),b);if(e&&!e.q){const teutonInfantry=b.k==='castle'&&S.civ?.[b.t]===5&&S.tech[b.t]?.ut5;const na=b.k==='fchurch'?(churchVillagers?1:0)+Math.min(5,churchRelics):
   1+(S.tech[b.t].ys?1:0)+Math.min(8,(b.cg||[]).filter(c=>U[c.k]?.dmg>3||(teutonInfantry&&INFARM.has(c.k))).length);for(let q=0;q<na;q++)launchProjectile(o,e);sfx('bow',o.x,o.y);b.cd=U[ak].cd/(S.civ?.[b.t]===6&&S.tech[b.t]?.ut6p&&(b.k==='castle'||b.k==='tower')?1.33:1)}}}
-if(b.rs){b.rs.t-=dt*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizationTeamWorkRate==='function'?civilizationTeamWorkRate(b,'research',b.rs.k):1);if(b.rs.t<=0){const k=b.rs.k;b.rs=null;if(k==='age'){S.age[b.t]++;
+if(b.rs){b.rs.t-=dt*(typeof civilizationOwnWorkRate==='function'?civilizationOwnWorkRate(b):1)*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizationTeamWorkRate==='function'?civilizationTeamWorkRate(b,'research',b.rs.k):1);if(b.rs.t<=0){const k=b.rs.k;b.rs=null;if(k==='age'){S.age[b.t]++;
  if(S.civ?.[b.t]===37)S.res[b.t].w+=200;
  if(S.civ?.[b.t]===38&&typeof spawnPos==='function'&&typeof addU==='function'&&
    typeof livePopulation==='function'&&typeof capOf==='function'){
