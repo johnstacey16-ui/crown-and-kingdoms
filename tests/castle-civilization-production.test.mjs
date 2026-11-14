@@ -303,3 +303,51 @@ test('AI prioritizes Frankish secondary/Elite technologies after training Throwi
   assert.ok(withArmy>noArmy,'AI prefers '+key+' with a real Throwing Axeman army');
  }
 });
+
+test('Marauders unlocks Hunnic Stable Tarkans only after completed research',()=>{
+ const {run}=fixture();
+ run("S.civ=[17,1];S.age=[2,2];globalThis.stables=[addB(0,'stable',44,20,true),addB(1,'stable',52,20,true)]");
+ const budget=run('JSON.stringify(S.res)');
+ assert.equal(run("train(stables[0],'tarkan')"),false);
+ assert.equal(run('JSON.stringify(S.res)'),budget);
+ run('S.age[0]=1');
+ assert.equal(run("research(castles[0],'ut17')"),false);
+ run('S.age[0]=2');
+ assert.equal(run("research(castles[0],'ut17')"),true);
+ assert.equal(run('S.res[0].w'),9700);
+ assert.equal(run('S.res[0].g'),9800);
+ assert.equal(run("train(stables[0],'tarkan')"),false,'queued research does not unlock production');
+ run('upB(castles[0],TE.ut17.t)');
+ assert.equal(run("trOf(stables[0]).includes('tarkan')"),true);
+ assert.equal(run("trOf(stables[0],S.civ,[{},{}],S.age).includes('tarkan')"),false,'preview does not inherit live research');
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,stables[0]).some(o=>o.type==='train'&&o.value==='tarkan')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,1,stables[1]).some(o=>o.value==='tarkan')"),false);
+ assert.equal(run("train(stables[1],'tarkan')"),false);
+ assert.equal(run("train(stables[0],'tarkan')"),true);
+ assert.equal(run("trainRate(stables[0],'tarkan')"),1.2,'Hunnic team Stable bonus applies');
+ assert.equal(run("technologyTreeModel(0).buildings.find(b=>b.id==='stable').units.some(u=>u.id==='tarkan'&&u.state==='available')"),true);
+ assert.equal(run("technologyTreeModel(0,{...S,tech:[{},{}]}).buildings.find(b=>b.id==='stable').units.some(u=>u.id==='tarkan')"),false);
+ run("globalThis.hunHost=CK_SIM_SYNC.createCommandHost({roster:CK_SIM_SYNC.lockRoster('host','guest',2),mapSize:W,lookupEntity:CK_GAME_COMMANDS.lookup,execute:CK_GAME_COMMANDS.execute})");
+ assert.equal(run("hunHost.receive({v:CK_SIM_SYNC.VERSION,sid:'host',team:0,seq:1,frame:8,order:{type:'train',entities:[stables[0].netId],value:'tarkan'}},'host',2).ok"),true);
+ assert.equal(run('hunHost.applyFrame(8)[0].ok'),true,'authenticated host trains the unlocked unit');
+ assert.equal(run('stables[0].q.length'),2);
+ assert.equal(run('cancelQ(stables[0])'),true);
+
+ run("upB(stables[0],U.tarkan.t)");
+ assert.equal(run("S.us.filter(u=>u.k==='tarkan'&&u.t===0).length"),1);
+ assert.equal(run("S.tech[0].hpb?.tarkan||0"),0,'Marauders no longer grants placeholder HP');
+ assert.equal(run("S.tech[0].atkb?.tarkan||0"),0,'Marauders no longer grants placeholder attack');
+ assert.equal(run("train(stables[0],'tarkan')"),true);
+ assert.equal(run('saveG()'),true);
+ const saved=run('localStorage.getItem(skey(0))');
+ run('S.tech=[{},{}];S.civ=[0,1]');
+ assert.equal(run('loadG()'),true,'saved research controls validation independently of live world');
+ assert.equal(run("S.bs.find(b=>b.k==='stable'&&b.t===0).q[0].k"),'tarkan');
+ run("upB(S.bs.find(b=>b.k==='stable'&&b.t===0),U.tarkan.t)");
+ assert.equal(run("S.us.filter(u=>u.k==='tarkan'&&u.t===0).length"),2);
+ const bad=JSON.parse(saved);delete bad.tech[0].ut17;
+ run('localStorage.setItem(skey(0),'+JSON.stringify(JSON.stringify(bad))+')');
+ const state=run('S');
+ assert.equal(run('loadG()'),false,'live Marauders cannot authorize an unresearched saved queue');
+ assert.equal(run('S'),state);
+});

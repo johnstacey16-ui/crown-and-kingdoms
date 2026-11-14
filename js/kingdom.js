@@ -405,6 +405,9 @@ const trOf=(b,civs=S?.civ,techs=S?.tech,ages=S?.age)=>{
   return eligible.filter(k=>!['scout','knight','winged','batele','steppe','camel','camelscout','shrivamsha'].includes(k))
    .concat(age>=2?['camel','shrivamsha']:['camelscout']);
  }
+ // Marauders uses the completed research ledger, including projected worlds.
+ if(b.k==='stable'&&civ?.n==='Huns'&&techs?.[b.t]?.ut17)
+  return [...new Set([...eligible.filter(k=>k!=='winged'),civ.uu])];
  if(b.k==='stable')return civs?.[b.t]===35||civs?.[b.t]===32?
   techs?.[b.t]?.huss?[...eligible.filter(k=>k!=='scout'),'winged']:eligible.filter(k=>k!=='winged'):
   eligible.filter(k=>k!=='winged');
