@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {browserScriptPaths,coreGameScriptPaths} from '../scripts/runtime-sources.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const policy=read('js/ai-policy.js'),economy=read('js/ai-economy.js'),defence=read('js/ai-defence.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),ai=read('js/ai.js');
+const policy=read('js/ai-policy.js'),economy=read('js/ai-economy.js'),defence=read('js/ai-defence.js'),maritime=read('js/ai-maritime.js'),offence=read('js/ai-offence.js'),construction=read('js/ai-construction.js'),production=read('js/ai-production.js'),ai=read('js/ai.js');
 
 test('AI decision helpers have exactly one dedicated owner',()=>{
  for(const fn of ['aiCanResearchWhileSaving','aiQueuedUnits',
@@ -39,8 +39,8 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
   assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  }
  assert.match(construction,/function aiBuild\(/);
- assert.match(ai,/aiCanResearchWhileSaving\(/);
- assert.match(ai,/aiQueuedUnits\(/);
+ assert.match(production,/aiCanResearchWhileSaving\(/);
+ assert.match(production,/aiQueuedUnits\(/);
  assert.match(construction,/aiDockWaterReach\(/);
  assert.match(ai,/aiRebal\(/);
  assert.match(offence,/aiOpeningWaveNeed\(/);
@@ -53,7 +53,7 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.match(ai,/aiScoutIdleUnits\(scouts\)/);
  assert.match(ai,/aiAssignWarshipTargets\(t,tc,galleys,hostileShips\)/);
  assert.match(ai,/aiClassifyHostileForces\(t\)/);
- assert.match(ai,/aiTechnologyPriority\(k,techContext\)/);
+ assert.match(production,/aiTechnologyPriority\(k,techContext\)/);
  assert.match(ai,/aiRepairImportantBuildings\(t,A,bl,vil\)/);
  assert.match(ai,/aiAssignIdleVillagers\(t,vil,bl,arm,tc,R,cnt\)/);
  assert.match(ai,/aiEvacuateVillagers\(vil,bl,nearbyRaiders\)/);
@@ -73,6 +73,11 @@ test('AI decision helpers have exactly one dedicated owner',()=>{
  assert.doesNotThrow(()=>new vm.Script(maritime));
  assert.doesNotThrow(()=>new vm.Script(offence));
  assert.doesNotThrow(()=>new vm.Script(construction));
+ assert.doesNotThrow(()=>new vm.Script(production));
+ for(const fn of ['aiPlanMilitaryTraining','aiPlanResearch','aiTownCentreLimit','aiTrainTownVillagers']){
+  assert.match(production,new RegExp('function '+fn+'\\('));
+  assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
+ }
  for(const fn of ['aiBuild','aiWall','aiDock','aiNear'])assert.doesNotMatch(ai,new RegExp('function '+fn+'\\('));
  assert.doesNotThrow(()=>new vm.Script(ai));
 });
@@ -81,7 +86,7 @@ test('AI policy precedes AI loop after simulation across production and offline 
  for(const scripts of [browserScriptPaths(html),coreGameScriptPaths(html),
   coreGameScriptPaths(html,{includeUI:false,includeAssets:false})]){
   const i=scripts.indexOf('./js/simulation.js');
-  assert.deepEqual(scripts.slice(i,i+10),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js']);
+  assert.deepEqual(scripts.slice(i,i+11),['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai-production.js','./js/ai.js']);
  }
  assert.ok(sw.includes("'./js/ai-policy.js'"));
  assert.ok(sw.includes("'./js/ai-economy.js'"));
@@ -89,6 +94,7 @@ test('AI policy precedes AI loop after simulation across production and offline 
  assert.ok(sw.includes("'./js/ai-maritime.js'"));
  assert.ok(sw.includes("'./js/ai-offence.js'"));
  assert.ok(sw.includes("'./js/ai-construction.js'"));
+ assert.ok(sw.includes("'./js/ai-production.js'"));
  const browser=browserScriptPaths(html),core=coreGameScriptPaths(html);
  assert.deepEqual(core,browser.slice(browser.indexOf('./js/config.js'),browser.indexOf('./engine.js')+1),
   'AI must participate in the same ordered browser/core script span');
