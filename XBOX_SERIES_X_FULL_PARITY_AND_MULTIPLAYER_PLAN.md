@@ -168,7 +168,7 @@ Official sources: https://www.xbox.com/en-GB/games/store/age-of-empires-ii-defin
 5. **Base and all available Xbox gameplay DLC content matrices** filled and backed by actual gameplay tests; accept distinct Chronicles/antiquity rules only after dedicated architecture.
 6. **Release acceptance** requires both independent functional and reference-fidelity sign-offs, not a completion percentage guessed from file counts.
 
-Track every completed task in `MASTER_AUDIT_AND_DELIVERY_REGISTER.md` with exact commit, tests, tested environment and remaining risks. Keep reversible commits; preserve all current code, tests and original assets.
+Track accepted tasks in [ROADMAP.md](ROADMAP.md) with exact commit, tests, tested environment and remaining risks. Historic `CK-###` entries are linked from [docs/HISTORY.md](docs/HISTORY.md). Keep reversible commits; preserve all current code, tests and original assets.
 
 
 ## Camera control correction — 21 October 2026

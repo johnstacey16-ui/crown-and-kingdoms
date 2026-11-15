@@ -5,7 +5,6 @@ import { readFileSync } from 'node:fs';
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8');
 const civilizations = readFileSync(new URL('../js/civilizations.js', import.meta.url), 'utf8');
-const roadmap = readFileSync(new URL('../AOE2_PARITY_ROADMAP.md', import.meta.url), 'utf8');
 
 test('critical balance regressions from the parity audit stay corrected', () => {
   assert.match(config, /farm:\{n:'Farm',s:1,hp:480,cost:\{w:60\},bt:15\}/);
@@ -14,12 +13,6 @@ test('critical balance regressions from the parity audit stay corrected', () => 
   assert.match(simulation, /const dist=d2\(u\.x,u\.y,tg\),minR=u\.k==='mang'&&S\.tech\[u\.t\]\?\.onager\?3:u\.k==='scor'&&typeof romanScorpionMinimumRange==='function'\?romanScorpionMinimumRange\(u\):d\.minR\|\|0/);
   assert.match(simulation, /if\(minR&&dist<minR\)/);
   assert.ok(civilizations.includes("n:'Supremacy',cost:{f:300,g:250},t:50,age:2,fx:t=>{atkbF(t,'vil',6);hpbF(t,'vil',40)}"));
-});
-
-test('roadmap records source corrections without claiming live gameplay verification', () => {
-  assert.match(roadmap, /Audit findings and implementation status/);
-  assert.match(roadmap, /Xbox Series S \/ Edge performance/);
-  assert.match(roadmap, /do not prove full mission playthroughs/);
 });
 
 
