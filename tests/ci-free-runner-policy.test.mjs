@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync,readdirSync} from 'node:fs';
+import {MISSION_OPT_INS,missionOptInPlan,runCampaignOptIns} from '../scripts/verify-campaign-opt-ins.mjs';
 const read=name=>readFileSync(new URL('../.github/workflows/'+name+'.yml',import.meta.url),'utf8');
 test('hosted expensive workflows remain manually dispatchable and weekly, not triggered by every commit',()=>{
  for(const name of ['game-regression','battlefield-browser']){
@@ -100,4 +101,40 @@ test('real battlefield + HUD screenshots remain opt-in and use the true large-ar
   'world acceptance cannot quietly substitute flat-field visual isolation');
  assert.ok(script.includes('.drawImage(cv,0,0,CW,CH)'),
   'Chromium world evidence must be copied before the paused-menu RAF can replace it');
+});
+
+test('all original individual mission opt-ins retain their exact indices and victory gates',()=>{
+ assert.deepEqual(MISSION_OPT_INS,[["verify-causeway",16,false],["verify-crossing",17,false],["verify-golden-coast",12,false],["verify-redwater",7,true],["verify-kings-road",10,true],["verify-relic-road",3,true],["verify-reliquary",11,true],["verify-ashford",8,true],["verify-northern",6,true],["verify-raiders-ford",1,true],["verify-kronburg",4,true],["verify-greywatch",9,true],["verify-iron-pass",18,true],["verify-blackwood",15,true],["verify-frontier",2,true]]);
+ assert.deepEqual(missionOptInPlan('ordinary commit'),[]);
+ assert.deepEqual(missionOptInPlan('[verify-campaign-matrix] [verify-hud-browser]'),[]);
+ assert.deepEqual(missionOptInPlan('[verify-frontier] [verify-causeway] [verify-greywatch]')
+  .map(x=>x.mission),[16,9,2]);
+});
+test('one runner isolates selected mission environment, passes failures through, and avoids shell input',()=>{
+ const calls=[],errors=[];
+ const result=runCampaignOptIns({
+  message:'[verify-redwater] [verify-causeway] [verify-frontier]',
+  root:'/fixture',env:{TEST_FLAG:'yes',CK_REQUIRE_CAMPAIGN_VICTORY:'inherited'},
+  spawn:(exe,args,options)=>{calls.push({exe,args,options});return{status:calls.length===2?1:0};},
+  log:{log(){},error:s=>errors.push(s)}
+ });
+ assert.equal(result.selected.length,3);
+ assert.deepEqual(result.failed,['verify-redwater']);
+ assert.deepEqual(calls.map(x=>x.options.env.CK_MISSION),['16','7','2']);
+ assert.equal(calls[0].options.env.CK_REQUIRE_CAMPAIGN_VICTORY,undefined);
+ assert.equal(calls[1].options.env.CK_REQUIRE_CAMPAIGN_VICTORY,'1');
+ assert.equal(calls[2].options.env.CK_REQUIRE_CAMPAIGN_VICTORY,'1');
+ assert.ok(calls.every(x=>x.options.cwd==='/fixture'&&x.options.stdio==='inherit'&&
+  x.options.env.TEST_FLAG==='yes'&&
+  x.args.length===1&&x.args[0]==='tests/simulation-smoke.test.mjs'));
+ assert.equal(errors.length,1);
+});
+test('GitHub keeps opt-in campaign diagnostics separate from fast and full gates',()=>{
+ const workflow=read('game-validation');
+ assert.ok(workflow.includes('run: node scripts/verify-campaign-opt-ins.mjs'));
+ assert.ok(workflow.includes('run: node scripts/run-checks.mjs --campaigns'));
+ assert.ok(workflow.includes('CK_COMMIT_MESSAGE:'));
+ assert.ok(workflow.includes("contains(github.event.head_commit.message, '[verify-')"));
+ assert.ok(workflow.includes("contains(github.event.head_commit.message, '[verify-campaign-matrix]')"));
+ assert.doesNotMatch(workflow,/CK_MISSION: '[0-9]+'/);
 });

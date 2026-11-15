@@ -41,7 +41,7 @@ test('active working documents keep one compact status and preserve the 48-task 
  const inventory=read('docs/REFACTORING_INVENTORY.md');
  assert.ok(agents.length<16000,'AGENTS is operating instructions, not a duplicated release journal');
  assert.ok(roadmap.length<40000,'ROADMAP keeps the active task register, not repeated dated logs');
- assert.ok(inventory.length<20000,'The refactoring inventory must stay a concise current register');
+ assert.ok(inventory.length<20000,'Keep the current refactoring inventory concise; restore historical detail from Git history');
  const ids=[...roadmap.matchAll(/^\|\s*(AUD-\d{3})\s*\|/gm)].map(m=>m[1]);
  assert.deepEqual(ids,Array.from({length:48},(_,i)=>'AUD-'+String(i+1).padStart(3,'0')),
   'Historical prose may be consolidated, but none of the audited 48 tasks may disappear or change order');
@@ -53,16 +53,16 @@ test('active working documents keep one compact status and preserve the 48-task 
 test('development branch runs GitHub validation without automatic Vercel previews',()=>{
  const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
  const vercel=JSON.parse(read('vercel.json'));
- assert.equal(vercel.git?.deploymentEnabled?.development,false,
-  'disable deployment creation, not merely the build step');
- assert.notEqual(vercel.git?.deploymentEnabled?.main,false,
-  'intentional production releases on main remain possible');
+ assert.equal(vercel.git?.deploymentEnabled?.['**'],false,
+  'disable automatic Git-based previews for every non-production branch, not just development');
+ assert.equal(vercel.git?.deploymentEnabled?.main,true,
+  'keep main eligible for intentional production releases');
  assert.equal(vercel.ignoreCommand,'node scripts/vercel-deployment-gate.mjs',
   'retain the existing deliberate production [deploy] gate');
  const workflow=read('.github/workflows/game-validation.yml');
  assert.match(workflow,/push:\s*\n\s*branches: \[main, development\]/,
   'both development and main must keep quick/focused GitHub checks');
- assert.match(workflow,/pull_request:\s*\n\s*branches: \[main\]/);
+ assert.match(workflow,/pull_request:\s*\n\s*branches: \[main, development\]/);
  assert.match(read('AGENTS.md'),/Working branch:\*\* `development`/);
  assert.match(read('docs/VERCEL_RELEASES.md'),/merge.*development.*main/i);
 });

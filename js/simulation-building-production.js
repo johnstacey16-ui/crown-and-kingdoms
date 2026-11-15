@@ -17,12 +17,16 @@ function civilizationTeamWorkRate(b,kind='train',researchKey=null){
  }
  return rate;
 }
+// Own research affects both training and research, without leaking to allies.
+function civilizationOwnWorkRate(b){
+ return b?.k==='stable'&&S.civ?.[b.t]===0&&S.tech?.[b.t]?.ut0?1.4:1;
+}
 function trainRate(b,k){const tech=S.tech[b.t]||{},conscription=tech.cons&&MILITARY_PRODUCTION_BUILDINGS.has(b.k)&&!['vil','cart','fish','trn','cog'].includes(k)?4/3:1;const cuman=S.civ?.[b.t]===31&&tech.ut31&&['scout','cavarch','steppe'].includes(k)?1.5:1;
  const elephant=['ele','eled','batele'].includes(k),
    camel=['camel','camelscout','mamel'].includes(k),
    allyGurjara=typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(b.t).includes(39);
  const roman=S.civ?.[b.t]===40&&tech.ut40p&&['mil','legionary','knight','centurion'].includes(k)?1.5:1;
- return roman*conscription*cuman*(b.k==='bar'&&tech.perfusion?2:1)*
+ return civilizationOwnWorkRate(b)*roman*conscription*cuman*(b.k==='bar'&&tech.perfusion?2:1)*
    (allyGurjara&&(camel||elephant)?1.25:1)*civilizationTeamWorkRate(b,'train',k)}
 
 /* Shared rally dispatch for newly trained workers, merchants and military.

@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - '**/*.md'
   pull_request:
-    branches: [main]
+    branches: [main, development]
   workflow_dispatch:
 
 permissions:
@@ -32,102 +32,17 @@ jobs:
         run: node scripts/run-checks.mjs --quick
       - name: Check focused gameplay, controller and graphics regression contracts
         run: node scripts/run-checks.mjs --focused
-      # A commit explicitly marked [verify-causeway] opts into one bounded
-      # real mission simulation; the default per-push gate stays inexpensive.
-      - name: Diagnose Causeway end-to-end (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-causeway]')
+      # Mission-specific real simulations are opt-in, never a normal push cost.
+      # Map each marker to one exact mission in the tested runner rather than duplicated CI steps.
+      - name: Diagnose selected campaign missions (explicit opt-in only)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-')
         env:
-          CK_MISSION: '16'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Diagnose Crown Crossing end-to-end (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-crossing]')
-        env:
-          CK_MISSION: '17'
-        run: node tests/simulation-smoke.test.mjs
-      # Intentionally expensive, one-off gate. Every mission runs in its own
-      # process, preserving the weekly/manual default for full regressions.
+          CK_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node scripts/verify-campaign-opt-ins.mjs
+      # Full campaign acceptance remains a separate, explicitly requested 19-mission gate.
       - name: Verify all nineteen complete scripted campaign playthroughs (explicit opt-in only)
         if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-campaign-matrix]')
         run: node scripts/run-checks.mjs --campaigns
-      - name: Diagnose Golden Coast end-to-end (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-golden-coast]')
-        env:
-          CK_MISSION: '12'
-        run: node tests/simulation-smoke.test.mjs
-      # One-off real 30Hz convoy playthrough; ordinary commits never run it.
-      - name: Verify Redwater escort delivery (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-redwater]')
-        env:
-          CK_MISSION: '7'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      # One-off 30Hz real economic mission run, not included in ordinary pushes.
-      - name: Verify King's Road paid-supply defence (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-kings-road]')
-        env:
-          CK_MISSION: '10'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify first Relic Road authored shrines and Turkish pursuit (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-relic-road]')
-        env:
-          CK_MISSION: '3'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Reliquary Trail escorted relic recovery (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-reliquary]')
-        env:
-          CK_MISSION: '11'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Ashford Castle breach and true capital victory (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-ashford]')
-        env:
-          CK_MISSION: '8'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Northern Watch forward beacon and ten-minute defence (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-northern]')
-        env:
-          CK_MISSION: '6'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Raiders at the Ford crossing and forward guard (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-raiders-ford]')
-        env:
-          CK_MISSION: '1'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Kronburg flank sabotage and Castle reserve (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-kronburg]')
-        env:
-          CK_MISSION: '4'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Greywatch fortified siege and reactive garrison (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-greywatch]')
-        env:
-          CK_MISSION: '9'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Iron Pass royal supply wagon escort (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-iron-pass]')
-        env:
-          CK_MISSION: '18'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Blackwood bridgehead and genuine eight-minute defence (explicit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-blackwood]')
-        env:
-          CK_MISSION: '15'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
-      - name: Verify Feudal Frontier staged raids (explicit commit opt-in only)
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[verify-frontier]')
-        env:
-          CK_MISSION: '2'
-          CK_REQUIRE_CAMPAIGN_VICTORY: '1'
-        run: node tests/simulation-smoke.test.mjs
 
   # Explicit per-commit acceptance gates. They never run on routine pushes,
   # PRs or schedules; the weekly/manual game-regression workflow is unchanged.

@@ -18,7 +18,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 
 **Production alignment checkpoint (verified 5 November 2026):** Authenticated Vercel alias and deployment records agree that `crown-and-kingdoms.vercel.app` serves READY production deployment `dpl_ChTCr9hWnz4sRvQGTvE96hUv9ick` from [`94ac8d1`](https://github.com/johnstacey16-ui/crown-and-kingdoms/commit/94ac8d18485c830df43d4488946a84c5e9337196). This supersedes the earlier 3 November mismatch/rate-limit finding and includes terrain-blend recovery and predates the Greywatch mission guidance update; verify the alias again after each newer commit. Deployment readiness does not establish Xbox FPS or black-screen acceptance. Keep hosting free-only; do not force builds, buy credits or reactivate Railway.
 
-**Current tree inventory:** 289 standalone regression files, 61 production browser scripts, 48 core scripts, 44 headless scripts and 43 Markdown documents.
+**Current tree inventory:** 289 standalone regression files, 61 production browser scripts, 48 core scripts, 44 headless scripts and 42 Markdown documents.
 
 **Series S sustained-battle evidence (2 Nov 2026, owner hardware):** After about 15 minutes without the previous crash, the 4-team battle was at **9 FPS / 116.8 ms RAF**, **372 total / 131 rendered units**, **238 total / 20 rendered buildings**, and **2160×1063 backing pixels at 100% scale**. Profiling showed **SIM 11.4 ms, DRAW 52.1 ms, WORLD 48.8 ms, UNIT 44.1 ms, LOOP 70.1 ms, GAP 46.7 ms**. This confirms a large visible-troop render bottleneck, not hardware acceptance. Latest fix retains native frame quality and uses a direct draw for forward-facing motion frames; the FPS HUD now exposes team-tint cache hit/create/evict counts and cropped-frame usage. **FPS improvement is unmeasured until the same Xbox scene is retested.**
 
@@ -46,7 +46,7 @@ An original, controller-first medieval real-time strategy game built for **Micro
 - **Controller:** existing A/RT/LB commands, left-stick pan and right-stick zoom; **solo R3 villager-priority presets/manual wheel is now partially implemented** (population-scaled ratios, seven reference-based presets and opt-in solo automatic farms implemented; multiplayer R3 and full hardware parity still missing). View, contextual X, LT waypoints, menu gestures and physical Xbox parity remain open in the [controller contract](XBOX_CONTROLLER_PARITY.md).
 - **Multiplayer:** authenticated **two-human battlefield preview** with direct WebRTC and guarded commands. It is not a complete 1v1 product: independent-network full-match acceptance, reconnect, larger player counts, hidden-state security and fallback transport remain open.
 
-These are status descriptions, **not release claims**. [ROADMAP.md](ROADMAP.md) is the active 48-task completion ledger. Earlier dated implementation milestones belong in the [delivery register](MASTER_AUDIT_AND_DELIVERY_REGISTER.md), not the current project status.
+These are status descriptions, **not release claims**. [ROADMAP.md](ROADMAP.md) is the active 48-task completion ledger. Earlier dated implementation milestones belong in the [historical evidence index](docs/HISTORY.md), not the current project status.
 
 **Development saves:** Until the game reaches its completed release, a new update may make saves from earlier test builds incompatible. The game should still support saves created by its current version and safely reject incompatible files; long-term backward compatibility and migrations will be finalised at release. Start a new game or regenerate a test save after a breaking development change.
 
@@ -88,12 +88,12 @@ The single runner continues after individual failures, preserves isolated scenar
 | `sw.js`, `persistence.js`, `js/save.js` | Offline shell/cache and save integrity |
 | `multiplayer.js`, `js/network-*.js`, `server/` | Existing preview, compatibility paths, transport and verification — **not automatically obsolete** |
 | `scripts/`, `tests/`, `.github/workflows/` | Generation, validation, game and browser tests |
-| [AGENTS.md](AGENTS.md) | Development rules: work on `main`, preserve Xbox controls, safeguards and free hosting |
+| [AGENTS.md](AGENTS.md) | Development rules: work on `development`, preserve Xbox controls, safeguards and free hosting |
 | [ROADMAP.md](ROADMAP.md) | **Current** tasks and acceptance criteria |
 | [XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md) | Complete Xbox gameplay, DLC and multiplayer requirements |
-| [MASTER_AUDIT_AND_DELIVERY_REGISTER.md](MASTER_AUDIT_AND_DELIVERY_REGISTER.md) | Dated implementation evidence and historic `CK-###` items |
+| [docs/HISTORY.md](docs/HISTORY.md) | Archived evidence, dated journals and historic `CK-###` identifiers |
 
-The [older AoE II journal](AOE2_PARITY_ROADMAP.md), graphics history and prior CI/deployment notes are historical evidence, **not active instructions**. Git history retains superseded prose. Do not bulk-delete legacy-looking runtime, artwork, save, security, network or test files without proving them unused and running the relevant regression checks.
+The [older AoE II journal](docs/HISTORY.md#retired-implementation-journals), graphics history and prior CI/deployment notes are historical evidence, **not active instructions**. Git history retains superseded prose. Do not bulk-delete legacy-looking runtime, artwork, save, security, network or test files without proving them unused and running the relevant regression checks.
 
 
 **Xbox large battle save:** Select **Large Battle Test Save** on the title screen and press **A**. It prepares a reproducible four-kingdom battlefield with **372 real units, 238 completed buildings** and opposing armies staged near the map centre with saved attack orders. The game opens **paused**, so choose **Resume** when you want the fighting to begin. Performance HUD is enabled and normal manual/autosave slots are not touched; the test uses the reserved `ck_series_s_prebattle_fixture_v1` key. The battle is regenerated from the same seed when selected again; it is not a replacement for your campaign or ordinary saves. Check sustained FPS/unit rendering after resuming on physical Xbox Series S Edge.

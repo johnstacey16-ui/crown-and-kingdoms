@@ -1,3 +1,6 @@
+/* Release-candidate check: same source tree; trigger opt-in test gates on this push.
+ * No expensive campaign, browser, or seeded checks run for ordinary commits.
+ */
 /* Single cross-platform acceptance plan for local and GitHub-hosted checks.
  * Keep each regression and campaign in its own process to isolate global game state.
  * Full suites run on request or weekly: never on every hosted push.
