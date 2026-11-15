@@ -9,6 +9,14 @@
 - **Architecture/cleanup status:** [docs/REFACTORING_INVENTORY.md](docs/REFACTORING_INVENTORY.md). Historical detail is available through Git history (including [the pre-consolidation snapshot](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694)) and existing dated audit files. Do not create more duplicate checkpoint logs in this file.
 - **Audits and reference scope:** [docs/audits/2026-10-31-consolidated-audit.md](docs/audits/2026-10-31-consolidated-audit.md), [XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md), and [FREE_HOSTING.md](FREE_HOSTING.md).
 
+## Shared AI handoff — Claude and ChatGPT
+
+- **One set of instructions:** Claude Code's [CLAUDE.md](CLAUDE.md) points here; ChatGPT/Codex and Claude must follow these same rules, the current `development` branch and the single authoritative [ROADMAP.md](ROADMAP.md).
+- **Resume from the same context:** After reading the roadmap, read [docs/ai/HANDOFF.md](docs/ai/HANDOFF.md) for the last agent's short working note. Verify every claim against the current commit, CI and source before relying on it; a handoff is not acceptance evidence.
+- **Leave a useful baton pass:** After meaningful work, replace that file's *latest handoff* with the agent/client, date, branch, relevant commit/PR, actual commands/tests and their SHA where known, open blockers and the next action. Keep history in Git rather than accumulating another transcript or duplicate backlog. Preserve `ROADMAP.md` as the sole task authority.
+- **Coordinate concurrent edits:** Fetch current `development` state before writing and reconcile newer changes rather than overwriting another assistant's work. Never put API keys, private chats or unverified deployment/hardware claims in these files.
+- **No magical app sync:** Repository memory works only when each assistant has GitHub access and explicitly reads and updates it; ordinary web chats do not automatically synchronize.
+
 ## Living, reusable RTS development skill
 
 Use and maintain [browser-rts-game-dev](.github/skills/browser-rts-game-dev/SKILL.md) for meaningful new gameplay, original sprites, AI, campaigns, multiplayer, Xbox and publishing methods. It is a standard Agent Skills package and historical case study, **not a second backlog**. For each substantial tested feature batch, add a concise **dated, commit-bound** lesson to the [build journal](.github/skills/browser-rts-game-dev/references/journal.md); update a focused guide only when the engineering/art procedure changes. Keep gameplay, graphics/Elite appearances, network, hardware and release acceptance **separate**, and record unfinished sprite states rather than declaring a civilization complete from code alone. Never invent test, art or deployed-revision evidence.
