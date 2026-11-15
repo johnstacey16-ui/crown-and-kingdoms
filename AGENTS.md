@@ -9,13 +9,9 @@
 - **Architecture/cleanup status:** [docs/REFACTORING_INVENTORY.md](docs/REFACTORING_INVENTORY.md). Historical detail is available through Git history (including [the pre-consolidation snapshot](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694)) and existing dated audit files. Do not create more duplicate checkpoint logs in this file.
 - **Audits and reference scope:** [docs/audits/2026-10-31-consolidated-audit.md](docs/audits/2026-10-31-consolidated-audit.md), [XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md](XBOX_SERIES_X_FULL_PARITY_AND_MULTIPLAYER_PLAN.md), [XBOX_CONTROLLER_PARITY.md](XBOX_CONTROLLER_PARITY.md), and [FREE_HOSTING.md](FREE_HOSTING.md).
 
-## Shared AI handoff — Claude and ChatGPT
+## Cross-assistant memory (paused by owner, 15 November 2026)
 
-- **One set of instructions:** Claude Code's [CLAUDE.md](CLAUDE.md) points here; ChatGPT/Codex and Claude must follow these same rules, the current `development` branch and the single authoritative [ROADMAP.md](ROADMAP.md).
-- **Resume from the same context:** After reading the roadmap, read [docs/ai/HANDOFF.md](docs/ai/HANDOFF.md) for the last agent's short working note. Verify every claim against the current commit, CI and source before relying on it; a handoff is not acceptance evidence.
-- **Leave a useful baton pass:** After meaningful work, replace that file's *latest handoff* with the agent/client, date, branch, relevant commit/PR, actual commands/tests and their SHA where known, open blockers and the next action. Keep history in Git rather than accumulating another transcript or duplicate backlog. Preserve `ROADMAP.md` as the sole task authority.
-- **Coordinate concurrent edits:** Fetch current `development` state before writing and reconcile newer changes rather than overwriting another assistant's work. Never put API keys, private chats or unverified deployment/hardware claims in these files.
-- **No magical app sync:** Repository memory works only when each assistant has GitHub access and explicitly reads and updates it; ordinary web chats do not automatically synchronize.
+Claude/ChatGPT collaboration files `CLAUDE.md` and `docs/ai/HANDOFF.md` are retained for future use, but the cross-assistant handoff process is **paused** until the owner explicitly resumes it. Do **not** routinely read, write, refresh, or auto-capture `docs/ai/HANDOFF.md` during normal development. Continue using `AGENTS.md` for coding rules, `ROADMAP.md` as the single source of task priorities and verified status, and Git commits/test evidence as before. Do not create duplicate memory logs or spend additional tokens or CI/hosting quota on the parked integration.
 
 ## Living, reusable RTS development skill
 
