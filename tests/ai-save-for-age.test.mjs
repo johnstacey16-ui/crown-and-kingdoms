@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const ai=readFileSync(new URL('../js/ai-production.js',import.meta.url),'utf8');
 const policySource=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const start=policySource.indexOf('function aiSavingAgeFood(t,villagers){');
 const end=policySource.indexOf('function aiTownTechReady(',start);

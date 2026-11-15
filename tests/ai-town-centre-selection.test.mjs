@@ -6,6 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 // Test the real production helper, not a substring of its current source
 // formatting. This preserves the centre preference across AI refactors.
 const source = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const production = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8');
 function choose(buildings) {
  const context = vm.createContext({S:{bs:buildings,us:[]},U:{}});
  vm.runInContext(source+'\n;globalThis.chooseCentre=()=>aiTeamRoster(1).tc;',context);
@@ -21,7 +22,7 @@ assert.equal(choose([destroyed]), null, 'destroyed centre cannot be selected');
 assert.equal(choose([{ ...ready, t: 0 }, ready]), ready, 'opponent centres are ignored');
 console.log('ai-town-centre-selection: production helper passed');
 
-const expansionLimit=vm.runInNewContext(source+'\n;aiTownCentreLimit',{});
+const expansionLimit=vm.runInNewContext(production+'\n;aiTownCentreLimit',{});
 assert.equal(expansionLimit(1,2000,50,0),1,'Feudal Age never unlocks another Town Centre');
 assert.equal(expansionLimit(2,899,24,0),1,'Castle expansion has a minimum elapsed match time');
 assert.equal(expansionLimit(2,900,23,0),1,'Castle expansion requires a functioning economy');
@@ -40,7 +41,7 @@ function townTraining({age=3,villagers=49,save=false,research=false,centres=3}={
   aiSavingAgeFood:()=>save,aiTownTechReady:()=>research,can:()=>true,
   train:(b,k)=>{b.q.push({k});trained.push(b.id);return true}
  };
- const api=vm.runInNewContext(source+'\n;aiTrainTownVillagers',ctx);
+ const api=vm.runInNewContext(production+'\n;aiTrainTownVillagers',ctx);
  const workers=Array.from({length:villagers},()=>({k:'vil',hp:25}));
  return {buildings,workers,trained,run:()=>api(1,workers,buildings,buildings[0])};
 }

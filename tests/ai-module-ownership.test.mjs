@@ -11,6 +11,7 @@ const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const defence = readFileSync(new URL('../js/ai-defence.js', import.meta.url), 'utf8');
 const construction = readFileSync(new URL('../js/ai-construction.js', import.meta.url), 'utf8');
+const production = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8');
 
 test('enemy strategy has one cohesive owner in js/ai.js', () => {
   for (const name of ['ai','aiTeam']) {
@@ -28,7 +29,7 @@ test('enemy strategy has one cohesive owner in js/ai.js', () => {
   assert.doesNotMatch(ai,/function aiRetreat\s*\(/,'main AI loop does not define retreat policy');
   assert.match(ai,/aiRetreat\(/,'main AI loop still executes defensive retreats');
   assert.ok(simulation.includes('ai(dt)'), 'The fixed-step simulation must still call the AI entry point');
-  assert.match(ai,/aiTechnologyPriority\(k,techContext\)/, 'AI invokes the shared research scoring policy');
+  assert.match(production,/aiTechnologyPriority\(k,techContext\)/, 'AI invokes the shared research scoring policy');
   assert.ok(policy.includes('function aiTechnologyPriority('), 'Composition-aware research scoring has a dedicated owner');
   assert.ok(policy.includes('navalHull') && policy.includes('navalAtk'), 'Naval counter-research priorities remain in the shared policy');
 });
@@ -44,16 +45,17 @@ test('AI script order, offline support and syntax checks are wired consistently'
   assert.ok(worker.includes("'./js/ai-defence.js'"),'The offline shell must contain the AI defensive module');
   assert.ok(worker.includes("'./js/ai-maritime.js'"),'The offline shell must contain the AI maritime module');
   assert.ok(worker.includes("'./js/ai-construction.js'"),'The offline shell must contain the AI construction module');
+  assert.ok(worker.includes("'./js/ai-production.js'"),'The offline shell must contain the AI production module');
   assert.match(checker,/for \(const \{path,source:code\} of scripts\) new vm\.Script\(code/,
     'Source validation must syntax-parse the production script list');
-  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+12),
-    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
+  assert.deepEqual(coreGameScriptPaths(html).slice(coreGameScriptPaths(html).indexOf('./js/simulation.js'),coreGameScriptPaths(html).indexOf('./js/simulation.js')+13),
+    ['./js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai-production.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js']);
 
 });
 
 test('AI military training and technology research remain separate ordered planning phases',()=>{
  for(const name of ['aiPlanMilitaryTraining','aiPlanResearch']){
-  assert.equal((ai.match(new RegExp('function '+name+'\\(', 'g'))||[]).length,1,
+  assert.equal((production.match(new RegExp('function '+name+'\\(', 'g'))||[]).length,1,
    name+' must have one live definition');
  }
  const team=ai.slice(ai.indexOf('function aiTeam('));
@@ -62,6 +64,6 @@ test('AI military training and technology research remain separate ordered plann
  const repairs=team.indexOf('aiRepairImportantBuildings(t,A,bl,vil)');
  assert.ok(military>=0&&research>military&&repairs>research,
   'military queues must be planned before research and subsequent economy/defence');
- assert.match(ai,/const queuedUnits=k=>aiQueuedUnits\(bl,k\)/);
- assert.match(ai,/const techPriority=k=>aiTechnologyPriority\(k,techContext\)/);
+ assert.match(production,/const queuedUnits=k=>aiQueuedUnits\(bl,k\)/);
+ assert.match(production,/const techPriority=k=>aiTechnologyPriority\(k,techContext\)/);
 });

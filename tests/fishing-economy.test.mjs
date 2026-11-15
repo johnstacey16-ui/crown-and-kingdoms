@@ -7,7 +7,8 @@ import {headlessGame} from './helpers/headless-game.mjs';
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const sim=readFileSync(new URL('../js/simulation-unit-behaviour.js',import.meta.url),'utf8');
 const resource=readFileSync(new URL('../js/simulation-resource-routing.js',import.meta.url),'utf8');
-const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const ai=readFileSync(new URL('../js/ai-production.js',import.meta.url),'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const maritime=readFileSync(new URL('../js/ai-maritime.js',import.meta.url),'utf8');
 const {U,B}=vm.runInNewContext(config+'\n;({U,B})');
 const begin=resource.indexOf('function farmAvailableTo(u,n){');
