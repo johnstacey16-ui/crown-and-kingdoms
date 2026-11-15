@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const html = ['config','state','mapgen','audio','save','input','render','simulation','ai'].map(name => readFileSync(new URL('../js/'+name+'.js', import.meta.url), 'utf8')).join('\n') + '\n' + readFileSync(new URL('../engine.js', import.meta.url), 'utf8');
+const production = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8');
 const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const maritime = readFileSync(new URL('../js/ai-maritime.js', import.meta.url), 'utf8');
@@ -26,7 +26,7 @@ assert.match(maritime, /hostileShips\.filter\(e=>Math\.hypot\(e\.x-ship\.x,e\.y-
   'ship engagement candidates must stay within the local 28-tile combat radius');
 assert.match(maritime, /if\(enemy\)\{ship\.o='a';ship\.tg=enemy;ship\.p=\[\];focusCounts\.set\(enemy/,
   'a reachable nearby hostile ship must be assigned as the galley attack target');
-assert.match(html, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
+assert.match(production, /counterPlans=isDock\?\(enemyShips\?\[\{threat:enemyShips,units:\['gal'\]\}\]:\[\]\)/,
   'AI docks must train a war galley in response to even one confirmed enemy combat ship');
 console.log('naval-ai-priority: consolidated threat scan preserves targeting and counter-priorities');
 
