@@ -68,4 +68,4 @@ Earlier extraction and checkpoint details remain in [the prior inventory](https:
 
 ## Archived detailed change evidence
 
-The previous ~68 KB `AGENTS.md`, ~101 KB `ROADMAP.md`, and ~91 KB refactoring inventory had extensive overlapping dated checkpoint paragraphs. Their **full original text has not been destroyed**: retrieve it at [the previous green-doc commit `ef2a635`](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694), or inspect the intervening Git history, existing consolidated audit and master delivery register. Do not add another document simply to duplicate these histories.
+Older checkpoints were consolidated. Full original documents remain at [the archived revision `ef2a635`](https://github.com/johnstacey16-ui/crown-and-kingdoms/tree/ef2a6356692626bd60900a60c9d3e42db94da694) and through Git history; use ROADMAP.md for current work.
