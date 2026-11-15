@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const maritime = readFileSync(new URL('../js/ai-maritime.js', import.meta.url), 'utf8');
 assert.match(maritime, /underFire=S\.us\.some\(e=>e&&Number\.isInteger\(e\.t\)&&isHostile\(t,e\.t\)&&e\.hp>0&&U\[e\.k\]\?\.sh&&Math\.hypot\(e\.x-target\.x,e\.y-target\.y\)<10\)/,

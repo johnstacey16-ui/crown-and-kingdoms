@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const aiPolicy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const aiDefence = readFileSync(new URL('../js/ai-defence.js', import.meta.url), 'utf8');
 assert.match(aiPolicy, /const ownInf=arm\.filter\(u=>INFARM\.has\(u\.k\)\)\.length,ownRanged=arm\.filter\(u=>ARCHARM\.has\(u\.k\)\)\.length,ownCav=arm\.filter\(u=>CAVARM\.has\(u\.k\)\)\.length/,
