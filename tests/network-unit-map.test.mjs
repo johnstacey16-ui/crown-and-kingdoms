@@ -6,8 +6,15 @@ import { readFileSync } from 'node:fs';
 const context={};
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 vm.runInNewContext(input.slice(0,input.indexOf('function readPad()')),context);
+vm.runInNewContext(readFileSync(new URL('../js/network-unit-projection.js',import.meta.url),'utf8'),context);
 vm.runInNewContext(readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8'),context);
 const api=context.CK_UNIT_MAP;
+test('battlefield projection is a separate immutable owner with unchanged public API',()=>{
+ assert.equal(api.project,context.CK_UNIT_PROJECTION.project);
+ assert.ok(Object.isFrozen(api));
+ assert.ok(Object.isFrozen(context.CK_UNIT_PROJECTION));
+ assert.throws(()=>api.project(null,0,32,32),/Invalid unit map/);
+});
 const world=()=>({teamN:2,us:[
   {netId:'u1',t:0,k:'vil',hp:25,x:5,y:6},
   {netId:'u2',t:1,k:'vil',hp:25,x:20,y:22,o:'i'},
