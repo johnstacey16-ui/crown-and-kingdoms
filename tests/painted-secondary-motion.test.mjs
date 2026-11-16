@@ -57,7 +57,7 @@ test('attack recoil uses real cooldown phase, pauses and recovers on each family
 });
 test('solo and multiplayer renderers share the same presentation-only pose and preserve sixteen-frame precedence',()=>{
   const solo=readFileSync(new URL('../js/render-troops.js',import.meta.url),'utf8');
-  const network=readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8');
+  const network=readFileSync(new URL('../js/network-unit-render.js',import.meta.url),'utf8');
   assert.match(solo,/drawPaintedTroop\(X,af,sx,sy,af\.sc\*z,st,pose\.time,mirror,k,pose\.phase\)/);
   assert.match(network,/drawPaintedTroop\(context,sprite,footX,footY,scale,[^\n]*e\.kind,e\.pose\?\.phase\)/);
   assert.match(solo,/const motion=art\.animated\?null:paintedSecondaryPose/);

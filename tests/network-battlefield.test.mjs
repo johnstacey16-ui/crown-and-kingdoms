@@ -24,7 +24,7 @@ const setup=`
 `;
 function fixture(){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
- vm.runInContext(source+'\n'+read('assets')+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-projection')+'\n'+read('network-unit-map')+'\n'+setup,sandbox);return sandbox;
+ vm.runInContext(source+'\n'+read('assets')+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-projection')+'\n'+read('network-unit-render')+'\n'+read('network-unit-map')+'\n'+setup,sandbox);return sandbox;
 }
 function mapFixture(c){
  const orders=[],draws=[],canvas={style:{},setAttribute(){},addEventListener(){},focus(){},
