@@ -36,7 +36,8 @@ for(const [a,b] of [
  ['./engine.js','./js/network-sync.js'],
  ['./js/network-sync.js','./js/network-commands.js'],
  ['./js/network-commands.js','./js/network-delivery.js'],
- ['./js/network-session.js','./js/network-unit-map.js'],
+ ['./js/network-session.js','./js/network-unit-projection.js'],
+ ['./js/network-unit-projection.js','./js/network-unit-map.js'],
  ['./js/network-unit-map.js','./js/network-lobby.js'],
  ['./js/network-lobby.js','./multiplayer.js']
 ]){

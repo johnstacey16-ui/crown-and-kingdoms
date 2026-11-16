@@ -11,7 +11,7 @@ function game(origin, preferences) {
   const { source, sandbox } = headlessGame();
   Object.assign(sandbox, { location:{origin}, URL, AbortController, TextEncoder, fetch, setTimeout, clearTimeout });
   vm.runInNewContext(source + '\n' + read('network-sync') + '\n' + read('network-transport') +
-    '\n' + read('network-commands') + '\n' + read('network-delivery') + '\n' + read('network-uplink') + '\n' + startupSource + '\n' + read('network-session') + '\n' + read('network-unit-map') + '\n' + read('network-lobby') + '\n' + preferences + `
+    '\n' + read('network-commands') + '\n' + read('network-delivery') + '\n' + read('network-uplink') + '\n' + startupSource + '\n' + read('network-session') + '\n' + read('network-unit-projection') + '\n' + read('network-unit-map') + '\n' + read('network-lobby') + '\n' + preferences + `
     globalThis.testSettings=()=>({msz,mt,kingdoms,civ,aiCiv,diff,aip,vm,mapLayout,startAge,
       startRes,startArmy,startVillagers,popLimit,gameMode,scoreLimit,seedOv,cmp,gs});
     globalThis.testWorld=()=>({time:S.t,mode,resources:S.res,age:S.age,units:S.us.length,
