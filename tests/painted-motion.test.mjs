@@ -91,7 +91,7 @@ test('monk conversion gestures follow active progress, yield to walking and neve
  run('actor.cv=2;actor.p=[[11,15]]');assert.equal(run('unitVisualPose(actor,4).state'),1);
  run("actor.p=[];actor.o='i'");assert.equal(run('unitVisualPose(actor,4).state'),0);
  run("actor.o='v';actor.k='mil'");assert.equal(run('unitVisualPose(actor,4).state'),0);
- for(const name of ['network-sync','network-commands','network-unit-map'])run(readFileSync(new URL('../js/'+name+'.js',import.meta.url),'utf8'));
+ for(const name of ['network-sync','network-commands','network-unit-projection','network-unit-map'])run(readFileSync(new URL('../js/'+name+'.js',import.meta.url),'utf8'));
  run("seedOv=123456;start();mode='title';actor=addU(0,'mon',20,20);actor.o='v';actor.cv=2;actor.tg=addU(1,'mil',22,20);globalThis.beforePose=CK_SIM_SYNC.worldCheckpoint(S,1).hash");
  assert.equal(run('CK_UNIT_MAP.project(S,0,W,H).units.find(u=>u.id===actor.netId).pose.state'),3);
  assert.equal(run('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),run('beforePose'),'multiplayer projection leaves conversion and simulation untouched');
