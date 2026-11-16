@@ -23,7 +23,7 @@ test('projectile drawings restore transforms and reject invalid positions withou
 test('team-relative projectile projection copies only visible shot art and fixed heading',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
  const read=p=>readFileSync(new URL('../js/'+p+'.js',import.meta.url),'utf8');
- vm.runInContext(source+'\n'+read('assets')+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-projection')+'\n'+read('network-unit-map')+`
+ vm.runInContext(source+'\n'+read('assets')+'\n'+read('network-sync')+'\n'+read('network-commands')+'\n'+read('network-unit-projection')+'\n'+read('network-unit-render')+'\n'+read('network-unit-map')+`
  seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();snd=mus=0;S.us=[];S.bs=[];
  const observer=addU(0,'vil',20,20);addU(1,'vil',60,60);
  const visible={x:21,y:20,tx:24,ty:20,a:{k:'bomb',t:1},get t(){throw Error('hidden target accessed')}};

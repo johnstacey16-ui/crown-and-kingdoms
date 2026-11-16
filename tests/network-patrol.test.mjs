@@ -6,7 +6,7 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 function fixture(team=0,naval=false){
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
- const modules=['network-sync','network-commands','network-unit-projection','network-unit-map'].map(n=>readFileSync(new URL('../js/'+n+'.js',import.meta.url),'utf8')).join('\n');
+ const modules=['network-sync','network-commands','network-unit-projection','network-unit-render','network-unit-map'].map(n=>readFileSync(new URL('../js/'+n+'.js',import.meta.url),'utf8')).join('\n');
  vm.runInContext(source+'\n'+modules+`\n
  seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;
  startAge=1;startArmy=0;startRes=3;start();snd=0;S.humanTeams=[0,1];S.us=[];

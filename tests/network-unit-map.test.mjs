@@ -7,8 +7,22 @@ const context={};
 const input=readFileSync(new URL('../js/input.js',import.meta.url),'utf8');
 vm.runInNewContext(input.slice(0,input.indexOf('function readPad()')),context);
 vm.runInNewContext(readFileSync(new URL('../js/network-unit-projection.js',import.meta.url),'utf8'),context);
+vm.runInNewContext(readFileSync(new URL('../js/network-unit-render.js',import.meta.url),'utf8'),context);
 vm.runInNewContext(readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8'),context);
 const api=context.CK_UNIT_MAP;
+test('map rendering has one dedicated owner and preserves the interactive map API',()=>{
+ const renderer=readFileSync(new URL('../js/network-unit-render.js',import.meta.url),'utf8');
+ const controller=readFileSync(new URL('../js/network-unit-map.js',import.meta.url),'utf8');
+ assert.ok(Object.isFrozen(context.CK_NETWORK_MAP_RENDER));
+ assert.equal(typeof context.CK_NETWORK_MAP_RENDER.create,'function');
+ for(const functionName of ['drawTerrain','drawAtlas','drawEntity']){
+   assert.match(renderer,new RegExp('function '+functionName+'\\('));
+   assert.doesNotMatch(controller,new RegExp('function '+functionName+'\\('));
+ }
+ assert.match(controller,/CK_NETWORK_MAP_RENDER\.create/);
+ assert.equal(typeof api.project,'function');
+ assert.equal(typeof api.create,'function');
+});
 test('battlefield projection is a separate immutable owner with unchanged public API',()=>{
  assert.equal(api.project,context.CK_UNIT_PROJECTION.project);
  assert.ok(Object.isFrozen(api));
