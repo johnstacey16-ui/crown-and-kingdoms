@@ -20,6 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30 # Covers explicit one-off 19-mission verification; normal pushes remain quick.
     steps:
+      # A merged PR from the permanent development branch can be auto-deleted
+      # by GitHub. Production PRs must use disposable release/* branches.
+      - name: Reject permanent development branch as a production PR head
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [ "$SOURCE_BRANCH" = development ]; then
+            echo "::error::Do not PR development directly into main. Create a release/YYYY-MM-DD branch at the verified development SHA and PR that instead."
+            exit 1
+          fi
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Set up Node.js
