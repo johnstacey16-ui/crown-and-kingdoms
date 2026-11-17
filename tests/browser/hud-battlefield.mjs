@@ -1,3 +1,4 @@
+import {EXPECTED_ATLASES} from '../helpers/atlas-count.mjs';
 /* Live battlefield + Canvas2D HUD acceptance, opt-in and weekly/manual only.
  * This paints through draw(0), including real painted terrain, units, fog,
  * selection HUD and in-world radial commands. It never steps the simulation.
@@ -37,7 +38,7 @@ try{
     typeof draw==='function'&&typeof drawWorld==='function'&&
     typeof hud==='function'&&typeof drawRadial==='function'&&
     typeof CK_SIM_SYNC!=='undefined'&&typeof ASSET!=='undefined');
-   await page.waitForFunction(()=>ASSET.n===57&&!!PAINT.terrain);
+   await page.waitForFunction(count=>ASSET.n===count&&!!PAINT.terrain,EXPECTED_ATLASES);
    for(const scene of viewport.scenes){
     const initialized=await page.evaluate(scene=>{
      snd=mus=0;mode='title';

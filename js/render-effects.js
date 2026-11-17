@@ -93,12 +93,13 @@ function queueRosterTintWarmup(world){
  for(const unit of world.us){
   if(!unit||!(unit.hp>0)||unit.ld||typeof unit.k!=='string'||!Number.isInteger(unit.t)||unit.t<0||unit.t>=(world.teamN||4))continue;
   const key=unit.k+'/'+unit.t;
-  if(!seenPairs.has(key)){seenPairs.add(key);pairs.push({kind:unit.k,team:unit.t})}
+  if(!seenPairs.has(key)){seenPairs.add(key);pairs.push({kind:unit.k,team:unit.t,elite:typeof eliteUniqueUnitUpgrade==='function'&&!!eliteUniqueUnitUpgrade(unit.k,unit.t,world)})}
  }
  const group=TEAM_FRAME_GROUPS.troop;
  const limit=Math.min(group.limit,Math.max(0,TEAM_FRAME_CACHE.limit-(TEAM_FRAME_CACHE.pixels-group.pixels)));
  // First admit an idle pose for each actual roster pair, then motion states.
- for(const state of[0,1,2,3])for(const {kind,team}of pairs){
+ for(const state of[0,1,2,3])for(const pair of pairs){
+  const {team}=pair,kind=pair.elite&&hasReadyAssetPose(pair.kind+'_elite',team,state)?pair.kind+'_elite':pair.kind;
   const key=(SHIP_ART_FALLBACK[kind]||kind)+'/'+STN[state]+'/'+team;
   for(const atlas of ASSET_ANIM_INDEX.get(key)||[]){
    if(!atlas.ok||!atlas.img)continue;

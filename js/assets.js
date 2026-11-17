@@ -260,6 +260,13 @@ function validAtlasMeta(meta,w,h){if(!meta||!meta.anims||!Number.isFinite(w)||!N
 function loadAtlas(id,src,meta){const a={img:null,meta,ok:false};ASSET.atl[id]=a;rebuildAssetAnimationIndex();try{const im=new Image();im.onload=()=>{if(!validAtlasMeta(meta,im.naturalWidth||im.width,im.naturalHeight||im.height)){a.ok=false;a.img=null}else{a.img=im;a.ok=true}ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()};im.onerror=()=>{a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()};im.src=src}catch(e){a.ok=false;a.img=null;ASSET.n=Object.values(ASSET.atl).filter(q=>q.ok).length;rebuildAssetAnimationIndex()}}
 // Returned f samples img; sourceFrame retains canonical atlas coordinates.
 // Both share the original dimensions and foot anchor.
+// Research is supplied by the renderer's world, never inferred from the solo
+// global while rendering a multiplayer projection. Missing Elite art falls back.
+function unitAssetFrame(kind,team,pose,elite=false,predict=false,allowTransient=false){
+ const frame=key=>assetFrame(key,team,pose.state||0,0,pose.time,pose.heading,pose.phase,predict,allowTransient);
+ if(elite){const art=frame(kind+'_elite');if(art){art.elite=true;return art}}
+ return frame(kind);
+}
 function assetFrame(k,t,st,dir,time,heading,phase,predict=false,allowTransient=false){const key=(SHIP_ART_FALLBACK[k]||k)+'/'+STN[st]+'/'+t;for(const a of ASSET_ANIM_INDEX.get(key)||[]){if(!a.ok||!a.img||!a.meta?.anims)continue;const an=a.meta.anims[key];if(!an)continue;const index=an.dirs&&Number.isFinite(heading)?((Math.round(heading/(Math.PI*2)*an.dirs.length)%an.dirs.length)+an.dirs.length)%an.dirs.length:an.dirs?((dir%an.dirs.length)+an.dirs.length)%an.dirs.length:0;const dl=an.dirs?an.dirs[index]:an.frames;if(!dl||!dl.length)continue;const frameIndex=Number.isFinite(phase)?Math.min(dl.length-1,Math.floor(Math.max(0,Math.min(1,phase))*dl.length)):Math.floor(Math.max(0,Number.isFinite(time)?time:0)/(an.dur>0?an.dur:.12))%dl.length;const f=dl[frameIndex];if(f&&f.w>0&&f.h>0){
  ASSET.hits++;
  // One descriptor per visible soldier, without spreading two temporary objects.

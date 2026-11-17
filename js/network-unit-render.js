@@ -84,7 +84,9 @@
       const size=e.size||0,time=view.battlefield?.time||0;
       // Preserve the actual kingdom palette for each player; relation rings
       // identify ownership without repainting the other kingdom's artwork.
-      const sprite=size&&typeof paintedBuildingFrame==='function'?paintedBuildingFrame(e.kind,e.team,time,e.architectureAge):assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,e.pose?.time??time,e.pose?.heading||0,e.pose?.phase);
+      const sprite=size&&typeof paintedBuildingFrame==='function'?paintedBuildingFrame(e.kind,e.team,time,e.architectureAge):
+        !size&&typeof unitAssetFrame==='function'?unitAssetFrame(e.kind,e.team,e.pose||{state:0,time},!!e.pose?.elite):
+        assetFrame(size?'bld_'+e.kind:e.kind,e.team,size?3:e.pose?.state||0,0,e.pose?.time??time,e.pose?.heading||0,e.pose?.phase);
       if(!sprite)return false;
       const f=sprite.f,height=size?Math.max(size*sx,size*sy)*1.7:Math.max(22,Math.min(40,sx*3.4));
       const scale=height/(sprite.referenceHeight||f.h)*(sprite.painted?1:sprite.sc||1),footX=x+size*sx/2,footY=y+(size?size*sy:2);

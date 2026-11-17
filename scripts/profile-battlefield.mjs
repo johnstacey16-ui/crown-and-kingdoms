@@ -1,3 +1,4 @@
+import {EXPECTED_ATLASES} from '../tests/helpers/atlas-count.mjs';
 /* Manual matched browser profiling. Never interpret synthetic CPU throttling
  * or headless SwiftShader FPS as physical Xbox results. No hosted schedule. */
 import {chromium} from 'playwright';
@@ -16,7 +17,7 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{window.profileRAF=requestAnimationFrame.bind(window);window.requestAnimationFrame=()=>0;Object.defineProperty(navigator,'getGamepads',{value:()=>[{index:0,connected:true,mapping:'standard',axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))}]});window.profileLongTasks=[];new PerformanceObserver(list=>{for(const e of list.getEntries())if(profileLongTasks.length<1000)profileLongTasks.push({start:e.startTime,duration:e.duration})}).observe({type:'longtask',buffered:true})});
 const result={scope:'Local Chromium; CPU throttling is synthetic, not Xbox emulation. Accelerated fixed-step progression is not real-time FPS.',viewport:[1800,886],deviceScaleFactor:1.2,cases:[],progression:[],errors};
 try{
- await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'networkidle'});await page.waitForFunction(()=>ASSET.n===57&&PAINT.terrain);
+ await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'networkidle'});await page.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_ATLASES);
  result.browser=browser.version();const bc=await browser.newBrowserCDPSession();result.gpu=(await bc.send('SystemInfo.getInfo')).gpu.devices;
  for(let repeat=0;repeat<2;repeat++){
   result.progression.push(await page.evaluate(repeat=>{mode='title';const t=performance.now();if(!loadSeriesSLargeBattleSave())throw Error('fixture failed');snd=mus=0;return {repeat,fixtureMs:performance.now()-t,units:S.us.length,buildings:S.bs.length}},repeat));

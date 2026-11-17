@@ -1,3 +1,4 @@
+import {EXPECTED_ATLASES} from '../helpers/atlas-count.mjs';
 import assert from 'node:assert/strict';
 import {writeFile} from 'node:fs/promises';
 export async function checkMapTerrainCache(page,output,prefix='terrain-cache'){
@@ -29,7 +30,7 @@ export async function checkNavalTerrainCache(browser,origin,output){
  const page=await browser.newPage({viewport:{width:960,height:850}});
  try{
   await page.goto(origin,{waitUntil:'networkidle'});
-  await page.waitForFunction(()=>typeof startScenario==='function'&&ASSET.n===57&&PAINT.terrain);
+  await page.waitForFunction(count=>typeof startScenario==='function'&&ASSET.n===count&&PAINT.terrain,EXPECTED_ATLASES);
   await page.evaluate(()=>{
    startScenario(12);mode='title';
    const commands=window.CK_GAME_COMMANDS;

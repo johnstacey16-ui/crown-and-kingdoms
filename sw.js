@@ -4,8 +4,8 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v222-mirrored-graphics-release-' + ART_REVISION;
+const ART_REVISION = '4ea4c6cee3c62ea8a0e0c03278e0df638fb3e35faa59a2137fb6b6925373ce46';
+const CACHE_NAME = 'ck-shell-v228-regional-cavalry-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,23 @@ const CORE_ASSETS = [
   './assets/painted-wildlife-deer.webp',
   './assets/painted-wildlife-fish.webp',
   './assets/painted-motion-mil.webp',
+  './assets/painted-motion-eagle.webp',
+  './assets/painted-motion-konnik.webp',
+  './assets/painted-motion-keshik.webp',
+  './assets/painted-motion-leitis.webp',
+  './assets/painted-motion-footkonnik.webp',
+  './assets/painted-motion-flemish.webp',
+  './assets/painted-motion-warpriest.webp',
+  './assets/painted-motion-serjeant.webp',
+  './assets/painted-motion-obuch.webp',
+  './assets/painted-motion-legionary.webp',
+  './assets/painted-motion-cavarch.webp',
+  './assets/painted-motion-rattan.webp',
+  './assets/painted-motion-composite.webp',
+  './assets/painted-elite-huskarl.webp',
+  './assets/painted-elite-lbow.webp',
+  './assets/painted-elite-mgd.webp',
+  './assets/painted-elite-axe.webp',
   './assets/painted-motion-knight.webp',
   './assets/painted-motion-vil.webp',
   './assets/painted-motion-arc.webp',

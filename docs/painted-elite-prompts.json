@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-17",
+  "tool": "built-in image generation",
+  "transparentBackground": true,
+  "rights": "Original Crown & Kingdoms generated artwork, edited from this repository's original base sheets; no extracted commercial game art.",
+  "references": {
+    "huskarl": "assets/painted-motion-huskarl.webp",
+    "lbow": "assets/painted-motion-lbow.webp",
+    "mgd": "assets/painted-motion-mgd.webp",
+    "axe": "assets/painted-motion-axe.webp"
+  },
+  "designs": {
+    "huskarl": "Steel crested helmet with short dark crimson crest, reinforced dark chainmail with sculpted steel shoulder plates, embossed round shield with substantial cobalt blue cloth field, decorated steel axe.",
+    "lbow": "Silver sallet helmet, pale-edged cobalt blue tunic over a brigandine, elegant tall decorated longbow and reinforced leather quiver.",
+    "mgd": "Lamellar armoured steppe rider, red-gold helmet plume, ornate reinforced horse harness, cobalt blue saddle cloth and sleeves, distinctive recurved bow.",
+    "axe": "Bright steel sallet, short crimson crest, reinforced mail over cobalt blue original surcoat, broad gilded double-bearded throwing axe and decorated blue round shield. Preserve empty throwing hand after release."
+  },
+  "initialConstraints": "Four columns by four rows, sixteen complete poses. Eight walk poses in rows 1-2, eight attack windup/strike/release/recovery poses in rows 3-4. Preserve original painterly medieval isometric view, upper-left lighting, body scale and ground anchors. Retain substantial blue areas for runtime team tint. Full weapons, feet, hooves and tails inside each cell. Real alpha; no text, watermark, background, borders or grid lines.",
+  "finalCorrectionPrompt": "Precise production correction of this ORIGINAL game sprite atlas. Keep exactly the SAME FOUR columns and FOUR rows, SIXTEEN poses, identical character identity, armour, colours, equipment, walking/attack animation order, painterly style, view and transparency. Repair only framing: recompose every figure slightly smaller, about 85 percent of its current size, centred in its own cell, with a fully TRANSPARENT margin on ALL FOUR sides. Restore complete helmet plumes, bow tips, axe heads, tails, feet and hooves where they touch an image/cell boundary. Every figure must have at least 15 pixels of fully clear padding above its highest point and below its lowest foot, and on either side of its widest weapon. No part of a figure may touch another cell or the outer image edge. Keep eight walking poses in rows 1 and 2, eight different attack/release/recovery poses in rows 3 and 4. Do not change the blue team cloth or add any background, ground shadow, gradients, text, labels, borders or grid lines. Genuine alpha transparency.",
+  "provenanceHashes": "assets/elite-manifest.json",
+  "limitations": "One authored facing plus runtime reflection. Independent directions and dedicated death/hit sprites remain missing. Generation and source review do not establish physical Xbox acceptance."
+}

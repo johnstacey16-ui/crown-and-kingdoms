@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 57,
+  "atlases": 74,
   "units": [
     {
       "kind": "vil",
@@ -456,18 +456,18 @@
     {
       "kind": "eagle",
       "name": "Eagle Warrior",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "cavarch",
       "name": "Cavalry Archer",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -510,9 +510,9 @@
     {
       "kind": "rattan",
       "name": "Rattan Archer",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -528,27 +528,27 @@
     {
       "kind": "konnik",
       "name": "Konnik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "footkonnik",
       "name": "Dismounted Konnik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "keshik",
       "name": "Keshik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -582,9 +582,9 @@
     {
       "kind": "leitis",
       "name": "Leitis",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -600,27 +600,27 @@
     {
       "kind": "flemish",
       "name": "Flemish Militia",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "serjeant",
       "name": "Serjeant",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "obuch",
       "name": "Obuch",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -726,27 +726,27 @@
     {
       "kind": "legionary",
       "name": "Legionary",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "composite",
       "name": "Composite Bowman",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "warpriest",
       "name": "Warrior Priest",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -758,6 +758,44 @@
       "attackFrames": 0,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
+    }
+  ],
+  "eliteUnits": [
+    {
+      "kind": "huskarl",
+      "atlas": "painted-elite-huskarl",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "lbow",
+      "atlas": "painted-elite-lbow",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "mgd",
+      "atlas": "painted-elite-mgd",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "axe",
+      "atlas": "painted-elite-axe",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
     }
   ],
   "buildings": [
@@ -1024,14 +1062,14 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "50 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "34 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "63 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "21 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "four researched Elite lines use interim equipment overlays",
-      "remaining": "four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md)"
+      "evidence": "4 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
       "category": "Building artwork",

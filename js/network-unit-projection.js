@@ -13,7 +13,11 @@
     const sight=root.CK_GAME_COMMANDS?.visibility?.(world,team,width,height);
     // Pose is a copied visual description. Rendering must never write facing or
     // animation fields into deterministic simulation entities.
-    const pose=e=>unitVisualPose(e,world.t);
+    const pose=e=>{
+      const visual=unitVisualPose(e,world.t);
+      if(typeof eliteUniqueUnitUpgrade==='function'&&eliteUniqueUnitUpgrade(e.k,e.t,world))visual.elite=true;
+      return visual;
+    };
     const architecture=b=>Number.isInteger(world.age?.[b.t])&&world.age[b.t]>=0&&world.age[b.t]<4?{architectureAge:world.age[b.t]}:{};
     const construction=b=>({...architecture(b),complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});

@@ -100,6 +100,10 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Continue:** Rerun current-code full acceptance (289 standalone regressions, three seeded skirmishes, all nineteen required campaign victories, Chromium artwork/HUD and Xbox software contracts) on this one release-candidate tree. If green, merge the verified `development` tree into production `main` with one non-force expected-head `[deploy]` commit, then verify GitHub/public deployment evidence where accessible. Never infer physical Series S performance or Vercel Ready status from software checks. Preserve 48 `AUD-###` tasks, `CK-###` history, saves and free-only configuration.
 
+## Graphics continuation — 17 November 2026
+
+Konnik, Keshik and Leitis join the new regional sheets. [Inventory](docs/graphics-inventory.json): **63/84** painted animated kinds; **21 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Cavalry candidate `61289a2f` passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070)); 768 exact reflections and rendered cavalry poses reviewed. Konnik uses matching mounted/foot artwork; faint background layers are rejected before packing. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open.
+
 ## Current content continuation — 14 November 2026
 
 The owner requests **list everything missing and work through it all**. Use the [source-audited completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026): all 43 active factions, 13 confirmed absent medieval factions, absent rulepacks, units/buildings, exact art gaps and separate acceptance. Preserve this roadmap's AUD/CK identifiers.
