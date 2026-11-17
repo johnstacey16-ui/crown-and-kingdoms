@@ -88,3 +88,9 @@ test('DLC cavalry fallback keeps distinct wing and camel-fire artwork',()=>{
  assert.ok(byKind.flamecamel.some(p=>p.fill==='#e5712e'),'flame payload');
  assert.ok(byKind.flamecamel.some(p=>p.fill==='#ffd16c'),'bright inner flame');
 });
+
+test('new fallback equipment remains deterministic and does not allocate image assets',()=>{
+ assert.doesNotMatch(procedural,/Math\.random\(\)/);
+ assert.doesNotMatch(procedural,/new Image\(/);
+ assert.match(procedural,/cam=k==='camel'\|\|k==='mamel'\|\|sourceKind==='flamecamel'/);
+});
