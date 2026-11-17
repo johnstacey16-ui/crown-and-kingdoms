@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "fd159e9f8754375c013af8cffb80621c1fe7cf70fe5fb8024b16873ceba54ffb",
+  "revision": "617ec5846c143c53bf375bb76340be2c98a252e8a2a95006307c92c9c99d12d1",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -27,6 +27,8 @@
     "./assets/painted-motion-ele.webp": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
     "./assets/painted-motion-eled.webp": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b",
     "./assets/painted-motion-fish.webp": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+    "./assets/painted-motion-flemish.webp": "051f6589d60b4acf315a1ba22331f47536631d053df08747086c2cc92ebc8c05",
+    "./assets/painted-motion-footkonnik.webp": "a0b8bea2942771ccc580e8dced3589b623cbf7fed32905283195783913c76c18",
     "./assets/painted-motion-gal.webp": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
     "./assets/painted-motion-gbeto.webp": "f20e9c334d7577743886840b4c338c0f844ecccf5ad2e94cb979e5f1427c8995",
     "./assets/painted-motion-genoa.webp": "15c0b8811fb3f549abfb80bd6f636763192a9e32929f47c30ec588e35dbe5eee",
@@ -62,6 +64,7 @@
     "./assets/painted-motion-trn.webp": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
     "./assets/painted-motion-vil.webp": "adea0f523ccee14276d76317b37a1efd26d9015b432ea98b46fc723a60d5c5f7",
     "./assets/painted-motion-wagon.webp": "8cbd2bf1624f87188be3aea4b835c6efd00ed8573bb86c60ec814afc76f8a333",
+    "./assets/painted-motion-warpriest.webp": "80f56d05d83bea6adbd783f24ddee2d78d6272755d612f8a9aa82cd6096b250d",
     "./assets/painted-motion-woad.webp": "ceafc3244c6b5da2b8105ac688576eb1357169969c22697951a65f742496a853",
     "./assets/painted-motion-xbow.webp": "2e9370d8b64c11cd69053978e081c55cd2f6c2c2f72b25c693f1787b781463b1",
     "./assets/painted-resources.webp": "00ce09a92f8ff6e01fc47b6ddd060538dbc2050c69fbaa0fa534dea9b0564b84",

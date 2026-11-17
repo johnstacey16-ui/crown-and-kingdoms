@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 68,
+  "atlases": 71,
   "units": [
     {
       "kind": "vil",
@@ -537,9 +537,9 @@
     {
       "kind": "footkonnik",
       "name": "Dismounted Konnik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -600,9 +600,9 @@
     {
       "kind": "flemish",
       "name": "Flemish Militia",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -744,9 +744,9 @@
     {
       "kind": "warpriest",
       "name": "Warrior Priest",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "57 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "27 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "60 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "24 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",

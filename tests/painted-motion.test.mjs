@@ -9,7 +9,7 @@ function fixture(){const {source,sandbox}=headlessGame();vm.createContext(sandbo
 test('all four kingdoms resolve eight distinct poses for core walking, attacks and villager work',()=>{
  const run=fixture();
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
- for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','fire','demo','cgal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
+ for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','fire','demo','cgal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
   const frames=new Set();
   for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).sourceFrame)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
@@ -34,7 +34,7 @@ test('Eagle Warrior keeps infantry scale and starts its cooldown on the authored
 test('regional sheets preserve their own scale, reviewed action and missing-image fallback',()=>{
  const run=fixture();
  for(const atlas of pack.atlases)run(`regAtlas(${JSON.stringify(atlas.id)}, {}, ${JSON.stringify(atlas.meta)})`);
- for(const kind of ['cavarch','rattan','composite','serjeant','obuch','legionary']){
+ for(const kind of ['cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest']){
   const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){
    const walk=a.meta.anims[kind+'/walk/'+team],attack=a.meta.anims[kind+'/attack/'+team],f=attack.frames[0];
@@ -45,6 +45,21 @@ test('regional sheets preserve their own scale, reviewed action and missing-imag
   run(`ASSET.atl['painted-motion-${kind}'].ok=false`);
   assert.equal(run(`assetFrame('${kind}',0,1,0,0,0,.5)`),null,'procedural fallback remains available');
  }
+});
+
+test('real Konnik dismount and Flemish conversion select their new painted forms',()=>{
+ const run=fixture();
+ for(const atlas of pack.atlases)run(`regAtlas(${JSON.stringify(atlas.id)}, {}, ${JSON.stringify(atlas.meta)})`);
+ run("seedOv=123456;start();S.civ=[29,1];globalThis.mounted=addU(0,'konnik',22,28);globalThis.enemy=addU(1,'knight',22.5,28);mounted.hp=1;dmgT(enemy,mounted);globalThis.foot=S.us[S.us.length-1]");
+ assert.equal(run('foot.k'),'footkonnik');
+ const foot=pack.atlases.find(a=>a.id==='painted-motion-footkonnik').meta.anims['footkonnik/idle/0'];
+ assert.equal(run('JSON.stringify(unitAssetFrame(foot.k,foot.t,unitVisualPose(foot,S.t)).sourceFrame)'),JSON.stringify(foot.frames[0]));
+ run("S.civ[0]=33;S.age[0]=3;S.res[0]={f:10000,w:10000,g:10000,s:10000};globalThis.converted=addU(0,'vil',20,28);globalThis.castle=addB(0,'castle',20,20,true)");
+ assert.equal(run("unitAssetFrame(converted.k,0,unitVisualPose(converted,S.t)).painted"),true);
+ assert.equal(run("research(castle,'ut33p')"),true);run('upB(castle,10.1)');
+ assert.equal(run('converted.k'),'flemish');
+ const flemish=pack.atlases.find(a=>a.id==='painted-motion-flemish').meta.anims['flemish/idle/0'];
+ assert.equal(run('JSON.stringify(unitAssetFrame(converted.k,0,unitVisualPose(converted,S.t)).sourceFrame)'),JSON.stringify(flemish.frames[0]));
 });
 
 test('cooldown phase controls attack frames and clamps endpoints independently of render time',()=>{
@@ -102,7 +117,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion&&!a.meta.elite).length,kinds.length);
  assert.equal(pack.atlases.filter(a=>a.meta.elite).length,4,'Elite sheets are inventoried separately from base units');
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
