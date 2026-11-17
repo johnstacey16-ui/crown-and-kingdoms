@@ -37,7 +37,7 @@ try{
     typeof draw==='function'&&typeof drawWorld==='function'&&
     typeof hud==='function'&&typeof drawRadial==='function'&&
     typeof CK_SIM_SYNC!=='undefined'&&typeof ASSET!=='undefined');
-   await page.waitForFunction(()=>ASSET.n===57&&!!PAINT.terrain);
+   await page.waitForFunction(()=>ASSET.n===61&&!!PAINT.terrain);
    for(const scene of viewport.scenes){
     const initialized=await page.evaluate(scene=>{
      snd=mus=0;mode='title';

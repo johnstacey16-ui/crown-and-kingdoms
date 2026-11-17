@@ -141,6 +141,16 @@ jobs:
         run: node scripts/run-checks.mjs --browser
       - name: Verify Xbox controller and performance software contracts
         run: node scripts/run-checks.mjs --xbox-contracts
+      - name: Save opted-in graphics review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: graphics-review
+          path: |
+            artifacts/battlefield-art/painted-elites.png
+            artifacts/battlefield-art/painted-elites.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   # Opt-in parallel isolation of the six failing missions. Do not relax the
   # natural victory gate or infer matrix acceptance from this subset.

@@ -6,6 +6,7 @@ import {checkBuildingConstruction} from './building-construction-art.mjs';
 import {checkFrameTints, checkTintFailurePolicy, checkSpriteWarmup, checkSurfaceLifetime, checkRosterTintWarmup, checkNextTintPrediction, checkScopedTintOverflow} from './frame-tints.mjs';
 import {checkTownCentreAges} from './town-centre-ages.mjs';
 import {checkHouseAges} from './house-ages.mjs';
+import {checkEliteArtwork} from './elite-art.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
@@ -49,7 +50,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===57&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(()=>ASSET.n===61&&PAINT.terrain);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -110,6 +111,8 @@ try{
  const surfaceLifetime=await checkSurfaceLifetime(page);
  await writeFile(output+'/surface-lifetime.json',JSON.stringify(surfaceLifetime,null,2));
  const frameTints=await checkFrameTints(page,output);
+ const eliteArtwork=await checkEliteArtwork(page,output);
+ await writeFile(output+'/painted-elites.json',JSON.stringify(eliteArtwork,null,2));
  const tintFailurePolicy=await checkTintFailurePolicy(page);
  await writeFile(output+'/tint-failure-policy.json',JSON.stringify(tintFailurePolicy,null,2));
  const siegeMotion=await checkSiegeMotion(page,output);
@@ -173,7 +176,7 @@ try{
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
  assert.ok(diagnostics.fallbackUnitCount>0,'new regional units must remain covered by the fallback rendering test');
  assert.deepEqual(diagnostics.invalidProcedural,[],'all regional units must render non-empty procedural sprites');
- assert.equal(diagnostics.atlases,57);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,61);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>1000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
@@ -390,7 +393,7 @@ try{
  const cacheUpgrade={oldShellRemoved:migrated,sprites:upgradedScene.sprites};
  const recovery=await browser.newPage({viewport:{width:1280,height:720}});
  recovery.on('pageerror',error=>errors.push(error.message));
- await recovery.goto(origin,{waitUntil:'networkidle'});await recovery.waitForFunction(()=>ASSET.n===57&&PAINT.terrain);
+ await recovery.goto(origin,{waitUntil:'networkidle'});await recovery.waitForFunction(()=>ASSET.n===61&&PAINT.terrain);
  const graphicsRecovery=await checkGraphicsRecovery(recovery);
  await recovery.screenshot({path:output+'/large-battle-recovery.png'});await recovery.close();
  const partial=await browser.newPage({viewport:{width:960,height:850}});

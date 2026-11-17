@@ -276,14 +276,14 @@ function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.
 const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm;
 let af=null,c=null;const tintScope=typeof beginUnitTintScope==='function'&&beginUnitTintScope();
 try{
-af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase,true,true):null;
+af=ASSET.n?unitAssetFrame(k,u.t,pose,!!eliteUniqueUnitUpgrade(k,u.t),true,true):null;
 c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);
 /* Validated motion frames take priority; generate procedural art only if every atlas misses. */if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
 }finally{if(tintScope)endUnitTintScope()}
 drawNavalClassMark(X,k,sx,sy,z,pose.time);
-drawEliteUniqueUnitMark(X,k,u.t,sx,sy,z);
+if(!af?.elite)drawEliteUniqueUnitMark(X,k,u.t,sx,sy,z);
 if(perfUnitPass===1)return;
 /* At strategic zoom, preserve team readability with a tiny outlined ground marker. */
 if(z<.8){const my=sy+z+1;X.fillStyle='#17130f';X.beginPath();X.moveTo(sx,my-3);X.lineTo(sx+3,my);X.lineTo(sx,my+3);X.lineTo(sx-3,my);X.closePath();X.fill();X.fillStyle=teamColor(u.t);X.beginPath();X.moveTo(sx,my-2);X.lineTo(sx+2,my);X.lineTo(sx,my+2);X.lineTo(sx-2,my);X.closePath();X.fill()}

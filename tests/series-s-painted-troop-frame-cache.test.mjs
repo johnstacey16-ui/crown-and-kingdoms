@@ -146,7 +146,7 @@ test('painted troop painter retains original source dimensions, flip, anchor and
  assert.ok(calls.some(x=>Array.isArray(x)&&x[0]==='scale'&&x[1]===-1),'face mirroring preserved');
 });
 test('production unit renderer remains atlas-first, with procedural fallback and model-free cropping',()=>{
- assert.match(code,/af=ASSET\.n\?assetFrame\(k,u\.t,st/);
+ assert.match(code,/af=ASSET\.n\?unitAssetFrame\(k,u\.t,pose/);
  assert.match(code,/c=af\?null:spr\(/);
  assert.match(code,/const frame=troopFrameTexture\(art,false,lod\)/);
  assert.match(code,/else g\.drawImage\(art\.img,f\.x,f\.y,f\.w,f\.h/);
@@ -232,7 +232,7 @@ test('Xbox diagnostic unit pass separates original sprites from ground markings'
    get(o,k){if(k in o)return o[k];return (...a)=>{calls.push([k,...a])}},
    set(o,k,v){o[k]=v;return true}}),
   USZ:()=>[20,30],unitVisualPose:()=>({heading:0,state:0,phase:0,time:0}),
-  assetFrame:()=>texture,drawPaintedTroop:()=>calls.push(['sprite']),
+  unitAssetFrame:()=>texture,eliteUniqueUnitUpgrade:()=>null,drawPaintedTroop:()=>calls.push(['sprite']),
   mhp:()=>100,bar:()=>calls.push(['bar']),Math,Number
  });
  vm.runInContext('let perfUnitPass=0;'+code.slice(from)+';globalThis.paint=drawUnit;globalThis.setPass=p=>{perfUnitPass=p}',context);
