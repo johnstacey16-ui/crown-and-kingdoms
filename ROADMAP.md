@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Konnik, Keshik and Leitis join the new regional sheets. [Inventory](docs/graphics-inventory.json): **63/84** painted animated kinds; **21 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Previous foot candidate `e6c4862d` passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44173684492)). This cavalry batch adds 48 source poses, verifies both Konnik appearances, and rejects faint background layers before packing; current browser acceptance is pending. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open.
+Konnik, Keshik and Leitis join the new regional sheets. [Inventory](docs/graphics-inventory.json): **63/84** painted animated kinds; **21 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Cavalry candidate `61289a2f` passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070)); 768 exact reflections and rendered cavalry poses reviewed. Konnik uses matching mounted/foot artwork; faint background layers are rejected before packing. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 
