@@ -1,6 +1,10 @@
 # Four Elite sprite sheets — production brief
 
-**Status: artwork specification only.** Four civilizations now have researched Elite gameplay and temporary Canvas2D equipment accents. No dedicated Elite painted animation sheets have been approved or committed. Use this brief to create original artwork, not copyrighted assets from other games.
+**17 November 2026: four dedicated sheets implemented; browser acceptance pending.** Goth Huskarl, Briton Longbowman, Mongol Mangudai and Frankish Throwing Axeman now have original painted Elite idle/walk/attack artwork (16 source poses each). The runtime selects these after the owning civilization completes research and preserves base-art fallback. Other Elite units retain temporary equipment accents. Independent facings, hit/death sheets and physical Xbox acceptance remain unfinished.
+
+The four `assets/painted-elite-*.webp` files and `assets/elite-manifest.json` were authored with built-in image generation using this repository's own base sheets as references, followed by a padding correction. No commercial game artwork was used. [Prompts and provenance](painted-elite-prompts.json) retain the source brief; `scripts/build-elite-atlas.mjs` packs transparent 4×4 sheets, rejects clipped figures, retains original alpha and updates byte-bound offline revisions. Base-sheet rebuilders preserve the Elite manifest. Runtime and CI need no image-authoring dependency.
+
+Solo research selection, wrong-team rejection, atlas-loss fallback, supplied-world multiplayer projection and bounded tint warm-up have targeted software coverage. Chromium checks the actual solo draw, all four palettes, eight walk/attack poses, mirrored views and simulation invariance; its contact sheet is retained in the explicitly requested graphics-review artifact. Do not infer dedicated death/eight-direction artwork or Xbox approval from this batch.
 
 
 **Figma review boards (10 November 2026):** [Editable original Elite art specification](https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD?node-id=8-2) and [Visual QA and Xbox acceptance guide](https://www.figma.com/design/xCa6EgkpRf0Y1zUxK1yRXD?node-id=8-66). These are editable planning references only; the four missing Elite sprite sheets and on-device approvals remain outstanding. Follow [the UI/Figma handoff](FIGMA_UI_WORKFLOW.md) for the separate design-to-runtime boundary.

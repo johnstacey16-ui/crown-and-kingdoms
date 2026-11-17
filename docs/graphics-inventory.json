@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 57,
+  "atlases": 61,
   "units": [
     {
       "kind": "vil",
@@ -760,6 +760,44 @@
       "deathArt": "base-art fall transform"
     }
   ],
+  "eliteUnits": [
+    {
+      "kind": "huskarl",
+      "atlas": "painted-elite-huskarl",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "lbow",
+      "atlas": "painted-elite-lbow",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "mgd",
+      "atlas": "painted-elite-mgd",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "axe",
+      "atlas": "painted-elite-axe",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    }
+  ],
   "buildings": [
     {
       "kind": "tc",
@@ -1030,8 +1068,8 @@
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "four researched Elite lines use interim equipment overlays",
-      "remaining": "four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md)"
+      "evidence": "4 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
       "category": "Building artwork",

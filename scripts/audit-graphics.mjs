@@ -5,12 +5,13 @@ const root=new URL('../',import.meta.url),read=p=>readFileSync(new URL(p,root),'
 const pack=JSON.parse(read('assets/atlas-manifest.json')),ctx={};vm.createContext(ctx);vm.runInContext(read('js/config.js')+'\n;globalThis.catalog={U,B}',ctx);
 const proxies=new Set(['tca','tw','cs']);
 const animations=key=>pack.atlases.map(a=>a.meta.anims[key.replace(/^(fire|demo|cgal)\//,'gal/')]).filter(Boolean);
+const eliteUnits=pack.atlases.filter(a=>a.meta.elite).map(a=>({kind:a.meta.elite,atlas:a.id,walkFrames:a.meta.anims[a.meta.elite+'_elite/walk/0']?.frames.length||0,attackFrames:a.meta.anims[a.meta.elite+'_elite/attack/0']?.frames.length||0,directionalArt:'one authored facing plus reflection',deathArt:'not authored',acceptance:'software and browser acceptance separate from Xbox'}));
 const units=Object.entries(ctx.catalog.U).filter(([k])=>!proxies.has(k)).map(([kind,d])=>({kind,name:d.n,paintedBase:animations(kind+'/idle/0').length>0,walkFrames:Math.max(0,...animations(kind+'/walk/0').map(a=>a.frames?.length||0)),attackFrames:Math.max(0,...animations(kind+'/attack/0').map(a=>a.frames?.length||0)),directionalArt:'unfinished',deathArt:'base-art fall transform'}));
 const buildings=Object.entries(ctx.catalog.B).map(([kind,d])=>({kind,name:d.n,paintedBase:animations('bld_'+kind+'/idle/0').length>0,factionArchitecture:'unfinished',ageArt:['house','tc'].includes(kind)&&animations('bld_'+kind+'_age_3/idle/0').length?'four original shared age designs':'four shared original vector age fittings over native art',constructionArt:'shared scaffolding overlay',damageArt:'shared native scorch, fracture, fire and smoke effects'}));
 const checklist=[
  {category:'Unit base artwork',state:'present',evidence:units.length+' playable kinds; see catalogue',remaining:'play-scale faction/direction review'},
  {category:'Unit animation',state:'partial',evidence:units.filter(u=>u.walkFrames>1&&u.attackFrames>1).length+' of '+units.length+' kinds have painted multi-frame movement/activity art',remaining:(units.some(u=>u.walkFrames<=1||u.attackFrames<=1)?units.filter(u=>u.walkFrames<=1||u.attackFrames<=1).length+' kinds, ':'')+'independent directions, work variants and dedicated death sheets'},
- {category:'Elite unit visuals',state:'partial',evidence:'four researched Elite lines use interim equipment overlays',remaining:'four researched Elite lines have interim equipment overlays; [dedicated painted frames still needed](ELITE_ART_PRODUCTION.md)'},
+ {category:'Elite unit visuals',state:'partial',evidence:eliteUnits.length+' dedicated painted Elite sheets; other researched lines retain interim equipment overlays',remaining:'remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)'},
  {category:'Building artwork',state:'partial',evidence:buildings.length+' building kinds; '+buildings.filter(b=>b.paintedBase).length+' painted, '+buildings.filter(b=>!b.paintedBase).length+' original procedural fallback; fog-safe age presentation',remaining:'faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)'},
  {category:'Terrain and coasts',state:'partial',evidence:'painted materials and textured transitions',remaining:'biome-specific integration and repetition review'},
  {category:'Natural resources',state:'partial',evidence:'painted resources with last-40-units stone/gold/berry art; eight-pose neutral deer/fish idles',remaining:'tree/death states and physical Xbox resource/wildlife readability'},
@@ -21,7 +22,7 @@ const checklist=[
  {category:'Minimap and multiplayer presentation',state:'partial',evidence:'team-relative terrain and current-sight entities; responsive room panels',remaining:'full match and large scene acceptance'},
  {category:'Xbox Series S Edge image/performance',state:'unverified',evidence:'local desktop Chromium checks only',remaining:'physical Xbox 50/75/100 percent picture presets and large land/naval benchmarks'}
 ];
-const inventory={scope:'All currently implemented graphics categories; future gameplay/DLC additions require new art coverage',complete:false,atlases:pack.atlases.length,units,buildings,checklist};
+const inventory={scope:'All currently implemented graphics categories; future gameplay/DLC additions require new art coverage',complete:false,atlases:pack.atlases.length,units,eliteUnits,buildings,checklist};
 const out=JSON.stringify(inventory,null,2)+'\n',path=new URL('docs/graphics-inventory.json',root);
 const table=checklist.map(x=>'| '+x.category+' | '+x.state+' | '+x.remaining+' |').join('\n');
 const missing=units.filter(x=>x.walkFrames<=1||x.attackFrames<=1).map(x=>x.name).join(', ');

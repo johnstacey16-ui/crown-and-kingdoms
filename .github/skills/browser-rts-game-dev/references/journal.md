@@ -26,3 +26,6 @@ Local graphics history through `15257ee` records deferred backing retirement, ex
 
 ### 2026-11-17 — Browser reflection is a separate sampling gate
 Hosted Chromium on `82dbdfcf` found a 255-channel reflection delta while identity copying and native tint comparisons were exact. Restore bounded baked-facing sources when reflected transforms fail the original pixel contract; retain strict browser assertions and account for the extra crop work. The correction passed 71 targeted tests and five quick gates locally; hosted acceptance is pending and no console performance claim follows.
+
+### 2026-11-17 — Dedicated Elite atlas integration
+Following accepted production `6bdcba72`, add separate original Elite sheets rather than repainting a base unit in place. Carry researched appearance from the supplied multiplayer world, select art through a shared presentation helper, retain fallback and prepare the same variant in bounded tint warm-up. Keep base packers from dropping variant manifests. Reject clipped cell bounds during packing and retain prompts/provenance. The initial local batch passed five quick gates and 88 targeted tests; browser and Xbox acceptance remain separate.

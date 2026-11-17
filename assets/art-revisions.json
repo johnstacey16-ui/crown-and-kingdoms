@@ -1,8 +1,12 @@
 {
   "version": 1,
-  "revision": "551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450",
+  "revision": "6034d219492aec8a3d013557b7047b1ca6921faa1ceb0af25db748b553931c9e",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
+    "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
+    "./assets/painted-elite-huskarl.webp": "513f3ca268b6c3081ec767db6ac2250c652f167fa1a5d2ce5a3eb6358b64e960",
+    "./assets/painted-elite-lbow.webp": "529d4998b09973d73c62c6525436142a83ed48ce3e9c6b69ef5a11456c08a005",
+    "./assets/painted-elite-mgd.webp": "562edd3484babc695bb32e471b908c7a227b0a1aeb07aab9399e6a2d8b121716",
     "./assets/painted-environment.webp": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
     "./assets/painted-fishtraps.webp": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
     "./assets/painted-house-ages.webp": "28d8ef87cf1048d0f98af38f549cde70ae7e4aebea531ecb52d731f0afded985",
