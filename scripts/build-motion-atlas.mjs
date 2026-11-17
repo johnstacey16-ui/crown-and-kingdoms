@@ -2,24 +2,33 @@ import {applyBuildingAgeArt} from './building-age-art.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 // Optional authoring tool; runtime and CI do not require sharp.
 import {createRequire} from 'node:module';
-import {readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis'],args=process.argv.slice(2),sources={},atlases=[];
+// Additional graphics are opt-in until their approved original PNG/WebP exists.
+// The source-authored queue owns unit IDs; normal rebuilds preserve the exact
+// existing 60-sheet output and do not fabricate missing assets.
+const upcomingKinds=JSON.parse(readFileSync(new URL('docs/painted-motion-production-queue.json',root),'utf8')).items.map(item=>item.kind);
+const availableKinds=new Set([...kinds,...upcomingKinds]);
 if(args[0]?.startsWith('--')){
- while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!kinds.includes(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
+ while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!availableKinds.has(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
+const selectedKinds=[...kinds,...upcomingKinds.filter(kind=>
+ sources[kind]||existsSync(new URL('assets/painted-motion-'+kind+'.webp',root)))];
 // Preserve legitimate disconnected hoof/shadow, rigging and net components.
 // Dense vessels/carts allow 65 percent nonzero alpha; infantry retains 55 percent.
-const ships=new Set(['fish','gal','trn','cog']),vehicles=new Set([...ships,'cart']);
-const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon']),elephants=new Set(['ele','eled']);
-const multipart=new Set(['conq','tarkan','konnik','keshik','leitis',...vehicles,...large]);
-const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis']);
+const ships=new Set(['fish','gal','trn','cog','turtle','caravel','thirisadai']),vehicles=new Set([...ships,'cart','ratha','rathaM','husswagon']);
+const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon','batele','orgun','husswagon','houfnice']),elephants=new Set(['ele','eled','batele']);
+const multipart=new Set(['conq','tarkan','konnik','keshik','leitis','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa',...vehicles,...large]);
+const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa']);
 // Source review locates the actual release/recoil/thrust pose in each sheet.
 const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12,footkonnik:12,flemish:12,warpriest:12,konnik:12,keshik:12,leitis:12};
-for(const kind of kinds){
+for(const kind of selectedKinds){
  const src='./assets/painted-motion-'+kind+'.webp',path=new URL(src,root);
  let {data,info}=await sharp(sources[kind]||path.pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ if(sources[kind]&&upcomingKinds.includes(kind)&&(info.width!==1536||info.height!==1024))
+  throw Error('New source must be a native 1536x1024 transparent 4x4 pose sheet: '+kind);
  if(info.width%4||info.height%4)throw Error('Invalid motion grid '+kind);
  let empty=0;for(let i=3;i<data.length;i+=4)if(data[i]===0)empty++;
  if(empty<info.width*info.height*((vehicles.has(kind)||large.has(kind))?.35:.45))throw Error('Sprite sheet background is not transparent: '+kind);
@@ -53,5 +62,5 @@ pack.version=pack.atlases.some(a=>a.meta.scarceResources)?'painted-raster-v17-sc
 applyBuildingAgeArt(pack);
 writeFileSync(manifest,JSON.stringify(pack));
 updateArtRevisions();
-console.log('Packed '+kinds.length*16+' original motion poses for '+kinds.length+' playable unit types.');
+console.log('Packed '+selectedKinds.length*16+' original motion poses for '+selectedKinds.length+' playable unit types.');
 
