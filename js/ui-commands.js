@@ -114,7 +114,8 @@ function commandArtKind(label){
  return 'command';
 }
 function drawCommandArt(g,label,x,y,size=21){
- if(!g||![x,y,size].every(Number.isFinite)||size<=0)return false;
+ if(!g||![x,y,size].every(Number.isFinite)||size<=0||
+  ['save','restore','translate','scale','beginPath','moveTo','lineTo','closePath','fill','stroke','fillRect','arc','quadraticCurveTo'].some(name=>typeof g[name]!=='function'))return false;
  const kind=commandArtKind(label);
  const gold='#f3d38b',steel='#c5d4d9',edge='#273340',wood='#aa7643',leaf='#78b78a',stone='#aaa9a1';
  g.save();
