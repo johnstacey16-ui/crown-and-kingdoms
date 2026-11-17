@@ -268,7 +268,7 @@ function drawVillagerPriorityWheel(){
   const name=manual?WORKER_TARGETS[i].n:i===VILLAGER_PRIORITY_PRESETS.length?'Auto Farms':VILLAGER_PRIORITY_PRESETS[i].name;
   const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):i===VILLAGER_PRIORITY_PRESETS.length?(p.autoFarms?'ON':'OFF'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
   if(manual&&typeof drawCommandArt==='function')drawCommandArt(X,WORKER_TARGETS[i].n,x-w/2+13,y-6,18);
-  tx(commandLabelFit(name,w-(manual?28:8),15),x+(manual?9:0),y-3,15,'#fff','center');
+  tx(name,x+(manual?9:0),y-3,15,'#fff','center');
   tx(detail,x,y+17,13,'#e5d5ad','center');
  }
  tx(manual?'Left stick: resource   A: add   B: remove   Y: presets   R3: close':
