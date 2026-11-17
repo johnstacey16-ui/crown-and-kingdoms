@@ -4,13 +4,14 @@ export async function checkEliteArtwork(page,output){
  const result=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const saved={civ:S.civ,tech:S.tech,us:S.us,bs:S.bs,sel:S.sel};
-  const original=unitAssetFrame,originalDraw=X.drawImage;
+  const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
   const contact=document.createElement('canvas');contact.width=1536;contact.height=768;
   const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,768);
   const samples=[],selection=[],draws=[],frames=new Set();let current='';
   try{
    S.us=[];S.bs=[];S.sel=[];
    unitAssetFrame=function(...args){const art=original(...args);if(current&&art){selection.push({pass:current,kind:args[0],team:args[1],elite:!!art.elite});frames.add(art.img)}return art};
+   troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
    const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0]];
    for(const [row,[kind,id]] of roster.entries()){
@@ -43,7 +44,7 @@ export async function checkEliteArtwork(page,output){
     try{atlas.ok=false;if(original(kind,0,{state:1,time:0},true)?.elite)throw Error('Elite failed to fall back')}
     finally{atlas.ok=ok}
    }
-  }finally{S.civ=saved.civ;S.tech=saved.tech;S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;unitAssetFrame=original;X.drawImage=originalDraw}
+  }finally{S.civ=saved.civ;S.tech=saved.tech;S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;unitAssetFrame=original;X.drawImage=originalDraw;troopFrameTexture=originalTexture}
   return {samples,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
