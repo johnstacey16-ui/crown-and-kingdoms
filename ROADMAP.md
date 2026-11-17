@@ -100,6 +100,10 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 **Continue:** Rerun current-code full acceptance (289 standalone regressions, three seeded skirmishes, all nineteen required campaign victories, Chromium artwork/HUD and Xbox software contracts) on this one release-candidate tree. If green, merge the verified `development` tree into production `main` with one non-force expected-head `[deploy]` commit, then verify GitHub/public deployment evidence where accessible. Never infer physical Series S performance or Vercel Ready status from software checks. Preserve 48 `AUD-###` tasks, `CK-###` history, saves and free-only configuration.
 
+## Graphics continuation — 17 November 2026
+
+Following dedicated Elite development `a4f1f893`, Eagle Warrior now has an original transparent painted sheet with eight walk and eight attack poses, infantry-scale anchors, reviewed strike timing, all-team animation lookup and procedural fallback after image failure. Source prompt and provenance: [painted-eagle-prompts.json](docs/painted-eagle-prompts.json). Offline revisions and the generated graphics inventory include the new sheet: 51/84 playable kinds have painted movement/activity art, with 33 still missing. Independent directions, dedicated Eagle Elite/hit/death art and physical Xbox acceptance remain open. This is routine development, not a production release; Chromium acceptance is pending the one-off hosted graphics check.
+
 ## Current content continuation — 14 November 2026
 
 The owner requests **list everything missing and work through it all**. Use the [source-audited completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026): all 43 active factions, 13 confirmed absent medieval factions, absent rulepacks, units/buildings, exact art gaps and separate acceptance. Preserve this roadmap's AUD/CK identifiers.

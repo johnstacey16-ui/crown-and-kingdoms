@@ -149,6 +149,7 @@ jobs:
           path: |
             artifacts/battlefield-art/painted-elites.png
             artifacts/battlefield-art/painted-elites.json
+            artifacts/battlefield-art/light-motion.png
           retention-days: 7
           if-no-files-found: ignore
 

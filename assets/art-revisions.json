@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "6034d219492aec8a3d013557b7047b1ca6921faa1ceb0af25db748b553931c9e",
+  "revision": "772798525f72378cd61910c21bd5cd6068054573840a0e52adfd95d38845abec",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -21,6 +21,7 @@
     "./assets/painted-motion-chuko.webp": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
     "./assets/painted-motion-cog.webp": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
     "./assets/painted-motion-conq.webp": "8b00ada2d9dc0b83da6cb9457946df9c5ead5156f1fbbcbddfc80d04bc2c5af2",
+    "./assets/painted-motion-eagle.webp": "90e6f196d3e61b748e97d2f4d10a6ffa57fd1a3d8984377c462ab439c519dff4",
     "./assets/painted-motion-ele.webp": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
     "./assets/painted-motion-eled.webp": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b",
     "./assets/painted-motion-fish.webp": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
