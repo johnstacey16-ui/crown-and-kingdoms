@@ -18,6 +18,15 @@ and memory limits remain checked. The browser comparison still requires a
 maximum channel delta of one. The corrected candidate requires hosted browser
 and release acceptance before publication; physical Xbox remains unverified.
 
+Hosted Chromium on `462c5b24` passed all 564 reflection comparisons exactly
+(maximum delta zero), plus native tint and surface-retirement checks. Its next
+failure exposed an age-art fixture that only recognized native tint surfaces:
+the multiplayer map legitimately draws cached half-size building surfaces.
+Town Centre and house fixtures now trace each actual LOD draw back through
+`buildingFrameTexture` to the original source rectangle, retaining all sixteen
+age/team draw assertions, palette/hash checks and simulation invariance. They
+restore the instrumented function on exit; no runtime behavior changes here.
+
 ## 17 November 2026 — Preserve pause-button intent and release stale recovery jobs
 
 Implementation: local `6c4f8f5965f16dfc06216bd61680b88f77892642`.
