@@ -293,6 +293,9 @@ test('production troop drawing observes hints without re-evaluating presentation
   }});cancelRosterTintWarmup();unit.p=[[21,20]];`);
  const world=run('JSON.stringify([unit,building])');
  run('assetFrame("mil",0,1,0,0)');assert.equal(run('TINT_PREDICTION.jobs.size'),0);
+ // The random world's entity ID can make the walking cycle wrap to frame 0.
+ // Keep the next pose uncached so this checks hint observation, not a cache hit.
+ run('clearTeamFrameCache()');
  run('drawUnit(unit,new Set())');assert.equal(run('TINT_PREDICTION.jobs.size'),1);
  const pose=run('JSON.stringify(PAINT.motion.get(unit))');run('warm()');
  assert.equal(run('JSON.stringify(PAINT.motion.get(unit))'),pose);assert.equal(run('JSON.stringify([unit,building])'),world);

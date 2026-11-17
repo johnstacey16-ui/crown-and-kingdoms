@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "reference": "assets/painted-motion-plumed.webp (original project artwork)",
+  "asset": "assets/painted-motion-composite.webp",
+  "prompt": "Use case: stylized-concept. Create ORIGINAL Crown & Kingdoms production sprite sheet, true transparent alpha 1536x1024, exactly sixteen complete figures in a 4 columns by4 rows grid, equal 384x256 cells. Input reference is our own painted archer style only. Subject Composite Bowman: Armenian-inspired medieval foot archer, short dark beard, round iron cap with small mail neck curtain, tan quilted tunic with dark brown leather belt, cream trousers and brown boots, cobalt-blue short shoulder cape and belt tab, compact strongly recurved composite bow with pale horn tips, back quiver. Distinct original grounded costume, NO feathers or tall plume, no resemblance to commercial sprites. Fixed elevated isometric three-quarter side facing RIGHT, upper-left painted light, crisp detailed miniatures with dark outline. Consistent same equipment, proportions and foot anchor every pose. Cells0-7: eight successive articulated WALK strides alternating legs, low bow in left hand. Cells8-15: ready bow low, nock, draw, full draw, arrow release with relaxed string and right hand by cheek (cell12), follow through with empty draw hand, lower bow, recover. Same bow throughout. No detached flying arrows, no extra weapons. Keep ENTIRE bow tips, boots, helmet and quiver INSIDE each cell with 24px clear padding. Empty space true transparent, no white backdrop, no text/labels/grid/landscape/floor/shadow.",
+  "corrections": "None",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 release. Infantry height 46, cavalry height 60 game pixels. Dedicated Elite, independent direction, hit/death art and physical Xbox remain unfinished."
+}

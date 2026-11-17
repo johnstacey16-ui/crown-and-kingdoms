@@ -17,13 +17,18 @@ test('art inventory covers every playable unit and building without phantom comp
  assert.equal(new Set(built).size,built.length,'no duplicate building asset record');
  assert.deepEqual(built,buildings,'new buildings must be explicitly inventoried');
 });
-test('all new Sicilian through Georgian source-only assets are honestly procedural',()=>{
- for(const kind of ['serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','centurion','legionary','composite','warpriest','monaspa']){
+test('remaining Sicilian through Georgian source-only assets are honestly procedural',()=>{
+ for(const kind of ['serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','centurion','legionary','warpriest','monaspa']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.ok(entry,kind+' missing');
   assert.equal(entry.paintedBase,false,kind+' has no dedicated painted artwork yet');
   assert.equal(entry.walkFrames,0);
   assert.equal(entry.attackFrames,0);
+ }
+ for(const kind of ['eagle','cavarch','rattan','composite']){
+  const entry=graphics.units.find(unit=>unit.kind===kind);
+  assert.equal(entry.paintedBase,true,kind+' now has an integrated painted sheet');
+  assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);
  }
  for(const kind of ['donjon','folwark','fchurch','mule'])
   assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,false);

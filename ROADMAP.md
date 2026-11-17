@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Following dedicated Elite development `a4f1f893`, Eagle Warrior now has an original transparent painted sheet with eight walk and eight attack poses, infantry-scale anchors, reviewed strike timing, all-team animation lookup and procedural fallback after image failure. Source prompt and provenance: [painted-eagle-prompts.json](docs/painted-eagle-prompts.json). Offline revisions and the generated graphics inventory include the new sheet: 51/84 playable kinds have painted movement/activity art, with 33 still missing. Independent directions, dedicated Eagle Elite/hit/death art and physical Xbox acceptance remain open. This is routine development, not a production release; Chromium acceptance is pending the one-off hosted graphics check.
+Eagle Warrior (`c96dfdc8`), Cavalry Archer, Rattan Archer and Composite Bowman now have original eight-pose walk/attack sheets, team palettes, offline revisions and fallback. [Inventory](docs/graphics-inventory.json): **54/84** painted animated kinds; **30 remaining**. Source prompts/provenance are in `docs/painted-*-prompts.json`. The Eagle browser run exposed stale 61-atlas waits; readiness now derives from the manifest. Fresh hosted browser acceptance is pending. Independent facings, dedicated Elite/death art, physical Xbox and production release remain separate open gates.
 
 ## Current content continuation — 14 November 2026
 

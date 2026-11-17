@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "reference": "assets/painted-motion-mgd.webp (original project artwork)",
+  "asset": "assets/painted-motion-cavarch.webp",
+  "prompt": "Use case: stylized-concept. Create an ORIGINAL production sprite sheet for Crown & Kingdoms. Asset 1536x1024 exact 4 columns x4 rows, 16 separate full figures on genuine transparent alpha, equal 384x256 cells. Reference image is our original game's painted style only, not edit target. Subject: ordinary Cavalry Archer, distinct from the reference elite steppe rider: brown hood over modest iron cap, tan quilted leather jacket, cobalt-blue shoulder cloth and saddle blanket, cream trousers, small compact recurved bow, back quiver. Dark chestnut horse with black mane, plain brown tack and simple blue saddle cloth, no plume or ornate barding. Isometric elevated 3/4 side view facing screen right, upper-left lighting, crisp painted miniature detail, same identity and scale every cell. Top two rows: eight real successive horse walk/trot strides alternating all four legs, rider balanced in saddle bow held low. Bottom two rows eight stationary horse/rider bow-shot poses: ready low bow, raise/nock, draw, full draw, RELEASE arrow/string (source cell12), follow through empty bow hand, lower bow, recover. No separate flying projectile. Entire bow, rider, horse tail and hooves inside cell, at least 20px transparent margin, consistent hoof anchor and horse size. No scenery, text, floor, labels, grid, shadows, background or other characters. Not a direction turntable; articulated animation.",
+  "corrections": "None",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 release. Infantry height 46, cavalry height 60 game pixels. Dedicated Elite, independent direction, hit/death art and physical Xbox remain unfinished."
+}

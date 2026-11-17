@@ -1,3 +1,4 @@
+import {EXPECTED_ATLASES} from '../helpers/atlas-count.mjs';
 import {checkAudioScheduling} from './audio-scheduling.mjs';
 import {checkProjectileArtwork} from './projectile-art.mjs';
 import {checkBuildingAgeDetails} from './building-age-details.mjs';
@@ -50,7 +51,7 @@ const errors=[];
 async function scene(page,expectArt=true){
  await page.goto(origin,{waitUntil:'networkidle'});
  await page.waitForFunction(()=>typeof CK_UNIT_MAP!=='undefined'&&typeof ASSET!=='undefined');
- if(expectArt)await page.waitForFunction(()=>ASSET.n===62&&PAINT.terrain);
+ if(expectArt)await page.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_ATLASES);
  return page.evaluate(()=>{
   seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;startAge=2;startArmy=0;startRes=3;
   start();snd=mus=0;mode='title';S.humanTeams=[0,1];S.us=[];S.bs=[];S.nodes=[];S.rel=[];
@@ -145,7 +146,7 @@ try{
    'axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel',
    'jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata',
    'conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king',
-   'eled','ele','ram','bomb','treb','mang','scor','wagon','eagle'];
+   'eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite'];
   const mandatory=new Set(paintedKinds);
   for(const k of mandatory)for(let t=0;t<4;t++)for(let st=0;st<4;st++)
    if(!assetFrame(k,t,st,0,.1))missingUnits.push(k+'/'+t+'/'+st);
@@ -176,7 +177,7 @@ try{
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
  assert.ok(diagnostics.fallbackUnitCount>0,'new regional units must remain covered by the fallback rendering test');
  assert.deepEqual(diagnostics.invalidProcedural,[],'all regional units must render non-empty procedural sprites');
- assert.equal(diagnostics.atlases,62);assert.equal(diagnostics.terrain,true);
+ assert.equal(diagnostics.atlases,EXPECTED_ATLASES);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>1000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,results=[];
@@ -393,7 +394,7 @@ try{
  const cacheUpgrade={oldShellRemoved:migrated,sprites:upgradedScene.sprites};
  const recovery=await browser.newPage({viewport:{width:1280,height:720}});
  recovery.on('pageerror',error=>errors.push(error.message));
- await recovery.goto(origin,{waitUntil:'networkidle'});await recovery.waitForFunction(()=>ASSET.n===62&&PAINT.terrain);
+ await recovery.goto(origin,{waitUntil:'networkidle'});await recovery.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_ATLASES);
  const graphicsRecovery=await checkGraphicsRecovery(recovery);
  await recovery.screenshot({path:output+'/large-battle-recovery.png'});await recovery.close();
  const partial=await browser.newPage({viewport:{width:960,height:850}});

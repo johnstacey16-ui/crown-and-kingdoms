@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "772798525f72378cd61910c21bd5cd6068054573840a0e52adfd95d38845abec",
+  "revision": "bdf109044732d6e751e2b0cdc258347ed052719531dab29bb65d0c26c735f77d",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -18,8 +18,10 @@
     "./assets/painted-motion-camel.webp": "6ece18808cb70936b535ca1c949017a3fff11e42e7cc431107351575d798287a",
     "./assets/painted-motion-cart.webp": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
     "./assets/painted-motion-cata.webp": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
+    "./assets/painted-motion-cavarch.webp": "42022c2b56525f75e18a73956d416b46b6b7afb4c99c7be07abbf3b67cf82de1",
     "./assets/painted-motion-chuko.webp": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
     "./assets/painted-motion-cog.webp": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
+    "./assets/painted-motion-composite.webp": "0705a1acdf9d76b0e1eef4fc8ef70a6de6b461024afb530c6eaa52fcaf78c6f1",
     "./assets/painted-motion-conq.webp": "8b00ada2d9dc0b83da6cb9457946df9c5ead5156f1fbbcbddfc80d04bc2c5af2",
     "./assets/painted-motion-eagle.webp": "90e6f196d3e61b748e97d2f4d10a6ffa57fd1a3d8984377c462ab439c519dff4",
     "./assets/painted-motion-ele.webp": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
@@ -44,6 +46,7 @@
     "./assets/painted-motion-mon.webp": "09ef488f18af950191581be4b678c1eba7ef72a3619c4b855fee0bd36e4524e0",
     "./assets/painted-motion-plumed.webp": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
     "./assets/painted-motion-ram.webp": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959",
+    "./assets/painted-motion-rattan.webp": "3d6a8f94f772d248a1db92c8e21d2966341bcb06ae782f8ebd1a19f0ad285647",
     "./assets/painted-motion-saml.webp": "56bb11a694ee47143558b2d472cf9921bda75c3edaadb8be7ba073ef1f163570",
     "./assets/painted-motion-scor.webp": "969f26b2dce131bc51dc963ace6df6fa2d13783f02b7e8fb4d2aee81c9105191",
     "./assets/painted-motion-scout.webp": "ed856f6b387e93fe7b6686743b4cb4fdc7e892d0deb22d5b28596e7d12f7db84",

@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 62,
+  "atlases": 65,
   "units": [
     {
       "kind": "vil",
@@ -465,9 +465,9 @@
     {
       "kind": "cavarch",
       "name": "Cavalry Archer",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -510,9 +510,9 @@
     {
       "kind": "rattan",
       "name": "Rattan Archer",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -735,9 +735,9 @@
     {
       "kind": "composite",
       "name": "Composite Bowman",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "51 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "33 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "54 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "30 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
