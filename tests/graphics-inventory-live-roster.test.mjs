@@ -18,14 +18,14 @@ test('art inventory covers every playable unit and building without phantom comp
  assert.deepEqual(built,buildings,'new buildings must be explicitly inventoried');
 });
 test('remaining Sicilian through Georgian source-only assets are honestly procedural',()=>{
- for(const kind of ['serjeant','obuch','winged','husswagon','houfnice','urumi','thirisadai','centurion','legionary','warpriest','monaspa']){
+ for(const kind of ['winged','husswagon','houfnice','urumi','thirisadai','centurion','warpriest','monaspa']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.ok(entry,kind+' missing');
   assert.equal(entry.paintedBase,false,kind+' has no dedicated painted artwork yet');
   assert.equal(entry.walkFrames,0);
   assert.equal(entry.attackFrames,0);
  }
- for(const kind of ['eagle','cavarch','rattan','composite']){
+ for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.equal(entry.paintedBase,true,kind+' now has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);

@@ -5,7 +5,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary'],args=process.argv.slice(2),sources={},atlases=[];
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!kinds.includes(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
@@ -16,7 +16,7 @@ const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon']),el
 const multipart=new Set(['conq','tarkan',...vehicles,...large]);
 const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch']);
 // Source review locates the actual release/recoil/thrust pose in each sheet.
-const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12};
+const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12};
 for(const kind of kinds){
  const src='./assets/painted-motion-'+kind+'.webp',path=new URL(src,root);
  let {data,info}=await sharp(sources[kind]||path.pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
@@ -43,7 +43,7 @@ for(const kind of kinds){
   anims[kind+'/idle/'+team]={dur:1,scale,referenceHeight,frames:[swing[0]]};
   anims[kind+'/walk/'+team]={dur:elephants.has(kind)?.12:large.has(kind)?.11:mounted.has(kind)?.075:.095,scale,referenceHeight,frames:walk};
   anims[kind+'/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
-  if(['vil','mon','fish','eagle','cavarch','rattan','composite'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
+  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
  }
  atlases.push({id:'painted-motion-'+kind,src,meta:{painted:true,motion:true,...(impactSource[kind]!==undefined?{sourceActionFrame:impactSource[kind]}:{}),width:info.width,height:info.height,anims}});
 }
