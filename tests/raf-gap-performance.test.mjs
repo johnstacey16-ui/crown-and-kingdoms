@@ -26,7 +26,7 @@ test('frame sampling wraps input, controls, fixed sim and draw without changing 
  assert.match(engine,/perfFrameIntervalMs=rafMs;perfGapMs=outsideGameLoopMs\(rafMs,perfLoopMs\)/);
  assert.match(engine,/if\(timing\)perfPadMs=performance\.now\(\)-padStart/);
  assert.match(engine,/if\(timing\)perfControlMs=performance\.now\(\)-controlStart/);
- assert.match(engine,/finally\{if\(timing\)perfLoopMs=performance\.now\(\)-loopStart\}/);
+ assert.match(engine,/finally\{\s*if\(timing\)perfLoopMs=performance\.now\(\)-loopStart;\s*if\(typeof GRAPHICS_TRACE!=='undefined'\)captureGraphicsTraceFrame\(now,rafMs\);\s*\}/);
  assert.match(engine,/while\(acc>=DT&&mode==='play'\)/);
  assert.match(engine,/perfDrawMs=performance\.now\(\)-drawStart/);
  assert.match(state,/perfLoopMs=0,perfGapMs=0,perfFrameIntervalMs=0/);

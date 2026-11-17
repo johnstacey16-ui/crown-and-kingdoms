@@ -2,20 +2,25 @@
  * Source extracted unchanged from js/render.js; presentation-only. 
  * The world viewport/chunk caches stay in js/render.js. */
 function loadPaintedTerrain(src){
- try{const image=new Image();image.onload=()=>{PAINT.terrain=image;TCH.clear();clearProceduralSpriteCache()};image.onerror=()=>{PAINT.terrain=null};image.src=src}catch(_){PAINT.terrain=null}
+ try{const image=new Image();image.onload=()=>{PAINT.terrain=image;clearTerrainChunks();clearTerrainBlend();clearProceduralSpriteCache()};image.onerror=()=>{PAINT.terrain=null;clearTerrainChunks();clearTerrainBlend()};image.src=src}catch(_){PAINT.terrain=null;clearTerrainChunks();clearTerrainBlend()}
 }
 // Solo keeps native 64px blends. The unit map oversamples its actual tile
 // display size by at least 3x (up to the original 64px source), retaining more
 // small textures within the same 4 MiB pixel budget instead of LRU thrashing.
 const TERRAIN_BLEND=new Map();
 let terrainBlendImage=null,terrainBlendPixels=0;
-function clearTerrainBlend(){TERRAIN_BLEND.clear();terrainBlendPixels=0}
+function clearTerrainBlend(){
+ for(const canvas of TERRAIN_BLEND.values())if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
+ TERRAIN_BLEND.clear();terrainBlendPixels=0;
+}
 // A lost blend must never be reused as a transparent terrain tile. Chunks may
 // have copied it before the loss event arrived, so discard their derived pixels.
 function discardTerrainBlend(key,canvas){
  if(TERRAIN_BLEND.get(key)!==canvas)return;
  TERRAIN_BLEND.delete(key);terrainBlendPixels-=canvas.width*canvas.height;
- if(typeof TCH!=='undefined')TCH.clear();
+ if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
+ if(typeof clearTerrainChunks==='function')clearTerrainChunks();
+ else if(typeof TCH!=='undefined')TCH.clear();
  if(typeof invalidateTerrainViewport==='function')invalidateTerrainViewport();
 }
 function terrainBlendResolution(displayPixels){
@@ -34,12 +39,13 @@ function terrainTileTexture(kind,x,y,neighbors,resolution=64){
   if(!ready){discardTerrainBlend(key,cv);cv=null}
  }
  if(cv){TERRAIN_BLEND.delete(key);TERRAIN_BLEND.set(key,cv);return cv}
+ let layer=null,retained=false;
  try{
   cv=document.createElement('canvas');cv.width=cv.height=sample;
   const g=cv.getContext('2d');if(!g||g.isContextLost?.())return null;
   const draw=(ctx,k)=>ctx.drawImage(image,(k%3)*side+tx,Math.floor(k/3)*side+ty,source,source,0,0,sample,sample);
   draw(g,kind);
-  const layer=document.createElement('canvas');layer.width=layer.height=sample;
+  layer=document.createElement('canvas');layer.width=layer.height=sample;
   const c=layer.getContext('2d');if(!c||c.isContextLost?.())return null;
   for(let edge=0;edge<4;edge++){
    const other=neighbors[edge];if(!Number.isInteger(other)||other<0||other===kind)continue;
@@ -53,14 +59,19 @@ function terrainTileTexture(kind,x,y,neighbors,resolution=64){
    g.drawImage(layer,0,0);
   }
   if(g.isContextLost?.()||c.isContextLost?.())return null;
-  TERRAIN_BLEND.set(key,cv);terrainBlendPixels+=sample*sample;
+  TERRAIN_BLEND.set(key,cv);terrainBlendPixels+=sample*sample;retained=true;
   cv.addEventListener?.('contextlost',()=>discardTerrainBlend(key,cv));
   while(terrainBlendPixels>1024*1024||TERRAIN_BLEND.size>4096){
    const oldest=TERRAIN_BLEND.keys().next().value,old=TERRAIN_BLEND.get(oldest);
    TERRAIN_BLEND.delete(oldest);terrainBlendPixels-=old.width*old.height;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(old);
   }
   return cv;
- }catch(_){return null}
+ }catch(_){return null}finally{
+  if(typeof retireGraphicsSurface==='function'){
+   retireGraphicsSurface(layer);if(!retained)retireGraphicsSurface(cv);
+  }
+ }
 }
 function terrainNeighborKinds(x,y,kindAt,width,height){
  return [x>0?kindAt(x-1,y):-1,x<width-1?kindAt(x+1,y):-1,y>0?kindAt(x,y-1):-1,y<height-1?kindAt(x,y+1):-1];
@@ -134,6 +145,15 @@ function drawHill(o){
 // minimum zoom with a reduced Xbox backing store, a 512x256 chunk supplies
 // over four times the pixels the screen can display. Halve only the internal
 // cached texture; world positions, art, fog, dimensions and controller stay put.
+function clearTerrainChunks(){
+ for(const chunk of TCH.values())if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(chunk?.cv);
+ TCH.clear();invalidateTerrainViewport();
+}
+function discardTerrainChunk(key,chunk,invalidate=true){
+ if(TCH.get(key)!==chunk)return;
+ TCH.delete(key);if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(chunk?.cv);
+ if(invalidate)invalidateTerrainViewport();
+}
 function terrainChunkDensity(){
  const pixels=typeof DPR==='number'&&Number.isFinite(DPR)&&DPR>0?DPR:1;
  return zm*pixels<=.55?.5:1;
@@ -149,7 +169,7 @@ function chunkOf(cx,cy,density=terrainChunkDensity()){
  }
  const X0=cx*CKS,Y0=cy*CKS,minx=(X0-Y0-CKS+1)*32-32,miny=(X0+Y0+1)*16-16,
   w=CKS*64,h=(2*CKS-2)*16+32;
- let cv2,g;
+ let cv2,g,ready=false;
  try{
   cv2=document.createElement('canvas');
   cv2.width=Math.round(w*density);cv2.height=Math.round(h*density);
@@ -157,20 +177,23 @@ function chunkOf(cx,cy,density=terrainChunkDensity()){
   if(!g||g.isContextLost?.())return available?prior:null;
   if(density!==1)g.scale(density,density);
   cv2.addEventListener?.('contextlost',()=>{
-   if(TCH.get(key)?.cv===cv2){TCH.delete(key);invalidateTerrainViewport()}
+   const current=TCH.get(key);if(current?.cv===cv2)discardTerrainChunk(key,current);
   });
   for(let y=Y0;y<Math.min(H,Y0+CKS);y++)for(let x=X0;x<Math.min(W,X0+CKS);x++){
    paintTile(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
    paintTileDetail(g,x,y,(x-y)*32-minx,(x+y+1)*16-miny);
   }
   if(g.isContextLost?.())return available?prior:null;
- }catch(_){return available?prior:null}
+  ready=true;
+ }catch(_){return available?prior:null}finally{
+  if(cv2&&!ready&&typeof retireGraphicsSurface==='function')retireGraphicsSurface(cv2);
+ }
  const c={cv:cv2,ox:minx,oy:miny,w,h,density};
  TCH.delete(key);TCH.set(key,c);
  // Retired backing stores must not retain full GPU allocation after a zoom
  // change; the viewport cache replaces old chunk references on this draw.
  if(prior&&prior.cv!==cv2){
-  try{prior.cv.width=1;prior.cv.height=1}catch(_){}
+  if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(prior.cv);
  }
  return c;
 }
@@ -204,7 +227,7 @@ function drawChunks(x0,x1,y0,y1){
   visible++;
  }
  const budget=Math.max(64,visible,Math.min(320,visible+16));
- while(TCH.size>budget)TCH.delete(TCH.keys().next().value);
+ while(TCH.size>budget){const key=TCH.keys().next().value;discardTerrainChunk(key,TCH.get(key),false)}
  drawTerrainViewport(chunks);return ready;
 }
 // Flatten static terrain at the current backing resolution. Reusing one opaque
@@ -215,12 +238,17 @@ const TERRAIN_VIEW={canvas:null,key:null,pending:null,chunks:[]};
 // those references so chunks retired by the LRU are eligible for collection
 // even while the camera keeps moving or a canvas rebuild keeps failing.
 function invalidateTerrainViewport(){TERRAIN_VIEW.key=null;TERRAIN_VIEW.chunks=[]}
+function discardTerrainViewport(canvas=TERRAIN_VIEW.canvas){
+ if(!canvas||TERRAIN_VIEW.canvas!==canvas)return;
+ TERRAIN_VIEW.canvas=null;invalidateTerrainViewport();
+ if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
+}
 function drawTerrainViewport(chunks){
  const dpr=typeof DPR==='number'?DPR:1,w=Math.round(CW*dpr),h=Math.round(CH*dpr);
  const direct=()=>{for(const c of chunks)X.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm)};
  // At most 16 MiB of additional pixels. Oversized views keep the original path.
  if(w<1||h<1||w*h>4000000){
-  if(TERRAIN_VIEW.canvas){TERRAIN_VIEW.canvas.width=TERRAIN_VIEW.canvas.height=1}
+  discardTerrainViewport();
   invalidateTerrainViewport();TERRAIN_VIEW.pending=null;direct();return;
  }
  const key=[cam.x,cam.y,zm,CW,CH,w,h,dpr].join('|');
@@ -230,18 +258,18 @@ function drawTerrainViewport(chunks){
  try{
   const cv=TERRAIN_VIEW.canvas||(TERRAIN_VIEW.canvas=document.createElement('canvas'));
   const g=cv.getContext('2d',{alpha:false});
-  if(!g||g.isContextLost?.()){TERRAIN_VIEW.canvas=null;invalidateTerrainViewport();direct();return}
-  if(!cv.ckTerrainRecovery){cv.ckTerrainRecovery=true;cv.addEventListener?.('contextlost',()=>{if(TERRAIN_VIEW.canvas===cv){TERRAIN_VIEW.canvas=null;invalidateTerrainViewport()}})}
+  if(!g||g.isContextLost?.()){discardTerrainViewport(cv);direct();return}
+  if(!cv.ckTerrainRecovery){cv.ckTerrainRecovery=true;cv.addEventListener?.('contextlost',()=>discardTerrainViewport(cv))}
   if(TERRAIN_VIEW.key!==key||chunks.length!==TERRAIN_VIEW.chunks.length||chunks.some((c,i)=>c!==TERRAIN_VIEW.chunks[i])){
    invalidateTerrainViewport();
    if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
    g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#000';g.fillRect(0,0,CW,CH);
    g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
    for(const c of chunks)g.drawImage(c.cv,c.ox*zm-cam.x,c.oy*zm-cam.y,c.w*zm,c.h*zm);
-   if(g.isContextLost?.()){TERRAIN_VIEW.canvas=null;direct();return}
+   if(g.isContextLost?.()){discardTerrainViewport(cv);direct();return}
    TERRAIN_VIEW.chunks=chunks.slice();TERRAIN_VIEW.key=key;
   }
   // Copy physical pixels 1:1, including fractional-DPR edge rounding.
   X.save();try{X.setTransform(1,0,0,1,0,0);X.imageSmoothingEnabled=false;X.drawImage(cv,0,0)}finally{X.restore()}
- }catch(_){invalidateTerrainViewport();direct()}
+ }catch(_){discardTerrainViewport();invalidateTerrainViewport();direct()}
 }

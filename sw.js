@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v203-network-render-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v221-integrated-graphics-release-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -78,6 +78,7 @@ const CORE_ASSETS = [
   './js/input.js',
   './js/input-selection.js',
   './js/render.js',
+  './js/render-tint-workspace.js',
   './js/render-terrain.js',
   './js/render-resources.js',
   './js/render-buildings.js',

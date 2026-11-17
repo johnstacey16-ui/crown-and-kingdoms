@@ -3,6 +3,36 @@
  * Sprite bounds and foot anchors live in assets/atlas-manifest.json.
  * Artwork, terrain and visual motion are presentation-only.
  */
+// Evicted source pixels stay valid until the outermost render batch ends.
+// Shrinking then releases backing stores without waiting for garbage collection.
+const GRAPHICS_SURFACE_LIFETIME={depth:0,pending:new Map(),pixels:0,releases:0,failures:0};
+function beginGraphicsSurfaceUse(){GRAPHICS_SURFACE_LIFETIME.depth++}
+function retireGraphicsSurface(canvas){
+ if(!canvas||typeof canvas.getContext!=='function'||GRAPHICS_SURFACE_LIFETIME.pending.has(canvas))return;
+ const pixels=canvas.width*canvas.height;
+ if(!Number.isFinite(pixels))return;
+ GRAPHICS_SURFACE_LIFETIME.pending.set(canvas,pixels);GRAPHICS_SURFACE_LIFETIME.pixels+=pixels;
+ if(!GRAPHICS_SURFACE_LIFETIME.depth)flushRetiredGraphicsSurfaces();
+}
+function flushRetiredGraphicsSurfaces(){
+ const lifetime=GRAPHICS_SURFACE_LIFETIME;
+ if(lifetime.depth)return;
+ for(const [canvas,pixels]of lifetime.pending){
+  try{
+   if(canvas.width!==1)canvas.width=1;if(canvas.height!==1)canvas.height=1;
+   lifetime.releases++;
+   if(typeof GRAPHICS_TRACE!=='undefined'){
+    GRAPHICS_TRACE.frame.surfaceReleases++;GRAPHICS_TRACE.frame.releasePixels+=Math.max(0,pixels-1);
+   }
+  }catch(_){lifetime.failures++}
+ }
+ lifetime.pending.clear();lifetime.pixels=0;
+}
+function endGraphicsSurfaceUse(){
+ if(GRAPHICS_SURFACE_LIFETIME.depth)GRAPHICS_SURFACE_LIFETIME.depth--;
+ if(!GRAPHICS_SURFACE_LIFETIME.depth&&typeof releaseUnitTintWorkspaces==='function')releaseUnitTintWorkspaces();
+ flushRetiredGraphicsSurfaces();
+}
 const PAINT={terrain:null,facing:new WeakMap(),motion:new WeakMap(),resourceAmounts:new WeakMap(),buildingAges:new WeakMap(),buildingConstruction:new WeakMap(),buildingDamage:new WeakMap()};
 /* Painted terrain sampling and bounded edge blending: js/render-terrain.js. */
 /* Troop animation, frame cache and fallback: js/render-troops.js. */
@@ -25,10 +55,11 @@ function paintFogLayer(points,halfWidth,halfHeight,colour){
 // explored ground. Cache only its opaque-black mask, at backing resolution.
 // Keep the original painter for dim fog, moving views and unsupported contexts.
 // One surface, at most 16 MiB RGBA; no extra full-atlas or per-team copies.
-const FOG_MASK_CACHE={canvas:null,key:null,points:[],ready:false,hits:0,builds:0};
+const FOG_MASK_CACHE={canvas:null,context:null,key:null,points:[],ready:false,hits:0,builds:0};
 function clearFogMaskCache(){
- if(FOG_MASK_CACHE.canvas)FOG_MASK_CACHE.canvas.width=FOG_MASK_CACHE.canvas.height=1;
- FOG_MASK_CACHE.canvas=null;FOG_MASK_CACHE.key=null;FOG_MASK_CACHE.points=[];FOG_MASK_CACHE.ready=false;
+ const canvas=FOG_MASK_CACHE.canvas;
+ FOG_MASK_CACHE.canvas=null;FOG_MASK_CACHE.context=null;FOG_MASK_CACHE.key=null;FOG_MASK_CACHE.points=[];FOG_MASK_CACHE.ready=false;
+ retireGraphicsSurface(canvas);
 }
 function drawWorldFog(points,halfWidth,halfHeight,colour){
  if(colour!=='#000'){paintFogLayer(points,halfWidth,halfHeight,colour);return}
@@ -45,12 +76,17 @@ function drawWorldFog(points,halfWidth,halfHeight,colour){
   paintFogLayer(points,halfWidth,halfHeight,colour);return;
  }
  try{
-  if(cache.canvas?.getContext('2d')?.isContextLost?.())throw Error('Fog mask context lost');
+  if(cache.canvas){
+   const context=cache.context||cache.canvas.getContext('2d');
+   if(!context||context.isContextLost?.())throw Error('Fog mask context lost');
+   cache.context=context;
+  }
   if(!cache.ready){
    const canvas=cache.canvas||(cache.canvas=document.createElement('canvas'));
    if(!canvas.ckFogRecovery){canvas.ckFogRecovery=true;canvas.addEventListener?.('contextlost',()=>{if(cache.canvas===canvas)clearFogMaskCache()})}
    if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;
    const g=canvas.getContext('2d');if(!g||g.isContextLost?.())throw Error('Fog mask unavailable');
+   cache.context=g;
    g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);g.setTransform(transform.a,0,0,transform.d,0,0);
    const world=X;X=g;
    try{paintFogLayer(points,halfWidth,halfHeight,colour)}finally{X=world}
@@ -78,7 +114,9 @@ function drawElevationRidge(cx,cy,x,y,i,hw,hh){
  if(south){X.moveTo(cx-hw,cy);X.lineTo(cx,cy+hh)}
  X.stroke();
 }
-function drawWorld(){const selectedUnits=new Set(S.sel);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';const cs4=[[0,0],[CW,0],[0,CH],[CW,CH]].map(p=>s2w(p[0],p[1])),xs=cs4.map(p=>p[0]),ys=cs4.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs))-1),x1=Math.min(W-1,Math.ceil(Math.max(...xs))+1),y0=Math.max(0,Math.floor(Math.min(...ys))-1),y1=Math.min(H-1,Math.ceil(Math.max(...ys))+1),hw=TW/2,hh2=TH/2,L=[],fogHidden=[],fogExplored=[],timed=!!perfHud,startChunk=timed?performance.now():0;const useChunks=CHK&&perfLayerMode!==2&&drawChunks(x0,x1,y0,y1)!==false;
+function drawWorld(){
+beginGraphicsSurfaceUse();try{
+const selectedUnits=new Set(S.sel);X.imageSmoothingEnabled=true;X.imageSmoothingQuality='high';const cs4=[[0,0],[CW,0],[0,CH],[CW,CH]].map(p=>s2w(p[0],p[1])),xs=cs4.map(p=>p[0]),ys=cs4.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs))-1),x1=Math.min(W-1,Math.ceil(Math.max(...xs))+1),y0=Math.max(0,Math.floor(Math.min(...ys))-1),y1=Math.min(H-1,Math.ceil(Math.max(...ys))+1),hw=TW/2,hh2=TH/2,L=[],fogHidden=[],fogExplored=[],timed=!!perfHud,startChunk=timed?performance.now():0;const useChunks=CHK&&perfLayerMode!==2&&drawChunks(x0,x1,y0,y1)!==false;
 if(timed)perfChunksMs=performance.now()-startChunk;
 const startTiles=timed?performance.now():0;
 for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x,cx=(x-y)*hw-cam.x,cy=(x+y+1)*hh2-cam.y;if(cx<-hw||cx>CW+hw||cy<-hh2-50||cy>CH+hh2+50)continue;const wv=S.wt[i],hv=useChunks?0:hsh(x,y);
@@ -136,6 +174,7 @@ drawP();X.lineWidth=2;for(const p of S.pj){if(!p||p.dead||!Number.isFinite(p.x)|
 for(const f of fx){if(!Number.isFinite(f.x)||!Number.isFinite(f.y)||f.x<x0-2||f.x>x1+2||f.y<y0-2||f.y>y1+2)continue;const P=w2s(f.x,f.y);if(f.k==='h'){X.strokeStyle='#ff6a4a';X.beginPath();for(let a=0;a<6;a++){X.moveTo(P[0],P[1]-8);X.lineTo(P[0]+Math.cos(a*1.05)*9,P[1]-8+Math.sin(a*1.05)*9)}X.stroke()}else{const r=20*(1.5-f.l*2);X.strokeStyle='#fff';X.beginPath();X.ellipse(P[0],P[1],r,r/2,0,0,7);X.stroke()}}X.lineWidth=1;
 if(place&&place.x!==undefined){const k=place.k,f={x:place.x,y:place.y,s:B[k].s,k,t:0,done:true,hp:1,mh:1,pr:1,q:[]};drawBld(f,1);X.fillStyle=place.ok?'rgba(80,255,120,.5)':'rgba(255,70,70,.5)';poly([w2s(f.x,f.y),w2s(f.x+f.s,f.y),w2s(f.x+f.s,f.y+f.s),w2s(f.x,f.y+f.s)]);X.fill()}if(timed)perfEffectsMs=performance.now()-startEffects;}
 
+finally{endGraphicsSurfaceUse()}}
 /* In-match troop drawing: js/render-troops.js. */
 function drawRelic(q){const point=q.c||q,P=w2s(point.x,point.y),sx=P[0],y=P[1]-(q.c?24:6),g=.5+.5*Math.sin(gt*3);X.fillStyle='rgba(255,226,102,'+(.15+.15*g)+')';X.beginPath();X.arc(sx,y,13+g*3,0,7);X.fill();if(drawPaintedRelic(X,sx,y+9*zm,(q.c?20:28)*zm))return;X.fillStyle='#ffe066';X.strokeStyle='#a87b12';poly([[sx,y-9],[sx+7,y],[sx,y+9],[sx-7,y]]);X.fill();X.stroke()}
 /* Terrain landmarks, chunks and viewport: js/render-terrain.js. */
@@ -145,25 +184,44 @@ function drawRelic(q){const point=q.c||q,P=w2s(point.x,point.y),sx=P[0],y=P[1]-(
 /* Procedural character, siege, naval and sprite-cache drawing. */
 // The procedural fallback is rare with complete atlases, but must remain
 // bounded when assets are missing or many team/pose variants are requested.
-const SPC=new Map(),SPC_PIXEL_LIMIT=2*1024*1024; // 8 MiB RGBA
+const SPC=new Map(),SPC_CONTEXTS=new WeakMap(),SPC_PIXEL_LIMIT=2*1024*1024; // 8 MiB RGBA
 let SPC_PIXELS=0;
-function clearProceduralSpriteCache(){SPC.clear();SPC_PIXELS=0}
+function discardProceduralSprite(key,canvas){
+ if(SPC.get(key)!==canvas)return;
+ SPC.delete(key);SPC_PIXELS-=canvas.width*canvas.height;retireGraphicsSurface(canvas);
+}
+function clearProceduralSpriteCache(){
+ for(const [key,canvas]of SPC)discardProceduralSprite(key,canvas);
+ SPC_PIXELS=0;
+}
 function spr(key,w,h,fn){
  let c=SPC.get(key);
+ if(c){
+  let healthy=false;
+  try{const g=SPC_CONTEXTS.get(c)||c.getContext('2d');healthy=!!g&&!g.isContextLost?.()}catch(_){}
+  if(!healthy){discardProceduralSprite(key,c);c=null}
+ }
  if(c){SPC.delete(key);SPC.set(key,c);return c}
+ let complete=false;
+ try{
  c=document.createElement('canvas');c.width=w*2;c.height=h*2;
- const g=c.getContext('2d');g.scale(2,2);g.translate(w/2,h-8);
+ const g=c.getContext('2d');if(!g||g.isContextLost?.())throw Error('Procedural sprite canvas unavailable');
+ g.scale(2,2);g.translate(w/2,h-8);
  g.lineJoin='round';g.lineCap='round';fn(g);
+ if(g.isContextLost?.())throw Error('Procedural sprite context lost');
+ SPC_CONTEXTS.set(c,g);
  const pixels=c.width*c.height;
  // A single oversized asset still renders, but is never cached.
  if(pixels<=SPC_PIXEL_LIMIT){
   while(SPC.size&&SPC_PIXELS+pixels>SPC_PIXEL_LIMIT){
    const oldest=SPC.keys().next().value,prior=SPC.get(oldest);
-   SPC_PIXELS-=prior.width*prior.height;SPC.delete(oldest);
+   discardProceduralSprite(oldest,prior);
   }
   SPC.set(key,c);SPC_PIXELS+=pixels;
+  const image=c;c.addEventListener?.('contextlost',()=>discardProceduralSprite(key,image));
  }
- return c;
+ complete=true;return c;
+ }finally{if(c&&!complete)retireGraphicsSurface(c)}
 }
 function blit(c,sx,sy,w,h,flip){X.save();X.translate(sx,sy);if(flip)X.scale(-1,1);X.drawImage(c,-w/2*zm,-(h-8)*zm,w*zm,h*zm);X.restore()}
 function pg(g,a,fill,stroke,lw){g.beginPath();g.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)g.lineTo(a[i][0],a[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.lineWidth=lw||1;g.stroke()}}
@@ -186,6 +244,7 @@ if(mode!=='play'&&mode!=='pause')canvasBenchSummary=null;
 if(mode!=='play'&&mode!=='pause'&&perfSharpHud){perfSharpHud=0;rs()}
 if(mode!=='play'&&mode!=='pause'&&perfRenderScale!==1){perfRenderScale=1;rs()}
 if(drawFrontEndScreen())return;
+if(graphicsRestorePending()){drawGraphicsRestorePause();return}
 for(const n of notes)n.t-=dt;compactPositive(notes,'t');
 if(perfFlatField){
  // Reversible GPU/presentation isolation: keep sim, input and the live HUD;

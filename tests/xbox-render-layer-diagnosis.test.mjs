@@ -23,6 +23,16 @@ function scene(){
  run('start();S.ex.fill(1);S.vs.fill(1);perfHud=1');
  return run;
 }
+test('solo render batches release retired surfaces after early return and drawing exceptions',()=>{
+ const run=scene();
+ run('globalThis.retiredSurface=document.createElement("canvas");retiredSurface.width=20;retiredSurface.height=30;beginGraphicsSurfaceUse();retireGraphicsSurface(retiredSurface);perfLayerMode=1;drawWorld();');
+ assert.equal(run('GRAPHICS_SURFACE_LIFETIME.depth'),1);assert.equal(run('retiredSurface.width'),20);
+ run('endGraphicsSurfaceUse()');assert.equal(run('retiredSurface.width'),1);
+ run('retiredSurface=document.createElement("canvas");retiredSurface.width=20;retiredSurface.height=30;drawChunks=()=>{retireGraphicsSurface(retiredSurface);throw Error("paint failed")};');
+ assert.throws(()=>run('drawWorld()'),/paint failed/);
+ assert.equal(run('GRAPHICS_SURFACE_LIFETIME.depth'),0);assert.equal(run('GRAPHICS_SURFACE_LIFETIME.pending.size'),0);
+ assert.equal(run('retiredSurface.width'),1);
+});
 test('terrain-only test skips objects while preserving the live world path',()=>{
  const run=scene();
  run('perfLayerMode=1;drawWorld()');

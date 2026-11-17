@@ -34,6 +34,17 @@ function mapFixture(c){
  c.run('globalThis.testMap=null');c.testMap=map;c.run('testMap.refresh(S,0,W,H,true)');
  return{map,orders,draws,description,refresh:()=>c.run('testMap.refresh(S,0,W,H,true)')};
 }
+test('projected renderer releases retired sources even when its canvas draw throws',()=>{
+ const c=fixture(),before=c.worldHash();let armed=false;
+ const surface=c.document.createElement('canvas');surface.width=20;surface.height=30;
+ const canvas={style:{},setAttribute(){},addEventListener(){},getContext:()=>new Proxy({},{get:(_,key)=>()=>{
+  if(armed&&key==='fillRect'){c.retireGraphicsSurface(surface);throw Error('projected paint failed')}
+ }})};
+ const map=c.CK_UNIT_MAP.create({canvas,description:{textContent:''},submit:()=>({ok:false}),leave(){}});
+ armed=true;assert.throws(()=>map.refresh(c.run('S'),0,c.run('W'),c.run('H'),true),/projected paint failed/);
+ assert.equal(c.run('GRAPHICS_SURFACE_LIFETIME.depth'),0);assert.equal(c.run('GRAPHICS_SURFACE_LIFETIME.pending.size'),0);
+ assert.equal(surface.width,1);assert.equal(c.worldHash(),before);
+});
 
 test('multiplayer camera uses right-stick zoom and left-stick pan without sending orders or changing the world',()=>{
  const c=fixture(),f=mapFixture(c),before=c.worldHash();

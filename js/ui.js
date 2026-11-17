@@ -12,8 +12,20 @@ function drawPerfOverlay(dt){
  tx('LOOP '+perfLoopMs.toFixed(1)+'  PAD '+perfPadMs.toFixed(1)+'  CTL '+perfControlMs.toFixed(1)+'  GAP '+perfGapMs.toFixed(1)+' ms',x+9,y+108,11,'#cbd5e1');
  const tab=document.visibilityState==='hidden'?'HIDDEN':document.visibilityState==='visible'?'VISIBLE':'UNKNOWN',focus=typeof document.hasFocus==='function'?(document.hasFocus()?'YES':'NO'):'?';
  tx('RAF '+perfFrameIntervalMs.toFixed(1)+' ms  |  TAB '+tab+'  FOCUS '+focus+'  LOSS '+GRAPHICS_RECOVERY.losses,x+9,y+126,11,'#cbd5e1');
- tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(Math.min(perfRenderScale,GRAPHICS_RECOVERY.scale)*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2)+(GRAPHICS_RECOVERY.scale<1?'  SAFE '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%':''),x+9,y+144,11,'#f8e6b5');
+ tx('CANVAS '+cv.width+'x'+cv.height+'  SCALE '+Math.round(perfRenderScale*100)+'%  DPR '+DPR.toFixed(2)+'  ZOOM '+zm.toFixed(2),x+9,y+144,11,'#f8e6b5');
  tx('TINT  HIT '+TEAM_FRAME_CACHE.hits+'  NEW '+TEAM_FRAME_CACHE.creations+'  EVICT '+TEAM_FRAME_CACHE.evictions+'  CACHE '+(TEAM_FRAME_CACHE.pixels*4/1048576).toFixed(1)+' MiB  |  TROOP CROPS '+TROOP_TEXTURE_LRU.size,x+9,y+162,11,'#cbd5e1');
+ if(typeof GRAPHICS_TRACE!=='undefined'){
+  const t=GRAPHICS_TRACE,f=t.frame,last=t.frames[(t.next+119)%120],mb=n=>(n/1048576).toFixed(1);
+  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y+h+3,w,143);
+  tx('FRAME TINT '+f.tints+' CROP '+f.crops+' READ '+f.readbackPixels+'px EVICT '+f.tintEvictions+'/'+f.cropEvictions,x+9,y+h+17,10,'#cbd5e1');
+  tx('ATLAS FIRST DRAW '+f.firstDrawMs.toFixed(2)+'ms (proxy) FREE '+f.surfaceReleases,x+9,y+h+34,10,'#cbd5e1');
+  if(last)tx('RETAINED '+last.liveCanvases+' canvases '+mb(last.canvasBytes)+'MiB | EST + ATL '+mb(last.nativeEstimateBytes)+'MiB',x+9,y+h+51,10,'#cbd5e1');
+  if(last)tx('TINT POOLS: TROOP '+mb(last.troopTintPixels*4)+'/'+mb(last.troopTintLimit*4)+'MiB BUILD '+mb(last.buildingTintPixels*4)+'/'+mb(last.buildingTintLimit*4)+'MiB',x+9,y+h+68,10,'#cbd5e1');
+  if(last)tx('PREP '+last.tintWarmStatus+' '+last.tintWarmRemaining+' left | NEW '+f.warmCreations+'/4 SKIP '+last.tintWarmSkipped,x+9,y+h+85,10,'#cbd5e1');
+  if(last)tx('NEXT '+last.tintPredRemaining+' pending | NEW '+f.predictCreations+' SKIP '+f.predictSkipped+' CAP '+last.tintPredCapHits,x+9,y+h+102,10,'#cbd5e1');
+  if(last)tx('HINT HELD '+last.tintPredResident+' CLAIM '+f.predictClaims+' RECLAIM '+f.predictDiscards,x+9,y+h+119,10,'#cbd5e1');
+  tx('UNIT OVERFLOW '+f.transientTints+' REUSE '+f.transientPixelHits+' CAP '+f.tintCapHits+' SURF '+f.transientSurfaces+' RESIZE '+f.transientResizes,x+9,y+h+136,10,'#cbd5e1');
+ }
  const saveStat=perfSaveMetrics;
  tx('SAVE '+(saveStat.kind==='NONE'?'waiting for next checkpoint':saveStat.kind+' '+(saveStat.ok?'OK':'FAILED')+' '+saveStat.total.toFixed(1)+'ms  PEAK '+saveStat.peak.toFixed(1)+'ms  N '+saveStat.count+(saveStat.failures?'  ERR '+saveStat.failures:'')),x+9,y+180,11,'#f8e6b5');
  if(saveStat.kind!=='NONE')tx('JSON '+saveStat.serialize.toFixed(1)+'ms  WRITE '+saveStat.storage.toFixed(1)+'ms  SIZE '+Math.round(saveStat.bytes/1024)+'KiB',x+9,y+198,11,'#f8e6b5');
@@ -120,7 +132,7 @@ tx(c?'CONTROLS':'ABOUT',CW/2,70,44,'#f2c14e','center');const sp2=Math.min(52,(CH
 
 /* Pause-menu model and drawing. Controller navigation remains in js/input.js. */
 const GSP=[.5,1,1.5,2,3];
-function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=>{omr='pause';mode='obj'}},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),...tributeMenuItems(),...villagerPriorityMenuItems(),
+function pmItems(){return[{n:'Resume',a:()=>{if(!retryGraphicsRestore())mode='play'}},{n:'Objectives',a:()=>{omr='pause';mode='obj'}},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),...tributeMenuItems(),...villagerPriorityMenuItems(),
 {n:'Game speed',v:()=>gs+'x',l:()=>{gs=GSP[Math.max(0,GSP.indexOf(gs)-1)]},r:()=>{gs=GSP[Math.min(4,GSP.indexOf(gs)+1)]}},
 {n:'Minimap cursor speed',v:()=>cspd+'x',l:()=>{cspd=Math.max(.5,cspd-.25)},r:()=>{cspd=Math.min(2,cspd+.25)}},
 {n:'Brightness',v:()=>br.toFixed(1),l:()=>{br=Math.max(.6,+(br-.1).toFixed(1));rs()},r:()=>{br=Math.min(1.5,+(br+.1).toFixed(1));rs()}},
@@ -144,6 +156,9 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
  d:()=> 'Original 100%, Balanced 75%, Smooth 50%, or optional Adaptive. Adaptive uses only 50%–75% battlefield detail with a sharp Xbox HUD, adjusting after sustained frame-rate measurements. 40% was removed because it looked too blurry on Xbox Series S. Not saved; no change to controls or gameplay.',
  l:()=>cycleXboxPicturePreset(-1),r:()=>cycleXboxPicturePreset(1),a:()=>cycleXboxPicturePreset(1)},
 ...(perfTestMatch?[
+ ...(mode==='pause'?[{n:'Unit tint cap test',v:()=>UNIT_TINT_WORKSPACE.enabled?'On (4)':'Off',
+  d:()=> 'Experimental test-save-only cap on new unit tint cache entries. Overflow draws the exact coloured artwork in temporary buffers, but repeated recolouring can be much slower. Other caches are not capped. Off by default and never saved.',
+  a:()=>setUnitTintExperiment(!UNIT_TINT_WORKSPACE.enabled),l:()=>setUnitTintExperiment(false),r:()=>setUnitTintExperiment(true)}]:[]),
  {n:'Run Xbox FPS comparison',d:()=> 'One-click comparison of full graphics at 100%, 75%, 50%, then 100% again. Holds the test scene still for ~28 seconds, locks gameplay controls and restores the original resolution. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark()},
  {n:'Run Xbox graphics comparison',d:()=> 'One-click full scene, terrain only, objects only, flat field, and full-scene repeat. Holds the same scene and camera for ~35 seconds, locks gameplay controls and restores all graphics. Menu/B cancels. No saves affected.',a:()=>beginCanvasBenchmark('layers')},
  {n:'Run Xbox object breakdown',d:()=> 'Compare all objects, troops, buildings and resource nodes at 100% original pixel scale, then repeat all. About 35 seconds with frozen AI, scene and camera. Returns all graphics. No saves affected; Menu/B cancels.',a:()=>beginCanvasBenchmark('objects')},
@@ -157,7 +172,9 @@ function pmItems(){return[{n:'Resume',a:()=>{mode='play'}},{n:'Objectives',a:()=
 {n:'Render layer diagnosis',v:()=>['Normal','Terrain only','Objects only'][perfLayerMode],d:()=> 'Series S diagnosis: compare just the terrain with just the units/buildings; keep gameplay and HUD running. Normal restores the full scene. Not saved.',l:()=>{perfLayerMode=(perfLayerMode+2)%3;perfFlatField=0;perfHud=1;perfFps=0},r:()=>{perfLayerMode=(perfLayerMode+1)%3;perfFlatField=0;perfHud=1;perfFps=0},a:()=>{perfLayerMode=(perfLayerMode+1)%3;perfFlatField=0;perfHud=1;perfFps=0}},
 {n:'Remap buttons',a:()=>{rbk='pause';mode='remap';ri=0;rw=0}},{n:'Save game',a:()=>openSlots('save','pause')},{n:'Load game',a:()=>openSlots('load','pause')},
 {n:'Restart match',a:()=>{if(cmp)startScenario(cmp.i);else start()}},{n:window.CK_NET&&window.CK_NET.snapshot().roomCode?'Leave Multiplayer':'Main menu',a:()=>{if(window.CK_NET&&window.CK_NET.snapshot().roomCode)window.CK_NET.leaveToSinglePlayer();else mode='title'}}]}
-function drawPause(){X.fillStyle='rgba(1,4,8,.78)';X.fillRect(0,0,CW,CH);if(!pad){tx('PAUSED',CW/2,CH*.4,56,'#f4d58b','center');tx('Controller disconnected — reconnect it to continue',CW/2,CH*.5,26,'#fca5a5','center');return}
+function drawPause(){X.fillStyle='rgba(1,4,8,.78)';X.fillRect(0,0,CW,CH);
+const rebuilding=graphicsRestoreMessage();if(rebuilding)tx(treeFit(rebuilding,CW-24,14),CW/2,CH-16,14,'#f4d58b','center');
+if(!pad){tx('PAUSED',CW/2,CH*.4,56,'#f4d58b','center');tx('Controller disconnected — reconnect it to continue',CW/2,CH*.5,26,'#fca5a5','center');return}
 const PI=pmItems(),w=Math.min(760,CW-36),V=Math.min(12,PI.length,Math.max(5,((CH-210)/43)|0)),rh=Math.min(43,(CH-190)/V|0),off=Math.max(0,Math.min(pm-(V>>1),PI.length-V)),y0=(CH-V*rh-128)/2|0,x=(CW-w)/2;panel(x,y0,w,V*rh+128);tx('PAUSED',CW/2,y0+42,32,'#f4d58b','center');tx('GAME MENU',x+24,y0+42,13,'#9fb2bf');X.fillStyle='rgba(217,181,104,.22)';X.fillRect(x+22,y0+53,w-44,1);
 for(let j=off;j<off+V;j++){const it=PI[j],i=j,yy=y0+61+(i-off)*rh;if(i===pm){const hg=X.createLinearGradient(x,yy,x+w,yy+rh);hg.addColorStop(0,'#66502f');hg.addColorStop(.5,'#354750');hg.addColorStop(1,'#27343b');X.fillStyle=hg;X.fillRect(x+12,yy,w-24,rh-3);X.strokeStyle='#f2d28a';X.strokeRect(x+12.5,yy+.5,w-25,rh-4);X.fillStyle='#f2d28a';X.fillRect(x+20,yy+7,3,rh-16)}tx(it.n,x+32,yy+rh*.64,Math.min(21,rh*.52|0),i===pm?'#fff0c2':'#edf2f5');if(it.v)tx('‹  '+it.v()+'  ›',x+w-24,yy+rh*.64,Math.min(19,rh*.46|0),'#f4d58b','right')}
 if(off>0)tx('▲ MORE ABOVE',CW/2,y0+56,10,'#c8b17e','center');if(PI[pm]?.n==='Zoom')tx('Gameplay zoom: Right stick Up/Down · Menu adjustment: D-pad Left/Right',CW/2,y0+V*rh+80,12,'#c8b17e','center');else if(off+V<PI.length)tx('▼ MORE BELOW  ·  '+(pm+1)+' / '+PI.length,CW/2,y0+V*rh+80,12,'#c8b17e','center');tx('D-PAD  NAVIGATE / ADJUST     A  SELECT     B OR MENU  RESUME',CW/2,y0+V*rh+99,Math.min(14,CW/65),'#c5d3dc','center')}

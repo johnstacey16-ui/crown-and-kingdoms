@@ -87,6 +87,8 @@
       context,terrainMemory,getView:()=>view,getSelection:()=>selection,viewport
     });
     function draw() {
+      if(typeof beginGraphicsSurfaceUse==='function')beginGraphicsSurfaceUse();
+      try{
       if(stopButton)stopButton.disabled=!canStop();
       for(const button of [previousButton,nextButton])if(button)button.disabled=overview||!view?.units.length;
       if(townButton)townButton.disabled=overview||!view?.buildings.some(b=>b.kind==='tc'&&b.rallyable);
@@ -177,6 +179,7 @@
       if(!groupWheel&&!overview){context.fillStyle='#d7c49b';context.font='15px system-ui';context.textAlign='right';context.fillText('View '+v.zoom.toFixed(1)+'x · LB: Groups · RB: Map',662,664);}
       if(groupWheel)drawGroups();
       if(!groupWheel&&!overview&&militarySelection()){context.fillStyle='#ffe6a0';context.font='15px system-ui';context.textAlign='left';context.fillText('Y: Line / Split formation',18,664);}
+      }finally{if(typeof endGraphicsSurfaceUse==='function')endGraphicsSurfaceUse()}
     }
     function refresh(world,team,width,height,canCommand) {
       if(!canCommand)cancelShortcut();

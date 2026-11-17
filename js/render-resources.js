@@ -11,6 +11,7 @@ else{const gold=kind==='g';g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse
 // Static crops share one LRU across source atlases. Bound retained native
 // canvases on Xbox Edge without changing rendered dimensions or atlas fallbacks.
 const NODE_TEXTURE_CACHE=new WeakMap(),NODE_TEXTURE_RECENCY=new Map();
+const NODE_TEXTURE_CONTEXTS=new WeakMap();
 const NODE_TEXTURE_PIXEL_LIMIT=2*1024*1024,NODE_TEXTURE_ENTRY_LIMIT=128; // 8 MiB RGBA
 let nodeTextureSeq=0,NODE_TEXTURE_PIXELS=0;
 function paintedNodeTexture(painted,width){
@@ -28,23 +29,42 @@ function paintedNodeTexture(painted,width){
        recencyKey=entry.id+'/'+key;
  if(frames.has(key)){
   const canvas=frames.get(key);NODE_TEXTURE_RECENCY.delete(recencyKey);
-  NODE_TEXTURE_RECENCY.set(recencyKey,{frames,key,canvas});return canvas;
+  let usable=false;
+  try{const ctx=NODE_TEXTURE_CONTEXTS.get(canvas);usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
+  if(usable){NODE_TEXTURE_RECENCY.set(recencyKey,{frames,key,canvas});return canvas}
+  frames.delete(key);NODE_TEXTURE_PIXELS-=canvas.width*canvas.height;
+  if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
  }
+ let canvas=null,prepared=false,accounted=false;
  try{
-  const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-  const g=canvas.getContext('2d');if(!g)return null;
+  canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+  const g=canvas.getContext('2d');if(!g||g.isContextLost?.())return null;
   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
   g.drawImage(img,f.x,f.y,f.w,f.h,0,0,w,h);
+  if(g.isContextLost?.())return null;
+  NODE_TEXTURE_CONTEXTS.set(canvas,g);
   canvas.paintedAtlas=!!painted.painted;canvas.paintedTeam=img.paintedTeam??null;
   frames.set(key,canvas);NODE_TEXTURE_RECENCY.set(recencyKey,{frames,key,canvas});
-  NODE_TEXTURE_PIXELS+=pixels;
+  NODE_TEXTURE_PIXELS+=pixels;accounted=true;
+  canvas.addEventListener?.('contextlost',()=>{
+   if(frames.get(key)!==canvas)return;
+   frames.delete(key);NODE_TEXTURE_RECENCY.delete(recencyKey);NODE_TEXTURE_PIXELS-=pixels;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
+  });
   while(NODE_TEXTURE_PIXELS>NODE_TEXTURE_PIXEL_LIMIT||NODE_TEXTURE_RECENCY.size>NODE_TEXTURE_ENTRY_LIMIT){
    const oldestKey=NODE_TEXTURE_RECENCY.keys().next().value,oldest=NODE_TEXTURE_RECENCY.get(oldestKey);
    NODE_TEXTURE_RECENCY.delete(oldestKey);oldest.frames.delete(oldest.key);
    NODE_TEXTURE_PIXELS-=oldest.canvas.width*oldest.canvas.height;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(oldest.canvas);
   }
-  return canvas;
- }catch(_){return null}
+  prepared=true;return canvas;
+ }catch(_){return null}finally{
+  if(canvas&&!prepared){
+   if(frames.get(key)===canvas){frames.delete(key);if(accounted)NODE_TEXTURE_PIXELS-=pixels}
+   if(NODE_TEXTURE_RECENCY.get(recencyKey)?.canvas===canvas)NODE_TEXTURE_RECENCY.delete(recencyKey);
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
+  }
+ }
 }
 // Stable geographic variants, independent of clock and owner.
 // Quantity is supplied from current sight or remembered visual knowledge only.

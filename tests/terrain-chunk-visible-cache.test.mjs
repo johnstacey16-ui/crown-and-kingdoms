@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
+import {graphicsSurfaceLifetimeSource} from './helpers/headless-game.mjs';
 
 const render=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'utf8');
-const from=render.indexOf('function terrainChunkDensity(');
+const from=render.indexOf('function clearTerrainChunks(');
 const to=render.length;
 assert.ok(from>=0&&to>from,'test extracts the exact production chunk painter');
 const production=render.slice(from,to);
@@ -20,14 +21,14 @@ function scene({CW=2560,CH=1440,zoom=.8,DPR=1,center=128}={}){
    assert.equal(tag,'canvas');
    // This suite exercises the original chunk fallback; the separate viewport
    // suite supplies a complete compositing context and checks its cache.
-   const cv={width:0,height:0,getContext(kind,options){assert.equal(kind,'2d');if(options?.alpha===false){const i=created.indexOf(cv);if(i>=0)created.splice(i,1);return null}return {scale(...args){scales.push(args)}};}};
+   const cv={width:0,height:0,lost:false,events:{},addEventListener(n,fn){this.events[n]=fn},getContext(kind,options){assert.equal(kind,'2d');if(options?.alpha===false){const i=created.indexOf(cv);if(i>=0)created.splice(i,1);return null}return {isContextLost:()=>cv.lost,scale(...args){scales.push(args)}};}};
    created.push(cv);return cv;
   }},
   paintTile(){paints++},
   paintTileDetail(){details++},
   X:{drawImage(image,x,y,w,h){blits.push({image,x,y,w,h});}}
  };
- vm.runInNewContext(production+'\n;({chunkOf,drawChunks})',fake,{timeout:15000});
+ vm.runInNewContext(graphicsSurfaceLifetimeSource()+production+'\n;({chunkOf,drawChunks})',fake,{timeout:15000});
  function view(centerX=center,centerY=center){
   const z=fake.zm;
   fake.cam.x=(centerX-centerY)*32*z-fake.CW/2;
@@ -86,6 +87,23 @@ test('wide zoomed-out isometric view paints ONLY visible chunks, never its recta
   assert.equal(a.image.width,512,'original cached chunk backing width preserved');
   assert.equal(a.image.height,256,'original cached chunk backing height preserved');
  }
+});
+test('chunk replacement, loss and late events preserve nested draw ownership',()=>{
+ const s=scene(),c=s.fake;const first=c.chunkOf(0,0,.5);
+ c.beginGraphicsSurfaceUse();c.beginGraphicsSurfaceUse();
+ const next=c.chunkOf(0,0,1);assert.equal(first.cv.width,256);
+ first.cv.events.contextlost();assert.equal(s.TCH.get(0),next,'late old-owner loss cannot remove replacement');
+ next.cv.lost=true;next.cv.events.contextlost();assert.equal(s.TCH.size,0);assert.equal(next.cv.width,512);
+ c.endGraphicsSurfaceUse();assert.equal(first.cv.width,256);assert.equal(next.cv.width,512);
+ c.endGraphicsSurfaceUse();assert.equal(first.cv.width,1);assert.equal(next.cv.width,1);
+});
+test('panning LRU and map clears retire offscreen chunks without shrinking selected draw sources',()=>{
+ const s=scene(),c=s.fake,old=[];
+ for(let i=0;i<100;i++){const cv={width:64,height:32,getContext(){return {}}};s.TCH.set(-100-i,{cv});old.push(cv)}
+ c.beginGraphicsSurfaceUse();const drawn=s.draw(),removed=old.filter(cv=>![...s.TCH.values()].some(chunk=>chunk.cv===cv));
+ assert.ok(removed.length>0);assert.ok(removed.every(cv=>cv.width===64));assert.ok(drawn.every(d=>d.image.width===512));
+ c.endGraphicsSurfaceUse();assert.ok(removed.every(cv=>cv.width===1));assert.ok(drawn.every(d=>d.image.width===512));
+ c.clearTerrainChunks();assert.equal(s.TCH.size,0);assert.ok(drawn.every(d=>d.image.width===1));
 });
 test('terrain is NOT repainted on successive gameplay frames when camera is stationary',()=>{
  const s=scene(),r=s.view();

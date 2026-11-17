@@ -241,7 +241,8 @@ test('browser foundation source comes from index.html in actual classic-script o
  assert.equal(paths[0],'./js/config.js');
  assert.equal(paths.at(-1),'./engine.js');
  assert.ok(paths.includes('./js/assets.js')&&paths.includes('./js/ui.js')&&paths.includes('./js/render-procedural-units.js'));
- assert.equal(paths.indexOf('./js/render-terrain.js'),paths.indexOf('./js/render.js')+1);
+ assert.equal(paths.indexOf('./js/render-tint-workspace.js'),paths.indexOf('./js/render.js')+1);
+ assert.equal(paths.indexOf('./js/render-terrain.js'),paths.indexOf('./js/render-tint-workspace.js')+1);
  assert.equal(paths.indexOf('./js/render-resources.js'),paths.indexOf('./js/render-terrain.js')+1);
  assert.equal(paths.indexOf('./js/render-buildings.js'),paths.indexOf('./js/render-resources.js')+1);
  assert.equal(paths.indexOf('./js/render-procedural-units.js'),paths.indexOf('./js/render-buildings.js')+1);

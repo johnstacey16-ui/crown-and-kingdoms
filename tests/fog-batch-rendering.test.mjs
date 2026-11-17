@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-import {headlessGame} from './helpers/headless-game.mjs';
+import {headlessGame,graphicsSurfaceLifetimeSource} from './helpers/headless-game.mjs';
 
 const source=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const begin=source.indexOf('function paintFogLayer('),end=source.indexOf('function drawWorld(',begin);
@@ -68,7 +68,7 @@ function maskPainter(){
   setTransform(){},clearRect(){},save(){},restore(){},drawImage(){ops.push('blit')}});
  const world=ctx(worldOps);world.canvas={width:640,height:320};const mask=ctx(maskOps);
  const sandbox={X:world,document:{createElement(){return {width:0,height:0,addEventListener(n,f){events.set(n,f)},getContext:()=>fail?null:mask}}}};
- vm.createContext(sandbox);vm.runInContext(source.slice(begin,end)+';globalThis.cache=FOG_MASK_CACHE;',sandbox);
+ vm.createContext(sandbox);vm.runInContext(graphicsSurfaceLifetimeSource()+source.slice(begin,end)+';globalThis.cache=FOG_MASK_CACHE;',sandbox);
  const points=[];for(let y=0;y<20;y++)for(let x=0;x<20;x++)points.push((x-y)*32,(x+y)*16);
  return {sandbox,world,worldOps,maskOps,events,points,draw:(p=points,w=33.5,h=17.5,c='#000')=>sandbox.drawWorldFog(p,w,h,c),setFail(v){fail=v},setLost(v){lost=v}};
 }
@@ -97,4 +97,18 @@ test('lost, failed, oversized or unsupported fog-mask surfaces retain the origin
  s.world.globalAlpha=.5;s.draw();assert.equal(s.sandbox.cache.canvas,null,'unusual alpha uses established path');
  const broken=maskPainter();broken.draw();broken.sandbox.document.createElement=()=>({getContext:()=>({setTransform(){},clearRect(){},beginPath(){throw Error('paint failed')}})});broken.draw();
  assert.equal(broken.sandbox.X,broken.world,'a throwing mask painter always restores the live world context');assert.equal(broken.sandbox.cache.canvas,null);
+});
+test('fog clear waits for nested draws and late loss cannot clear the replacement',()=>{
+ const s=maskPainter();s.draw();s.draw();const old=s.sandbox.cache.canvas,oldLoss=s.events.get('contextlost');
+ s.sandbox.beginGraphicsSurfaceUse();s.sandbox.beginGraphicsSurfaceUse();s.sandbox.clearFogMaskCache();
+ assert.equal(old.width,640);assert.equal(s.sandbox.cache.context,null);
+ s.draw();s.draw();const next=s.sandbox.cache.canvas;assert.notEqual(next,old);
+ oldLoss();assert.equal(s.sandbox.cache.canvas,next);s.sandbox.endGraphicsSurfaceUse();assert.equal(old.width,640);
+ s.sandbox.endGraphicsSurfaceUse();assert.equal(old.width,1);assert.equal(next.width,640);
+});
+test('lost or unavailable retained fog contexts repaint directly without a stale cached copy',()=>{
+ const s=maskPainter();s.draw();s.draw();const old=s.sandbox.cache.canvas;
+ s.setLost(true);s.draw();assert.equal(old.width,1);assert.equal(s.sandbox.cache.canvas,null);assert.equal(s.sandbox.X,s.world);
+ s.setLost(false);s.draw();s.draw();const next=s.sandbox.cache.canvas;
+ s.sandbox.cache.context=null;s.setFail(true);s.draw();assert.equal(next.width,1);assert.equal(s.sandbox.cache.canvas,null);
 });
