@@ -67,3 +67,24 @@ test('unique DLC fallback weapons have distinct deterministic illustrated poses'
   assert.ok(new Set(signatures).size>1,kind+' attack poses should not collapse');
  }
 });
+
+test('DLC cavalry fallback keeps distinct wing and camel-fire artwork',()=>{
+ const U={winged:{mt:true},flamecamel:{mt:true},mil:{},spear:{}},byKind={};
+ for(const kind of ['winged','flamecamel']){
+  const polygons=[];
+  const {mnt}=vm.runInNewContext(procedural+'\n({mnt})',{
+   U,pg:(_g,points,fill)=>polygons.push({n:points.length,fill}),
+   shd:color=>color,lin:(_g,_a,_b,_c,_d,color)=>color
+  });
+  const g={createRadialGradient(){return {addColorStop(){}}}};
+  for(const op of ['save','restore','scale','translate','rotate','beginPath','moveTo','lineTo',
+   'closePath','fill','stroke','fillRect','strokeRect','arc','ellipse','quadraticCurveTo']){
+   g[op]=(...args)=>{for(const val of args)assert.ok(Number.isFinite(val),kind+' nonfinite coordinates')};
+  }
+  assert.doesNotThrow(()=>mnt(g,kind,'#3399ee',1,1));
+  byKind[kind]=polygons;
+ }
+ assert.ok(byKind.winged.some(p=>p.fill==='#e5dcc6'||p.fill==='#c2b9a2'),'wing feathers');
+ assert.ok(byKind.flamecamel.some(p=>p.fill==='#e5712e'),'flame payload');
+ assert.ok(byKind.flamecamel.some(p=>p.fill==='#ffd16c'),'bright inner flame');
+});
