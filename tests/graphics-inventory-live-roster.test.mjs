@@ -34,3 +34,23 @@ test('remaining Sicilian through Georgian source-only assets are honestly proced
   assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,false);
  assert.equal(graphics.complete,false,'partial art never constitutes whole-game acceptance');
 });
+
+
+test('original painted art production queue tracks only the 21 genuinely missing sheets',()=>{
+ const queue=JSON.parse(readFileSync(new URL('../docs/painted-motion-production-queue.json',import.meta.url),'utf8'));
+ const missing=graphics.units.filter(unit=>unit.walkFrames<8||unit.attackFrames<8).map(unit=>unit.kind).sort();
+ const promised=queue.items.map(item=>item.kind).sort();
+ assert.deepEqual(promised,missing,'art briefs must not claim or omit an already painted sheet');
+ assert.equal(new Set(promised).size,promised.length,'one authored brief per distinct unit kind');
+ assert.deepEqual(queue.shared.sourceDimensions,[1536,1024]);
+ assert.equal(queue.items.length,21,'track the existing 21 unfinished types until source art is checked in');
+ assert.ok(queue.items.every(item=>item.state==='pending-generation'&&item.artStatus.includes('missing')));
+ assert.ok(queue.items.every(item=>item.identity.length>55&&item.equipment.length>45&&item.motion.length>48));
+ assert.ok(queue.items.every(item=>item.reference.startsWith('assets/painted-motion-')&&item.reference.endsWith('.webp')));
+ assert.ok(queue.items.every(item=>Number.isInteger(item.batch)&&item.batch>=1&&item.batch<=5));
+ const packer=readFileSync(new URL('../scripts/build-motion-atlas.mjs',import.meta.url),'utf8');
+ assert.match(packer,/availableKinds\.has\(kind\)/,'new queued unit names can be admitted by --source');
+ assert.match(packer,/sources\[kind\]\|\|existsSync\(/,'approved new art is optional until it exists');
+ assert.match(packer,/selectedKinds\.length\*16/,'rebuild reports actual original poses, not missing future art');
+ assert.match(packer,/info\.width!==1536\|\|info\.height!==1024/,'new source has native sprite-sheet dimensions');
+});
