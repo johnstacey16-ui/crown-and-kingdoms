@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Urumi Swordsman, Chakram Thrower and mounted Centurion join the regional sheets. [Inventory](docs/graphics-inventory.json): **66/84** painted animated kinds; **18 remaining** in [the source queue](docs/painted-motion-production-queue.json). Urumi reuses the owner-prepared candidate after repository checking; Centurion follows the runtime cavalry family. Prompts/provenance: `docs/painted-*-prompts.json`. Previous cavalry `61289a2f` passed [hosted checks](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070). This batch awaits fresh browser acceptance. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open; permanent development branch safeguards are preserved.
+Urumi Swordsman, Chakram Thrower and mounted Centurion join the regional sheets. [Inventory](docs/graphics-inventory.json): **66/84** painted animated kinds; **18 remaining** in [the source queue](docs/painted-motion-production-queue.json). Urumi uses the checked owner candidate; Centurion follows runtime cavalry flags. Prompts/provenance: `docs/painted-*-prompts.json`. Candidate `076af734` passed quick 5/5, focused 1,748, Chromium 2/2 and Xbox software 8/8, with 804 exact reflection comparisons ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44192717945)); rendered poses were inspected. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development branch safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 
