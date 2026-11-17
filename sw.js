@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '551728807e5899f11f8f068fb798b9a11177a3e7c684604d2292e1e1e6e88450';
-const CACHE_NAME = 'ck-shell-v200-strait-pilgrim-breach-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v222-mirrored-graphics-release-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -78,6 +78,7 @@ const CORE_ASSETS = [
   './js/input.js',
   './js/input-selection.js',
   './js/render.js',
+  './js/render-tint-workspace.js',
   './js/render-terrain.js',
   './js/render-resources.js',
   './js/render-buildings.js',
@@ -95,7 +96,7 @@ const CORE_ASSETS = [
   './js/simulation-research.js',
   './js/simulation-building-production.js',
   './js/simulation-building-updates.js',
-  './js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js','./js/entities.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js', './js/assets.js',
+  './js/simulation.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js','./js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai-production.js','./js/ai.js','./js/pathfinding.js','./js/kingdom.js','./js/entities.js','./js/campaign.js','./js/economy.js','./js/formations.js','./js/menus.js','./js/minimap.js', './js/assets.js',
   './js/engine-graphics-benchmark.js',
   './js/engine-picture.js',
   './js/civilizations.js',
@@ -110,6 +111,8 @@ const CORE_ASSETS = [
   './js/network-webrtc.js',
   './js/network-startup.js',
   './js/network-session.js',
+  './js/network-unit-projection.js',
+  './js/network-unit-render.js',
   './js/network-unit-map.js',
   './js/network-lobby.js',
   './multiplayer.js',

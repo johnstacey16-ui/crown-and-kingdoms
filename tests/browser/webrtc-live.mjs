@@ -14,7 +14,7 @@ if(deployedOrigin!==undefined&&deployedOrigin!=='https://crown-and-kingdoms.verc
 const origin=deployedOrigin||'http://127.0.0.1:'+server.address().port;
 const verifiedAssets=['index.html','sw.js','engine.js','multiplayer.js','js/network-sync.js','js/network-commands.js',
   'js/network-delivery.js','js/network-uplink.js','js/network-transport.js','js/network-startup.js',
-  'js/network-session.js','js/network-unit-map.js','js/network-lobby.js','js/network-supabase.js','js/network-webrtc.js'];
+  'js/network-session.js','js/network-unit-projection.js','js/network-unit-render.js','js/network-unit-map.js','js/network-lobby.js','js/network-supabase.js','js/network-webrtc.js'];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 // Numeric local ICE candidates make this controlled topology deterministic;
 // this does not establish different-router/mobile NAT or deployed-host acceptance.

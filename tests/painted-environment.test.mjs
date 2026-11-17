@@ -22,7 +22,7 @@ test('detached fish remain together when packing a multi-object environment cell
 });
 test('relic projection uses carrier coordinates, excludes hidden/garrisoned relics and does not mutate simulation',()=>{
  const {source,sandbox}=headlessGame();vm.createContext(sandbox);
- vm.runInContext(source+'\n'+['assets','network-sync','network-commands','network-unit-map'].map(n=>read('js/'+n+'.js')).join('\n')+`;seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();S.us=[];S.bs=[];
+ vm.runInContext(source+'\n'+['assets','network-sync','network-commands','network-unit-projection','network-unit-render','network-unit-map'].map(n=>read('js/'+n+'.js')).join('\n')+`;seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;start();S.us=[];S.bs=[];
  globalThis.worker=addU(0,'mon',20.5,20.5);globalThis.hidden=addU(1,'mon',60.5,60.5);
  S.rel=[{rl:1,x:21.5,y:21.5},{rl:1,x:60.5,y:60.5},{rl:1,x:60.5,y:60.5,c:worker},{rl:1,x:21.5,y:21.5,c:hidden},{rl:1,x:21.5,y:21.5,m:{}}];
  globalThis.run=s=>eval(s);`,sandbox);

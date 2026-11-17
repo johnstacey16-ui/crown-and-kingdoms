@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
-const ai=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+const ai=readFileSync(new URL('../js/ai-production.js',import.meta.url),'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
 const policy=readFileSync(new URL('../js/ai-policy.js',import.meta.url),'utf8');
 const config=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const catalogue=vm.runInNewContext(config+'\n;({U,TE})');

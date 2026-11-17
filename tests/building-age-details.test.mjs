@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-function game(){const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source+'\n'+read('js/network-commands.js')+'\n'+read('js/network-unit-map.js')+'\nglobalThis.run=code=>eval(code);',sandbox);sandbox.run('seedOv=123;msz=0;kingdoms=2;startAge=0;start();');return sandbox.run}
+function game(){const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source+'\n'+read('js/network-commands.js')+'\n'+read('js/network-unit-projection.js')+'\n'+read('js/network-unit-render.js')+'\n'+read('js/network-unit-map.js')+'\nglobalThis.run=code=>eval(code);',sandbox);sandbox.run('seedOv=123;msz=0;kingdoms=2;startAge=0;start();');return sandbox.run}
 
 test('all buildings retain only their last observed age in solo and team-relative views',()=>{
  const run=game();run("globalThis.b={k:'mill',t:1,x:20,y:20,s:2};S.vs.fill(0);S.age[1]=1;");

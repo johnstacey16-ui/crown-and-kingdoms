@@ -15,6 +15,10 @@ Claude/ChatGPT collaboration files `CLAUDE.md` and `docs/ai/HANDOFF.md` are reta
 
 ## Branch workflow and cleanup (15 November 2026)
 
+**Release-branch safety (15 November deployment lesson):** GitHub auto-deletes merged PR head branches in this repository. Never use the permanent `development` branch as the head of a PR into `main` — GitHub can delete it. Create a short-lived `release/YYYY-MM-DD` branch at the verified `development` commit, PR that branch to `main`, require current-SHA checks, and merge with `[deploy]` only on accepted releases. After the deployment, fast-forward `development` to the resulting production merge commit and allow GitHub to delete only the temporary release branch. Do not force-push, auto-release, or disable the existing free-tier guard.
+
+
+
 Use just two permanent branches: `main` (production/release history) and `development` (routine integration and CI). Create short-lived branches from the latest `development` only for substantial, concurrent or riskier changes: `feat/<topic>`, `fix/<topic>`, `test/<topic>`, `refactor/<topic>` or `docs/<topic>`. Small, low-risk changes may be committed directly to `development` with expected-head safety. PRs from those branches must target `development`, **not** `main`; require green relevant checks before merging and delete the merged head branch. Do not indiscriminately merge unrelated historical branches.
 
 Release accepted, tested `development` changes to `main` only through the existing intentional `[deploy]` gate; protect the free-only Vercel deployment and keep costly full/campaign/browser checks opt-in or weekly. Emergency production fixes start from `main` via `hotfix/<topic>` and are reintegrated into `development` after review. GitHub's `main` default branch stays unchanged. The [branch-hygiene workflow](.github/workflows/branch-hygiene.yml) may prune exact merged-PR heads or branch tips proven ancestors of `main`/`development`, with no open PR or protection; keep unmerged, diverged, unknown and protected branches until independently reviewed. All historic commits/PRs remain in Git history.

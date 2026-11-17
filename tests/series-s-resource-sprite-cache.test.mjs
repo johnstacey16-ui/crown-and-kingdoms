@@ -2,13 +2,61 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-import {headlessGame} from './helpers/headless-game.mjs';
+import {headlessGame,graphicsSurfaceLifetimeSource} from './helpers/headless-game.mjs';
 
 const render=readFileSync(new URL('../js/render.js',import.meta.url),'utf8');
 const resource=readFileSync(new URL('../js/render-resources.js',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
 const s=resource.indexOf('const NODE_TEXTURE_CACHE='),e=resource.indexOf('function drawNode(',s);
 assert.ok(s>=0&&e>s,'extract actual production static resource cache');
+test('failed resource construction rolls back both indexes and pixel accounting before retry',()=>{
+ for(const failure of['null','context','before','draw','after','register']){
+  let phase='',last;const context={document:{createElement(){
+   const cv={width:0,height:0,lost:phase==='before',events:{},addEventListener(n,fn){this.events[n]=fn;if(phase==='register')throw Error('registration failed')}};
+   const g={isContextLost:()=>cv.lost,drawImage(){if(phase==='draw')throw Error('copy failed');if(phase==='after')cv.lost=true}};
+   cv.getContext=()=>{if(phase==='context')throw Error('context failed');return phase==='null'?null:g};last=cv;return cv;
+  }}};
+  const f=vm.runInNewContext(graphicsSurfaceLifetimeSource()+resource.slice(s,e)+'\n({paintedNodeTexture,beginGraphicsSurfaceUse,endGraphicsSurfaceUse,NODE_TEXTURE_RECENCY,pixels:()=>NODE_TEXTURE_PIXELS,frames:img=>NODE_TEXTURE_CACHE.get(img)?.frames.size||0,lifetime:GRAPHICS_SURFACE_LIFETIME})',context);
+  const art={img:{},f:{x:0,y:0,w:120,h:180}},healthy=f.paintedNodeTexture(art,72),pixels=f.pixels(),bad={...art,img:{}};
+  phase=failure;f.beginGraphicsSurfaceUse();f.beginGraphicsSurfaceUse();assert.equal(f.paintedNodeTexture(bad,72),null);const rejected=last;
+  assert.equal(f.NODE_TEXTURE_RECENCY.size,1);assert.equal(f.frames(bad.img),0);assert.equal(f.pixels(),pixels);assert.equal(rejected.width,144);
+  assert.equal(f.lifetime.pending.size,1);f.endGraphicsSurfaceUse();assert.equal(rejected.width,144);f.endGraphicsSurfaceUse();assert.equal(rejected.width,1);
+  assert.equal(healthy.width,144);phase='';const retry=f.paintedNodeTexture(bad,72);assert.notEqual(retry,rejected);assert.equal(retry.width,144);
+  rejected.events.contextlost?.();assert.equal(f.NODE_TEXTURE_RECENCY.size,2);assert.equal(f.frames(bad.img),1);assert.equal(f.pixels(),pixels*2);
+ }
+});
+test('lost resource crops release after the batch and stale events preserve replacements and accounting',()=>{
+ const context={document:{createElement:()=>({width:0,height:0,events:{},addEventListener(name,fn){this.events[name]=fn},getContext:()=>({drawImage(){}})})}};
+ const f=vm.runInNewContext(graphicsSurfaceLifetimeSource()+resource.slice(s,e)+'\n({paintedNodeTexture,beginGraphicsSurfaceUse,endGraphicsSurfaceUse,NODE_TEXTURE_RECENCY,pixels:()=>NODE_TEXTURE_PIXELS,lifetime:GRAPHICS_SURFACE_LIFETIME})',context);
+ const art={img:{},f:{x:0,y:0,w:120,h:180}};
+ f.beginGraphicsSurfaceUse();const first=f.paintedNodeTexture(art,72);first.events.contextlost();
+ assert.equal(f.pixels(),0);assert.equal(first.width,144);
+ const next=f.paintedNodeTexture(art,72);first.events.contextlost();assert.equal(f.NODE_TEXTURE_RECENCY.size,1);
+ assert.equal(f.pixels(),next.width*next.height);
+ f.endGraphicsSurfaceUse();assert.equal(first.width,1);assert.equal(next.width,144);assert.equal(f.lifetime.pending.size,0);
+ for(let i=1;i<90;i++)f.paintedNodeTexture({...art,f:{...art.f,x:i*130}},72);
+ assert.equal(next.width,1,'ordinary resource LRU eviction releases backing pixels');
+});
+test('resource cache detects pre-event loss, reuses retained contexts and rejects loss during creation',()=>{
+ let nextLost=false,loseOnDraw=false;const created=[];
+ const context={document:{createElement(){
+  const canvas={width:0,height:0,lost:nextLost,acquisitions:0,events:{},addEventListener(name,fn){this.events[name]=fn}};
+  const ctx={isContextLost:()=>canvas.lost,drawImage(){if(loseOnDraw)canvas.lost=true}};
+  canvas.getContext=()=>{canvas.acquisitions++;return ctx};created.push(canvas);return canvas;
+ }}};
+ const f=vm.runInNewContext(graphicsSurfaceLifetimeSource()+resource.slice(s,e)+'\n({paintedNodeTexture,NODE_TEXTURE_RECENCY,pixels:()=>NODE_TEXTURE_PIXELS})',context);
+ const art={img:{},f:{x:0,y:0,w:120,h:180}},first=f.paintedNodeTexture(art,72);
+ for(let i=0;i<50;i++)assert.equal(f.paintedNodeTexture(art,72),first);
+ assert.equal(first.acquisitions,1,'cache hits check the retained context without reacquiring it');
+ first.lost=true;const next=f.paintedNodeTexture(art,72);
+ assert.notEqual(next,first);assert.equal(first.width,1);assert.equal(f.pixels(),next.width*next.height);
+ first.events.contextlost();assert.equal(f.NODE_TEXTURE_RECENCY.size,1,'late old event cannot discard the replacement');
+ nextLost=true;assert.equal(f.paintedNodeTexture({...art,f:{...art.f,x:2}},72),null);
+ assert.equal(created.at(-1).width,1,'a surface lost before drawing releases its unused backing');
+ nextLost=false;loseOnDraw=true;assert.equal(f.paintedNodeTexture({...art,f:{...art.f,x:4}},72),null);
+ assert.equal(created.at(-1).width,1,'loss during source copying never admits a blank cache entry');
+ assert.equal(f.NODE_TEXTURE_RECENCY.size,1);assert.equal(f.pixels(),next.width*next.height);
+});
 
 test('a painted static resource is cropped once per atlas image and frame',()=>{
  let creations=0;const calls=[];

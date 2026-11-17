@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const ai = readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
+const ai = readFileSync(new URL('../js/ai-production.js', import.meta.url), 'utf8')+'\n'+
+ readFileSync(new URL('../js/ai.js', import.meta.url), 'utf8');
 const policy = readFileSync(new URL('../js/ai-policy.js', import.meta.url), 'utf8');
 const buildingUpdates = readFileSync(new URL('../js/simulation-building-updates.js', import.meta.url), 'utf8');
 assert.ok(ai.includes("centres.reduce((n,b)=>n+b.q.filter(q=>q&&q.k==='vil').length,0)"),

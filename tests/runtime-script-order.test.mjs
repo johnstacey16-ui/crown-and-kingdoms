@@ -10,14 +10,15 @@ test('browser script references are unique, safely rooted and in declared order'
  const core=coreGameScriptPaths(html);
  assert.ok(scripts.length>core.length,'browser bootstrap and transports must surround the core game');
  for(const path of ['./js/simulation-combat-bonuses.js','./js/simulation-victory.js','./js/simulation-logistics.js','./js/simulation-resource-routing.js','./js/simulation-production-queues.js','./js/simulation-research.js','./js/simulation-building-production.js','./js/simulation-building-updates.js','./js/simulation-unit-behaviour.js','./js/simulation-separation.js',
-  './js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/engine-graphics-benchmark.js','./js/engine-picture.js'])
+  './js/ai-policy.js','./js/ai-economy.js','./js/ai-defence.js','./js/ai-maritime.js','./js/ai-offence.js','./js/ai-construction.js','./js/ai-production.js','./js/engine-graphics-benchmark.js','./js/engine-picture.js'])
   assert.ok(scripts.includes(path),'required split runtime module '+path);
  assert.equal(scripts[0],'./persistence.js');
  assert.equal(scripts.at(-1),'./multiplayer.js');
  assert.ok(scripts.includes('./js/network-webrtc.js'));
  assert.ok(scripts.includes('./js/network-supabase.js'));
  assert.equal(scripts.indexOf('./js/input-selection.js'),scripts.indexOf('./js/input.js')+1);
- assert.equal(scripts.indexOf('./js/render-terrain.js'),scripts.indexOf('./js/render.js')+1);
+ assert.equal(scripts.indexOf('./js/render-tint-workspace.js'),scripts.indexOf('./js/render.js')+1);
+ assert.equal(scripts.indexOf('./js/render-terrain.js'),scripts.indexOf('./js/render-tint-workspace.js')+1);
  assert.equal(scripts.indexOf('./js/render-resources.js'),scripts.indexOf('./js/render-terrain.js')+1);
  assert.equal(scripts.indexOf('./js/render-buildings.js'),scripts.indexOf('./js/render-resources.js')+1);
  assert.equal(scripts.indexOf('./js/render-procedural-units.js'),scripts.indexOf('./js/render-buildings.js')+1);
@@ -39,10 +40,14 @@ test('browser script references are unique, safely rooted and in declared order'
  assert.equal(scripts.indexOf('./js/ai-defence.js')+1,scripts.indexOf('./js/ai-maritime.js'));
  assert.equal(scripts.indexOf('./js/ai-maritime.js')+1,scripts.indexOf('./js/ai-offence.js'));
  assert.equal(scripts.indexOf('./js/ai-offence.js')+1,scripts.indexOf('./js/ai-construction.js'));
- assert.equal(scripts.indexOf('./js/ai-construction.js')+1,scripts.indexOf('./js/ai.js'));
+ assert.equal(scripts.indexOf('./js/ai-construction.js')+1,scripts.indexOf('./js/ai-production.js'));
+ assert.equal(scripts.indexOf('./js/ai-production.js')+1,scripts.indexOf('./js/ai.js'));
  assert.equal(scripts.indexOf('./js/engine-graphics-benchmark.js')+1,scripts.indexOf('./js/engine-picture.js'));
  assert.equal(scripts.indexOf('./js/engine-picture.js')+1,scripts.indexOf('./js/civilizations.js'));
  assert.equal(scripts.indexOf('./js/civilizations.js')+1,scripts.indexOf('./engine.js'));
+ assert.equal(scripts.indexOf('./js/network-session.js')+1,scripts.indexOf('./js/network-unit-projection.js'));
+ assert.equal(scripts.indexOf('./js/network-unit-projection.js')+1,scripts.indexOf('./js/network-unit-render.js'));
+ assert.equal(scripts.indexOf('./js/network-unit-render.js')+1,scripts.indexOf('./js/network-unit-map.js'));
  assert.equal(scripts.indexOf('./js/simulation-combat-bonuses.js'),scripts.indexOf('./js/simulation-victory.js')-1);
  assert.throws(()=>browserScriptPaths('<script src="../secret.js"></script>'),/Unsafe browser script path/);
  assert.throws(()=>browserScriptPaths('<script src="./engine.js"></script><script src="./engine.js"></script>'),/Duplicate browser script reference/);

@@ -20,3 +20,9 @@ This is a **small, reusable engineering-method journal**, not a second roadmap, 
 - **Remaining limitations:** browser / hardware / network / art / release gates, where relevant.
 
 Only add an entry when the **method or reusable technique changes**. Ordinary feature status belongs in the roadmap, commit and associated verification artifact. Keep the journal short; older detail is available from the frozen snapshot and Git log.
+
+### 2026-11-17 — Graphics integration candidate
+Local graphics history through `15257ee` records deferred backing retirement, exact-colour failures and explicit offline retry without changing simulation or lowering quality. The current graphics report retains detailed evidence; use Git history for the prior journal rather than restoring duplicated historical entries here. Integration with current development is being validated before the requested release; no production acceptance is implied.
+
+### 2026-11-17 — Browser reflection is a separate sampling gate
+Hosted Chromium on `82dbdfcf` found a 255-channel reflection delta while identity copying and native tint comparisons were exact. Restore bounded baked-facing sources when reflected transforms fail the original pixel contract; retain strict browser assertions and account for the extra crop work. The correction passed 71 targeted tests and five quick gates locally; hosted acceptance is pending and no console performance claim follows.

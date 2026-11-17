@@ -1,4 +1,13 @@
-import {loadCoreGameSource} from '../../scripts/runtime-sources.mjs';
+import {loadCoreGameSource,readBrowserSubset} from '../../scripts/runtime-sources.mjs';
+
+// Isolated cache fixtures share the actual production lifetime owner.
+export function graphicsSurfaceLifetimeSource(){
+ const [{source}]=readBrowserSubset(['./js/render.js']);
+ const start=source.indexOf('const GRAPHICS_SURFACE_LIFETIME='),end=source.indexOf('const PAINT=',start);
+ if(start<0||end<=start)throw Error('Missing graphics surface lifetime owner');
+ return source.slice(start,end);
+}
+export function unitTintWorkspaceSource(){return readBrowserSubset(['./js/render-tint-workspace.js'])[0].source}
 
 // Browser surface mocks only; simulation and AI below are the production scripts.
 export function headlessGame() {

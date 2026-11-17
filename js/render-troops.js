@@ -87,21 +87,26 @@ const TROOP_TEXTURE_PIXEL_LIMIT=6*1024*1024,TROOP_TEXTURE_ENTRY_LIMIT=160;
 const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_CONTEXTS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
 let troopTextureSeq=0,troopTexturePixels=0;
 function troopFrameTexture(art,mirror=false,lod=1){
+ // Chromium filters reflected transforms differently from a reflected source.
+ // Keep baked facing copies inside the existing bounded crop cache.
  const img=art?.img,f=art?.f;
  if(!img||!f||typeof img!=='object')return null;
  const {x,y,w,h}=f,ratio=lod===.5?.5:1;
- if(ratio===1&&!mirror&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
+ if(!mirror&&ratio===1&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
  if(![x,y,w,h].every(Number.isFinite)||w<=0||h<=0||w*h>TROOP_TEXTURE_PIXEL_LIMIT)return null;
  const dw=Math.max(1,Math.round(w*ratio)),dh=Math.max(1,Math.round(h*ratio));
+ // A leased source changes on the next unit. Preserve the original prefilter,
+ // but never key a persistent crop by that mutable image's identity.
+ if(art.transient)return unitTintCrop(art,dw,dh,mirror);
  let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
- const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio+(mirror?'/flip':'');
- let cv=TROOP_TEXTURE_LRU.get(key);
+ const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio+'/'+mirror;
+ let cv=TROOP_TEXTURE_LRU.get(key),prepared=false,accounted=false;
  if(cv){
   // Context acquisition on each soldier was unnecessary. Keep the original
   // Canvas2D context so an independently lost cached texture is still detected.
   let usable=false;
   try{const ctx=TROOP_TEXTURE_CONTEXTS.get(cv)||cv.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
-  if(!usable){TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=cv.width*cv.height;cv=null}
+  if(!usable){TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=cv.width*cv.height;if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(cv);cv=null}
  }
  if(cv){TROOP_TEXTURE_LRU.delete(key);TROOP_TEXTURE_LRU.set(key,cv);return cv}
  try{
@@ -112,13 +117,26 @@ function troopFrameTexture(art,mirror=false,lod=1){
   ctx.drawImage(img,x,y,w,h,0,0,dw,dh);
   if(ctx.isContextLost?.())return null;
   TROOP_TEXTURE_CONTEXTS.set(cv,ctx);
-  TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=dw*dh;
+  if(typeof GRAPHICS_TRACE!=='undefined')GRAPHICS_TRACE.frame.crops++;
+  TROOP_TEXTURE_LRU.set(key,cv);troopTexturePixels+=dw*dh;accounted=true;
+  cv.addEventListener?.('contextlost',()=>{
+   if(TROOP_TEXTURE_LRU.get(key)!==cv)return;
+   TROOP_TEXTURE_LRU.delete(key);troopTexturePixels-=dw*dh;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(cv);
+  });
   while(troopTexturePixels>TROOP_TEXTURE_PIXEL_LIMIT||TROOP_TEXTURE_LRU.size>TROOP_TEXTURE_ENTRY_LIMIT){
    const oldKey=TROOP_TEXTURE_LRU.keys().next().value,old=TROOP_TEXTURE_LRU.get(oldKey);
    TROOP_TEXTURE_LRU.delete(oldKey);troopTexturePixels-=old.width*old.height;
+   if(typeof GRAPHICS_TRACE!=='undefined')GRAPHICS_TRACE.frame.cropEvictions++;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(old);
   }
-  return cv;
- }catch(_){return null}
+  prepared=true;return cv;
+ }catch(_){return null}finally{
+  if(cv&&!prepared){
+   if(TROOP_TEXTURE_LRU.get(key)===cv){TROOP_TEXTURE_LRU.delete(key);if(accounted)troopTexturePixels-=dw*dh}
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(cv);
+  }
+ }
 }
 function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase){
   const f=art.f,walk=state===1,attack=state===2,work=state===3;
@@ -130,9 +148,8 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   // Scale the offset with visible body height rather than with the source sheet.
   const unitScale=Math.max(.25,Math.min(2.5,(art.referenceHeight||f.h)*scale/(PAINT_SECONDARY[kind]==='mounted'?60:46)));
   const bob=art.animated?0:motion?motion.dy*unitScale:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
-  // drawWorld() already selects high-quality sampling. A cached original-size
-  // mirrored frame also removes per-soldier save/translate/scale/restore.
-  // Keep the old transform path for unsupported contexts/poses/canvas failures.
+  // A baked reflection preserves the original high-quality sampling at
+  // fractional positions. Secondary animated poses retain their transforms.
   if(!motion&&(art.animated||(!walk&&!attack))&&g.imageSmoothingEnabled===true&&g.imageSmoothingQuality==='high'){
    const frame=troopFrameTexture(art,mirror,lod);
    if(frame){
@@ -256,11 +273,15 @@ function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.
  // Ground-only has zero atlas lookup or sprite painting.
  if(perfUnitPass===2){drawUnitGround(u,selectedUnits,sx,sy,zm,d.r);return}
  const pose=unitVisualPose(u,S.t),heading=pose.heading,mirror=Math.cos(heading)-Math.sin(heading)<0;
-const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm,af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase):null,
+const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm;
+let af=null,c=null;const tintScope=typeof beginUnitTintScope==='function'&&beginUnitTintScope();
+try{
+af=ASSET.n?assetFrame(k,u.t,st,0,pose.time,heading,pose.phase,true,true):null;
 c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);
 /* Validated motion frames take priority; generate procedural art only if every atlas misses. */if(af?.painted){drawPaintedTroop(X,af,sx,sy,af.sc*z,st,pose.time,mirror,k,pose.phase)}else if(af){const f=af.f,sc=af.sc,yb=sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0);X.drawImage(af.img,f.x,f.y,f.w,f.h,sx-f.ax*sc*z,yb-f.ay*sc*z,f.w*sc*z,f.h*sc*z)}else blit(c,sx,sy-(d.sh?Math.sin(gt*2+u.x)*1.5*z:0),sz[0],sz[1],mirror);
+}finally{if(tintScope)endUnitTintScope()}
 drawNavalClassMark(X,k,sx,sy,z,pose.time);
 drawEliteUniqueUnitMark(X,k,u.t,sx,sy,z);
 if(perfUnitPass===1)return;

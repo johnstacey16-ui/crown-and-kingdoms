@@ -97,7 +97,7 @@ test('AI classifies new combat ships and uses capped Fire/Demolition naval count
  assert.equal(c('aiTeamRoster(1).galleys.length'),2);
  assert.equal(c('aiClassifyHostileForces(1).humanShips.length'),1);
  assert.equal(c('aiClassifyHostileForces(1).hostileFleet.length'),1);
- const src=readFileSync(new URL('../js/ai.js',import.meta.url),'utf8');
+ const src=readFileSync(new URL('../js/ai-production.js',import.meta.url),'utf8');
  assert.match(src,/fireCounter=isDock&&enemyShips>0/);
  assert.match(src,/demoCounter=isDock&&enemyShips>=4/);
  assert.match(src,/queuedUnits\('demo'\)<3/);

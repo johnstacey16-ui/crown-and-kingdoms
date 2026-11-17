@@ -8,31 +8,6 @@ const ADAPTIVE_WINDOW_MS=8000,ADAPTIVE_WARMUP_MS=1500;
 let adaptiveWindowStart=null,adaptiveSamples=[],adaptiveFastWindows=0;
 function outsideGameLoopMs(frameInterval,previousLoop){return Number.isFinite(frameInterval)&&Number.isFinite(previousLoop)?Math.max(0,frameInterval-previousLoop):0}
 function resetAdaptivePictureSampling(){adaptiveWindowStart=null;if(adaptiveSamples.length)adaptiveSamples=[];adaptiveFastWindows=0}
-// Following an Xbox world-context loss, detect sustained slow presentation.
-// Do not alter saves, controller coordinates or normal (loss-free) game sessions.
-let recoveryWindowStart=null,recoveryIntervals=[];
-function resetGraphicsRecoverySampling(){recoveryWindowStart=null;if(recoveryIntervals.length)recoveryIntervals=[]}
-function sampleGraphicsRecovery(now,rafMs){
- const r=GRAPHICS_RECOVERY;
- if(!r.worldLosses||r.scale<=.5||selectedXboxPicturePreset===3||
-    mode!=='play'||!S||canvasBenchmark||document.hidden||r.lost.size){
-  resetGraphicsRecoverySampling();return;
- }
- if(!Number.isFinite(rafMs)||rafMs<1||rafMs>1000){resetGraphicsRecoverySampling();return}
- if(recoveryWindowStart===null){recoveryWindowStart=now;return}
- const elapsed=now-recoveryWindowStart;
- if(elapsed>=8000){
-  const median=canvasBenchmarkMedian(recoveryIntervals);
-  if(recoveryIntervals.length>=16&&median!==null&&median>48&&
-     perfStepMs<18&&(perfDrawMs>22||perfGapMs>22)){
-   r.scale=r.scale===1?.75:.5;
-   rs();perfFps=0;
-   note('Graphics recovery: physical canvas capped at '+Math.round(r.scale*100)+'% to stabilize Xbox FPS.');
-  }
-  recoveryWindowStart=now;recoveryIntervals=[];return;
- }
- if(elapsed>=1500&&recoveryIntervals.length<1000)recoveryIntervals.push(rafMs);
-}
 // Optional conservative frame-pacing governor. Only when expressly selected.
 // Warm up for 1.5s after each window, and resize at most once every 8s.
 function sampleAdaptivePicture(now,rafMs){
@@ -98,7 +73,7 @@ if(mode==='play'||mode==='pause'){
 /* World/HUD canvas selection belongs to picture presentation, not the fixed
  * simulation frame loop. Always restore the world context after UI rendering. */
 function drawXboxHudOverlays(dt){
-if(perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
+if(perfSharpHud&&perfRenderScale<1&&HUD_X&&hudCanvas&&(mode==='play'||mode==='pause')){
  // Full-resolution HUD is transparent on top of the lower-pixel battlefield.
  // Keep the original canvas/control coordinate system and guaranteed context
  // restoration even if an overlay renderer throws.
@@ -113,28 +88,102 @@ if(perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1&&HUD_X&&hudCanva
 function resetGraphicsDiagnostics(){
  perfFps=0;perfStepPeak=0;perfDrawPeak=0;perfStepCount=0;perfFogMs=0;
  perfFrameIntervalMs=0;perfGapMs=0;perfLoopMs=0;
- resetGraphicsRecoverySampling();
  perfFlatField=0;perfLayerMode=0;perfObjectPass=0;perfUnitPass=0;
+ if(typeof GRAPHICS_TRACE!=='undefined'){
+  resetGraphicsTraceFrame();GRAPHICS_TRACE.frames=[];GRAPHICS_TRACE.next=0;
+  GRAPHICS_TRACE.atlases=new WeakSet();GRAPHICS_TRACE.atlasDraws=[];
+ }
+}
+// Known retained surfaces and preparation pixel buffers: excludes stores awaiting GC,
+// driver copies and browser compositor allocations. RGBA bytes are estimates.
+function graphicsSurfaceEstimate(){
+ const surfaces=new Set(),add=c=>{if(c&&Number.isFinite(c.width)&&Number.isFinite(c.height))surfaces.add(c)};
+ if(typeof cv!=='undefined')add(cv);
+ if(typeof hudCanvas!=='undefined')add(hudCanvas);
+ if(typeof TEAM_FRAME_CACHE!=='undefined'){
+  for(const c of TEAM_FRAME_CACHE.entries.values())add(c);
+  add(TEAM_FRAME_CACHE.scratch);
+ }
+ if(typeof UNIT_TINT_WORKSPACE!=='undefined')for(const slot of UNIT_TINT_WORKSPACE.slots)if(slot){add(slot.tint);add(slot.crop)}
+ if(typeof TROOP_TEXTURE_LRU!=='undefined')for(const c of TROOP_TEXTURE_LRU.values())add(c);
+ if(typeof FOG_MASK_CACHE!=='undefined')add(FOG_MASK_CACHE.canvas);
+ if(typeof TCH!=='undefined')for(const c of TCH.values())add(c.cv);
+ if(typeof TERRAIN_VIEW!=='undefined')add(TERRAIN_VIEW.canvas);
+ if(typeof TERRAIN_BLEND!=='undefined')for(const c of TERRAIN_BLEND.values())add(c);
+ if(typeof NODE_TEXTURE_RECENCY!=='undefined')for(const c of NODE_TEXTURE_RECENCY.values())add(c.canvas);
+ if(typeof BUILDING_DAMAGE_CACHE!=='undefined')for(const c of BUILDING_DAMAGE_CACHE.entries.values())add(c);
+ if(typeof BUILDING_LOD_CACHE!=='undefined')for(const c of BUILDING_LOD_CACHE.entries.values())add(c);
+ if(typeof SPC!=='undefined')for(const c of SPC.values())add(c);
+ if(typeof GRAPHICS_SURFACE_LIFETIME!=='undefined')for(const c of GRAPHICS_SURFACE_LIFETIME.pending.keys())add(c);
+ const images=new Set();let atlasBytes=0,touchedAtlasBytes=0;
+ if(typeof ASSET!=='undefined')for(const a of Object.values(ASSET.atl)){
+  for(const c of Object.values(a.teams||{}))if(c!==a.img)add(c);
+  if(!a.ok||!a.img||images.has(a.img))continue;
+  images.add(a.img);
+  const bytes=(a.img.naturalWidth||a.img.width||a.meta.width||0)*(a.img.naturalHeight||a.img.height||a.meta.height||0)*4;
+  atlasBytes+=bytes;
+  if(GRAPHICS_TRACE.atlases.has(a.img))touchedAtlasBytes+=bytes;
+ }
+ const canvasBytes=[...surfaces].reduce((sum,c)=>sum+c.width*c.height*4,0);
+ const lifetime=typeof GRAPHICS_SURFACE_LIFETIME!=='undefined'?GRAPHICS_SURFACE_LIFETIME:null;
+ const groups=typeof TEAM_FRAME_GROUPS!=='undefined'?TEAM_FRAME_GROUPS:null;
+ const warm=typeof TINT_WARMUP!=='undefined'?TINT_WARMUP:null;
+ const tintWarmSourceBytes=(warm?.source?.pixels?.data?.byteLength||0)+(warm?.source?.original?.byteLength||0);
+ const unitTintPixelBytes=typeof UNIT_TINT_WORKSPACE!=='undefined'?UNIT_TINT_WORKSPACE.pixelBytes:0;
+ return {liveCanvases:surfaces.size,canvasBytes,atlasBytes,touchedAtlasBytes,nativeEstimateBytes:canvasBytes+atlasBytes+tintWarmSourceBytes+unitTintPixelBytes,
+  unitTintPixelBytes,
+  retiredCanvases:lifetime?.pending.size||0,retiredBytes:(lifetime?.pixels||0)*4,releaseFailures:lifetime?.failures||0,
+  troopTintPixels:groups?.troop.pixels||0,buildingTintPixels:groups?.building.pixels||0,
+  troopTintLimit:groups?.troop.limit||0,buildingTintLimit:groups?.building.limit||0,
+  tintWarmStatus:warm?.status||'idle',tintWarmRemaining:warm?warm.jobs.length-warm.index:0,
+  tintWarmSkipped:warm?.skipped||0,tintWarmCapHits:warm?.capHits||0,
+  tintWarmSourceBytes,tintWarmSourceReads:warm?.sourceReads||0,tintWarmSourceReuses:warm?.sourceReuses||0,
+  tintPredRemaining:typeof TINT_PREDICTION!=='undefined'?TINT_PREDICTION.jobs.size:0,
+  tintPredCapHits:typeof TINT_PREDICTION!=='undefined'?TINT_PREDICTION.capHits:0,
+  tintPredResident:groups?.troop.predicted.size||0,tintPredPixels:groups?.troop.predictedPixels||0,
+  unitTintLimitActive:typeof unitTintExperimentAllowed==='function'&&!!unitTintExperimentAllowed(),
+  tintFailureBlocked:!!GRAPHICS_RECOVERY.tintFailure,tintFailures:GRAPHICS_RECOVERY.tintFailures,
+  restorePreparing:GRAPHICS_RECOVERY.preparing,restoreState:GRAPHICS_RECOVERY.readiness?.state||'idle',
+  restoreReason:GRAPHICS_RECOVERY.readiness?.reason||'',restoreRequired:GRAPHICS_RECOVERY.readiness?.required||0,
+  restoreResident:GRAPHICS_RECOVERY.readiness?.resident||0};
+}
+function captureGraphicsTraceFrame(now,rafMs){
+ const t=GRAPHICS_TRACE,start=performance.now();
+ const record={sequence:++t.sequence,now,rafMs,...t.frame,...graphicsSurfaceEstimate(),
+  drawMs:perfDrawMs,unitMs:perfUnitMs,visibleUnits:perfUnitCount,simMs:perfStepMs,ticks:perfStepCount,
+  zoom:zm,dpr:DPR,scale:perfRenderScale,recoveryScale:GRAPHICS_RECOVERY.scale,
+  losses:GRAPHICS_RECOVERY.losses,mode,hidden:!!document.hidden,
+  units:S?.us?.length||0,buildings:S?.bs?.length||0};
+ record.traceMs=performance.now()-start;
+ t.frames[t.next]=record;t.next=(t.next+1)%120;
+}
+function persistGraphicsLoss(canvas){
+ if(typeof GRAPHICS_TRACE==='undefined')return;
+ try{
+  const t=GRAPHICS_TRACE,r=GRAPHICS_RECOVERY;
+  const frames=t.frames.length<120?t.frames.slice():t.frames.slice(t.next).concat(t.frames.slice(0,t.next));
+  const report={version:1,at:new Date().toISOString(),loss:r.losses,world:canvas===cv,
+   estimates:'Retained RGBA surfaces plus loaded-atlas decode estimate; not browser/GPU memory. firstDrawMs includes possible decode/upload.',
+   frames,current:{...t.frame,...graphicsSurfaceEstimate()},atlasFirstDraws:t.atlasDraws.slice()};
+  const json=JSON.stringify(report);
+  // Preserve the latest four individual losses and a stable export key.
+  localStorage.setItem('ck_graphics_loss_'+((r.losses-1)%4),json);
+  localStorage.setItem('ck_graphics_loss_latest',json);
+ }catch(_){} // Storage restrictions/quota must never interfere with recovery.
 }
 // Discard only derived pixels. Observation/age/damage knowledge, game state,
 // saves and source images are deliberately retained across canvas restoration.
 function clearGraphicsSurfaces(){
+ if(typeof clearUnitTintWorkspaces==='function')clearUnitTintWorkspaces();
+ if(typeof cancelTintPredictions==='function')cancelTintPredictions();
  // Promptly release derived graphics backing stores after a world context loss;
  // otherwise Xbox Edge may hold the old GPU surfaces until a later GC pass.
  // Decoded source atlases, simulation state and local saves are never touched.
- const release=c=>{if(c&&Number.isFinite(c.width)&&Number.isFinite(c.height)){
-  if(c.width>1)c.width=1;if(c.height>1)c.height=1;
- }};
- clearFogMaskCache();clearTerrainBlend();
- for(const chunk of TCH.values())release(chunk?.cv);
- TCH.clear();release(TERRAIN_VIEW.canvas);
- TERRAIN_VIEW.canvas=null;TERRAIN_VIEW.key=null;TERRAIN_VIEW.pending=null;TERRAIN_VIEW.chunks=[];
- for(const image of TEAM_FRAME_CACHE.entries.values())release(image);
- TEAM_FRAME_CACHE.entries.clear();TEAM_FRAME_CACHE.pixels=0;
- release(TEAM_FRAME_CACHE.scratch);TEAM_FRAME_CACHE.scratch=null;
- // The retained readback context points at the old, released canvas.
- // Without resetting it, the first post-recovery tint writes into 1x1 pixels.
- teamFrameScratchContext=null;
+ const release=c=>retireGraphicsSurface(c);
+ clearFogMaskCache();clearTerrainBlend();clearTerrainChunks();discardTerrainViewport();
+ TERRAIN_VIEW.pending=null;
+ clearTeamFrameCache();
+ clearTeamFrameScratch();
  for(const atlas of Object.values(ASSET.atl)){
   for(const image of Object.values(atlas.teams||{}))if(image!==atlas.img)release(image);
   delete atlas.teams;
@@ -152,20 +201,71 @@ function clearGraphicsSurfaces(){
   BUILDING_LOD_CACHE.entries.clear();BUILDING_LOD_CACHE.pixels=0;
  clearProceduralSpriteCache();
 }
-// World and sharp-HUD losses have separate cache effects. Repeated world
-// losses activate a session-only physical pixel cap to avoid a black-screen loop.
-const GRAPHICS_RECOVERY={lost:new Set(),losses:0,worldLosses:0,worldLost:false,status:null,scale:1};
+// World and sharp-HUD losses have separate cache effects. Recovery never
+// changes the player's chosen picture quality. Retain scale=1 for trace schema.
+const GRAPHICS_RECOVERY={lost:new Set(),losses:0,worldLosses:0,worldLost:false,status:null,scale:1,preparing:false,world:null,readiness:null,tintFailure:null,tintFailures:0};
+function handleGraphicsTintFailure(error){
+ if(error?.code!=='CK_TEAM_TINT_UNAVAILABLE'||!S||!['play','pause'].includes(mode)||window.CK_NET?.isRunning?.())return false;
+ const r=GRAPHICS_RECOVERY;
+ cancelGameplayGestures();mode='pause';pm=0;acc=0;
+ cancelRosterTintWarmup();cancelTintPredictions();
+ r.preparing=true;r.world=S;r.tintFailure=String(error.message||'Team-colour artwork unavailable');r.tintFailures++;
+ r.readiness={ready:false,state:'blocked',reason:'tint',required:0,resident:0};
+ return true;
+}
+function graphicsRestorePending(){
+ const r=GRAPHICS_RECOVERY;
+ if(!r.preparing)return false;
+ if(r.world!==S||window.CK_NET?.isRunning?.()||['title','end','error','multiplayer','setup','camp','brief'].includes(mode)){
+  // Drop only this gate's jobs: start/load may already have planned a new world.
+  if(TINT_WARMUP.world===r.world)cancelRosterTintWarmup();
+  if(TINT_PREDICTION.world===r.world)cancelTintPredictions();
+  r.preparing=false;r.world=null;r.readiness=null;r.tintFailure=null;return false;
+ }
+ return true;
+}
+function checkGraphicsRestoreReadiness(){
+ if(!graphicsRestorePending())return false;
+ const r=GRAPHICS_RECOVERY;
+ if(r.tintFailure)return true;
+ r.readiness=rosterTintWarmupReadiness(S);
+ if(r.readiness.ready){r.preparing=false;r.world=null;return false}
+ return true;
+}
+function retryGraphicsRestore(){
+ if(!graphicsRestorePending())return false;
+ if(GRAPHICS_RECOVERY.readiness?.state!=='pending'){
+  queueRosterTintWarmup(S);GRAPHICS_RECOVERY.tintFailure=null;GRAPHICS_RECOVERY.readiness=rosterTintWarmupReadiness(S);
+ }
+ return true;
+}
+function graphicsRestoreMessage(){
+ if(!graphicsRestorePending())return '';
+ const r=GRAPHICS_RECOVERY.readiness;
+ if(GRAPHICS_RECOVERY.tintFailure)return 'Team-colour artwork unavailable. Select Resume to retry, or load/restart.';
+ if(r?.state==='pending')return 'Rebuilding roster artwork: '+Math.floor(100*TINT_WARMUP.processed/Math.max(1,TINT_WARMUP.total))+'%. Resume unlocks when ready.';
+ if(r?.reason==='incomplete')return 'Roster preparation is incomplete. Retry, load or restart from the menu.';
+ return 'Artwork rebuild is incomplete. Select Resume to retry, or load/restart.';
+}
+function drawGraphicsRestorePause(){
+ // A healthy sharp HUD may still contain the pre-loss picture. Clear it
+ // without invoking the normal HUD, which can itself request sprite pixels.
+ if(HUD_X&&hudCanvas){
+  HUD_X.save();HUD_X.setTransform(1,0,0,1,0,0);
+  HUD_X.clearRect(0,0,hudCanvas.width,hudCanvas.height);HUD_X.restore();
+ }
+ drawPause();
+}
 function installCanvasRecovery(canvas){
  if(!canvas)return;
  canvas.addEventListener('contextlost',()=>{
   // Canvas2D restores by default. Do not call preventDefault.
   if(GRAPHICS_RECOVERY.lost.has(canvas))return;
   GRAPHICS_RECOVERY.lost.add(canvas);GRAPHICS_RECOVERY.losses++;
+  persistGraphicsLoss(canvas);
   if(canvas===cv){
    GRAPHICS_RECOVERY.worldLost=true;
    GRAPHICS_RECOVERY.worldLosses++;
-   const count=GRAPHICS_RECOVERY.worldLosses;
-   GRAPHICS_RECOVERY.scale=Math.min(GRAPHICS_RECOVERY.scale,count>=3?.5:count>=2?.75:1);
   }
   if(mode==='play'&&!window.CK_NET?.isRunning?.()){
    cancelGameplayGestures();mode='pause';pm=0;acc=0;
@@ -182,11 +282,19 @@ function installCanvasRecovery(canvas){
   GRAPHICS_RECOVERY.lost.delete(canvas);
   if(GRAPHICS_RECOVERY.lost.size)return;
   // HUD-only loss must not throw away the entire terrain and atlas cache.
-  if(GRAPHICS_RECOVERY.worldLost)clearGraphicsSurfaces();
+  if(GRAPHICS_RECOVERY.worldLost){
+   clearGraphicsSurfaces();
+   if(!window.CK_NET?.isRunning?.()){
+    queueRosterTintWarmup(S);
+    GRAPHICS_RECOVERY.tintFailure=null;
+    GRAPHICS_RECOVERY.preparing=true;GRAPHICS_RECOVERY.world=S;
+    GRAPHICS_RECOVERY.readiness=rosterTintWarmupReadiness(S);
+   }
+  }
   GRAPHICS_RECOVERY.worldLost=false;
   rs();resetGraphicsDiagnostics();
+  checkGraphicsRestoreReadiness();
   GRAPHICS_RECOVERY.status?.remove();GRAPHICS_RECOVERY.status=null;
-  const safe=GRAPHICS_RECOVERY.scale<1?' Recovery scale '+Math.round(GRAPHICS_RECOVERY.scale*100)+'%.':'';
-  note((mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.')+safe);
+  note(mode==='pause'?'Picture restored. Resume when ready.':'Picture restored.');
  });
 }

@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
+import {graphicsSurfaceLifetimeSource} from './helpers/headless-game.mjs';
 const source=readFileSync(new URL('../js/render-terrain.js',import.meta.url),'utf8');
 function fixture(document){
  const ctx=vm.createContext({document,PAINT:{terrain:{width:1536}},Map});
- vm.runInContext(source.slice(source.indexOf('const TERRAIN_BLEND='),source.indexOf('function paintTerrain(')),ctx);
+ vm.runInContext(graphicsSurfaceLifetimeSource()+source.slice(source.indexOf('const TERRAIN_BLEND='),source.indexOf('function paintTerrain(')),ctx);
  return ctx;
 }
 test('neighbor lookup reads only in-bounds cardinal tiles and preserves unknown sentinels',()=>{
@@ -40,6 +41,20 @@ test('small terrain textures avoid the former 256-entry thrash within the same p
  for(const ns of neighbors)c.terrainTileTexture(0,0,0,ns,64);
  assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),256,'native solo tiles retain the original pixel cap');
 });
+test('blend pressure and clear retire owned and temporary pixels only after the render batch',()=>{
+ const canvases=[],c=fixture({createElement(){const cv={width:0,height:0,getContext(){return {drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}}}};canvases.push(cv);return cv}});
+ c.beginGraphicsSurfaceUse();let first;
+ for(let n=0;n<257;n++){
+  const ns=[1+n%5,1+Math.floor(n/5)%5,1+Math.floor(n/25)%5,1+Math.floor(n/125)%5];
+  const tile=c.terrainTileTexture(0,0,0,ns,64);if(!n)first=tile;
+ }
+ assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),256);assert.equal(vm.runInContext('terrainBlendPixels',c),1024*1024);
+ assert.equal(first.width,64);assert.equal(canvases[1].width,64,'temporary draw sources also respect the render lease');
+ c.endGraphicsSurfaceUse();assert.equal(first.width,1);
+ assert.ok(canvases.filter((_,i)=>i%2===1).every(cv=>cv.width===1&&cv.height===1));
+ c.clearTerrainBlend();assert.ok(canvases.every(cv=>cv.width===1&&cv.height===1));
+ assert.equal(vm.runInContext('terrainBlendPixels',c),0);
+});
 
 test('painted terrain helpers have one offline runtime owner without touching the viewport cache',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
@@ -69,8 +84,9 @@ test('lost blend textures rebuild before reuse and invalidate terrain baked from
 
 test('unavailable base and temporary blend contexts never enter the texture cache',()=>{
  for(const lostAt of [1,2]){
-  let allocations=0;const c=fixture({createElement(){const number=++allocations;return {width:0,height:0,getContext(){return {isContextLost:()=>number===lostAt,drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}}}}}});
+  let allocations=0;const canvases=[],c=fixture({createElement(){const number=++allocations,cv={width:0,height:0,getContext(){return {isContextLost:()=>number===lostAt,drawImage(){},clearRect(){},fillRect(){},createLinearGradient(){return {addColorStop(){}}}}}};canvases.push(cv);return cv}});
   assert.equal(c.terrainTileTexture(0,0,0,[1,-1,-1,-1]),null);
   assert.equal(vm.runInContext('TERRAIN_BLEND.size',c),0);assert.equal(vm.runInContext('terrainBlendPixels',c),0);
+  assert.ok(canvases.every(cv=>cv.width===1&&cv.height===1),'unadmitted base/layer backings are released');
  }
 });

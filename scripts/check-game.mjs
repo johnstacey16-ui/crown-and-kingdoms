@@ -23,7 +23,8 @@ for(const [a,b] of [
  ['./js/simulation-logistics.js','./js/simulation.js'],
  ['./js/simulation.js','./js/ai-policy.js'],
  ['./js/ai-policy.js','./js/ai-construction.js'],
- ['./js/ai-construction.js','./js/ai.js'],
+ ['./js/ai-construction.js','./js/ai-production.js'],
+ ['./js/ai-production.js','./js/ai.js'],
  ['./js/ai.js','./js/pathfinding.js'],
  ['./js/pathfinding.js','./js/kingdom.js'],
  ['./js/kingdom.js','./js/entities.js'],
@@ -35,7 +36,9 @@ for(const [a,b] of [
  ['./engine.js','./js/network-sync.js'],
  ['./js/network-sync.js','./js/network-commands.js'],
  ['./js/network-commands.js','./js/network-delivery.js'],
- ['./js/network-session.js','./js/network-unit-map.js'],
+ ['./js/network-session.js','./js/network-unit-projection.js'],
+ ['./js/network-unit-projection.js','./js/network-unit-render.js'],
+ ['./js/network-unit-render.js','./js/network-unit-map.js'],
  ['./js/network-unit-map.js','./js/network-lobby.js'],
  ['./js/network-lobby.js','./multiplayer.js']
 ]){

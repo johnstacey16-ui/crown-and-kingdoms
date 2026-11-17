@@ -130,11 +130,11 @@ function damagedBuildingArtwork(art,stage){
  const c=BUILDING_DAMAGE_CACHE,f=art.f;
  if(![f.x,f.y,f.w,f.h].every(Number.isInteger)||f.w<=0||f.h<=0)return art;
  let id=c.ids.get(art.img);if(!id){id=c.next++;c.ids.set(art.img,id)}
- const key=[id,f.x,f.y,f.w,f.h,stage].join('/');let image=c.entries.get(key);
+ const key=[id,f.x,f.y,f.w,f.h,stage].join('/');let image=c.entries.get(key),prepared=false,accounted=false;
  if(image){
   let usable=false;
   try{const ctx=BUILDING_DAMAGE_CONTEXTS.get(image)||image.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
-  if(!usable){c.entries.delete(key);c.pixels-=image.width*image.height;image=null}
+  if(!usable){c.entries.delete(key);c.pixels-=image.width*image.height;if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);image=null}
  }
  if(image){c.entries.delete(key);c.entries.set(key,image);c.hits++}
  else try{
@@ -158,10 +158,21 @@ function damagedBuildingArtwork(art,stage){
   BUILDING_DAMAGE_CONTEXTS.set(image,g);
   image.paintedAtlas=true;image.paintedTeam=art.img.paintedTeam;image.paintedDamageStage=stage;c.creations++;
   const pixels=image.width*image.height;
-  if(pixels<=c.limit){c.entries.set(key,image);c.pixels+=pixels;
-   while(c.pixels>c.limit){const oldest=c.entries.keys().next().value,entry=c.entries.get(oldest);c.entries.delete(oldest);c.pixels-=entry.width*entry.height;c.evictions++}
+  image.addEventListener?.('contextlost',()=>{
+   if(c.entries.get(key)!==image)return;
+   c.entries.delete(key);c.pixels-=pixels;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);
+  });
+  if(pixels<=c.limit){c.entries.set(key,image);c.pixels+=pixels;accounted=true;
+   while(c.pixels>c.limit){const oldest=c.entries.keys().next().value,entry=c.entries.get(oldest);c.entries.delete(oldest);c.pixels-=entry.width*entry.height;c.evictions++;if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(entry)}
   }
- }catch(_){return art}
+  prepared=true;
+ }catch(_){return art}finally{
+  if(image&&!prepared){
+   if(c.entries.get(key)===image){c.entries.delete(key);if(accounted)c.pixels-=image.width*image.height}
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);
+  }
+ }
  return {...art,img:image,f:{...f,x:0,y:0},damageStage:stage};
 }
 function drawBuildingDamageEffects(g,x,y,width,height,stage,time){
@@ -232,11 +243,11 @@ function buildingFrameTexture(art,scale,allow=true){
  const c=BUILDING_LOD_CACHE;if(dw*dh>c.limit)return null;
  let id=c.ids.get(img);if(!id){id=c.next++;c.ids.set(img,id)}
  const key=[id,f.x,f.y,f.w,f.h].join('/'),cache=c.entries;
- let image=cache.get(key);
+ let image=cache.get(key),prepared=false,accounted=false;
  if(image){
   let usable=false;
   try{const ctx=BUILDING_LOD_CONTEXTS.get(image)||image.getContext('2d');usable=!!ctx&&!ctx.isContextLost?.()}catch(_){}
-  if(!usable){cache.delete(key);c.pixels-=image.width*image.height;image=null}
+  if(!usable){cache.delete(key);c.pixels-=image.width*image.height;if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);image=null}
  }
  if(image){cache.delete(key);cache.set(key,image);return image}
  try{
@@ -246,13 +257,24 @@ function buildingFrameTexture(art,scale,allow=true){
   g.drawImage(img,f.x,f.y,f.w,f.h,0,0,dw,dh);
   if(g.isContextLost?.())return null;
   BUILDING_LOD_CONTEXTS.set(image,g);
-  cache.set(key,image);c.pixels+=dw*dh;
+  cache.set(key,image);c.pixels+=dw*dh;accounted=true;
+  image.addEventListener?.('contextlost',()=>{
+   if(cache.get(key)!==image)return;
+   cache.delete(key);c.pixels-=dw*dh;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);
+  });
   while(c.pixels>c.limit){
    const oldest=cache.keys().next().value,old=cache.get(oldest);
    cache.delete(oldest);c.pixels-=old.width*old.height;
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(old);
   }
-  return image;
- }catch(_){return null}
+  prepared=true;return image;
+ }catch(_){return null}finally{
+  if(image&&!prepared){
+   if(cache.get(key)===image){cache.delete(key);if(accounted)c.pixels-=dw*dh}
+   if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(image);
+  }
+ }
 }
 function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=false,damage=0,time=0,effects=true,allowLod=true){
  const f=art.f,left=x-f.ax*scale,top=y-f.ay*scale,width=f.w*scale,height=f.h*scale;

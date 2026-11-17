@@ -7,16 +7,16 @@ let X=WORLD_X,CW=0,CH=0,DPR=1,gq=1,ui=1,br=1,mm={x:0,y:0,w:216};
 // the same size destroys GPU contents and can trigger black flashes on Xbox Edge.
 const rs=()=>{
  const hudDpr=Math.min(window.devicePixelRatio||1,[1,1.25,1.5][gq]);
- DPR=hudDpr*Math.min(perfRenderScale,GRAPHICS_RECOVERY.scale);
+ DPR=hudDpr*perfRenderScale;
  CW=innerWidth/ui|0;CH=innerHeight/ui|0;
  const w=Math.max(1,Math.round(CW*DPR)),h=Math.max(1,Math.round(CH*DPR));
  if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
  cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
  cv.style.filter=br===1?'none':'brightness('+br+')';
  if(hudCanvas&&HUD_X){
-  // Repeated context losses disable the extra full-size HUD backing store;
+  // The sharp HUD follows the selected picture preset across restoration;
   // gamepad coordinates, UI scale, simulation and saved preferences stay put.
-  const sharp=!!perfSharpHud&&perfRenderScale<1&&GRAPHICS_RECOVERY.scale===1;
+  const sharp=!!perfSharpHud&&perfRenderScale<1;
   hudCanvas.style.display=sharp?'block':'none';
   const hw=sharp?Math.max(1,Math.round(CW*hudDpr)):1;
   const hh=sharp?Math.max(1,Math.round(CH*hudDpr)):1;
@@ -80,7 +80,7 @@ function recordAsyncGameFailure(e){
  // Asset, lobby and platform errors outside a live game are not fatal.
  return (mode==='play'||mode==='pause')&&recordGameFailure(e)
 }
-function frame(now){requestAnimationFrame(frame);try{frame2(now)}catch(e){recordGameFailure(e);try{drawError()}catch(_){X.fillStyle='#400';X.fillRect(0,0,CW,CH);X.fillStyle='#fff';X.fillText('Runtime error — simulation stopped',20,40)}}}
+function frame(now){requestAnimationFrame(frame);try{frame2(now)}catch(e){if(typeof handleGraphicsTintFailure==='function'&&handleGraphicsTintFailure(e))return;recordGameFailure(e);try{drawError()}catch(_){X.fillStyle='#400';X.fillRect(0,0,CW,CH);X.fillStyle='#fff';X.fillText('Runtime error — simulation stopped',20,40)}}}
 let lastAutoSaveAt=-60000;
 /* Frame delta spans the *previous* game callback and browser time before this
  * callback. The residual is unattributed (vsync, compositor/GPU, throttling,
@@ -91,12 +91,13 @@ let lastAutoSaveAt=-60000;
  * restore prior game speed; comparison is invalidated if the tab is hidden. */
 function frame2(now){
  const timing=!!perfHud,loopStart=timing?performance.now():0,rafMs=Math.max(0,now-last);
+ if(typeof resetGraphicsTraceFrame==='function')resetGraphicsTraceFrame();
  if(timing){perfFrameIntervalMs=rafMs;perfGapMs=outsideGameLoopMs(rafMs,perfLoopMs)}
  else perfLoopMs=0;
  try{
   const dt=Math.min(.25,(now-last)/1000);last=now;
   if(canvasBenchmark)sampleCanvasBenchmark(now,rafMs);
-  else{sampleAdaptivePicture(now,rafMs);sampleGraphicsRecovery(now,rafMs)}
+  else sampleAdaptivePicture(now,rafMs);
   const padStart=timing?performance.now():0;
   readPad();
   if(timing)perfPadMs=performance.now()-padStart;
@@ -105,8 +106,12 @@ function frame2(now){
    drawError();return;
   }
   if(GRAPHICS_RECOVERY.lost.size&&!window.CK_NET?.isRunning?.()){acc=0;return}
+  if(checkGraphicsRestoreReadiness()&&mode==='play'){mode='pause';acc=0}
   const controlStart=timing?performance.now():0;
   ctl(dt);
+  // Resume inputs keep their mappings, but cannot advance the simulation
+  // until the restored native roster has passed its residency check.
+  if(graphicsRestorePending()&&mode==='play'){mode='pause';acc=0}
   if(timing)perfControlMs=performance.now()-controlStart;
   const simStart=performance.now();perfStepCount=0;
   if(mode==='play'){
@@ -124,7 +129,10 @@ function frame2(now){
   const drawStart=performance.now();
   if(frozenCanvas||GRAPHICS_RECOVERY.lost.size)perfDrawMs=0;
   else{draw(dt);perfDrawMs=performance.now()-drawStart;perfDrawPeak=Math.max(perfDrawPeak,perfDrawMs)}
- }finally{if(timing)perfLoopMs=performance.now()-loopStart}
+ }finally{
+  if(timing)perfLoopMs=performance.now()-loopStart;
+  if(typeof GRAPHICS_TRACE!=='undefined')captureGraphicsTraceFrame(now,rafMs);
+ }
 }
 function sset(){try{localStorage.setItem('ck_set',JSON.stringify({ui,br,msz,diff,aiDifficultyVersion:2,vm,scoreLimit,mt,mapLayout,civ,zm,gq,aip,kingdoms,startRes,startArmy,startAge,startVillagers,gameMode,perfHud,vol:VOL,rmb,snd,mus}))}catch(e){}}
 try{hs=[0,1,2].some(n=>!!localStorage.getItem(skey(n)))||!!localStorage.getItem('ck_autosave');BM=JSON.parse(localStorage.getItem('ck_map'))||{};const st=JSON.parse(localStorage.getItem('ck_set')||'null');if(st){ui=[.8,1,1.25,1.5].includes(st.ui)?st.ui:1;br=cl(+st.br||1,.6,1.5);msz=cl(st.msz|0,0,3);diff=cl(st.aiDifficultyVersion===2?(st.diff|0):[1,2,4][cl(st.diff|0,0,2)],0,5);vm=cl(st.vm|0,0,6);scoreLimit=SCORE_LIMITS.includes(st.scoreLimit)?st.scoreLimit:1200;mt=cl(st.mt|0,0,MT.length-1);mapLayout=cl(st.mapLayout|0,0,13);if(mapLayout)applyMapLayout();civ=cl(st.civ|0,0,CIV.length-1);zm=cl(+st.zm||1.4,.8,3);TW=64*zm;TH=32*zm;gq=cl(st.gq===undefined?1:st.gq|0,0,2);if(st.vol){const v01=x=>{x=+x;return x>=0&&x<=1?x:1};VOL={m:v01(st.vol.m),mu:v01(st.vol.mu),sf:v01(st.vol.sf),am:v01(st.vol.am)}}aip=cl(st.aip|0,0,6);kingdoms=[2,3,4].includes(st.kingdoms)?st.kingdoms:4;startRes=cl(st.startRes|0,0,5);startArmy=cl(st.startArmy|0,0,3);startAge=cl(st.startAge|0,0,3);startVillagers=st.startVillagers===undefined?1:cl(st.startVillagers|0,0,3);gameMode=cl(st.gameMode|0,0,2);perfHud=st.perfHud?1:0;rmb=st.rmb===0?0:1;snd=st.snd===0?0:1;mus=st.mus===0?0:1;}}catch(e){}
