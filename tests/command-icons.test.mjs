@@ -57,4 +57,10 @@ test('invalid drawing coordinates do not mutate the target context',()=>{
 test('compact and radial command wheels both draw the new icons',()=>{
  assert.match(source,/drawCommandArt\(X,it\.l,x\+30,yy\+22,20\)/);
  assert.match(source,/drawCommandArt\(X,it\.l,x-w\/2\+14,y-4,19\)/);
+ assert.match(source,/if\(manual\)drawCommandArt\(X,WORKER_TARGETS\[i\]\.n/);
+});
+
+test('incomplete or lost Canvas2D contexts safely omit only the icon',()=>{
+ const g={save(){throw new Error('never entered')}};
+ assert.equal(drawCommandArt(g,'Castle',10,20,18),false);
 });
