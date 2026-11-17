@@ -90,13 +90,15 @@ function writeUnitTintOverflow(pixels,frame,team){
  GRAPHICS_TRACE.frame.transientTints++;
  return canvas;
 }
-function unitTintCrop(art,w,h){
+function unitTintCrop(art,w,h,mirror=false){
  const slot=art.img.unitTintWorkspace;
  if(!slot||!UNIT_TINT_WORKSPACE.depth)return null;
  const canvas=unitTintSurface(slot,'crop',w,h);if(!canvas)return null;
  const ctx=slot.cropContext,f=art.f;
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
- ctx.drawImage(art.img,f.x,f.y,f.w,f.h,0,0,w,h);
+ if(mirror){ctx.translate(w,0);ctx.scale(-1,1)}
+ try{ctx.drawImage(art.img,f.x,f.y,f.w,f.h,0,0,w,h)}
+ finally{if(mirror){ctx.scale(-1,1);ctx.translate(-w,0)}}
  if(ctx.isContextLost?.())return null;
  return canvas;
 }

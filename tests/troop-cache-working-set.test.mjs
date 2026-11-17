@@ -77,11 +77,10 @@ for(const [zoom,dpr]of [[2.05,.6],[1,1]])for(const kinds of [3,6,9,14]){
   assert.equal(result.tints,[0,5400,6750,6750][index],'pin baseline tint creations across the 120 measured frames');
   assert.equal(result.tintEvictions,result.tints);
   assert.equal(result.readbackPixels,[0,270500160,353608030,360533280][index]);
-  assert.equal(result.crops,(zoom>1?[0,0,0,0]:[2700,5400,7920,8820])[index]);
+  assert.equal(result.crops,(zoom>1?[2700,2700,4100,3450]:[5400,5400,9540,8820])[index],'pin reflected-source crop costs separately from tint work');
   assert.equal(result.cropEvictions,result.crops);
   assert.ok(result.tintEntries>0);
-  if(zoom>1)assert.equal(result.cropEntries,0,'native mirrored poses never create a second surface');
-  else assert.ok(result.cropEntries>0,'existing distant-zoom source cache remains accounted');
+  assert.ok(result.cropEntries>0,'mirrored source copies remain in the existing bounded crop cache');
   if(kinds===14)assert.ok(result.tints>0&&result.tintEvictions>0,'diverse baseline saturates tint budget');
  });
 }

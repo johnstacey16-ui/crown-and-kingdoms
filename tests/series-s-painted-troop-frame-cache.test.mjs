@@ -64,19 +64,21 @@ test('lost troop crops retire at the batch boundary and late events cannot remov
  assert.equal(s.lifetime.pending.size,0);
 });
 
-test('left-facing painted frames share the unmirrored source without allocating another canvas',()=>{
+test('left-facing painted frames reuse a bounded baked reflection while forward native frames stay zero-copy',()=>{
  const s=scene(),img={},f={x:15,y:26,w:230,h:246,ax:75,ay:240},art={img,f};
  const normal=s.troopFrameTexture(art),flipped=s.troopFrameTexture(art,true);
- assert.equal(normal,flipped,'both facings share the exact source');
- assert.equal(s.troopFrameTexture(art,true),normal);
- assert.equal(s.TROOP_TEXTURE_LRU.size,1);
- assert.equal(s.crops.length,1);
- assert.deepEqual(s.prepares.map(x=>x[0]),['crop'],'no mirror is baked into cached pixels');
+ assert.notEqual(normal,flipped);
+ assert.equal(s.troopFrameTexture(art,true),flipped);
+ assert.equal(s.TROOP_TEXTURE_LRU.size,2);
+ assert.equal(s.crops.length,2);
+ assert.deepEqual(s.prepares.map(x=>x[0]),['crop','translate','scale','crop']);
  const native={width:230,height:246,paintedSourceFrame:{x:15,y:26,w:230,h:246}},nf={...f,x:0,y:0};
  assert.equal(s.troopFrameTexture({img:native,f:nf}),native,'forward tint remains zero-copy');
- assert.equal(s.troopFrameTexture({img:native,f:nf},true),native,'native tints remain zero-copy in both directions');
+ const reflected=s.troopFrameTexture({img:native,f:nf},true);
+ assert.notEqual(reflected,native);assert.equal(s.troopFrameTexture({img:native,f:nf},true),reflected);
+ assert.equal(s.pixels(),3*230*246,'both facings count against the same crop budget');
 });
-test('mirrored high-quality motion flips the shared frame at the original foot anchor, with a safe fallback',()=>{
+test('mirrored high-quality motion draws a baked source at the original foot anchor, with a safe fallback',()=>{
  const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);
  assert.ok(start>=0&&end>start);
  const crops=[],frame={width:120,height:170},art={img:{},f:{x:18,y:19,w:120,h:170,ax:38,ay:165},animated:true,referenceHeight:170};
@@ -89,8 +91,8 @@ test('mirrored high-quality motion flips the shared frame at the original foot a
  painter(direct,art,200,320,.5,1,7,true,'mil');
  assert.equal(crops.length,1);
  assert.equal(crops[0][0],frame);
- assert.deepEqual(crops[0].slice(1),[-19,-82.5,60,85]);
- assert.deepEqual(transforms,['save',['translate',200,320],['scale',-1,1],'restore']);
+ assert.deepEqual(crops[0].slice(1),[159,237.5,60,85]);
+ assert.deepEqual(transforms,[]);
  const ops=[];
  stage.troopFrameTexture=()=>null;
  const fallback=vm.runInNewContext(code.slice(start,end)+'\n;drawPaintedTroop;',stage);
@@ -254,10 +256,11 @@ test('far-zoom original painted troop frames are cached at half source pixels, n
  const half=s.troopFrameTexture(art,false,.5);
  assert.equal(half.width,110);assert.equal(half.height,120);
  assert.equal(s.troopFrameTexture(art,false,.5),half);
- const reverse=s.troopFrameTexture(art,true,.5);assert.equal(reverse,half);
+ const reverse=s.troopFrameTexture(art,true,.5);assert.notEqual(reverse,half);
+ assert.equal(s.troopFrameTexture(art,true,.5),reverse);
  assert.deepEqual(s.crops[0].slice(1),[0,0,220,240,0,0,110,120]);
- assert.deepEqual(s.prepares.map(x=>x[0]),['crop']);
- assert.equal(s.TROOP_TEXTURE_LRU.size,1);
+ assert.deepEqual(s.prepares.map(x=>x[0]),['crop','translate','scale','crop']);
+ assert.equal(s.TROOP_TEXTURE_LRU.size,2);
 });
 test('far-zoom troop source changes but displayed size and foot anchor stay identical',()=>{
  const start=code.indexOf('function drawPaintedTroop('),end=code.indexOf('/* In-match troop drawing and researched equipment cues. */',start);

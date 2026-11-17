@@ -87,19 +87,19 @@ const TROOP_TEXTURE_PIXEL_LIMIT=6*1024*1024,TROOP_TEXTURE_ENTRY_LIMIT=160;
 const TROOP_TEXTURE_IDS=new WeakMap(),TROOP_TEXTURE_CONTEXTS=new WeakMap(),TROOP_TEXTURE_LRU=new Map();
 let troopTextureSeq=0,troopTexturePixels=0;
 function troopFrameTexture(art,mirror=false,lod=1){
- // Facing belongs to the draw transform. Keep this argument for existing
- // callers, but share the same source canvas for both directions.
+ // Chromium filters reflected transforms differently from a reflected source.
+ // Keep baked facing copies inside the existing bounded crop cache.
  const img=art?.img,f=art?.f;
  if(!img||!f||typeof img!=='object')return null;
  const {x,y,w,h}=f,ratio=lod===.5?.5:1;
- if(ratio===1&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
+ if(!mirror&&ratio===1&&img.paintedSourceFrame&&x===0&&y===0&&img.width===w&&img.height===h)return img;
  if(![x,y,w,h].every(Number.isFinite)||w<=0||h<=0||w*h>TROOP_TEXTURE_PIXEL_LIMIT)return null;
  const dw=Math.max(1,Math.round(w*ratio)),dh=Math.max(1,Math.round(h*ratio));
  // A leased source changes on the next unit. Preserve the original prefilter,
  // but never key a persistent crop by that mutable image's identity.
- if(art.transient)return unitTintCrop(art,dw,dh);
+ if(art.transient)return unitTintCrop(art,dw,dh,mirror);
  let id=TROOP_TEXTURE_IDS.get(img);if(!id){id=++troopTextureSeq;TROOP_TEXTURE_IDS.set(img,id)}
- const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio;
+ const key=id+'/'+x+'/'+y+'/'+w+'/'+h+'/'+ratio+'/'+mirror;
  let cv=TROOP_TEXTURE_LRU.get(key),prepared=false,accounted=false;
  if(cv){
   // Context acquisition on each soldier was unnecessary. Keep the original
@@ -113,6 +113,7 @@ function troopFrameTexture(art,mirror=false,lod=1){
   cv=document.createElement('canvas');cv.width=dw;cv.height=dh;
   const ctx=cv.getContext('2d');if(!ctx||ctx.isContextLost?.())return null;
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  if(mirror){ctx.translate(dw,0);ctx.scale(-1,1)}
   ctx.drawImage(img,x,y,w,h,0,0,dw,dh);
   if(ctx.isContextLost?.())return null;
   TROOP_TEXTURE_CONTEXTS.set(cv,ctx);
@@ -147,10 +148,10 @@ function drawPaintedTroop(g,art,x,y,scale,state,time,mirror=false,kind='',phase)
   // Scale the offset with visible body height rather than with the source sheet.
   const unitScale=Math.max(.25,Math.min(2.5,(art.referenceHeight||f.h)*scale/(PAINT_SECONDARY[kind]==='mounted'?60:46)));
   const bob=art.animated?0:motion?motion.dy*unitScale:walk?Math.abs(Math.sin(time*10))*1.1:work?Math.sin(time*6)*.5:Math.sin(time*2)*.2;
-  // Forward poses retain the direct path. Left-facing poses use the existing
-  // transform path below and share the same unmirrored source pixels.
-  if(!mirror&&!motion&&(art.animated||(!walk&&!attack))&&g.imageSmoothingEnabled===true&&g.imageSmoothingQuality==='high'){
-   const frame=troopFrameTexture(art,false,lod);
+  // A baked reflection preserves the original high-quality sampling at
+  // fractional positions. Secondary animated poses retain their transforms.
+  if(!motion&&(art.animated||(!walk&&!attack))&&g.imageSmoothingEnabled===true&&g.imageSmoothingQuality==='high'){
+   const frame=troopFrameTexture(art,mirror,lod);
    if(frame){
     g.drawImage(frame,x-(mirror?f.w-f.ax:f.ax)*scale,y-bob-f.ay*scale,f.w*scale,f.h*scale);
     return;

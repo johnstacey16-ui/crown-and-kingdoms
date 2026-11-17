@@ -1,5 +1,23 @@
 # Battlefield graphics — current acceptance criteria
 
+## 17 November 2026 — Release browser correction
+
+Candidate `82dbdfcf` passed hosted full standalone regressions, three seeded AI
+scenarios and all nineteen campaigns, but Chromium rejected shared-source
+reflection: 564 comparisons, maximum channel delta 255; the identity-copy
+control was exact. Production was not changed. The release correction restores
+baked mirrored source frames within the existing 6 Mi-pixel / 160-entry crop
+cache, preserving zero-copy forward native frames, crop retirement and original
+anchors. Diagnostic transient crops reflect their leased source and restore the
+workspace transform even after failure. This trades additional bounded crop
+work for the required original sampling; it is not an FPS improvement.
+
+Quick gates pass 5/5 and targeted cache/workspace tests pass 71/71 locally.
+Counting fixtures now explicitly pin mirrored crop costs; tint/readback counts
+and memory limits remain checked. The browser comparison still requires a
+maximum channel delta of one. The corrected candidate requires hosted browser
+and release acceptance before publication; physical Xbox remains unverified.
+
 ## 17 November 2026 — Preserve pause-button intent and release stale recovery jobs
 
 Implementation: local `6c4f8f5965f16dfc06216bd61680b88f77892642`.
