@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Eagle Warrior (`c96dfdc8`), Cavalry Archer, Rattan Archer and Composite Bowman now have original eight-pose walk/attack sheets, team palettes, offline revisions and fallback. [Inventory](docs/graphics-inventory.json): **54/84** painted animated kinds; **30 remaining**. Source prompts/provenance are in `docs/painted-*-prompts.json`. The Eagle browser run exposed stale 61-atlas waits; readiness now derives from the manifest. Fresh hosted browser acceptance is pending. Independent facings, dedicated Elite/death art, physical Xbox and production release remain separate open gates.
+Eagle Warrior, Cavalry Archer, Rattan Archer and Composite Bowman have original eight-pose walk/attack sheets, palettes, offline revisions and fallback. [Inventory](docs/graphics-inventory.json): **54/84** animated painted kinds; **30 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Candidate `aa3c850b` passed quick 5/5, focused 1,743/1,743, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44167377104)); rendered ranged sheet reviewed, 660 exact reflection comparisons. Browser readiness follows manifest size. Independent facings, dedicated Elite/death art, physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 

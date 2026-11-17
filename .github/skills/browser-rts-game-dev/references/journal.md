@@ -32,3 +32,5 @@ Following accepted production `6bdcba72`, add separate original Elite sheets rat
 
 ### 2026-11-17 — Derive browser readiness from the art pack
 Hosted `c96dfdc8` passed exact 624-way reflection sampling but secondary campaign scenes timed out on stale 61-atlas waits. Read the canonical manifest count once in a shared Node helper and pass it into each browser readiness predicate; never replace exact completion with a weaker nonzero check. New regional sheets also need activity-state lookup because they lack the older static base fallback. Source checks reject opaque backgrounds before packing. Physical Xbox and full browser acceptance remain separate.
+
+The correction and three new ranged sheets at `aa3c850b` passed [hosted validation](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44167377104): quick 5/5, focused 1,743, Chromium 2/2 and Xbox software 8/8, with 660 exact reflection comparisons. The rendered sheet was inspected; this does not establish independent facings, dedicated death art or physical Xbox acceptance.
