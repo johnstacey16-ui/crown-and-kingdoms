@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 74,
+  "atlases": 77,
   "units": [
     {
       "kind": "vil",
@@ -654,9 +654,9 @@
     {
       "kind": "urumi",
       "name": "Urumi Swordsman",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -690,9 +690,9 @@
     {
       "kind": "chakram",
       "name": "Chakram Thrower",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -717,9 +717,9 @@
     {
       "kind": "centurion",
       "name": "Centurion",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "63 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "21 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "66 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "18 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",

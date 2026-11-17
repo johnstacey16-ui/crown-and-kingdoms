@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "4ea4c6cee3c62ea8a0e0c03278e0df638fb3e35faa59a2137fb6b6925373ce46",
+  "revision": "4b0bff59cfae6d0ae2aeb5ba96c7c734b8218b1d7433aa455680bc4504a56fe6",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -19,6 +19,8 @@
     "./assets/painted-motion-cart.webp": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
     "./assets/painted-motion-cata.webp": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
     "./assets/painted-motion-cavarch.webp": "42022c2b56525f75e18a73956d416b46b6b7afb4c99c7be07abbf3b67cf82de1",
+    "./assets/painted-motion-centurion.webp": "62d8b4daa81ff239de6552b5eb461d5bd38663ed8189c79b9b64404197b6b2c7",
+    "./assets/painted-motion-chakram.webp": "aefab7d67622a969d5924bb03a419ce7d7edb1b09a7bacd1b45a564ded2d9193",
     "./assets/painted-motion-chuko.webp": "e3b4a5d97de881462499205c4be5583f2c0c3369593227854de27b3fba27ec77",
     "./assets/painted-motion-cog.webp": "f95488c9495f10779580f7617afb1cf8849a1fae21946ab4553188cb6d5ec910",
     "./assets/painted-motion-composite.webp": "0705a1acdf9d76b0e1eef4fc8ef70a6de6b461024afb530c6eaa52fcaf78c6f1",
@@ -65,6 +67,7 @@
     "./assets/painted-motion-tk.webp": "d4f167c73f1d3cc015ce01d959b9bc8dd8a9fb2cbcec6bc40def3223800ed1da",
     "./assets/painted-motion-treb.webp": "1029596c466705889deecae165c40886ecdb930618d796806478adcb71d4f351",
     "./assets/painted-motion-trn.webp": "5cc5939a146f84fecc6b93b820335ae4782142868880f3c145fc05665a67fe83",
+    "./assets/painted-motion-urumi.webp": "0e24f2662841cac83a2b1aefd56e2d6bc055df6a1a7543212300c46965fca9f3",
     "./assets/painted-motion-vil.webp": "adea0f523ccee14276d76317b37a1efd26d9015b432ea98b46fc723a60d5c5f7",
     "./assets/painted-motion-wagon.webp": "8cbd2bf1624f87188be3aea4b835c6efd00ed8573bb86c60ec814afc76f8a333",
     "./assets/painted-motion-warpriest.webp": "80f56d05d83bea6adbd783f24ddee2d78d6272755d612f8a9aa82cd6096b250d",

@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-17",
+  "source": "Owner-prepared original Urumi candidate from the prior Crown & Kingdoms graphics session",
+  "sourceSha256": "354aa70f81d09cb67181d6d7bb2b7034b0c56799f3e0802a5cca80e362c4b0cd",
+  "sourceDimensions": [
+    1536,
+    1024
+  ],
+  "asset": "assets/painted-motion-urumi.webp",
+  "productionBrief": "Original South Asian swordsman with cream trousers, blue sash, brass chest harness and a flexible ribbon-like urumi blade; eight walking and eight coiling/striking/recovery poses.",
+  "originalPrompt": "Not supplied with the imported candidate; no prompt is reconstructed as generation evidence.",
+  "review": "Repository source checker passed; action cell 12 reviewed for the lash strike. Cell padding preserves the original flexible blade without cropping. One facing plus reflection. Directions, dedicated Elite/work/hit/death art and physical Xbox remain unfinished."
+}

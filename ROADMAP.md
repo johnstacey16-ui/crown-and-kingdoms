@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Konnik, Keshik and Leitis join the new regional sheets. [Inventory](docs/graphics-inventory.json): **63/84** painted animated kinds; **21 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Cavalry candidate `61289a2f` passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070)); 768 exact reflections and rendered cavalry poses reviewed. Konnik uses matching mounted/foot artwork; faint background layers are rejected before packing. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open.
+Urumi Swordsman, Chakram Thrower and mounted Centurion join the regional sheets. [Inventory](docs/graphics-inventory.json): **66/84** painted animated kinds; **18 remaining** in [the source queue](docs/painted-motion-production-queue.json). Urumi reuses the owner-prepared candidate after repository checking; Centurion follows the runtime cavalry family. Prompts/provenance: `docs/painted-*-prompts.json`. Previous cavalry `61289a2f` passed [hosted checks](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070). This batch awaits fresh browser acceptance. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open; permanent development branch safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 

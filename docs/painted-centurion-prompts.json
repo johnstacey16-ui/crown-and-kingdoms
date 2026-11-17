@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-legionary.webp",
+    "assets/painted-motion-leitis.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-centurion.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric RTS production sprite sheet, genuine transparent alpha1536x1024. EXACT4columns x4rows, sixteen complete SINGLE horse-and-rider figures, equal384x256 cells. Image1 our own LEGIONARY supplies costume style; image2 our own LEITIS supplies mounted proportions and horse pose style. Subject CENTURION, a MOUNTED late-Roman-inspired officer: plumeless bronze-and-iron ridge helmet with cheekguards, segmented shoulder/body armour, cream officer cloak with narrow rust trim, cobalt-BLUE short shoulder drape/sash, BLUE rectangular round-corner shield with brass boss/simple geometric rays on left arm, short straight gladius in right hand. Dark brown horse, black mane/tail, plain bronze/brown tack and BLUE saddle blanket. No copied eagle insignia, crest, tall plume, fur coat, infantry-only figure, spear or lance. Fixed elevated3/4 view facing screen RIGHT, upper-left lighting, consistent horse size, body proportions, gear and hoof anchor. Cells0-7 top2rows: eight genuine consecutive articulated horse walk/trot strides, all four legs alternating, rider seated with gladius low and shield forward. Cells8-15: ready, draw sword back, prepare thrust, windup, full rightward gladius THRUST cell12, follow-through, retract, guard; horse planted during attack. Entire hooves, horse tail, cloak, helmet, shield and blade within each cell with24px clear transparent margins. No text/grid/labels/scenery/floor/cast shadows/opaque background/detached fragments or commercial sprite copying.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the strike/release. Mounted cavalry reference height 60 game pixels, matching runtime U.centurion.mt. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in alpha-background correction removed a faint translucent backdrop while preserving the pale cloak; --mounted validation uses the cavalry transparency threshold."
+}
