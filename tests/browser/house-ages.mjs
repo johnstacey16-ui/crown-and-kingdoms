@@ -9,8 +9,8 @@ export async function checkHouseAges(page,output){
   const base={netId:'house-age-fixture',k:'house',x:20,y:20,s:2,hp:B.house.hp,mh:B.house.hp,pr:B.house.bt,done:true,q:[]};
   let phase='',fallback=false,unknownFallback=false,hiddenRetained=false;
   try{
-   // Match cached LOD draw surfaces to the original age/team frame, too.
-   buildingFrameTexture=function(art,...args){const reduced=originalTexture(art,...args);if(reduced&&images.has(art.img)){images.add(reduced);reducedFrames.set(reduced,art.img.paintedSourceFrame||art.f)}return reduced};
+   // Include demanded replacement tints after eviction, plus cached LOD copies.
+   buildingFrameTexture=function(art,...args){const reduced=originalTexture(art,...args);if(art.architectureKind==='house'){images.add(art.img);if(reduced){images.add(reduced);reducedFrames.set(reduced,art.img.paintedSourceFrame||art.f)}}return reduced};
    for(let age=0;age<4;age++)for(let team=0;team<4;team++){
     const art=paintedBuildingFrame('house',team,0,age),f=art.f,c=document.createElement('canvas');c.width=240;c.height=220;const ctx=c.getContext('2d'),sc=184/f.w;
     ctx.drawImage(art.img,f.x,f.y,f.w,f.h,120-f.ax*sc,215-f.ay*sc,f.w*sc,f.h*sc);

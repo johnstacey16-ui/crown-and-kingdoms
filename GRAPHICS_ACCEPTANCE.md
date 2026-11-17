@@ -20,12 +20,20 @@ and release acceptance before publication; physical Xbox remains unverified.
 
 Hosted Chromium on `462c5b24` passed all 564 reflection comparisons exactly
 (maximum delta zero), plus native tint and surface-retirement checks. Its next
-failure exposed an age-art fixture that only recognized native tint surfaces:
-the multiplayer map legitimately draws cached half-size building surfaces.
-Town Centre and house fixtures now trace each actual LOD draw back through
+failure exposed age-art fixtures that retained old tint canvas identities:
+the sixteen Town Centre samples occupy 5,062,620 pixels, exceeding the
+3,145,728-pixel building pool, so demand creates replacement tint canvases.
+The multiplayer map can also draw cached half-size building surfaces.
+Town Centre and house fixtures now register demanded replacement sources and
+trace each actual LOD draw back through
 `buildingFrameTexture` to the original source rectangle, retaining all sixteen
 age/team draw assertions, palette/hash checks and simulation invariance. They
 restore the instrumented function on exit; no runtime behavior changes here.
+Counting-canvas execution of both real fixtures confirmed sixteen solo and
+sixteen map draws each under eviction pressure; this does not prove pixels.
+Runtime candidate `b33c70c8` passed hosted full standalone regressions, nineteen
+campaigns, seeded AI and quick/focused checks. The replacement-aware browser
+fixtures require their own Chromium acceptance before publication.
 
 ## 17 November 2026 — Preserve pause-button intent and release stale recovery jobs
 
