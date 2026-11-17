@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Serjeant, Obuch and Legionary join Eagle Warrior and the three new ranged sheets. [Inventory](docs/graphics-inventory.json): **57/84** painted animated kinds; **27 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Previous ranged candidate `aa3c850b` passed quick 5/5, focused 1,743, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44167377104)). The infantry batch adds 48 original source poses with team palettes, reviewed strikes, offline revisions and fallback; current browser acceptance is pending. Independent facings, dedicated Elite/death art, physical Xbox and production release remain open.
+Serjeant, Obuch and Legionary join Eagle Warrior and the three new ranged sheets. [Inventory](docs/graphics-inventory.json): **57/84** painted animated kinds; **27 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Infantry candidate `2814471d` passed quick 5/5, focused 1,743, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44171016746)); 696 exact reflection comparisons and rendered sheet reviewed. The 48 new source poses retain team palettes, reviewed strikes, offline revisions and fallback. Independent facings, dedicated Elite/death art, physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 
