@@ -36,3 +36,34 @@ test('fallback dispatcher retains original painted-miss routes',()=>{
  assert.match(procedural,/Object\.assign\(MP,\{/);
  assert.match(troops,/paintUnit\(/);
 });
+
+test('unique DLC fallback weapons have distinct deterministic illustrated poses',()=>{
+ const U={vil:{},mil:{},knight:{mt:true},ele:{mt:true},gal:{sh:true},ram:{}};
+ const {MP,man}=vm.runInNewContext(procedural+'\n({MP,man})',{
+  U,
+  pg:()=>{},
+  shd:color=>color,
+  lin:(_g,_a,_b,_c,_d,color)=>color
+ });
+ assert.equal(MP.warpriest.wpn,'mace');
+ assert.equal(MP.obuch.wpn,'mace');
+ assert.equal(MP.chakram.wpn,'chakram');
+ assert.equal(MP.urumi.wpn,'urumi');
+ for(const name of ["case'mace'","case'chakram'","case'urumi'"])
+  assert.ok(procedural.includes(name),name+' draw state');
+ for(const kind of ['warpriest','obuch','chakram','urumi']){
+  const signatures=[];
+  for(const frame of [0,1,2,3]){
+   const calls=[];
+   const g={createRadialGradient(){return {addColorStop(){}}}};
+   for(const op of ['save','restore','scale','translate','rotate','beginPath','moveTo','lineTo',
+    'closePath','fill','stroke','fillRect','strokeRect','arc','ellipse','quadraticCurveTo']){
+    g[op]=(...args)=>{calls.push([op,...args]);for(const val of args)assert.ok(Number.isFinite(val),kind+' invalid geometry')};
+   }
+   assert.doesNotThrow(()=>man(g,kind,'#3399ee',2,frame,true),kind+' attack frame '+frame);
+   assert.ok(calls.some(call=>call[0]==='stroke'),kind+' must draw weapon strokes');
+   signatures.push(JSON.stringify(calls));
+  }
+  assert.ok(new Set(signatures).size>1,kind+' attack poses should not collapse');
+ }
+});
