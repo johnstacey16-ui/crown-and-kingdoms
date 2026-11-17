@@ -45,42 +45,6 @@
       "state": "pending-generation"
     },
     {
-      "kind": "shrivamsha",
-      "name": "Shrivamsha Rider",
-      "batch": 3,
-      "family": "mounted",
-      "reference": "assets/painted-motion-keshik.webp",
-      "identity": "Light South Asian mounted lancer in cobalt and pale cotton armour with chestnut horse",
-      "equipment": "Light spear and small circular shield; uncluttered fast cavalry silhouette",
-      "motion": "Quick horse gait with an offset lance thrust and recovery",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "camelscout",
-      "name": "Camel Scout",
-      "batch": 3,
-      "family": "mounted",
-      "reference": "assets/painted-motion-camel.webp",
-      "identity": "Camel-mounted early scouting unit, desert saddle, light woven cloth, sand-brown camel, blue tassels",
-      "equipment": "Small spear and reins; clear hump and camel leg proportions",
-      "motion": "Camel gait and short thrust animation with feet within source cell",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "flamecamel",
-      "name": "Flaming Camel",
-      "batch": 3,
-      "family": "mounted",
-      "reference": "assets/painted-motion-camel.webp",
-      "identity": "Unridden camel with woven military saddle, blue straps and deliberate burning payload behind hump",
-      "equipment": "Small orange-yellow flame at saddle load, no explosive fantasy effects; camel head untouched",
-      "motion": "Camel walk and payload approach/impact poses while retaining visible four-legged gait",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
       "kind": "batele",
       "name": "Battle Elephant",
       "batch": 4,

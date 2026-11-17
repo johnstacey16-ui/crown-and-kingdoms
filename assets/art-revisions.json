@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "35f1cf050467c4c0eb5be147ba4ccf82c782150b3ef80fe414d511e529b6aefe",
+  "revision": "56f0a896d585af8d517179c869c1d3e563b3db0074a36f89ce708d1e17bb55db",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -17,6 +17,7 @@
     "./assets/painted-motion-bomb.webp": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc",
     "./assets/painted-motion-boyar.webp": "8086796c0db32ee7336955db2564075354dbd8de8c87bf30847e088a3a551a8a",
     "./assets/painted-motion-camel.webp": "6ece18808cb70936b535ca1c949017a3fff11e42e7cc431107351575d798287a",
+    "./assets/painted-motion-camelscout.webp": "e7bbee83f29607e3c5dc5a27cec87aed4322dba9790fc42110fc4576b0f34986",
     "./assets/painted-motion-cart.webp": "8200eb86b8c7a4e9c4a0bfc54e6ad273398793688e95a7e7e514b69253339d1f",
     "./assets/painted-motion-cata.webp": "00cfe0a01d58758310f5ffd6017b20639e602da58f0b4459754d307251f1d22b",
     "./assets/painted-motion-cavarch.webp": "42022c2b56525f75e18a73956d416b46b6b7afb4c99c7be07abbf3b67cf82de1",
@@ -31,6 +32,7 @@
     "./assets/painted-motion-ele.webp": "c74d0d342ee68bef19abbde59ed2134ee17617d0a64a67d990026baea653400e",
     "./assets/painted-motion-eled.webp": "dd07cd83cc5e0826c15d961cd429ec7dc4df42cb7729d5049126dacc223f827b",
     "./assets/painted-motion-fish.webp": "8814db143f3042fa27b202a4bddce3059873263453bebdd1a08f9d88b0b71982",
+    "./assets/painted-motion-flamecamel.webp": "785264cf201fef7c1cc430ea7983cf20d49d9d8a5656d9c481c40223b5f15c38",
     "./assets/painted-motion-flemish.webp": "051f6589d60b4acf315a1ba22331f47536631d053df08747086c2cc92ebc8c05",
     "./assets/painted-motion-footkonnik.webp": "a0b8bea2942771ccc580e8dced3589b623cbf7fed32905283195783913c76c18",
     "./assets/painted-motion-gal.webp": "0dfcc7872dbf75257eb40458847fbc72d4e5d6d1db0e016593640cae1d35b65a",
@@ -65,6 +67,7 @@
     "./assets/painted-motion-scout.webp": "ed856f6b387e93fe7b6686743b4cb4fdc7e892d0deb22d5b28596e7d12f7db84",
     "./assets/painted-motion-serjeant.webp": "c074d0de88171d3a0a0f2ac7e0b4e2691dfcd973d236c2970777b511ec0a0102",
     "./assets/painted-motion-shotel.webp": "4b5cb1d656a20009d071432f66b05f8fcf7471ae98b9fd653a04067868d9266b",
+    "./assets/painted-motion-shrivamsha.webp": "988d58e97c60453b43ff883c69136e255e89854f879621fdb2a121f0267ee6be",
     "./assets/painted-motion-skirm.webp": "a22740f3c39d726efb1063e00912a1ac42ed1ed16045f02020c48f0d86813ada",
     "./assets/painted-motion-spear.webp": "5bc0d263288d66c008de45b6d50f41bdf3c8104b6e5d5460869f741786eb2062",
     "./assets/painted-motion-steppe.webp": "a037ddcb4a1a226423567d6c8e596539833bc7b2863a3234486d5268f3ec0dad",

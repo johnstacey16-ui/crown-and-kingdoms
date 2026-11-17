@@ -10,8 +10,8 @@ test('readiness metrics report actual content without claiming full completion',
  assert.equal(r.metrics.eliteResearchLines,43);
  assert.equal(r.metrics.secondUniqueTechnologies,43);
  assert.equal(r.metrics.totalUnits,84);
- assert.equal(r.metrics.paintedUnitBases,72);
- assert.equal(r.metrics.movementAndAttackSheets,72);
+ assert.equal(r.metrics.paintedUnitBases,75);
+ assert.equal(r.metrics.movementAndAttackSheets,75);
  assert.equal(r.metrics.independentDirectionArt,0);
  assert.equal(r.metrics.dedicatedDeathArt,0);
  assert.equal(r.metrics.factionArchitecture,0);

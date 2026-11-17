@@ -163,6 +163,7 @@ jobs:
             artifacts/battlefield-art/light-motion.png
             artifacts/battlefield-art/ranged-motion.png
             artifacts/battlefield-art/horse-motion.png
+            artifacts/battlefield-art/camel-motion.png
           retention-days: 7
           if-no-files-found: ignore
 

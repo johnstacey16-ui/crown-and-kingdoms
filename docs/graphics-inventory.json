@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 83,
+  "atlases": 86,
   "units": [
     {
       "kind": "vil",
@@ -573,9 +573,9 @@
     {
       "kind": "flamecamel",
       "name": "Flaming Camel",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -699,18 +699,18 @@
     {
       "kind": "shrivamsha",
       "name": "Shrivamsha Rider",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "camelscout",
       "name": "Camel Scout",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "72 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "12 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "75 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "9 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
