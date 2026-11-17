@@ -29,6 +29,31 @@ case'jav':{const t=st===2&&sw?6:0;g.strokeStyle='#8a6a3a';g.lineWidth=1.5;g.begi
 case'bow':case'lbow':{const tall=o.wpn==='lbow'?15:11,pull=st===2?(sw?-3:3):0;g.strokeStyle='#6a4a22';g.lineWidth=1.8;g.beginPath();g.moveTo(hx+2,hyv-tall);g.quadraticCurveTo(hx+7-pull*.3,hyv,hx+2,hyv+tall);g.stroke();g.strokeStyle='#eee';g.lineWidth=.6;g.beginPath();g.moveTo(hx+2,hyv-tall);g.lineTo(hx+pull,hyv);g.lineTo(hx+2,hyv+tall);g.stroke();if(st===2&&!sw){g.strokeStyle='#d8c890';g.lineWidth=1;g.beginPath();g.moveTo(hx+pull,hyv);g.lineTo(hx+14,hyv);g.stroke()}break}
 case'xbow':g.fillStyle='#6a4a2a';g.fillRect(hx-3,hyv-1.2,13,2.4);g.strokeStyle='#3a2a18';g.lineWidth=1.6;g.beginPath();g.moveTo(hx+6,hyv-7);g.lineTo(hx+8,hyv);g.lineTo(hx+6,hyv+7);g.stroke();break;
 case'gun':g.fillStyle='#3a3a40';g.fillRect(hx-3,hyv-2,15,3.6);g.fillStyle='#6a4a2a';g.fillRect(hx-6,hyv-1.5,5,3);if(st===2&&sw){g.fillStyle='#ffd24a';g.beginPath();g.arc(hx+16,hyv-.5,3,0,7);g.fill()}break;
+case'mace':{
+ const swing=st===2?(sw?.65:-1.15):-.55;
+ g.save();g.translate(hx,hyv);g.rotate(swing);
+ g.strokeStyle='#493722';g.lineWidth=2.5;g.beginPath();g.moveTo(0,0);g.lineTo(13,0);g.stroke();
+ g.strokeStyle='#caa769';g.lineWidth=1;g.beginPath();g.moveTo(0,-.6);g.lineTo(12,-.6);g.stroke();
+ pg(g,[[10,-4],[14,-5],[17,-2],[17,2],[14,5],[10,4]],lin(g,10,-4,17,5,'#d9dfe5','#747d87'),E,.7);
+ for(const x of[11,15]){g.strokeStyle='#e2e4df';g.lineWidth=.9;g.beginPath();g.moveTo(x,-4);g.lineTo(x+1,4);g.stroke()}
+ g.restore();break}
+case'chakram':{
+ const angle=st===2?fr*.9:-.3;
+ g.save();g.translate(hx+4,hyv);g.rotate(angle);
+ g.strokeStyle='#41494c';g.lineWidth=4.3;g.beginPath();g.arc(7,0,7,0,Math.PI*2);g.stroke();
+ g.strokeStyle='#dce3e4';g.lineWidth=2;g.beginPath();g.arc(7,0,7.1,0,Math.PI*2);g.stroke();
+ g.strokeStyle='#f2e6b6';g.lineWidth=.9;g.beginPath();g.arc(7,0,5.2,.2,3);g.stroke();
+ g.restore();break}
+case'urumi':{
+ const lunge=st===2?(sw?6:-3):0;
+ g.save();g.translate(hx,hyv);
+ g.strokeStyle='#70512d';g.lineWidth=2.5;g.beginPath();g.moveTo(0,0);g.lineTo(5,0);g.stroke();
+ g.strokeStyle='#dce2e3';g.lineWidth=1.8;g.beginPath();g.moveTo(5,0);
+ g.quadraticCurveTo(15+lunge,-11,21+lunge,-2);
+ g.quadraticCurveTo(27+lunge,7,31+lunge,-5);g.stroke();
+ g.strokeStyle='rgba(255,255,255,.65)';g.lineWidth=.7;g.beginPath();g.moveTo(7,-1);
+ g.quadraticCurveTo(16+lunge,-9,21+lunge,-1);g.stroke();
+ g.restore();break}
 case'staff':g.strokeStyle='#8a6a3a';g.lineWidth=2;g.beginPath();g.moveTo(hx,hyv+9);g.lineTo(hx+1,hyv-26);g.stroke();g.strokeStyle='#f2c14e';g.lineWidth=1.6;g.beginPath();g.moveTo(hx-3,hyv-22);g.lineTo(hx+5,hyv-22);g.moveTo(hx+1,hyv-27);g.lineTo(hx+1,hyv-17);g.stroke();break;
 case'scepter':g.strokeStyle='#f2c14e';g.lineWidth=1.8;g.beginPath();g.moveTo(hx,hyv+5);g.lineTo(hx+1,hyv-14);g.stroke();g.fillStyle='#e04040';g.beginPath();g.arc(hx+1,hyv-15,2.4,0,7);g.fill();break;
 case'pick':{const a=st===3?(wk>0?-1.2:.3):-.7;g.save();g.translate(hx,hyv);g.rotate(a);g.strokeStyle='#7a5a2a';g.lineWidth=2;g.beginPath();g.moveTo(0,0);g.lineTo(11,0);g.stroke();g.strokeStyle='#9aa0aa';g.lineWidth=2.4;g.beginPath();g.moveTo(9,-4);g.lineTo(11,0);g.lineTo(9,4);g.stroke();g.restore();break}}}
@@ -124,8 +149,8 @@ Object.assign(MP,{
  monaspa:{cloth:'#64896c',pant:'#3b5146',helm:'cone',wpn:'spear',shield:'kite',mail:1,tab:1},
  centurion:{cloth:'#8e3e35',pant:'#54372d',helm:'great',wpn:'spear',shield:'round',mail:1,tab:1},
  legionary:{cloth:'#a85941',pant:'#4b3130',helm:'helm',wpn:'sword',shield:'kite',mail:1,tab:1},
- chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'axe',shield:'none',tab:1},
- urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'sword',shield:'round',mail:1,tab:1},
+ chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'chakram',shield:'none',tab:1},
+ urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'urumi',shield:'round',mail:1,tab:1},
  obuch:{cloth:'#796456',pant:'#524d48',helm:'great',wpn:'mace',shield:'round',mail:1,tab:1},
  winged:{cloth:'#a17a55',pant:'#594536',helm:'helm',wpn:'spear',shield:'kite',mail:1,tab:1},
  serjeant:{cloth:'#8793a6',pant:'#3c4354',helm:'great',wpn:'sword',shield:'kite',mail:1,tab:1},
