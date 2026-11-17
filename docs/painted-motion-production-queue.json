@@ -21,42 +21,6 @@
   },
   "items": [
     {
-      "kind": "kipchak",
-      "name": "Kipchak",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-cavarch.webp",
-      "identity": "Steppe mounted archer with fur-edged indigo coat, dark bay horse, conical helmet and short quiver",
-      "equipment": "Compact recurved bow with nocked arrow; correct bowstring and hand relationship",
-      "motion": "Mounted walk and full draw/release cycle with bow and reins separated",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "steppe",
-      "name": "Steppe Lancer",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-leitis.webp",
-      "identity": "Fast lightly armoured steppe cavalry, grey horse, lean lance rider and leather coat with blue waistband",
-      "equipment": "Long lance and exposed small shield, clear silhouette separate from knight",
-      "motion": "Horse gait and high-to-low stabbing strike; avoid lance crop",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "arambai",
-      "name": "Arambai",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-cavarch.webp",
-      "identity": "Southeast Asian horse skirmisher in tan wrapped cloth, bronzed ornaments and deep blue harness accents",
-      "equipment": "Distinct long throwing dart and basket/quiver; light saddle",
-      "motion": "Gallop-gait and javelin wind-up, throw and recovery, no detached darts outside cell",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
       "kind": "ratha",
       "name": "Ratha (Ranged)",
       "batch": 3,

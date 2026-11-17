@@ -146,7 +146,7 @@ try{
    'axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel',
    'jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata',
    'conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king',
-   'eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged'];
+   'eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai'];
   const mandatory=new Set(paintedKinds);
   for(const k of mandatory)for(let t=0;t<4;t++)for(let st=0;st<4;st++)
    if(!assetFrame(k,t,st,0,.1))missingUnits.push(k+'/'+t+'/'+st);

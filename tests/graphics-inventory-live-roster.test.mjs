@@ -25,7 +25,7 @@ test('remaining Sicilian through Georgian source-only assets are honestly proced
   assert.equal(entry.walkFrames,0);
   assert.equal(entry.attackFrames,0);
  }
- for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged']){
+ for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.equal(entry.paintedBase,true,kind+' now has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);
@@ -43,7 +43,7 @@ test('original painted art production queue tracks only the remaining genuinely 
  assert.deepEqual(promised,missing,'art briefs must not claim or omit an already painted sheet');
  assert.equal(new Set(promised).size,promised.length,'one authored brief per distinct unit kind');
  assert.deepEqual(queue.shared.sourceDimensions,[1536,1024]);
- assert.equal(queue.items.length,15,'track the remaining 15 unfinished types until source art is checked in');
+ assert.equal(queue.items.length,12,'track the remaining 12 unfinished types until source art is checked in');
  assert.ok(queue.items.every(item=>item.state==='pending-generation'&&item.artStatus.includes('missing')));
  assert.ok(queue.items.every(item=>item.identity.length>55&&item.equipment.length>45&&item.motion.length>48));
  assert.ok(queue.items.every(item=>item.reference.startsWith('assets/painted-motion-')&&item.reference.endsWith('.webp')));

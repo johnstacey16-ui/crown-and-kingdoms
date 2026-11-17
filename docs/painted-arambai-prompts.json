@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-cavarch.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-arambai.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric medieval RTS production sprite sheet native1536x1024, fully transparent alpha0 background, EXACT4columns x4rows of16complete horse-and-rider figures, equal384x256cells. Our own Cavalry Archer reference gives rendering style, elevated3/4 camera and scale ONLY. Subject ARAMBAI Southeast Asian mounted dart thrower: tan wrapped headcloth, bronzed small shoulder/chest ornaments over cream cotton sleeveless tunic, cobaltBLUE waist sash and saddle blanket, medium brown horse with black mane/tail, simple light saddle. Woven basket/quiver of spare throwing darts at right rear saddle. Right hand holds one slim long throwing DART with steel point and small feathered end; left hand reins, NO BOW or shield. Clear distinct original silhouette, realistic painted cloth/leather/bronze. Fixed facing screenRIGHT, upper-left light, same horse size and gear in all cells. Top8cells0-7: eight consecutive articulated horse walking strides, held dart resting diagonally, all four hooves alternate. Bottom8cells8-15: ready dart, lift elbow, draw arm back, cock dart overhead, rightward THROW release atCELL12(row4col1) arm extends with OPEN EMPTY HAND, follow-through arm across, reach spare dart, ready new held dart. No airborne detached darts; game projectile drawn separately. Complete hoof/tail/headcloth/dart/basket contained in each cell with20px clear transparent margin. No ground, cast shadow, translucent or opaque wash, vignette, glow, scenery, text/grid/labels, extra horses or copied game assets. Clean cutout sprites, sixteen distinct poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the release/thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

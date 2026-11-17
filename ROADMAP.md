@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Monaspa, Coustillier and Winged Hussar add 48 original cavalry poses. [Inventory](docs/graphics-inventory.json): **69/84** painted animated kinds; **15 remaining** in [the source queue](docs/painted-motion-production-queue.json). Candidate `8c98d474` passed quick 5/5, focused 1,748, Chromium 2/2 and Xbox software 8/8, including 840 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44195750262)); rendered lances and feathers were inspected. Prompts: `docs/painted-*-prompts.json`. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Kipchak, Steppe Lancer and Arambai add 48 original cavalry poses. [Inventory](docs/graphics-inventory.json): **72/84** painted animated kinds; **12 remaining** in [the source queue](docs/painted-motion-production-queue.json). New sources passed mounted transparency checks; release/thrust uses cell 12. Prompts: `docs/painted-*-prompts.json`. Previous `8c98d474` passed [hosted checks](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44195750262); this batch awaits browser acceptance. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 
