@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "617ec5846c143c53bf375bb76340be2c98a252e8a2a95006307c92c9c99d12d1",
+  "revision": "4ea4c6cee3c62ea8a0e0c03278e0df638fb3e35faa59a2137fb6b6925373ce46",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -38,10 +38,13 @@
     "./assets/painted-motion-jaguar.webp": "de1ec56b5e48207e00e46966bda9884deb14f7f8a6d9312a40e92fa2fd69da0d",
     "./assets/painted-motion-jan.webp": "c005f15f9cf7a0f0add992b37ffbeae24fdf49635157edf13bef0ea898c55b20",
     "./assets/painted-motion-kamayuk.webp": "2398e5398517148b5fa717368fd64625e2929400f893eb860d7bf528805e2d43",
+    "./assets/painted-motion-keshik.webp": "409b847407f428868747afc87ba2359c31a7919b91916ef0052a9301913e62a1",
     "./assets/painted-motion-king.webp": "d0fa4b34d8889843b78f6c2732caf2ce0b7deee565de51d9c58dd5144156369c",
     "./assets/painted-motion-knight.webp": "db80d09bdd8d842219da83509f00bfb6711424fd3744fe8131d739d080a7b699",
+    "./assets/painted-motion-konnik.webp": "29adb72edf69f21b20776317b484f8bbe7eb371a41485bb6c9ea713ecea5e8bf",
     "./assets/painted-motion-lbow.webp": "3a52b972aeefd014b51d24847ec15e6970215eb15798073b020ed40f55605f81",
     "./assets/painted-motion-legionary.webp": "e334961371673f85ddcb2354045fc690ce4b43a1c201143f5d0f102a17534172",
+    "./assets/painted-motion-leitis.webp": "7f83fc827af61f019c4f92fe93aad88d592e0de176f20f8750f921d195f05411",
     "./assets/painted-motion-mamel.webp": "99d9309a864e3867422b6adda833560f9c96c4874f8357907ca72dbaf523da08",
     "./assets/painted-motion-mang.webp": "f24dce95b9b0c61422ebd972076a850f1bebfc84df1074818165b5a4da080738",
     "./assets/painted-motion-mgd.webp": "b73b51712c2c7b37dabfa8865377aa613ce324d177ce7265184a4e4f221c02ac",

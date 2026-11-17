@@ -25,7 +25,7 @@ test('remaining Sicilian through Georgian source-only assets are honestly proced
   assert.equal(entry.walkFrames,0);
   assert.equal(entry.attackFrames,0);
  }
- for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest']){
+ for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis']){
   const entry=graphics.units.find(unit=>unit.kind===kind);
   assert.equal(entry.paintedBase,true,kind+' now has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);

@@ -151,6 +151,7 @@ jobs:
             artifacts/battlefield-art/painted-elites.json
             artifacts/battlefield-art/light-motion.png
             artifacts/battlefield-art/ranged-motion.png
+            artifacts/battlefield-art/horse-motion.png
           retention-days: 7
           if-no-files-found: ignore
 

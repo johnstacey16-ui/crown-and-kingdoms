@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-boyar.webp",
+    "assets/painted-motion-footkonnik.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-konnik.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric RTS production sprite sheet, genuine alpha transparent1536x1024. EXACT4columns x4rows, sixteen complete SINGLE horse-and-rider figures in equal384x256 cells. References are our OWN game artwork only. Fixed elevated3/4 side view facing screen RIGHT, upper-left lighting, identical costume, horse size, anatomy, equipment and hoof anchor throughout. Cells0-7 top2rows: eight genuinely articulated consecutive horse walk/trot strides with alternating four legs, seated rider and natural balanced movement. Cells8-15 bottom2rows: eight compact mounted melee action poses, ready, draw back, prepare, windup, full forward STRIKE/THRUST cell12, follow-through, recovery, return guard; horse stands through attack. Keep ENTIRE hooves, tail, headgear, shield and weapon tip in EVERY cell with at least24px transparent padding. No text, grid, labels, scenery, floor, ground shadows, opaque backdrop, detached fragments, magic glow, extra legs or commercial sprite copying. Subject MOUNTED KONNIK. Image1 supplies mounted painted style; image2 supplies this rider's exact costume continuity. Brown padded coat over grey mail, kettle helmet/mail hood, short dark beard, blue shoulder tabs/waist sash, battered BLUE kite shield with brass CHEVRON on left arm matching our dismounted warrior. Right hand carries compact wooden cavalry spear with steel leaf tip, held diagonally upright during walking and thrust RIGHT during combat. Horse dark grey, black mane, plain brown leather tack and BLUE saddle blanket. No fur cloak, ornate gold horse barding, plume or sword held alongside spear. Rider must visibly match our own footKonnik's head, coat and shield.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Source cell 12 is the strike/thrust. Cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work variants, hit/death art and physical Xbox acceptance remain unfinished."
+}

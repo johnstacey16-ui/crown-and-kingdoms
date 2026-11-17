@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 71,
+  "atlases": 74,
   "units": [
     {
       "kind": "vil",
@@ -528,9 +528,9 @@
     {
       "kind": "konnik",
       "name": "Konnik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -546,9 +546,9 @@
     {
       "kind": "keshik",
       "name": "Keshik",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -582,9 +582,9 @@
     {
       "kind": "leitis",
       "name": "Leitis",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "60 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "24 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "63 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "21 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",

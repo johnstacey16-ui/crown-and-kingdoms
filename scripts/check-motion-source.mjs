@@ -19,9 +19,10 @@ try {sharp=createRequire(import.meta.url)('sharp')} catch (_) {
 const {data,info}=await sharp(readFileSync(input)).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 if(info.width!==1536||info.height!==1024)throw Error('Expected the native 1536x1024 four-by-four source PNG');
 const cells=16,cw=info.width/4,ch=info.height/4;
-let opaque=0;for(let i=3;i<data.length;i+=4)if(data[i]>32)opaque++;
+let opaque=0,transparent=0;for(let i=3;i<data.length;i+=4){if(data[i]>32)opaque++;if(data[i]===0)transparent++}
 const fraction=opaque/(info.width*info.height);
 if(fraction>(vehicle?.65:.53)||fraction<.035)throw Error('Invalid foreground coverage; require actual transparent individual character figures (not a poster): '+fraction.toFixed(3));
+if(transparent/(info.width*info.height)<(vehicle?.35:.45))throw Error('Background must be fully transparent, not a faint opaque or translucent layer');
 const reflow=reflowSpriteGrid(data,info.width,info.height,4,4,cells,vehicle,vehicle?128:64);
 const extraction=extractSpriteGrid(reflow.data,reflow.width,reflow.height,4,4,cells,null,vehicle);
 const hashes=[],areas=[];
