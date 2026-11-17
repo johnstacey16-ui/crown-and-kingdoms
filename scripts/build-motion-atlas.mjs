@@ -5,10 +5,10 @@ import {createRequire} from 'node:module';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged'],args=process.argv.slice(2),sources={},atlases=[];
 // Additional graphics are opt-in until their approved original PNG/WebP exists.
 // The source-authored queue owns unit IDs; normal rebuilds preserve the exact
-// approved 63-sheet output and do not fabricate missing assets.
+// approved 66-sheet output and do not fabricate missing assets.
 const upcomingKinds=JSON.parse(readFileSync(new URL('docs/painted-motion-production-queue.json',root),'utf8')).items.map(item=>item.kind);
 const availableKinds=new Set([...kinds,...upcomingKinds]);
 if(args[0]?.startsWith('--')){
@@ -23,7 +23,7 @@ const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon','bat
 const multipart=new Set(['conq','tarkan','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa',...vehicles,...large]);
 const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa']);
 // Source review locates the actual release/recoil/thrust pose in each sheet.
-const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12,footkonnik:12,flemish:12,warpriest:12,konnik:12,keshik:12,leitis:12,urumi:12,chakram:12,centurion:12};
+const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12,footkonnik:12,flemish:12,warpriest:12,konnik:12,keshik:12,leitis:12,urumi:12,chakram:12,centurion:12,monaspa:12,coust:12,winged:12};
 for(const kind of selectedKinds){
  const src='./assets/painted-motion-'+kind+'.webp',path=new URL(src,root);
  let {data,info}=await sharp(sources[kind]||path.pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
@@ -36,7 +36,7 @@ for(const kind of selectedKinds){
   // These ranged sheets contain detached muzzle smoke/bolt artwork. Keep the
   // complete in-cell character; production projectiles remain a separate layer.
   if(['jan','genoa'].includes(kind))data=extractSpriteGrid(data,info.width,info.height,4,4,16).data;
-  const padded=reflowSpriteGrid(data,info.width,info.height,4,4,16,multipart.has(kind),(vehicles.has(kind)||large.has(kind)||['mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','centurion'].includes(kind))?128:['camel','mamel'].includes(kind)?96:64);data=padded.data;info={...info,width:padded.width,height:padded.height};}
+  const padded=reflowSpriteGrid(data,info.width,info.height,4,4,16,multipart.has(kind),(vehicles.has(kind)||large.has(kind)||['mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','centurion','monaspa','coust','winged'].includes(kind))?128:['camel','mamel'].includes(kind)?96:64);data=padded.data;info={...info,width:padded.width,height:padded.height};}
  const isolated=extractSpriteGrid(data,info.width,info.height,4,4,16,null,multipart.has(kind)),frames=isolated.frames;
  if(sources[kind]||!isolated.data.equals(data)){
   const bytes=await sharp(isolated.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer();writeFileSync(path,bytes);
@@ -52,7 +52,7 @@ for(const kind of selectedKinds){
   anims[kind+'/idle/'+team]={dur:1,scale,referenceHeight,frames:[swing[0]]};
   anims[kind+'/walk/'+team]={dur:elephants.has(kind)?.12:large.has(kind)?.11:mounted.has(kind)?.075:.095,scale,referenceHeight,frames:walk};
   anims[kind+'/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
-  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
+  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
  }
  atlases.push({id:'painted-motion-'+kind,src,meta:{painted:true,motion:true,...(impactSource[kind]!==undefined?{sourceActionFrame:impactSource[kind]}:{}),width:info.width,height:info.height,anims}});
 }

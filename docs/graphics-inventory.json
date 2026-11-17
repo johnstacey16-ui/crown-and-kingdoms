@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 77,
+  "atlases": 80,
   "units": [
     {
       "kind": "vil",
@@ -591,9 +591,9 @@
     {
       "kind": "coust",
       "name": "Coustillier",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -627,9 +627,9 @@
     {
       "kind": "winged",
       "name": "Winged Hussar",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -753,9 +753,9 @@
     {
       "kind": "monaspa",
       "name": "Monaspa",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     }
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "66 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "18 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "69 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "15 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",

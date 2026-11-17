@@ -21,42 +21,6 @@
   },
   "items": [
     {
-      "kind": "monaspa",
-      "name": "Monaspa",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-leitis.webp",
-      "identity": "Caucasus Georgian armoured cavalry with deep brown horse, layered lamellar rider armour and cobalt fabric trim",
-      "equipment": "Long lance and compact round shield; distinct horse head and leg articulation",
-      "motion": "Paced horse walk and planted lance strike with visible recoil",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "coust",
-      "name": "Coustillier",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-konnik.webp",
-      "identity": "Western European mounted shock trooper with steel bascinet, blue surcoat, bay horse and decorated leather tack",
-      "equipment": "Long forward couched lance, shorter backup weapon at belt",
-      "motion": "Walk cycles show all four hooves; attack draws back then powerful lance impact",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "winged",
-      "name": "Winged Hussar",
-      "batch": 2,
-      "family": "mounted",
-      "reference": "assets/painted-motion-keshik.webp",
-      "identity": "Wing-framed Polish-Lithuanian mounted cavalry with two feather standards fixed behind armour and chestnut horse",
-      "equipment": "Long kontusz-pattern lance, steel helm and harness with blue sash",
-      "motion": "Eight horse gait poses and eight lance-charge attack phases; both feather standards remain intact",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
       "kind": "kipchak",
       "name": "Kipchak",
       "batch": 2,
