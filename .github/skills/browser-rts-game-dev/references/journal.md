@@ -37,3 +37,6 @@ The correction and three new ranged sheets at `aa3c850b` passed [hosted validati
 
 ### 2026-11-17 — Extend regional art through the shared pose pipeline
 Infantry candidate `2814471d` reused the existing pose timing, all-team atlas lookup and procedural fallback for Serjeant, Obuch and Legionary; no gameplay animation timers were added. [Hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44171016746) passed quick 5/5, focused 1,743, Chromium 2/2 and Xbox software 8/8, with 696 exact reflections. Inspect the packed in-game-scale contact sheet as well as the generated source. Physical Xbox, independent facings and dedicated death/Elite art remain separate.
+
+### 2026-11-17 — Validate transformed unit appearances through real gameplay
+At `e6c4862d`, use actual Konnik combat death and completed Flemish Revolution to verify the replacement unit kind selects its own painted frame, including an existing villager identity. Keep this in the existing motion regression rather than testing only catalogue metadata. [Hosted acceptance](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44173684492) passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8, with 732 exact reflections; the new rendered poses were inspected. Dedicated work/death/Elite art and physical Xbox remain separate.
