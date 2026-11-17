@@ -43,7 +43,7 @@ for(const kind of selectedKinds){
  }
  const heights=frames.slice(0,8).map(f=>f.h).sort((a,b)=>a-b),referenceHeight=(heights[3]+heights[4])/2;
  const widths=frames.slice(0,8).map(f=>f.w),maxWidth=Math.max(...widths);
- const scale=large.has(kind)?Math.min((elephants.has(kind)?74:60)/referenceHeight,(elephants.has(kind)?76:86)/maxWidth):ships.has(kind)?Math.min(48/referenceHeight,104/maxWidth):kind==='cart'?Math.min(60/referenceHeight,86/maxWidth):(mounted.has(kind)?60:46)/referenceHeight,anims={};
+ const scale=large.has(kind)?Math.min((elephants.has(kind)?74:60)/referenceHeight,(elephants.has(kind)?76:86)/maxWidth):ships.has(kind)?Math.min(48/referenceHeight,104/maxWidth):vehicles.has(kind)?Math.min(60/referenceHeight,86/maxWidth):(mounted.has(kind)?60:46)/referenceHeight,anims={};
  const walk=frames.slice(0,8),swing=frames.slice(8),impact=(impactSource[kind]??12)-8,attack=[...swing.slice(impact),...swing.slice(0,impact)];
  // Combat damage happens when the simulation resets cooldown; that is the strike
  // frame, followed by recovery, ready pose and the next wind-up. Noncombat
