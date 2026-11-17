@@ -7,12 +7,15 @@ export async function checkEliteArtwork(page,output){
   const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
   const contact=document.createElement('canvas');contact.width=1536;contact.height=768;
   const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,768);
+  const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
+  const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
   const samples=[],selection=[],draws=[],frames=new Set();let current='';
   try{
    S.us=[];S.bs=[];S.sel=[];
    unitAssetFrame=function(...args){const art=original(...args);if(current&&art){selection.push({pass:current,kind:args[0],team:args[1],elite:!!art.elite});frames.add(art.img)}return art};
    troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
+   mapContext.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalMapDraw.apply(this,a)};
    const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0]];
    for(const [row,[kind,id]] of roster.entries()){
     S.civ=[id,id];S.tech=[{},{}];
@@ -21,6 +24,12 @@ export async function checkEliteArtwork(page,output){
     const actor={netId:'elite-art-'+kind,k:kind,t:0,x:24,y:24,hp:U[kind].hp,o:'a',cd:U[kind].cd*.5,p:[],rp:0,car:0,hit:-99};
     current=kind;drawUnit(actor,new Set());current='';
     if(!selection.some(s=>s.pass===kind&&s.elite)||!draws.includes(kind))throw Error('Solo did not draw Elite '+kind);
+    // Deliberately disagree with the solo world: multiplayer must use the
+    // supplied projection's researched appearance and draw its actual texture.
+    const research=S.tech,world={...S,us:[actor],bs:[],tech:research};
+    S.tech=[{},{}];current='map-'+kind;
+    try{map.refresh(world,0,W,H,true)}finally{S.tech=research;current=''}
+    if(!selection.some(s=>s.pass==='map-'+kind&&s.elite)||!draws.includes('map-'+kind))throw Error('Map did not draw Elite '+kind);
     if(original(kind,1,{state:1,time:0},!!eliteUniqueUnitUpgrade(kind,1)).elite)throw Error('Elite leaked to opponent');
     S.tech[1][CIV[id].elite.k]=1;
     for(let team=0;team<4;team++)for(const state of[1,2]){
@@ -44,7 +53,7 @@ export async function checkEliteArtwork(page,output){
     try{atlas.ok=false;if(original(kind,0,{state:1,time:0},true)?.elite)throw Error('Elite failed to fall back')}
     finally{atlas.ok=ok}
    }
-  }finally{S.civ=saved.civ;S.tech=saved.tech;S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;unitAssetFrame=original;X.drawImage=originalDraw;troopFrameTexture=originalTexture}
+  }finally{S.civ=saved.civ;S.tech=saved.tech;S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;unitAssetFrame=original;X.drawImage=originalDraw;troopFrameTexture=originalTexture;mapContext.drawImage=originalMapDraw}
   return {samples,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
