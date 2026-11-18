@@ -166,6 +166,9 @@ jobs:
             artifacts/battlefield-art/camel-motion.png
             artifacts/battlefield-art/siege-motion.png
             artifacts/battlefield-art/civic-motion.png
+            artifacts/battlefield-art/building-age-details.png
+            artifacts/battlefield-art/building-construction.*
+            artifacts/battlefield-art/building-damage.*
           retention-days: 7
           if-no-files-found: ignore
 

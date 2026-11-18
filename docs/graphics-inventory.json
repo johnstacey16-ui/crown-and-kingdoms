@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 95,
+  "atlases": 98,
   "units": [
     {
       "kind": "vil",
@@ -1000,7 +1000,7 @@
     {
       "kind": "feitoria",
       "name": "Feitoria",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1009,7 +1009,7 @@
     {
       "kind": "krepost",
       "name": "Krepost",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1018,7 +1018,7 @@
     {
       "kind": "donjon",
       "name": "Donjon",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1074,7 +1074,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "28 building kinds; 22 painted, 6 original procedural fallback; fog-safe age presentation",
+      "evidence": "28 building kinds; 25 painted, 3 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

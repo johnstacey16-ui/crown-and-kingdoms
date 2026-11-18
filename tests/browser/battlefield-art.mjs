@@ -164,7 +164,7 @@ try{
   // Only the original 22 common buildings have mandatory painted atlas frames.
   // Six later civilization-locked buildings use the tested drawBld procedural
   // fallback and must not be reported as missing painted raster assets.
-  for(const k of Object.keys(B).filter(kind=>B[kind].onlyCiv===undefined&&!Array.isArray(B[kind].onlyCivs)))
+  for(const k of Object.keys(B).filter(kind=>(B[kind].onlyCiv===undefined&&!Array.isArray(B[kind].onlyCivs))||['feitoria','krepost','donjon'].includes(kind)))
    for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
   const a=assetFrame('mil',0,0,0,0),b=assetFrame('mil',1,0,0,0);
   const pixels=a.img.getContext('2d').getImageData(0,0,a.img.width,a.img.height).data;

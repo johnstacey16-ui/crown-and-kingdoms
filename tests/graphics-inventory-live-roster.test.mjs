@@ -22,7 +22,9 @@ test('all current base unit sheets are painted while broader graphics acceptance
   assert.equal(entry.paintedBase,true,entry.kind+' has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);
  }
- for(const kind of ['donjon','folwark','fchurch','mule'])
+ for(const kind of ['feitoria','krepost','donjon'])
+  assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,true);
+ for(const kind of ['folwark','fchurch','mule'])
   assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,false);
  assert.equal(graphics.complete,false,'base sheet coverage does not establish complete graphics acceptance');
 });

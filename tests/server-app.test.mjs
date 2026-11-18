@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { createApplication } from '../server/app.mjs';
+import { readFileSync } from 'node:fs';
+const atlas = JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json', import.meta.url)));
+const artPaths = [...new Set([atlas.terrain.src, ...atlas.atlases.map(a => a.src)])];
 
 const server = createApplication();
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -11,7 +14,7 @@ try {
     ['/index.html?release=test', 'text/html', '<canvas'],
     ['/js/network-session.js', 'text/javascript', 'CK_LIVE_SESSION'],
     ['/styles.css', 'text/css', 'canvas'],
-    ['/assets/atlas-manifest.json', 'application/json', 'painted-raster-v19-town-centre-ages'],
+    ['/assets/atlas-manifest.json', 'application/json', atlas.version],
     ['/sw.js', 'text/javascript', 'no-store']
   ]) {
     const response = await request(path);
@@ -20,8 +23,8 @@ try {
     assert.ok((await response.text()).includes(marker), path);
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   }
-  for(const name of ['painted-town-centre-ages','painted-house-ages','painted-motion-mgd','painted-motion-cata','painted-motion-conq','painted-motion-boyar','painted-motion-tarkan','painted-motion-huszar','painted-motion-camel','painted-motion-mamel','painted-motion-chuko','painted-motion-hcan','painted-motion-plumed','painted-motion-gbeto','painted-motion-jan','painted-motion-genoa','painted-environment','painted-resources','painted-units','painted-units-v2','painted-buildings','painted-terrain','painted-motion-mil','painted-motion-knight','painted-motion-vil','painted-motion-arc','painted-motion-xbow','painted-motion-spear','painted-motion-scout','painted-motion-skirm','painted-motion-mon','painted-motion-axe','painted-motion-lbow','painted-motion-woad','painted-motion-bers','painted-motion-saml','painted-motion-tk','painted-motion-huskarl','painted-motion-jaguar','painted-motion-kamayuk','painted-motion-shotel']){
-    const response=await request('/assets/'+name+'.webp');
+  for(const path of artPaths){
+    const response=await request(path.replace(/^\./,''));
     assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^image\/webp/);
     const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.toString('ascii',8,12),'WEBP');
   }

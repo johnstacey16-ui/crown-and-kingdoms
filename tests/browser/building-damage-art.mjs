@@ -4,13 +4,13 @@ export async function checkBuildingDamage(page,output){
  const result=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,c=BUILDING_DAMAGE_CACHE;
   c.entries.clear();c.pixels=0;
-  const samples=[],contact=document.createElement('canvas');contact.width=1200;contact.height=1120;
-  const cg=contact.getContext('2d');cg.fillStyle='#435541';cg.fillRect(0,0,1200,1120);
+  const samples=[],contact=document.createElement('canvas');contact.width=1200;contact.height=1960;
+  const cg=contact.getContext('2d');cg.fillStyle='#435541';cg.fillRect(0,0,contact.width,contact.height);
   let alphaDifferences=0,healthyDifferences=0,peakPixels=0,peakCanvases=0;
-  // Dedicated painted art covers the original roster; civilization-locked
-  // buildings use the supported procedural drawBld fallback instead.
+  // Include the three new native regional bases; keep the remaining three
+  // civilization-locked structures on the supported procedural fallback.
   const regional=Object.keys(B).filter(kind=>B[kind].onlyCiv!==undefined||Array.isArray(B[kind].onlyCivs));
-  const variants=Object.keys(B).filter(kind=>!regional.includes(kind)).flatMap(kind=>
+  const variants=Object.keys(B).filter(kind=>(!regional.includes(kind)||['feitoria','krepost','donjon'].includes(kind))).flatMap(kind=>
     ['house','tc'].includes(kind)?[0,1,2,3].map(age=>({kind,age})):[{kind,age:undefined}]);
   for(const {kind,age} of variants)for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,age);
@@ -27,8 +27,8 @@ export async function checkBuildingDamage(page,output){
    // Repair and healthy rendering bypass the overlay completely.
    if(damagedBuildingArtwork(art,0)!==art)healthyDifferences++;
    samples.push({kind,age,team,changedPixels:changes});
-   if(team===0&&(age===undefined||age===3)&&['house','tc','castle','dock'].includes(kind)){
-    const row=['house','tc','castle','dock'].indexOf(kind),scale=Math.min(240/f.w,225/f.h);
+   if(team===0&&(age===undefined||age===3)&&['house','tc','castle','dock','feitoria','krepost','donjon'].includes(kind)){
+    const row=['house','tc','castle','dock','feitoria','krepost','donjon'].indexOf(kind),scale=Math.min(240/f.w,225/f.h);
     for(let col=0;col<4;col++){
      drawBuildingArtwork(cg,art,col*300+150,row*280+265,scale,true,1,false,[0,1,2,0][col],2.4);
      cg.fillStyle='#fff0ce';cg.font='16px system-ui';cg.fillText(kind+' '+['healthy','damaged','critical','repaired'][col],col*300+15,row*280+20);
@@ -39,7 +39,7 @@ export async function checkBuildingDamage(page,output){
   for(const kind of regional){
    const props=B[kind],b={netId:'damage-regional-'+kind,k:kind,t:0,x:20,y:20,
     s:props.s,done:true,pr:props.bt,hp:props.hp,mh:props.hp,q:[]};
-   // Exercise the production fallback without stochastic damaged-unit FX.
+   // Exercise the production renderer without stochastic damaged-unit FX.
    // Native damage stages are audited above for every painted structure.
    drawBld(b);regionalDrawn.push(kind);
   }
@@ -75,8 +75,8 @@ export async function checkBuildingDamage(page,output){
  await writeFile(output+'/building-damage.png',Buffer.from(result.image.split(',')[1],'base64'));delete result.image;
  await writeFile(output+'/building-damage.json',JSON.stringify(result,null,2));
  assert.equal(result.before,result.after);assert.equal(result.alphaDifferences,0);assert.equal(result.healthyDifferences,0);
- assert.ok(result.samples.length===112&&result.samples.every(s=>s.changedPixels.every(n=>n>100)));
- assert.equal(result.regionalDrawn.length,6,'six civilization-specific buildings must use supported fallback rendering');
+ assert.ok(result.samples.length===124&&result.samples.every(s=>s.changedPixels.every(n=>n>100)));
+ assert.equal(result.regionalDrawn.length,6,'six civilization-specific buildings must use supported native/fallback rendering');
  assert.ok(result.peakPixels<=result.limit&&result.peakCanvases>0);assert.equal(result.warmAllocations,0);
  assert.ok(result.hiddenRetained&&result.hiddenRepairRetained&&result.unknownFallback&&result.allocationFallback);
  assert.deepEqual(result.soloStages,[2,0]);assert.ok(result.mapStages.includes(2)&&result.mapStages.at(-1)===0);
