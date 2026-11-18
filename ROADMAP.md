@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Turtle Ship, Caravel and Thirisadai complete **84/84** current playable kinds with painted base movement/attack coverage ([inventory](docs/graphics-inventory.json)); [the base source queue](docs/painted-motion-production-queue.json) is empty. Candidate `eb423553` passed quick 5/5, focused 1,749, Chromium 2/2 and Xbox software 8/8, with 1,020 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44232220605)); ship screenshots were reviewed. Prompts: `docs/painted-*-prompts.json`. Next graphics: six building bases. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Feitoria, Krepost and Donjon bring painted building bases to **25/28**; Folwark, Fortified Church and Mule Cart remain. All **84/84** playable unit kinds retain painted movement/attack ([inventory](docs/graphics-inventory.json)); the base source queue is empty. Candidate `ddc2d25a` passed quick 5/5, focused 1,750, Chromium 2/2 and Xbox software 8/8 ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44235232970)); reviewed screenshots cover 100 construction and 124 damage variants with unchanged completed pixels/alpha. Prompts: `docs/painted-regional-building-prompts.json`. Age/construction/damage remain shared effects. Independent facings, dedicated work/hit/death, remaining Elite art, physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 
