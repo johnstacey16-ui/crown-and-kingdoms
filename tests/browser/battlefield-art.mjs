@@ -161,9 +161,8 @@ try{
     if(opaque<8)invalidProcedural.push(k+': empty');
    }catch(error){invalidProcedural.push(k+': '+String(error))}
   }
-  // Only the original 22 common buildings have mandatory painted atlas frames.
-  // Six later civilization-locked buildings use the tested drawBld procedural
-  // fallback and must not be reported as missing painted raster assets.
+  // Common buildings and the three approved regional bases require native art.
+  // The other three regional structures retain the tested procedural fallback.
   for(const k of Object.keys(B).filter(kind=>(B[kind].onlyCiv===undefined&&!Array.isArray(B[kind].onlyCivs))||['feitoria','krepost','donjon'].includes(kind)))
    for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
   const a=assetFrame('mil',0,0,0,0),b=assetFrame('mil',1,0,0,0);
@@ -175,8 +174,8 @@ try{
  });
  console.log('Painted raster diagnostics: '+JSON.stringify(diagnostics));
  assert.deepEqual(diagnostics.missingUnits,[]);assert.deepEqual(diagnostics.missingBuildings,[]);
- assert.ok(diagnostics.fallbackUnitCount>0,'new regional units must remain covered by the fallback rendering test');
- assert.deepEqual(diagnostics.invalidProcedural,[],'all regional units must render non-empty procedural sprites');
+ assert.ok(diagnostics.fallbackUnitCount>0,'shared ship aliases and defence proxies retain forced procedural coverage');
+ assert.deepEqual(diagnostics.invalidProcedural,[],'forced procedural unit sprites remain non-empty');
  assert.equal(diagnostics.atlases,EXPECTED_ATLASES);assert.equal(diagnostics.terrain,true);
  assert.ok(diagnostics.transparent>1000&&diagnostics.changed>1000,'real transparent art and team cloth recolouring');
  const motion=await page.evaluate(()=>{
@@ -330,7 +329,7 @@ try{
   const names=[...Object.keys(U).filter(k=>!['tca','tw','cs'].includes(k)),...Object.keys(B).map(k=>'bld_'+k)],rows=Math.ceil(names.length/8);
   canvas.width=1280;canvas.height=rows*144;canvas.style.cssText='display:block;width:1280px;max-width:none';
   const ctx=canvas.getContext('2d');ctx.fillStyle='#15232b';ctx.fillRect(0,0,canvas.width,canvas.height);
-  let count=0,fallbacks=0;
+  let count=0,fallbacks=0;const fallbackKeys=[];
   for(let i=0;i<names.length;i++){
    const x=i%8*160,y=Math.floor(i/8)*144;
    ctx.fillStyle='#f4e6ba';ctx.font='10px system-ui';ctx.fillText(names[i],x+4,y+14);
@@ -346,17 +345,18 @@ try{
      ctx.save();ctx.translate(x+80,y+65+team*60);ctx.scale(.65,.65);
      if(kind)paintBld(ctx,kind,B[kind].s,teamColor(team),1,0);
      else paintUnit(ctx,names[i],teamColor(team),0,0);
-     ctx.restore();fallbacks++;
+     ctx.restore();fallbacks++;fallbackKeys.push(names[i]+'/'+team);
     }
     count++;
    }
   }
   document.querySelector('main').append(canvas);
-  return {icons:names.length,sprites:count,fallbacks,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  return {icons:names.length,sprites:count,fallbacks,fallbackKeys,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
  });
  assert.ok(contact.icons>=69,'the expanded roster includes the original painted units/buildings');
  assert.equal(contact.sprites,contact.icons*2,'every roster member renders for both teams');
- assert.ok(contact.fallbacks>=diagnostics.fallbackUnitCount*2,'regional art must be drawn by real procedural fallbacks');
+ assert.deepEqual(contact.fallbackKeys.sort(),['bld_folwark','bld_fchurch','bld_mule'].flatMap(k=>[k+'/0',k+'/1']).sort(),'only the three unpainted regional bases use contact-sheet fallbacks');
+ assert.equal(contact.fallbacks,6);
  assert.equal(contact.unchanged,true);
  await page.setViewportSize({width:1320,height:1450});
  await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});
