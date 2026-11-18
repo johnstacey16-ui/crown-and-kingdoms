@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Turtle Ship, Caravel and Thirisadai add 48 original naval poses. [Inventory](docs/graphics-inventory.json): **84/84** current playable kinds have painted base movement/attack sheets; [the base source queue](docs/painted-motion-production-queue.json) is empty. Sources passed multipart transparency checks; naval envelopes and runtime effects are preserved. Prompts: `docs/painted-*-prompts.json`. This batch awaits browser acceptance. Buildings, independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Turtle Ship, Caravel and Thirisadai complete **84/84** current playable kinds with painted base movement/attack coverage ([inventory](docs/graphics-inventory.json)); [the base source queue](docs/painted-motion-production-queue.json) is empty. Candidate `eb423553` passed quick 5/5, focused 1,749, Chromium 2/2 and Xbox software 8/8, with 1,020 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44232220605)); ship screenshots were reviewed. Prompts: `docs/painted-*-prompts.json`. Next graphics: six building bases. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 
