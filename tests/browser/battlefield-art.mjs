@@ -1,4 +1,4 @@
-import {EXPECTED_ATLASES} from '../helpers/atlas-count.mjs';
+import {EXPECTED_ATLASES,EXPECTED_STATIC_ATLASES} from '../helpers/atlas-count.mjs';
 import {checkAudioScheduling} from './audio-scheduling.mjs';
 import {checkProjectileArtwork} from './projectile-art.mjs';
 import {checkBuildingAgeDetails} from './building-age-details.mjs';
@@ -401,7 +401,7 @@ try{
  partial.on('pageerror',error=>errors.push(error.message));
  await partial.route('**/assets/painted-motion-*.webp',route=>route.abort());
  await partial.route('**/assets/painted-elite-*.webp',route=>route.abort());
- await scene(partial,false);await partial.waitForFunction(()=>ASSET.n===10&&PAINT.terrain);
+ await scene(partial,false);await partial.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_STATIC_ATLASES);
  for(const kind of ['mil','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'])assert.equal(await partial.evaluate(k=>assetFrame(k,0,1,0,.3).animated,kind),false,'a failed motion sheet retains its painted base pose');
  for(const kind of ['huskarl','lbow','mgd','axe'])assert.equal(await partial.evaluate(k=>!!unitAssetFrame(k,0,{state:1,time:.3},true).elite,kind),false,'failed Elite sheets retain base art');
  await partial.close();
