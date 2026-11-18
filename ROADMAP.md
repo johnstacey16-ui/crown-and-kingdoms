@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Shrivamsha Rider, Camel Scout and Flaming Camel add 48 original movement/activity poses. [Inventory](docs/graphics-inventory.json): **75/84** painted animated kinds; **9 remaining** in [the source queue](docs/painted-motion-production-queue.json). Candidate `8f8aaa55` passed quick 5/5, focused 1,748, Chromium 2/2 and Xbox software 8/8, with 912 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44202462799)); horse/camel screenshots were reviewed. Flaming Camel approach poses retain existing detonation FX. Prompts: `docs/painted-*-prompts.json`. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Both Ratha modes and Battle Elephant add 48 original movement/attack poses. [Inventory](docs/graphics-inventory.json): **78/84** painted animated kinds; **6 remaining** in [the source queue](docs/painted-motion-production-queue.json). Chariot modes share vehicle/crew identity; new sources passed multipart transparency checks and retain vehicle/elephant envelopes. Prompts: `docs/painted-*-prompts.json`. This batch awaits browser acceptance. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 

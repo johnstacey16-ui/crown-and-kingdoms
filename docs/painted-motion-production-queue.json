@@ -21,42 +21,6 @@
   },
   "items": [
     {
-      "kind": "ratha",
-      "name": "Ratha (Ranged)",
-      "batch": 3,
-      "family": "mounted",
-      "reference": "assets/painted-motion-cavarch.webp",
-      "identity": "South Asian light war chariot with paired wooden wheels, curved body panels, two horses and visible driver/archer",
-      "equipment": "Bow carried by archer with fully visible taut string and arrow",
-      "motion": "Wheel rotation and hoof movement across eight frames; drawn bow releases across eight attack frames",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "rathaM",
-      "name": "Ratha (Melee)",
-      "batch": 3,
-      "family": "mounted",
-      "reference": "assets/painted-motion-konnik.webp",
-      "identity": "Same recognizable original Ratha chariot identity as ranged form, paired horses, chariot wheels and blue cloth panels",
-      "equipment": "Spear or blade ready on driver; equipment and fighting stance must clearly differ from ranged form",
-      "motion": "Consistent chariot dimensions and wheel anchors with Ratha ranged, distinct melee thrust frames",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "batele",
-      "name": "Battle Elephant",
-      "batch": 4,
-      "family": "elephant",
-      "reference": "assets/painted-motion-ele.webp",
-      "identity": "Heavy South Asian war elephant with blue-gold plated head guard and covered howdah, large grey body",
-      "equipment": "Two visible ivory tusks, draped armour, original distinct trunk and foot forms",
-      "motion": "Weighted elephant steps and trunk/tusk shove; stable scale and silhouette",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
       "kind": "orgun",
       "name": "Organ Gun",
       "batch": 4,

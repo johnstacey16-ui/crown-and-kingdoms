@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "56f0a896d585af8d517179c869c1d3e563b3db0074a36f89ce708d1e17bb55db",
+  "revision": "2172d059f503b096810cb4d6049485b8218692f47af6acd1f256d986d4ade613",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -13,6 +13,7 @@
     "./assets/painted-motion-arambai.webp": "b7a15668b03972f7cf0de5622b9b2b795ae4eb0148badd0dd225ee9e83817304",
     "./assets/painted-motion-arc.webp": "0c5fab9317ff58472c44e6c6155d697b3a0c660d424d53ab3afa9b4cccb15a32",
     "./assets/painted-motion-axe.webp": "e8118307281117d8cf204b6b5003a3737d2846bd5afb54aa062eff6b8384c27b",
+    "./assets/painted-motion-batele.webp": "98a5f88ae5e36e2993b89bbd637257fce523ac562283528ed27e2c9eb6e73cc2",
     "./assets/painted-motion-bers.webp": "1c79626d4b8e90f2c261b538d301c60e9a22cf8b6255af3b06cff3bff79f28c4",
     "./assets/painted-motion-bomb.webp": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc",
     "./assets/painted-motion-boyar.webp": "8086796c0db32ee7336955db2564075354dbd8de8c87bf30847e088a3a551a8a",
@@ -61,6 +62,8 @@
     "./assets/painted-motion-obuch.webp": "1fc6ebc044222b37f19eeee29a514e1868299efb988bf30a4da11ed33335e21f",
     "./assets/painted-motion-plumed.webp": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
     "./assets/painted-motion-ram.webp": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959",
+    "./assets/painted-motion-ratha-melee.webp": "ec6eb9b6feebd9d3608ad2af21ca0c75dce856cbec2d133da121c896c6e30ec1",
+    "./assets/painted-motion-ratha.webp": "45ee3cb6e1684675079a4eacc7cb42b50b10a1c4068125357f58fbc56f5c80f6",
     "./assets/painted-motion-rattan.webp": "3d6a8f94f772d248a1db92c8e21d2966341bcb06ae782f8ebd1a19f0ad285647",
     "./assets/painted-motion-saml.webp": "56bb11a694ee47143558b2d472cf9921bda75c3edaadb8be7ba073ef1f163570",
     "./assets/painted-motion-scor.webp": "969f26b2dce131bc51dc963ace6df6fa2d13783f02b7e8fb4d2aee81c9105191",

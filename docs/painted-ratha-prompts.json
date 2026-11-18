@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-cart.webp",
+    "assets/painted-motion-cavarch.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-ratha.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS production sprite sheet, native1536x1024, truly transparent alpha0 backdrop. Exactly4columns x4rows equal384x256cells,16 complete single WAR CHARIOT teams. Reference1 our Trade Cart supplies painted wood/wheels/horse rendering, reference2 our Cavalry Archer supplies scale and archer gesture style ONLY. Subject RATHA RANGED: compact South Asian open two-wheeled light war chariot, curved warm teak waist-high front panel edged bronze, BLUE rectangular side cloth with plain gold diamond, exactly TWO chestnut horses yoked side by side at the front on screenRIGHT, dark manes/tails, BLUE breast straps. Two crew on chariot platform: driver in cream headcloth/tunic holding reins, archer behind driver in cream/light bronze armour with BLUE sash, recurved bow and rear quiver. Exactly two large spoked wheels on a single axle, far wheel partly visible. No canopy, cargo roof, third horse or mounted riders. Fixed slightly elevated three-quarter rightward view, upper-left light, detailed realistic painted leather/wood/cloth, identical chariot and crew scale throughout. Whole chariot team fits320px width and204px height centered in each384x256cell with at least20px clear margins. Top8cells0-7: eight consecutive hoof gait and rotating wheel phases, archer bow low, moving horses. Bottom8cells8-15: ready, raise bow, nock, full draw, RELEASE at CELL12(row4col1), follow-through with rear hand open, lower bow, ready; horses planted during shots. No detached flying arrows; runtime projectile separate. Complete horses/hooves/tails/yoke/wheels/reins/bow/crew inside every cell. No opaque or translucent background wash, floor, shadows, halo, scenery, text/grid/labels, fragments, duplicated bodies or copied commercial game art. Sixteen distinct complete cutout poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Source action cell 12. Chariot envelope at most86px wide/60px reference height; paired modes preserve original vehicle and crew identity. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}
