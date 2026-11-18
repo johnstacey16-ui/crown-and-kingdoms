@@ -19,42 +19,5 @@
       "Validate four team tints, all eight walk/attack frames, cold/warm/offline fallback, actual Chromium render and game simulation invariance; physical Xbox acceptance separately"
     ]
   },
-  "items": [
-    {
-      "kind": "turtle",
-      "name": "Turtle Ship",
-      "batch": 5,
-      "family": "ship",
-      "reference": "assets/painted-motion-gal.webp",
-      "identity": "Low sturdy Korean-inspired armoured vessel with domed timber roof, riveted bronze plating and short curved bow",
-      "equipment": "Oar ports and spear-like protective fittings; no readable icon or exact historic brand",
-      "motion": "Eight waterline travelling/rocking poses and eight broadside firing/ram action poses",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "caravel",
-      "name": "Caravel",
-      "batch": 5,
-      "family": "ship",
-      "reference": "assets/painted-motion-gal.webp",
-      "identity": "Compact Iberian-inspired lateen-rigged vessel with light tan hull, large blue-trimmed triangular sails and mast",
-      "equipment": "Original triangular sail rigging, rope geometry and bow cannon, clear hull outline",
-      "motion": "Sail movement/waterline roll and broadside action without sail/cannon clipping",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "thirisadai",
-      "name": "Thirisadai",
-      "batch": 5,
-      "family": "ship",
-      "reference": "assets/painted-motion-trn.webp",
-      "identity": "Large South Asian naval warship with high open carved wooden deck, multiple masts, broad hull and blue-gold original sail trim",
-      "equipment": "Distinct raised combat platform, curved timber prow and rigged sails",
-      "motion": "Eight vessel travel/rocking frames and eight coordinated naval attack poses",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    }
-  ]
+  "items": []
 }

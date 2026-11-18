@@ -9,7 +9,7 @@ function fixture(){const {source,sandbox}=headlessGame();vm.createContext(sandbo
 test('all four kingdoms resolve eight distinct poses for core walking, attacks and villager work',()=>{
  const run=fixture();
  for(const a of pack.atlases){run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`)}
- for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','fire','demo','cgal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
+ for(const kind of ['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','fire','demo','cgal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'])for(let team=0;team<4;team++)for(const state of [1,2,...(['vil','mon','fish'].includes(kind)?[3]:[])]){
   const frames=new Set();
   for(let i=0;i<8;i++)frames.add(run(`JSON.stringify(assetFrame('${kind}',${team},${state},0,0,0,${i/8}).sourceFrame)`));
   assert.equal(frames.size,8,`${kind}/${state}/${team}`);
@@ -145,7 +145,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 });
 
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
- const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice'];
+ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion&&!a.meta.elite).length,kinds.length);
  assert.equal(pack.atlases.filter(a=>a.meta.elite).length,4,'Elite sheets are inventoried separately from base units');
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
@@ -194,12 +194,21 @@ test('fishing uses actual gathering state and leaves orders, returning cargo and
 });
 
 test('ship and trade cart sheets fit the existing vehicle envelopes without changing simulation scale',()=>{
- for(const kind of ['fish','gal','fire','demo','cgal','trn','cog','cart']){
+ const run=fixture();
+ for(const atlas of pack.atlases)run(`regAtlas(${JSON.stringify(atlas.id)}, {}, ${JSON.stringify(atlas.meta)})`);
+ for(const kind of ['fish','gal','fire','demo','cgal','trn','cog','cart','turtle','caravel','thirisadai']){
   const base=['fire','demo','cgal'].includes(kind)?'gal':kind;
    const a=pack.atlases.find(a=>a.id==='painted-motion-'+base).meta.anims[base+'/walk/0'];
   const width=kind==='cart'?86:104,height=kind==='cart'?60:48;
   assert.ok(a.frames.every(f=>f.w*a.scale<=width+1e-8));
   assert.ok(a.scale*a.referenceHeight<=height+1e-8);
+  if(['turtle','caravel','thirisadai'].includes(kind)){
+   const atlas=pack.atlases.find(a=>a.id==='painted-motion-'+kind),f=atlas.meta.anims[kind+'/attack/0'].frames[0];
+   assert.equal(Math.floor(f.x/(atlas.meta.width/4))+4*Math.floor(f.y/(atlas.meta.height/4)),12);
+   assert.equal(run(`JSON.stringify(assetFrame('${kind}',0,2,0,999,0,0).sourceFrame)`),JSON.stringify(f));
+   run(`ASSET.atl['painted-motion-${kind}'].ok=false`);
+   assert.equal(run(`assetFrame('${kind}',0,1,0,0,0,.5)`),null,'new ship sheet failure leaves procedural fallback available');
+  }
  }
 });
 

@@ -5,7 +5,7 @@ Tracks every current visual category, including unfinished art. Source catalogue
 | Category | Status | Remaining work |
 |---|---|---|
 | Unit base artwork | present | play-scale faction/direction review |
-| Unit animation | partial | 3 kinds, independent directions, work variants and dedicated death sheets |
+| Unit animation | partial | independent directions, work variants and dedicated death sheets |
 | Elite unit visuals | partial | remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md) |
 | Building artwork | partial | faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented) |
 | Terrain and coasts | partial | biome-specific integration and repetition review |
@@ -19,6 +19,6 @@ Tracks every current visual category, including unfinished art. Source catalogue
 
 ## Painted movement/activity roster
 
-Turtle Ship, Caravel, Thirisadai.
+All current playable kinds have painted movement/activity sheets; automatic activity-event integration still requires review.
 
 All 84 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.

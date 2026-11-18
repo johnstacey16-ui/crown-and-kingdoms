@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-gal.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-caravel.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS videogame production sprite sheet native1536x1024, true transparent alpha0 background, EXACT4columns x4rows equal384x256cells,16 complete CARAVEL sailing vessels. Reference our own Galley gives original painted wood/cloth style, elevated3/4 rightward camera and upper-left light ONLY. New subject compact Iberian-inspired lateen sailing ship: light warm timber hull with raised stern at screenLEFT and pointed prow screenRIGHT, two short masts carrying cream TRIANGULAR lateen sails with cobaltBLUE edging, fine brown rigging connected to spars, BLUE stern pennant and BLUE side cloth with plain gold diamond. Small bow mounted game cannon, a few tiny blue-clothed crew, no long oar banks or square striped Viking sail. Whole hull, masts, triangular sail corners, rigging and pennant fit310x208 centered in each384x256cell with20px transparent margins. Stable hull waterline anchor, same vessel size/equipment and camera in all16. Top8cells0-7: eight distinct sail-billow/rigging/tacking travel phases, gentle hull roll and pennant motion. Bottom8cells8-15: ready, crew brace, aim, preparation, strongest broadside recoil atCELL12(row4col1), follow-through, settle, ready; subtle hull/crew/sail changes each phase. Tiny foam immediately attached to hull only; no sea rectangle, smoke, muzzle flash, cannonballs, detached particles, backdrop wash, shadows, halo, scenery, text/grid/labels, copied symbols or commercial sprites. Sixteen distinct complete transparent cutouts with all sail tips intact.",
+  "review": "Sixteen transparent poses: eight travel and eight attack/activity frames; one facing plus reflection. Source action cell 12. Naval envelope at most104px wide/48px reference height. Projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Organ Gun, Hussite Wagon and Houfnice add 48 original travel/recoil poses. [Inventory](docs/graphics-inventory.json): **81/84** painted animated kinds; **3 remaining** in [the source queue](docs/painted-motion-production-queue.json). Candidate `60da9bf2` passed quick 5/5, focused 1,749, Chromium 2/2 and Xbox software 8/8, with 984 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44207062390)); siege screenshots were reviewed. Source action cell 12 retains runtime projectile/flash effects. Prompts: `docs/painted-*-prompts.json`. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Turtle Ship, Caravel and Thirisadai add 48 original naval poses. [Inventory](docs/graphics-inventory.json): **84/84** current playable kinds have painted base movement/attack sheets; [the base source queue](docs/painted-motion-production-queue.json) is empty. Sources passed multipart transparency checks; naval envelopes and runtime effects are preserved. Prompts: `docs/painted-*-prompts.json`. This batch awaits browser acceptance. Buildings, independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 

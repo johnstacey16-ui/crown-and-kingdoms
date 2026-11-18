@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-trn.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-thirisadai.webp",
+  "prompt": "Use case: stylized-concept. Create ORIGINAL Crown & Kingdoms painted medieval RTS videogame sprite sheet native1536x1024, actual transparent alpha0 background. EXACT4columns x4rows equal384x256cells,16 complete THIRISADAI warships. Reference our own Transport ship gives original painted wood/cloth/rigging style and elevated3/4 rightward camera ONLY. New subject a large South Asian-inspired broad teak warship, high carved open deck and raised fighting platform at stern screenLEFT, curved high prow screenRIGHT, TWO masts with broad cream woven sails bearing cobaltBLUE and gold edging, fine brown rigging, BLUE pennants and blue side cloth panels with plain gold diamond. Tiny crew in blue/cream garments on deck, a few compact side-mounted deck weapons; no copied commercial designs or readable symbols. Whole ship including BOTH masts, sail corners, rigging, prow and flags fits320x208 centered in each384x256cell with20px clear transparent margin. Stable waterline anchor and consistent vessel/crew/equipment size throughout. Top8cells0-7: eight distinct travelling hull-roll, sail billow, rigging and pennant phases. Bottom8cells8-15: ready, crew assemble, brace, aim, strongest coordinated broadside recoil atCELL12(row4col1), follow-through, settling, ready; clearly distinct crew/sail/hull motion each phase. Tiny close-to-hull foam only, no sea rectangle. No muzzle flashes, smoke, detached projectiles, backdrop wash, floor shadows, halos, scenery, text/grid/labels, extra ships or copied sprites. Sixteen intact transparent cutout poses with every mast and sail tip complete.",
+  "review": "Sixteen transparent poses: eight travel and eight attack/activity frames; one facing plus reflection. Source action cell 12. Naval envelope at most104px wide/48px reference height. Projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

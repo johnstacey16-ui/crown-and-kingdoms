@@ -4,8 +4,8 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '24adde6300ff7b3e1e716b118e9f2249550933a875837e9216ee4c1957e70ad3';
-const CACHE_NAME = 'ck-shell-v234-regional-siege-' + ART_REVISION;
+const ART_REVISION = 'd3053ba42568f3f809c0666e198ff5caa08c140cf758768a826cc57a9eb05468';
+const CACHE_NAME = 'ck-shell-v235-complete-base-ships-' + ART_REVISION;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -43,6 +43,9 @@ const CORE_ASSETS = [
   './assets/painted-motion-orgun.webp',
   './assets/painted-motion-husswagon.webp',
   './assets/painted-motion-houfnice.webp',
+  './assets/painted-motion-turtle.webp',
+  './assets/painted-motion-caravel.webp',
+  './assets/painted-motion-thirisadai.webp',
   './assets/painted-motion-konnik.webp',
   './assets/painted-motion-keshik.webp',
   './assets/painted-motion-leitis.webp',

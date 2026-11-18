@@ -17,22 +17,14 @@ test('art inventory covers every playable unit and building without phantom comp
  assert.equal(new Set(built).size,built.length,'no duplicate building asset record');
  assert.deepEqual(built,buildings,'new buildings must be explicitly inventoried');
 });
-test('remaining Sicilian through Georgian source-only assets are honestly procedural',()=>{
- for(const kind of ['turtle','caravel','thirisadai']){
-  const entry=graphics.units.find(unit=>unit.kind===kind);
-  assert.ok(entry,kind+' missing');
-  assert.equal(entry.paintedBase,false,kind+' has no dedicated painted artwork yet');
-  assert.equal(entry.walkFrames,0);
-  assert.equal(entry.attackFrames,0);
- }
- for(const kind of ['eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice']){
-  const entry=graphics.units.find(unit=>unit.kind===kind);
-  assert.equal(entry.paintedBase,true,kind+' now has an integrated painted sheet');
+test('all current base unit sheets are painted while broader graphics acceptance remains partial',()=>{
+ for(const entry of graphics.units){
+  assert.equal(entry.paintedBase,true,entry.kind+' has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);
  }
  for(const kind of ['donjon','folwark','fchurch','mule'])
   assert.equal(graphics.buildings.find(b=>b.kind===kind)?.paintedBase,false);
- assert.equal(graphics.complete,false,'partial art never constitutes whole-game acceptance');
+ assert.equal(graphics.complete,false,'base sheet coverage does not establish complete graphics acceptance');
 });
 
 
@@ -43,7 +35,7 @@ test('original painted art production queue tracks only the remaining genuinely 
  assert.deepEqual(promised,missing,'art briefs must not claim or omit an already painted sheet');
  assert.equal(new Set(promised).size,promised.length,'one authored brief per distinct unit kind');
  assert.deepEqual(queue.shared.sourceDimensions,[1536,1024]);
- assert.equal(queue.items.length,3,'track the remaining 3 unfinished types until source art is checked in');
+ assert.equal(queue.items.length,0,'no current base unit kind remains in the source-only queue');
  assert.ok(queue.items.every(item=>item.state==='pending-generation'&&item.artStatus.includes('missing')));
  assert.ok(queue.items.every(item=>item.identity.length>55&&item.equipment.length>45&&item.motion.length>48));
  assert.ok(queue.items.every(item=>item.reference.startsWith('assets/painted-motion-')&&item.reference.endsWith('.webp')));
