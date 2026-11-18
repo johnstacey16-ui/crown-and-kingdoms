@@ -21,42 +21,6 @@
   },
   "items": [
     {
-      "kind": "orgun",
-      "name": "Organ Gun",
-      "batch": 4,
-      "family": "siege",
-      "reference": "assets/painted-motion-scor.webp",
-      "identity": "Compact late-medieval wheeled wood-and-bronze gun carriage with precisely aligned multi-barrel rack",
-      "equipment": "Several discrete dark metal cannon tubes, brass straps and articulated carriage wheels",
-      "motion": "Wheel travel and volley firing with backward recoil; separate muzzle-flash particles remain runtime FX",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "husswagon",
-      "name": "Hussite Wagon",
-      "batch": 4,
-      "family": "siege",
-      "reference": "assets/painted-motion-wagon.webp",
-      "identity": "Armoured wooden battle wagon with reinforced side planks, heavy spoked wheels, blue cloth shield markings",
-      "equipment": "Exterior firing ports and wooden braces; no copied religious flags",
-      "motion": "Wheel/axle walk animation and compact gun firing or crossbow recoil",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
-      "kind": "houfnice",
-      "name": "Houfnice",
-      "batch": 4,
-      "family": "siege",
-      "reference": "assets/painted-motion-bomb.webp",
-      "identity": "Large bronze medieval cannon on low hardwood carriage with round shield plates and iron-bound wheels",
-      "equipment": "Long muzzle, robust breech, heavy timber axles",
-      "motion": "Wheel travel and heavy barrel recoil with visible settling",
-      "artStatus": "missing painted walk/attack sheet",
-      "state": "pending-generation"
-    },
-    {
       "kind": "turtle",
       "name": "Turtle Ship",
       "batch": 5,

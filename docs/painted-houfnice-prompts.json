@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-bomb.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-houfnice.webp",
+  "prompt": "Create original painted HO U FNICE medieval cannon animation art for Crown & Kingdoms, a fictional isometric strategy videogame. Use the attached own-project sprite sheet only as a rendering-style reference. A bronze-coloured old-fashioned cannon sits on a dark wooden wheeled cart with round decorative side plates and blue cloth bearing a plain gold diamond. Detailed painterly game art, elevated three-quarter camera facing right, upper-left lighting. Native1536x1024 transparent PNG,4columns x4rows sixteen complete cutout sprites on384x256cells, at least24px clear margin around each. First8sprites: distinct rolling wheel-spoke phases, slight cart bounce and blue cloth sway. Last8sprites: distinct stylized cartoon-game recoil, settling and return poses; row4column1 is strongest recoil. Same vehicle proportions/gear across every sprite. Show only exterior visual appearance, no technical diagram or instructions. No people, background, shadows, labels, text, grid, detached particles, smoke or muzzle flash; the game's effects are separate. Transparent alpha0 around each sprite. Preserve complete wheels, barrel, cloth and cart in every cell. Original artwork, no copied commercial sprites.",
+  "review": "Sixteen transparent poses: eight travel and eight recoil/activity frames; one facing plus reflection. Source action cell 12. Siege envelope at most86px wide/60px reference height. Muzzle/projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

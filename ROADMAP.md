@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Both Ratha modes and Battle Elephant add 48 original movement/attack poses. [Inventory](docs/graphics-inventory.json): **78/84** painted animated kinds; **6 remaining** in [the source queue](docs/painted-motion-production-queue.json). Candidate `74a2ffec` passed quick 5/5, focused 1,749, Chromium 2/2 and Xbox software 8/8, with 948 exact reflections ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44204844515)); large-unit screenshots were reviewed. Ratha mode switches select distinct art without replacing unit identity. Prompts: `docs/painted-*-prompts.json`. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
+Organ Gun, Hussite Wagon and Houfnice add 48 original travel/recoil poses. [Inventory](docs/graphics-inventory.json): **81/84** painted animated kinds; **3 remaining** in [the source queue](docs/painted-motion-production-queue.json). New sources passed multipart transparency checks; siege envelopes and runtime projectile effects are preserved. Prompts: `docs/painted-*-prompts.json`. This batch awaits browser acceptance. Independent facings, dedicated work/hit/death and remaining Elite art, physical Xbox and production release remain open; permanent development safeguards are preserved.
 
 ## Current content continuation — 14 November 2026
 

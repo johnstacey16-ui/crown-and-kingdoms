@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-scor.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-orgun.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS production sprite sheet native1536x1024, actual transparent alpha0 background, EXACT4columns x4rows equal384x256cells,16 complete ORGAN GUN carriages. Reference our own Scorpion supplies original painted wood/metal/wheel style, elevated3/4 rightward camera and lighting ONLY. Subject compact late-medieval organ gun: low dark-oak two-wheel carriage, exactly seven parallel short dark iron/bronze cannon tubes in a single neat horizontal rack aiming screenRIGHT, brass retaining straps and pivot, two large iron-bound spoked wheels, trailing timber handle. BLUE cloth side panel with plain gold diamond and BLUE tie on rear brace for four-team recolouring. No crossbow arms, no arrows, no horse or human crew. Upper-left light, realistic detailed painted wood grain/leather/metal, consistent chassis/barrel/wheel sizes, fixed rightward3/4 angle. Each full carriage fits300x190 centered in384x256cell with24px transparent margins. Top8cells0-7 eight consecutive travelling poses: wheel spokes visibly rotate through successive angles, subtle axle/body bounce and blue cloth sway; all seven tubes stay intact and parallel. Bottom8cells8-15: ready, rack settles, lean to fire, tense mount, backward volley recoil atCELL12(row4col1), recoil follow-through, return, ready. Visible rack/chassis motion in every action phase, no giant muzzle effects. Muzzle flash/projectiles are separate game FX: NO smoke, sparks, flash, fireball or detached fragments in this sheet. No backdrop wash, ground, cast shadow, halo, scenery, text/grid/labels, duplicated carriages or copied commercial sprites. Sixteen distinct full transparent cutout poses.",
+  "review": "Sixteen transparent poses: eight travel and eight recoil/activity frames; one facing plus reflection. Source action cell 12. Siege envelope at most86px wide/60px reference height. Muzzle/projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

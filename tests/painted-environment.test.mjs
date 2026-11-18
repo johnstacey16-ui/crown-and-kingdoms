@@ -34,10 +34,10 @@ test('relic projection uses carrier coordinates, excludes hidden/garrisoned reli
 test('all graphics categories remain explicitly tracked with complete unit/building coverage',()=>{
  const inventory=JSON.parse(read('docs/graphics-inventory.json'));
  assert.equal(inventory.complete,false);assert.equal(inventory.units.length,84);assert.equal(inventory.buildings.length,28);
- assert.equal(inventory.units.filter(x=>x.paintedBase).length,78,'only integrated painted units count toward coverage');
- assert.equal(inventory.units.filter(x=>!x.paintedBase).length,6);
- for(const kind of ['orgun','husswagon','thirisadai'])assert.ok(inventory.units.some(u=>u.kind===kind&&!u.paintedBase));
- assert.equal(inventory.units.filter(x=>x.walkFrames>1&&x.attackFrames>1).length,78);assert.ok(inventory.checklist.length>=11);
+ assert.equal(inventory.units.filter(x=>x.paintedBase).length,81,'only integrated painted units count toward coverage');
+ assert.equal(inventory.units.filter(x=>!x.paintedBase).length,3);
+ for(const kind of ['turtle','caravel','thirisadai'])assert.ok(inventory.units.some(u=>u.kind===kind&&!u.paintedBase));
+ assert.equal(inventory.units.filter(x=>x.walkFrames>1&&x.attackFrames>1).length,81);assert.ok(inventory.checklist.length>=11);
 });
 
 

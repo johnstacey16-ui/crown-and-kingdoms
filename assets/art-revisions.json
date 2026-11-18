@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "2172d059f503b096810cb4d6049485b8218692f47af6acd1f256d986d4ade613",
+  "revision": "24adde6300ff7b3e1e716b118e9f2249550933a875837e9216ee4c1957e70ad3",
   "files": {
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
@@ -40,7 +40,9 @@
     "./assets/painted-motion-gbeto.webp": "f20e9c334d7577743886840b4c338c0f844ecccf5ad2e94cb979e5f1427c8995",
     "./assets/painted-motion-genoa.webp": "15c0b8811fb3f549abfb80bd6f636763192a9e32929f47c30ec588e35dbe5eee",
     "./assets/painted-motion-hcan.webp": "5c6aa3454019b21546df2b33b095a7ee38dbdeb8f976fd6c4a173c25b2874b1f",
+    "./assets/painted-motion-houfnice.webp": "d29fcfa0fa5b94dd352d56633940d89d106f393ece1352b80cb13abe53cb64fe",
     "./assets/painted-motion-huskarl.webp": "d270b643ae801c74ac01f32fea00e518a51a89fa9bad7eaafeeb9afea1bf5672",
+    "./assets/painted-motion-husswagon.webp": "78537519b0ec72eacfde83ccce94f419c2740a658ce54bf1cff537eb41a004e6",
     "./assets/painted-motion-huszar.webp": "68e3674ad88f0c716bf7536192289f1a8082231066fe5d963a2ef7e2809d5756",
     "./assets/painted-motion-jaguar.webp": "de1ec56b5e48207e00e46966bda9884deb14f7f8a6d9312a40e92fa2fd69da0d",
     "./assets/painted-motion-jan.webp": "c005f15f9cf7a0f0add992b37ffbeae24fdf49635157edf13bef0ea898c55b20",
@@ -60,6 +62,7 @@
     "./assets/painted-motion-mon.webp": "09ef488f18af950191581be4b678c1eba7ef72a3619c4b855fee0bd36e4524e0",
     "./assets/painted-motion-monaspa.webp": "a7ea18fbf1caf14633802b6f358f579b5b59cd9c6772a45a70e59cd62575abbd",
     "./assets/painted-motion-obuch.webp": "1fc6ebc044222b37f19eeee29a514e1868299efb988bf30a4da11ed33335e21f",
+    "./assets/painted-motion-orgun.webp": "e8ca3d3d6efac6b1255f2d338942e71124cd735475daaa79124952eb3b41bbde",
     "./assets/painted-motion-plumed.webp": "ff5a54a4edbd1568027f8c142c2ea43bfc25c75bdeb5f3d9b7091ccc22939285",
     "./assets/painted-motion-ram.webp": "e3f29e35d37d63aaf1164451a24d4fbfa08d3430839623449e2c11382c764959",
     "./assets/painted-motion-ratha-melee.webp": "ec6eb9b6feebd9d3608ad2af21ca0c75dce856cbec2d133da121c896c6e30ec1",
