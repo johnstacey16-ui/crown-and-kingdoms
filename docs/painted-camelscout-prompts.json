@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-camel.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-camelscout.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS production sprite sheet, native1536x1024, actual transparent alpha0 background, EXACT4columns x4rows sixteen complete single camel-and-rider figures in equal384x256cells. Reference our own Camel Rider for painted style, elevated3/4 camera and camel anatomy ONLY. Subject CAMEL SCOUT: lightly equipped early scout, sand-brown SINGLE-hump camel with long curved neck, small head and slender characteristic camel legs, dark brown hooves and tail tuft. Rider cream headcloth and light sand tunic, simple leather vest/belt, cobaltBLUE waist sash and small BLUE tassels on a modest woven desert saddle blanket. Short wooden spear with small steel point in right hand, reins in left. No large cape, heavy armour, sword or giant spear. Distinct from veteran camel reference. Fixed facing screenRIGHT, upper-left light, realistic painted cloth/leather/fur, same anatomy, camel size and gear across sheet. Top8cells0-7: eight consecutive articulated camel pacing/walk strides, all four legs clearly alternate, spear diagonal. Bottom8cells8-15: ready, raise spear, draw arm back, wind-up, full rightward short spear thrust CELL12(row4col1), follow-through, retract, ready; camel planted. Entire headcloth, spear tip, camel head/neck/hump, feet and tail contained in each cell with20px clear margins. No opaque/translucent backdrop, ground, shadows, glow, text/grid/labels, extra legs/animals, detached fragments or copied commercial art. Sixteen distinct clean transparent cutout poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack/activity frames; one facing plus reflection. Mounted reference height 60 game pixels. Source action cell 12. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background extraction removed rejected translucent backdrop while preserving pale cloth/fur and complete equipment; corrected source passes --mounted validation."
+}

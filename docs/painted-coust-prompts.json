@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-konnik.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-coust.webp",
+  "prompt": "Use case: stylized-concept. Create an ORIGINAL Crown & Kingdoms production sprite sheet native1536x1024 with genuinely transparent alpha. Exact4x4 equal384x256 cells, sixteen complete horse-and-rider figures. Our own Konnik reference sets painted medieval RTS style, camera and scale ONLY. Subject COUSTILLIER Western European mounted shock lancer: bright steel pointed bascinet with raised visor, blue quilted surcoat over breastplate and mail, dark brown leather gloves, compact heater shield BLUE with plain gold diagonal bar, bay horse with black mane and tail, brown leather tack and BLUE saddle cloth, short sheathed sword at belt. Long wooden lance with narrow steel tip and a small blue pennon. Fixed elevated three-quarter rightward view, upper-left light, detailed metal/leather/cloth, same gear and horse size in every cell. TOP EIGHT CELLS0-7: eight articulated horse walk/trot strides, lance held diagonal and forward, clearly different hooves. BOTTOM EIGHT CELLS8-15: ready, lower lance, draw back, crouched wind-up, powerful horizontal rightward COUCHED lance thrust CELL12 row4col1, follow-through, recoil, ready. Maintain entire horse, hooves, tail, helmet, weapon and shield INSIDE each cell with at least20px transparent margins at all edges. Compose figures about200px tall; lance foreshortened to fit cell. No solid background, translucent wash, shadows, scenery, floor, text, grid, labels, watermark, halo, detached fragments, duplicates or other game assets. True alpha0 around each figure.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background-extraction and lance-clearance correction; --mounted source check passes."
+}

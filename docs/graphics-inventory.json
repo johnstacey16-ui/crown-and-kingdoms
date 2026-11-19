@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 74,
+  "atlases": 98,
   "units": [
     {
       "kind": "vil",
@@ -474,36 +474,36 @@
     {
       "kind": "turtle",
       "name": "Turtle Ship",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "orgun",
       "name": "Organ Gun",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "caravel",
       "name": "Caravel",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "arambai",
       "name": "Arambai",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -519,9 +519,9 @@
     {
       "kind": "batele",
       "name": "Battle Elephant",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -555,27 +555,27 @@
     {
       "kind": "kipchak",
       "name": "Kipchak",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "steppe",
       "name": "Steppe Lancer",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "flamecamel",
       "name": "Flaming Camel",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -591,9 +591,9 @@
     {
       "kind": "coust",
       "name": "Coustillier",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -627,99 +627,99 @@
     {
       "kind": "winged",
       "name": "Winged Hussar",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "husswagon",
       "name": "Hussite Wagon",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "houfnice",
       "name": "Houfnice",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "urumi",
       "name": "Urumi Swordsman",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "thirisadai",
       "name": "Thirisadai",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "ratha",
       "name": "Ratha (Ranged)",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "rathaM",
       "name": "Ratha (Melee)",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "chakram",
       "name": "Chakram Thrower",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "shrivamsha",
       "name": "Shrivamsha Rider",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "camelscout",
       "name": "Camel Scout",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
     {
       "kind": "centurion",
       "name": "Centurion",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     },
@@ -753,9 +753,9 @@
     {
       "kind": "monaspa",
       "name": "Monaspa",
-      "paintedBase": false,
-      "walkFrames": 0,
-      "attackFrames": 0,
+      "paintedBase": true,
+      "walkFrames": 8,
+      "attackFrames": 8,
       "directionalArt": "unfinished",
       "deathArt": "base-art fall transform"
     }
@@ -1000,7 +1000,7 @@
     {
       "kind": "feitoria",
       "name": "Feitoria",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1009,7 +1009,7 @@
     {
       "kind": "krepost",
       "name": "Krepost",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1018,7 +1018,7 @@
     {
       "kind": "donjon",
       "name": "Donjon",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1062,8 +1062,8 @@
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "63 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "21 kinds, independent directions, work variants and dedicated death sheets"
+      "evidence": "84 of 84 kinds have painted multi-frame movement/activity art",
+      "remaining": "independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
@@ -1074,7 +1074,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "28 building kinds; 22 painted, 6 original procedural fallback; fog-safe age presentation",
+      "evidence": "28 building kinds; 25 painted, 3 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

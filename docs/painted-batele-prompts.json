@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-ele.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-batele.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms medieval RTS painted production sprite sheet native1536x1024, actual transparent alpha0 backdrop, EXACT4columns x4rows equal384x256cells with16 complete SINGLE BATTLE ELEPHANTS. Reference our own Elephant sheet supplies painted realism, slightly elevated rightward3/4 camera and elephant proportions ONLY. New subject BATTLE ELEPHANT: heavy dark-grey Asian elephant, large rounded ears, two intact ivory tusks, distinct long trunk, cobaltBLUE quilted shoulder/flank armour with gold edging, iron head guard with modest brass studs and cobalt brow cloth. Compact COVERED howdah on back: curved small cream fabric roof supported by four short wood posts, bronze/teak side rails and BLUE cloth panels. One cream/blue-clothed mahout seated at neck outside howdah, no archer pose. Distinct from reference uncovered gold elephant. Fixed facing screenRIGHT, upper-left light, detailed painted metal/cloth/wood/skin. Consistent body/howdah scale and feet anchor across all16poses. Each complete elephant including tusks/trunk/roof/tail fits320x208 centered in each384x256cell with20px clear transparent margins. Top8cells0-7: eight weighted elephant walking strides, all four thick legs alternate, trunk gently swings and body has subtle weight shift. Bottom8cells8-15: ready, head lowers, shoulders brace, wind-up, strong rightward tusk/TRUNK SHOVE atCELL12(row4col1), follow-through, retract, ready. Every roof post/tusk/trunk/foot/tail stays complete in own cell, no cropping. No background wash, scenery, floor, shadows, halo, dust/smoke, text/grid/labels, detached fragments, extra elephants or copied commercial artwork. Sixteen distinct complete transparent cutout poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Source action cell 12. Elephant envelope at most76px wide/74px reference height. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background extraction removed rejected faint backdrop while preserving ivory tusks and cream roof; corrected source passes multipart validation."
+}

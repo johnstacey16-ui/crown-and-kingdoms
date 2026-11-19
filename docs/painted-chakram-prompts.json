@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-rattan.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-chakram.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric RTS production sprite sheet, true alpha transparent1536x1024. EXACT4columns x4rows sixteen complete SINGLE foot soldiers in equal384x256 cells. Our own Rattan sheet is painted STYLE reference only. Subject CHAKRAM THROWER: adult South Asian light infantryman with cream cloth headwrap, dark short beard, tan leather chest vest, leather forearm guards, cream loose trousers, cobalt-BLUE indigo shoulder sash and waist scarf, brown sandals. Main weapon a broad steel circular throwing RING with visible central hole held in right hand, spare steel ring carried in left hand or on belt. No bow, sword, spear, helmet, gun or conical hat. Fixed elevated3/4 side view facing screen RIGHT, upper-left lighting, consistent body proportions, equipment and foot anchor. Cells0-7 first2rows: eight real consecutive articulated walk strides, alternating feet, main ring carried low. Cells8-15: ready, draw right arm back, raise ring, circular windup, forward THROWING RELEASE at right fingertips cell12, extended follow-through, bring arm down, return ready. Spare ring remains visible in every attack cell; no flying ring detached far from body (runtime draws projectiles). Keep fingers/anatomy clear, rings circular not solid shields. Entire feet, headwrap and rings inside every cell with24px clear transparent margin. No labels, grid, writing, floor, cast shadow, scenery, opaque backdrop, magic effects, extra figures or commercial sprite copying.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the strike/release. Infantry reference height 46 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

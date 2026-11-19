@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-leitis.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-monaspa.webp",
+  "prompt": "Use case: stylized-concept. Create ORIGINAL Crown & Kingdoms painted isometric medieval RTS production sprite sheet, genuine transparent alpha, native1536x1024. Exactly4 columns x4 rows of sixteen complete single horse-and-rider figures on equal384x256 cells. Reference image is our own Leitis solely for painted style, lighting, horse proportion and elevated3/4 camera. Subject MONASPA: Georgian-inspired Caucasus armoured lancer, dark brown horse with black mane/tail, steel conical cheekguard helmet, dark iron layered lamellar armour over muted red-brown sleeves, cobalt BLUE shoulder cape and saddle blanket, small round BLUE shield with brass boss. Long slender wooden lance with narrow steel tip held in right hand. Distinct rider, unlike reference green tunic/pale horse. Fixed facing screen RIGHT, upper-left light, consistent horse scale, rider equipment and ground anchors. Cells0-7 top2 rows: eight consecutive horse walking strides with all four hooves articulated, lance diagonally upright. Cells8-15 bottom2 rows: ready, lift lance, pull back, wind-up, full planted rightward thrust at CELL12 (row4col1), follow-through, recoil, guard. Entire lance, shield, horse tail, hooves and cape contained in every cell with20px transparent margins; lance may be foreshortened to fit but never cropped. Detailed realistic painted metal/leather/cloth at gameplay readability. No text, labels, grid, scenery, ground, cast shadows, opaque or translucent backdrop, glow, detached fragments, extra bodies or copied game art. One horse and one rider per cell, sixteen distinct action poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background-extraction and lance-clearance correction; --mounted source check passes."
+}

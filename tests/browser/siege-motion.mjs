@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {writeFile} from 'node:fs/promises';
 export async function checkSiegeMotion(page,output){
  const result=await page.evaluate(()=>{
-  const kinds=['eled','ele','ram','bomb','treb','mang','scor','wagon'];
+  const kinds=['eled','ele','ram','bomb','treb','mang','scor','wagon','ratha','rathaM','batele','orgun','husswagon','houfnice'];
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const canvas=document.createElement('canvas');canvas.width=1536;canvas.height=kinds.length*320;
   const g=canvas.getContext('2d');g.fillStyle='#263d32';g.fillRect(0,0,canvas.width,canvas.height);
@@ -30,7 +30,7 @@ export async function checkSiegeMotion(page,output){
   }
   return {poses,raster,cartSize:USZ('cart'),wagonSize:USZ('wagon'),before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:canvas.toDataURL()};
  });
- assert.equal(result.before,result.after);assert.equal(result.raster.length,64);
+ assert.equal(result.before,result.after);assert.equal(result.raster.length,112);
  for(const r of result.raster){assert.equal(r.distinct,8,r.kind+'/'+r.team+'/'+r.state);assert.ok(r.minimum>400)}
  for(const p of result.poses){assert.ok(p.paused&&p.unchanged);assert.equal(p.phase,0);assert.equal(p.sourceCell,p.expectedCell)}
  assert.deepEqual(result.cartSize,[100,90]);assert.deepEqual(result.wagonSize,[100,90]);

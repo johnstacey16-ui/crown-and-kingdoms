@@ -10,6 +10,9 @@ const input=process.argv[2];
 // Dense, multi-part vessels and carts occupy more of each cell than infantry.
 // Opt in explicitly; the original character-sheet defaults remain unchanged.
 const vehicle=process.argv.slice(3).some(flag=>flag==='--vehicle'||flag==='--multipart');
+// Cavalry needs multipart preservation/padding with the packer's stricter
+// 45-percent clear-background requirement, rather than the dense vehicle limit.
+const mounted=process.argv.includes('--mounted'),multipart=vehicle||mounted;
 if (!input) {console.error('Usage: node scripts/check-motion-source.mjs 4x4-poses.png');process.exit(2);}
 let sharp;
 try {sharp=createRequire(import.meta.url)('sharp')} catch (_) {
@@ -23,8 +26,8 @@ let opaque=0,transparent=0;for(let i=3;i<data.length;i+=4){if(data[i]>32)opaque+
 const fraction=opaque/(info.width*info.height);
 if(fraction>(vehicle?.65:.53)||fraction<.035)throw Error('Invalid foreground coverage; require actual transparent individual character figures (not a poster): '+fraction.toFixed(3));
 if(transparent/(info.width*info.height)<(vehicle?.35:.45))throw Error('Background must be fully transparent, not a faint opaque or translucent layer');
-const reflow=reflowSpriteGrid(data,info.width,info.height,4,4,cells,vehicle,vehicle?128:64);
-const extraction=extractSpriteGrid(reflow.data,reflow.width,reflow.height,4,4,cells,null,vehicle);
+const reflow=reflowSpriteGrid(data,info.width,info.height,4,4,cells,multipart,multipart?128:64);
+const extraction=extractSpriteGrid(reflow.data,reflow.width,reflow.height,4,4,cells,null,multipart);
 const hashes=[],areas=[];
 for(let i=0;i<cells;i++){
  const f=extraction.frames[i],c=i%4,r=Math.floor(i/4);
@@ -47,6 +50,6 @@ if(new Set(hashes.slice(0,8)).size<7||new Set(hashes.slice(8)).size<7)
  throw Error('Too many duplicate frames: require actual animated poses');
 if(extraction.coverage.some(s=>s.primary/s.foreground<.82))
  throw Error('Detached drawing fragments or poster elements found in one or more cells');
-console.log('PASS: transparent 4x4 sheet, 16 full '+(vehicle?'multi-part':'connected')+' silhouettes, 8 movement + 8 activity frames, distinct poses');
+console.log('PASS: transparent 4x4 sheet, 16 full '+(multipart?'multi-part':'connected')+' silhouettes, 8 movement + 8 activity frames, distinct poses');
 console.log('Note: manual costume, weapon, leg animation and pixel-art QA is still required.');
 

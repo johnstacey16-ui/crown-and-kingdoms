@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
+import {applyBuildingAgeArt} from '../scripts/building-age-art.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-function game(){const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source+'\n'+read('js/network-commands.js')+'\n'+read('js/network-unit-projection.js')+'\n'+read('js/network-unit-render.js')+'\n'+read('js/network-unit-map.js')+'\nglobalThis.run=code=>eval(code);',sandbox);sandbox.run('seedOv=123;msz=0;kingdoms=2;startAge=0;start();');return sandbox.run}
+function game(){const {source,sandbox}=headlessGame();vm.createContext(sandbox);vm.runInContext(source+'\n'+read('js/assets.js')+'\n'+read('js/network-commands.js')+'\n'+read('js/network-unit-projection.js')+'\n'+read('js/network-unit-render.js')+'\n'+read('js/network-unit-map.js')+'\nglobalThis.run=code=>eval(code);',sandbox);sandbox.run('seedOv=123;msz=0;kingdoms=2;startAge=0;start();');return sandbox.run}
 
 test('all buildings retain only their last observed age in solo and team-relative views',()=>{
  const run=game();run("globalThis.b={k:'mill',t:1,x:20,y:20,s:2};S.vs.fill(0);S.age[1]=1;");
@@ -35,4 +36,35 @@ test('four architectural detail stages are distinct and restore the canvas',()=>
  }
  assert.equal(new Set(signatures).size,4);
  const calls=[],g=new Proxy({},{get(_o,k){return (...args)=>calls.push([k,...args])}});sandbox.draw(g,{architectureAge:3,ageDetail:false},0,0,100,100);assert.deepEqual(calls,[]);
+});
+
+test('regional native frames retain geometry across teams and ages, preserve mechanics and fall back safely',()=>{
+ const pack=JSON.parse(read('assets/atlas-manifest.json'));
+ const regional=JSON.parse(read('assets/regional-building-manifest.json')).atlases;
+ assert.deepEqual(regional.map(a=>a.id),['painted-building-feitoria','painted-building-krepost','painted-building-donjon']);
+ const run=game();
+ for(const a of pack.atlases)run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`);
+ const before=run('JSON.stringify(B)');
+ for(const kind of ['feitoria','krepost','donjon']){
+  const atlas=regional.find(a=>a.id==='painted-building-'+kind),f=atlas.meta.anims['bld_'+kind+'/idle/0'].frames[0];
+  assert.deepEqual(pack.atlases.find(a=>a.id===atlas.id),atlas);
+  assert.ok(f.x>=16&&f.y>=16&&f.x+f.w<=atlas.meta.width-16&&f.y+f.h<=atlas.meta.height-16);
+  for(let team=0;team<4;team++)for(let age=0;age<4;age++){
+   const art=run(`paintedBuildingFrame('${kind}',${team},0,${age})`);
+   assert.equal(JSON.stringify(art.sourceFrame),JSON.stringify(f));
+   assert.equal(art.architectureKind,kind);assert.equal(art.architectureTeam,team);
+   assert.equal(art.architectureAge,age);assert.equal(art.ageDetail,true);
+  }
+  run(`ASSET.atl['painted-building-${kind}'].ok=false`);
+  assert.equal(run(`paintedBuildingFrame('${kind}',0,0,3)`),null);
+ }
+ for(const kind of ['krepost','donjon']){
+  assert.equal(run(`BP.${kind}.tex`),'stone');assert.equal(run(`!!BP.${kind}.chim`),false);
+ }
+ assert.equal(run('JSON.stringify(B)'),before,'art registration cannot change costs, footprint or production');
+ const common=pack.atlases.filter(a=>!a.meta.regionalBuildings&&!a.meta.houseAges&&!a.meta.townCentreAges);
+ const rebuilt=applyBuildingAgeArt({atlases:structuredClone(common)});
+ assert.deepEqual(rebuilt,applyBuildingAgeArt(structuredClone(rebuilt)),'repeated authoring imports cannot duplicate regional or age art');
+ assert.deepEqual(rebuilt.atlases.filter(a=>a.meta.regionalBuildings),regional);
+ assert.deepEqual(rebuilt.atlases.filter(a=>!a.meta.regionalBuildings&&!a.meta.houseAges&&!a.meta.townCentreAges),common,'earlier artwork survives shared authoring rebuilds');
 });

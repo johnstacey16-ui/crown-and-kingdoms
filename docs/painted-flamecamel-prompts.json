@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-camel.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-flamecamel.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS production sprite sheet native1536x1024, genuinely transparent alpha0 backdrop, EXACT4columns x4rows equal384x256 cells with16 complete single UNRIDDEN CAMELS. Our own Camel Rider reference sets painted style, elevated3/4 camera and camel anatomy ONLY; REMOVE rider entirely. Subject FLAMING CAMEL: sand-brown single-hump camel, long curved neck/head untouched and healthy, dark muzzle/hooves, leather military pack saddle, BLUE webbing straps and BLUE small woven side cloth, two compact dark-brown bundled military payload baskets secured behind hump with an attached modest orange-yellow flame. No human rider, no weapons, no explosions or body injury. Flame attached to saddle payload only, never touching animal head; muted original readable silhouette at game scale. Fixed facing screenRIGHT, upper-left light, consistent camel size, all four camel legs and complete tail. Top8cells0-7 eight consecutive clearly articulated camel walk/pacing strides with subtly flickering small attached flame. Bottom8cells8-15: eight distinct forward approach/brace phases, rising anticipation, head/neck leaning forward at CELL12(row4col1) as the action pose, settling recoil and ready. Retain live camel body in all16; destruction/explosion is separate game FX, no corpse or blast cloud. Every hoof, tail, ear, strap, hump and flame contained within its cell with20px transparent clearance. No opaque or translucent background wash, floor, shadow, glow halo, smoke cloud, detached sparks, scenery, text/grid/labels, extra animals/legs or copied commercial assets. Clean complete transparent game cutout sprites.",
+  "review": "Sixteen transparent poses: eight walk and eight attack/activity frames; one facing plus reflection. Mounted reference height 60 game pixels. Source action cell 12. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished. The activity sheet shows live approach/brace poses only; actual detonation remains the existing authoritative combat effect, not a dedicated explosion or death sprite.",
+  "correction": "Built-in background extraction removed rejected translucent backdrop while preserving pale cloth/fur and complete equipment; corrected source passes --mounted validation."
+}

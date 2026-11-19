@@ -3,9 +3,9 @@ import {writeFile} from 'node:fs/promises';
 
 export async function checkCivicMotion(page,output){
  const result=await page.evaluate(()=>{
-  const kinds=['fish','gal','trn','cog','cart','king'];
+  const kinds=['fish','gal','trn','cog','cart','king','turtle','caravel','thirisadai'];
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
-  const canvas=document.createElement('canvas');canvas.width=1536;canvas.height=1920;
+  const canvas=document.createElement('canvas');canvas.width=1536;canvas.height=kinds.length*320;
   const g=canvas.getContext('2d');g.fillStyle='#243d42';g.fillRect(0,0,canvas.width,canvas.height);
   const raster=[],poses=[];
   for(const [row,kind] of kinds.entries()){
@@ -35,7 +35,7 @@ export async function checkCivicMotion(page,output){
   return {poses,raster,work,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:canvas.toDataURL()};
  });
  assert.equal(result.before,result.after);
- assert.equal(result.raster.length,52);
+ assert.equal(result.raster.length,76);
  for(const r of result.raster){assert.equal(r.distinct,8,r.kind+'/'+r.team+'/'+r.state);assert.ok(r.minimum>400)}
  for(const p of result.poses){assert.equal(p.state,1);assert.ok(p.paused&&p.unchanged)}
  assert.deepEqual(result.work,{state:3,paused:true,unchanged:true,returnState:0});

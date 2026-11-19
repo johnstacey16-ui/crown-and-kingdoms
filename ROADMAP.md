@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Konnik, Keshik and Leitis join the new regional sheets. [Inventory](docs/graphics-inventory.json): **63/84** painted animated kinds; **21 remaining**. Prompts/provenance: `docs/painted-*-prompts.json`. Cavalry candidate `61289a2f` passed quick 5/5, focused 1,744, Chromium 2/2 and Xbox software 8/8 ([run](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44178440070)); 768 exact reflections and rendered cavalry poses reviewed. Konnik uses matching mounted/foot artwork; faint background layers are rejected before packing. Independent facings, work variants, dedicated Elite/death art, physical Xbox and production release remain open.
+Feitoria, Krepost and Donjon bring painted building bases to **25/28**; Folwark, Fortified Church and Mule Cart remain. All **84/84** playable unit kinds retain painted movement/attack ([inventory](docs/graphics-inventory.json)); the base source queue is empty. Candidate `ddc2d25a` passed quick 5/5, focused 1,750, Chromium 2/2 and Xbox software 8/8 ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44235232970)); reviewed screenshots cover 100 construction and 124 damage variants with unchanged completed pixels/alpha. Prompts: `docs/painted-regional-building-prompts.json`. Age/construction/damage remain shared effects. Independent facings, dedicated work/hit/death, remaining Elite art, physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 

@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-keshik.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-shrivamsha.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric medieval RTS production sprite sheet, actual transparent alpha0 background, native1536x1024 EXACT4columns x4rows equal384x256cells. Sixteen complete single horse/rider figures. Reference our original Keshik sets detailed painted style, mounted proportions and elevated3/4 camera ONLY. Subject SHRIVAMSHA RIDER: light South Asian cavalry, pale cream quilted cotton tunic with small bronze shoulder fittings, cobaltBLUE waist sash and short shoulder drape, cream wrapped turban with modest iron brow plate, small round BLUE buckler, light wooden spear with steel leaf tip. Chestnut horse with black mane/tail, light brown saddle/tack and BLUE saddle blanket. Uncluttered fast cavalry silhouette, no heavy plate armour or long fur coat. Fixed facing screenRIGHT, upper-left lighting, same horse scale and gear throughout. CELLS0-7 top2rows: eight consecutive articulated walking/trotting horse strides, four hooves alternating, spear diagonally held. CELLS8-15 bottom2rows: ready, draw spear back, lift arm, wind-up, full offset rightward spear thrust CELL12(row4col1), follow-through, recoil, ready. Horse planted in attack. All spear tips, headcloth, buckler, hooves, tails inside own cells with20px clear transparent margins; foreshorten spear to fit. No backdrop wash, ground, shadows, glow, scenery, detached fragments, text/grid/labels, extra horse or copied commercial assets. Sixteen distinct complete clean cutout poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack/activity frames; one facing plus reflection. Mounted reference height 60 game pixels. Source action cell 12. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background extraction removed rejected translucent backdrop while preserving pale cloth/fur and complete equipment; corrected source passes --mounted validation."
+}

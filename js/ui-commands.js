@@ -93,6 +93,113 @@ function compactCommandLayout(width,height,count,selected){
  const h=52+visible*rh+54;
  return {w,x:(width-w)/2,y:Math.max(4,(height-h)/2),rh,visible,start,h};
 }
+/* Original lightweight Canvas2D command glyphs. No texture atlas, image
+ * requests or simulation state: Xbox command wheels remain fully offline. */
+function commandArtKind(label){
+ const text=typeof label==='string'?label.toLowerCase():'';
+ if(/\b(?:farm|mill|berry|berries|food|forage|fish trap|folwark)\b/.test(text))return 'food';
+ if(/\b(?:lumber|wood|tree|forest|chop)\b/.test(text))return 'wood';
+ if(/\b(?:stone|wall|palisade|gate|masonry)\b/.test(text))return 'stone';
+ if(/\b(?:gold|coin|market|trade|feitoria)\b/.test(text))return 'trade';
+ if(/\b(?:house|housing|population)\b/.test(text))return 'house';
+ if(/\b(?:archer|archery|crossbow|bowman|longbow|skirmish|rattan|genoa|chu ko nu)\b/.test(text))return 'bow';
+ if(/\b(?:knight|cavalry|stable|horse|scout|camel|rider|hussar|cataphract|konnik|keshik|leitis|monaspa)\b/.test(text))return 'horse';
+ if(/\b(?:ship|dock|galley|naval|caravel|cog|boat|galleon)\b/.test(text))return 'ship';
+ if(/\b(?:tower|castle|donjon|krepost|outpost|wonder)\b/.test(text))return 'tower';
+ if(/\b(?:monk|monastery|relic|priest|church)\b/.test(text))return 'relic';
+ if(/\b(?:siege|ram|trebuchet|mangonel|scorpion|cannon|onager)\b/.test(text))return 'siege';
+ if(/\b(?:blacksmith|smith|forge|upgrade|research|technology|university)\b/.test(text))return 'forge';
+ if(/\b(?:barracks|militia|infantry|spearman|pikeman|swordsman|serjeant|legionary|huskarl)\b/.test(text))return 'shield';
+ if(/\b(?:build|construct|repair|mule cart)\b/.test(text))return 'build';
+ return 'command';
+}
+function drawCommandArt(g,label,x,y,size=21){
+ if(!g||![x,y,size].every(Number.isFinite)||size<=0||
+  ['save','restore','translate','scale','beginPath','moveTo','lineTo','closePath','fill','stroke','fillRect','arc','quadraticCurveTo'].some(name=>typeof g[name]!=='function'))return false;
+ const kind=commandArtKind(label);
+ const gold='#f3d38b',steel='#c5d4d9',edge='#273340',wood='#aa7643',leaf='#78b78a',stone='#aaa9a1';
+ g.save();
+ try{
+  g.translate(x,y);g.scale(size/24,size/24);g.lineWidth=1.45;g.lineCap='round';g.lineJoin='round';
+  const line=(x1,y1,x2,y2,color=gold,width=1.45)=>{
+   g.strokeStyle=color;g.lineWidth=width;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();
+  };
+  const poly=(points,fill,stroke=edge)=>{
+   g.beginPath();g.moveTo(points[0][0],points[0][1]);
+   for(let i=1;i<points.length;i++)g.lineTo(points[i][0],points[i][1]);
+   g.closePath();g.fillStyle=fill;g.fill();
+   if(stroke){g.strokeStyle=stroke;g.lineWidth=1.25;g.stroke()}
+  };
+  if(kind==='wood'){
+   g.fillStyle=wood;g.fillRect(-2,1,4,10);
+   poly([[-10,3],[0,-11],[10,3]],leaf);
+   poly([[-8,-2],[0,-12],[8,-2]],'#98c99c');
+   line(0,2,0,9,'#e4bc77',1.2);
+  }else if(kind==='food'){
+   line(0,10,0,-10,'#d4b36a',2);
+   for(const side of[-1,1])for(let i=0;i<3;i++){
+    poly([[0,-5+i*5],[side*7,-9+i*4],[side*5,-3+i*5]],i%2?gold:'#a4c47b',null);
+   }
+   line(-5,10,5,10,'#e0bc6f',1);
+  }else if(kind==='stone'){
+   poly([[-10,7],[-8,-3],[-1,-9],[8,-6],[11,5],[2,10]],stone);
+   line(-8,-3,3,0,'#e9e4d2',1);line(3,0,2,10,'#66727a',1);
+   line(3,0,8,-6,'#66727a',1);
+  }else if(kind==='trade'){
+   g.fillStyle='#c79c4a';g.beginPath();g.arc(0,0,10,0,Math.PI*2);g.fill();
+   g.strokeStyle=gold;g.lineWidth=1.8;g.beginPath();g.arc(0,0,7.2,0,Math.PI*2);g.stroke();
+   line(-4,-3,4,-3,edge,2);line(-4,2,4,2,edge,2);
+  }else if(kind==='house'){
+   poly([[-9,-1],[0,-10],[9,-1]],'#c67c5c');
+   g.fillStyle=stone;g.fillRect(-7,-1,14,11);g.fillStyle=edge;g.fillRect(-2,4,4,6);
+   line(-7,1,7,1,gold,1);line(-3,-5,2,-5,gold,1);
+  }else if(kind==='bow'){
+   g.strokeStyle=gold;g.lineWidth=2.3;g.beginPath();g.moveTo(5,-11);g.quadraticCurveTo(-9,-1,5,11);g.stroke();
+   line(5,-11,5,11,steel,1);line(-7,0,10,0,wood,1.8);
+   poly([[10,0],[5,-3],[5,3]],steel);
+  }else if(kind==='horse'){
+   poly([[2,-11],[7,-8],[10,1],[6,8],[-3,10],[-5,3],[-9,-2],[-4,-8]],'#b59a78');
+   poly([[-4,-8],[0,-12],[3,-8]],gold);
+   g.fillStyle=edge;g.fillRect(3,-2,2.6,2.6);
+   line(-3,3,-7,8,gold,1.8);
+  }else if(kind==='ship'){
+   poly([[-11,4],[11,4],[7,10],[-7,10]],wood);
+   line(0,-11,0,4,steel,1.8);
+   poly([[1,-10],[9,2],[1,2]],steel);poly([[-1,-8],[-8,1],[-1,1]],gold);
+  }else if(kind==='tower'){
+   g.fillStyle=stone;g.fillRect(-7,-6,14,16);
+   for(const px of[-8,-2,4])g.fillRect(px,-10,4,5);
+   g.fillStyle=edge;g.fillRect(-2,-2,4,6);
+   line(-7,7,7,7,'#e8dfcb',1.2);
+  }else if(kind==='relic'){
+   poly([[0,-11],[5,-3],[0,4],[-5,-3]],gold);
+   poly([[-7,5],[0,1],[7,5],[7,9],[-7,9]],steel);
+   line(-10,-6,-7,-6,gold);line(7,-6,10,-6,gold);line(0,-12,0,-14,gold);
+  }else if(kind==='siege'){
+   poly([[-9,-4],[7,-4],[10,1],[-10,1]],wood);
+   for(const px of[-6,6]){g.fillStyle=steel;g.beginPath();g.arc(px,6,3.6,0,Math.PI*2);g.fill();
+    g.fillStyle=edge;g.beginPath();g.arc(px,6,1.2,0,Math.PI*2);g.fill()}
+   line(-8,-4,7,-11,wood,3.2);
+   poly([[7,-11],[11,-13],[10,-7]],gold);
+  }else if(kind==='forge'){
+   poly([[-11,-2],[10,-2],[6,3],[2,3],[2,9],[-5,9],[-5,3],[-10,2]],steel);
+   line(-6,-6,6,-6,wood,3);
+   poly([[2,-9],[6,-11],[10,-7],[6,-4]],gold);
+  }else if(kind==='shield'){
+   poly([[0,-11],[9,-8],[8,4],[0,11],[-8,4],[-9,-8]],steel);
+   line(0,-8,0,8,gold,2.6);line(-5,-1,5,-1,gold,2.6);
+  }else if(kind==='build'){
+   line(-8,8,7,-8,wood,3.5);
+   poly([[3,-11],[10,-9],[11,-4],[6,0],[2,-5]],steel);
+   line(-8,9,-4,9,gold,1.5);
+  }else{
+   poly([[0,-10],[3,-3],[10,0],[3,3],[0,10],[-3,3],[-10,0],[-3,-3]],gold);
+   g.fillStyle=edge;g.beginPath();g.arc(0,0,2,0,Math.PI*2);g.fill();
+  }
+ }finally{g.restore()}
+ return true;
+}
+
 function drawCompactRadialMenu(m,items,a0,n,pg,pageCount,title){
  const raw=Number.isInteger(m?.i)?m.i:a0;
  const focus=raw>=a0&&raw<a0+n?raw:a0;
@@ -113,7 +220,8 @@ function drawCompactRadialMenu(m,items,a0,n,pg,pageCount,title){
    X.strokeRect(x+9.5,yy+.5,w-19,l.rh-5);
    X.fillStyle=CK_COMMAND_UI.focus;X.fillRect(x+15,yy+8,4,l.rh-20);
   }
-  tx(commandLabelFit(it.l,w-143,16),x+28,yy+30,16,
+  drawCommandArt(X,it.l,x+30,yy+22,20);
+  tx(commandLabelFit(it.l,w-163,16),x+47,yy+30,16,
    it.lk?CK_COMMAND_UI.muted:selected?CK_COMMAND_UI.cream:CK_COMMAND_UI.text);
   const cost=it.lk||cs(it.c);
   tx(commandLabelFit(cost,98,13),x+w-18,yy+29,13,
@@ -135,7 +243,8 @@ const w=Math.min(200,2*R*Math.sin(Math.PI/Math.max(n,3))*.95),h=48;
 vis.forEach((it,j)=>{const a=j/n*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,sel=a0+j===m.i;
 X.fillStyle=sel?CK_COMMAND_UI.selected:'rgba(60,44,24,.95)';X.fillRect(x-w/2,y-h/2,w,h);
 X.strokeStyle=sel?CK_COMMAND_UI.focus:CK_COMMAND_UI.brass;X.lineWidth=sel?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
-tx(commandLabelFit(it.l,w-8,15),x,y-3,15,it.lk?CK_COMMAND_UI.muted:CK_COMMAND_UI.text,'center');
+drawCommandArt(X,it.l,x-w/2+14,y-4,19);
+tx(commandLabelFit(it.l,w-31,15),x+7,y-3,15,it.lk?CK_COMMAND_UI.muted:CK_COMMAND_UI.text,'center');
 tx(commandLabelFit(it.lk||cs(it.c),w-8,12),x,y+13,12,it.lk?CK_COMMAND_UI.danger:CK_COMMAND_UI.cream,'center')});
 const sit=items[Number.isInteger(m.i)?m.i:0];if(sit)tx(commandLabelFit(DS[sit.l]||'',Math.min(2*R,540),15),cx,cy+R*.26,15,CK_COMMAND_UI.muted,'center');tx('Left stick: choose    A: confirm    LT+A: train x5    Y: switch page    X: cancel last    B or release RT: close',cx,CH-135,17,CK_COMMAND_UI.muted,'center')}
 
@@ -158,7 +267,9 @@ function drawVillagerPriorityWheel(){
   X.strokeStyle=selected?'#f2c14e':'#ad904f';X.lineWidth=selected?3:1.5;X.strokeRect(x-w/2,y-h/2,w,h);
   const name=manual?WORKER_TARGETS[i].n:i===VILLAGER_PRIORITY_PRESETS.length?'Auto Farms':VILLAGER_PRIORITY_PRESETS[i].name;
   const detail=manual?(p[WORKER_TARGETS[i].k]+' weight / '+targets[WORKER_TARGETS[i].k]+' target'):i===VILLAGER_PRIORITY_PRESETS.length?(p.autoFarms?'ON':'OFF'):VILLAGER_PRIORITY_PRESETS[i].weights.join(':');
-  tx(name,x,y-3,15,'#fff','center');tx(detail,x,y+17,13,'#e5d5ad','center');
+  if(manual&&typeof drawCommandArt==='function')drawCommandArt(X,WORKER_TARGETS[i].n,x-w/2+13,y-6,18);
+  tx(name,x+(manual?9:0),y-3,15,'#fff','center');
+  tx(detail,x,y+17,13,'#e5d5ad','center');
  }
  tx(manual?'Left stick: resource   A: add   B: remove   Y: presets   R3: close':
     'Left stick: preset   A: apply   Y: manual   X: automation   B/R3: close',

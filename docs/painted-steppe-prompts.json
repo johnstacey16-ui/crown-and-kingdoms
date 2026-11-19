@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-leitis.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-steppe.webp",
+  "prompt": "Use case: stylized-concept. Create ORIGINAL Crown & Kingdoms medieval RTS painted production sprite sheet, actual transparent alpha0 background, native1536x1024 EXACT4columns x4rows equal384x256cells. Sixteen complete single horse-and-rider cutouts. Reference is our own Leitis for elevated3/4 camera, realistic painted style and horse proportions only. Subject STEPPE LANCER, a lightly armoured lean steppe cavalry rider: leather russet-brown long coat with small iron lamellar chest panel, simple conical iron helmet with short fur rim, cream trousers, BLUE waistband and saddle cloth, small round plain blue/brown shield. Grey horse with charcoal mane/tail, light brown leather tack. Long narrow wooden lance with steel spearpoint, no oversized cape or heavy plate knight armour. Fixed facing screenRIGHT, upper-left light, same scale and gear throughout. Eight walking/trotting consecutive articulated horse strides CELLS0-7 top2rows, lance diagonal forward. Eight attack CELLS8-15: ready, lift lance, draw back, high wind-up, complete rightward high-to-low spear THRUST CELL12(row4col1), follow-through, recoil, ready. Horse planted for attack, clear arm motion. Every weapon tip, horse tail, hoof, shield, helmet stays within its cell with at least16px genuine transparent clearance. Foreshorten lance as needed. No brown/grey translucent backdrop wash, shadows, floor, halo, effects, detached objects, grid, text, labels, extra horses or copied commercial art. Sixteen distinct intact poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the release/thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background extraction removed the rejected opaque background while preserving the grey horse, pale mane and full lances; corrected source passes --mounted validation."
+}

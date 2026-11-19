@@ -29,10 +29,35 @@ case'jav':{const t=st===2&&sw?6:0;g.strokeStyle='#8a6a3a';g.lineWidth=1.5;g.begi
 case'bow':case'lbow':{const tall=o.wpn==='lbow'?15:11,pull=st===2?(sw?-3:3):0;g.strokeStyle='#6a4a22';g.lineWidth=1.8;g.beginPath();g.moveTo(hx+2,hyv-tall);g.quadraticCurveTo(hx+7-pull*.3,hyv,hx+2,hyv+tall);g.stroke();g.strokeStyle='#eee';g.lineWidth=.6;g.beginPath();g.moveTo(hx+2,hyv-tall);g.lineTo(hx+pull,hyv);g.lineTo(hx+2,hyv+tall);g.stroke();if(st===2&&!sw){g.strokeStyle='#d8c890';g.lineWidth=1;g.beginPath();g.moveTo(hx+pull,hyv);g.lineTo(hx+14,hyv);g.stroke()}break}
 case'xbow':g.fillStyle='#6a4a2a';g.fillRect(hx-3,hyv-1.2,13,2.4);g.strokeStyle='#3a2a18';g.lineWidth=1.6;g.beginPath();g.moveTo(hx+6,hyv-7);g.lineTo(hx+8,hyv);g.lineTo(hx+6,hyv+7);g.stroke();break;
 case'gun':g.fillStyle='#3a3a40';g.fillRect(hx-3,hyv-2,15,3.6);g.fillStyle='#6a4a2a';g.fillRect(hx-6,hyv-1.5,5,3);if(st===2&&sw){g.fillStyle='#ffd24a';g.beginPath();g.arc(hx+16,hyv-.5,3,0,7);g.fill()}break;
+case'mace':{
+ const swing=st===2?(sw?.65:-1.15):-.55;
+ g.save();g.translate(hx,hyv);g.rotate(swing);
+ g.strokeStyle='#493722';g.lineWidth=2.5;g.beginPath();g.moveTo(0,0);g.lineTo(13,0);g.stroke();
+ g.strokeStyle='#caa769';g.lineWidth=1;g.beginPath();g.moveTo(0,-.6);g.lineTo(12,-.6);g.stroke();
+ pg(g,[[10,-4],[14,-5],[17,-2],[17,2],[14,5],[10,4]],lin(g,10,-4,17,5,'#d9dfe5','#747d87'),E,.7);
+ for(const x of[11,15]){g.strokeStyle='#e2e4df';g.lineWidth=.9;g.beginPath();g.moveTo(x,-4);g.lineTo(x+1,4);g.stroke()}
+ g.restore();break}
+case'chakram':{
+ const angle=st===2?fr*.9:-.3;
+ g.save();g.translate(hx+4,hyv);g.rotate(angle);
+ g.strokeStyle='#41494c';g.lineWidth=4.3;g.beginPath();g.arc(7,0,7,0,Math.PI*2);g.stroke();
+ g.strokeStyle='#dce3e4';g.lineWidth=2;g.beginPath();g.arc(7,0,7.1,0,Math.PI*2);g.stroke();
+ g.strokeStyle='#f2e6b6';g.lineWidth=.9;g.beginPath();g.arc(7,0,5.2,.2,3);g.stroke();
+ g.restore();break}
+case'urumi':{
+ const lunge=st===2?(sw?6:-3):0;
+ g.save();g.translate(hx,hyv);
+ g.strokeStyle='#70512d';g.lineWidth=2.5;g.beginPath();g.moveTo(0,0);g.lineTo(5,0);g.stroke();
+ g.strokeStyle='#dce2e3';g.lineWidth=1.8;g.beginPath();g.moveTo(5,0);
+ g.quadraticCurveTo(15+lunge,-11,21+lunge,-2);
+ g.quadraticCurveTo(27+lunge,7,31+lunge,-5);g.stroke();
+ g.strokeStyle='rgba(255,255,255,.65)';g.lineWidth=.7;g.beginPath();g.moveTo(7,-1);
+ g.quadraticCurveTo(16+lunge,-9,21+lunge,-1);g.stroke();
+ g.restore();break}
 case'staff':g.strokeStyle='#8a6a3a';g.lineWidth=2;g.beginPath();g.moveTo(hx,hyv+9);g.lineTo(hx+1,hyv-26);g.stroke();g.strokeStyle='#f2c14e';g.lineWidth=1.6;g.beginPath();g.moveTo(hx-3,hyv-22);g.lineTo(hx+5,hyv-22);g.moveTo(hx+1,hyv-27);g.lineTo(hx+1,hyv-17);g.stroke();break;
 case'scepter':g.strokeStyle='#f2c14e';g.lineWidth=1.8;g.beginPath();g.moveTo(hx,hyv+5);g.lineTo(hx+1,hyv-14);g.stroke();g.fillStyle='#e04040';g.beginPath();g.arc(hx+1,hyv-15,2.4,0,7);g.fill();break;
 case'pick':{const a=st===3?(wk>0?-1.2:.3):-.7;g.save();g.translate(hx,hyv);g.rotate(a);g.strokeStyle='#7a5a2a';g.lineWidth=2;g.beginPath();g.moveTo(0,0);g.lineTo(11,0);g.stroke();g.strokeStyle='#9aa0aa';g.lineWidth=2.4;g.beginPath();g.moveTo(9,-4);g.lineTo(11,0);g.lineTo(9,4);g.stroke();g.restore();break}}}
-function mnt(g,k,tc,st,fr){k=U[k].lk||k;const ph=fr/4*6.2832,mv=st===1,lg=mv?Math.sin(ph)*5:0,bob=mv?Math.abs(Math.sin(ph))*1.6:0,E='#1a1410',ele=k==='ele'||k==='eled',cam=k==='camel'||k==='mamel',arm=k==='knight'||k==='cata',bc=ele?'#8a8a90':cam?'#c9a46a':k==='knight'?'#cfd0d6':k==='cata'?'#b8b8c4':k==='mgd'?'#8a5a34':'#7a5230',sc=ele?1.5:1;
+function mnt(g,k,tc,st,fr){const sourceKind=k;k=U[k].lk||k;const ph=fr/4*6.2832,mv=st===1,lg=mv?Math.sin(ph)*5:0,bob=mv?Math.abs(Math.sin(ph))*1.6:0,E='#1a1410',ele=k==='ele'||k==='eled',cam=k==='camel'||k==='mamel'||sourceKind==='flamecamel',arm=k==='knight'||k==='cata',bc=ele?'#8a8a90':cam?'#c9a46a':k==='knight'?'#cfd0d6':k==='cata'?'#b8b8c4':k==='mgd'?'#8a5a34':'#7a5230',sc=ele?1.5:1;
 g.save();g.scale(sc,sc);for(const q of[[-9,-1],[-4,1],[4,-1],[9,1]]){g.strokeStyle=shd(bc,.55);g.lineWidth=ele?5:3.4;g.beginPath();g.moveTo(q[0],-12-bob);g.lineTo(q[0]+q[1]*lg*.5,-6);g.lineTo(q[0]+q[1]*lg,-1);g.stroke();g.fillStyle='#2a1c10';g.beginPath();g.ellipse(q[0]+q[1]*lg+1,-.8,2.6,1.4,0,0,7);g.fill()}
 g.strokeStyle=shd(bc,.6);g.lineWidth=2;g.beginPath();g.moveTo(-13,-17-bob);g.quadraticCurveTo(-18,-12,-17,-6);g.stroke();
 g.fillStyle=lin(g,0,-24,0,-8,shd(bc,1.2),shd(bc,.7));g.beginPath();g.ellipse(0,-15-bob,14,6.5,0,0,7);g.fill();g.strokeStyle=E;g.lineWidth=.8;g.stroke();
@@ -42,6 +67,25 @@ if(ele){g.strokeStyle=shd(bc,.8);g.lineWidth=3;g.beginPath();g.moveTo(21,-24-bob
 else{g.strokeStyle=shd(bc,.5);g.lineWidth=2;g.beginPath();g.moveTo(10,-22-bob);g.quadraticCurveTo(14,-28-bob,16,-26-bob);g.stroke()}
 pg(g,[[-8,-20-bob],[8,-20-bob],[9,-11-bob],[-9,-11-bob]],tc,E,.7);if(arm){g.strokeStyle='#f2f2f2';g.lineWidth=1;g.beginPath();g.moveTo(-8,-15-bob);g.lineTo(9,-15-bob);g.stroke()}if(!ele){/* Saddle stitching and rivets add readable tack at normal gameplay zoom. */g.strokeStyle='rgba(35,22,12,.72)';g.lineWidth=.85;g.beginPath();g.moveTo(-7,-19-bob);g.lineTo(-7,-12-bob);g.lineTo(7,-12-bob);g.lineTo(7,-19-bob);g.stroke();g.strokeStyle='rgba(245,220,160,.78)';g.lineWidth=.7;for(const sx of[-5,0,5]){g.beginPath();g.arc(sx,-13-bob,.7,0,6.2832);g.stroke()}if(arm){pg(g,[[-11,-19-bob],[-7,-24-bob],[1,-23-bob],[5,-18-bob],[1,-13-bob],[-8,-14-bob]],lin(g,-10,0,5,0,'#656b76','#c8ccd4'),E,.7);g.strokeStyle='rgba(245,245,250,.75)';g.lineWidth=.65;g.beginPath();g.moveTo(-8,-18-bob);g.lineTo(1,-18-bob);g.moveTo(-5,-22-bob);g.lineTo(-2,-15-bob);g.stroke()}}
 if(ele){pg(g,[[-8,-30-bob],[8,-30-bob],[9,-21-bob],[-9,-21-bob]],'#7a5a2a',E,.8);pg(g,[[-8,-30-bob],[0,-36-bob],[8,-30-bob]],tc,E,.8)}
+// Distinct original fallback equipment: winged cavalry plumes and a camel's
+// flammable payload. Derived solely from unit kind and pose, never simulation RNG.
+if(sourceKind==='winged'){
+ for(const side of[-1,1]){
+  g.strokeStyle='#c4a06d';g.lineWidth=2.2;g.beginPath();
+  g.moveTo(side*4,-18-bob);g.lineTo(side*13,-39-bob);g.stroke();
+  for(let i=0;i<5;i++){
+   const y=-22-i*3.2-bob,x=side*(6+i*1.2);
+   pg(g,[[x,y],[x+side*7,y-2],[x+side*2,y+4]],i%2?'#e5dcc6':'#c2b9a2',E,.45);
+  }
+ }
+}
+if(sourceKind==='flamecamel'){
+ const flicker=st===1?Math.sin(ph)*2:st===2?fr:0;
+ pg(g,[[-9,-20-bob],[-5,-33-bob-flicker],[0,-24-bob],[4,-35-bob+flicker],[9,-19-bob]],
+  '#e5712e',E,.55);
+ pg(g,[[-6,-20-bob],[-2,-29-bob-flicker*.5],[1,-21-bob],[4,-30-bob],[6,-19-bob]],
+  '#ffd16c',null);
+}
 g.restore();const rk=k==='arambai'?'arambai':k==='cavarch'?'cavarch':k==='mgd'||k==='eled'?'arc':k==='cata'?'tk':k==='ele'?'arc':k==='camel'||k==='mamel'?'spear':k==='knight'?'tk':'spear';g.save();g.translate(-1,(ele?-33:-12));g.scale(.88,.88);man(g,rk,tc,st===2?2:0,fr,true);g.restore()}
 function sgp(g,k,tc,st,fr){const E='#1a1410',ph=fr/4*6.2832,mv=st===1,wood=lin(g,0,-16,0,-6,'#8a6232','#4a3018'),at=st===2&&fr;const wheel=(x,y,r)=>{g.fillStyle='#3a2a18';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle='#7a5a2a';g.lineWidth=1.2;for(let i=0;i<4;i++){const a=i*1.57+(mv?ph:0);g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(a)*r*.9,y+Math.sin(a)*r*.9);g.stroke()}g.beginPath();g.arc(x,y,r,0,7);g.stroke()};
 if(k==='orgun'){
@@ -124,8 +168,8 @@ Object.assign(MP,{
  monaspa:{cloth:'#64896c',pant:'#3b5146',helm:'cone',wpn:'spear',shield:'kite',mail:1,tab:1},
  centurion:{cloth:'#8e3e35',pant:'#54372d',helm:'great',wpn:'spear',shield:'round',mail:1,tab:1},
  legionary:{cloth:'#a85941',pant:'#4b3130',helm:'helm',wpn:'sword',shield:'kite',mail:1,tab:1},
- chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'axe',shield:'none',tab:1},
- urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'sword',shield:'round',mail:1,tab:1},
+ chakram:{cloth:'#9d7547',pant:'#5c4c32',helm:'band',wpn:'chakram',shield:'none',tab:1},
+ urumi:{cloth:'#a56e45',pant:'#4b473c',helm:'band',wpn:'urumi',shield:'round',mail:1,tab:1},
  obuch:{cloth:'#796456',pant:'#524d48',helm:'great',wpn:'mace',shield:'round',mail:1,tab:1},
  winged:{cloth:'#a17a55',pant:'#594536',helm:'helm',wpn:'spear',shield:'kite',mail:1,tab:1},
  serjeant:{cloth:'#8793a6',pant:'#3c4354',helm:'great',wpn:'sword',shield:'kite',mail:1,tab:1},

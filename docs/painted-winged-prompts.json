@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-keshik.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-winged.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric RTS sprite sheet 1536x1024 native, actual transparent background alpha0. Exactly4columns x4rows sixteen complete single horse-and-rider figures. Our own Keshik reference is only painted rendering style and mounted proportions. Subject WINGED HUSSAR: Polish-Lithuanian-inspired armoured rider in polished steel breastplate/pauldrons and steel open-face helmet with nasal guard, two curved feather standards fixed to his back, dark grey/brown feathers with light feather tips, BLUE shoulder sash and BLUE saddle blanket. Chestnut horse with black mane and brown tack. Slender lance in right hand and short sheathed saber, no oversized shield. Two wing frames stay fully intact and visible. Elevated three-quarter view facing right, upper-left light, consistent horse/rider scale, detailed painted realistic metal/leather/feathers. Leave generous clear margins: every figure including wings and lance must fit a320x208 bounding rectangle centered within its384x256 cell; keep24px minimum clearance from ALL edges. Top8cells0-7 eight successive articulated horse walk/trot strides, lance diagonal. Bottom8cells8-15 ready, lowering lance, draw back, charge wind-up, full rightward thrust cell12(row4col1), follow-through, recoil, guard; horse anchored in attack. Foreshorten lance to fit without clipping. No text, grid, labels, scenery, opaque/translucent wash, vignette, floor or cast shadow, halo, effects, fragments, extra horses or copied game art. Genuine completely transparent pixels around figures.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background-extraction correction; --mounted source check rejects the original faint backdrop and accepts the clean candidate, preserving pale feathers."
+}

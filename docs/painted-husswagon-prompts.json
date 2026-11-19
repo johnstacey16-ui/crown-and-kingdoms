@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-wagon.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-husswagon.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS production sprite sheet native1536x1024, genuinely transparent alpha0 background, EXACT4columns x4rows equal384x256cells with16complete HUSSITE WAGON figures. Reference our own War Wagon gives painted wood/iron/wheel style and elevated3/4 rightward camera ONLY. New subject heavy enclosed armoured wooden battle wagon, thick vertical dark oak side planks, iron corner bands and rivets, raised sloping timber roof, four robust iron-bound spoked wheels, two small square firing ports with short dark cannon muzzles on right-facing front/side. BLUE reinforced shield panels bearing plain gold diamonds, no religious flags, no multi-barrel organ rack. Small cream/blue-clothed gunner partially visible through one narrow hatch, entire wagon remains dominant. Fixed facing screenRIGHT, upper-left light, realistic painted wood grain/metal/cloth, exactly same armour/chassis/scale across allposes. Complete wagon including all wheels, roof, braces, gun barrels and hatch fits300x200 centered in each384x256cell with24px transparent clearance. Top8cells0-7: eight travelling wheel rotations through successive spoke angles, slight body/axle bounce and blue flap sway. Bottom8cells8-15: ready, open firing hatch, gun comes forward, tense brace, compact firing recoil CELL12(row4col1), follow-through, retract gun, close/ready. Clearly different gun/hatch/body recoil phases. No fire or smoke: muzzle flash/projectile separate runtime FX. No backdrop wash, floor, shadows, halo, scenery, text/grid/labels, detached fragments, horse or copied commercial assets. Sixteen distinct complete transparent cutout poses.",
+  "review": "Sixteen transparent poses: eight travel and eight recoil/activity frames; one facing plus reflection. Source action cell 12. Siege envelope at most86px wide/60px reference height. Muzzle/projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

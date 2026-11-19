@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-18",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-gal.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-turtle.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted medieval RTS videogame sprite sheet native1536x1024, genuinely transparent alpha0 background. EXACT4columns x4rows equal384x256cells with16 complete TURTLE SHIP vessels. Reference our own Galley supplies painterly wood/metal style, upper-left lighting and elevated rightward3/4 camera ONLY. Subject original Korean-inspired low sturdy armoured vessel, broad dark timber hull, domed roof covered in riveted dull bronze/iron plates with modest short protective spikes, short carved curved prow on screenRIGHT, small oar/gun ports down hull sides, BLUE roof ridge cloth and BLUE side banners with plain gold diamonds for team tinting. No tall sail, no long dragon figurehead, no readable symbols or copied commercial design. Complete hull/oars/roof/spikes fit320x180 centered in each384x256cell with24px transparent margins. Stable waterline anchor and consistent body scale across16poses; tiny close-to-hull foam only, no sea rectangle. Top8cells0-7: eight travelling phases with visibly alternating oar angles, subtle hull rock and blue cloth sway. Bottom8cells8-15: ready, gun-port shutters open, brace, aim, strongest broadside recoil atCELL12(row4col1), follow-through, settle, ready. Distinct shutter/oar/rock positions in every pose. No detached cannonballs, smoke or muzzle flash; game FX separate. No backdrop wash, floor shadow, halo, scenery, text/grid/labels, detached fragments, extra boats or copied game sprites. Sixteen distinct intact transparent cutouts.",
+  "review": "Sixteen transparent poses: eight travel and eight attack/activity frames; one facing plus reflection. Source action cell 12. Naval envelope at most104px wide/48px reference height. Projectile effects remain runtime-owned. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished.",
+  "correction": "Built-in background extraction removed rejected faint backdrop while preserving fine oars, roof spikes and pale hull foam; corrected source passes multipart validation."
+}

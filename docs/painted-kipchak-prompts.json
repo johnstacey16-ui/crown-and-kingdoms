@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-cavarch.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-kipchak.webp",
+  "prompt": "Use case: stylized-concept. ORIGINAL Crown & Kingdoms painted isometric medieval RTS production sprite sheet, native1536x1024 with fully transparent alpha0 background. EXACT4columns x4rows sixteen complete horse-and-rider figures in equal384x256 cells. Reference is our own Cavalry Archer for painted style, elevated3/4 camera and proportions only. Subject KIPCHAK steppe mounted archer: fur-edged INDIGO long coat, steel conical helmet with cheek guards, cream trousers, leather bracers, short leather quiver behind shoulder, dark bay horse with black mane/tail, BLUE saddle blanket and shoulder trim for team recolour. Small recurved wood bow in left hand, right hand draws arrow; separate reins and bowstring. Fixed facing screen RIGHT, upper-left lighting, detailed realistic painted metal/leather/fur, consistent horse scale and feet anchors. Cells0-7 top2rows: eight consecutive articulated horse walk/trot strides with bow low, all four hooves alternating. Cells8-15 bottom2rows: ready, raise bow, nock, full draw, RELEASE at CELL12(row4col1), follow-through right hand opens backwards, lower bow, ready. Horse planted during attack. Every whole bow, helmet, quiver, hoof and tail within its cell with20px minimum transparent clearance. No background wash, vignette, ground, cast shadows, halo, effects, detached flying arrows, grid, text, labels, extra bodies or commercial game art. Genuinely fully clear cutout sprites, sixteen distinct poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Cell 12 is the release/thrust. Mounted cavalry reference height 60 game pixels. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

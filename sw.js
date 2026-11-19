@@ -4,9 +4,12 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '4ea4c6cee3c62ea8a0e0c03278e0df638fb3e35faa59a2137fb6b6925373ce46';
-const CACHE_NAME = 'ck-shell-v228-regional-cavalry-' + ART_REVISION;
+const ART_REVISION = 'e78999f4ae2d204c9fea9fb17819405d3833c0efedfe2b7e565d2e88b01700c5';
+const CACHE_NAME = 'ck-shell-v236-regional-buildings-' + ART_REVISION;
 const CORE_ASSETS = [
+  './assets/painted-building-feitoria.webp',
+  './assets/painted-building-krepost.webp',
+  './assets/painted-building-donjon.webp',
   './',
   './index.html',
   './styles.css',
@@ -25,6 +28,27 @@ const CORE_ASSETS = [
   './assets/painted-wildlife-fish.webp',
   './assets/painted-motion-mil.webp',
   './assets/painted-motion-eagle.webp',
+  './assets/painted-motion-urumi.webp',
+  './assets/painted-motion-chakram.webp',
+  './assets/painted-motion-centurion.webp',
+  './assets/painted-motion-monaspa.webp',
+  './assets/painted-motion-coust.webp',
+  './assets/painted-motion-winged.webp',
+  './assets/painted-motion-kipchak.webp',
+  './assets/painted-motion-steppe.webp',
+  './assets/painted-motion-arambai.webp',
+  './assets/painted-motion-shrivamsha.webp',
+  './assets/painted-motion-camelscout.webp',
+  './assets/painted-motion-flamecamel.webp',
+  './assets/painted-motion-ratha.webp',
+  './assets/painted-motion-ratha-melee.webp',
+  './assets/painted-motion-batele.webp',
+  './assets/painted-motion-orgun.webp',
+  './assets/painted-motion-husswagon.webp',
+  './assets/painted-motion-houfnice.webp',
+  './assets/painted-motion-turtle.webp',
+  './assets/painted-motion-caravel.webp',
+  './assets/painted-motion-thirisadai.webp',
   './assets/painted-motion-konnik.webp',
   './assets/painted-motion-keshik.webp',
   './assets/painted-motion-leitis.webp',

@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-17",
+  "tool": "Built-in image generation",
+  "references": [
+    "assets/painted-motion-ratha.webp"
+  ],
+  "sourceRights": "Original project artwork only",
+  "asset": "assets/painted-motion-ratha-melee.webp",
+  "prompt": "Use case: precise-object-edit. Create original RATHA MELEE mode from this original Crown & Kingdoms RATHA RANGED 4x4 sheet. Preserve native1536x1024,4columns x4rows, sixteen complete chariot teams, exactly same paired chestnut horses, dark manes, reins, driver cream clothes/headcloth, curved teak chariot and bronze edging, BLUE side cloth with gold diamond, single axle and two spoked wheels, same scale, foot/wheel anchors, upper-left light and slightly elevated rightward3/4 view. Change ONLY fighting crew equipment and gestures: rear fighter now holds a slender wooden SPEAR with steel leaf point instead of bow; bow slung/stowed, same quiver and costume. Top8cells0-7 retain original walking horse/wheel gait positions, fighter holds spear diagonally forward. Bottom8cells8-15 new melee sequence: ready, draw spear back, raise elbow, wind-up, long rightward spear THRUST atCELL12(row4col1), follow-through, retract, ready. Foreshorten lance to remain inside each cell, never extend over horse heads into neighboring cell. Entire team/crew/hooves/tails/wheels/spear within384x256cell with16px minimum clear transparent margins. Keep real fully transparent alpha0 outside each team; remove all faint brown/grey backdrop wash/halos. No scenery, floor, shadow, text/grid/labels, detached fragments, extra horses/crew or different chariot design. Clear distinct melee attack, original painted detail, all sixteen complete poses.",
+  "review": "Sixteen transparent poses: eight walk and eight attack; one facing plus reflection. Source action cell 12. Chariot envelope at most86px wide/60px reference height; paired modes preserve original vehicle and crew identity. Dedicated Elite, independent directions, work/hit/death art and physical Xbox acceptance remain unfinished."
+}

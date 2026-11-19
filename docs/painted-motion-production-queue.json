@@ -1,0 +1,23 @@
+{
+  "schema": "ck-painted-motion-queue-v1",
+  "purpose": "Source-authoring briefs only; never mark a unit as rendered, shipped, painted, or Xbox-accepted based on a brief",
+  "sourceOfTruth": "docs/graphics-inventory.json",
+  "referenceStyle": "docs/PAINTED_ART.md; .github/skills/browser-rts-game-dev/references/graphics.md",
+  "shared": {
+    "sourceDimensions": [
+      1536,
+      1024
+    ],
+    "layout": "4 columns x 4 rows; frames 0-7 walking, 8-15 attack (wind-up, contact, recovery); one intact character or vehicle per cell",
+    "style": "Original painted pre-rendered medieval RTS unit art, slightly elevated isometric three-quarter view matching existing Crown & Kingdoms sprite sheets, upper-left lighting, detailed metal/leather/cloth, realistic readable silhouette at gameplay scale; neutral transparent background, consistent feet or hull waterline anchors, original blue heraldry accents for 4-team recolouring",
+    "forbid": "No labels, grid lines, border, backdrop, vignette, colored halo, stray effects, copied game art, duplicated bodies or cropped weapons, feet, wings, wheels, rigging or sails",
+    "review": [
+      "Open original 4x4 PNG and compare with corresponding existing painted atlas at play scale",
+      "Check all 16 figures, independent movements, coherent equipment and anatomy, aligned bottom anchors and complete equipment",
+      "Use scripts/check-motion-source.mjs on native 1536x1024 PNG before converting; do not bypass failures by upscaling a malformed poster",
+      "Import via scripts/build-motion-atlas.mjs --source KIND /path/to/approved.png; rebuild manifests, offline art revision hashes and cache version as appropriate",
+      "Validate four team tints, all eight walk/attack frames, cold/warm/offline fallback, actual Chromium render and game simulation invariance; physical Xbox acceptance separately"
+    ]
+  },
+  "items": []
+}

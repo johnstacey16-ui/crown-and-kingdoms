@@ -64,5 +64,14 @@ test('development branch runs GitHub validation without automatic Vercel preview
   'both development and main must keep quick/focused GitHub checks');
  assert.match(workflow,/pull_request:\s*\n\s*branches: \[main, development\]/);
  assert.match(read('AGENTS.md'),/Working branch:\*\* `development`/);
+ const directReleaseGuard=workflow.includes("Reject permanent development branch as a production PR head") &&
+  workflow.includes("github.base_ref == 'main'") &&
+  workflow.includes('if [ "$SOURCE_BRANCH" = development ]; then');
+ assert.ok(directReleaseGuard,'production PRs must reject development as their head');
+ const hygiene=read('.github/workflows/branch-hygiene.yml');
+ assert.match(hygiene,/const kept = \['main', 'development'\]/,
+  'routine branch cleanup must never delete permanent integration history');
+ assert.match(read('docs/VERCEL_RELEASES.md'),/release\/YYYY-MM-DD/,
+  'release instructions must name the disposable branch used instead of development');
  assert.match(read('docs/VERCEL_RELEASES.md'),/merge.*development.*main/i);
 });
