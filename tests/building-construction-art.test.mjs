@@ -29,3 +29,16 @@ test('four construction stages reveal foundations before roofs, clamp invalid pr
  const f=fixture();f.g.drawImage=()=>{throw Error('unavailable image')};assert.throws(()=>f.draw(f.g,f.art,0,0,1,false,.2));
  assert.equal(f.calls.at(-1)[0],'restore');
 });
+test('mobile cart assembly keeps the entire native animal and cart, clamps progress and restores opacity',()=>{
+ const opacity=[];
+ for(const progress of [0,.3,.65,.95,1,NaN,-1,2]){
+  const f=fixture();f.art.architectureKind='mule';f.g.globalAlpha=.8;
+  f.g.save=()=>f.calls.push(['save']);f.g.restore=()=>{f.g.globalAlpha=.8;f.calls.push(['restore'])};
+  f.g.drawImage=(...args)=>{opacity.push(f.g.globalAlpha);f.calls.push(['image',...args])};
+  f.draw(f.g,f.art,300,240,.5,false,progress);
+  assert.deepEqual(f.calls,[['save'],['image',f.image,10,20,200,160,250,165,100,80],['restore']]);
+  assert.equal(f.g.globalAlpha,.8);
+ }
+ assert.ok(opacity[0]<opacity[1]&&opacity[1]<opacity[2]&&opacity[2]<opacity[3]&&opacity[3]<opacity[4]);
+ assert.equal(opacity[0],opacity[5]);assert.equal(opacity[0],opacity[6]);assert.equal(opacity[4],opacity[7]);
+});

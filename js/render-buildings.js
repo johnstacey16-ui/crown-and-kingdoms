@@ -104,6 +104,8 @@ function buildingVisualAge(b){
 function paintedBuildingFrame(kind,team,time,age){
  const staged=(kind==='house'||kind==='tc')&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_'+kind+'_age_'+age,team,3,0,time):null;
  const art=staged||assetFrame('bld_'+kind,team,3,0,time);
+ // Mobile assembly needs its kind even when no kingdom age has been observed.
+ if(kind==='mule'&&art)return {...art,architectureKind:kind,architectureAge:age,architectureTeam:team,ageDetail:false};
  return art&&Number.isInteger(age)&&age>=0&&age<4?{...art,architectureAge:age,architectureKind:kind,architectureTeam:team,ageDetail:!staged&&kind!=='mule'}:art;
 }
 // Construction reveals use current sight or the last observed visual stage.
@@ -288,6 +290,13 @@ function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=fals
   return;
  }
  const p=Number.isFinite(progress)?Math.max(0,Math.min(1,progress)):0;
+ // A cart is assembled, not raised from a stone foundation. Keep the complete
+ // animal/harness/wheel silhouette intact and fade in the parked base instead.
+ if(art.architectureKind==='mule'){
+  g.save();
+  try{g.globalAlpha*=.35+.65*p;g.drawImage(art.img,f.x,f.y,f.w,f.h,left,top,width,height)}finally{g.restore()}
+  return;
+ }
  const stage=p<.25?0:p<.6?1:p<.9?2:3,reveal=[.18,.5,.8,1][stage];
  g.save();
  try{

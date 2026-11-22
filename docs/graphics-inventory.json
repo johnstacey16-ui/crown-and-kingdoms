@@ -1048,7 +1048,7 @@
       "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "mobile cart base retained across ages",
-      "constructionArt": "shared scaffolding overlay",
+      "constructionArt": "shared whole-sprite assembly fade",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],

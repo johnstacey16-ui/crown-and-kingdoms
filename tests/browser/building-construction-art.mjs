@@ -7,7 +7,7 @@ export async function checkBuildingConstruction(page,output){
   const contact=document.createElement('canvas');contact.width=1500;contact.height=2800;const cg=contact.getContext('2d');
   cg.fillStyle='#435541';cg.fillRect(0,0,contact.width,contact.height);
   const bytes=()=>g.getImageData(0,0,c.width,c.height).data;
-  let completedDifferences=0;
+  let completedDifferences=0,muleBodyMissingPixels=0;
   const regional=Object.keys(B).filter(kind=>B[kind].onlyCiv!==undefined||Array.isArray(B[kind].onlyCivs));
   for(const kind of Object.keys(B))for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,3);if(!art?.painted)throw Error('Missing building '+kind);
@@ -15,9 +15,17 @@ export async function checkBuildingConstruction(page,output){
    // their own all-building test and are intentionally disabled here.
    const constructionArt={...art,ageDetail:false};
    const f=art.f,scale=Math.min(240/f.w,220/f.h),hashes=[];
+   let wholeMule;
+   if(kind==='mule'){
+    g.clearRect(0,0,c.width,c.height);g.drawImage(art.img,f.x,f.y,f.w,f.h,140-f.ax*scale,246-f.ay*scale,f.w*scale,f.h*scale);wholeMule=bytes();
+   }
    for(const progress of [0,.3,.65,.95,1]){
     g.clearRect(0,0,c.width,c.height);drawBuildingArtwork(g,constructionArt,140,246,scale,progress===1,progress);
     const pixels=bytes();let hash=2166136261,opaque=0;
+    if(wholeMule){
+     for(let i=3;i<pixels.length;i+=4)if(wholeMule[i]>200&&pixels[i]<32)muleBodyMissingPixels++;
+     if(g.globalAlpha!==1)throw Error('Mobile assembly leaked opacity');
+    }
     for(let i=0;i<pixels.length;i++){hash=Math.imul(hash^pixels[i],16777619);if(i%4===3&&pixels[i]>32)opaque++}
     hashes.push(hash>>>0);if(opaque<150)throw Error('Empty construction '+kind);
     if(team===0&&['house','tc','castle','dock','feitoria','krepost','donjon','folwark','fchurch','mule'].includes(kind)){
@@ -56,9 +64,10 @@ export async function checkBuildingConstruction(page,output){
    ctx.rect=function(...a){mapClips++;return oldMapRect.apply(this,a)};
    map.refresh({...S,us:[],bs:[base]},0,W,H,true);
   }finally{X.drawImage=oldX;X.rect=oldRect;ctx.rect=oldMapRect}
-  return {samples,regionalDrawn,completedDifferences,soloClips,mapClips,hiddenRetained,unknownFallback,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
+  return {samples,regionalDrawn,completedDifferences,muleBodyMissingPixels,soloClips,mapClips,hiddenRetained,unknownFallback,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);assert.ok(result.hiddenRetained&&result.unknownFallback);assert.equal(result.completedDifferences,0);
+ assert.equal(result.muleBodyMissingPixels,0,'assembly never slices away the animal, harness or cart');
  assert.ok(result.samples.length===112&&result.samples.every(s=>s.distinct===5));
  assert.equal(result.regionalDrawn.length,6,'all faction-locked structures require working native/fallback construction visuals');
  assert.ok(result.soloClips>0&&result.mapClips>0);

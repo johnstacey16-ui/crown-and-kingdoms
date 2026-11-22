@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '96187e4d5d56766b9b8a6f621566db1d1d8ce15bf776ae928c428287353c2ff0';
-const CACHE_NAME = 'ck-shell-v237-complete-building-bases-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v238-mobile-cart-assembly-' + ART_REVISION;
 const CORE_ASSETS = [
   './assets/painted-building-folwark.webp',
   './assets/painted-building-fchurch.webp',

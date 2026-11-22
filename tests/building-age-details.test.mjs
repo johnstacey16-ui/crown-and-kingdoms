@@ -55,6 +55,7 @@ test('regional native frames retain geometry across teams and ages, preserve mec
    assert.equal(art.architectureKind,kind);assert.equal(art.architectureTeam,team);
    assert.equal(art.architectureAge,age);assert.equal(art.ageDetail,kind!=='mule');
   }
+  if(kind==='mule')assert.equal(run("paintedBuildingFrame('mule',0,0,undefined).architectureKind"),'mule');
   run(`ASSET.atl['painted-building-${kind}'].ok=false`);
   assert.equal(run(`paintedBuildingFrame('${kind}',0,0,3)`),null);
  }
