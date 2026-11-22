@@ -101,7 +101,19 @@ function buildingVisualAge(b){
  if(buildingInSight(b)){const age=S.age?.[b.t];if(Number.isInteger(age)&&age>=0&&age<4)PAINT.buildingAges.set(b,age)}
  return PAINT.buildingAges.get(b);
 }
-function paintedBuildingFrame(kind,team,time,age){
+// Read-only presentation: route/occupancy and save data retain their canonical
+// simulation owners. Research, arrival and invalid routes use parked artwork.
+function muleCartVisualPose(b,time){
+ const next=b?.mulePath?.[0],dx=next?.[0]-b?.x,dy=next?.[1]-b?.y;
+ const moving=b?.k==='mule'&&b.done&&b.hp>0&&!b.rs&&Array.isArray(next)&&next.length===2&&
+  next.every(Number.isInteger)&&Number.isInteger(b.x)&&Number.isInteger(b.y)&&Math.max(Math.abs(dx),Math.abs(dy))===1;
+ return {state:moving?1:0,dir:moving&&dx-dy>0?1:0,time:Number.isFinite(time)?Math.max(0,time):0};
+}
+function paintedBuildingFrame(kind,team,time,age,pose){
+ if(kind==='mule'&&pose?.state===1){
+  const moving=assetFrame('bld_mule_motion',team,1,pose.dir===1?1:0,pose.time);
+  if(moving)return {...moving,architectureKind:kind,architectureAge:age,architectureTeam:team,ageDetail:false};
+ }
  const staged=(kind==='house'||kind==='tc')&&Number.isInteger(age)&&age>=0&&age<4?assetFrame('bld_'+kind+'_age_'+age,team,3,0,time):null;
  const art=staged||assetFrame('bld_'+kind,team,3,0,time);
  // Mobile assembly needs its kind even when no kingdom age has been observed.
@@ -332,9 +344,9 @@ function drawBuildingArtwork(g,art,x,y,scale,complete=true,progress=1,ghost=fals
  }finally{g.restore()}
 }
 function drawBld(b,ghost){const o=BP[b.k]||BP.house,s=b.s,f=b.done?1:cl(b.pr/B[b.k].bt,.2,1),st=b.done?3:Math.min(2,(f*3)|0),ff=[.3,.55,.8,1][st],ap=(o.p||0)+(o.tur?18:0)+(o.keep?30:0),w=s*64+80,hgt=Math.round(s*32+o.h*1.2+ap+80),z=zm,
-dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b)):null,
+dm=b.done&&b.mh>1?(b.hp<b.mh*.33?2:b.hp<b.mh*.66?1:0):0,baf=ASSET.n?paintedBuildingFrame(b.k,b.t,gt,buildingVisualAge(b),b.k==='mule'&&buildingInSight(b)?muleCartVisualPose(b,S.t):null):null,
 c=baf?null:spr('b|'+b.k+'|'+b.t+'|'+st+'|'+dm,w,hgt,g=>paintBld(g,b.k,s,teamColor(b.t),ff,dm)),Z=w2s(b.x+s,b.y+s),E=w2s(b.x+s,b.y),N=w2s(b.x,b.y),Wv=w2s(b.x,b.y+s);
-X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/q.w*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay,construction=buildingVisualConstruction(b);drawBuildingArtwork(X,{...baf,f:{...q,ax,ay}},Z[0],Z[1],sc,construction.complete,construction.progress,!!ghost,buildingVisualDamage(b),gt,buildingInSight(b),!ghost&&!S.sel.includes(b))}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost&&!baf?.painted){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/baf.f.w)*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
+X.globalAlpha=ghost?.6:b.done?1:.88;if(baf){const q=baf.f,sc=baf.painted?s*66/(baf.referenceWidth||q.w)*zm:Math.min(w/q.w,hgt/q.h)*zm*(baf.sc||1),ax=q.ax==null?q.w/2:q.ax,ay=q.ay==null?q.h-8:q.ay,construction=buildingVisualConstruction(b);drawBuildingArtwork(X,{...baf,f:{...q,ax,ay}},Z[0],Z[1],sc,construction.complete,construction.progress,!!ghost,buildingVisualDamage(b),gt,buildingInSight(b),!ghost&&!S.sel.includes(b))}else blit(c,Z[0],Z[1],w,hgt,false);X.globalAlpha=1;if(!b.done&&!ghost&&!baf?.painted){const lift=Math.max(5,o.h*ff)*z,pts=[Z,E,N,Wv],tops=pts.map(p=>[p[0],p[1]-lift]);X.save();X.lineCap='round';X.lineJoin='round';X.strokeStyle='rgba(91,57,28,.82)';X.lineWidth=Math.max(1,2*z);for(let i=0;i<pts.length;i++){X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[i][0],tops[i][1]);X.stroke()}X.strokeStyle='rgba(205,157,91,.78)';X.lineWidth=Math.max(.8,1.3*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(tops[i][0],tops[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.strokeStyle='rgba(116,75,38,.72)';X.lineWidth=Math.max(.8,1*z);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;X.beginPath();X.moveTo(pts[i][0],pts[i][1]);X.lineTo(tops[j][0],tops[j][1]);X.stroke()}X.restore()}const cx=Z[0],topY=baf?.painted?Z[1]-baf.f.h*(s*66/(baf.referenceWidth||baf.f.w))*z:Z[1]-(s*16+o.h*ff+(o.p||0)+(o.keep?16:0))*z;
 if(b.done){if(o.fl&&!baf?.painted){const by=topY-(o.cren?4:0)*z;X.strokeStyle='#3a2a1a';X.lineWidth=2*z;X.beginPath();X.moveTo(cx,by);X.lineTo(cx,by-22*z);X.stroke();X.fillStyle=teamColor(b.t);poly([[cx,by-22*z],[cx+14*z,by-17*z+Math.sin(gt*4)*2.5*z],[cx,by-10*z]]);X.fill();X.lineWidth=1}
 if(o.chim){for(let i=0;i<3;i++){const t=(gt*.6+i/3)%1;X.fillStyle='rgba(205,205,205,'+(.5-t*.5)+')';X.beginPath();X.arc(cx+s*8*z+Math.sin(t*6+i)*3*z,topY+10*z-t*30*z,(3+t*5)*z,0,7);X.fill()}}
 if(o.blades&&!baf?.painted){const hx=cx+2*z,hy=Z[1]-(s*16+o.h*.85)*z;X.strokeStyle='#5a3a1a';X.lineWidth=2.4*z;for(let i=0;i<4;i++){const a=gt*.9+i*1.5708;X.beginPath();X.moveTo(hx,hy);X.lineTo(hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z);X.stroke();X.fillStyle='rgba(240,230,200,.9)';poly([[hx+Math.cos(a)*8*z,hy+Math.sin(a)*8*z],[hx+Math.cos(a)*24*z,hy+Math.sin(a)*24*z],[hx+Math.cos(a)*24*z-Math.sin(a)*7*z,hy+Math.sin(a)*24*z+Math.cos(a)*7*z],[hx+Math.cos(a)*8*z-Math.sin(a)*7*z,hy+Math.sin(a)*8*z+Math.cos(a)*7*z]]);X.fill()}X.lineWidth=1}

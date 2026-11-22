@@ -19,7 +19,7 @@
       return visual;
     };
     const architecture=b=>Number.isInteger(world.age?.[b.t])&&world.age[b.t]>=0&&world.age[b.t]<4?{architectureAge:world.age[b.t]}:{};
-    const construction=b=>({...architecture(b),complete:!!b.done,progress:b.done?1:
+    const construction=b=>({...architecture(b),...(b.k==='mule'&&typeof muleCartVisualPose==='function'?{pose:muleCartVisualPose(b,world.t)}:{}),complete:!!b.done,progress:b.done?1:
       Math.max(0,Math.min(1,Number.isFinite(b.pr)&&B[b.k]?.bt>0?b.pr/B[b.k].bt:0))});
     const view={width,height,team,
       units:world.us.filter(u=>u&&u.t===team&&u.hp>0&&!u.ld&&position(u)).map(u=>({id:u.netId,kind:u.k,x:u.x,y:u.y,idle:u.o==='i',...(sight?{team:u.t,military:!!root.CK_GAME_COMMANDS.militaryUnit?.(u),formation:u.netFormation==='split'?'split':'line',pose:pose(u),...(u.k==='mon'?{faith:Math.max(0,Math.min(100,u.faith??100))}:{}),commands:root.CK_GAME_COMMANDS.unitOptions(world,team,u),passengers:(u.cg||[]).filter(c=>c.hp>0&&c.ld===u&&c.t===team).length}:{})})),

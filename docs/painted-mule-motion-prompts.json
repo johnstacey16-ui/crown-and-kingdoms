@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "date": "2026-11-22",
+  "method": "built-in image generation with original painted-building-mule.webp identity reference and alpha cleanup edit",
+  "contract": {
+    "source": [
+      1536,
+      1024
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "facings": 2,
+    "walkFramesPerFacing": 8,
+    "attackFrames": 0,
+    "independentEightDirections": false
+  },
+  "prompts": {
+    "source": "Original Crown & Kingdoms medieval RTS animation sprite sheet. Use the supplied ORIGINAL Mule Cart base only as identity/style reference: same small brown long-eared mule, leather harness, oak two-wheel supply cart, iron rims, bundled tools/logs/two sacks, folded BLUE canvas load cover and BLUE pennant with plain gold diamond. Create native1536x1024 transparent PNG with EXACT4columns x4rows equal384x256 cells, one COMPLETE mule-and-cart in every cell,16 poses total. Top TWO rows cells0-7: eight sequential smooth WALK cycle poses facing lower LEFT, cart behind upper right. Bottom TWO rows cells8-15: eight sequential WALK poses facing lower RIGHT, cart behind upper left, matching opposite three-quarter isometric view. Four legs change plausible weight-bearing positions and strides, hooves lift and plant; cart wheel spokes rotate incrementally, harness gently shifts, cart/load stays stable with tiny bounce, pennant gently moves. Both facings same body/cart proportions and same consistent upper-left illumination. Every entire mule+cart fits inside its OWN cell with generous30px empty padding from all cell boundaries, including ears, tail, tools, pennant, cart shafts, wheels and hooves. Entire figure roughly270px wide and185px tall per cell; feet line and camera elevation stable, no lateral travel across cells. Mature detailed painted game sprites matching reference at small game scale. True alpha0 transparent empty background, no floor/platform, terrain, ground shadows, haze, text, captions, cell borders, arrows, numbers, detached accessories or extra animals/people. This is animation production art, not poster: sixteen genuinely different walk poses, no attacks, no dismemberment, no cropped parts. Original art only.",
+    "alphaCleanup": "Edit this original sixteen-pose Mule Cart sprite sheet. Change ONLY the backdrop: remove ALL brown/grey haze, gradients, floor and background pixels to actual transparent alpha0 empty space. Preserve all sixteen complete mule/cart poses, two facings, four-by-four grid, original1536x1024 resolution, positions, proportions, lighting, blue cloth, pennant, shafts, wheel spokes, tools, ears, hooves and tails unchanged. Every gap between silhouettes and every gap between cells must be genuinely fully transparent, no translucent tint. Do not add or redraw animals, do not crop anything, no replacement solid colour or checkerboard. Fully transparent PNG cutouts, crisp antialiased edges."
+  }
+}

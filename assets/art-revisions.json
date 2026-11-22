@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "revision": "96187e4d5d56766b9b8a6f621566db1d1d8ce15bf776ae928c428287353c2ff0",
+  "revision": "9d700d7c2e8ef15b27c1dca8f8e27e22ff1f0c2f235ea099618cd9549fa13687",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
     "./assets/painted-building-feitoria.webp": "2097cee81d6b1c88549d9f5f5b162431e3ca59e8bb05db337597e48891a699ee",
     "./assets/painted-building-folwark.webp": "09d82f60a3ada8b35fefd93c097f93392a7083d544e8b2d92d046170a1d6d22a",
     "./assets/painted-building-krepost.webp": "f7283faf179c1bb0d3df0f6d7d34fe6104a262d58032342710e504618a61a757",
+    "./assets/painted-building-mule-motion.webp": "27d06bb2e4dbb518419cfce8a8f802dcdc50952cbfe441560a6fdc7fcff9b871",
     "./assets/painted-building-mule.webp": "4cf2d7dd6315d5392eda754a151402c87ca009fb12a708850e77267c12e9e4ab",
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",

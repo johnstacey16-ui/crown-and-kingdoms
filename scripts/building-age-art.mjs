@@ -2,7 +2,7 @@
 import {existsSync,readFileSync} from 'node:fs';
 const root=new URL('../assets/',import.meta.url);
 export function applyBuildingAgeArt(pack){
- for(const [name,flag,version]of [['house-age-manifest.json','houseAges','painted-raster-v18-house-ages'],['town-centre-age-manifest.json','townCentreAges','painted-raster-v19-town-centre-ages'],['regional-building-manifest.json','regionalBuildings','painted-raster-v20-regional-buildings']]){
+ for(const [name,flag,version]of [['house-age-manifest.json','houseAges','painted-raster-v18-house-ages'],['town-centre-age-manifest.json','townCentreAges','painted-raster-v19-town-centre-ages'],['regional-building-manifest.json','regionalBuildings','painted-raster-v20-regional-buildings'],['mule-motion-manifest.json','muleMotion','painted-raster-v21-mule-motion']]){
   const path=new URL(name,root);if(!existsSync(path))continue;
   const extra=JSON.parse(readFileSync(path));pack.atlases=pack.atlases.filter(a=>!a.meta[flag]);pack.atlases.push(...extra.atlases);pack.version=version;
  }
