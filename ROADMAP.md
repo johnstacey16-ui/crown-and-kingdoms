@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-Feitoria, Krepost and Donjon bring painted building bases to **25/28**; Folwark, Fortified Church and Mule Cart remain. All **84/84** playable unit kinds retain painted movement/attack ([inventory](docs/graphics-inventory.json)); the base source queue is empty. Candidate `ddc2d25a` passed quick 5/5, focused 1,750, Chromium 2/2 and Xbox software 8/8 ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44235232970)); reviewed screenshots cover 100 construction and 124 damage variants with unchanged completed pixels/alpha. Prompts: `docs/painted-regional-building-prompts.json`. Age/construction/damage remain shared effects. Independent facings, dedicated work/hit/death, remaining Elite art, physical Xbox and production release remain open.
+All **28/28** current building bases and **84/84** playable unit kinds now have painted base art ([inventory](docs/graphics-inventory.json)). Folwark, Fortified Church and Mule Cart complete the building roster; the cart retains a parked cutout with whole-sprite assembly fade, not walking/wheel animation. Candidate `2e326b3e` passed quick 5/5, focused 1,752, Chromium 2/2 and Xbox software 8/8 ([hosted evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/44978091692)); 112 construction and 136 damage variants were reviewed with zero missing cart-body, completed-pixel or alpha differences. Prompts: `docs/painted-final-building-prompts.json`. Next: cart motion, remaining Elite/state/facing art and dedicated building states. Physical Xbox and production release remain open.
 
 ## Current content continuation — 14 November 2026
 
