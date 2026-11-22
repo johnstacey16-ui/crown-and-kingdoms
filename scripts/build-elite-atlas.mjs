@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
-const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml'],args=process.argv.slice(2),sources={};
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk'],args=process.argv.slice(2),sources={};
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();
   if(flag!=='--source'||!kinds.includes(kind)||!path||sources[kind])throw Error('Use --source KIND PNG once per Elite kind');
@@ -30,7 +30,7 @@ for(const kind of selectedKinds){
  }
  const source=readFileSync(sources[kind]);
  let {data,info}=await sharp(source).ensureAlpha().raw().toBuffer({resolveWithObject:true});
- if(['woad','bers','saml'].includes(kind)&&(info.width!==1536||info.height!==1024))throw Error('Use a native 1536x1024 source: '+kind);
+ if(!kinds.slice(0,4).includes(kind)&&(info.width!==1536||info.height!==1024))throw Error('Use a native 1536x1024 source: '+kind);
  if(info.width%4||info.height%4)throw Error('Expected a four-by-four source: '+kind);
  let clear=0;for(let i=3;i<data.length;i+=4)if(!data[i])clear++;
  if(clear/info.width/info.height<.45)throw Error('Expected transparent sprite sheet: '+kind);

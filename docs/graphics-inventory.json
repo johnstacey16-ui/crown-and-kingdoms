@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 105,
+  "atlases": 108,
   "units": [
     {
       "kind": "vil",
@@ -823,6 +823,33 @@
       "directionalArt": "one authored facing plus reflection",
       "deathArt": "not authored",
       "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "tk",
+      "atlas": "painted-elite-tk",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "jaguar",
+      "atlas": "painted-elite-jaguar",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "kamayuk",
+      "atlas": "painted-elite-kamayuk",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
     }
   ],
   "buildings": [
@@ -1096,7 +1123,7 @@
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "7 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "evidence": "10 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
       "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
