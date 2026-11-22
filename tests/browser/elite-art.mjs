@@ -5,8 +5,8 @@ export async function checkEliteArtwork(page,output){
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const saved={civ:S.civ,tech:S.tech,us:S.us,bs:S.bs,sel:S.sel};
   const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
-  const contact=document.createElement('canvas');contact.width=1536;contact.height=768;
-  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,768);
+  const contact=document.createElement('canvas');contact.width=1536;contact.height=1344;
+  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,1344);
   const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
   const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
   const samples=[],selection=[],draws=[],frames=new Set();let current='';
@@ -16,7 +16,7 @@ export async function checkEliteArtwork(page,output){
    troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
    mapContext.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalMapDraw.apply(this,a)};
-   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0]];
+   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11]];
    for(const [row,[kind,id]] of roster.entries()){
     S.civ=[id,id];S.tech=[{},{}];
     if(original(kind,0,{state:1,time:0},!!eliteUniqueUnitUpgrade(kind,0)).elite)throw Error('Elite before research');
@@ -57,7 +57,7 @@ export async function checkEliteArtwork(page,output){
   return {samples,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
- assert.equal(result.samples.length,32);
+ assert.equal(result.samples.length,56);
  assert.ok(result.samples.every(s=>s.distinct===8&&s.minimum>150),'all Elite actions have eight decoded nonempty poses for four palettes');
  await writeFile(output+'/painted-elites.png',Buffer.from(result.data.split(',')[1],'base64'));
  delete result.data;return result;

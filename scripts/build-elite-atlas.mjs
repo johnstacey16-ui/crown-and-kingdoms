@@ -1,26 +1,44 @@
-// Optional original-art packer: provide four transparent 4x4 source sheets.
-// npm install --no-save sharp; node scripts/build-elite-atlas.mjs SOURCE...
+// Optional original-art authoring. Existing approved sheets survive every batch.
+// --source KIND PNG adds/replaces only that kind; four positional PNGs retain
+// compatibility with the original Huskarl/Longbow/Mangudai/Axeman workflow.
 import {createRequire} from 'node:module';
-import {readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {extractSpriteGrid} from './sprite-grid.mjs';
+import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
-const sharp=createRequire(import.meta.url)('sharp');
-const root=new URL('../',import.meta.url),kinds=['huskarl','lbow','mgd','axe'];
-const sources=process.argv.slice(2);
-if(sources.length!==4)throw Error('Supply Huskarl, Longbowman, Mangudai and Axeman PNGs');
+const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml'],args=process.argv.slice(2),sources={};
+if(args[0]?.startsWith('--')){
+ while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();
+  if(flag!=='--source'||!kinds.includes(kind)||!path||sources[kind])throw Error('Use --source KIND PNG once per Elite kind');
+  sources[kind]=path;
+ }
+}else if(args.length){
+ if(args.length!==4)throw Error('Supply four original positional PNGs or --source KIND PNG');
+ args.forEach((path,i)=>sources[kinds[i]]=path);
+}
+const file=new URL('assets/elite-manifest.json',root);
+const previous=existsSync(file)?JSON.parse(readFileSync(file)):{atlases:[],provenance:[]};
 const atlases=[],provenance=[];
-for(const [index,kind] of kinds.entries()){
- const source=readFileSync(sources[index]);
- const {data,info}=await sharp(source).ensureAlpha().raw().toBuffer({resolveWithObject:true});
- let clear=0;for(let i=3;i<data.length;i+=4)if(data[i]===0)clear++;
+const selectedKinds=[...kinds,...previous.atlases.map(a=>a.meta.elite).filter(k=>!kinds.includes(k))];
+for(const kind of selectedKinds){
+ if(!sources[kind]){
+  const old=previous.atlases.find(a=>a.meta.elite===kind);if(!old)continue;
+  if(!existsSync(new URL(old.src,root)))throw Error('Missing approved Elite image '+kind);
+  atlases.push(old);const entry=previous.provenance.find(p=>p.kind===kind);if(entry)provenance.push(entry);
+  continue;
+ }
+ const source=readFileSync(sources[kind]);
+ let {data,info}=await sharp(source).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ if(['woad','bers','saml'].includes(kind)&&(info.width!==1536||info.height!==1024))throw Error('Use a native 1536x1024 source: '+kind);
+ if(info.width%4||info.height%4)throw Error('Expected a four-by-four source: '+kind);
+ let clear=0;for(let i=3;i<data.length;i+=4)if(!data[i])clear++;
  if(clear/info.width/info.height<.45)throw Error('Expected transparent sprite sheet: '+kind);
+ const padded=reflowSpriteGrid(data,info.width,info.height,4,4,16,true,64);data=padded.data;info={...info,width:padded.width,height:padded.height};
  const isolated=extractSpriteGrid(data,info.width,info.height,4,4,16,null,true);
- // Reject clipped source figures before packing; never silently crop weapons.
- for(const [i,f] of isolated.frames.entries()){
-  const left=Math.round(i%4*info.width/4),right=Math.round((i%4+1)*info.width/4);
-  const top=Math.round(Math.floor(i/4)*info.height/4),bottom=Math.round((Math.floor(i/4)+1)*info.height/4);
-  if(f.x<=left||f.y<=top||f.x+f.w>=right||f.y+f.h>=bottom)throw Error('Figure touches cell boundary: '+kind+'/'+i);
+ for(const [i,f]of isolated.frames.entries()){
+  const x=i%4*info.width/4,y=Math.floor(i/4)*info.height/4;
+  if(f.x<x+4||f.y<y+4||f.x+f.w>x+info.width/4-4||f.y+f.h>y+info.height/4-4)throw Error('Figure touches cell boundary: '+kind+'/'+i);
  }
  const src='./assets/painted-elite-'+kind+'.webp';
  writeFileSync(new URL(src,root),await sharp(isolated.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer());
@@ -32,13 +50,13 @@ for(const [index,kind] of kinds.entries()){
   anims[kind+'_elite/walk/'+team]={dur:kind==='mgd'?.075:.095,scale,referenceHeight,frames:frames.slice(0,8)};
   anims[kind+'_elite/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
  }
- atlases.push({id:'painted-elite-'+kind,src,meta:{painted:true,motion:true,elite:kind,width:info.width,height:info.height,anims}});
+ atlases.push({id:'painted-elite-'+kind,src,meta:{painted:true,motion:true,elite:kind,sourceActionFrame:12,width:info.width,height:info.height,anims}});
  provenance.push({kind,sourceSha256:createHash('sha256').update(source).digest('hex'),frames:16,facings:'one authored facing plus runtime reflection',death:'not authored'});
 }
-const elite={version:1,provenance,atlases};
-writeFileSync(new URL('assets/elite-manifest.json',root),JSON.stringify(elite));
-const file=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(file));
-pack.atlases=[...pack.atlases.filter(a=>!a.meta.elite),...atlases];
-writeFileSync(file,JSON.stringify(pack));
-updateArtRevisions();
-console.log('Packed 64 original Elite poses; independent facings and death art remain unfinished.');
+writeFileSync(file,JSON.stringify({version:1,provenance,atlases}));
+const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
+const byId=new Map(atlases.map(a=>[a.id,a])),present=new Set(pack.atlases.map(a=>a.id));
+pack.atlases=pack.atlases.map(a=>byId.get(a.id)||a);
+pack.atlases.push(...atlases.filter(a=>!present.has(a.id)));
+writeFileSync(manifest,JSON.stringify(pack));
+updateArtRevisions();console.log('Packed '+atlases.length*16+' original Elite poses for '+atlases.length+' kinds; independent facings/death art remain unfinished.');

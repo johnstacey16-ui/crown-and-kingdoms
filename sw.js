@@ -4,9 +4,12 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '9d700d7c2e8ef15b27c1dca8f8e27e22ff1f0c2f235ea099618cd9549fa13687';
-const CACHE_NAME = 'ck-shell-v239-mule-walking-' + ART_REVISION;
+const ART_REVISION = 'e671fcd5576ec559645d5028ccadd6d883ff801bb9b3e40f4049db1cd11bd3b2';
+const CACHE_NAME = 'ck-shell-v240-elite-infantry-' + ART_REVISION;
 const CORE_ASSETS = [
+  './assets/painted-elite-woad.webp',
+  './assets/painted-elite-bers.webp',
+  './assets/painted-elite-saml.webp',
   './assets/painted-building-mule-motion.webp',
   './assets/painted-building-folwark.webp',
   './assets/painted-building-fchurch.webp',

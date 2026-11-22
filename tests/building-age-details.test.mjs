@@ -67,5 +67,7 @@ test('regional native frames retain geometry across teams and ages, preserve mec
  const rebuilt=applyBuildingAgeArt({atlases:structuredClone(common)});
  assert.deepEqual(rebuilt,applyBuildingAgeArt(structuredClone(rebuilt)),'repeated authoring imports cannot duplicate regional or age art');
  assert.deepEqual(rebuilt.atlases.filter(a=>a.meta.regionalBuildings),regional);
- assert.deepEqual(rebuilt.atlases.filter(a=>!a.meta.regionalBuildings&&!a.meta.houseAges&&!a.meta.townCentreAges),common,'earlier artwork survives shared authoring rebuilds');
+ const retained=rebuilt.atlases.filter(a=>!a.meta.regionalBuildings&&!a.meta.houseAges&&!a.meta.townCentreAges);
+ assert.equal(retained.length,common.length,'shared rebuilding cannot lose or duplicate an atlas');
+ assert.deepEqual(Object.fromEntries(retained.map(a=>[a.id,a])),Object.fromEntries(common.map(a=>[a.id,a])),'earlier artwork definitions survive shared authoring rebuilds regardless of import order');
 });

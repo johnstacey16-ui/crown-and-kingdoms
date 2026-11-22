@@ -13,8 +13,8 @@ function fixture(){
  for(const a of [...elite.atlases,...pack.atlases.filter(a=>a.id.startsWith('painted-motion-'))])run('regAtlas('+JSON.stringify(a.id)+',{},'+JSON.stringify(a.meta)+')');
  return run;
 }
-test('four dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
- assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe']);
+test('seven dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
+ assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml']);
  for(const a of elite.atlases){
   const k=a.meta.elite,base=pack.atlases.find(b=>b.id==='painted-motion-'+k);
   assert.notEqual(a.src,base.src);
@@ -28,13 +28,14 @@ test('four dedicated Elite sheets retain sixteen complete poses and independent 
 });
 test('solo rendering selects only the owning researched Elite tier and falls back after atlas loss',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11]]){
   run('S.civ=['+id+','+id+'];S.tech=[{},{}]');
   const draw=t=>'unitAssetFrame('+JSON.stringify(k)+','+t+',{state:1,time:.2},!!eliteUniqueUnitUpgrade('+JSON.stringify(k)+','+t+'))';
   assert.equal(run('!!'+draw(0)+'.elite'),false);
   run('S.tech[0][CIV[S.civ[0]].elite.k]=1');
   assert.equal(run('!!'+draw(0)+'.elite'),true);
   assert.equal(run('!!'+draw(1)+'.elite'),false);
+  run('S.civ[0]=('+id+'+1)%CIV.length');assert.equal(run('!!'+draw(0)+'.elite'),false,'stale research cannot upgrade another civilization');run('S.civ[0]='+id);
   const before=run('JSON.stringify([S.tech,S.us,S.bs,S.res,S.t])');
   run(draw(0));assert.equal(run('JSON.stringify([S.tech,S.us,S.bs,S.res,S.t])'),before);
   run('ASSET.atl["painted-elite-'+k+'"].ok=false');
@@ -44,13 +45,15 @@ test('solo rendering selects only the owning researched Elite tier and falls bac
 });
 test('network projection uses its supplied world research, including visible opponents',()=>{
  const run=fixture();
- run('S.civ=[18,18];S.tech=[{},{}];globalThis.a=addU(0,"huskarl",20,20);globalThis.b=addU(1,"huskarl",21,20);globalThis.w={...S,civ:[18,18],tech:[{eliteHuskarl:1},{}]}');
- const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
- assert.equal(run('eliteUniqueUnitUpgrade("huskarl",0)'),null);
- assert.equal(run('!!eliteUniqueUnitUpgrade("huskarl",0,w)'),true);
- assert.equal(run('!!CK_UNIT_PROJECTION.project(w,0,W,H).units.find(e=>e.id===a.netId).pose.elite'),true);
- assert.equal(run('!!CK_UNIT_PROJECTION.project(w,0,W,H).battlefield.enemies.find(e=>e.id===b.netId).pose.elite'),false);
- assert.equal(run('JSON.stringify([S.tech,w.tech,S.us,S.bs])'),before);
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11]]){
+  run(`S.civ=[${id},${id}];S.tech=[{},{}];S.us=[];globalThis.a=addU(0,'${k}',20,20);globalThis.b=addU(1,'${k}',21,20);globalThis.w={...S,civ:[${id},${id}],tech:[{[CIV[${id}].elite.k]:1},{}]}`);
+  const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
+  assert.equal(run(`eliteUniqueUnitUpgrade('${k}',0)`),null);
+  assert.equal(run(`!!eliteUniqueUnitUpgrade('${k}',0,w)`),true);
+  assert.equal(run('!!CK_UNIT_PROJECTION.project(w,0,W,H).units.find(e=>e.id===a.netId).pose.elite'),true);
+  assert.equal(run('!!CK_UNIT_PROJECTION.project(w,0,W,H).battlefield.enemies.find(e=>e.id===b.netId).pose.elite'),false);
+  assert.equal(run('JSON.stringify([S.tech,w.tech,S.us,S.bs])'),before);
+ }
 });
 test('roster warm-up prepares the selected Elite frames inside the unchanged creation budget',()=>{
  const run=fixture();run('S.civ=[18,18];S.tech=[{eliteHuskarl:1},{}];S.us=[];addU(0,"huskarl",20,20);queueRosterTintWarmup(S)');
