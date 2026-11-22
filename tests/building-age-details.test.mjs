@@ -41,11 +41,11 @@ test('four architectural detail stages are distinct and restore the canvas',()=>
 test('regional native frames retain geometry across teams and ages, preserve mechanics and fall back safely',()=>{
  const pack=JSON.parse(read('assets/atlas-manifest.json'));
  const regional=JSON.parse(read('assets/regional-building-manifest.json')).atlases;
- assert.deepEqual(regional.map(a=>a.id),['painted-building-feitoria','painted-building-krepost','painted-building-donjon']);
+ assert.deepEqual(regional.map(a=>a.id),['painted-building-feitoria','painted-building-krepost','painted-building-donjon','painted-building-folwark','painted-building-fchurch','painted-building-mule']);
  const run=game();
  for(const a of pack.atlases)run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`);
  const before=run('JSON.stringify(B)');
- for(const kind of ['feitoria','krepost','donjon']){
+ for(const kind of ['feitoria','krepost','donjon','folwark','fchurch','mule']){
   const atlas=regional.find(a=>a.id==='painted-building-'+kind),f=atlas.meta.anims['bld_'+kind+'/idle/0'].frames[0];
   assert.deepEqual(pack.atlases.find(a=>a.id===atlas.id),atlas);
   assert.ok(f.x>=16&&f.y>=16&&f.x+f.w<=atlas.meta.width-16&&f.y+f.h<=atlas.meta.height-16);
@@ -53,7 +53,7 @@ test('regional native frames retain geometry across teams and ages, preserve mec
    const art=run(`paintedBuildingFrame('${kind}',${team},0,${age})`);
    assert.equal(JSON.stringify(art.sourceFrame),JSON.stringify(f));
    assert.equal(art.architectureKind,kind);assert.equal(art.architectureTeam,team);
-   assert.equal(art.architectureAge,age);assert.equal(art.ageDetail,true);
+   assert.equal(art.architectureAge,age);assert.equal(art.ageDetail,kind!=='mule');
   }
   run(`ASSET.atl['painted-building-${kind}'].ok=false`);
   assert.equal(run(`paintedBuildingFrame('${kind}',0,0,3)`),null);

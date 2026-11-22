@@ -161,9 +161,9 @@ try{
     if(opaque<8)invalidProcedural.push(k+': empty');
    }catch(error){invalidProcedural.push(k+': '+String(error))}
   }
-  // Common buildings and the three approved regional bases require native art.
-  // The other three regional structures retain the tested procedural fallback.
-  for(const k of Object.keys(B).filter(kind=>(B[kind].onlyCiv===undefined&&!Array.isArray(B[kind].onlyCivs))||['feitoria','krepost','donjon'].includes(kind)))
+  // Every current building base requires native art; failure-mode coverage
+  // below still checks procedural rendering when every image request fails.
+  for(const k of Object.keys(B))
    for(let t=0;t<4;t++)if(!assetFrame('bld_'+k,t,0,0,.1))missingBuildings.push(k+'/'+t);
   const a=assetFrame('mil',0,0,0,0),b=assetFrame('mil',1,0,0,0);
   const pixels=a.img.getContext('2d').getImageData(0,0,a.img.width,a.img.height).data;
@@ -355,8 +355,8 @@ try{
  });
  assert.ok(contact.icons>=69,'the expanded roster includes the original painted units/buildings');
  assert.equal(contact.sprites,contact.icons*2,'every roster member renders for both teams');
- assert.deepEqual(contact.fallbackKeys.sort(),['bld_folwark','bld_fchurch','bld_mule'].flatMap(k=>[k+'/0',k+'/1']).sort(),'only the three unpainted regional bases use contact-sheet fallbacks');
- assert.equal(contact.fallbacks,6);
+ assert.deepEqual(contact.fallbackKeys,[],'all current unit and building base icons use painted art');
+ assert.equal(contact.fallbacks,0);
  assert.equal(contact.unchanged,true);
  await page.setViewportSize({width:1320,height:1450});
  await page.locator('#extended-art').screenshot({path:output+'/extended-art.png'});

@@ -6,14 +6,29 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 const protocol=read('js/network-sync.js'),commands=read('js/network-commands.js');
-function world(civilization=41){
+function world(civilization=41,withArt=false){
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
- vm.runInContext(source+'\n'+protocol+'\n'+commands+'\nglobalThis.muleEval=code=>eval(code);',sandbox);
+ vm.runInContext(source+'\n'+(withArt?read('js/assets.js'):'')+'\n'+protocol+'\n'+commands+'\nglobalThis.muleEval=code=>eval(code);',sandbox);
  const run=sandbox.muleEval;
  run("seedOv=191126;msz=0;kingdoms=2;startAge=3;startRes=3;startArmy=0;civ="+civilization+";start();S.civ=["+civilization+",0];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.mule=addB(0,'mule',20,20,true);globalThis.tc=addB(0,'tc',35,35,true)");
  return run;
 }
+test('parked Mule Cart artwork follows real relocation and save/load without architectural additions',()=>{
+ const run=world(41,true),pack=JSON.parse(read('assets/atlas-manifest.json'));
+ for(const a of pack.atlases)run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`);
+ const frame=()=>run("JSON.stringify(paintedBuildingFrame(mule.k,mule.t,S.t,S.age[0]).sourceFrame)");
+ const identity=run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),original=frame();
+ assert.equal(run("paintedBuildingFrame(mule.k,mule.t,S.t,3).ageDetail"),false,'mobile cart never receives building battlements or roof fittings');
+ assert.equal(run('orderMuleCart(mule,24,20)'),true);run('tickMuleCarts(8)');
+ assert.equal(run('mule.x'),24);assert.equal(frame(),original);
+ assert.equal(run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),identity);
+ assert.equal(run("saveG(false,'mule-painted-check')"),true);
+ assert.equal(run("loadG(false,'mule-painted-check')"),true);
+ run("mule=S.bs.find(b=>b.k==='mule')");
+ assert.equal(run('mule.x'),24);assert.equal(frame(),original);
+ assert.equal(run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),identity);
+});
 test('Mountain Royals own a separate 1x1 mobile building with correct prices',()=>{
  const a=world(41),g=world(42),v=world(0);
  assert.equal(a("B.mule.s"),1);

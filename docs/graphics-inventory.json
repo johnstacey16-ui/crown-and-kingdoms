@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 98,
+  "atlases": 101,
   "units": [
     {
       "kind": "vil",
@@ -1027,7 +1027,7 @@
     {
       "kind": "folwark",
       "name": "Folwark",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1036,7 +1036,7 @@
     {
       "kind": "fchurch",
       "name": "Fortified Church",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1045,9 +1045,9 @@
     {
       "kind": "mule",
       "name": "Mule Cart",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "four shared original vector age fittings over native art",
+      "ageArt": "mobile cart base retained across ages",
       "constructionArt": "shared scaffolding overlay",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
@@ -1074,7 +1074,7 @@
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "28 building kinds; 25 painted, 3 original procedural fallback; fog-safe age presentation",
+      "evidence": "28 building kinds; 28 painted, 0 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

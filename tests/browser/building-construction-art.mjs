@@ -4,12 +4,12 @@ export async function checkBuildingConstruction(page,output){
  const result=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,samples=[];
   const c=document.createElement('canvas');c.width=280;c.height=260;const g=c.getContext('2d');
-  const contact=document.createElement('canvas');contact.width=1500;contact.height=1960;const cg=contact.getContext('2d');
+  const contact=document.createElement('canvas');contact.width=1500;contact.height=2800;const cg=contact.getContext('2d');
   cg.fillStyle='#435541';cg.fillRect(0,0,contact.width,contact.height);
   const bytes=()=>g.getImageData(0,0,c.width,c.height).data;
   let completedDifferences=0;
   const regional=Object.keys(B).filter(kind=>B[kind].onlyCiv!==undefined||Array.isArray(B[kind].onlyCivs));
-  for(const kind of Object.keys(B).filter(kind=>(!regional.includes(kind)||['feitoria','krepost','donjon'].includes(kind))))for(let team=0;team<4;team++){
+  for(const kind of Object.keys(B))for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,3);if(!art?.painted)throw Error('Missing building '+kind);
    // Construction acceptance isolates the native reveal. Age fittings have
    // their own all-building test and are intentionally disabled here.
@@ -20,8 +20,8 @@ export async function checkBuildingConstruction(page,output){
     const pixels=bytes();let hash=2166136261,opaque=0;
     for(let i=0;i<pixels.length;i++){hash=Math.imul(hash^pixels[i],16777619);if(i%4===3&&pixels[i]>32)opaque++}
     hashes.push(hash>>>0);if(opaque<150)throw Error('Empty construction '+kind);
-    if(team===0&&['house','tc','castle','dock','feitoria','krepost','donjon'].includes(kind)){
-     const col=[0,.3,.65,.95,1].indexOf(progress),row=['house','tc','castle','dock','feitoria','krepost','donjon'].indexOf(kind);
+    if(team===0&&['house','tc','castle','dock','feitoria','krepost','donjon','folwark','fchurch','mule'].includes(kind)){
+     const col=[0,.3,.65,.95,1].indexOf(progress),row=['house','tc','castle','dock','feitoria','krepost','donjon','folwark','fchurch','mule'].indexOf(kind);
      cg.drawImage(c,col*300+10,row*280+15);cg.fillStyle='#fff0ce';cg.font='16px system-ui';cg.fillText(kind+' '+Math.round(progress*100)+'%',col*300+15,row*280+20);
     }
     if(progress===1){
@@ -31,8 +31,7 @@ export async function checkBuildingConstruction(page,output){
    }
    samples.push({kind,team,distinct:new Set(hashes).size});
   }
-  // All six regional structures also use the production instance renderer;
-  // three retain procedural fallback, three use native painted construction.
+  // All six regional structures also use the production instance renderer.
   const regionalDrawn=[];
   for(const kind of regional){
    const props=B[kind],base={netId:'construction-regional-'+kind,k:kind,t:0,x:20,y:20,
@@ -60,7 +59,7 @@ export async function checkBuildingConstruction(page,output){
   return {samples,regionalDrawn,completedDifferences,soloClips,mapClips,hiddenRetained,unknownFallback,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);assert.ok(result.hiddenRetained&&result.unknownFallback);assert.equal(result.completedDifferences,0);
- assert.ok(result.samples.length===100&&result.samples.every(s=>s.distinct===5));
+ assert.ok(result.samples.length===112&&result.samples.every(s=>s.distinct===5));
  assert.equal(result.regionalDrawn.length,6,'all faction-locked structures require working native/fallback construction visuals');
  assert.ok(result.soloClips>0&&result.mapClips>0);
  await writeFile(output+'/building-construction.png',Buffer.from(result.image.split(',')[1],'base64'));delete result.image;
