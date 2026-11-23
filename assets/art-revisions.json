@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "647716b9d7d07edf41decc90b95a7a242c0d9f32d2bfd6d0c857e7c83e70bac8",
+  "revision": "5bca6926716d1e154e566431ad038ac711d3bf0dbf7e4e498cdcd7afa7c46346",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -12,12 +12,15 @@
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
     "./assets/painted-elite-bers.webp": "ba84845f3f2b36a8164301a083d2f73ffb31b6fb7f53c61fdc7a2b78b3a8026a",
+    "./assets/painted-elite-gbeto.webp": "af509cffc921b161bc3612fed16898c077441552b8f79db40ae7125592cc6a15",
     "./assets/painted-elite-huskarl.webp": "513f3ca268b6c3081ec767db6ac2250c652f167fa1a5d2ce5a3eb6358b64e960",
     "./assets/painted-elite-jaguar.webp": "cb5bfbff3ed6497cd162baebe5d8727914bc04e30439aae795d224fce3646652",
     "./assets/painted-elite-kamayuk.webp": "878b3d3c2580a185009e43091f408d9569f0f6ab1558bfb6c103185c68f4ce1f",
     "./assets/painted-elite-lbow.webp": "529d4998b09973d73c62c6525436142a83ed48ce3e9c6b69ef5a11456c08a005",
     "./assets/painted-elite-mgd.webp": "562edd3484babc695bb32e471b908c7a227b0a1aeb07aab9399e6a2d8b121716",
+    "./assets/painted-elite-obuch.webp": "484af485e741775eb6fc66dc96208d70c2ac77bfccd9bcb7061243e4cd5cd339",
     "./assets/painted-elite-saml.webp": "dd2f9949ce68018cfaa433a45d17d755ea9b81723f71fe86ebf72e592a994e74",
+    "./assets/painted-elite-shotel.webp": "d4ebff803546d3b2730ab39d89fa2c3228867dce3c48ed33bcdc9ccee4e57c17",
     "./assets/painted-elite-tk.webp": "c3d8213d6ea5f56b1d8ff983f6032ae0c025a52c3150954c5e5f4c038d8ed792",
     "./assets/painted-elite-woad.webp": "84864cc100e566cefcb0bc5bbbc315377bbf6defc06e6f34f623286c01c26084",
     "./assets/painted-environment.webp": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",

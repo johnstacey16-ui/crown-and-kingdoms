@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 108,
+  "atlases": 111,
   "units": [
     {
       "kind": "vil",
@@ -850,6 +850,33 @@
       "directionalArt": "one authored facing plus reflection",
       "deathArt": "not authored",
       "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "shotel",
+      "atlas": "painted-elite-shotel",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "gbeto",
+      "atlas": "painted-elite-gbeto",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "obuch",
+      "atlas": "painted-elite-obuch",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
     }
   ],
   "buildings": [
@@ -1123,7 +1150,7 @@
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "10 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "evidence": "13 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
       "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
