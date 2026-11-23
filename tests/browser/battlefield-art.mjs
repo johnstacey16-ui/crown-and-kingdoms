@@ -403,7 +403,31 @@ try{
  await partial.route('**/assets/painted-elite-*.webp',route=>route.abort());
  await scene(partial,false);await partial.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_STATIC_ATLASES);
  for(const kind of ['mil','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'])assert.equal(await partial.evaluate(k=>assetFrame(k,0,1,0,.3).animated,kind),false,'a failed motion sheet retains its painted base pose');
- for(const kind of ['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch'])assert.equal(await partial.evaluate(k=>!!unitAssetFrame(k,0,{state:1,time:.3},true).elite,kind),false,'failed Elite sheets retain base art');
+ for(const kind of ['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch']){
+  const fallback=await partial.evaluate(k=>{
+   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,saved={civ:S.civ,tech:S.tech};
+   const id=CIV.findIndex(c=>c.uu===k),originalBlit=blit;
+   let proceduralDraws=0,proceduralPixels=0;
+   const art=unitAssetFrame(k,0,{state:1,time:.3},true);
+   try{
+    S.civ=[id,id];S.tech=[{[CIV[id].elite.k]:1},{}];
+    // Some newer units have no separate static action atlas. Verify the real
+    // procedural draw when both motion images fail, rather than dereferencing
+    // a null atlas descriptor or accepting an invisible fallback.
+    blit=function(image,...args){
+     proceduralDraws++;
+     const pixels=image.getContext('2d').getImageData(0,0,image.width,image.height).data;
+     for(let i=3;i<pixels.length;i+=4)if(pixels[i]>32)proceduralPixels++;
+     return originalBlit(image,...args);
+    };
+    drawUnit({netId:'failed-elite-'+k,k,t:0,x:24,y:24,hp:U[k].hp,o:'a',cd:U[k].cd*.5,p:[],rp:0,car:0,hit:-99},new Set(),[100,100]);
+   }finally{blit=originalBlit;S.civ=saved.civ;S.tech=saved.tech}
+   return {elite:!!art?.elite,painted:!!art?.painted,proceduralDraws,proceduralPixels,unchanged:before===CK_SIM_SYNC.worldCheckpoint(S,1).hash};
+  },kind);
+  assert.equal(fallback.elite,false,'failed Elite sheets cannot retain the Elite descriptor');
+  assert.ok(fallback.painted||(fallback.proceduralDraws>0&&fallback.proceduralPixels>100),'missing sheets retain a visible painted or procedural fallback: '+kind);
+  assert.equal(fallback.unchanged,true,'fallback drawing leaves simulation state unchanged');
+ }
  await partial.close();
  const fallback=await browser.newPage({viewport:{width:960,height:850}});
  fallback.on('pageerror',error=>errors.push(error.message));
