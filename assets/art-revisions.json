@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "d5efc1f7251ca384884440cf6ea729f38d428c1344ec8726367485c822aee85d",
+  "revision": "b915abb4857758ff9977eb68b640b6e46daccb7d9059dace6ddb349000589b1a",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -12,6 +12,7 @@
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
     "./assets/painted-elite-bers.webp": "ba84845f3f2b36a8164301a083d2f73ffb31b6fb7f53c61fdc7a2b78b3a8026a",
+    "./assets/painted-elite-chakram.webp": "3166931735fb2f00cb78beed7422c270b93d0e5417b0e97506305d5378308ef0",
     "./assets/painted-elite-chuko.webp": "8dc3ec811c521d07ab889e46fe99254c24409e53a92efdb3667a4a29778706d4",
     "./assets/painted-elite-composite.webp": "2452ddb7d6105581b31bc282c77d028af5809679983e5c8781795e6f802d9de0",
     "./assets/painted-elite-gbeto.webp": "af509cffc921b161bc3612fed16898c077441552b8f79db40ae7125592cc6a15",
@@ -26,8 +27,10 @@
     "./assets/painted-elite-plumed.webp": "5df043963bb39e8df445724d213af2837ddd6ac230a84ed1c90db52de2889625",
     "./assets/painted-elite-rattan.webp": "8737485944957ddb1cd3f96bfa94143a36ce3f4c4f63d0f2a46d8f8f9fa84b32",
     "./assets/painted-elite-saml.webp": "dd2f9949ce68018cfaa433a45d17d755ea9b81723f71fe86ebf72e592a994e74",
+    "./assets/painted-elite-serjeant.webp": "d43c26d859cdf492ed930dd7a8f1894dbf5c48e70fc98293594b8f7da48a81ff",
     "./assets/painted-elite-shotel.webp": "d4ebff803546d3b2730ab39d89fa2c3228867dce3c48ed33bcdc9ccee4e57c17",
     "./assets/painted-elite-tk.webp": "c3d8213d6ea5f56b1d8ff983f6032ae0c025a52c3150954c5e5f4c038d8ed792",
+    "./assets/painted-elite-urumi.webp": "17ede87ce6753ee63187419acf1529f5b8c96d93580aec6450448e3db4357671",
     "./assets/painted-elite-woad.webp": "84864cc100e566cefcb0bc5bbbc315377bbf6defc06e6f34f623286c01c26084",
     "./assets/painted-environment.webp": "f6fa6bef63e05b442f1a73eba7e12769d24d65c03e50e6935a58224c3a54fb12",
     "./assets/painted-fishtraps.webp": "01b189ed04eb7d84471332a7d981798f36b49dc054996becc5c64620a89ecea1",
