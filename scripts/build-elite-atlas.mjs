@@ -7,7 +7,8 @@ import {createHash} from 'node:crypto';
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
-const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant'],args=process.argv.slice(2),sources={};
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis'],args=process.argv.slice(2),sources={};
+const mountedKinds=new Set(['mgd','cata','boyar','leitis']);
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();
   if(flag!=='--source'||!kinds.includes(kind)||!path||sources[kind])throw Error('Use --source KIND PNG once per Elite kind');
@@ -43,11 +44,11 @@ for(const kind of selectedKinds){
  const src='./assets/painted-elite-'+kind+'.webp';
  writeFileSync(new URL(src,root),await sharp(isolated.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer());
  const frames=isolated.frames,heights=frames.slice(0,8).map(f=>f.h).sort((a,b)=>a-b);
- const referenceHeight=(heights[3]+heights[4])/2,scale=(kind==='mgd'?60:46)/referenceHeight;
+ const referenceHeight=(heights[3]+heights[4])/2,scale=(mountedKinds.has(kind)?60:46)/referenceHeight;
  const attack=[...frames.slice(12),...frames.slice(8,12)],anims={};
  for(let team=0;team<4;team++){
   anims[kind+'_elite/idle/'+team]={dur:1,scale,referenceHeight,frames:[frames[8]]};
-  anims[kind+'_elite/walk/'+team]={dur:kind==='mgd'?.075:.095,scale,referenceHeight,frames:frames.slice(0,8)};
+  anims[kind+'_elite/walk/'+team]={dur:mountedKinds.has(kind)?.075:.095,scale,referenceHeight,frames:frames.slice(0,8)};
   anims[kind+'_elite/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
  }
  atlases.push({id:'painted-elite-'+kind,src,meta:{painted:true,motion:true,elite:kind,sourceActionFrame:12,width:info.width,height:info.height,anims}});

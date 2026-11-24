@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "b915abb4857758ff9977eb68b640b6e46daccb7d9059dace6ddb349000589b1a",
+  "revision": "7ec34edd594fa11b5ce35d94119068e688b28530ec692df2c7b1538a5ed81f2f",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -12,6 +12,8 @@
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
     "./assets/painted-elite-bers.webp": "ba84845f3f2b36a8164301a083d2f73ffb31b6fb7f53c61fdc7a2b78b3a8026a",
+    "./assets/painted-elite-boyar.webp": "9823d45932be3c9bacbc234b148f79549b7caf908551a95ec60567fa1ac0820f",
+    "./assets/painted-elite-cata.webp": "bf7db16e8726127f26ba191f9bd64b125127d0191a9a27c02e29eb0b17a62525",
     "./assets/painted-elite-chakram.webp": "3166931735fb2f00cb78beed7422c270b93d0e5417b0e97506305d5378308ef0",
     "./assets/painted-elite-chuko.webp": "8dc3ec811c521d07ab889e46fe99254c24409e53a92efdb3667a4a29778706d4",
     "./assets/painted-elite-composite.webp": "2452ddb7d6105581b31bc282c77d028af5809679983e5c8781795e6f802d9de0",
@@ -22,6 +24,7 @@
     "./assets/painted-elite-jan.webp": "5763ed206737c208ce1d2776d30408f92b9ecf6baec96b9da41ba0fac885151a",
     "./assets/painted-elite-kamayuk.webp": "878b3d3c2580a185009e43091f408d9569f0f6ab1558bfb6c103185c68f4ce1f",
     "./assets/painted-elite-lbow.webp": "529d4998b09973d73c62c6525436142a83ed48ce3e9c6b69ef5a11456c08a005",
+    "./assets/painted-elite-leitis.webp": "ad19725ea512f6f11d46151924672dad499c91476952d7ff2a539bcb8f9d2ad1",
     "./assets/painted-elite-mgd.webp": "562edd3484babc695bb32e471b908c7a227b0a1aeb07aab9399e6a2d8b121716",
     "./assets/painted-elite-obuch.webp": "484af485e741775eb6fc66dc96208d70c2ac77bfccd9bcb7061243e4cd5cd339",
     "./assets/painted-elite-plumed.webp": "5df043963bb39e8df445724d213af2837ddd6ac230a84ed1c90db52de2889625",
