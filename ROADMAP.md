@@ -102,7 +102,7 @@ Original browser RTS with **full functional-category parity** for Age of Empires
 
 ## Graphics continuation — 17 November 2026
 
-All **28/28** building bases and **84/84** unit kinds retain painted art, plus **13 dedicated Elite sheets** ([inventory](docs/graphics-inventory.json)). Elite Shotel Warrior, Gbeto and Obuch add eight walk/eight attack poses each. Candidate `4977a5ae` passed quick 5/5, focused 1,754, Chromium 2/2 and Xbox software 8/8 ([evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/45106298087)); 104 action/team cases have eight distinct poses, zero edge pixels and unchanged world state. Blue/red sprites were reviewed; 1,128 reflections are exact. All 108 earlier atlas definitions/positions survive. Prompts: `docs/painted-elite-shotel-gbeto-obuch-prompts.json`. Remaining Elite/state/facing art, building states, physical Xbox and release acceptance stay open.
+All **28/28** building bases and **84/84** unit kinds retain painted art, plus **16 dedicated Elite sheets** ([inventory](docs/graphics-inventory.json)). Elite Janissary, Chu Ko Nu and Genoese Crossbowman add eight walk/eight firing poses each. Candidate `5cb8f239` passed quick 5/5, focused 1,754, Chromium 2/2 and Xbox software 8/8 ([evidence](https://github.com/johnstacey16-ui/crown-and-kingdoms/actions/runs/45311375781)); 128 action/team cases have eight distinct poses, zero edge pixels and unchanged world state. Blue/red sprites were reviewed; 1,164 reflections are exact. All 111 prior atlas definitions/positions survive. Prompts: `docs/painted-elite-jan-chuko-genoa-prompts.json`. Remaining Elite/state/facing art, building states, physical Xbox and release acceptance stay open.
 
 ## Current content continuation — 14 November 2026
 
