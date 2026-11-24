@@ -4,7 +4,7 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '7bca255ff570c078e4361432833821deece70d8042124a96d2659ad3039d5acd';
+const ART_REVISION = 'd5efc1f7251ca384884440cf6ea729f38d428c1344ec8726367485c822aee85d';
 const CACHE_NAME = 'ck-shell-v244-elite-plumed-rattan-composite-' + ART_REVISION;
 const CORE_ASSETS = [
   './assets/painted-elite-plumed.webp',

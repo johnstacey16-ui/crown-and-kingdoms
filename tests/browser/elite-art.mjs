@@ -9,7 +9,7 @@ export async function checkEliteArtwork(page,output){
   const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,3648);
   const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
   const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
-  const samples=[],selection=[],draws=[],frames=new Set();let current='';
+  const samples=[],paletteComparisons=[],selection=[],draws=[],frames=new Set();let current='';
   try{
    S.us=[];S.bs=[];S.sel=[];
    unitAssetFrame=function(...args){const art=original(...args);if(current&&art){selection.push({pass:current,kind:args[0],team:args[1],elite:!!art.elite});frames.add(art.img)}return art};
@@ -57,17 +57,29 @@ export async function checkEliteArtwork(page,output){
      }
      samples.push({kind,team,state,distinct:hashes.size,minimum,edgePixels,previewZoom});
     }
+    // A mathematically correct tint can still leave nearly identical teams if
+    // the source cloth is too grey to enter the unchanged blue-colour mask.
+    // Compare matching rendered poses, not just metadata or palette labels.
+    for(let col=0;col<4;col++){
+     const blue=g.getImageData(col*192,row*192,192,192).data;
+     const red=g.getImageData((col+4)*192,row*192,192,192).data;
+     let changed=0;
+     for(let i=0;i<blue.length;i+=4)if(Math.max(Math.abs(blue[i]-red[i]),Math.abs(blue[i+1]-red[i+1]),Math.abs(blue[i+2]-red[i+2]))>20)changed++;
+     paletteComparisons.push({kind,state:col<2?'walk':'attack',phase:col%2?3:0,changed});
+    }
     const atlas=ASSET.atl['painted-elite-'+kind],ok=atlas.ok;
     try{atlas.ok=false;if(original(kind,0,{state:1,time:0},true)?.elite)throw Error('Elite failed to fall back')}
     finally{atlas.ok=ok}
    }
   }finally{S.civ=saved.civ;S.tech=saved.tech;S.us=saved.us;S.bs=saved.bs;S.sel=saved.sel;unitAssetFrame=original;X.drawImage=originalDraw;troopFrameTexture=originalTexture;mapContext.drawImage=originalMapDraw}
-  return {samples,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
+  return {samples,paletteComparisons,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
  assert.equal(result.samples.length,152);
  assert.ok(result.samples.every(s=>s.distinct===8&&s.minimum>150),'all Elite actions have eight decoded nonempty poses for four palettes');
  assert.ok(result.samples.every(s=>s.edgePixels===0),'review cells retain entire weapons, shields and feet');
+ assert.equal(result.paletteComparisons.length,76);
+ assert.ok(result.paletteComparisons.every(s=>s.changed>=100),'every reviewed blue/red pose retains a visible team-colour area');
  await writeFile(output+'/painted-elites.png',Buffer.from(result.data.split(',')[1],'base64'));
  delete result.data;return result;
 }
