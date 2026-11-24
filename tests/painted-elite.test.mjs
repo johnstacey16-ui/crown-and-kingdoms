@@ -13,8 +13,8 @@ function fixture(){
  for(const a of [...elite.atlases,...pack.atlases.filter(a=>a.id.startsWith('painted-motion-'))])run('regAtlas('+JSON.stringify(a.id)+',{},'+JSON.stringify(a.meta)+')');
  return run;
 }
-test('thirteen dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
- assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch']);
+test('sixteen dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
+ assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa']);
  for(const a of elite.atlases){
   const k=a.meta.elite,base=pack.atlases.find(b=>b.id==='painted-motion-'+k);
   assert.notEqual(a.src,base.src);
@@ -28,7 +28,7 @@ test('thirteen dedicated Elite sheets retain sixteen complete poses and independ
 });
 test('solo rendering selects only the owning researched Elite tier and falls back after atlas loss',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15]]){
   run('S.civ=['+id+','+id+'];S.tech=[{},{}]');
   const draw=t=>'unitAssetFrame('+JSON.stringify(k)+','+t+',{state:1,time:.2},!!eliteUniqueUnitUpgrade('+JSON.stringify(k)+','+t+'))';
   assert.equal(run('!!'+draw(0)+'.elite'),false);
@@ -45,7 +45,7 @@ test('solo rendering selects only the owning researched Elite tier and falls bac
 });
 test('network projection uses its supplied world research, including visible opponents',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15]]){
   run(`S.civ=[${id},${id}];S.tech=[{},{}];S.us=[];globalThis.a=addU(0,'${k}',20,20);globalThis.b=addU(1,'${k}',21,20);globalThis.w={...S,civ:[${id},${id}],tech:[{[CIV[${id}].elite.k]:1},{}]}`);
   const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
   assert.equal(run(`eliteUniqueUnitUpgrade('${k}',0)`),null);

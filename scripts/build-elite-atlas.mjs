@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
-const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch'],args=process.argv.slice(2),sources={};
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa'],args=process.argv.slice(2),sources={};
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();
   if(flag!=='--source'||!kinds.includes(kind)||!path||sources[kind])throw Error('Use --source KIND PNG once per Elite kind');
