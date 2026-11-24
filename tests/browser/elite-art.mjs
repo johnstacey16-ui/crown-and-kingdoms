@@ -5,8 +5,8 @@ export async function checkEliteArtwork(page,output){
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const saved={civ:S.civ,tech:S.tech,us:S.us,bs:S.bs,sel:S.sel};
   const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
-  const contact=document.createElement('canvas');contact.width=1536;contact.height=3072;
-  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,3072);
+  const contact=document.createElement('canvas');contact.width=1536;contact.height=3648;
+  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,3648);
   const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
   const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
   const samples=[],selection=[],draws=[],frames=new Set();let current='';
@@ -16,7 +16,7 @@ export async function checkEliteArtwork(page,output){
    troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
    mapContext.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalMapDraw.apply(this,a)};
-   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15]];
+   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41]];
    for(const [row,[kind,id]] of roster.entries()){
     // One review zoom per unit across its whole pose range. A long spear must
     // not be clipped by the review canvas or shrink only on its strike frame.
@@ -65,7 +65,7 @@ export async function checkEliteArtwork(page,output){
   return {samples,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
- assert.equal(result.samples.length,128);
+ assert.equal(result.samples.length,152);
  assert.ok(result.samples.every(s=>s.distinct===8&&s.minimum>150),'all Elite actions have eight decoded nonempty poses for four palettes');
  assert.ok(result.samples.every(s=>s.edgePixels===0),'review cells retain entire weapons, shields and feet');
  await writeFile(output+'/painted-elites.png',Buffer.from(result.data.split(',')[1],'base64'));
