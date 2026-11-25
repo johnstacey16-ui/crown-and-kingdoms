@@ -75,10 +75,10 @@ export async function checkEliteArtwork(page,output){
   return {samples,paletteComparisons,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
- assert.equal(result.samples.length,248);
+ assert.equal(result.samples.length,272);
  assert.ok(result.samples.every(s=>s.distinct===8&&s.minimum>150),'all Elite actions have eight decoded nonempty poses for four palettes');
  assert.ok(result.samples.every(s=>s.edgePixels===0),'review cells retain entire weapons, shields and feet');
- assert.equal(result.paletteComparisons.length,124);
+ assert.equal(result.paletteComparisons.length,136);
  assert.ok(result.paletteComparisons.every(s=>s.changed>=100),'every reviewed blue/red pose retains a visible team-colour area');
  await writeFile(output+'/painted-elites.png',Buffer.from(result.data.split(',')[1],'base64'));
  delete result.data;return result;
