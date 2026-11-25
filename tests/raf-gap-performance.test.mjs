@@ -113,4 +113,22 @@ test('performance HUD keeps both save timing rows within the narrow Xbox overlay
  rows.length=0;rects.length=0;context.canvasBenchSummary=null;context.drawPerfOverlay(1/60);
  assert.equal(rows.filter(r=>r.text.startsWith('JSON ')).length,0,'no stale breakdown before first save');
  assert.ok(rows.some(r=>r.text.includes('waiting for next checkpoint')));
+ // The large-battle save starts paused. Its diagnostic must distinguish
+ // drawing from simulation before the owner ever presses Resume.
+ context.mode='pause';context.perfFrameIntervalMs=200;context.perfFps=0;
+ context.perfDrawMs=180;context.perfStepMs=0;context.perfStepCount=0;context.perfGapMs=20;
+ for(const width of[390,480,1280]){
+  context.CW=width;rows.length=0;rects.length=0;context.drawPerfOverlay(.2);
+  assert.equal(rows.length,2);assert.equal(rects.length,1);
+  assert.ok(rows[0].text.includes('PAUSED  5 FPS'));
+  assert.ok(rows[0].text.includes('DRAW 180.0 ms'));
+  assert.ok(rows[1].text.includes('SIM 0.0 ms / 0 ticks'));
+  assert.ok(rows[1].text.includes('GAP 20.0 ms'));
+  assert.ok(rows.every(r=>r.y<48),'the diagnostic stays above the pause menu');
+  assert.ok(rows.every(r=>r.x+r.text.length*r.size*.62<width),'labels fit narrow and Xbox widths');
+ }
+ for(const mode of['title','end','opts']){
+  context.mode=mode;rows.length=0;context.drawPerfOverlay(.2);assert.equal(rows.length,0);
+ }
+ context.mode='pause';context.perfHud=0;rows.length=0;context.drawPerfOverlay(.2);assert.equal(rows.length,0);
 });

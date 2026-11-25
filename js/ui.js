@@ -1,6 +1,15 @@
 function drawPerfOverlay(dt){
- if(!perfHud||mode!=='play'||!S)return;
+ if(!perfHud||(mode!=='play'&&mode!=='pause')||!S)return;
  const frameMs=perfFrameIntervalMs>0?perfFrameIntervalMs:dt*1000,instant=frameMs>0?1000/frameMs:0;perfFps=perfFps?perfFps*.85+instant*.15:instant;
+ if(mode==='pause'){
+  // The test save initially pauses: expose drawing/RAF cost before any ticks,
+  // above the pause menu so the diagnostic never covers Resume or its controls.
+  const size=Math.min(13,Math.max(8,(CW-20)/75));
+  X.fillStyle='rgba(5,8,14,.95)';X.fillRect(0,0,CW,48);
+  tx('PAUSED  '+perfFps.toFixed(0)+' FPS  |  RAF '+frameMs.toFixed(1)+' ms  |  DRAW '+perfDrawMs.toFixed(1)+' ms',10,19,size,'#f8fafc');
+  tx('SIM '+perfStepMs.toFixed(1)+' ms / '+perfStepCount+' ticks  |  GAP '+perfGapMs.toFixed(1)+' ms  |  SCALE '+Math.round(perfRenderScale*100)+'%',10,38,size,'#cbd5e1');
+  return;
+ }
  const names=['Blue','Red','Purple','Gold'],w=S.teamN>2?520:480,x=12,y=62,h=(perfFlatField||perfLayerMode?226:208)+(canvasBenchmark?23:canvasBenchSummary?(canvasBenchSummary.kind==='layers'||canvasBenchSummary.kind==='pacing'||canvasBenchSummary.kind==='objects'||canvasBenchSummary.kind==='units')?68:46:0);
  X.fillStyle='rgba(5,8,14,.88)';X.fillRect(x,y,w,h);X.strokeStyle='rgba(201,162,74,.7)';X.lineWidth=1;X.strokeRect(x+.5,y+.5,w-1,h-1);
  tx('PERF  '+perfFps.toFixed(0)+' FPS  '+frameMs.toFixed(1)+' ms  |  '+S.us.length+' units  '+S.bs.length+' buildings',x+9,y+17,13,'#f8fafc');

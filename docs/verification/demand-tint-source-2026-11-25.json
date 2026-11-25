@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-25",
+  "candidate": "6950af6b4ad71c773fa22c4dd5ca8622bc78f2ed",
+  "scope": "Rejected development experiment; retained as SHA-bound evidence, not an active normal-renderer optimization.",
+  "limits": {
+    "temporaryCpuBytes": 1048576,
+    "sources": 1,
+    "releasedAt": "outermost draw batch end; cache and scratch resets"
+  },
+  "local": {
+    "quick": 5,
+    "focused": 1763,
+    "targeted": 65,
+    "fourTeamComparison": {
+      "poses": 20,
+      "baselineReadbacks": 80,
+      "sharedReadbacks": 20,
+      "pixelDifferences": 0,
+      "tintCreationsUnchanged": true,
+      "retainedTintPixelsUnchanged": true
+    }
+  },
+  "hosted": {
+    "run": 45689330933,
+    "status": "passed",
+    "chromium": 2,
+    "xboxSoftware": 8,
+    "microCase": {
+      "before": "fnv1a32-e5b139b4-a644",
+      "after": "fnv1a32-e5b139b4-a644",
+      "differences": 0,
+      "coloured": 105436,
+      "peakBytes": 435456,
+      "baseline": 217728,
+      "shared": 54432,
+      "creations": [
+        4,
+        4
+      ],
+      "released": true
+    },
+    "largeBattleViews": [
+      {
+        "zoom": 0.8,
+        "coloured": 13832,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 1.8999999999650754,
+        "tileTotalMs": 2.099999999976717,
+        "pausedDrawMs": [
+          432.70000000001164,
+          19
+        ],
+        "demandSourceReads": 13,
+        "demandSourceReuses": 0
+      },
+      {
+        "zoom": 3,
+        "coloured": 12017,
+        "units": 372,
+        "buildings": 238,
+        "fogMs": 0,
+        "tileTotalMs": 0,
+        "pausedDrawMs": [
+          26.900000000023283,
+          47.09999999997672
+        ],
+        "demandSourceReads": 0,
+        "demandSourceReuses": 0
+      }
+    ]
+  },
+  "limitations": [
+    "Four-team readback reduction is a controlled operation-count result, not an FPS claim.",
+    "Repeated native tint eviction is still possible; this does not enlarge the tint pool.",
+    "Series S Original startup FPS, black screens and repeated physical recovery remain unverified.",
+    "Production remains the separate recovery release dac37142; this candidate is development only."
+  ],
+  "decision": "Remove automatic source sharing: the actual starting-view probe had 13 source reads and zero reuses. The controlled four-palette win does not establish a benefit in the reported scene."
+}

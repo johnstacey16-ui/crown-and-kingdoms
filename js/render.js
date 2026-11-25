@@ -30,7 +30,6 @@ function flushRetiredGraphicsSurfaces(){
 }
 function endGraphicsSurfaceUse(){
  if(GRAPHICS_SURFACE_LIFETIME.depth)GRAPHICS_SURFACE_LIFETIME.depth--;
- if(!GRAPHICS_SURFACE_LIFETIME.depth&&typeof clearDemandTintSource==='function')clearDemandTintSource();
  if(!GRAPHICS_SURFACE_LIFETIME.depth&&typeof releaseUnitTintWorkspaces==='function')releaseUnitTintWorkspaces();
  flushRetiredGraphicsSurfaces();
 }

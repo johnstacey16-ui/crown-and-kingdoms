@@ -75,13 +75,13 @@ export async function checkGraphicsRecovery(page){
   const home=S.bs.find(b=>b.t===0&&b.k==='tc');
   for(const zoom of [.8,3]){
    zm=zoom;TW=64*zm;TH=32*zm;ctr(home.x+5,home.y+5);mode='pause';
-   const readsBefore=DEMAND_TINT_SOURCE.reads,reusesBefore=DEMAND_TINT_SOURCE.reuses,drawMs=[];
-   for(let i=0;i<2;i++){const start=performance.now();draw(0);drawMs.push(performance.now()-start)}
+   const drawMs=[],frameWork=[];
+   for(let i=0;i<2;i++){resetGraphicsTraceFrame();const start=performance.now();draw(0);drawMs.push(performance.now()-start);frameWork.push({...GRAPHICS_TRACE.frame})}
    const data=WORLD_X.getImageData(0,0,cv.width,cv.height).data;let coloured=0;
    // Exclude the HUD, minimap and menus; the middle of the world must render.
    for(let y=80;y<Math.floor(cv.height*.6);y+=2)for(let x=20;x<Math.floor(cv.width*.65);x+=2){const i=(y*cv.width+x)*4;if(data[i]+data[i+1]+data[i+2]>90)coloured++}
    views.push({zoom,coloured,units:S.us.length,buildings:S.bs.length,fogMs:perfFogMs,tileTotalMs:perfTilesMs,
-    pausedDrawMs:drawMs,demandSourceReads:DEMAND_TINT_SOURCE.reads-readsBefore,demandSourceReuses:DEMAND_TINT_SOURCE.reuses-reusesBefore});
+    pausedDrawMs:drawMs,frameWork});
   }
   terrainTileTexture(0,0,0,[1,-1,-1,-1]);const terrainBlendBeforeLoss=TERRAIN_BLEND.size;
   mode='play';const lost=new Event('contextlost',{cancelable:true});cv.dispatchEvent(lost);
@@ -93,8 +93,18 @@ export async function checkGraphicsRecovery(page){
    const step=advanceRosterTintWarmup();maxCreations=Math.max(maxCreations,step.created);batches++;
   }
   const blocked=checkGraphicsRestoreReadiness(),readiness=GRAPHICS_RECOVERY.readiness;
-  draw(0);draw(0);
+  draw(0);
+  const pausedTelemetry=[],originalTx=tx;
+  try{
+   tx=(text,x,y,size,...rest)=>{
+    const result=originalTx(text,x,y,size,...rest);
+    if(text.startsWith('PAUSED  ')||text.startsWith('SIM '))pausedTelemetry.push({text,x,y,width:X.measureText(text).width});
+    return result;
+   };
+   draw(0);
+  }finally{tx=originalTx}
   return {initialWarmup,releasedWhileLost,terrainBlendBeforeLoss,blendReset,views,paused,restorationAllowed,statusVisible,
+   pausedTelemetry,viewportWidth:CW,
    restored:GRAPHICS_RECOVERY.lost.size===0&&!GRAPHICS_RECOVERY.status,
    terrainRebuilt:TCH.size>0&&!!TERRAIN_VIEW.key,coldWhileBlocked:TCH.size===0&&!TERRAIN_VIEW.key,
    blocked,readiness,skipped:TINT_WARMUP.skipped,batches,maxCreations,
@@ -106,6 +116,8 @@ export async function checkGraphicsRecovery(page){
  assert.equal(result.blocked,false,'the real large battle must unlock Resume after restoration');
  assert.equal(result.skipped,0,'the recovery working set must fit without skipping required poses');
  assert.equal(result.readiness.ready,true);assert.equal(result.terrainRebuilt,true);
+ assert.equal(result.pausedTelemetry.length,2,'both paused performance rows are actually drawn');
+ assert.ok(result.pausedTelemetry.every(row=>row.y<48&&row.x+row.width<result.viewportWidth),'diagnostics fit above the pause menu');
  assert.ok(result.terrainBlendBeforeLoss>0);assert.equal(result.before,result.after);return result;
 }
 

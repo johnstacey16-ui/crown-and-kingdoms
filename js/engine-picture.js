@@ -130,8 +130,7 @@ function graphicsSurfaceEstimate(){
  const warm=typeof TINT_WARMUP!=='undefined'?TINT_WARMUP:null;
  const tintWarmSourceBytes=(warm?.source?.pixels?.data?.byteLength||0)+(warm?.source?.original?.byteLength||0);
  const unitTintPixelBytes=typeof UNIT_TINT_WORKSPACE!=='undefined'?UNIT_TINT_WORKSPACE.pixelBytes:0;
- const demandTintSourceBytes=typeof DEMAND_TINT_SOURCE!=='undefined'? (DEMAND_TINT_SOURCE.source?.pixels?.data?.byteLength||0)+(DEMAND_TINT_SOURCE.source?.original?.byteLength||0):0;
- return {liveCanvases:surfaces.size,canvasBytes,atlasBytes,touchedAtlasBytes,demandTintSourceBytes,nativeEstimateBytes:canvasBytes+atlasBytes+tintWarmSourceBytes+unitTintPixelBytes+demandTintSourceBytes,
+ return {liveCanvases:surfaces.size,canvasBytes,atlasBytes,touchedAtlasBytes,nativeEstimateBytes:canvasBytes+atlasBytes+tintWarmSourceBytes+unitTintPixelBytes,
   unitTintPixelBytes,
   retiredCanvases:lifetime?.pending.size||0,retiredBytes:(lifetime?.pixels||0)*4,releaseFailures:lifetime?.failures||0,
   troopTintPixels:groups?.troop.pixels||0,buildingTintPixels:groups?.building.pixels||0,
