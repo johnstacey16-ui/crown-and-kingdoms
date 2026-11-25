@@ -59,6 +59,7 @@ const FOCUSED=[
  "tests/lazy-procedural-sprite.test.mjs",
  "tests/painted-environment.test.mjs",
  "tests/painted-motion.test.mjs",
+ "tests/painted-elite.test.mjs",
  "tests/elite-visual-identity.test.mjs",
  "tests/reduced-cosmetic-effects.test.mjs",
  "tests/professional-readiness.test.mjs",

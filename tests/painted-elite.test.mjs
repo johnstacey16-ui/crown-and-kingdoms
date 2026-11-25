@@ -13,8 +13,8 @@ function fixture(){
  for(const a of [...elite.atlases,...pack.atlases.filter(a=>a.id.startsWith('painted-motion-'))])run('regAtlas('+JSON.stringify(a.id)+',{},'+JSON.stringify(a.meta)+')');
  return run;
 }
-test('thirty-nine dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
- assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon']);
+test('forty-three dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
+ assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon','orgun','husswagon','ratha','rathaM']);
  for(const a of elite.atlases){
   const k=a.meta.elite,base=pack.atlases.find(b=>b.id==='painted-motion-'+k);
   assert.notEqual(a.src,base.src);
@@ -26,18 +26,25 @@ test('thirty-nine dedicated Elite sheets retain sixteen complete poses and indep
    const baseWalk=base.meta.anims[k+'/walk/'+t];
    const height=walk.scale*walk.referenceHeight,baseHeight=baseWalk.scale*baseWalk.referenceHeight;
    assert.equal(walk.dur,baseWalk.dur,'Elite retains base walking cadence: '+k);
-   if(['ele','eled','wagon'].includes(k)){
+   if(['ele','eled','wagon','orgun','husswagon','ratha','rathaM'].includes(k)){
     const width=Math.max(...walk.frames.map(f=>f.w))*walk.scale,baseWidth=Math.max(...baseWalk.frames.map(f=>f.w))*baseWalk.scale;
     assert.ok(height<=baseHeight+1e-8&&width<=baseWidth+1e-8,'Elite fits both base vehicle dimensions: '+k);
     assert.ok(Math.abs(height-baseHeight)<1e-8||Math.abs(width-baseWidth)<1e-8,'vehicle fills a limiting dimension without arbitrary shrinking: '+k);
    }else assert.ok(Math.abs(height-baseHeight)<1e-8,'Elite retains its base body scale: '+k);
-   assert.equal(a.meta.sourceActionFrame,k==='ele'?11:12,'source contact/release phase: '+k);
+   assert.equal(a.meta.sourceActionFrame??12,k==='ele'?11:12,'source contact/release phase: '+k);
   }
  }
 });
+test('every current main Elite kind and both Ratha modes have dedicated original sheets',()=>{
+ const run=fixture(),main=JSON.parse(run('JSON.stringify([...new Set(CIV.filter(c=>c.elite).map(c=>c.uu))])'));
+ assert.equal(main.length,42);
+ const painted=new Set(elite.atlases.map(a=>a.meta.elite));
+ assert.deepEqual(main.filter(k=>!painted.has(k)),[],'no main researched unique-unit appearance is missing');
+ assert.ok(painted.has('ratha')&&painted.has('rathaM'),'both stances have their own original artwork');
+});
 test('solo rendering selects only the owning researched Elite tier and falls back after atlas loss',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['ele',12]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['ele',12]]){
   run('S.civ=['+id+','+id+'];S.tech=[{},{}]');
   const draw=t=>'unitAssetFrame('+JSON.stringify(k)+','+t+',{state:1,time:.2},!!eliteUniqueUnitUpgrade('+JSON.stringify(k)+','+t+'))';
   assert.equal(run('!!'+draw(0)+'.elite'),false);
@@ -54,7 +61,7 @@ test('solo rendering selects only the owning researched Elite tier and falls bac
 });
 test('network projection uses its supplied world research, including visible opponents',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['ele',12]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['ele',12]]){
   run(`S.civ=[${id},${id}];S.tech=[{},{}];S.us=[];globalThis.a=addU(0,'${k}',20,20);globalThis.b=addU(1,'${k}',21,20);globalThis.w={...S,civ:[${id},${id}],tech:[{[CIV[${id}].elite.k]:1},{}]}`);
   const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
   assert.equal(run(`eliteUniqueUnitUpgrade('${k}',0)`),null);

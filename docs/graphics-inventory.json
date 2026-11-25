@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 137,
+  "atlases": 141,
   "units": [
     {
       "kind": "vil",
@@ -1111,6 +1111,42 @@
       "directionalArt": "one authored facing plus reflection",
       "deathArt": "not authored",
       "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "orgun",
+      "atlas": "painted-elite-orgun",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "husswagon",
+      "atlas": "painted-elite-husswagon",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "ratha",
+      "atlas": "painted-elite-ratha",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "rathaM",
+      "atlas": "painted-elite-rathaM",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
     }
   ],
   "buildings": [
@@ -1384,7 +1420,7 @@
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "39 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "evidence": "43 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
       "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
