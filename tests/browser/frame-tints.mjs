@@ -1,5 +1,39 @@
 import assert from 'node:assert/strict';
 import {writeFile} from 'node:fs/promises';
+export async function checkDemandTintSource(page){
+ const result=await page.evaluate(()=>{
+  const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
+  const atlas=Object.values(ASSET.atl).find(a=>a.ok&&a.meta.painted&&a.meta.motion);
+  const frame=Object.values(atlas.meta.anims)[0].frames[0],outputs=[];
+  let peakBytes=0;
+  for(const share of[false,true]){
+   clearTeamFrameCache();resetGraphicsTraceFrame();const images=[];
+   beginGraphicsSurfaceUse();
+   try{
+    for(let team=0;team<4;team++){
+     const art=paintedTeamFrame(atlas,team,frame,'mil',share?undefined:()=>null);
+     images.push(art.img.getContext('2d').getImageData(0,0,frame.w,frame.h).data);
+    }
+    peakBytes=Math.max(peakBytes,graphicsSurfaceEstimate().demandTintSourceBytes);
+   }finally{endGraphicsSurfaceUse()}
+   outputs.push({images,readbackPixels:GRAPHICS_TRACE.frame.readbackPixels,creations:GRAPHICS_TRACE.frame.tints,
+    released:DEMAND_TINT_SOURCE.source===null});
+  }
+  let differences=0,coloured=0;
+  for(let team=0;team<4;team++)for(let i=0;i<outputs[0].images[team].length;i++){
+   if(outputs[0].images[team][i]!==outputs[1].images[team][i])differences++;
+   if(i%4===3&&outputs[1].images[team][i])coloured++;
+  }
+  clearTeamFrameCache();
+  return {before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,differences,coloured,peakBytes,
+   baseline:outputs[0].readbackPixels,shared:outputs[1].readbackPixels,
+   creations:outputs.map(o=>o.creations),released:outputs.every(o=>o.released)};
+ });
+ assert.equal(result.before,result.after);assert.equal(result.differences,0);assert.ok(result.coloured>1000);
+ assert.equal(result.baseline,result.shared*4);assert.deepEqual(result.creations,[4,4]);
+ assert.ok(result.peakBytes>0&&result.peakBytes<=1024*1024);assert.equal(result.released,true);
+ console.log('demand-tint-source-diagnostic: '+JSON.stringify(result));return result;
+}
 export async function checkTintFailurePolicy(page){
  const result=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,create=document.createElement;

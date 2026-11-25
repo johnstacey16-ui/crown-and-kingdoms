@@ -133,6 +133,7 @@ function removeTeamFrameEntry(key,canvas,group,evicted=false){
  if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
 }
 function clearTeamFrameCache(){
+ clearDemandTintSource();
  if(typeof clearUnitTintPixels==='function')clearUnitTintPixels();
  if(typeof clearTintWarmupSource==='function')clearTintWarmupSource();
  const images=[...TEAM_FRAME_CACHE.entries.values()];
@@ -158,9 +159,29 @@ function healthyTeamFrame(canvas){
  }catch(_){return false}
 }
 let teamFrameScratchContext=null;
+// One source crop may feed several team palettes in the same draw batch.
+// Keep only that crop's immutable bytes and working ImageData, at most 1 MiB
+// together. Never retain it across frames or allocate another drawable canvas.
+const DEMAND_TINT_SOURCE={source:null,limit:1024*1024,reads:0,reuses:0};
+function clearDemandTintSource(){DEMAND_TINT_SOURCE.source=null}
+function demandTintSource(atlas,f){
+ if(typeof GRAPHICS_SURFACE_LIFETIME==='undefined'||!GRAPHICS_SURFACE_LIFETIME.depth)return readTeamFrameSource(atlas,f);
+ const previous=DEMAND_TINT_SOURCE.source;
+ if(previous&&previous.img===atlas.img&&previous.x===f.x&&previous.y===f.y&&previous.w===f.w&&previous.h===f.h){DEMAND_TINT_SOURCE.reuses++;return previous}
+ clearDemandTintSource();
+ const source=readTeamFrameSource(atlas,f);
+ DEMAND_TINT_SOURCE.reads++;
+ if(!source)return null;
+ const data=source.pixels?.data;
+ if(data?.length===f.w*f.h*4&&typeof data.slice==='function'&&typeof data.set==='function'&&data.byteLength*2<=DEMAND_TINT_SOURCE.limit){
+  source.original=data.slice();DEMAND_TINT_SOURCE.source=source;
+ }
+ return source;
+}
 function clearTeamFrameScratch(canvas=TEAM_FRAME_CACHE.scratch){
  if(TEAM_FRAME_CACHE.scratch!==canvas)return;
  TEAM_FRAME_CACHE.scratch=null;teamFrameScratchContext=null;
+ clearDemandTintSource();
  if(typeof retireGraphicsSurface==='function')retireGraphicsSurface(canvas);
 }
 function readTeamFrameSource(atlas,f){
@@ -207,11 +228,11 @@ function paintedTeamFrame(atlas,team,f,kind,sourceProvider,allowTransient=false)
    if(image)return {img:image,f:{...f,x:0,y:0},transient:true};
    throw unitTintFailure();
   }
-  const shared=typeof sourceProvider==='function'?sourceProvider(atlas,f):null;
+  const shared=typeof sourceProvider==='function'?sourceProvider(atlas,f):overflow?readTeamFrameSource(atlas,f):demandTintSource(atlas,f);
   let source=shared;
   const reusable=source&&source.img===atlas.img&&source.x===f.x&&source.y===f.y&&source.w===f.w&&source.h===f.h&&
    source.original?.length===f.w*f.h*4&&source.pixels?.data?.length===source.original.length&&typeof source.pixels.data.set==='function';
-  if(!reusable)source=readTeamFrameSource(atlas,f);
+  if(typeof sourceProvider==='function'&&!reusable)source=readTeamFrameSource(atlas,f);
   if(!source)throw paintedTintFailure();
   const pixels=source.pixels;
   // Reset the working ImageData from immutable blue-source bytes before every

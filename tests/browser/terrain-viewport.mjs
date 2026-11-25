@@ -74,11 +74,14 @@ export async function checkGraphicsRecovery(page){
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,saves=gameSaves(),views=[];
   const home=S.bs.find(b=>b.t===0&&b.k==='tc');
   for(const zoom of [.8,3]){
-   zm=zoom;TW=64*zm;TH=32*zm;ctr(home.x+5,home.y+5);mode='pause';draw(0);draw(0);
+   zm=zoom;TW=64*zm;TH=32*zm;ctr(home.x+5,home.y+5);mode='pause';
+   const readsBefore=DEMAND_TINT_SOURCE.reads,reusesBefore=DEMAND_TINT_SOURCE.reuses,drawMs=[];
+   for(let i=0;i<2;i++){const start=performance.now();draw(0);drawMs.push(performance.now()-start)}
    const data=WORLD_X.getImageData(0,0,cv.width,cv.height).data;let coloured=0;
    // Exclude the HUD, minimap and menus; the middle of the world must render.
    for(let y=80;y<Math.floor(cv.height*.6);y+=2)for(let x=20;x<Math.floor(cv.width*.65);x+=2){const i=(y*cv.width+x)*4;if(data[i]+data[i+1]+data[i+2]>90)coloured++}
-   views.push({zoom,coloured,units:S.us.length,buildings:S.bs.length,fogMs:perfFogMs,tileTotalMs:perfTilesMs});
+   views.push({zoom,coloured,units:S.us.length,buildings:S.bs.length,fogMs:perfFogMs,tileTotalMs:perfTilesMs,
+    pausedDrawMs:drawMs,demandSourceReads:DEMAND_TINT_SOURCE.reads-readsBefore,demandSourceReuses:DEMAND_TINT_SOURCE.reuses-reusesBefore});
   }
   terrainTileTexture(0,0,0,[1,-1,-1,-1]);const terrainBlendBeforeLoss=TERRAIN_BLEND.size;
   mode='play';const lost=new Event('contextlost',{cancelable:true});cv.dispatchEvent(lost);

@@ -33,6 +33,63 @@ function fixture(){
  vm.createContext(sandbox);vm.runInContext(graphicsSurfaceLifetimeSource()+readFileSync(new URL('../js/assets.js',import.meta.url),'utf8')+';globalThis.draw=paintedTeamFrame;globalThis.cache=TEAM_FRAME_CACHE;globalThis.groups=TEAM_FRAME_GROUPS;',sandbox);
  return {...sandbox,calls,colors,canvases,clearCalls};
 }
+test('draw-batch source sharing reduces four-team readbacks while keeping every output byte and tint budget',()=>{
+ const manifest=JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json',import.meta.url),'utf8'));
+ const meta=manifest.atlases.find(a=>a.meta.motion).meta;
+ const frames=Object.values(meta.anims).flatMap(a=>a.frames||a.dirs?.flat()||[]).slice(0,8);
+ assert.equal(frames.length,8);
+ function render(shared){
+  const f=fixture(),create=f.document.createElement,writes=[];let reads=0,peakBytes=0;
+  f.document.createElement=()=>{
+   const canvas=create(),get=canvas.getContext;
+   canvas.getContext=(...args)=>{
+    const ctx=get(...args);
+    ctx.getImageData=(x,y,w,h)=>{
+     reads++;const data=new Uint8ClampedArray(w*h*4);
+     for(let i=0;i<data.length;i+=4){data[i]=20+i%37;data[i+1]=40;data[i+2]=180;data[i+3]=(i/4)%256}
+     return {data};
+    };
+    ctx.putImageData=p=>writes.push(p.data.slice());return ctx;
+   };return canvas;
+  };
+  f.groups.troop.limit=4*Math.max(...frames.map(p=>p.w*p.h));
+  const atlas={img:{},meta};
+  for(let tick=0;tick<20;tick++){
+   f.beginGraphicsSurfaceUse();f.beginGraphicsSurfaceUse();
+   for(let team=0;team<4;team++)f.draw(atlas,team,frames[tick%frames.length],'mil',shared?undefined:()=>null);
+   // Inspect the actual production owner without exposing a new public switch.
+   if(shared){
+    const source=f.demandTintSource(atlas,frames[tick%frames.length]);
+    peakBytes=Math.max(peakBytes,(source.pixels.data.byteLength||0)+(source.original?.byteLength||0));
+   }
+   f.endGraphicsSurfaceUse();
+   assert.ok(f.cache.pixels<=f.groups.troop.limit);
+   f.endGraphicsSurfaceUse();
+  }
+  return {reads,writes,peakBytes,pixels:f.cache.pixels,creations:f.cache.creations};
+ }
+ const shared=render(true),baseline=render(false);
+ assert.equal(shared.reads,20);assert.equal(baseline.reads,80);
+ assert.deepEqual(shared.writes,baseline.writes,'all four team palettes, alpha and animation crops remain exact');
+ assert.equal(shared.creations,baseline.creations);assert.equal(shared.pixels,baseline.pixels);
+ assert.ok(shared.peakBytes<=1024*1024);
+});
+test('demand source ownership ends at the outer batch, invalidates image/crop and obeys its byte cap',()=>{
+ const f=fixture(),atlas={img:{},meta:{painted:true}},frame={x:0,y:0,w:2,h:3};
+ f.beginGraphicsSurfaceUse();f.beginGraphicsSurfaceUse();
+ const first=f.demandTintSource(atlas,frame);
+ assert.equal(f.demandTintSource(atlas,frame),first);
+ f.endGraphicsSurfaceUse();assert.equal(f.demandTintSource(atlas,frame),first,'nested scopes retain the source');
+ f.endGraphicsSurfaceUse();f.beginGraphicsSurfaceUse();
+ assert.notEqual(f.demandTintSource(atlas,frame),first,'no source pixels survive between frames');
+ const next=f.demandTintSource(atlas,{...frame,x:2});assert.notEqual(next,first);
+ assert.notEqual(f.demandTintSource({...atlas,img:{}},{...frame,x:2}),next);
+ const big={...frame,w:1024,h:1024};
+ assert.equal(f.demandTintSource(atlas,big).original,undefined,'oversized read remains usable without retaining a copy');
+ const small=f.demandTintSource(atlas,frame);f.clearTeamFrameCache();
+ assert.notEqual(f.demandTintSource(atlas,frame),small,'cache/context reset discards CPU source ownership too');
+ f.endGraphicsSurfaceUse();
+});
 test('failed native tint display construction retires only rejected backings in both pools',()=>{
  for(const kind of['mil','bld_house'])for(const phase of['null','context','before','put','after','register']){
   const f=fixture(),atlas={img:{},meta:{painted:true}},frame={x:0,y:0,w:2,h:3,ax:1,ay:2},create=f.document.createElement;

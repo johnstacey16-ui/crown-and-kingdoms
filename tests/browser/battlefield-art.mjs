@@ -4,7 +4,7 @@ import {checkProjectileArtwork} from './projectile-art.mjs';
 import {checkBuildingAgeDetails} from './building-age-details.mjs';
 import {checkBuildingDamage} from './building-damage-art.mjs';
 import {checkBuildingConstruction} from './building-construction-art.mjs';
-import {checkFrameTints, checkTintFailurePolicy, checkSpriteWarmup, checkSurfaceLifetime, checkRosterTintWarmup, checkNextTintPrediction, checkScopedTintOverflow} from './frame-tints.mjs';
+import {checkFrameTints, checkTintFailurePolicy, checkSpriteWarmup, checkSurfaceLifetime, checkRosterTintWarmup, checkNextTintPrediction, checkScopedTintOverflow, checkDemandTintSource} from './frame-tints.mjs';
 import {checkTownCentreAges} from './town-centre-ages.mjs';
 import {checkHouseAges} from './house-ages.mjs';
 import {checkEliteArtwork} from './elite-art.mjs';
@@ -112,6 +112,7 @@ try{
  const surfaceLifetime=await checkSurfaceLifetime(page);
  await writeFile(output+'/surface-lifetime.json',JSON.stringify(surfaceLifetime,null,2));
  const frameTints=await checkFrameTints(page,output);
+ frameTints.demandSource=await checkDemandTintSource(page);
  const eliteArtwork=await checkEliteArtwork(page,output);
  await writeFile(output+'/painted-elites.json',JSON.stringify(eliteArtwork,null,2));
  const tintFailurePolicy=await checkTintFailurePolicy(page);
