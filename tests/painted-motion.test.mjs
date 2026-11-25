@@ -147,7 +147,7 @@ test('stopping retains visual facing while solo rendering leaves the entity unto
 test('every motion kind has a single ready pose at the same body scale as its walk cycle',()=>{
  const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'];
  assert.equal(pack.atlases.filter(a=>a.meta.motion&&!a.meta.elite).length,kinds.length);
- assert.equal(pack.atlases.filter(a=>a.meta.elite).length,28,'Elite sheets are inventoried separately from base units');
+ assert.equal(pack.atlases.filter(a=>a.meta.elite).length,31,'Elite sheets are inventoried separately from base units');
  for(const kind of kinds){const a=pack.atlases.find(a=>a.id==='painted-motion-'+kind);
   for(let team=0;team<4;team++){const idle=a.meta.anims[kind+'/idle/'+team],walk=a.meta.anims[kind+'/walk/'+team];assert.equal(idle.frames.length,1);assert.equal(idle.scale,walk.scale);assert.equal(idle.referenceHeight,walk.referenceHeight)}
  }

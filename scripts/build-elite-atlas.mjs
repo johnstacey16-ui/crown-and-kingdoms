@@ -7,8 +7,8 @@ import {createHash} from 'node:crypto';
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
-const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa'],args=process.argv.slice(2),sources={};
-const mountedKinds=new Set(['mgd','cata','boyar','leitis','tarkan','keshik','monaspa']);
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust'],args=process.argv.slice(2),sources={};
+const mountedKinds=new Set(['mgd','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust']);
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();
   if(flag!=='--source'||!kinds.includes(kind)||!path||sources[kind])throw Error('Use --source KIND PNG once per Elite kind');
