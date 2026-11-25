@@ -1,0 +1,17 @@
+{
+  "purpose": "Explicit release acceptance request; production must remain unchanged until the requested gates pass.",
+  "date": "2026-11-25",
+  "developmentSource": "67b92e8e250dce2ce4dd4022e36451ca3e4b9a0e",
+  "productionBase": "1c1b57a70f2a1ef0809e3b2c3d4c65f2f3494762",
+  "gates": [
+    "quick",
+    "focused",
+    "all standalone regression files",
+    "3 seeded production-AI skirmishes",
+    "19 isolated campaign playthroughs",
+    "Chromium battlefield/room",
+    "HUD/browser layouts",
+    "Xbox software contracts"
+  ],
+  "hardwareAcceptance": "Physical Xbox acceptance remains separate."
+}
