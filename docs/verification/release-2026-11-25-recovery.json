@@ -10,5 +10,36 @@
     "Release derived canvas surfaces immediately on world context loss",
     "Require the real large-battle browser fixture to unlock Resume"
   ],
-  "notEstablished": "Physical Xbox FPS improvement and repeated real hardware context restoration remain unverified."
+  "notEstablished": "Physical Xbox FPS improvement and repeated real hardware context restoration remain unverified.",
+  "candidate": "9c5c552445fac91e535ef25f2e83ac00edbf9e7f",
+  "production": "dac371420ab66a642c7ba0983c26712f8b846d3e",
+  "acceptanceRun": 45539052000,
+  "results": {
+    "quick": 5,
+    "focused": 1761,
+    "standaloneFiles": 292,
+    "seededAiChecks": 3,
+    "scriptedCampaignWins": 19,
+    "chromiumChecks": 2,
+    "xboxSoftwareChecks": 8
+  },
+  "browserRecovery": {
+    "required": 44,
+    "resident": 44,
+    "skipped": 0,
+    "blocked": false,
+    "releasedWhileLost": true,
+    "terrainRebuilt": true,
+    "stateUnchanged": true,
+    "savesUnchanged": true,
+    "stillPaused": true
+  },
+  "publicVerification": {
+    "vercelGithubStatus": "Deployment has completed",
+    "matchingFiles": [
+      "js/engine-picture.js",
+      "js/render-effects.js"
+    ]
+  },
+  "ownerFollowup": "Xbox Series S Original 100% starts at about 5 FPS immediately; physical performance remains unresolved."
 }
