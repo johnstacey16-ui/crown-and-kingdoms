@@ -69,6 +69,7 @@ export async function checkGraphicsRecovery(page){
  const result=await page.evaluate(()=>{
   snd=mus=0;mode='title';
   if(!loadSeriesSLargeBattleSave())throw Error('Large battle fixture failed');
+  const initialWarmup={jobs:TINT_WARMUP.total,skipped:TINT_WARMUP.skipped,pixels:TINT_WARMUP.plannedPixels};
   const gameSaves=()=>JSON.stringify(Object.entries(localStorage).filter(([key])=>!/^ck_graphics_loss_(latest|[0-3])$/.test(key)));
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,saves=gameSaves(),views=[];
   const home=S.bs.find(b=>b.t===0&&b.k==='tc');
@@ -82,6 +83,7 @@ export async function checkGraphicsRecovery(page){
   terrainTileTexture(0,0,0,[1,-1,-1,-1]);const terrainBlendBeforeLoss=TERRAIN_BLEND.size;
   mode='play';const lost=new Event('contextlost',{cancelable:true});cv.dispatchEvent(lost);
   const paused=mode==='pause',restorationAllowed=!lost.defaultPrevented,statusVisible=!!document.querySelector('[role="status"]');
+  const releasedWhileLost=TEAM_FRAME_CACHE.pixels===0&&TROOP_TEXTURE_LRU.size===0&&TCH.size===0;
   cv.dispatchEvent(new Event('contextrestored'));const blendReset=TERRAIN_BLEND.size===0&&terrainBlendPixels===0;
   let batches=0,maxCreations=0;
   while(TINT_WARMUP.status==='pending'&&batches<1000){
@@ -89,18 +91,18 @@ export async function checkGraphicsRecovery(page){
   }
   const blocked=checkGraphicsRestoreReadiness(),readiness=GRAPHICS_RECOVERY.readiness;
   draw(0);draw(0);
-  return {terrainBlendBeforeLoss,blendReset,views,paused,restorationAllowed,statusVisible,
+  return {initialWarmup,releasedWhileLost,terrainBlendBeforeLoss,blendReset,views,paused,restorationAllowed,statusVisible,
    restored:GRAPHICS_RECOVERY.lost.size===0&&!GRAPHICS_RECOVERY.status,
    terrainRebuilt:TCH.size>0&&!!TERRAIN_VIEW.key,coldWhileBlocked:TCH.size===0&&!TERRAIN_VIEW.key,
    blocked,readiness,skipped:TINT_WARMUP.skipped,batches,maxCreations,
    before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,savesUnchanged:saves===gameSaves(),stillPaused:mode==='pause'};
  });
  for(const view of result.views){assert.equal(view.units,372);assert.equal(view.buildings,238);assert.ok(view.fogMs>=0&&view.fogMs<=view.tileTotalMs,'fog time is a subset of tile time');assert.ok(view.coloured>1000,'large battle draws world pixels at zoom '+view.zoom)}
- for(const key of ['blendReset','paused','restorationAllowed','statusVisible','restored','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
+ for(const key of ['releasedWhileLost','blendReset','paused','restorationAllowed','statusVisible','restored','savesUnchanged','stillPaused'])assert.equal(result[key],true,key);
  assert.ok(result.maxCreations<=4);
- if(result.blocked){
-  assert.equal(result.readiness.reason,'incomplete');assert.ok(result.skipped>0);assert.equal(result.coldWhileBlocked,true);
- }else{assert.equal(result.readiness.ready,true);assert.equal(result.terrainRebuilt,true)}
+ assert.equal(result.blocked,false,'the real large battle must unlock Resume after restoration');
+ assert.equal(result.skipped,0,'the recovery working set must fit without skipping required poses');
+ assert.equal(result.readiness.ready,true);assert.equal(result.terrainRebuilt,true);
  assert.ok(result.terrainBlendBeforeLoss>0);assert.equal(result.before,result.after);return result;
 }
 

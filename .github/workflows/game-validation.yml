@@ -160,6 +160,8 @@ jobs:
           path: |
             artifacts/battlefield-art/painted-elites.png
             artifacts/battlefield-art/painted-elites.json
+            artifacts/battlefield-art/large-battle-recovery.png
+            artifacts/battlefield-art/metrics.json
             artifacts/battlefield-art/light-motion.png
             artifacts/battlefield-art/ranged-motion.png
             artifacts/battlefield-art/horse-motion.png

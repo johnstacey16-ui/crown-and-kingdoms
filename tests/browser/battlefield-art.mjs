@@ -396,6 +396,7 @@ try{
  recovery.on('pageerror',error=>errors.push(error.message));
  await recovery.goto(origin,{waitUntil:'networkidle'});await recovery.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_ATLASES);
  const graphicsRecovery=await checkGraphicsRecovery(recovery);
+ console.log('large-battle-recovery-diagnostic:',JSON.stringify(graphicsRecovery));
  await recovery.screenshot({path:output+'/large-battle-recovery.png'});await recovery.close();
  const partial=await browser.newPage({viewport:{width:960,height:850}});
  partial.on('pageerror',error=>errors.push(error.message));

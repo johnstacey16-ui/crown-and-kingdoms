@@ -1,0 +1,14 @@
+{
+  "purpose": "Large-battle canvas recovery hotfix validation",
+  "date": "2026-11-25",
+  "developmentSource": "801736181c4246ad89cca1555256076b2078537d",
+  "productionBase": "3a573214aa11840f4a1de7247c19105a6a32e027",
+  "reportedHardware": "Xbox Series S, Original 100% picture preset",
+  "reproduced": "372-unit/238-building full-animation warm-up plans 257 cached frames and skips 487; readiness remains blocked.",
+  "changes": [
+    "Ready-pose-only recovery plan, retained across atlas-index arrivals",
+    "Release derived canvas surfaces immediately on world context loss",
+    "Require the real large-battle browser fixture to unlock Resume"
+  ],
+  "notEstablished": "Physical Xbox FPS improvement and repeated real hardware context restoration remain unverified."
+}
