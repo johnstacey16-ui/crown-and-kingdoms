@@ -403,7 +403,7 @@ try{
  await partial.route('**/assets/painted-elite-*.webp',route=>route.abort());
  await scene(partial,false);await partial.waitForFunction(count=>ASSET.n===count&&PAINT.terrain,EXPECTED_STATIC_ATLASES);
  for(const kind of ['mil','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon'])assert.equal(await partial.evaluate(k=>assetFrame(k,0,1,0,.3).animated,kind),false,'a failed motion sheet retains its painted base pose');
- for(const kind of ['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion']){
+ for(const kind of ['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon']){
   const fallback=await partial.evaluate(k=>{
    const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,saved={civ:S.civ,tech:S.tech};
    const id=CIV.findIndex(c=>c.uu===k),originalBlit=blit;

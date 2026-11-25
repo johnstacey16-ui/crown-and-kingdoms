@@ -13,8 +13,8 @@ function fixture(){
  for(const a of [...elite.atlases,...pack.atlases.filter(a=>a.id.startsWith('painted-motion-'))])run('regAtlas('+JSON.stringify(a.id)+',{},'+JSON.stringify(a.meta)+')');
  return run;
 }
-test('thirty-four dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
- assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion']);
+test('thirty-nine dedicated Elite sheets retain sixteen complete poses and independent base assets',()=>{
+ assert.deepEqual(elite.atlases.map(a=>a.meta.elite),['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon']);
  for(const a of elite.atlases){
   const k=a.meta.elite,base=pack.atlases.find(b=>b.id==='painted-motion-'+k);
   assert.notEqual(a.src,base.src);
@@ -24,13 +24,20 @@ test('thirty-four dedicated Elite sheets retain sixteen complete poses and indep
    assert.equal(new Set([...walk.frames,...attack.frames].map(f=>[f.x,f.y].join('/'))).size,16);
    assert.equal(walk.scale,attack.scale);assert.equal(idle.referenceHeight,walk.referenceHeight);
    const baseWalk=base.meta.anims[k+'/walk/'+t];
-   assert.ok(Math.abs(walk.scale*walk.referenceHeight-baseWalk.scale*baseWalk.referenceHeight)<1e-8,'Elite retains its base body scale: '+k);
+   const height=walk.scale*walk.referenceHeight,baseHeight=baseWalk.scale*baseWalk.referenceHeight;
+   assert.equal(walk.dur,baseWalk.dur,'Elite retains base walking cadence: '+k);
+   if(['ele','eled','wagon'].includes(k)){
+    const width=Math.max(...walk.frames.map(f=>f.w))*walk.scale,baseWidth=Math.max(...baseWalk.frames.map(f=>f.w))*baseWalk.scale;
+    assert.ok(height<=baseHeight+1e-8&&width<=baseWidth+1e-8,'Elite fits both base vehicle dimensions: '+k);
+    assert.ok(Math.abs(height-baseHeight)<1e-8||Math.abs(width-baseWidth)<1e-8,'vehicle fills a limiting dimension without arbitrary shrinking: '+k);
+   }else assert.ok(Math.abs(height-baseHeight)<1e-8,'Elite retains its base body scale: '+k);
+   assert.equal(a.meta.sourceActionFrame,k==='ele'?11:12,'source contact/release phase: '+k);
   }
  }
 });
 test('solo rendering selects only the owning researched Elite tier and falls back after atlas loss',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['ele',12]]){
   run('S.civ=['+id+','+id+'];S.tech=[{},{}]');
   const draw=t=>'unitAssetFrame('+JSON.stringify(k)+','+t+',{state:1,time:.2},!!eliteUniqueUnitUpgrade('+JSON.stringify(k)+','+t+'))';
   assert.equal(run('!!'+draw(0)+'.elite'),false);
@@ -47,7 +54,7 @@ test('solo rendering selects only the owning researched Elite tier and falls bac
 });
 test('network projection uses its supplied world research, including visible opponents',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['ele',12]]){
   run(`S.civ=[${id},${id}];S.tech=[{},{}];S.us=[];globalThis.a=addU(0,'${k}',20,20);globalThis.b=addU(1,'${k}',21,20);globalThis.w={...S,civ:[${id},${id}],tech:[{[CIV[${id}].elite.k]:1},{}]}`);
   const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
   assert.equal(run(`eliteUniqueUnitUpgrade('${k}',0)`),null);
