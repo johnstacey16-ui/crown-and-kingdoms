@@ -54,6 +54,47 @@ test('Imperial Furor Celtica grants +40% base hitpoints to Siege Workshop units'
  assert.equal(run("mhp({k:'treb',t:0})"),before.treb,'Castle trebuchets are outside this upgrade');
 });
 
+for(const [civ,key,kinds]of [[6,'ut6',['ram','mang','scor','bomb']],[8,'ut8',['camel','mamel']],[14,'ut14',['vil']]]){
+ test(`${key} gives existing and future troops the same HP bonus without healing old damage or applying twice`,()=>{
+  const run=game(civ),tech=JSON.parse(run(`JSON.stringify(TE.${key})`));
+  const expected=kind=>civ===6?Math.round(run(`U.${kind}.hp`)*.4):civ===8?20:40;
+  run(`globalThis.kinds=${JSON.stringify(kinds)};S.tech[0].hpb=Object.fromEntries(kinds.map(k=>[k,7]));globalThis.troops=kinds.map((k,i)=>{
+   const full=addU(0,k,28+i,28),hurt=addU(0,k,28+i,29),dead=addU(0,k,28+i,30),enemy=addU(1,k,28+i,31);
+   hurt.hp-=10;dead.hp=0;return {k,full,hurt,dead,enemy,max:mhp(full)};
+  });globalThis.excluded=addU(0,'treb',35,32);globalThis.excludedHp=excluded.hp;`);
+  if(civ===14)run("globalThis.workerDamage=()=>{const target={t:1,k:'mil',x:30,y:30,hp:1000,p:[]};dmgT(troops[0].full,target);return 1000-target.hp};globalThis.oldWorkerDamage=workerDamage()");
+  run(`S.age[0]=${tech.age-1}`);assert.equal(run(`research(castle,'${key}')`),false);
+  assert.equal(run('S.res[0].f'),10000,'age rejection cannot spend resources');
+  run('S.age[0]=3;S.res[0]={f:0,w:0,g:0,s:0}');
+  assert.equal(run(`research(castle,'${key}')`),false,'no free research');
+  run('S.res[0]={f:10000,w:10000,g:10000,s:10000}');
+  assert.equal(run(`rsOf({k:'castle',t:1}).includes('${key}')`),false);
+  assert.equal(run(`technologyTreeModel(0).buildings.find(b=>b.id==='castle').research.find(r=>r.id==='${key}').state`),'available');
+  assert.equal(run(`research(castle,'${key}')`),true);
+  assert.equal(run('S.res[0].f'),10000-(tech.cost.f||0));
+  assert.equal(run('S.res[0].g'),10000-(tech.cost.g||0));
+  assert.equal(run('troops.every(u=>u.full.hp===u.max&&u.hurt.hp===u.max-10)'),true,'effects wait for completion');
+  run(`upB(castle,TE.${key}.t+.1)`);
+  for(const kind of kinds){
+   const state=JSON.parse(run(`JSON.stringify(troops.find(u=>u.k==='${kind}'))`)),bonus=expected(kind);
+   assert.equal(state.full.hp,state.max+bonus,kind+' existing full-health HP');
+   assert.equal(state.hurt.hp,state.max-10+bonus,kind+' retains its ten points of old damage');
+   assert.equal(state.dead.hp,0,'dead troops are never revived');
+   assert.equal(state.enemy.hp,run(`U.${kind}.hp`),'enemy troops are unchanged');
+   assert.equal(run(`addU(0,'${kind}',30,35).hp`),state.max+bonus,'future troops use the same bonus');
+  }
+  assert.equal(run('excluded.hp===excludedHp'),true,'unrelated units do not benefit');
+  if(civ===14)assert.equal(run('workerDamage()-oldWorkerDamage'),6,'Supremacy retains its real villager attack bonus');
+  const after=run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})');
+  assert.equal(run(`research(castle,'${key}')`),false,'completed research cannot be bought again');
+  run('upB(castle,100)');assert.equal(run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})'),after);
+  assert.equal(run(`saveG(false,'ck_hp_upgrade_${key}')`),true);
+  run('S.tech[0]={};S.us=[]');
+  assert.equal(run(`loadG(false,'ck_hp_upgrade_${key}')`),true);
+  assert.equal(run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})'),after,'same-build reload restores bonuses exactly once');
+ });
+}
+
 test('Viking Bogsveigar adds one damage to Archer and Crossbowman attacks only',()=>{
  const run=game(7);
  run("globalThis.attacker={k:'arc',t:0,x:6,y:6};globalThis.victim={k:'mil',t:1,x:7,y:6,hp:500,p:[]}");

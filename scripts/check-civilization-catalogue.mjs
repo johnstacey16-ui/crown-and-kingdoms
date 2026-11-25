@@ -34,6 +34,14 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
  if(!Array.isArray(catalogue?.civilizations)||!catalogue.civilizations.length)errors.push('Missing civilization records');
  if(!Array.isArray(catalogue?.rulesets)||!catalogue.rulesets.length)errors.push('Missing ruleset status registry');
  if(errors.length)return errors;
+ const hasUnitStatEffects=definition=>{
+  const fields=['hpb','atkb'].filter(field=>definition?.[field]!==undefined);
+  return fields.length>0&&fields.every(field=>{
+   const map=definition[field];
+   return map&&typeof map==='object'&&!Array.isArray(map)&&Object.keys(map).length>0&&
+    Object.entries(map).every(([kind,amount])=>Object.hasOwn(units,kind)&&Number.isFinite(amount)&&amount>0);
+  });
+ };
  const statuses=new Set(['missing','partial','verified']);
  const ruleIds=new Set();
  for(const pack of catalogue.rulesets){
@@ -108,8 +116,10 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
      errors.push('Unavailable early research '+key+' for '+entry.name);
    }
   }
-  if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
+  if(typeof actual?.fx!=='function'||!(typeof actual?.ut?.fx==='function'||hasUnitStatEffects(actual?.ut)))
    errors.push('Missing live civilization/technology effects for '+entry.name);
+  if(['hpb','atkb'].some(field=>actual?.ut?.[field]!==undefined)&&!hasUnitStatEffects(actual.ut))
+   errors.push('Invalid unit-stat technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||
    !Number.isFinite(actual.ut.t)||actual.ut.t<=0||!actual.ut.cost||typeof actual.ut.cost!=='object'||
    Object.entries(actual.ut.cost).some(([resource,amount])=>!['f','w','g','s'].includes(resource)||!Number.isFinite(amount)||amount<0))

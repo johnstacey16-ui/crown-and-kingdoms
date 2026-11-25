@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {currentCivilizationRuntime} from '../scripts/check-civilization-catalogue.mjs';
 
 const config = readFileSync(new URL('../js/config.js', import.meta.url), 'utf8');
 const simulation = readFileSync(new URL('../js/simulation-unit-behaviour.js', import.meta.url), 'utf8');
-const civilizations = readFileSync(new URL('../js/civilizations.js', import.meta.url), 'utf8');
 
 test('critical balance regressions from the parity audit stay corrected', () => {
   assert.match(config, /farm:\{n:'Farm',s:1,hp:480,cost:\{w:60\},bt:15\}/);
@@ -12,7 +12,10 @@ test('critical balance regressions from the parity audit stay corrected', () => 
   assert.match(config, /treb:\{[^}]*minR:3/);
   assert.match(simulation, /const dist=d2\(u\.x,u\.y,tg\),minR=u\.k==='mang'&&S\.tech\[u\.t\]\?\.onager\?3:u\.k==='scor'&&typeof romanScorpionMinimumRange==='function'\?romanScorpionMinimumRange\(u\):d\.minR\|\|0/);
   assert.match(simulation, /if\(minR&&dist<minR\)/);
-  assert.ok(civilizations.includes("n:'Supremacy',cost:{f:300,g:250},t:50,age:2,fx:t=>{atkbF(t,'vil',6);hpbF(t,'vil',40)}"));
+  const supremacy=currentCivilizationRuntime().civilizations[14].ut;
+  assert.deepEqual({...supremacy.cost},{f:300,g:250});
+  assert.equal(supremacy.t,50);assert.equal(supremacy.age,2);
+  assert.equal(supremacy.hpb.vil,40);assert.equal(supremacy.atkb.vil,6);
 });
 
 

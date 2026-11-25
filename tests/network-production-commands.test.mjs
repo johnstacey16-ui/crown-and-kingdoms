@@ -347,6 +347,36 @@ test('both authenticated players research Paladin only at the host frame and pay
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[700,250],[700,250]]);assert.deepEqual(Array.from(out.hp),[160,160]);assert.deepEqual(Array.from(out.names),['Paladin','Paladin']);
 });
 
+for(const [civ,key,kind]of [[6,'ut6','ram'],[8,'ut8','camel'],[14,'ut14','vil']]){
+ test(`${key} applies existing-unit HP through authorized host research without a foreign purchase`,()=>{
+  const out=world(`
+   S.civ=[${civ},1];S.age=[3,3];S.tech=[{},{}];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+   S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+   const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+   const troops=[addU(0,'${kind}',25,25),addU(1,'${kind}',36,25)];
+   troops[0].hp-=10;const hp=troops.map(u=>u.hp),before=JSON.stringify(S.res);
+   const forged=host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[0].netId],value:'${key}'}),'guest-session',2);
+   const requests=[host.receive(packet('host-session',0,1,6,{type:'research',entities:[castles[0].netId],value:'${key}'}),'host-session',2),
+    host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[1].netId],value:'${key}'}),'guest-session',2)];
+   const deferred=JSON.stringify(S.res)===before&&castles.every(b=>!b.rs),applied=host.applyFrame(6);
+   const hpBeforeCompletion=troops.map(u=>u.hp);upB(castles[0],TE.${key}.t+.1);
+   const after=JSON.stringify({res:S.res,tech:S.tech,hp:troops.map(u=>u.hp)});
+   host.receive(packet('host-session',0,2,8,{type:'research',entities:[castles[0].netId],value:'${key}'}),'host-session',2);
+   const duplicate=host.applyFrame(8)[0];
+   return {forged:forged.reason,accepted:requests.map(r=>r.ok),deferred,applied:applied.map(r=>r.ok),
+    hp,hpBeforeCompletion,afterHp:troops.map(u=>u.hp),bonus:TE.${key}.hpb['${kind}'],cost:TE.${key}.cost,
+    paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),duplicate:duplicate.ok,
+    unchanged:JSON.stringify({res:S.res,tech:S.tech,hp:troops.map(u=>u.hp)})===after};
+  `);
+  assert.equal(out.forged,'unauthorized-order');assert.deepEqual(Array.from(out.accepted),[true,true]);
+  assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.applied),[true,false]);
+  assert.deepEqual(Array.from(out.hpBeforeCompletion),Array.from(out.hp));
+  assert.equal(out.afterHp[0],out.hp[0]+out.bonus);assert.equal(out.afterHp[1],out.hp[1]);
+  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:out.cost.f||0,g:out.cost.g||0},{f:0,g:0}]);
+  assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+ });
+}
+
 test('both authenticated players research Hussar only at the host frame and pay their own budgets',()=>{
  const out=world(`
   S.civ=[2,3];S.age=[3,3];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);

@@ -82,6 +82,19 @@ test('all ten technology restriction groups are versioned for every civilization
 const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url),'utf8');
 const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+test('first unique technologies accept actual declarative stats and reject empty, unknown or malformed effects',()=>{
+ for(const id of[6,8,14]){
+  const current=currentCivilizationRuntime();
+  assert.equal(typeof current.civilizations[id].ut.fx,'undefined');
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+ }
+ for(const effects of[{},[],null,{camel:NaN},{camel:-20},{camel:0},{camel:'20'},{invented:20},{constructor:20}]){
+  const current=currentCivilizationRuntime();current.civilizations[8].ut.hpb=effects;
+  assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)),String(effects));
+ }
+ const missing=currentCivilizationRuntime();delete missing.civilizations[8].ut.hpb;
+ assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing live civilization\/technology effects/.test(e)));
+});
 test('a missing live research row is rejected before permissive fallback can hide it',()=>{
  const missing=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace(" 'Franks':'x',",''));
  assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing research row archery for Franks/.test(e)));
