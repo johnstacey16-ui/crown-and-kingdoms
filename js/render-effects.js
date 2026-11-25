@@ -83,7 +83,10 @@ function sharedTintWarmupSource(q,atlas,frame){
  if(source){source.original=source.pixels.data.slice();q.source=source;q.sourceKey=key;q.sourceReads++}
  return source;
 }
-function queueRosterTintWarmup(world){
+function queueRosterTintWarmup(world,recoveryOnly=false){
+ // Recovery needs one ready pose per roster pair, not every possible animation.
+ // Atlas arrivals may rebuild this plan while the restore gate is active.
+ recoveryOnly=recoveryOnly||(typeof GRAPHICS_RECOVERY!=='undefined'&&GRAPHICS_RECOVERY.preparing&&GRAPHICS_RECOVERY.world===world);
  const q=TINT_WARMUP;
  q.required=[];q.world=world;
  q.jobs=[];q.index=0;q.total=0;q.processed=0;q.plannedPixels=0;q.skipped=0;q.scanned=0;q.creations=0;q.failed=0;q.stale=0;q.capHits=0;q.status='drained';
@@ -99,7 +102,7 @@ function queueRosterTintWarmup(world){
  const group=TEAM_FRAME_GROUPS.troop;
  const limit=Math.min(group.limit,Math.max(0,TEAM_FRAME_CACHE.limit-(TEAM_FRAME_CACHE.pixels-group.pixels)));
  // First admit an idle pose for each actual roster pair, then motion states.
- for(const state of[0,1,2,3])for(const pair of pairs){
+ for(const state of(recoveryOnly?[0]:[0,1,2,3]))for(const pair of pairs){
   const {team}=pair,kind=pair.elite&&hasReadyAssetPose(pair.kind+'_elite',team,state)?pair.kind+'_elite':pair.kind;
   const key=(SHIP_ART_FALLBACK[kind]||kind)+'/'+STN[state]+'/'+team;
   for(const atlas of ASSET_ANIM_INDEX.get(key)||[]){

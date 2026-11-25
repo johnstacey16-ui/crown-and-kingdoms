@@ -56,7 +56,7 @@ test('failed manual tint preparation stays blocked without retry loops',()=>{
  run(`mode='play';handleGraphicsTintFailure(paintedTintFailure());paintedTeamFrame=()=>{throw paintedTintFailure()};pmItems()[0].a();
   advanceRosterTintWarmup();checkGraphicsRestoreReadiness();globalThis.attempts=TINT_WARMUP.processed;
   for(let i=0;i<8;i++){warm();checkGraphicsRestoreReadiness()}`);
- assert.equal(run('mode'),'pause');assert.equal(run('TINT_WARMUP.failed'),16);assert.equal(run('TINT_WARMUP.processed'),run('attempts'));
+ assert.equal(run('mode'),'pause');assert.equal(run('TINT_WARMUP.failed'),2);assert.equal(run('TINT_WARMUP.processed'),run('attempts'));
  assert.equal(run('graphicsRestorePending()'),true);assert.equal(run('GRAPHICS_RECOVERY.readiness.reason'),'failed');assert.equal(run('CK_ERR'),null);
 });
 test('a failure outside the roster plan makes one draw attempt per explicit retry',()=>{
@@ -260,19 +260,19 @@ test('overlapping world/HUD loss restarts native roster preparation only after t
  const lossCount=run('GRAPHICS_RECOVERY.losses');events.get('contextlost')();
  assert.equal(run('GRAPHICS_RECOVERY.losses'),lossCount,'duplicate loss events are ignored');
  events.get('contextrestored')();
- assert.equal(run('GRAPHICS_RECOVERY.lost.size'),1);assert.equal(run('TEAM_FRAME_CACHE.entries.size'),1);
+ assert.equal(run('GRAPHICS_RECOVERY.lost.size'),1);assert.equal(run('TEAM_FRAME_CACHE.entries.size'),0,'world loss releases derived pixels before the browser restores');
  assert.equal(run('!!GRAPHICS_RECOVERY.status'),true);assert.equal(run('TINT_WARMUP.creations'),1);
  run('hudEvents.contextrestored()');
  assert.equal(run('GRAPHICS_RECOVERY.status'),null);assert.equal(run('TEAM_FRAME_CACHE.entries.size'),0);
- assert.equal(run('TINT_WARMUP.total'),16);assert.equal(run('TINT_WARMUP.status'),'pending');
+ assert.equal(run('TINT_WARMUP.total'),2);assert.equal(run('TINT_WARMUP.status'),'pending');
  assert.equal(run('TINT_WARMUP.creations'),0);assert.equal(run('TINT_WARMUP.source'),null);
  assert.equal(run('TINT_PREDICTION.jobs.size'),0);assert.equal(run('TINT_PREDICTION.world'),null);
- events.get('contextrestored')();assert.equal(run('TINT_WARMUP.total'),16,'duplicate restores do not restart the queue');
+ events.get('contextrestored')();assert.equal(run('TINT_WARMUP.total'),2,'duplicate restores do not restart the queue');
  let callbacks=0;
  while(run('TINT_WARMUP.status')==='pending'){
   assert.ok(run('advanceRosterTintWarmup().created')<=4);callbacks++;
  }
- assert.equal(callbacks,4);assert.equal(run('TINT_WARMUP.creations'),16);assert.equal(run('TINT_WARMUP.failed'),0);
+ assert.equal(callbacks,1);assert.equal(run('TINT_WARMUP.creations'),2);assert.equal(run('TINT_WARMUP.failed'),0);
  assert.equal(run('checkGraphicsRestoreReadiness()'),false);assert.equal(run('GRAPHICS_RECOVERY.preparing'),false);
  assert.equal(run('mode'),'pause');assert.equal(run('JSON.stringify(S)'),state);assert.equal(gameStorage(storage),saved);
 });
@@ -284,12 +284,12 @@ test('restore callbacks block simulation and cold world/HUD draws until native r
   drawWorld=()=>{worldDraws++};hud=()=>{throw Error('cold HUD draw')};drawPause=()=>{};
   readPad=()=>{};ctl=()=>{mode='play'};step=()=>{throw Error('simulation advanced')};
   WQ=[['missing',0,0,0]];spr=()=>{proceduralDraws++};`);
- for(let i=0;i<4;i++){
+ for(let i=0;i<1;i++){
   run('frame2(last+1000)');assert.equal(run('mode'),'pause');assert.equal(run('acc'),0);
   assert.equal(run('perfStepCount'),0);assert.ok(run('GRAPHICS_TRACE.frame.warmCreations')<=4);
   assert.equal(run('worldDraws+proceduralDraws'),0);assert.equal(run('GRAPHICS_RECOVERY.preparing'),true);
  }
- assert.equal(run('TINT_WARMUP.status'),'drained');assert.equal(run('TINT_WARMUP.creations'),16);
+ assert.equal(run('TINT_WARMUP.status'),'drained');assert.equal(run('TINT_WARMUP.creations'),2);
  assert.equal(run('checkGraphicsRestoreReadiness()'),false);assert.equal(run('mode'),'pause','readiness never auto-resumes');
  const creations=run('TEAM_FRAME_CACHE.creations');
  run('for(const j of TINT_WARMUP.required)paintedTeamFrame(j.atlas,j.team,j.frame,j.kind)');
@@ -300,12 +300,12 @@ test('restore callbacks block simulation and cold world/HUD draws until native r
 test('A, B and Menu cannot bypass preparation; capacity failure stays paused and can be retried',()=>{
  const {run,events}=game();nativeRecoveryScene(run);
  events.get('contextlost')();events.get('contextrestored')();
- run('readPad=()=>{};snd=0;drawWorld=()=>{throw Error("cold world draw")};drawPause=()=>{};WQ=[]');
+ run('readPad=()=>{};snd=0;drawWorld=()=>{throw Error("cold world draw")};drawPause=()=>{};WQ=[];globalThis.actualWarm=warm;warm=()=>{}');
  const state=run('JSON.stringify(S)');
  for(const button of[0,1,9]){
   run('E.fill(false);E['+button+']=true;frame2(last+16)');assert.equal(run('mode'),'pause');
  }
- run('E.fill(false);TEAM_FRAME_GROUPS.troop.limit=4;queueRosterTintWarmup(S);frame2(last+16);frame2(last+16)');
+ run('warm=actualWarm;E.fill(false);TEAM_FRAME_GROUPS.troop.limit=4;queueRosterTintWarmup(S);frame2(last+16);frame2(last+16)');
  assert.equal(run('GRAPHICS_RECOVERY.readiness.reason'),'incomplete');assert.equal(run('mode'),'pause');
  assert.match(run('graphicsRestoreMessage()'),/incomplete/);
  const count=run('TINT_WARMUP.creations');run('frame2(last+16)');assert.equal(run('TINT_WARMUP.creations'),count,'blocked plans never retry automatically');
@@ -317,7 +317,7 @@ test('A, B and Menu cannot bypass preparation; capacity failure stays paused and
 test('leaving or replacing a match releases its restore gate without blocking the next world',()=>{
  const {run,events}=game();nativeRecoveryScene(run);
  events.get('contextlost')();events.get('contextrestored')();
- run('mode="tree";warm()');assert.equal(run('TINT_WARMUP.status'),'pending','safe menus keep bounded preparation alive');
+ run('mode="tree";warm()');assert.equal(run('TINT_WARMUP.status'),'drained','safe menus can finish the small recovery plan');
  run('mode="title"');assert.equal(run('graphicsRestorePending()'),false);assert.equal(run('GRAPHICS_RECOVERY.world'),null);
  nativeRecoveryScene(run);events.get('contextlost')();events.get('contextrestored')();
  run('start()');assert.equal(run('graphicsRestorePending()'),false);assert.equal(run('mode'),'play');
@@ -396,4 +396,28 @@ test('sustained low FPS after a graphics loss never changes an unselected pictur
  assert.doesNotMatch(engine,/sampleGraphicsRecovery/);
  assert.equal(run('JSON.stringify(S)'),state);
  assert.equal(gameStorage(storage),saved);
+});
+
+test('the real 372-unit Original-picture battle recovers without fitting every animation in the cache',()=>{
+ const {run,events,storage}=game();
+ const pack=JSON.parse(readFileSync(new URL('../assets/atlas-manifest.json',import.meta.url),'utf8'));
+ for(const a of pack.atlases)run('regAtlas('+JSON.stringify(a.id)+',{},'+JSON.stringify(a.meta)+')');
+ assert.equal(run('loadSeriesSLargeBattleSave()'),true);
+ run('setXboxPicturePreset(0);queueRosterTintWarmup(S);performance.now=()=>0');
+ assert.ok(run('TINT_WARMUP.skipped')>0,'full-animation preparation cannot fit the actual battle roster');
+ const state=()=>run('JSON.stringify([S.t,S.us.map(u=>[u.netId,u.k,u.t,u.x,u.y,u.hp,u.o,u.tg?.netId]),S.bs.map(b=>[b.netId,b.k,b.t,b.x,b.y,b.hp]),S.res,S.tech])');
+ const before=state(),saved=gameStorage(storage);
+ events.get('contextlost')();
+ assert.equal(run('TEAM_FRAME_CACHE.entries.size'),0);
+ assert.equal(run('TINT_WARMUP.source'),null);
+ events.get('contextrestored')();
+ assert.equal(run('TINT_WARMUP.skipped'),0);
+ assert.ok(run('TINT_WARMUP.total')<=44,'one ready pose for each actual kind/team, not all animation poses');
+ // A late image-index refresh must not replace this with the oversized plan.
+ run('rebuildAssetAnimationIndex()');assert.equal(run('TINT_WARMUP.skipped'),0);
+ let frames=0;while(run('TINT_WARMUP.status')==='pending'&&frames++<50)assert.ok(run('advanceRosterTintWarmup().created')<=4);
+ assert.ok(frames<=11);assert.equal(run('checkGraphicsRestoreReadiness()'),false);
+ assert.equal(run('mode'),'pause');assert.equal(state(),before);assert.equal(gameStorage(storage),saved);
+ assert.equal(run('currentXboxPicturePreset()'),0);assert.equal(run('perfRenderScale'),1);
+ run('pmItems()[0].a()');assert.equal(run('mode'),'play','Resume is usable once the bounded plan is ready');
 });

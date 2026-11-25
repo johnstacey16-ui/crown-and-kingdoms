@@ -235,7 +235,7 @@ function checkGraphicsRestoreReadiness(){
 function retryGraphicsRestore(){
  if(!graphicsRestorePending())return false;
  if(GRAPHICS_RECOVERY.readiness?.state!=='pending'){
-  queueRosterTintWarmup(S);GRAPHICS_RECOVERY.tintFailure=null;GRAPHICS_RECOVERY.readiness=rosterTintWarmupReadiness(S);
+  queueRosterTintWarmup(S,true);GRAPHICS_RECOVERY.tintFailure=null;GRAPHICS_RECOVERY.readiness=rosterTintWarmupReadiness(S);
  }
  return true;
 }
@@ -266,6 +266,9 @@ function installCanvasRecovery(canvas){
   if(canvas===cv){
    GRAPHICS_RECOVERY.worldLost=true;
    GRAPHICS_RECOVERY.worldLosses++;
+   // Release derived GPU surfaces while waiting, so they do not obstruct restore.
+   clearGraphicsSurfaces();
+   if(!window.CK_NET?.isRunning?.())cancelRosterTintWarmup();
   }
   if(mode==='play'&&!window.CK_NET?.isRunning?.()){
    cancelGameplayGestures();mode='pause';pm=0;acc=0;
@@ -285,7 +288,7 @@ function installCanvasRecovery(canvas){
   if(GRAPHICS_RECOVERY.worldLost){
    clearGraphicsSurfaces();
    if(!window.CK_NET?.isRunning?.()){
-    queueRosterTintWarmup(S);
+    queueRosterTintWarmup(S,true);
     GRAPHICS_RECOVERY.tintFailure=null;
     GRAPHICS_RECOVERY.preparing=true;GRAPHICS_RECOVERY.world=S;
     GRAPHICS_RECOVERY.readiness=rosterTintWarmupReadiness(S);

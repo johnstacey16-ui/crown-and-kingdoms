@@ -86,6 +86,8 @@ for(const [zoom,dpr]of [[2.05,.6],[1,1]])for(const kinds of [3,6,9,14]){
 }
 test('diagnostic ring is chronological, bounded and persists each world/HUD loss without state changes',()=>{
  const {s,storage,world}=fixture();
+ // This isolated counter fixture omits world-cache and warm-up owners.
+ s.clearGraphicsSurfaces=()=>{};s.cancelRosterTintWarmup=()=>{};
  for(let i=0;i<130;i++){s.resetGraphicsTraceFrame();s.trace.frame.tints=i;s.captureGraphicsTraceFrame(i*50,50)}
  assert.equal(s.trace.frames.length,120);
  s.installCanvasRecovery(world);world.events.contextlost();
