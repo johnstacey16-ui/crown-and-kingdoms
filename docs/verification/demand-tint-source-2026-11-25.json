@@ -74,7 +74,33 @@
     "Four-team readback reduction is a controlled operation-count result, not an FPS claim.",
     "Repeated native tint eviction is still possible; this does not enlarge the tint pool.",
     "Series S Original startup FPS, black screens and repeated physical recovery remain unverified.",
-    "Production remains the separate recovery release dac37142; this candidate is development only."
+    "Production c42a1f97 contains the paused diagnostic update and existing recovery fix; automatic source sharing was removed."
   ],
-  "decision": "Remove automatic source sharing: the actual starting-view probe had 13 source reads and zero reuses. The controlled four-palette win does not establish a benefit in the reported scene."
+  "decision": "Remove automatic source sharing: the actual starting-view probe had 13 source reads and zero reuses. The controlled four-palette win does not establish a benefit in the reported scene.",
+  "diagnosticSuccessor": {
+    "candidate": "3e555d959c6f4936ef4dc30141c778d6f9719f5d",
+    "production": "c42a1f979b1c653e23c9460a141ceabdfa6cfb96",
+    "run": 45690310656,
+    "local": {
+      "quick": 5,
+      "focused": 1761,
+      "targeted": 36,
+      "standaloneFiles": 292,
+      "seededAiChecks": 3,
+      "scriptedCampaignWins": 19,
+      "campaignDefeats": 0,
+      "campaignTimeouts": 0
+    },
+    "hosted": {
+      "chromium": 2,
+      "xboxSoftware": 8
+    },
+    "pausedReadoutScreenshotReviewed": true,
+    "worldAndSavesUnchanged": true,
+    "recoveryReadyPoses": 44,
+    "mergeTreeMatches": true,
+    "vercelGithubStatus": "Deployment has completed",
+    "publicUiBytesMatch": true,
+    "physicalXboxFpsAndRecovery": "unverified"
+  }
 }
