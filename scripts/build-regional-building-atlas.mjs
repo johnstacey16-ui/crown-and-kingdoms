@@ -8,7 +8,7 @@ import {updateArtRevisions} from './build-art-revisions.mjs';
 
 const sharp=createRequire(import.meta.url)('sharp');
 const root=new URL('../',import.meta.url);
-const kinds=['feitoria','krepost','donjon'];
+const kinds=['feitoria','krepost','donjon','folwark','fchurch','mule'];
 const sources={},args=process.argv.slice(2),atlases=[];
 while(args.length){
  const flag=args.shift(),kind=args.shift(),source=args.shift();

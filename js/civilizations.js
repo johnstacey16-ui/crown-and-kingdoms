@@ -174,6 +174,10 @@ function eliteUniqueUnitUpgrade(k,t,world=S){
  const civ=Number.isInteger(t)?CIV[world?.civ?.[t]]:null;
  return (civ?.uu===k||civ?.uu==='ratha'&&k==='rathaM')&&civ.elite&&world?.tech?.[t]?.[civ.elite.k]?civ.elite:null;
 }
+// Appearance aliases do not extend combat/stat eligibility to alternate forms.
+function eliteUniqueUnitAppearance(k,t,world=S){
+ return !!eliteUniqueUnitUpgrade(k==='footkonnik'?'konnik':k,t,world);
+}
 function civilizationUniqueUnitTargetBonus(a,target){
  const civ=Number.isInteger(a?.t)?CIV[S?.civ?.[a.t]]:null;
  if(!civ||civ.uu!==a.k)return 0;

@@ -6,14 +6,29 @@ import {headlessGame} from './helpers/headless-game.mjs';
 
 const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 const protocol=read('js/network-sync.js'),commands=read('js/network-commands.js');
-function world(civilization=41){
+function world(civilization=41,withArt=false){
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
- vm.runInContext(source+'\n'+protocol+'\n'+commands+'\nglobalThis.muleEval=code=>eval(code);',sandbox);
+ vm.runInContext(source+'\n'+(withArt?read('js/assets.js'):'')+'\n'+protocol+'\n'+commands+'\n'+(withArt?read('js/network-unit-projection.js'):'')+'\nglobalThis.muleEval=code=>eval(code);',sandbox);
  const run=sandbox.muleEval;
  run("seedOv=191126;msz=0;kingdoms=2;startAge=3;startRes=3;startArmy=0;civ="+civilization+";start();S.civ=["+civilization+",0];S.us=[];S.bs=[];S.nodes=[];S.rel=[];S.pj=[];S.nd.fill(null);S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.ex.fill(1);S.vs.fill(1);S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));globalThis.mule=addB(0,'mule',20,20,true);globalThis.tc=addB(0,'tc',35,35,true)");
  return run;
 }
+test('parked Mule Cart artwork follows real relocation and save/load without architectural additions',()=>{
+ const run=world(41,true),pack=JSON.parse(read('assets/atlas-manifest.json'));
+ for(const a of pack.atlases)run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`);
+ const frame=()=>run("JSON.stringify(paintedBuildingFrame(mule.k,mule.t,S.t,S.age[0]).sourceFrame)");
+ const identity=run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),original=frame();
+ assert.equal(run("paintedBuildingFrame(mule.k,mule.t,S.t,3).ageDetail"),false,'mobile cart never receives building battlements or roof fittings');
+ assert.equal(run('orderMuleCart(mule,24,20)'),true);run('tickMuleCarts(8)');
+ assert.equal(run('mule.x'),24);assert.equal(frame(),original);
+ assert.equal(run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),identity);
+ assert.equal(run("saveG(false,'mule-painted-check')"),true);
+ assert.equal(run("loadG(false,'mule-painted-check')"),true);
+ run("mule=S.bs.find(b=>b.k==='mule')");
+ assert.equal(run('mule.x'),24);assert.equal(frame(),original);
+ assert.equal(run('JSON.stringify([mule.netId,mule.hp,mule.mh,mule.s])'),identity);
+});
 test('Mountain Royals own a separate 1x1 mobile building with correct prices',()=>{
  const a=world(41),g=world(42),v=world(0);
  assert.equal(a("B.mule.s"),1);
@@ -32,6 +47,44 @@ test('Mountain Royals own a separate 1x1 mobile building with correct prices',()
  assert.equal(g("civilizationBuildingCost('mule',0).w"),80);
  assert.equal(g("civilizationBuildingCost('mule',0).f"),20);
  assert.equal(a("U.cart.n"),'Trade Cart');
+});
+test('Mule Cart walking uses eight original poses per facing, simulation time and the parked failure fallback',()=>{
+ const run=world(41,true),pack=JSON.parse(read('assets/atlas-manifest.json'));
+ for(const a of pack.atlases)run(`regAtlas(${JSON.stringify(a.id)}, {}, ${JSON.stringify(a.meta)})`);
+ const parked=run("JSON.stringify(paintedBuildingFrame('mule',0,0,3).sourceFrame)");
+ for(const [x,dir]of [[24,1],[16,0]]){
+  assert.equal(run(`orderMuleCart(mule,${x},20)`),true);
+  const before=run('JSON.stringify(mule)');
+  assert.equal(run('muleCartVisualPose(mule,3).state'),1);assert.equal(run('muleCartVisualPose(mule,3).dir'),dir);
+  for(let team=0;team<4;team++){
+   const frames=new Set(),widths=new Set();
+   for(let i=0;i<8;i++){
+    const art=run(`paintedBuildingFrame('mule',${team},999,3,muleCartVisualPose(mule,${i*.1+.001}))`);
+    frames.add(JSON.stringify(art.sourceFrame));widths.add(art.referenceWidth);assert.equal(art.animated,true);
+   }
+   assert.equal(frames.size,8);assert.equal(widths.size,1,'walking scale uses one reference width');
+  }
+  assert.equal(run("JSON.stringify(paintedBuildingFrame('mule',0,999,3,muleCartVisualPose(mule,3)).sourceFrame)"),run("JSON.stringify(paintedBuildingFrame('mule',0,0,3,muleCartVisualPose(mule,3)).sourceFrame)"),'paused simulation time freezes the actual frame');
+  assert.equal(run('JSON.stringify(mule)'),before,'rendering cannot mutate route, progress or occupancy');
+ }
+ run('mule.rs={};');assert.equal(run('muleCartVisualPose(mule,3).state'),0);run('mule.rs=null');
+ run("ASSET.atl['painted-mule-motion'].ok=false");
+ assert.equal(run("JSON.stringify(paintedBuildingFrame('mule',0,0,3,muleCartVisualPose(mule,3)).sourceFrame)"),parked);
+ run('tickMuleCarts(8)');assert.equal(run('muleCartVisualPose(mule,3).state'),0,'arrival returns to parked art');
+ for(const change of ['mule.done=false','mule.hp=0','mule.mulePath=[[NaN,20]]','mule.mulePath=[[25,20]]']){
+  run('mule.done=true;mule.hp=300;mule.mulePath=[[17,20]]');run(change);assert.equal(run('muleCartVisualPose(mule,3).state'),0);
+ }
+});
+test('team-relative cart motion is copied and hidden enemy paths never enter its visual projection',()=>{
+ const run=world(41,true);run("orderMuleCart(mule,24,20);S.civ[1]=41;globalThis.enemyCart=addB(1,'mule',60,60,true);enemyCart.mulePath=[[59,60]];S.vs.fill(0)");
+ const before=run('CK_SIM_SYNC.worldCheckpoint(S,1).hash');
+ run('globalThis.cartView=CK_UNIT_PROJECTION.project(S,0,W,H)');
+ assert.equal(run("cartView.buildings.find(b=>b.kind==='mule').pose.state"),1);
+ assert.equal(run('cartView.battlefield.enemies.some(b=>b.id===enemyCart.netId)'),false);
+ assert.equal(run("Object.keys(cartView.buildings.find(b=>b.kind==='mule').pose).sort().join(',')"),'dir,state,time');
+ run("cartView.buildings.find(b=>b.kind==='mule').pose.dir=99");
+ assert.equal(run('muleCartVisualPose(mule,S.t).dir'),1);
+ assert.equal(run('CK_SIM_SYNC.worldCheckpoint(S,1).hash'),before);
 });
 test('Mule Cart replaces wood and mining research and counts towards first Age requirements',()=>{
  const run=world(41);

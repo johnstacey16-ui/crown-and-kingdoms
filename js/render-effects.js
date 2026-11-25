@@ -89,11 +89,12 @@ function queueRosterTintWarmup(world){
  q.jobs=[];q.index=0;q.total=0;q.processed=0;q.plannedPixels=0;q.skipped=0;q.scanned=0;q.creations=0;q.failed=0;q.stale=0;q.capHits=0;q.status='drained';
  clearTintWarmupSource();q.sourceReads=0;q.sourceReuses=0;
  if(typeof ASSET==='undefined'||!ASSET.n||!Array.isArray(world?.us))return;
+ const researched=typeof eliteUniqueUnitAppearance==='function'?eliteUniqueUnitAppearance:typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade:null;
  const pairs=[],seenPairs=new Set(),seenFrames=new Set();
  for(const unit of world.us){
   if(!unit||!(unit.hp>0)||unit.ld||typeof unit.k!=='string'||!Number.isInteger(unit.t)||unit.t<0||unit.t>=(world.teamN||4))continue;
   const key=unit.k+'/'+unit.t;
-  if(!seenPairs.has(key)){seenPairs.add(key);pairs.push({kind:unit.k,team:unit.t,elite:typeof eliteUniqueUnitUpgrade==='function'&&!!eliteUniqueUnitUpgrade(unit.k,unit.t,world)})}
+  if(!seenPairs.has(key)){seenPairs.add(key);pairs.push({kind:unit.k,team:unit.t,elite:!!researched&&!!researched(unit.k,unit.t,world)})}
  }
  const group=TEAM_FRAME_GROUPS.troop;
  const limit=Math.min(group.limit,Math.max(0,TEAM_FRAME_CACHE.limit-(TEAM_FRAME_CACHE.pixels-group.pixels)));

@@ -1,7 +1,7 @@
 {
   "scope": "All currently implemented graphics categories; future gameplay/DLC additions require new art coverage",
   "complete": false,
-  "atlases": 98,
+  "atlases": 142,
   "units": [
     {
       "kind": "vil",
@@ -796,6 +796,366 @@
       "directionalArt": "one authored facing plus reflection",
       "deathArt": "not authored",
       "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "woad",
+      "atlas": "painted-elite-woad",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "bers",
+      "atlas": "painted-elite-bers",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "saml",
+      "atlas": "painted-elite-saml",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "tk",
+      "atlas": "painted-elite-tk",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "jaguar",
+      "atlas": "painted-elite-jaguar",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "kamayuk",
+      "atlas": "painted-elite-kamayuk",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "shotel",
+      "atlas": "painted-elite-shotel",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "gbeto",
+      "atlas": "painted-elite-gbeto",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "obuch",
+      "atlas": "painted-elite-obuch",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "jan",
+      "atlas": "painted-elite-jan",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "chuko",
+      "atlas": "painted-elite-chuko",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "genoa",
+      "atlas": "painted-elite-genoa",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "plumed",
+      "atlas": "painted-elite-plumed",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "rattan",
+      "atlas": "painted-elite-rattan",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "composite",
+      "atlas": "painted-elite-composite",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "urumi",
+      "atlas": "painted-elite-urumi",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "chakram",
+      "atlas": "painted-elite-chakram",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "serjeant",
+      "atlas": "painted-elite-serjeant",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "cata",
+      "atlas": "painted-elite-cata",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "boyar",
+      "atlas": "painted-elite-boyar",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "leitis",
+      "atlas": "painted-elite-leitis",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "tarkan",
+      "atlas": "painted-elite-tarkan",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "keshik",
+      "atlas": "painted-elite-keshik",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "monaspa",
+      "atlas": "painted-elite-monaspa",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "conq",
+      "atlas": "painted-elite-conq",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "huszar",
+      "atlas": "painted-elite-huszar",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "coust",
+      "atlas": "painted-elite-coust",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "mamel",
+      "atlas": "painted-elite-mamel",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "kipchak",
+      "atlas": "painted-elite-kipchak",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "centurion",
+      "atlas": "painted-elite-centurion",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "arambai",
+      "atlas": "painted-elite-arambai",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "konnik",
+      "atlas": "painted-elite-konnik",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "ele",
+      "atlas": "painted-elite-ele",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "eled",
+      "atlas": "painted-elite-eled",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "wagon",
+      "atlas": "painted-elite-wagon",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "orgun",
+      "atlas": "painted-elite-orgun",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "husswagon",
+      "atlas": "painted-elite-husswagon",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "ratha",
+      "atlas": "painted-elite-ratha",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "rathaM",
+      "atlas": "painted-elite-rathaM",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
+    },
+    {
+      "kind": "footkonnik",
+      "atlas": "painted-elite-footkonnik",
+      "walkFrames": 8,
+      "attackFrames": 8,
+      "directionalArt": "one authored facing plus reflection",
+      "deathArt": "not authored",
+      "acceptance": "software and browser acceptance separate from Xbox"
     }
   ],
   "buildings": [
@@ -1027,7 +1387,7 @@
     {
       "kind": "folwark",
       "name": "Folwark",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1036,7 +1396,7 @@
     {
       "kind": "fchurch",
       "name": "Fortified Church",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
       "ageArt": "four shared original vector age fittings over native art",
       "constructionArt": "shared scaffolding overlay",
@@ -1045,10 +1405,11 @@
     {
       "kind": "mule",
       "name": "Mule Cart",
-      "paintedBase": false,
+      "paintedBase": true,
       "factionArchitecture": "unfinished",
-      "ageArt": "four shared original vector age fittings over native art",
-      "constructionArt": "shared scaffolding overlay",
+      "movementArt": "eight original walk poses in two authored facings",
+      "ageArt": "mobile cart base retained across ages",
+      "constructionArt": "shared whole-sprite assembly fade",
       "damageArt": "shared native scorch, fracture, fire and smoke effects"
     }
   ],
@@ -1068,13 +1429,13 @@
     {
       "category": "Elite unit visuals",
       "state": "partial",
-      "evidence": "4 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
+      "evidence": "44 dedicated painted Elite sheets; other researched lines retain interim equipment overlays",
       "remaining": "remaining Elite lines, independent directions, death sheets and Xbox acceptance; [production detail](ELITE_ART_PRODUCTION.md)"
     },
     {
       "category": "Building artwork",
       "state": "partial",
-      "evidence": "28 building kinds; 25 painted, 3 original procedural fallback; fog-safe age presentation",
+      "evidence": "28 building kinds; 28 painted, 0 original procedural fallback; fog-safe age presentation",
       "remaining": "faction architecture and dedicated age/construction/damage sheets (shared age fittings, staged reveals/scaffolds and native damage overlays now implemented)"
     },
     {

@@ -27,6 +27,7 @@ function unitName(k,t){
  if(k==='ram'&&tech.siegeRam)return 'Siege Ram';
  if(k==='ram'&&tech.cappedRam)return 'Capped Ram';
  if(k==='cgal'&&tech.eliteCgal)return 'Elite Cannon Galleon';
+ if(k==='footkonnik'&&typeof eliteUniqueUnitAppearance==='function'&&eliteUniqueUnitAppearance(k,t))return 'Elite Dismounted Konnik';
  const elite=eliteUniqueUnitUpgrade(k,t);
  if(elite)return elite.n;
  return U[k]?U[k].n:k;

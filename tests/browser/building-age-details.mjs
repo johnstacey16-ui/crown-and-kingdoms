@@ -4,8 +4,8 @@ import {writeFile} from 'node:fs/promises';
 export async function checkBuildingAgeDetails(page,output){
  const result=await page.evaluate(()=>{
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash,regional=Object.keys(B).filter(k=>B[k].onlyCiv!==undefined||Array.isArray(B[k].onlyCivs)),
-    kinds=Object.keys(B).filter(k=>k!=='house'&&k!=='tc'&&(!regional.includes(k)||['feitoria','krepost','donjon'].includes(k))),samples=[];
-  const preview=document.createElement('canvas');preview.width=960;preview.height=1000;const pg=preview.getContext('2d');pg.fillStyle='#314238';pg.fillRect(0,0,preview.width,preview.height);
+    kinds=Object.keys(B).filter(k=>k!=='house'&&k!=='tc'),samples=[];
+  const preview=document.createElement('canvas');preview.width=960;preview.height=1200;const pg=preview.getContext('2d');pg.fillStyle='#314238';pg.fillRect(0,0,preview.width,preview.height);
   for(const [ki,kind] of kinds.entries())for(let age=0;age<4;age++)for(let team=0;team<4;team++){
    const art=paintedBuildingFrame(kind,team,0,age);
     if(!art?.f)throw Error('Missing mandatory painted age art for '+kind+' team '+team+' age '+age);
@@ -27,10 +27,10 @@ export async function checkBuildingAgeDetails(page,output){
   }finally{drawBuildingAgeDetails=original;S.age=saved.age;S.vs=saved.vs;S.bs=saved.bs;S.sel=saved.sel}
   return {samples,solo,map,regionalDrawn,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:preview.toDataURL()};
  });
- assert.equal(result.before,result.after);assert.equal(result.samples.length,23*4*4);
+ assert.equal(result.before,result.after);assert.equal(result.samples.length,26*4*4);
  assert.equal(result.regionalDrawn.length,6,'all six new faction-locked buildings must render using native/fallback artwork');
  for(const kind of [...new Set(result.samples.map(s=>s.kind))])for(let team=0;team<4;team++){
-  const set=result.samples.filter(s=>s.kind===kind&&s.team===team);assert.equal(new Set(set.map(s=>s.hash)).size,4);assert.ok(set.every(s=>s.opaque>250));
+  const set=result.samples.filter(s=>s.kind===kind&&s.team===team);assert.equal(new Set(set.map(s=>s.hash)).size,kind==='mule'?1:4);assert.ok(set.every(s=>s.opaque>250));
   assert.ok(set.every(s=>JSON.stringify(s.base)===JSON.stringify(set[0].base)),'native source frame remains fixed across ages');
  }
  assert.deepEqual(result.solo.map(s=>s.age),[0,1,2,3]);assert.deepEqual(result.map.map(s=>s.age),[0,1,2,3]);

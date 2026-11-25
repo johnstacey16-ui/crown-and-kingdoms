@@ -208,7 +208,8 @@ function drawNavalClassMark(ctx,kind,x,y,scale,time=0){
  * Dedicated illustrated Elite sprites remain a separate unfinished art gate.
  * Only the owning team's completed technology enables these visual details. */
 function drawEliteUniqueUnitMark(ctx,kind,team,x,y,scale){
- if(typeof eliteUniqueUnitUpgrade!=='function'||!eliteUniqueUnitUpgrade(kind,team))return false;
+ const researched=typeof eliteUniqueUnitAppearance==='function'?eliteUniqueUnitAppearance:typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade:null;
+ if(!researched||!researched(kind,team))return false;
  const z=Math.max(.45,Math.min(2.4,scale));
  ctx.save();ctx.translate(x,y);ctx.scale(z,z);
  ctx.lineCap='round';ctx.lineJoin='round';
@@ -276,7 +277,7 @@ function drawUnit(u,selectedUnits,screenPosition){const k=u.k,d=U[k],T=S.tech[u.
 const st=pose.state,fr=st===1?((gt*8+u.x*3+u.y*2)|0)&3:st===2?(u.cd<.2?1:0):st===3?((gt*5)|0)&1:0,sz=USZ(k),z=zm;
 let af=null,c=null;const tintScope=typeof beginUnitTintScope==='function'&&beginUnitTintScope();
 try{
-af=ASSET.n?unitAssetFrame(k,u.t,pose,!!eliteUniqueUnitUpgrade(k,u.t),true,true):null;
+af=ASSET.n?unitAssetFrame(k,u.t,pose,!!(typeof eliteUniqueUnitAppearance==='function'?eliteUniqueUnitAppearance(k,u.t):eliteUniqueUnitUpgrade(k,u.t)),true,true):null;
 c=af?null:spr(k+'|'+u.t+'|'+st+'|'+fr,sz[0],sz[1],g=>paintUnit(g,k,teamColor(u.t),st,fr));
 if(st===1&&gq>0&&Math.random()<.04)emit('dust',u.x,u.y,1,{s:.5,vz:.4,l:.55,c:'#c9b080',r:2});
 if(perfUnitPass!==1)drawUnitGround(u,selectedUnits,sx,sy,z,d.r);

@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "date": "2026-11-25",
+  "method": "Built-in image generation using each repository-owned base sheet as identity/style reference; generated while the workspace was unavailable, recovered unchanged for packing.",
+  "briefCapture": "These are faithful authoring-brief summaries, not verbatim prompt transcripts. Original generation prompts remain in the creating conversation.",
+  "contract": {
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "walkFrames": 8,
+    "attackFrames": 8,
+    "facings": "one authored facing plus runtime reflection",
+    "hitAndDeath": "not authored",
+    "scale": "Arambai/Konnik retain cavalry body height 60; elephant/wagon walking height and width fit their actual base atlas envelope; each retains base walking cadence.",
+    "sourceActionFrame": {
+      "arambai": 12,
+      "konnik": 12,
+      "ele": 11,
+      "eled": 12,
+      "wagon": 12
+    },
+    "projectiles": "detached darts/arrows remain game-rendered"
+  },
+  "sources": [
+    {
+      "kind": "arambai",
+      "baseReference": "assets/painted-motion-arambai.webp",
+      "libraryFileId": "libfile_3412eb8a93fc81919ebe76fe6c770737",
+      "fileName": "Elite Arambai Mounted Dart Thrower Sheet.png",
+      "sourceSha256": "9409fb17f12a7cb5756e3f7f22e9ed438a2d5717289537a2487b25f99d59d8a3",
+      "authoringBrief": "Gold-banded ivory headwrap, reinforced lamellar vest, royal-blue shoulder cloak/waist/saddle panels, woven dart basket; walk with dart, release with empty throwing hand at frame 12."
+    },
+    {
+      "kind": "konnik",
+      "baseReference": "assets/painted-motion-konnik.webp",
+      "libraryFileId": "libfile_9f8e92fe7cb08191af6e52e1f8afdffd",
+      "fileName": "Elite Konnik cavalry sprite sheet.png",
+      "sourceSha256": "f60f00ccaef3275ec1cd52d74a29e6c88ec7c2585d02638ae98734538ee4ebc1",
+      "authoringBrief": "Preserve the game's spear and gold-chevron blue kite shield, grey-brown horse, silver/gold armour, short blue crest and cloak; full spear thrust at frame 12."
+    },
+    {
+      "kind": "ele",
+      "baseReference": "assets/painted-motion-ele.webp",
+      "libraryFileId": "libfile_a026bc1833488191ae9eb69b19cbbd47",
+      "fileName": "Elite War Elephant Sprite Sheet.png",
+      "sourceSha256": "c979cfaa2aa259c6cf89450ddbb6e9d2777eb19f707de99d73a1b4b8b7c2cf10",
+      "authoringBrief": "Grey Asian elephant, ivory tusks, one mahout, reinforced silver/gold forehead/neck plates and broad blue caparison. Eight heavy walks and head/tusk attack. Generated peak head/tusk strike is frame 11 rather than the requested frame 12; pack the observed pose."
+    },
+    {
+      "kind": "eled",
+      "baseReference": "assets/painted-motion-eled.webp",
+      "libraryFileId": "libfile_1a79b2c190f88191a2b097916080a54b",
+      "fileName": "Elite Elephant Archer Animation Sheet.png",
+      "sourceSha256": "8d3393a7817da96e9dae361a9a85e9ac31761ab2079027344bf520b34d5f24a8",
+      "authoringBrief": "Grey Asian elephant, ivory tusks, reinforced blue/gold drape, low reinforced howdah with one silver-armoured bowman. Whole recurve bow/string, eight walks, release at frame 12; flying arrow remains game-rendered."
+    },
+    {
+      "kind": "wagon",
+      "baseReference": "assets/painted-motion-wagon.webp",
+      "libraryFileId": "libfile_4a2e46c0199c8191a01ebd11d553ccbd",
+      "fileName": "Elite War Wagon Sprite Sheet.png",
+      "sourceSha256": "02e6871b942e1f9d5e8c27168ca17a4d3bd9ffb5b065a5f12a6d36fe675140bc",
+      "authoringBrief": "Preserve existing wheeled launcher cart and operator; reinforced dark oak, silver/gold hull and rims, gold hubs, broad blue panels/banners. Eight rotating-wheel poses and operating/firing sequence. Small attached neutral orange flash at frame 12."
+    }
+  ]
+}
