@@ -15,7 +15,8 @@
     // animation fields into deterministic simulation entities.
     const pose=e=>{
       const visual=unitVisualPose(e,world.t);
-      if(typeof eliteUniqueUnitUpgrade==='function'&&eliteUniqueUnitUpgrade(e.k,e.t,world))visual.elite=true;
+      const researched=typeof eliteUniqueUnitAppearance==='function'?eliteUniqueUnitAppearance:typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade:null;
+      if(researched&&researched(e.k,e.t,world))visual.elite=true;
       return visual;
     };
     const architecture=b=>Number.isInteger(world.age?.[b.t])&&world.age[b.t]>=0&&world.age[b.t]<4?{architectureAge:world.age[b.t]}:{};

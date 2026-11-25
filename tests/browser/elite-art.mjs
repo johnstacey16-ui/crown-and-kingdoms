@@ -5,8 +5,8 @@ export async function checkEliteArtwork(page,output){
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const saved={civ:S.civ,tech:S.tech,us:S.us,bs:S.bs,sel:S.sel};
   const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
-  const contact=document.createElement('canvas');contact.width=1536;contact.height=8256;
-  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,8256);
+  const contact=document.createElement('canvas');contact.width=1536;contact.height=8448;
+  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,8448);
   const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
   const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
   const samples=[],paletteComparisons=[],selection=[],draws=[],frames=new Set();let current='';
@@ -16,7 +16,7 @@ export async function checkEliteArtwork(page,output){
    troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
    mapContext.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalMapDraw.apply(this,a)};
-   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38]];
+   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['footkonnik',29]];
    for(const [row,[kind,id]] of roster.entries()){
     // One review zoom per unit across its whole pose range. A long spear must
     // not be clipped by the review canvas or shrink only on its strike frame.
@@ -26,7 +26,7 @@ export async function checkEliteArtwork(page,output){
      previewZoom=Math.min(previewZoom,84/(Math.max(f.ax,f.w-f.ax)*art.sc),168/(f.ay*art.sc));
     }
     S.civ=[id,id];S.tech=[{},{}];
-    if(original(kind,0,{state:1,time:0},!!eliteUniqueUnitUpgrade(kind,0)).elite)throw Error('Elite before research');
+    if(original(kind,0,{state:1,time:0},!!eliteUniqueUnitAppearance(kind,0)).elite)throw Error('Elite before research');
     S.tech[0][CIV[id].elite.k]=1;
     const actor={netId:'elite-art-'+kind,k:kind,t:0,x:24,y:24,hp:U[kind].hp,o:'a',cd:U[kind].cd*.5,p:[],rp:0,car:0,hit:-99};
     current=kind;drawUnit(actor,new Set());current='';
@@ -37,7 +37,7 @@ export async function checkEliteArtwork(page,output){
     S.tech=[{},{}];current='map-'+kind;
     try{map.refresh(world,0,W,H,true)}finally{S.tech=research;current=''}
     if(!selection.some(s=>s.pass==='map-'+kind&&s.elite)||!draws.includes('map-'+kind))throw Error('Map did not draw Elite '+kind);
-    if(original(kind,1,{state:1,time:0},!!eliteUniqueUnitUpgrade(kind,1)).elite)throw Error('Elite leaked to opponent');
+    if(original(kind,1,{state:1,time:0},!!eliteUniqueUnitAppearance(kind,1)).elite)throw Error('Elite leaked to opponent');
     S.tech[1][CIV[id].elite.k]=1;
     for(let team=0;team<4;team++)for(const state of[1,2]){
      const hashes=new Set();let minimum=Infinity,edgePixels=0;
@@ -75,10 +75,10 @@ export async function checkEliteArtwork(page,output){
   return {samples,paletteComparisons,selection,draws,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,data:contact.toDataURL()};
  });
  assert.equal(result.before,result.after);
- assert.equal(result.samples.length,344);
+ assert.equal(result.samples.length,352);
  assert.ok(result.samples.every(s=>s.distinct===8&&s.minimum>150),'all Elite actions have eight decoded nonempty poses for four palettes');
  assert.ok(result.samples.every(s=>s.edgePixels===0),'review cells retain entire weapons, shields and feet');
- assert.equal(result.paletteComparisons.length,172);
+ assert.equal(result.paletteComparisons.length,176);
  assert.ok(result.paletteComparisons.every(s=>s.changed>=100),'every reviewed blue/red pose retains a visible team-colour area');
  await writeFile(output+'/painted-elites.png',Buffer.from(result.data.split(',')[1],'base64'));
  delete result.data;return result;

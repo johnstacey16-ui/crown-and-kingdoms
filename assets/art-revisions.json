@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "5f93702342d5d489845e8fc6ba2dd2bcc672011fe4e54306a8dab8979a91c78b",
+  "revision": "27fcdd76363c5baafcc95296af96f9244b83d543caf8c9304bde196629fdc071",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -23,6 +23,7 @@
     "./assets/painted-elite-coust.webp": "5a965245d6c6a974cffef81462f968088c9816cf59d870fe30ad0b5636bd14a4",
     "./assets/painted-elite-ele.webp": "bce81e142a20a736062e4d8dc4ed277dd1e202db881e4c76c87ff76f05751af4",
     "./assets/painted-elite-eled.webp": "bdfee4194809c4582934894225cec2fe39b921cb4742241d86153177258dc2cb",
+    "./assets/painted-elite-footkonnik.webp": "902c5d05e3638cef9fc64bdc160d79cd86e0f29afd9257e6e404c1d4ced10c27",
     "./assets/painted-elite-gbeto.webp": "af509cffc921b161bc3612fed16898c077441552b8f79db40ae7125592cc6a15",
     "./assets/painted-elite-genoa.webp": "73c47e907a1c1eea56a8911b6a5e01a430ecee56b698aa29684b6ce83ef77c35",
     "./assets/painted-elite-huskarl.webp": "513f3ca268b6c3081ec767db6ac2250c652f167fa1a5d2ce5a3eb6358b64e960",

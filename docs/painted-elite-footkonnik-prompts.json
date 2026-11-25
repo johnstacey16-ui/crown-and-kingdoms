@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "date": "2026-11-25",
+  "method": "Built-in image generation referencing the repository's original base dismounted and approved Elite mounted Konnik sheets",
+  "contract": {
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "walkFrames": 8,
+    "attackFrames": 8,
+    "sourceActionFrame": 12,
+    "bodyHeight": 46,
+    "facings": "one authored facing plus runtime reflection",
+    "hitAndDeath": "not authored"
+  },
+  "prompts": {
+    "footkonnik": "Original Crown & Kingdoms ELITE DISMOUNTED KONNIK infantry animation sprite sheet. FIRST reference is game's own base foot Konnik: bearded Bulgarian-inspired infantry with short straight sword and blue kite shield with gold chevron. SECOND is approved mounted Elite Konnik: preserve same elite face,polished silver/gold helmet with compact vivid BLUE crest,reinforced silver/gold lamellar cuirass,articulated shoulders,large saturated ROYAL BLUE gold-edged cloak/waist panels,BLUE kite shield with broad GOLD CHEVRON and gold rim. Create the SAME upgraded rider now on foot,carrying this game's complete SILVER STRAIGHT SWORD with gold hilt instead of mounted spear. Brown boots/gloves,neutral skin,grey mail,blue tunic. No horse,spear,mace,axe or extra weapon. Same armour,helmet/crest,face,shield,sword,cloth and proportions all16 poses. Mature detailed painted RTS realism,elevated three-quarter facing lower right,upper-left light. Native1536x1024 RGBA PNG with true alpha0 transparent empty background,EXACT4columns4rows equal384x256 cells,16 COMPLETE isolated infantry figures. TOP TWO ROWS cells0-7 eight genuinely sequential WALK poses with alternating legs/feet,knee bends,heel lifts and subtle cloak/shield balance,sword held low. BOTTOM TWO ROWS cells8-15 eight sword attacks:8guard,9drawback,10raise,11windup,12decisive forward SLASH/contact whole blade extended,13followthrough,14recover,15guard. Same adult body height155-175px excluding compact crest;whole envelope max280x205px with25-30px REAL empty margins EVERY side of each cell. Helmet/crest,head,both hands,complete shield top/bottom,sword TIP AND HILT,both legs/boots and full cloak hem always inside own cell. No clipped boots or sword,no merged figures,crossover,disembodied parts. Large saturated ROYAL BLUE cloth/shield everypose for team recolour,never grey/navy;silver/gold,skin and leather stay natural. Absolutely NO faint white/grey/brown backdrop,haze,gradient,ground,cast shadow,glow,action trails,projectiles,scenery,text,labels,borders or copied commercial art. Sixteen genuinely distinct COMPLETE original painted game poses."
+  }
+}
