@@ -5,8 +5,8 @@ export async function checkEliteArtwork(page,output){
   const before=CK_SIM_SYNC.worldCheckpoint(S,1).hash;
   const saved={civ:S.civ,tech:S.tech,us:S.us,bs:S.bs,sel:S.sel};
   const original=unitAssetFrame,originalDraw=X.drawImage,originalTexture=troopFrameTexture;
-  const contact=document.createElement('canvas');contact.width=1536;contact.height=5952;
-  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,5952);
+  const contact=document.createElement('canvas');contact.width=1536;contact.height=6528;
+  const g=contact.getContext('2d');g.fillStyle='#263c36';g.fillRect(0,0,1536,6528);
   const mapCanvas=document.createElement('canvas'),mapContext=mapCanvas.getContext('2d'),originalMapDraw=mapContext.drawImage;
   const map=CK_UNIT_MAP.create({canvas:mapCanvas,description:document.createElement('p'),submit:()=>({ok:false}),leave(){}});
   const samples=[],paletteComparisons=[],selection=[],draws=[],frames=new Set();let current='';
@@ -16,7 +16,7 @@ export async function checkEliteArtwork(page,output){
    troopFrameTexture=function(art,...args){const frame=originalTexture(art,...args);if(frame&&frames.has(art.img))frames.add(frame);return frame};
    X.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalDraw.apply(this,a)};
    mapContext.drawImage=function(...a){if(current&&frames.has(a[0]))draws.push(current);return originalMapDraw.apply(this,a)};
-   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33]];
+   const roster=[['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40]];
    for(const [row,[kind,id]] of roster.entries()){
     // One review zoom per unit across its whole pose range. A long spear must
     // not be clipped by the review canvas or shrink only on its strike frame.

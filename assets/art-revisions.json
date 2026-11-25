@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "809f56120ea20cd8f87670a6e4774d9a3643da3d33b731e29413ada922682994",
+  "revision": "5d7dfcc7671bd93372e1827228a81d2248deecf4f668919baa2301d83d1b6154",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -14,6 +14,7 @@
     "./assets/painted-elite-bers.webp": "ba84845f3f2b36a8164301a083d2f73ffb31b6fb7f53c61fdc7a2b78b3a8026a",
     "./assets/painted-elite-boyar.webp": "9823d45932be3c9bacbc234b148f79549b7caf908551a95ec60567fa1ac0820f",
     "./assets/painted-elite-cata.webp": "bf7db16e8726127f26ba191f9bd64b125127d0191a9a27c02e29eb0b17a62525",
+    "./assets/painted-elite-centurion.webp": "d26630f210086f99170e494c53b2f421e8039b7f1df852664d8bedc7c6b0967a",
     "./assets/painted-elite-chakram.webp": "3166931735fb2f00cb78beed7422c270b93d0e5417b0e97506305d5378308ef0",
     "./assets/painted-elite-chuko.webp": "8dc3ec811c521d07ab889e46fe99254c24409e53a92efdb3667a4a29778706d4",
     "./assets/painted-elite-composite.webp": "2452ddb7d6105581b31bc282c77d028af5809679983e5c8781795e6f802d9de0",
@@ -27,8 +28,10 @@
     "./assets/painted-elite-jan.webp": "5763ed206737c208ce1d2776d30408f92b9ecf6baec96b9da41ba0fac885151a",
     "./assets/painted-elite-kamayuk.webp": "878b3d3c2580a185009e43091f408d9569f0f6ab1558bfb6c103185c68f4ce1f",
     "./assets/painted-elite-keshik.webp": "d34ea27caa8c5ac15d7c58f266478074eacf83372334438bd34c1c0bbb452474",
+    "./assets/painted-elite-kipchak.webp": "9a13b116325870794ddf055f3d389c3c2f7e371541c01c8207002e523f05c37c",
     "./assets/painted-elite-lbow.webp": "529d4998b09973d73c62c6525436142a83ed48ce3e9c6b69ef5a11456c08a005",
     "./assets/painted-elite-leitis.webp": "ad19725ea512f6f11d46151924672dad499c91476952d7ff2a539bcb8f9d2ad1",
+    "./assets/painted-elite-mamel.webp": "1ee0c24981dce57782b6da5a387884caf3c752b9194b15adb96ba93b21387a4d",
     "./assets/painted-elite-mgd.webp": "562edd3484babc695bb32e471b908c7a227b0a1aeb07aab9399e6a2d8b121716",
     "./assets/painted-elite-monaspa.webp": "987bf0f2eb042d36560bf0801f7b969bb59f1284ac1d336cae87de569b198030",
     "./assets/painted-elite-obuch.webp": "484af485e741775eb6fc66dc96208d70c2ac77bfccd9bcb7061243e4cd5cd339",
