@@ -475,9 +475,9 @@ test('hostile roster policy ignores dead, allied, malformed and unknown records'
  assert.equal(found.humanArmy.length,0);
 });
 
-function researchScoreFixture(){
+function researchScoreFixture(TE){
  const ctx=vm.createContext({INFARM:new Set(['mil','spear']),ARCHARM:new Set(['arc','xbow']),
-  CAVARM:new Set(['knight','camel'])});
+  CAVARM:new Set(['knight','camel']),TE});
  vm.runInContext(policy+'\n;globalThis.scoreTech=aiTechnologyPriority;',ctx);
  const rosters=()=>({arm:[],vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]});
  return {score:(k,r)=>ctx.scoreTech(k,r),rosters};
@@ -529,6 +529,15 @@ for(const [key,kind,irrelevant]of [['ut20','skirm','plumed'],['ut13','hcan','ele
  r.my.push({k:kind,hp:30});const one=f.score(key,r);
  assert.ok(one>empty);
  r.my.push({k:kind,hp:30},{k:kind,hp:30});assert.ok(f.score(key,r)>one);
+});
+
+test('Royal Heirs AI values eligible living fielded units and mounted threats from canonical effect data',()=>{
+ const f=researchScoreFixture({ut22:{mountedDamageReduction:{shotel:3,camel:3}}}),r=f.rosters(),empty=f.score('ut22',r);
+ r.my.push({k:'knight',hp:50},{k:'shotel',hp:0},{k:'camel',hp:50,ld:{}});
+ r.humanCav=3;assert.equal(f.score('ut22',r),empty,'no speculative benefit without protected troops');
+ r.humanCav=0;r.my.push({k:'camel',hp:50});const one=f.score('ut22',r);assert.ok(one>empty);
+ r.humanCav=3;assert.ok(f.score('ut22',r)>one);
+ r.humanCav=0;r.my.push({k:'shotel',hp:40},{k:'camel',hp:50});assert.ok(f.score('ut22',r)>one);
 });
 
 test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{

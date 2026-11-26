@@ -196,7 +196,11 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  const minorSkirmisherJavelin=a.skirmisherSecondary===true&&a.k==='skirm'&&S.civ?.[a.t]===20&&tk.ut20;
   const raw=minorGalleyArrow||minorSkirmisherJavelin?Math.max(1,1-combatArmor(t,'p')):
     secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
- const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
+ // Mounted projectile snapshots retain kind/team after the shooter dies.
+ const reduction=!t.s&&(ak.mt||CAVARM.has(a.k))&&typeof uniqueTechnologyUnitBonus==='function'
+  ?uniqueTechnologyUnitBonus('mountedDamageReduction',t.k,t.t):0;
+ const defended=reduction>0?Math.max(1,raw-reduction):raw;
+ const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(defended/2)):defended;
   t.hp-=strike*georgianElevationDamageFactor(a,t);
  if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
    typeof chakramPierceTargets==='function'&&S.civ?.[a.t]===39){

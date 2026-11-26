@@ -159,3 +159,64 @@ test('new Castle technologies and Elite unit effects survive current-build save/
  assert.equal(run("attackRange({k:'skirm',t:0})"),range);
  assert.equal(run("mhp({k:'jaguar',t:0})"),hp);
 });
+
+function royalHeirsGame(){
+ const run=game(22);
+ run("S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.attacker=addU(1,'knight',30,30);globalThis.defender=addU(0,'shotel',31,30)");
+ return run;
+}
+function royalHit(run){return run('(()=>{defender.hp=1000;dmgT(attacker,defender);return 1000-defender.hp})()');}
+
+test('Royal Heirs requires paid completed Castle-age research and removes Shotel stat placeholders',()=>{
+ const run=royalHeirsGame(),base=royalHit(run),hp=run('mhp(defender)');
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut22')"),false);
+ run('S.age[0]=2;S.res[0].g=0');assert.equal(run("research(castle,'ut22')"),false);
+ run('S.res[0].g=10000');assert.equal(run("research(castle,'ut22')"),true);
+ assert.equal(run('S.res[0].f'),9700);assert.equal(run('S.res[0].g'),9800);
+ assert.equal(royalHit(run),base,'queued research cannot protect units');
+ run('upB(castle,TE.ut22.t+.1)');assert.equal(royalHit(run),base-3);
+ assert.equal(run('mhp(defender)'),hp);assert.equal(run('S.tech[0].atkb?.shotel||0'),0);
+ assert.equal(run("research(castle,'ut22')"),false);
+ assert.equal(run("rsOf({k:'castle',t:1}).includes('ut22')"),false);
+});
+
+test('Royal Heirs protects Shotel and camel kinds from mounted melee and ranged sources only',()=>{
+ const run=royalHeirsGame();
+ for(const target of ['shotel','camel','mamel','camelscout','flamecamel','mil','knight','ele','eled']){
+  for(const source of ['knight','camel','ele','cavarch','wagon','conq','mil','arc','spear','orgun','gal']){
+   run('defender.k='+JSON.stringify(target)+';attacker.k='+JSON.stringify(source)+';S.tech[0]={}');
+   const base=royalHit(run);run('S.tech[0].ut22=1');
+   const eligible=['shotel','camel','mamel','camelscout','flamecamel'].includes(target)&&
+    run('!!(U[attacker.k].mt||CAVARM.has(attacker.k))');
+   assert.equal(royalHit(run),eligible?Math.max(1,base-3):base,source+' → '+target);
+  }
+ }
+ run("attacker.k='knight';defender.k='shotel';S.civ[0]=0");
+ assert.equal(royalHit(run),run('U.knight.dmg'),'foreign research flags grant no protection');
+ run("S.civ[0]=22;attacker.k='cavarch';defender.k='camel';S.tech[0]={ut22:1,armC:1,armC2:1,armC3:1}");
+ assert.equal(royalHit(run),1,'normal armour and protection retain minimum one damage');
+ assert.equal(run("uniqueTechnologyUnitBonus('mountedDamageReduction','camel',0,{civ:[22],tech:[{ut22:1}]})"),3);
+ assert.equal(run("uniqueTechnologyUnitBonus('mountedDamageReduction','camel',0,{civ:['22'],tech:[{ut22:1}]})"),0);
+ assert.equal(run("uniqueTechnologyUnitBonus('mountedDamageReduction','camel',0,{civ:[22],tech:[{}]})"),0);
+});
+
+test('Royal Heirs applies to real mounted arrows after shooter death and survives current-build reload',()=>{
+ const run=royalHeirsGame();
+ run("attacker.k='cavarch';attacker.x=28;attacker.hp=50;defender.hp=1000;S.tech[1].thumb=1;launchProjectile(attacker,defender);pjs(1);globalThis.base=1000-defender.hp;defender.hp=1000;S.tech[0].ut22=1;launchProjectile(attacker,defender)");
+ assert.equal(run('S.pj.length'),1);
+ run('attacker.hp=0;S.us=S.us.filter(u=>u!==attacker)');
+ assert.equal(run("saveG(false,'royal-heirs-arrow')"),true);
+ assert.equal(run("loadG(false,'royal-heirs-arrow')"),true);
+ run('globalThis.restored=S.pj[0].t;pjs(1)');assert.equal(run('1000-restored.hp'),run('Math.max(1,base-3)'));
+ run("globalThis.future=addU(0,'camel',31,30);globalThis.raider=addU(1,'knight',30,30);future.hp=1000;dmgT(raider,future)");
+ assert.equal(run('1000-future.hp'),run('U.knight.dmg-3'));
+});
+
+test('Royal Heirs reduces mounted secondary damage while leaving buildings and unrelated fractional hits unchanged',()=>{
+ const run=royalHeirsGame();
+ run('attacker[CK_TRAMPLE_DAMAGE]=4');assert.equal(royalHit(run),4);
+ run('S.tech[0].ut22=1');assert.equal(royalHit(run),1);
+ run("defender.k='mil';attacker[CK_TRAMPLE_DAMAGE]=.5");assert.equal(royalHit(run),.5);
+ run("attacker.k='knight';delete attacker[CK_TRAMPLE_DAMAGE];globalThis.target=addB(0,'tc',35,35,true);target.hp=1000;dmgT(attacker,target);globalThis.protectedBuildingHit=1000-target.hp;S.tech[0].ut22=0;target.hp=1000;dmgT(attacker,target)");
+ assert.equal(run('1000-target.hp'),run('protectedBuildingHit'));
+});

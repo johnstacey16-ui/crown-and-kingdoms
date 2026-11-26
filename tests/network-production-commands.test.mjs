@@ -520,3 +520,29 @@ test('Dock resource rally sends a trained Fishing Ship to fish and persists its 
  `);
  for(const [k,v] of Object.entries(out))assert.equal(v,true,k);
 });
+
+test('authenticated Royal Heirs research protects only its paid Ethiopian owner after completion',()=>{
+ const out=world(`
+  S.civ=[22,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.el.fill(0);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',40,20,true)];
+  const defenders=[addU(0,'shotel',30,30),addU(1,'shotel',31,30)];
+  const hit=t=>{const target=defenders[t];target.hp=1000;dmgT({k:'knight',t:1-t,x:30,y:30},target);return 1000-target.hp};
+  const base=[hit(0),hit(1)],order=t=>({type:'research',entities:[castles[t].netId],value:'ut22'});
+  const forged=host.receive(packet('guest-session',1,1,6,order(0)),'guest-session',2).reason;
+  const accepted=host.receive(packet('host-session',0,1,6,order(0)),'host-session',2).ok;
+  host.receive(packet('guest-session',1,1,6,order(1)),'guest-session',2);
+  const deferred=!castles[0].rs&&S.res[0].f===10000,applied=host.applyFrame(6).map(r=>r.ok),during=hit(0);
+  upB(castles[0],TE.ut22.t+.1);S.tech[1].ut22=1;
+  const after=[hit(0),hit(1)],budget=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);
+  const duplicate=host.applyFrame(10)[0].ok;
+  return {forged,accepted,deferred,applied,base,during,after,duplicate,unchanged:budget===JSON.stringify(S.res),
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.forged,'unauthorized-order');assert.equal(out.accepted,true);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.applied),[true,false]);assert.equal(out.during,out.base[0]);
+ assert.deepEqual(Array.from(out.after),[Math.max(1,out.base[0]-3),out.base[1]]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:300,g:200},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});

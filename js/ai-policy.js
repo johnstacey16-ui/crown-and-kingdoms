@@ -158,6 +158,12 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
   const kind=k==='ut20'?'skirm':'hcan',n=my.filter(u=>u.k===kind&&!u.ld&&u.hp>0).length;
   score+=n>=3?55:n?18:-35;
  }
+ const mountedDefence=typeof TE!=='undefined'?TE[k]?.mountedDamageReduction:null;
+ if(mountedDefence){
+  const n=my.filter(u=>!u.ld&&u.hp>0&&Number.isFinite(mountedDefence[u.k])&&mountedDefence[u.k]>0).length;
+  score+=n>=3?55:n?18:-35;
+  if(n&&humanCav>=2)score+=20;
+ }
  if(k==='ut23'){
   const centres=bl.filter(b=>b.k==='tc'&&b.done&&b.hp>0);
   score+=centres.length>=3?55:centres.length?25:-35;

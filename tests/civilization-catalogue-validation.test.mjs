@@ -83,7 +83,7 @@ const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url
 const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 test('first unique technologies accept actual declarative stats and reject empty, unknown or malformed effects',()=>{
- for(const id of[6,8,13,14]){
+ for(const id of[6,8,13,14,22]){
   const current=currentCivilizationRuntime();
   assert.equal(typeof current.civilizations[id].ut.fx,'undefined');
   assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
@@ -103,6 +103,17 @@ test('unique range maps accept known units and reject malformed or excessive ran
   for(const map of[{},[],null,{hcan:NaN},{hcan:-1},{hcan:0},{hcan:'2'},{hcan:6},{invented:2},{constructor:2}]){
    definition.rangeBonus=map;
    assert.ok(inspectCivilizationCatalogue(catalogue,valid).some(e=>/Invalid unit-stat technology effects/.test(e)),slot+' / '+String(map));
+  }
+ }
+});
+test('conditional mounted defence maps reject malformed, unknown and excessive values in either unique slot',()=>{
+ for(const slot of ['ut','ut2']){
+  const current=currentCivilizationRuntime(),definition=current.civilizations[22][slot];
+  delete definition.fx;definition.mountedDamageReduction={shotel:3,camel:3};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  for(const map of [{},[],null,{shotel:NaN},{shotel:-3},{shotel:0},{shotel:'3'},{shotel:9},{invented:3},{constructor:3}]){
+   definition.mountedDamageReduction=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)));
   }
  }
 });
