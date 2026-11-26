@@ -83,7 +83,7 @@ const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url
 const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 test('first unique technologies accept actual declarative stats and reject empty, unknown or malformed effects',()=>{
- for(const id of[6,8,14]){
+ for(const id of[6,8,13,14]){
   const current=currentCivilizationRuntime();
   assert.equal(typeof current.civilizations[id].ut.fx,'undefined');
   assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
@@ -94,6 +94,17 @@ test('first unique technologies accept actual declarative stats and reject empty
  }
  const missing=currentCivilizationRuntime();delete missing.civilizations[8].ut.hpb;
  assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing live civilization\/technology effects/.test(e)));
+});
+test('unique range maps accept known units and reject malformed or excessive ranges in either technology slot',()=>{
+ for(const slot of['ut','ut2']){
+  const valid=currentCivilizationRuntime(),definition=valid.civilizations[13][slot];
+  delete definition.fx;definition.rangeBonus={hcan:2};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,valid),[]);
+  for(const map of[{},[],null,{hcan:NaN},{hcan:-1},{hcan:0},{hcan:'2'},{hcan:6},{invented:2},{constructor:2}]){
+   definition.rangeBonus=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,valid).some(e=>/Invalid unit-stat technology effects/.test(e)),slot+' / '+String(map));
+  }
+ }
 });
 test('a missing live research row is rejected before permissive fallback can hide it',()=>{
  const missing=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace(" 'Franks':'x',",''));

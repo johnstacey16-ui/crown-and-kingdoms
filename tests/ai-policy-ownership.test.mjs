@@ -521,14 +521,14 @@ test('technology scoring retains villager, monk and damaged town-centre prioriti
  r.bl.push({k:'tc',hp:60,mh:100});
  assert.equal(f.score('mas',r),67,'masonry gets the original damaged town-centre boost');
 });
-test('Hulche research priority follows living fielded Skirmishers rather than Plumed Archers',()=>{
+for(const [key,kind,irrelevant]of [['ut20','skirm','plumed'],['ut13','hcan','eled']])test(`${key} research priority follows its living fielded beneficiaries`,()=>{
  const f=researchScoreFixture(),r=f.rosters();
- const empty=f.score('ut20',r);
- r.my.push({k:'plumed',hp:50},{k:'skirm',hp:0},{k:'skirm',hp:30,ld:{}});
- assert.equal(f.score('ut20',r),empty);
- r.my.push({k:'skirm',hp:30});const one=f.score('ut20',r);
+ const empty=f.score(key,r);
+ r.my.push({k:irrelevant,hp:50},{k:kind,hp:0},{k:kind,hp:30,ld:{}});
+ assert.equal(f.score(key,r),empty);
+ r.my.push({k:kind,hp:30});const one=f.score(key,r);
  assert.ok(one>empty);
- r.my.push({k:'skirm',hp:30},{k:'skirm',hp:30});assert.ok(f.score('ut20',r)>one);
+ r.my.push({k:kind,hp:30},{k:kind,hp:30});assert.ok(f.score(key,r)>one);
 });
 
 function buildingRepairFixture({reachable=()=>true}={}){

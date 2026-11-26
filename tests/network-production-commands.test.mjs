@@ -377,6 +377,32 @@ for(const [civ,key,kind]of [[6,'ut6','ram'],[8,'ut8','camel'],[14,'ut14','vil']]
  });
 }
 
+test('host Shatagni research enforces Imperial age, price and civilization before granting range',()=>{
+ const out=world(`
+  S.civ=[13,0];S.age=[2,3];S.tech=[{},{}];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+  const guns=[addU(0,'hcan',25,25),addU(1,'hcan',36,25)],base=guns.map(u=>attackRange(u));
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut13'});
+  host.receive(packet('host-session',0,1,6,order(0)),'host-session',2);
+  const wrongAge=host.applyFrame(6)[0].ok,ageBudget=S.res[0].g;
+  S.age[0]=3;S.res[0].g=649;
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);
+  const poor=host.applyFrame(10)[0].ok,poorBudget=S.res[0].g;
+  S.res[0].g=10000;
+  const accepted=host.receive(packet('host-session',0,3,14,order(0)),'host-session',10).ok;
+  host.receive(packet('guest-session',1,1,14,order(1)),'guest-session',10);
+  const deferred=!castles[0].rs&&S.res[0].g===10000,results=host.applyFrame(14).map(r=>r.ok),during=attackRange(guns[0]);
+  upB(castles[0],TE.ut13.t+.1);S.tech[1].ut13=1;
+  return {wrongAge,ageBudget,poor,poorBudget,accepted,deferred,results,base,during,ranges:guns.map(u=>attackRange(u)),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.wrongAge,false);assert.equal(out.ageBudget,10000);
+ assert.equal(out.poor,false);assert.equal(out.poorBudget,649);
+ assert.equal(out.accepted,true);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,false]);
+ assert.equal(out.during,out.base[0]);assert.deepEqual(Array.from(out.ranges),[out.base[0]+2,out.base[1]]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:500,g:650},{f:0,g:0}]);
+});
+
 test('two authorized Mayan players research Hulche and fire weak second javelins through host attack orders',()=>{
  const out=world(`
   S.civ=[20,20];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);

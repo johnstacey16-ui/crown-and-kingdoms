@@ -38,7 +38,7 @@ test('Celtic Stronghold has paid Castle research, tower fire bonus and nearby in
  assert.equal(run('tower.cd'),run('U.tw.cd'),'only Celts benefit');
 });
 
-test('Imperial Furor Celtica grants +40% base hitpoints to Siege Workshop units',()=>{
+test('Imperial Furor Celtica grants +40% base hitpoints to siege including Trebuchets',()=>{
  const run=game(6);
  const before=JSON.parse(run("JSON.stringify(Object.fromEntries(['ram','mang','scor','bomb','treb'].map(k=>[k,mhp({k,t:0})])))"));
  run('S.age[0]=2');
@@ -47,21 +47,21 @@ test('Imperial Furor Celtica grants +40% base hitpoints to Siege Workshop units'
  assert.equal(run("research(castle,'ut6')"),true);
  assert.equal(run('S.res[0].f'),9250);
  run('upB(castle,50.1)');
- for(const kind of ['ram','mang','scor','bomb']){
+ for(const kind of ['ram','mang','scor','bomb','treb']){
   const after=run("mhp({k:'"+kind+"',t:0})");
   assert.equal(after,before[kind]+Math.round(run("U['"+kind+"'].hp")*.4),kind+' receives 40%');
  }
- assert.equal(run("mhp({k:'treb',t:0})"),before.treb,'Castle trebuchets are outside this upgrade');
+ assert.equal(run("mhp({k:'knight',t:0})"),run("U.knight.hp"),'unrelated cavalry is outside this upgrade');
 });
 
-for(const [civ,key,kinds]of [[6,'ut6',['ram','mang','scor','bomb']],[8,'ut8',['camel','mamel']],[14,'ut14',['vil']]]){
+for(const [civ,key,kinds]of [[6,'ut6',['ram','mang','scor','bomb','treb']],[8,'ut8',['camel','mamel']],[14,'ut14',['vil']]]){
  test(`${key} gives existing and future troops the same HP bonus without healing old damage or applying twice`,()=>{
   const run=game(civ),tech=JSON.parse(run(`JSON.stringify(TE.${key})`));
   const expected=kind=>civ===6?Math.round(run(`U.${kind}.hp`)*.4):civ===8?20:40;
   run(`globalThis.kinds=${JSON.stringify(kinds)};S.tech[0].hpb=Object.fromEntries(kinds.map(k=>[k,7]));globalThis.troops=kinds.map((k,i)=>{
    const full=addU(0,k,28+i,28),hurt=addU(0,k,28+i,29),dead=addU(0,k,28+i,30),enemy=addU(1,k,28+i,31);
    hurt.hp-=10;dead.hp=0;return {k,full,hurt,dead,enemy,max:mhp(full)};
-  });globalThis.excluded=addU(0,'treb',35,32);globalThis.excludedHp=excluded.hp;`);
+  });globalThis.excluded=addU(0,'knight',35,32);globalThis.excludedHp=excluded.hp;`);
   if(civ===14)run("globalThis.workerDamage=()=>{const target={t:1,k:'mil',x:30,y:30,hp:1000,p:[]};dmgT(troops[0].full,target);return 1000-target.hp};globalThis.oldWorkerDamage=workerDamage()");
   run(`S.age[0]=${tech.age-1}`);assert.equal(run(`research(castle,'${key}')`),false);
   assert.equal(run('S.res[0].f'),10000,'age rejection cannot spend resources');

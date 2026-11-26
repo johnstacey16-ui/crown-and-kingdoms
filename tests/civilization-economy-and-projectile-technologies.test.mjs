@@ -36,6 +36,51 @@ test('Indian Grand Trunk Road actually boosts trade trip cargo while leaving ene
  run('S.civ[0]=0');
  assert.equal(run('tradeTripGold({t:0},100)'),35);
 });
+test('Shatagni is paid Imperial research with an isolated +2 Hand Cannoneer range effect',()=>{
+ const run=game(13),tech=JSON.parse(run('JSON.stringify(TE.ut13)'));
+ assert.equal(tech.age,3);assert.deepEqual(tech.cost,{f:500,g:650});
+ run('S.age[0]=2');assert.equal(run("research(castle,'ut13')"),false);
+ const row=JSON.parse(run("JSON.stringify(technologyTreeModel(0).buildings.find(b=>b.id==='castle').research.find(r=>r.id==='ut13'))"));
+ assert.equal(row.state,'locked');assert.equal(row.age,3);assert.deepEqual(row.cost,tech.cost);
+ assert.equal(run('S.res[0].g'),10000);
+ run('S.age[0]=3;S.res[0].g=649');assert.equal(run("research(castle,'ut13')"),false);
+ run('S.res[0].g=10000');
+ const kinds=['hcan','eled','jan','bomb','arc'],before=Object.fromEntries(kinds.map(k=>[k,run(`attackRange({k:'${k}',t:0})`)]));
+ assert.equal(run("rsOf({k:'castle',t:1}).includes('ut13')"),false);
+ assert.equal(run("research(castle,'ut13')"),true);
+ assert.equal(run('S.res[0].f'),9500);assert.equal(run('S.res[0].g'),9350);
+ assert.equal(run("attackRange({k:'hcan',t:0})"),before.hcan,'queued research cannot grant range');
+ run('upB(castle,TE.ut13.t+.1)');
+ for(const kind of kinds)assert.equal(run(`attackRange({k:'${kind}',t:0})`),before[kind]+(kind==='hcan'?2:0),kind);
+ assert.equal(run("attackRange({k:'hcan',t:1})"),before.hcan);
+ assert.equal(run('S.tech[0].atkb?.hcan||0'),0);assert.equal(run('S.tech[0].atkb?.eled||0'),0);
+ assert.equal(run("research(castle,'ut13')"),false);
+ run('S.civ[0]=1');assert.equal(run("attackRange({k:'hcan',t:0})"),before.hcan,'foreign civ cannot forge the range upgrade');
+});
+test('existing and future Hand Cannoneers can hold their ground and shoot at Shatagni range after reload',()=>{
+ const run=game(13);
+ run("S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.gunner=addU(0,'hcan',24,24);globalThis.victim=addU(1,'mil',24+U.hcan.rng+1,24);gunner.st=2;gunner.o='a';gunner.tg=victim;globalThis.oldRange=attackRange(gunner)");
+ run('for(let i=0;i<40;i++)upU(gunner,DT)');assert.equal(run('S.pj.length'),0);
+ assert.equal(run('gunner.x'),24,'stand-ground units do not approach the old out-of-range target');
+ assert.equal(run("research(castle,'ut13')"),true);run('upB(castle,TE.ut13.t+.1);gunner.o="a";gunner.tg=victim;S.pj=[]');
+ run('for(let i=0;i<80&&S.pj.length===0;i++)upU(gunner,DT)');assert.equal(run('S.pj.length'),1);
+ assert.equal(run('gunner.x'),24);assert.equal(run('attackRange(gunner)'),run('oldRange')+2);
+ assert.equal(run("saveG(false,'shatagni-range')"),true);assert.equal(run("loadG(false,'shatagni-range')"),true);
+ assert.equal(run("attackRange(S.us.find(u=>u.k==='hcan'))"),run('oldRange')+2);
+ assert.equal(run("attackRange(addU(0,'hcan',25,25))"),run('oldRange')+2);
+});
+test('unique range modifiers read their supplied world and reject foreign or unresearched state',()=>{
+ const run=game(13);
+ run('globalThis.preview={civ:[13,0],tech:[{ut13:1},{}]};S.civ[0]=0;S.tech[0]={ut13:1}');
+ assert.equal(run("uniqueTechnologyRangeBonus('hcan',0,preview)"),2);
+ assert.equal(run("uniqueTechnologyRangeBonus('hcan',0)"),0);
+ for(const kind of['eled','constructor','__proto__',null])assert.equal(run(`uniqueTechnologyRangeBonus(${JSON.stringify(kind)},0,preview)`),0);
+ for(const id of['13','constructor','__proto__',-1,43]){
+  run(`preview.civ[0]=${JSON.stringify(id)}`);assert.equal(run("uniqueTechnologyRangeBonus('hcan',0,preview)"),0);
+ }
+ run('preview.civ[0]=0');assert.equal(run("uniqueTechnologyRangeBonus('hcan',0,preview)"),0);
+ run('preview.civ[0]=13;preview.tech[0]={}');assert.equal(run("uniqueTechnologyRangeBonus('hcan',0,preview)"),0);
+});
 test('Italian Pirotechnia pierces a second hostile target but not friendlies or nearby flanks',()=>{
  const run=game(15);
  run("globalThis.first={k:'mil',t:1,x:12,y:12,hp:150,p:[]};globalThis.second={k:'mil',t:1,x:13,y:12,hp:150,p:[]};globalThis.friendly={k:'mil',t:0,x:13,y:12.2,hp:150,p:[]};globalThis.side={k:'mil',t:1,x:13,y:14,hp:150,p:[]};S.us=[first,second,friendly,side]");
