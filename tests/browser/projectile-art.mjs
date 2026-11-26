@@ -46,7 +46,7 @@ export async function checkProjectileArtwork(page,output){
     styles:pairCalls.map(p=>p.style),soloSeparation:separation(solo),mapSeparation:separation(network)};
    const preview=document.createElement('canvas');preview.width=600;preview.height=180;const pg=preview.getContext('2d');
    pg.fillStyle='#435541';pg.fillRect(0,0,600,180);pg.fillStyle='#fff0ce';pg.font='18px system-ui';pg.fillText('Hulche javelin pair — 4x inspection',20,30);
-   for(const p of solo)original(pg,300+(p.x-CW/2)*4,105+(p.y-CH/2)*4,p.heading,p.style,.4,p.scale*4);
+   for(const p of solo)original(pg,300+(p.x-CW/2)*4,150+(p.y-CH/2)*4,p.heading,p.style,.4,p.scale*4);
    hulcheImage=preview.toDataURL();preview.width=preview.height=1;
   }finally{S.pj=saved.shots;S.vs=saved.sight;S.civ=saved.civs;S.tech=saved.tech;S.us=saved.units;cam.x=saved.camX;cam.y=saved.camY;drawProjectileArtwork=original}
   return {samples,calls,fixedHeading,projectedKeys,visibleCount,isolated,hulche,hulcheImage,before,after:CK_SIM_SYNC.worldCheckpoint(S,1).hash,image:canvas.toDataURL()};
