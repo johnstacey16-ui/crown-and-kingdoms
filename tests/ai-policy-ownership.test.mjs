@@ -531,6 +531,17 @@ for(const [key,kind,irrelevant]of [['ut20','skirm','plumed'],['ut13','hcan','ele
  r.my.push({k:kind,hp:30},{k:kind,hp:30});assert.ok(f.score(key,r)>one);
 });
 
+test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut23',r);
+ r.my.push({k:'gbeto',hp:40},{k:'gbeto',hp:40});
+ r.bl.push({k:'tc',done:false,hp:100,mh:100},{k:'tc',done:true,hp:0,mh:100});
+ assert.equal(f.score('ut23',r),empty);
+ r.bl.push({k:'tc',done:true,hp:100,mh:100});const one=f.score('ut23',r);assert.ok(one>empty);
+ r.bl.at(-1).hp=60;assert.ok(f.score('ut23',r)>one);
+ r.bl.at(-1).hp=100;r.bl.push({k:'tc',done:true,hp:100,mh:100},{k:'tc',done:true,hp:100,mh:100});
+ assert.ok(f.score('ut23',r)>one);
+});
+
 function buildingRepairFixture({reachable=()=>true}={}){
  const W=64,H=64,U={mil:{dmg:6},spear:{dmg:3}},S={t:100,bs:[],us:[]};
  let attempts=0;

@@ -78,7 +78,7 @@ The source owners are `js/civilizations.js` (definitions), `js/kingdom.js` (elig
 | 20 | Mayans | **26 Nov:** Hulche Javelins now adds a real, weaker Skirmisher projectile with host, checksum and save handling; its old Skirmisher/Plumed flat attack bonuses are removed. AI values fielded Skirmishers. Exact current cost/accuracy/balance reconciliation remains open. El Dorado exists. Verify extra villager/start resources, resource longevity, archer discounts and team walls; reconcile renamed/current techs. |
 | 21 | Incas | Andean Sling currently buffs Kamayuks. Reconcile current Last Chieftains rework, Champi/Slinger access, Fabric Shields coverage, minimum range and economy/building/team rules. |
 | 22 | Ethiopians | Royal Heirs currently gives Shotel HP/attack. Reconcile the current counter-resistance effect/eligible units. Verify age-up resources, free Pike, archer cadence and team outposts. Torsion Engines exists. |
-| 23 | Malians | Tigui currently buffs Gbeto instead of Town Centre arrows. Farimba exists. Verify infantry pierce armour, building wood costs, gold economy and allied University work rate values. |
+| 23 | Malians | **26 Nov:** Tigui now grants eight additional Town Centre arrows, stacking with existing garrison fire and cooldowns through normal projectile damage/save paths. Its Gbeto placeholders are removed; host and AI behaviour are tested. Base firing/garrison counts and research price/time still need version reconciliation. Farimba exists. Verify infantry pierce armour, building wood costs, gold economy and allied University work rate values. |
 | 24 | Koreans | Shinkichon/Eupseong effects exist but need current Rocket Cart/naval rework reconciliation. Verify Tower upgrades, wood discounts, mining and team minimum-range effects. |
 | 25 | Magyars | **Corvinian Army repaired in this batch**: 35f/45g becomes 80f, with original-price refunds. Recurve Bow exists. Verify full Huszar base/Elite stats/counters, free melee upgrades, scout discounts, hunting and mounted-archer team work rate. |
 | 26 | Portuguese | Gold discounts, ship HP, Carrack, Arquebus, Caravel and Feitoria exist. Verify exact discount/armour/ballistics/berry-gold/team research values and Feitoria economy/population balance. Dedicated painted content incomplete. |
@@ -164,7 +164,7 @@ At least **13 named medieval-roster gaps** are confirmed by comparing the active
 - [x] Detinets stone-for-wood construction/repair prices across actual host building and projected trees — this batch.
 - [x] Chivalry Stable training/research speed and Yeomen range/Tower attack — this batch.
 - [x] Nomads retained housing, completion/ownership checks and saved-ledger validation — following batch.
-- [ ] Next: Tigui, Hulche Javelins, the current Frankish regional line and remaining legacy unique technologies; then legacy faction effects above, with version reconciliation before obsolete technologies are repaired.
+- [ ] Next: the current Frankish regional line and remaining legacy unique technologies, then legacy faction effects above. Tigui/Hulche mechanics and Shatagni range now have targeted coverage; whole-faction and version reconciliation remain open.
 
 ### References and limits
 

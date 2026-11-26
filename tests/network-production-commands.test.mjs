@@ -377,6 +377,30 @@ for(const [civ,key,kind]of [[6,'ut6','ram'],[8,'ut8','camel'],[14,'ut14','vil']]
  });
 }
 
+test('host-authorized Tigui research grants only the owning Malian Town Centre its eight extra arrows',()=>{
+ const out=world(`
+  S.civ=[23,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',48,20,true)];
+  const centres=[addB(0,'tc',30,30,true),addB(1,'tc',44,44,true)];
+  addU(1,'mil',34,31.5);addU(0,'mil',48,45.5);
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut23'});
+  const accepted=[host.receive(packet('host-session',0,1,6,order(0)),'host-session',2).ok,
+   host.receive(packet('guest-session',1,1,6,order(1)),'guest-session',2).ok];
+  const deferred=centres.every(b=>!b.rs)&&!castles[0].rs&&S.res[0].f===10000;
+  const applied=host.applyFrame(6).map(r=>r.ok);upB(castles[0],TE.ut23.t+.1);S.tech[1].ut23=1;
+  S.pj=[];for(const b of centres){b.cd=0;upB(b,.1)}
+  const after=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);const duplicate=host.applyFrame(10)[0].ok;
+  return {accepted,deferred,applied,shots:[0,1].map(t=>S.pj.filter(p=>p.a.t===t).length),
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),cost:TE.ut23.cost,duplicate,unchanged:JSON.stringify(S.res)===after};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.applied),[true,false]);
+ assert.deepEqual(Array.from(out.shots),[9,1]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:out.cost.f,g:out.cost.g},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});
+
 test('host Shatagni research enforces Imperial age, price and civilization before granting range',()=>{
  const out=world(`
   S.civ=[13,0];S.age=[2,3];S.tech=[{},{}];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);

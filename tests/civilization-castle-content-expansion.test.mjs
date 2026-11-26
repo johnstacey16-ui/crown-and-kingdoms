@@ -12,6 +12,53 @@ function game(id=5){
  run("globalThis.castle={k:'castle',t:0,x:20,y:20,s:4,hp:1400,mh:1400,done:true,pr:60,q:[],rs:null,cd:999};S.bs.push(castle)");
  return run;
 }
+function tiguiGame(){
+ const run=game(23);
+ run("S.g.fill(0);S.wt.fill(0);S.el.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.tc=addB(0,'tc',30,30,true);globalThis.enemy=addU(1,'mil',tc.x+tc.s/2+3,tc.y+tc.s/2);enemy.hp=1000;globalThis.gbeto=addU(0,'gbeto',26,32)");
+ return run;
+}
+test('paid Castle-age Tigui adds eight real Town Centre arrows without the old Gbeto stat bonuses',()=>{
+ const run=tiguiGame(),tech=JSON.parse(run('JSON.stringify(TE.ut23)'));
+ const shoot=()=>run('S.pj=[];tc.cd=0;upB(tc,.1);S.pj.length');
+ const baseline=shoot();assert.equal(baseline,1,'the current game has one ungarrisoned base arrow');
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut23')"),false);
+ run('S.age[0]=2;S.res[0]={f:0,w:0,g:0,s:0}');assert.equal(run("research(castle,'ut23')"),false);
+ run('S.res[0]={f:10000,w:10000,g:10000,s:10000}');
+ assert.equal(run("rsOf({k:'castle',t:1}).includes('ut23')"),false);
+ assert.equal(run("research(castle,'ut23')"),true);
+ assert.equal(run('S.res[0].f'),10000-(tech.cost.f||0));assert.equal(run('S.res[0].g'),10000-(tech.cost.g||0));
+ assert.equal(shoot(),baseline,'no extra arrows before research completion');
+ run('upB(castle,TE.ut23.t+.1)');assert.equal(shoot(),baseline+8);
+ assert.equal(run('new Set(S.pj.map(p=>p.x+"/"+p.y)).size'),9,'real separated firing origins make the extra arrows visible');
+ assert.equal(run('S.tech[0].atkb?.gbeto||0'),0);assert.equal(run('S.tech[0].hpb?.gbeto||0'),0);
+ assert.equal(run('gbeto.hp'),run('U.gbeto.hp'));
+ assert.equal(run("research(castle,'ut23')"),false);assert.equal(shoot(),baseline+8,'the effect cannot stack through duplicate research');
+});
+test('Tigui stacks with garrison fire and cooldown while remaining Town-Centre and civilization specific',()=>{
+ const run=tiguiGame();run("globalThis.guard=addU(0,'arc',32,32);guard.ld=tc;tc.cg=[guard]");
+ const shoot=()=>run('S.pj=[];tc.cd=0;upB(tc,.1);S.pj.length'),base=shoot();
+ run('S.tech[0].ut23=1');assert.equal(shoot(),base+8);
+ run('upB(tc,.1)');assert.equal(run('S.pj.length'),base+8,'a positive cooldown prevents a second volley');
+ run('upB(tc,U.tca.cd+.1)');assert.equal(run('S.pj.length'),2*(base+8));
+ run('S.civ[0]=0');assert.equal(shoot(),base,'foreign civ cannot forge Tigui');
+ run("S.civ[0]=23;globalThis.tower=addB(0,'tower',30,29,true);S.pj=[];tower.cd=0;upB(tower,.1)");
+ assert.equal(run('S.pj.length'),1,'Towers do not receive the Town Centre bonus');
+ for(const setup of['tc.done=false','tc.hp=0']){
+  run('tc.done=true;tc.hp=tc.mh;S.pj=[];tc.cd=0;'+setup+';upB(tc,.1)');assert.equal(run('S.pj.length'),0);
+ }
+});
+test('Tigui arrows use normal damage, live target legality, fixed impact and current-build projectile saves',()=>{
+ const run=tiguiGame();run('S.pj=[];tc.cd=0;upB(tc,.1);pjs(1);globalThis.hitDamage=1000-enemy.hp;enemy.hp=1000;S.tech[0].ut23=1;tc.cd=0;upB(tc,.1)');
+ assert.equal(run('S.pj.length'),9);
+ assert.equal(run("saveG(false,'tigui-volley')"),true);assert.equal(run("loadG(false,'tigui-volley')"),true);
+ assert.equal(run('S.pj.length'),9);run('globalThis.restored=S.pj[0].t;pjs(1)');
+ assert.equal(run('restored.hp'),1000-9*run('hitDamage'));
+ run("globalThis.loadedTC=S.bs.find(b=>b.k==='tc');globalThis.futureTC=addB(0,'tc',42,42,true);globalThis.nextEnemy=addU(1,'mil',46,44);nextEnemy.hp=1000;futureTC.cd=0;S.pj=[];upB(futureTC,.1)");
+ assert.equal(run('S.pj.length'),9,'new Town Centres retain the ability after reload');
+ run('nextEnemy.t=0;pjs(1)');assert.equal(run('nextEnemy.hp'),1000,'a converted friendly target cannot be hit');
+ run('nextEnemy.t=1;futureTC.cd=0;S.pj=[];upB(futureTC,.1);nextEnemy.x+=3;pjs(1)');
+ assert.equal(run('nextEnemy.hp'),1000,'moving out of the fixed impact point avoids the volley');
+});
 
 test('three additional Imperial Elite unit lines are Castle-only, researched and faction-bound',()=>{
  const run=game();

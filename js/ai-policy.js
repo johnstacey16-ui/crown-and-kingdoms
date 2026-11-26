@@ -158,6 +158,11 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
   const kind=k==='ut20'?'skirm':'hcan',n=my.filter(u=>u.k===kind&&!u.ld&&u.hp>0).length;
   score+=n>=3?55:n?18:-35;
  }
+ if(k==='ut23'){
+  const centres=bl.filter(b=>b.k==='tc'&&b.done&&b.hp>0);
+  score+=centres.length>=3?55:centres.length?25:-35;
+  if(centres.some(b=>b.hp<b.mh*.8))score+=20;
+ }
  if(secondCiv){const n=my.filter(u=>u.k===secondCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?40:n?14:-30;}
  if(k==='chem'&&my.some(u=>['gal','fire','cgal'].includes(u.k)))score+=16;
  if(k==='atkR'&&humanRanged>=4)score+=18;
