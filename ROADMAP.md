@@ -54,7 +54,7 @@ The owner approves autonomous work on `development` with GitHub CI; merge accept
 
 1. **Gameplay parity:** verify reference-version economy, trade, gathering, research, counters, siege, armour, elevation, projectiles, formations, monks, garrisons, victory/map/start modes. Preserve Imperial Castle age alternative (`AG[3].single='castle'`); the older audit claim removing it was incorrect.
 2. **AI:** paid Town Centre expansion (275 wood/100 stone; 2/3 Castle/Imperial cap) is already implemented and tested; do not repeat. Expand build orders, scouting, defence, siege/monk/naval control, late-game economy, route retries and multi-seed skirmish verification.
-3. **Civilizations PARTIAL (43):** `d25b4d52` replaces Royal Heirs’ Shotel stat placeholder with -3 mounted-source damage for Shotels/camels, with projectile, AI, host and save coverage. Tigui, HP, Hulche and Shatagni/Furor fixes remain. Continue version/cost reconciliation, missing units, team bonuses, architecture and balance; see [completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md).
+3. **Civilizations PARTIAL (43):** `019fe529` repairs Andean Sling’s Skirmisher minimum-range effect, AI, host and saves; missing Slingers keep the technology partial. Royal Heirs, Tigui, HP, Hulche and Shatagni/Furor fixes remain. Continue dated-version/cost reconciliation, regional units, team bonuses, architecture and balance; see [completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md).
 4. **Naval:** all intended vessels and upgrade lines, fleet AI, reliable beach landing, water-map campaigns, Xbox controls and large-fleet performance.
 5. **Campaigns:** deepen event/trigger scripting, mission progression, player choices and DLC-style *original* missions; do not copy existing game stories/dialogue.
 6. **Art/audio:** complete directional movement/work/combat/death, regional buildings, biomes, construction/damage, HUD/accessibility and original audio. Retain painted resources and test browser/Xbox memory and visuals.
@@ -108,7 +108,7 @@ All **28/28** building bases and **84/84** unit kinds retain painted art; **44 E
 
 The owner requests **list everything missing and work through it all**. Use the [source-audited completion checklist](docs/FULL_GAME_COMPLETION_CHECKLIST.md#current-source-audit-and-execution-checklist--14-november-2026): all 43 active factions, 13 confirmed absent medieval factions, absent rulepacks, units/buildings, exact art gaps and separate acceptance. Preserve this roadmap's AUD/CK identifiers.
 
-Marauders, Corvinian Army, Sipahi, Detinets, Chivalry, Yeomen and Nomads have tested repairs; the journal records exact commits. Tigui, Hulche, Royal Heirs and Shatagni now have targeted mechanics coverage. Continue with Andean Sling, obsolete techs and regional units, then faction bonuses and missing factions/rulepacks. Reconcile dated references before implementing old rules. Work autonomously on `development`; physical Xbox/WAN/human acceptance and deliberate publishing remain separate.
+Marauders, Corvinian Army, Sipahi, Detinets, Chivalry, Yeomen and Nomads have tested repairs; the journal records exact commits. Tigui, Hulche, Royal Heirs, Shatagni and Andean Sling’s Skirmisher effect have targeted coverage. Continue obsolete techs and regional units (including missing Slinger effects), then faction bonuses and missing factions/rulepacks. Reconcile dated references before implementing old rules. Work autonomously on `development`; physical Xbox/WAN/human acceptance and deliberate publishing remain separate.
 
 ## Ordered milestones and gates
 
