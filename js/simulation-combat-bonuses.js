@@ -81,12 +81,14 @@ function combatArmor(t,cls){
  const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
+ // The former Pavise effect is now an Italian passive, excluding Skirmishers.
+ const italianArcherArmor=S.civ?.[t.t]===15&&SKIRM_ARCHER_KINDS.has(t.k)&&t.k!=='skirm'?1:0;
  const romanInfantryArmor=S.civ?.[t.t]===40&&INFARM.has(t.k)?ib:0;
  const romanGalleyArmor=S.civ?.[t.t]===40&&t.k==='gal'?1+(ta.galleon?1:0):0;
   const armenianFereters=S.civ?.[t.t]===41&&ta.ut41p&&INFARM.has(t.k)&&t.k!=='spear'?2:0;
  const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+bengaliMonk+gurjaraGuard+(t.k==='turtle'&&ta.eliteTurtle?1:0);
  const strip=!t.s&&Number.isInteger(t.obuchArmorShred)?Math.max(0,Math.min(10,t.obuchArmorShred)):0;
- return t.s?armor:armor+romanInfantryArmor+romanGalleyArmor+armenianFereters-Math.min(Math.max(0,armor+romanInfantryArmor+romanGalleyArmor+armenianFereters),strip);
+ return t.s?armor:armor+romanInfantryArmor+romanGalleyArmor+armenianFereters+italianArcherArmor-Math.min(Math.max(0,armor+romanInfantryArmor+romanGalleyArmor+armenianFereters+italianArcherArmor),strip);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.

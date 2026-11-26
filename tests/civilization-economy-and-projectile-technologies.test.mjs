@@ -164,3 +164,62 @@ test('existing and future Incan Skirmishers retain close-range firing after curr
  assert.equal(run('skirm.y'),30);
  const hp=run('victim.hp');run('victim.t=0;pjs(.2)');assert.equal(run('victim.hp'),hp,'a target that becomes friendly cannot be hit');
 });
+
+test('Silk Road replaces Pavise with paid Castle-age trade discounts and no Genoese stat bonuses',()=>{
+ const run=game(15);run("CIV[15].fx(0);globalThis.genoese=addU(0,'genoa',25,25)");
+ assert.equal(run('TE.ut15.n'),'Silk Road');assert.equal(run('TE.ut15.age'),2);
+ assert.equal(run("technologyTreeModel(0).buildings.find(b=>b.id==='castle').research.find(r=>r.id==='ut15').name"),'Silk Road');
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut15')"),false);
+ run('S.age[0]=2;S.res[0].g=249');assert.equal(run("research(castle,'ut15')"),false);
+ run('S.res[0].g=10000');assert.equal(run("research(castle,'ut15')"),true);
+ assert.equal(run('S.res[0].f'),9750);assert.equal(run('S.res[0].g'),9750);
+ assert.equal(run("unitTrainingCost(0,'cart').w"),100,'queued research gives no discount');
+ run('upB(castle,TE.ut15.t+.1)');
+ assert.deepEqual(JSON.parse(run("JSON.stringify(unitTrainingCost(0,'cart'))")),{w:50});
+ assert.deepEqual(JSON.parse(run("JSON.stringify(unitTrainingCost(0,'cog'))")),{w:50,g:25});
+ assert.equal(run('mhp(genoese)'),run('U.genoa.hp'));assert.equal(run('genoese.hp'),run('U.genoa.hp'));
+ assert.equal(run('S.tech[0].atkb?.genoa||0'),0);assert.equal(run('S.tech[0].hpb?.genoa||0'),0);
+ assert.equal(run("research(castle,'ut15')"),false);assert.equal(run("rsOf({k:'castle',t:1}).includes('ut15')"),false);
+ for(const kind of ['fish','trn','gal','orgun','genoa','vil'])assert.equal(run(`unitTrainingCost(0,'${kind}').w||0`),run(`U.${kind}.cost.w||0`));
+ run('S.civ[0]=0');assert.equal(run("unitTrainingCost(0,'cart').w"),100,'foreign flags give no discount');
+ assert.equal(run("unitTrainingCost(0,'cart',[15],[{ut15:1}]).w"),50,'supplied-world cost consumers use the same rule');
+});
+
+test('Silk Road queues charge and refund their actual price before and after research, including reload',()=>{
+ const run=game(15);
+ run("addB(0,'house',12,12,true);globalThis.market=addB(0,'market',28,28,true);globalThis.dock=addB(0,'dock',38,38,true)");
+ assert.equal(run("train(market,'cart')"),true);assert.equal(run("train(dock,'cog')"),true);
+ run('globalThis.oldBudget=JSON.stringify(S.res[0])');
+ assert.equal(run("research(castle,'ut15')"),true);run('upB(castle,TE.ut15.t+.1)');
+ assert.equal(run('market.q[0].paidCost.w'),100);assert.equal(run('dock.q[0].paidCost.g'),50);
+ assert.equal(run('cancelQ(market)'),true);assert.equal(run('cancelQ(dock)'),true);
+ assert.equal(run('S.res[0].w'),10000);assert.equal(run('S.res[0].g'),9750);
+ run('globalThis.budget=JSON.stringify(S.res[0])');
+ assert.equal(run("train(market,'cart')"),true);assert.equal(run("train(dock,'cog')"),true);
+ assert.equal(run('S.res[0].w'),9900);assert.equal(run('S.res[0].g'),9725);
+ assert.equal(run("saveG(false,'silk-road-prices')"),true);assert.equal(run("loadG(false,'silk-road-prices')"),true);
+ run("market=S.bs.find(b=>b.k==='market');dock=S.bs.find(b=>b.k==='dock')");
+ assert.equal(run('market.q[0].paidCost.w'),50);assert.equal(run('dock.q[0].paidCost.g'),25);
+ run('cancelQ(market);cancelQ(dock)');assert.equal(run('JSON.stringify(S.res[0])'),run('budget'));
+ assert.equal(run("unitTrainingCost(0,'cog').g"),25);assert.equal(run('cancelQ(dock)'),false);
+ run('S.res[0].w=49');assert.equal(run("train(market,'cart')"),false);assert.equal(run('S.res[0].w'),49);
+});
+
+test('Italian foot-archer armour is passive, stacks with research and affects real hits without HP/farm placeholders',()=>{
+ const run=game(15);run('CIV[15].fx(0)');
+ assert.equal(run('S.tech[0].hpb?.arc||0'),0);assert.equal(run('S.tech[0].hpb?.xbow||0'),0);assert.equal(run('S.tech[0].fa||0'),0);
+ for(const kind of ['arc','xbow','genoa','lbow','chuko','plumed','rattan','composite','skirm','hcan','jan','cavarch','eled','mgd','knight','mil']){
+  const bonus=['arc','xbow','genoa','lbow','chuko','plumed','rattan','composite'].includes(kind)?1:0;
+  for(const cls of ['m','p']){
+   const own=run(`combatArmor({k:'${kind}',t:0},'${cls}')`),foreign=run(`combatArmor({k:'${kind}',t:1},'${cls}')`);
+   assert.equal(own,foreign+bonus,kind+' / '+cls);
+  }
+ }
+ run("S.tech[0].armR=1;globalThis.defender=addU(0,'genoa',30,30);globalThis.attacker=addU(1,'knight',31,30)");
+ assert.equal(run("combatArmor(defender,'m')"),run('MA.genoa||0')+2);
+ const hit=()=>run('(()=>{defender.hp=1000;dmgT(attacker,defender);return 1000-defender.hp})()');
+ const protectedHit=hit();run('S.civ[0]=0');assert.equal(hit(),protectedHit+1);
+ run('S.civ[0]=15;S.tech[0].ut15=1');assert.equal(hit(),protectedHit,'Silk Road cannot add or stack the passive armour');
+ assert.equal(run("saveG(false,'italian-armour')"),true);assert.equal(run("loadG(false,'italian-armour')"),true);
+ assert.equal(run("combatArmor(addU(0,'arc',25,25),'p')"),run('PRA.arc||0')+2);
+});

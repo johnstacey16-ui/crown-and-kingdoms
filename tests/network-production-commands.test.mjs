@@ -575,3 +575,29 @@ test('both authenticated Incan players pay for Andean Sling and fire at close ra
  assert.deepEqual(Array.from(out.positions),[30,30.5]);assert.ok(out.damage.every(n=>n>0));
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,g:200},{f:250,g:200}]);
 });
+
+test('both authenticated Italian players research Silk Road and receive exact discounted train/cancel prices',()=>{
+ const out=world(`
+  S.civ=[15,15];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const markets=[addB(0,'market',28,28,true),addB(1,'market',48,48,true)];
+  for(let t=0;t<2;t++)addB(t,'house',12+t*40,12,true);
+  const sessions=['host-session','guest-session'];
+  const send=(seq,frame,now,order)=>sessions.map((sid,t)=>host.receive(packet(sid,t,seq,frame,order(t)),sid,now).ok);
+  const accepted=send(1,6,2,t=>({type:'research',entities:[castles[t].netId],value:'ut15'}));
+  const deferred=S.res.every(r=>r.f===10000)&&castles.every(b=>!b.rs),research=host.applyFrame(6).map(r=>r.ok);
+  const before=markets.map((b,t)=>window.CK_GAME_COMMANDS.buildingOptions(S,t,b).find(o=>o.type==='train'&&o.value==='cart').cost.w);
+  for(const b of castles)upB(b,TE.ut15.t+.1);
+  const after=markets.map((b,t)=>window.CK_GAME_COMMANDS.buildingOptions(S,t,b).find(o=>o.type==='train'&&o.value==='cart').cost.w);
+  const train=send(2,10,6,t=>({type:'train',entities:[markets[t].netId],value:'cart'})),trained=host.applyFrame(10).map(r=>r.ok);
+  const paid=S.res.map(r=>({f:10000-r.f,w:10000-r.w,g:10000-r.g}));
+  const cancel=send(3,14,10,t=>({type:'cancel',entities:[markets[t].netId]})),cancelled=host.applyFrame(14).map(r=>r.ok);
+  return {accepted,deferred,research,before,after,train,trained,paid,cancel,cancelled,
+   refunded:S.res.every(r=>r.w===10000&&r.f===9750&&r.g===9750),empty:markets.every(b=>b.q.length===0)};
+ `);
+ for(const key of ['accepted','research','train','trained','cancel','cancelled'])assert.deepEqual(Array.from(out[key]),[true,true],key);
+ assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.before),[100,100]);assert.deepEqual(Array.from(out.after),[50,50]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,w:50,g:250},{f:250,w:50,g:250}]);
+ assert.equal(out.refunded,true);assert.equal(out.empty,true);
+});

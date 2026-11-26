@@ -549,6 +549,13 @@ test('Andean Sling AI values living fielded Skirmishers rather than Kamayuk coun
  r.my.push({k:'skirm',hp:30},{k:'skirm',hp:30});assert.ok(f.score('ut21',r)>one);
 });
 
+test('Silk Road AI values living fielded traders rather than Genoese combat units',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut15',r);
+ r.my.push({k:'genoa',hp:50},{k:'cart',hp:0},{k:'cog',hp:50,ld:{}});assert.equal(f.score('ut15',r),empty);
+ r.my.push({k:'cart',hp:40});const one=f.score('ut15',r);assert.ok(one>empty);
+ r.my.push({k:'cog',hp:50},{k:'cart',hp:40});assert.ok(f.score('ut15',r)>one);
+});
+
 test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{
  const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut23',r);
  r.my.push({k:'gbeto',hp:40},{k:'gbeto',hp:40});
