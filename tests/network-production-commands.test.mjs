@@ -546,3 +546,32 @@ test('authenticated Royal Heirs research protects only its paid Ethiopian owner 
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:300,g:200},{f:0,g:0}]);
  assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
 });
+
+test('both authenticated Incan players pay for Andean Sling and fire at close range through host attack orders',()=>{
+ const out=world(`
+  S.civ=[21,21];S.age=[2,2];S.tech=[{thumb:1},{thumb:1}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const troops=[addU(0,'skirm',30,30),addU(1,'skirm',30.5,30)];
+  for(const u of troops){u.st=2;u.hp=1000}
+  const sessions=['host-session','guest-session'];
+  const accepted=sessions.map((sid,t)=>host.receive(packet(sid,t,1,6,{type:'research',entities:[castles[t].netId],value:'ut21'}),sid,2).ok);
+  const deferred=castles.every(b=>!b.rs)&&S.res.every(r=>r.f===10000),researched=host.applyFrame(6).map(r=>r.ok);
+  const before=troops.map(u=>attackMinimumRange(u));
+  for(const b of castles)upB(b,TE.ut21.t+.1);S.pj=[];
+  const orders=sessions.map((sid,t)=>host.receive(packet(sid,t,2,10,{type:'attack',entities:[troops[t].netId],target:troops[1-t].netId}),sid,6).ok);
+  const attacks=host.applyFrame(10).map(r=>r.ok);
+  for(let i=0;i<80&&S.pj.length<2;i++){S.t+=DT;for(const u of troops)upU(u,DT)}
+  const shots=troops.map(u=>S.pj.filter(p=>p.a.t===u.t).length),positions=troops.map(u=>u.x);
+  pjs(.2);
+  return {accepted,deferred,researched,before,after:troops.map(u=>attackMinimumRange(u)),orders,attacks,shots,positions,
+   damage:troops.map(u=>1000-u.hp),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.researched),[true,true]);assert.deepEqual(Array.from(out.before),[1,1]);
+ assert.deepEqual(Array.from(out.after),[0,0]);assert.deepEqual(Array.from(out.orders),[true,true]);
+ assert.deepEqual(Array.from(out.attacks),[true,true]);assert.deepEqual(Array.from(out.shots),[1,1]);
+ assert.deepEqual(Array.from(out.positions),[30,30.5]);assert.ok(out.damage.every(n=>n>0));
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,g:200},{f:250,g:200}]);
+});

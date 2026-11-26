@@ -114,3 +114,53 @@ test('Pirotechnia flags persist in same-build save files',()=>{
  assert.equal(run('S.tech[0].ut15p'),1);
  assert.equal(run('S.civ[0]'),15);
 });
+
+function andeanGame(){
+ const run=game(21);
+ run("S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.skirm=addU(0,'skirm',30,30);globalThis.victim=addU(1,'mil',30.5,30);victim.hp=1000;skirm.o='a';skirm.tg=victim;skirm.st=2;S.tech[0].thumb=1;globalThis.kamayuk=addU(0,'kamayuk',25,25)");
+ return run;
+}
+function closeShot(run){
+ return run('(()=>{S.pj=[];skirm.cd=0;skirm.wind=0;skirm.o="a";skirm.tg=victim;for(let i=0;i<80&&S.pj.length===0;i++)upU(skirm,DT);return S.pj.length})()');
+}
+test('paid completed Andean Sling removes the Skirmisher dead zone without buffing Kamayuks',()=>{
+ const run=andeanGame(),hp=run('mhp(kamayuk)');
+ assert.equal(closeShot(run),0,'stand-ground Skirmishers cannot shoot a target inside their base dead zone');
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut21')"),false);
+ run('S.age[0]=2;S.res[0].g=0');assert.equal(run("research(castle,'ut21')"),false);
+ run('S.res[0].g=10000');assert.equal(run("research(castle,'ut21')"),true);
+ assert.equal(run('S.res[0].f'),9750);assert.equal(run('S.res[0].g'),9800);
+ assert.equal(closeShot(run),0,'queued technology has no premature effect');
+ run('upB(castle,TE.ut21.t+.1)');assert.equal(closeShot(run),1);
+ assert.equal(run('skirm.x'),30);assert.equal(run('skirm.y'),30);
+ const before=run('victim.hp');run('pjs(.2)');assert.ok(run('victim.hp')<before,'the real close shot damages its target');
+ assert.equal(run('mhp(kamayuk)'),hp);assert.equal(run('kamayuk.hp'),hp);
+ assert.equal(run('S.tech[0].hpb?.kamayuk||0'),0);assert.equal(run('S.tech[0].atkb?.kamayuk||0'),0);
+ assert.equal(run("research(castle,'ut21')"),false);
+ assert.equal(run("rsOf({k:'castle',t:1}).includes('ut21')"),false);
+ assert.equal(run('U.skirm.minR'),1,'the canonical unit and opponent dead zone remain intact');
+});
+test('Andean Sling is owner-bound and preserves other siege minimum ranges and maximum reach',()=>{
+ const run=andeanGame();const range=run('attackRange(skirm)');
+ run('S.tech[0].ut21=1');assert.equal(run('attackMinimumRange(skirm)'),0);assert.equal(run('attackRange(skirm)'),range);
+ assert.equal(run("attackMinimumRange({k:'skirm',t:1})"),1);
+ run('S.civ[0]=0');assert.equal(run('attackMinimumRange(skirm)'),1);assert.equal(closeShot(run),0);
+ run('S.civ[0]=21;S.tech[0].ut21=0');assert.equal(closeShot(run),0);
+ run('S.tech[0].ut21=1');
+ for(const kind of ['treb','cgal','houfnice'])assert.equal(run(`attackMinimumRange({k:'${kind}',t:0})`),run(`U.${kind}.minR`));
+ run('S.tech[0].onager=1');assert.equal(run("attackMinimumRange({k:'mang',t:0})"),3);
+ assert.equal(run("attackMinimumRange({k:'scor',t:0})"),2);
+ run('S.civ[0]=40');assert.equal(run("attackMinimumRange({k:'scor',t:0})"),1,'Roman Scorpion minimum-range rule is retained');
+ assert.equal(run("uniqueTechnologyUnitBonus('minimumRangeReduction','skirm',0,{civ:[21],tech:[{ut21:1}]})"),1);
+ assert.equal(run("uniqueTechnologyUnitBonus('minimumRangeReduction','skirm',0,{civ:[0],tech:[{ut21:1}]})"),0);
+});
+test('existing and future Incan Skirmishers retain close-range firing after current-build reload',()=>{
+ const run=andeanGame();run('S.tech[0].ut21=1');
+ assert.equal(run("saveG(false,'andean-close-shot')"),true);assert.equal(run("loadG(false,'andean-close-shot')"),true);
+ run("skirm=S.us.find(u=>u.k==='skirm');victim=S.us.find(u=>u.t===1&&u.k==='mil')");
+ assert.equal(closeShot(run),1);run('pjs(.2)');
+ run("skirm=addU(0,'skirm',30,30);skirm.st=0");assert.equal(closeShot(run),1);
+ assert.equal(run('skirm.x'),30,'a mobile-stance Skirmisher does not retreat from the removed dead zone');
+ assert.equal(run('skirm.y'),30);
+ const hp=run('victim.hp');run('victim.t=0;pjs(.2)');assert.equal(run('victim.hp'),hp,'a target that becomes friendly cannot be hit');
+});

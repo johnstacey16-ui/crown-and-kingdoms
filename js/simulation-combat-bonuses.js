@@ -376,6 +376,15 @@ function rangedAccuracy(a){
  if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
+// One live minimum-range rule drives both wind-up legality and retreat.
+function attackMinimumRange(u){
+ let base=U[u.k]?.minR||0;
+ if(u.k==='mang'&&S.tech?.[u.t]?.onager)base=3;
+ else if(u.k==='scor')base=romanScorpionMinimumRange(u);
+ const reduction=typeof uniqueTechnologyUnitBonus==='function'
+  ?uniqueTechnologyUnitBonus('minimumRangeReduction',u.k,u.t):0;
+ return Math.max(0,base-reduction);
+}
 function romanScorpionMinimumRange(u){
  if(u?.k!=='scor')return 0;
  return typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(u.t).includes(40)?1:2;

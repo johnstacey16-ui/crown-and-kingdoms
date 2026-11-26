@@ -83,7 +83,7 @@ const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url
 const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
 test('first unique technologies accept actual declarative stats and reject empty, unknown or malformed effects',()=>{
- for(const id of[6,8,13,14,22]){
+ for(const id of[6,8,13,14,21,22]){
   const current=currentCivilizationRuntime();
   assert.equal(typeof current.civilizations[id].ut.fx,'undefined');
   assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
@@ -113,6 +113,17 @@ test('conditional mounted defence maps reject malformed, unknown and excessive v
   assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
   for(const map of [{},[],null,{shotel:NaN},{shotel:-3},{shotel:0},{shotel:'3'},{shotel:9},{invented:3},{constructor:3}]){
    definition.mountedDamageReduction=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)));
+  }
+ }
+});
+test('minimum-range reductions require finite positive bounded amounts and known unit kinds in both unique slots',()=>{
+ for(const slot of ['ut','ut2']){
+  const current=currentCivilizationRuntime(),definition=current.civilizations[21][slot];
+  delete definition.fx;definition.minimumRangeReduction={skirm:1};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  for(const map of [{},[],null,{skirm:NaN},{skirm:-1},{skirm:0},{skirm:'1'},{skirm:6},{invented:1},{constructor:1}]){
+   definition.minimumRangeReduction=map;
    assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)));
   }
  }

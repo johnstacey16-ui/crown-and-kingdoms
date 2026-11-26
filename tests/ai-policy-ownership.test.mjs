@@ -540,6 +540,15 @@ test('Royal Heirs AI values eligible living fielded units and mounted threats fr
  r.humanCav=0;r.my.push({k:'shotel',hp:40},{k:'camel',hp:50});assert.ok(f.score('ut22',r)>one);
 });
 
+test('Andean Sling AI values living fielded Skirmishers rather than Kamayuk count',()=>{
+ const f=researchScoreFixture({ut21:{minimumRangeReduction:{skirm:1}}}),r=f.rosters(),empty=f.score('ut21',r);
+ r.my.push({k:'kamayuk',hp:60},{k:'skirm',hp:0},{k:'skirm',hp:30,ld:{}});
+ assert.equal(f.score('ut21',r),empty);
+ r.my.push({k:'skirm',hp:30});const one=f.score('ut21',r);assert.ok(one>empty);
+ r.humanCav=3;assert.equal(f.score('ut21',r),one,'mounted-defence threat weighting does not leak into minimum-range upgrades');
+ r.my.push({k:'skirm',hp:30},{k:'skirm',hp:30});assert.ok(f.score('ut21',r)>one);
+});
+
 test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{
  const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut23',r);
  r.my.push({k:'gbeto',hp:40},{k:'gbeto',hp:40});
