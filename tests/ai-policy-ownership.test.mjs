@@ -521,6 +521,15 @@ test('technology scoring retains villager, monk and damaged town-centre prioriti
  r.bl.push({k:'tc',hp:60,mh:100});
  assert.equal(f.score('mas',r),67,'masonry gets the original damaged town-centre boost');
 });
+test('Hulche research priority follows living fielded Skirmishers rather than Plumed Archers',()=>{
+ const f=researchScoreFixture(),r=f.rosters();
+ const empty=f.score('ut20',r);
+ r.my.push({k:'plumed',hp:50},{k:'skirm',hp:0},{k:'skirm',hp:30,ld:{}});
+ assert.equal(f.score('ut20',r),empty);
+ r.my.push({k:'skirm',hp:30});const one=f.score('ut20',r);
+ assert.ok(one>empty);
+ r.my.push({k:'skirm',hp:30},{k:'skirm',hp:30});assert.ok(f.score('ut20',r)>one);
+});
 
 function buildingRepairFixture({reachable=()=>true}={}){
  const W=64,H=64,U={mil:{dmg:6},spear:{dmg:3}},S={t:100,bs:[],us:[]};

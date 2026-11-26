@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
+const protocol=readFileSync(new URL('../js/network-sync.js',import.meta.url),'utf8');
 function game(civ=1){
  const {source,sandbox}=headlessGame();
  vm.createContext(sandbox);
- vm.runInContext(source+'\nglobalThis.execTest=code=>eval(code);',sandbox);
+ vm.runInContext(source+'\n'+protocol+'\nglobalThis.execTest=code=>eval(code);',sandbox);
  const run=sandbox.execTest;
  run("kingdoms=2;startAge=3;startRes=3;start();S.age=[3,3];S.civ=["+civ+",0];S.tech=[{},{}];S.res[0]={f:10000,w:10000,g:10000,s:10000};S.us=[];S.bs=[];S.pj=[];globalThis.castle={k:'castle',t:0,x:20,y:20,s:4,hp:1400,mh:1400,done:true,pr:60,q:[],rs:null,cd:999};S.bs.push(castle)");
  return run;
@@ -89,6 +91,70 @@ test('Khmer Double Crossbow emits two real Scorpion projectiles and resolves bot
  assert.ok(two>0,'two projectiles actually inflict damage');
  run('S.tech[0].ut12p=0;S.pj=[];enemy.hp=500;launchProjectile('+shooter+',enemy);pjs(1)');
  assert.equal(two,2*(500-run('enemy.hp')),'two normal bolt impacts');
+});
+function hulcheGame(){
+ const run=game(20);
+ run("S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);S.tech[0].thumb=1;globalThis.shooter=addU(0,'skirm',24,24);globalThis.target=addU(1,'arc',27,24);target.hp=500");
+ return run;
+}
+test('paid Hulche research adds a real weak javelin without the old Skirmisher/Plumed attack bonuses',()=>{
+ const run=hulcheGame();
+ run('launchProjectile(shooter,target)');assert.equal(run('S.pj.length'),1);
+ run('S.pj=[];S.age[0]=1');assert.equal(run("research(castle,'ut20')"),false);
+ run('S.age[0]=2;S.res[0]={f:0,w:0,g:0,s:0}');assert.equal(run("research(castle,'ut20')"),false);
+ run('S.res[0]={f:10000,w:10000,g:10000,s:10000}');
+ assert.equal(run("research(castle,'ut20')"),true);
+ assert.equal(run('S.res[0].f'),10000-run('TE.ut20.cost.f'));
+ run('launchProjectile(shooter,target)');assert.equal(run('S.pj.length'),1,'research must finish first');
+ run('S.pj=[];upB(castle,TE.ut20.t+.1);launchProjectile(shooter,target)');
+ assert.equal(run('S.pj.length'),2);
+ assert.equal(run('S.pj.filter(p=>p.a.skirmisherSecondary===true).length'),1);
+ assert.equal(run('S.tech[0].atkb?.skirm||0'),0);assert.equal(run('S.tech[0].atkb?.plumed||0'),0);
+ const primary=run("(()=>{const hp=target.hp;dmgT(shooter,target);const dealt=hp-target.hp;target.hp=hp;return dealt})()");
+ run('pjs(1)');assert.equal(run('target.hp'),500-primary-1);
+ assert.equal(run('S.pj.length'),0);assert.equal(run("research(castle,'ut20')"),false);
+});
+test('Hulche excludes foreign, dead, loaded and synthetic shooters, and other ranged kinds',()=>{
+ const run=hulcheGame();run('S.tech[0].ut20=1');
+ for(const setup of["S.civ[0]=1", "shooter.hp=0", "shooter.ld=castle", "shooter.k='plumed'", "shooter.k='arc'"]){
+  run("S.civ[0]=20;shooter.k='skirm';shooter.hp=30;shooter.ld=null;S.pj=[];"+setup+';launchProjectile(shooter,target)');
+  assert.equal(run('S.pj.length'),1,setup);
+ }
+ run("S.civ[0]=20;S.pj=[];launchProjectile({k:'skirm',t:0,x:24,y:24},target)");assert.equal(run('S.pj.length'),1);
+});
+test('the extra javelin is capped against armour, keeps fixed aim, and cannot hit friendly or dead targets',()=>{
+ const run=hulcheGame();run('S.tech[0].ut20=1;S.tech[0].atkR2=1;S.tech[0].atkb={skirm:100};S.tech[1].armR3=1;launchProjectile(shooter,target);S.pj=S.pj.filter(p=>p.a.skirmisherSecondary)');
+ run('pjs(1)');assert.equal(run('target.hp'),499,'the secondary does not copy main-shot bonuses');
+ run('S.pj=[];launchProjectile(shooter,target);S.pj=S.pj.filter(p=>p.a.skirmisherSecondary);target.y+=3;pjs(1)');assert.equal(run('target.hp'),499,'a moved target is missed');
+ for(const setup of['target.t=0','target.hp=0']){
+  run('target.t=1;target.hp=500;target.y=24;S.pj=[];launchProjectile(shooter,target);S.pj=S.pj.filter(p=>p.a.skirmisherSecondary);'+setup+';globalThis.hp=target.hp;pjs(1)');
+  assert.equal(run('target.hp'),run('hp'));assert.equal(run('S.pj.length'),0);
+ }
+});
+test('Hulche projectiles retain weak-shot identity across save/reload and influence peer checksums',()=>{
+ const run=hulcheGame();run('S.tech[0].ut20=1;launchProjectile(shooter,target)');
+ const hash=run('window.CK_SIM_SYNC.worldCheckpoint(S,6).hash');
+ run('S.pj[1].a.skirmisherSecondary=false');assert.notEqual(run('window.CK_SIM_SYNC.worldCheckpoint(S,6).hash'),hash);
+ run('S.pj[1].a.skirmisherSecondary=true');
+ assert.equal(run("saveG(false,'hulche-flight')"),true);assert.equal(run("loadG(false,'hulche-flight')"),true);
+ assert.equal(run('S.pj.filter(p=>p.a.skirmisherSecondary===true).length'),1);
+ run('S.pj=S.pj.filter(p=>p.a.skirmisherSecondary);globalThis.restoredTarget=S.pj[0].t;restoredTarget.hp=500;pjs(1)');
+ assert.equal(run('restoredTarget.hp'),499);
+ run("S.pj=[];globalThis.newSkirm=addU(0,'skirm',24,24);launchProjectile(newSkirm,restoredTarget)");
+ assert.equal(run('S.pj.length'),2,'new units retain the researched ability after reload');
+});
+test('Hulche keeps the ordinary fixed inaccurate aim instead of guaranteeing a bonus hit',()=>{
+ const run=hulcheGame();
+ run('S.tech[0].thumb=0;S.tech[0].ut20=1;S.r=()=>.99;launchProjectile(shooter,target)');
+ assert.equal(run('S.pj.length'),2);
+ run('pjs(1)');assert.equal(run('target.hp'),500);assert.equal(run('S.pj.length'),0);
+});
+test('malformed Hulche projectile save data is rejected without changing the live world',()=>{
+ const run=hulcheGame();run("S.tech[0].ut20=1;launchProjectile(shooter,target);saveG(false,'hulche-valid');globalThis.original=localStorage.getItem('hulche-valid')");
+ for(const mutation of["j.pj[1].a.skirmisherSecondary='yes'", "j.pj[1].a.skirmisherSecondary=false", "j.pj[1].a.k='arc'", "j.pj[1].aRef='u0'", "j.civ[0]=1", "j.tech[0].ut20=0", "j.pj[1].a.galleySecondary=true", "delete j.pj[1].a.x", "delete j.pj[1].a.y"]){
+  run("globalThis.j=JSON.parse(original);"+mutation+";localStorage.setItem('hulche-bad',JSON.stringify(j));globalThis.live=S");
+  assert.equal(run("loadG(false,'hulche-bad')"),false,mutation);assert.equal(run('S===live'),true);
+ }
 });
 test('Spanish Inquisition speeds actual monk conversion progress for its owner only',()=>{
  const run=game(14);

@@ -377,6 +377,28 @@ for(const [civ,key,kind]of [[6,'ut6','ram'],[8,'ut8','camel'],[14,'ut14','vil']]
  });
 }
 
+test('two authorized Mayan players research Hulche and fire weak second javelins through host attack orders',()=>{
+ const out=world(`
+  S.civ=[20,20];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+  const troops=[addU(0,'skirm',25,25),addU(1,'skirm',28,25)];
+  const sessions=['host-session','guest-session'],budget=JSON.stringify(S.res);
+  const accepted=sessions.map((sid,t)=>host.receive(packet(sid,t,1,6,{type:'research',entities:[castles[t].netId],value:'ut20'}),sid,2).ok);
+  const deferred=JSON.stringify(S.res)===budget&&castles.every(b=>!b.rs),research=host.applyFrame(6);
+  for(const b of castles)upB(b,TE.ut20.t+.1);S.pj=[];
+  const orders=sessions.map((sid,t)=>host.receive(packet(sid,t,2,10,{type:'attack',entities:[troops[t].netId],target:troops[1-t].netId}),sid,6).ok);
+  const attacks=host.applyFrame(10);
+  for(let i=0;i<60&&S.pj.length<4;i++){S.t+=DT;for(const u of troops)upU(u,DT)}
+  return {accepted,deferred,research:research.map(r=>r.ok),orders,attacks:attacks.map(r=>r.ok),
+   paid:S.res.map(r=>({f:10000-r.f,w:10000-r.w})),cost:TE.ut20.cost,
+   shots:[0,1].map(t=>S.pj.filter(p=>p.a.t===t).length),weak:[0,1].map(t=>S.pj.filter(p=>p.a.t===t&&p.a.skirmisherSecondary===true).length)};
+ `);
+ for(const key of['accepted','research','orders','attacks'])assert.deepEqual(Array.from(out[key]),[true,true],key);
+ assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.shots),[2,2]);assert.deepEqual(Array.from(out.weak),[1,1]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),Array(2).fill({f:out.cost.f,w:out.cost.w}));
+});
+
 test('both authenticated players research Hussar only at the host frame and pay their own budgets',()=>{
  const out=world(`
   S.civ=[2,3];S.age=[3,3];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);

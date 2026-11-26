@@ -193,7 +193,8 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===1&&tk.ut1&&a.k==='tw'?2:0)+
  ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
  const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
-  const raw=minorGalleyArrow?Math.max(1,1-combatArmor(t,'p')):
+ const minorSkirmisherJavelin=a.skirmisherSecondary===true&&a.k==='skirm'&&S.civ?.[a.t]===20&&tk.ut20;
+  const raw=minorGalleyArrow||minorSkirmisherJavelin?Math.max(1,1-combatArmor(t,'p')):
     secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
  const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
   t.hp-=strike*georgianElevationDamageFactor(a,t);
@@ -439,6 +440,14 @@ function launchProjectile(a,t){
   aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
  }
  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
+ // Hulche's second javelin is a real, weaker shot. A fixed parallel offset
+ // makes both visible without consuming extra RNG or homing after release.
+ if(a.k==='skirm'&&S.civ?.[a.t]===20&&S.tech?.[a.t]?.ut20&&S.us?.includes(a)&&a.hp>0&&!a.ld){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
+  const ox=-dy/length*.18,oy=dx/length*.18,bound=value=>Math.max(0,Math.min(W-.001,value));
+  S.pj.push({x:bound(a.x+ox),y:bound(a.y+oy),t,
+   a:{k:'skirm',t:a.t,x:a.x,y:a.y,skirmisherSecondary:true},tx:bound(aim.tx+ox),ty:bound(aim.ty+oy)});
+ }
  if(a.k==='gal'&&S.civ?.[a.t]===41&&S.us?.includes(a)&&a.hp>0&&!a.ld)
   S.pj.push({x:a.x,y:a.y,t,a:{k:'gal',t:a.t,x:a.x,y:a.y,galleySecondary:true},...aim});
  if(a.k==='chakram'&&S.civ?.[a.t]===39&&S.us.includes(a)){

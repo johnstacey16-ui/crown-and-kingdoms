@@ -154,6 +154,10 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='navalAtk'&&humanShips.length)score+=105;
  if(k==='eliteCgal'){const n=my.filter(u=>u.k==='cgal'&&!u.ld&&u.hp>0).length;score+=n>=2?60:n?12:-48;}
  if(eliteCiv){const n=my.filter(u=>u.k===eliteCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?55:n?18:-35;}
+ if(k==='ut20'){
+  const n=my.filter(u=>u.k==='skirm'&&!u.ld&&u.hp>0).length;
+  score+=n>=3?55:n?18:-35;
+ }
  if(secondCiv){const n=my.filter(u=>u.k===secondCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?40:n?14:-30;}
  if(k==='chem'&&my.some(u=>['gal','fire','cgal'].includes(u.k)))score+=16;
  if(k==='atkR'&&humanRanged>=4)score+=18;
