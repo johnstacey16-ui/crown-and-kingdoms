@@ -53,7 +53,7 @@ for(const kind of selectedKinds){
   anims[kind+'/idle/'+team]={dur:1,scale,referenceHeight,frames:[swing[0]]};
   anims[kind+'/walk/'+team]={dur:elephants.has(kind)?.12:large.has(kind)?.11:mounted.has(kind)?.075:.095,scale,referenceHeight,frames:walk};
   anims[kind+'/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
-  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
+  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai','ballistaEle'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
  }
  atlases.push({id:'painted-motion-'+kind,src,meta:{painted:true,motion:true,...(impactSource[kind]!==undefined?{sourceActionFrame:impactSource[kind]}:{}),width:info.width,height:info.height,anims}});
 }
