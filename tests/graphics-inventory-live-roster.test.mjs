@@ -17,8 +17,10 @@ test('art inventory covers every playable unit and building without phantom comp
  assert.equal(new Set(built).size,built.length,'no duplicate building asset record');
  assert.deepEqual(built,buildings,'new buildings must be explicitly inventoried');
 });
-test('all current base unit sheets are painted while broader graphics acceptance remains partial',()=>{
+test('existing painted base unit sheets are preserved and new art debt remains explicit',()=>{
+ assert.deepEqual(graphics.units.filter(u=>!u.paintedBase).map(u=>u.kind),['ballistaEle']);
  for(const entry of graphics.units){
+  if(entry.kind==='ballistaEle'){assert.equal(entry.walkFrames,0);assert.equal(entry.attackFrames,0);continue}
   assert.equal(entry.paintedBase,true,entry.kind+' has an integrated painted sheet');
   assert.equal(entry.walkFrames,8);assert.equal(entry.attackFrames,8);
  }
@@ -36,7 +38,7 @@ test('original painted art production queue tracks only the remaining genuinely 
  assert.deepEqual(promised,missing,'art briefs must not claim or omit an already painted sheet');
  assert.equal(new Set(promised).size,promised.length,'one authored brief per distinct unit kind');
  assert.deepEqual(queue.shared.sourceDimensions,[1536,1024]);
- assert.equal(queue.items.length,0,'no current base unit kind remains in the source-only queue');
+ assert.deepEqual(promised,['ballistaEle'],'only the new siege elephant remains in the source-only queue');
  assert.ok(queue.items.every(item=>item.state==='pending-generation'&&item.artStatus.includes('missing')));
  assert.ok(queue.items.every(item=>item.identity.length>55&&item.equipment.length>45&&item.motion.length>48));
  assert.ok(queue.items.every(item=>item.reference.startsWith('assets/painted-motion-')&&item.reference.endsWith('.webp')));
