@@ -764,7 +764,10 @@ test('villagers already fleeing can repath toward shelter while threat persists'
 function townCentreDefenceFixture(){
  const S={t:100},unloads=[];
  const U={mil:{dmg:5},ram:{dmg:10},mon:{dmg:0},king:{dmg:0}};
- const ctx=vm.createContext({S,U,unload:b=>unloads.push(b)});
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const capacity=kingdom.slice(kingdom.indexOf('function civilizationGarrisonCapacity('),kingdom.indexOf('/* Shared faction-adjusted construction prices'));
+ const ctx=vm.createContext({S,U,GAR:{tc:15},unload:b=>unloads.push(b)});
+ vm.runInContext(capacity,ctx);
  vm.runInContext(policy+'\n'+defence+'\n;globalThis.defendTown=aiDefendTownCentre;',ctx);
  const tc={k:'tc',x:20,y:20,hp:500,cg:[]};
  const soldier=(k='mil',o='i',x=21,y=20)=>({k,o,x,y,ld:false,tg:null,p:[{x:1,y:1}]});
