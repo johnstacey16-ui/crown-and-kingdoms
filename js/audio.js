@@ -85,27 +85,40 @@ const SCS={w:[0,2,3,5,7,9,10],e:[0,2,4,7,9],m:[0,1,4,5,7,8,10]},CSC=['w','w','e'
 function aSt(){if(mode!=='play'||!S)return'peace';if(gt-AUD.lc<6)return'combat';if(S.ping&&S.t-S.ping.t<25)return'tension';return'peace'}
 // Optional same-origin, licensed album. Only one streaming media element is
 // used, never a decoded whole-album buffer or an offline precache.
-const CK_ALBUM={player:null,index:0,failed:0,started:false,pending:false,retry:0};
+const CK_ALBUM={player:null,tracks:null,loading:false,index:0,failed:0,started:false,pending:false,retry:0};
 function albumPause(){const p=CK_ALBUM.player;if(p&&!p.paused)p.pause();}
+function albumLoad(){
+ const a=CK_ALBUM;if(a.loading||a.tracks!==null)return;
+ a.loading=true;
+ fetch('./assets/music/playlist.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('playlist unavailable');return r.json();}).then(data=>{
+  const tracks=Array.isArray(data.tracks)?data.tracks:[];
+  a.tracks=[...new Set(tracks.filter(s=>{
+   if(typeof s!=='string'||!s||s.length>2048)return false;
+   try{return s.split('/').every(part=>{const v=decodeURIComponent(part);return v&&v!=='.'&&v!=='..'&&!/[\\/:\x00-\x1f]/.test(v);})&&/\.(mp3|ogg|wav|m4a|aac|flac|opus)$/i.test(s);}catch{return false;}
+  }))];
+  for(let i=a.tracks.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a.tracks[i],a.tracks[j]]=[a.tracks[j],a.tracks[i]];}
+ }).catch(()=>{a.tracks=[];}).finally(()=>{a.loading=false;});
+}
 function albumTick(){
- if(typeof Audio!=='function')return false;
+ if(typeof Audio!=='function'||typeof fetch!=='function')return false;
  const a=CK_ALBUM,allowed=snd&&mus&&VOL.m>0&&VOL.mu>0&&
   ['play','pause','title','setup','opts','info','obj','tree','remap','camp','brief','slots'].includes(mode)&&
   !(typeof document!=='undefined'&&document.hidden);
  if(!allowed){albumPause();return false;}
- if(a.failed>=12)return false;
+ if(a.tracks===null){albumLoad();return false;}
+ if(!a.tracks.length||a.failed>=a.tracks.length)return false;
  function advance(failed){
   a.failed=failed?a.failed+1:0;a.started=false;a.pending=false;
-  if(a.failed>=12){albumPause();return;}
-  a.index=(a.index+1)%12;
-  a.player.src='./assets/music/northerner-diaries/'+String(a.index+1).padStart(2,'0')+'.mp3';
+  if(a.failed>=a.tracks.length){albumPause();return;}
+  a.index=(a.index+1)%a.tracks.length;
+  a.player.src='./assets/music/'+a.tracks[a.index];
  }
  if(!a.player){
   const p=a.player=new Audio();p.preload='none';
   p.addEventListener('playing',()=>{a.started=true;a.failed=0;});
   p.addEventListener('ended',()=>advance(false));
   p.addEventListener('error',()=>advance(true));
-  p.src='./assets/music/northerner-diaries/01.mp3';
+  p.src='./assets/music/'+a.tracks[0];
  }
  const p=a.player;p.volume=Math.max(0,Math.min(1,VOL.m*VOL.mu*(mode==='pause'?.35:1)));
  if(p.paused&&!a.pending&&performance.now()>=a.retry){
