@@ -38,7 +38,7 @@ const ak=B[b.k].atk;
  const churchVillagers=b.k==='fchurch'?(b.cg||[]).filter(u=>u?.hp>0&&u.k==='vil'&&u.ld===b).length:0;
  const churchRelics=b.k==='fchurch'?(S.rel||[]).filter(q=>q?.m===b).length:0;
  if(ak&&(b.k!=='fchurch'||churchVillagers+churchRelics>0)){b.cd=(b.cd||0)-dt;if(b.cd<=0){const o={k:ak,t:b.t,x:b.x+b.s/2,y:b.y+b.s/2},e=foe(o,attackRange(o),b);if(e&&!e.q){const teutonInfantry=b.k==='castle'&&S.civ?.[b.t]===5&&S.tech[b.t]?.ut5;const na=b.k==='fchurch'?(churchVillagers?1:0)+Math.min(5,churchRelics):
-  1+(S.tech[b.t].ys?1:0)+Math.min(8,(b.cg||[]).filter(c=>U[c.k]?.dmg>3||(teutonInfantry&&INFARM.has(c.k))).length);for(let q=0;q<na;q++)launchProjectile(o,e);
+  1+(S.tech[b.t].ys?1:0)+Math.min(8,(b.cg||[]).filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&((U[c.k].rng>2&&U[c.k].dmg>3)||(teutonInfantry&&INFARM.has(c.k)))).length);for(let q=0;q<na;q++)launchProjectile(o,e);
  if(b.k==='tc'&&S.civ?.[b.t]===23&&S.tech[b.t]?.ut23)
   for(const [dx,dy]of TIGUI_ARROW_OFFSETS)launchProjectile({k:ak,t:b.t,x:o.x+dx,y:o.y+dy},e);
  sfx('bow',o.x,o.y);b.cd=U[ak].cd/(S.civ?.[b.t]===6&&S.tech[b.t]?.ut6p&&(b.k==='castle'||b.k==='tower')?1.33:1)}}}
