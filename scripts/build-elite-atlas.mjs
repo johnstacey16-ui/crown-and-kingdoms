@@ -44,7 +44,7 @@ for(const kind of selectedKinds){
   const x=i%4*info.width/4,y=Math.floor(i/4)*info.height/4;
   if(f.x<x+4||f.y<y+4||f.x+f.w>x+info.width/4-4||f.y+f.h>y+info.height/4-4)throw Error('Figure touches cell boundary: '+kind+'/'+i);
  }
- const src='./assets/painted-elite-'+(kind==='rathaM'?'ratha-melee':kind)+'.webp';
+ const src='./assets/painted-elite-'+(kind==='rathaM'?'ratha-melee':kind==='ballistaEle'?'ballista-ele':kind)+'.webp';
  writeFileSync(new URL(src,root),await sharp(isolated.data,{raw:{width:info.width,height:info.height,channels:4}}).webp({quality:94,alphaQuality:100,effort:6}).toBuffer());
  const frames=isolated.frames,heights=frames.slice(0,8).map(f=>f.h).sort((a,b)=>a-b);
  const referenceHeight=(heights[3]+heights[4])/2;
