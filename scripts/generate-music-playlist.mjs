@@ -1,4 +1,4 @@
-import {readdir,writeFile} from 'node:fs/promises';
+import {readdir,readFile,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../assets/music/',import.meta.url));
@@ -15,5 +15,9 @@ async function scan(dir,prefix=''){
  return tracks;
 }
 const tracks=await scan(root);
-await writeFile(join(root,'playlist.json'),JSON.stringify({tracks},null,2)+'\n');
+const playlist=join(root,'playlist.json'),expected=JSON.stringify({tracks},null,2)+'\n';
+if(process.argv.includes('--check')){
+ const actual=await readFile(playlist,'utf8');
+ if(actual!==expected)throw Error('Soundtrack playlist is stale; run node scripts/generate-music-playlist.mjs and commit assets/music/playlist.json.');
+}else await writeFile(playlist,expected);
 console.log('Soundtrack tracks:',tracks.length);

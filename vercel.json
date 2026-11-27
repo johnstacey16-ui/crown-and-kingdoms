@@ -6,6 +6,5 @@
       "**": false
     }
   },
-  "ignoreCommand": "node scripts/vercel-deployment-gate.mjs",
-  "buildCommand": "node scripts/generate-music-playlist.mjs"
+  "ignoreCommand": "node scripts/vercel-deployment-gate.mjs"
 }
