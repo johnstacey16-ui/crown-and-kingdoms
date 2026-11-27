@@ -120,3 +120,50 @@ test('Portuguese team research applies to ordinary technologies, never age advan
  run("S.civ[0]=0;tc.rs={k:'loom',t:20};upB(tc,1)");
  close(run('tc.rs.t'),19,'research bonus disappears for a different civilization');
 });
+
+test('Khmer Scorpion range follows alliances without stacking and stays limited to the Scorpion line',()=>{
+ const run=fixture();
+ run('S.civ=[0,12,12]');
+ const base=run('U.scor.rng');
+ assert.equal(run("attackRange({k:'scor',t:0})"),base);
+ assert.equal(run("attackRange({k:'scor',t:1})"),base+1,'Khmer owners always receive the bonus');
+ run("setDiplomacy(0,1,'ally');setDiplomacy(0,2,'ally')");
+ assert.equal(run("attackRange({k:'scor',t:0})"),base+1,'two Khmer allies give one bonus');
+ for(const kind of ['ballistaEle','mang','arc'])
+  assert.equal(run(`attackRange({k:'${kind}',t:0})`),run(`U.${kind}.rng`),kind);
+ assert.equal(run("attackMinimumRange({k:'scor',t:0})"),2);
+ run("setDiplomacy(0,1,'neutral');setDiplomacy(0,2,'enemy')");
+ assert.equal(run("attackRange({k:'scor',t:0})"),base);
+ assert.equal(run('U.scor.rng'),base);
+});
+
+test('Scorpions and researched Heavy Scorpions can fire at the Khmer team range',()=>{
+ const run=fixture();
+ run(`S.civ=[0,0,12];S.bs=[];S.nodes=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.el.fill(0);S.nd.fill(null);
+  globalThis.workshop=addB(0,'siege',18,18,true);
+  globalThis.scorpion=addU(0,'scor',24,24);
+  globalThis.enemy=addU(1,'vil',24+U.scor.rng+.5,24);
+  globalThis.tryShot=()=>{
+   S.pj=[];enemy.hp=100;
+   Object.assign(scorpion,{o:'a',tg:enemy,st:2,cd:0,wind:0});
+   for(let step=0;step<60&&!S.pj.length;step++)upU(scorpion,DT);
+   const shots=S.pj.length;pjs(1);return shots;
+  }`);
+ assert.equal(run('tryShot()'),0,'the original range cannot reach');
+ assert.equal(run("setDiplomacy(0,2,'ally')"),true);
+ assert.equal(run('tryShot()'),1);
+ assert.equal(run('scorpion.x'),24,'stand-ground Scorpions do not close distance');
+ const baseDamage=100-run('enemy.hp');
+ assert.ok(baseDamage>0);
+ assert.equal(run("research(workshop,'heavyScorp')"),true);
+ run('upB(workshop,TE.heavyScorp.t+1)');
+ assert.equal(run('S.tech[0].heavyScorp'),1);
+ assert.equal(run('tryShot()'),1);
+ assert.equal(100-run('enemy.hp'),baseDamage+4);
+ assert.equal(run("saveG(false,'khmer-scorpion-team')"),true);
+ assert.equal(run("loadG(false,'khmer-scorpion-team')"),true);
+ run("scorpion=S.us.find(u=>u.k==='scor'&&u.t===0);enemy=S.us.find(u=>u.k==='vil'&&u.t===1)");
+ assert.equal(run('tryShot()'),1,'restored alliance still extends real combat range');
+ run("setDiplomacy(0,2,'neutral')");
+ assert.equal(run('tryShot()'),0);
+});

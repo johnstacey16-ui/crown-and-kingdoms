@@ -178,3 +178,6 @@ The follow-up to `f080ebd` replaces the duplicate full-power Scorpion and Ballis
 
 ### 2026-11-27 — Khmer building and age prerequisites
 The follow-up to `1f7f587` waives prerequisite buildings for Khmer construction and age advances in the shared policies, following the [Khmer civilization bonus](https://aoe2-counterforge.github.io/en/civ/khmer). Normal construction ages, faction eligibility, placement, spending and Town Centre research still apply. Tests cover the Xbox wheel, projected technology tree, actual host construction and all three age advances, and paid AI Feudal research. House garrison and remaining Khmer roster work are open.
+
+### 2026-11-27 — Khmer Scorpion team range
+The follow-up to `863df1c` adds the [Khmer +1 Scorpion range team bonus](https://aoe2-counterforge.github.io/en/civ/khmer) in the shared attack-range calculation. It applies to the owner and current allies, including the Heavy Scorpion upgrade, and uses the existing alliance deduplication. The tests exercise actual stand-ground firing across the old boundary, Heavy Scorpion research, alliance changes and save/reload. The Ballista Elephant and Scorpion minimum range keep their existing rules.

@@ -457,6 +457,7 @@ function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)
  +(S.civ?.[a.t]===1&&S.tech?.[a.t]?.ut1&&SKIRM_ARCHER_KINDS.has(a.k)?1:0)
  +(typeof uniqueTechnologyRangeBonus==='function'?uniqueTechnologyRangeBonus(a.k,a.t):0)
+ +(a.k==='scor'&&typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(12)?1:0)
  +(a.k==='tca'&&S.civ?.[a.t]===32&&S.tech[a.t]?.ut32?3:0)
  +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
  +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
