@@ -8,7 +8,7 @@ function nextNetworkEntityId(kind){
   return kind+(S.netNext++);
 }
 function addN(k,x,y,amt,fm){x|=0;y|=0;if(x<1||y<1||x>=W-1||y>=H-1||S.g[y*W+x]||S.wt[y*W+x])return null;const n={netId:nextNetworkEntityId('n'),k,x,y,s:1,amt,fm};S.nodes.push(n);S.nd[y*W+x]=n;S.g[y*W+x]=1;return n}
-function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.tech[t].mas?1.4:1)*(S.tech[t].bz?1.15:1)*(S.tech[t].fw&&(k==='wall'||k==='gate')?1.8:1)*(S.tech[t].arch?1.1:1))+(S.tech[t].hoardings&&k==='castle'?1000:0),b={netId:nextNetworkEntityId('b'),t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);
+function addB(t,k,x,y,done){const d=B[k],mh0=Math.round(d.hp*(S.civ?.[t]===4&&(k==='tc'||k==='dock')?2:1)*(S.tech[t].mas?1.4:1)*(S.tech[t].bz?1.15:1)*(S.tech[t].fw&&(k==='wall'||k==='gate')?1.8:1)*(S.tech[t].arch?1.1:1))+(S.tech[t].hoardings&&k==='castle'?1000:0),b={netId:nextNetworkEntityId('b'),t,k,x,y,s:d.s,hp:done?mh0:1,mh:mh0,pr:done?d.bt:0,done:!!done,q:[]};S.bs.push(b);
  if(done&&k==='tc'&&S.civ?.[t]===32&&S.res?.[t]){
   S.res[t].f+=100;b.lithFoodGranted=true;
  }
