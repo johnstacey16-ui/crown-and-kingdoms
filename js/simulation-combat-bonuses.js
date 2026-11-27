@@ -573,6 +573,18 @@ function pjs(dt){
   const size=p.t.s||0,gapX=Math.max(p.t.x-p.tx,0,p.tx-p.t.x-size),gapY=Math.max(p.t.y-p.ty,0,p.ty-p.t.y-size);
   const direct=gapX*gapX+gapY*gapY<=.35*.35;
   if(direct)dmgT(p.a,p.t);
+  // Ballista Elephant bolts deal secondary damage along their firing line.
+  // Use the saved shooter coordinates and a bounded extension beyond impact.
+  if(p.a.k==='ballistaEle'&&Number.isFinite(p.a.x)&&Number.isFinite(p.a.y)){
+   const vx=p.tx-p.a.x,vy=p.ty-p.a.y,length=Math.hypot(vx,vy);
+   if(length>0)for(const e of S.us){
+    if(!e||e===p.t||e.hp<=0||e.ld||!isHostile(p.a.t,e.t))continue;
+    const ex=e.x-p.a.x,ey=e.y-p.a.y,along=(ex*vx+ey*vy)/length;
+    const cross=Math.abs(ex*vy-ey*vx)/length;
+    if(along>0&&along<=length+1.5&&cross<.35)
+     dmgT({k:p.a.k,t:p.a.t,[CK_TRAMPLE_DAMAGE]:Math.max(1,Math.floor(U.ballistaEle.dmg*.5)-combatArmor(e,'p'))},e);
+   }
+  }
   // Pirotechnia passes a bounded fraction of the shot into enemies directly
   // behind its first impact. The private marker still uses normal death logic.
   if(direct&&p.a.k==='hcan'&&S.civ?.[p.a.t]===15&&S.tech?.[p.a.t]?.ut15p&&
