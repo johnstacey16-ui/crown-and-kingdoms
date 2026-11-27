@@ -216,8 +216,10 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=(a.k==='ele'&&S.civ?.[a.t]===4?20:8);
  const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
  const minorSkirmisherJavelin=a.skirmisherSecondary===true&&a.k==='skirm'&&S.civ?.[a.t]===20&&tk.ut20;
+  const attack=(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1);
+  const boltAttack=a.doubleCrossbowSecondary===true?Math.floor(attack/2):attack;
   const raw=minorGalleyArrow||minorSkirmisherJavelin?Math.max(1,1-combatArmor(t,'p')):
-    secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
+    secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,boltAttack-ar);
  // Mounted projectile snapshots retain kind/team after the shooter dies.
  const reduction=!t.s&&(ak.mt||CAVARM.has(a.k))&&typeof uniqueTechnologyUnitBonus==='function'
   ?uniqueTechnologyUnitBonus('mountedDamageReduction',t.k,t.t):0;
@@ -516,10 +518,14 @@ function launchProjectile(a,t){
    ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*spread))});
  }
  if(a.k==='hcan'){const shot=S.pj[S.pj.length-1];shot.sx=a.x;shot.sy=a.y;}
- // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
- // second projectile in the normal collision/damage path, not a visual effect.
- if(['scor','ballistaEle'].includes(a.k)&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
-  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
+ // The second bolt shares the launch's accuracy roll with a fixed sideways spread.
+ if((a.k==='scor'||a.k==='ballistaEle')&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
+  S.pj.push({x:a.x,y:a.y,t,
+   a:{k:a.k,t:a.t,x:a.x,y:a.y,doubleCrossbowSecondary:true},
+   tx:Math.max(0,Math.min(W-.001,aim.tx-dy/length*.22)),
+   ty:Math.max(0,Math.min(H-.001,aim.ty+dx/length*.22))});
+ }
  // Original Portuguese Organ Gun salvo: three standard deterministic pellets
  // that retain normal collision, target death and save/network semantics.
  if(a.k==='orgun'&&S.civ?.[a.t]===26){
@@ -581,8 +587,11 @@ function pjs(dt){
     if(!e||e===p.t||e.hp<=0||e.ld||!isHostile(p.a.t,e.t))continue;
     const ex=e.x-p.a.x,ey=e.y-p.a.y,along=(ex*vx+ey*vy)/length;
     const cross=Math.abs(ex*vy-ey*vx)/length;
-    if(along>0&&along<=length+1.5&&cross<.35)
-     dmgT({k:p.a.k,t:p.a.t,[CK_TRAMPLE_DAMAGE]:Math.max(1,Math.floor(U.ballistaEle.dmg*.5)-combatArmor(e,'p'))},e);
+    if(along>0&&along<=length+1.5&&cross<.35){
+     const fraction=p.a.doubleCrossbowSecondary===true?.25:.5;
+     const damage=Math.max(1,Math.floor(U.ballistaEle.dmg*fraction)-combatArmor(e,'p'));
+     dmgT({k:p.a.k,t:p.a.t,[CK_TRAMPLE_DAMAGE]:damage},e);
+    }
    }
   }
   // Pirotechnia passes a bounded fraction of the shot into enemies directly

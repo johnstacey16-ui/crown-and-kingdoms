@@ -360,7 +360,7 @@
       })),
       units, buildings,
       projectiles:(world.pj || []).map(p => ({
-        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t,secondaryGalleyArrow:p.a.galleySecondary===true,secondarySkirmisherJavelin:p.a.skirmisherSecondary===true,sourceX:p.a.x,sourceY:p.a.y} : null
+        x:p.x,y:p.y,aimX:p.tx,aimY:p.ty,target:ref(p.t),attacker:p.a ? {kind:p.a.k,team:p.a.t,secondaryGalleyArrow:p.a.galleySecondary===true,secondarySkirmisherJavelin:p.a.skirmisherSecondary===true,...(p.a.doubleCrossbowSecondary===true?{secondaryDoubleCrossbowBolt:true}:{}),sourceX:p.a.x,sourceY:p.a.y} : null
       })),
       relics:(world.rel || []).map(r => ({x:r.x,y:r.y,carrier:ref(r.c),monastery:ref(r.m)})),
       ai:(world.ai || []).map(a => ({

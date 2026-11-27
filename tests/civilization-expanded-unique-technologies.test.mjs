@@ -76,21 +76,64 @@ test('Turkish Artillery boosts live cannon ranges but not normal bows or foreign
  run('S.civ[0]=1');
  assert.equal(run("attackRange({k:'bomb',t:0})"),bomb);
 });
-test('Khmer Double Crossbow emits two real Scorpion projectiles and resolves both hits',()=>{
+test('paid Double Crossbow gives Khmer Scorpions and Ballista Elephants a weaker second bolt',()=>{
  const run=game(12);
- run("globalThis.enemy={k:'mil',t:1,x:15,y:15,hp:500,p:[]};S.us.push(enemy)");
- const shooter="{k:'scor',t:0,x:12,y:15}";
- run('launchProjectile('+shooter+',enemy)');
- assert.equal(run('S.pj.length'),1);
- run('S.pj=[];S.tech[0].ut12p=1');
- run('launchProjectile('+shooter+',enemy)');
- assert.equal(run('S.pj.length'),2);
- run('pjs(1)');
- assert.equal(run('S.pj.length'),0);
- const two=run('500-enemy.hp');
- assert.ok(two>0,'two projectiles actually inflict damage');
- run('S.tech[0].ut12p=0;S.pj=[];enemy.hp=500;launchProjectile('+shooter+',enemy);pjs(1)');
- assert.equal(two,2*(500-run('enemy.hp')),'two normal bolt impacts');
+ run(`S.el.fill(0);globalThis.target=addU(1,'vil',28,24);
+  globalThis.elephant=addU(0,'ballistaEle',24,24);
+  globalThis.scorpion=addU(0,'scor',24,24);
+  globalThis.targetHit=shooter=>{S.pj=[];target.hp=500;launchProjectile(shooter,target);pjs(1);return 500-target.hp}`);
+ assert.equal(run('TE.ut12p.t'),40);
+ const base={elephant:run('targetHit(elephant)'),scorpion:run('targetHit(scorpion)')};
+ run('S.age[0]=2');assert.equal(run("research(castle,'ut12p')"),false);
+ run('S.age[0]=3');assert.equal(run("research(castle,'ut12p')"),true);
+ assert.equal(run('S.res[0].f'),9300);
+ assert.equal(run('S.res[0].g'),9600);
+ run('upB(castle,39.5);launchProjectile(elephant,target)');
+ assert.equal(run('S.pj.length'),1,'the second bolt requires completed research');
+ run('upB(castle,.5)');
+ for(const unit of ['elephant','scorpion']){
+  run(`S.pj=[];launchProjectile(${unit},target)`);
+  assert.equal(run('S.pj.length'),2);
+  assert.equal(run('S.pj[1].a.doubleCrossbowSecondary'),true);
+  assert.notEqual(run('S.pj[0].ty'),run('S.pj[1].ty'));
+  assert.equal(run(`targetHit(${unit})`),base[unit]+Math.floor(base[unit]/2));
+ }
+ run("S.pj=[];S.tech[1].ut12p=1;launchProjectile(addU(1,'scor',24,24),elephant)");
+ assert.equal(run('S.pj.length'),1,'foreign research flags do not grant the secondary bolt');
+ run('S.pj=[];target.hp=500;target.y=24;launchProjectile(elephant,target);S.pj=S.pj.slice(1);target.y=26;pjs(1)');
+ assert.equal(run('target.hp'),500,'the fixed secondary bolt can miss');
+});
+
+test('Elite Ballista Elephant secondary bolts retain reduced line damage, identity and aim after reload',()=>{
+ const run=game(12);
+ run(`S.el.fill(0);globalThis.elephant=addU(0,'ballistaEle',24,24);
+  globalThis.target=addU(1,'vil',28,24);target.hp=500;
+  globalThis.lineTarget=addU(1,'vil',28.75,24.2);lineTarget.hp=500;
+  globalThis.friend=addU(0,'vil',28.5,24.2);friend.hp=500;
+  globalThis.offLine=addU(1,'vil',28.5,25);offLine.hp=500;
+  research(castle,'eliteBallistaElephant');upB(castle,TE.eliteBallistaElephant.t);
+  S.tech[0].ut12p=1;launchProjectile(elephant,target)`);
+ assert.equal(run('S.tech[0].eliteBallistaElephant'),1);
+ const hash=run('window.CK_SIM_SYNC.worldCheckpoint(S,6).hash');
+ const snapshot=run('JSON.stringify(S.pj.map(({x,y,tx,ty,a})=>({x,y,tx,ty,a})))');
+ run('delete S.pj[1].a.doubleCrossbowSecondary');
+ assert.notEqual(run('window.CK_SIM_SYNC.worldCheckpoint(S,6).hash'),hash);
+ run('S.pj[1].a.doubleCrossbowSecondary=true');
+ assert.equal(run("saveG(false,'double-crossbow-flight')"),true);
+ run("globalThis.original=localStorage.getItem('double-crossbow-flight')");
+ for(const mutation of ["j.pj[1].a.doubleCrossbowSecondary='yes'","j.pj[1].a.k='arc'",
+  "j.pj[1].aRef='u0'","j.civ[0]=1","j.tech[0].ut12p=0","j.pj[1].a.skirmisherSecondary=true"]){
+  run("globalThis.j=JSON.parse(original);"+mutation+";localStorage.setItem('double-crossbow-bad',JSON.stringify(j));globalThis.live=S");
+  assert.equal(run("loadG(false,'double-crossbow-bad')"),false,mutation);
+  assert.equal(run('S===live'),true);
+ }
+ assert.equal(run("loadG(false,'double-crossbow-flight')"),true);
+ assert.equal(run('JSON.stringify(S.pj.map(({x,y,tx,ty,a})=>({x,y,tx,ty,a})))'),snapshot);
+ run('target=S.pj[1].t;lineTarget=S.us[2];friend=S.us[3];offLine=S.us[4];S.pj.shift();pjs(1)');
+ assert.equal(run('target.hp'),496,'the restored Elite second bolt has half attack, rounded down');
+ assert.equal(run('lineTarget.hp'),498,'the restored line hit has half ordinary line damage');
+ assert.equal(run('friend.hp'),500);
+ assert.equal(run('offLine.hp'),500);
 });
 function hulcheGame(){
  const run=game(20);
