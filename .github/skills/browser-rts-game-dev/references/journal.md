@@ -166,3 +166,6 @@ The follow-up to production `c4e195b` wraps and pages the live objective text, k
 
 ### 2026-11-27 — Campaign briefing and navigation
 The follow-up to `1384985` uses measured text for all briefing titles and goals, keeps launch and Back visible while scrolling, and gives locked missions a prerequisite. Campaign switching works from mission rows. Back takes precedence over launch when both buttons arrive together. The existing browser HUD run verifies the menu route and checks the final goal at the short viewport. Physical Series S acceptance remains open.
+
+### 2026-11-27 — Khmer farm stockpiling
+The follow-up to `2ecbec7` adds the Khmer Villager's instant deposit through the authoritative gathering tick. The baseline farm work-rate multiplier is 0.95, per [Update 42848](https://www.ageofempires.com/news/ageofempires-ii-definitive-edition-update-42848/). Keeping the deposit in the existing farm worksite branch preserves ownership, depletion, resource accounting and the ordinary cargo path. Current-build reload restores the rule from civilization and worksite state. The tests exercise both teams, rival plots, partial depletion, forage and existing cargo.

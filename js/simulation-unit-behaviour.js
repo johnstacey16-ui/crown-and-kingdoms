@@ -131,7 +131,33 @@ if(u.ret){
  walk(u,dt);return
 }
 if(!tg||tg.amt<=0||S.nd[tg.y*W+tg.x]!==tg||!!tg.fi!==!!u.sh||tg.trap&&tg.t!==u.t||!resourceHasWorksite(u,tg)){const a=u.autoWorker&&u.t===0?findReachableAutoNode(u,u.ct,36):null,n=a?a.n:(!u.autoWorker?findNode(u,u.ct):null);if(n){u.tg=n;u.p=a?a.route:[];u.rp=a?1:0}else if(u.car>0){u.ret=1;u.p=[]}else{u.o='i';u.tg=null;u.p=[]}return}
-if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;const g=Math.min(tg.amt,baseGatherRate(u,tg)*gm(u,tg)*(tg.an&&S.tech[u.t]?.hunt?1.4:1)*dt);tg.amt-=g;u.car+=g;u.ct=tg.k;if(gt>(u.sn||0)){u.sn=gt+.7+Math.random()*.5;if(tg.k==='w')sfx('chop',u.x,u.y);else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y)}if(tg.amt<=0){if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}else if(tg.fm){tg.amt=0;if(u.t===0)note('Farm exhausted; awaiting owner 60 wood to reseed')}else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}}if(u.car>=gatherCapacity(u)){u.ret=1;u.p=[]}}
+if(d2(u.x,u.y,tg)<=1.1){
+ u.p=[];u.rp=0;
+ const directFarm=u.k==='vil'&&tg.k==='f'&&tg.fm&&S.civ?.[u.t]===12;
+ const rate=baseGatherRate(u,tg)*gm(u,tg)*(tg.an&&S.tech[u.t]?.hunt?1.4:1);
+ const gathered=Math.min(tg.amt,rate*(directFarm?.95:1)*dt);
+ tg.amt-=gathered;
+ if(directFarm){
+  S.res[u.t].f+=gathered;
+  if(u.t===0)S.pl.gath+=gathered;
+  if(!u.car)u.ct='f';
+ }else{
+  u.car+=gathered;
+  u.ct=tg.k;
+ }
+ if(gt>(u.sn||0)){
+  u.sn=gt+.7+Math.random()*.5;
+  if(tg.k==='w')sfx('chop',u.x,u.y);
+  else if(tg.k==='g'||tg.k==='s')sfx('mine',u.x,u.y);
+  else if(tg.k==='f'||tg.k==='b'||tg.k==='d')sfx('harvest',u.x,u.y);
+ }
+ if(tg.amt<=0){
+  if(tg.trap){tg.amt=900;if(u.t===0)note('Fish trap replenished')}
+  else if(tg.fm){tg.amt=0;if(u.t===0)note('Farm exhausted; awaiting owner 60 wood to reseed')}
+  else{killNode(tg);if(u.t===0)note(NM[tg.k]+' depleted')}
+ }
+ if(u.car>=gatherCapacity(u)){u.ret=1;u.p=[]}
+}
 else{if(!u.p.length||u.rp<=0){const p=path(u,goalNear(tg,1));u.rp=1;if(!p){if(u.t===0&&u.autoWorker)skipAutoNode(u,tg);u.o='i';if(u.t===0)note('No route to resource');return}u.p=p}walk(u,dt)}return}
 if(u.o==='b'){if(u.k!=='vil'&&!(u.k==='serjeant'&&tg?.k==='donjon'&&tg.t===u.t&&S.civ?.[u.t]===34)){u.o='i';u.tg=null;u.p=[];return}if(!tg||tg.hp<=0||(tg.t!==u.t&&diplomacyRelation(u.t,tg.t)!=='ally')||(tg.done&&tg.hp>=tg.mh)){u.o='i';u.tg=null;if(tg&&tg.done&&tg.hp>0){const ak={lumber:'w',mine:'g',mill:'f'}[tg.k],n=ak&&findNode(u,ak,16);if(n){u.o='g';u.tg=n;u.ct=n.k;u.p=[];u.ret=0}}return}
 if(d2(u.x,u.y,tg)<=1.1){u.p=[];u.rp=0;if(tg.done)repairBuildingWithResources(u,tg,dt);else{const buildRate=(S.tech[u.t].crane?1.2:1)*(u.k==='vil'&&S.civ?.[u.t]===40?1.05:1)*(typeof georgianChurchWorkRate==='function'?georgianChurchWorkRate(u):1);tg.pr+=dt*buildRate;if(gt>(u.sn||0)){u.sn=gt+.8+Math.random()*.4;sfx('hammer',u.x,u.y)}tg.hp=Math.min(tg.mh,tg.mh*tg.pr/B[tg.k].bt+1);

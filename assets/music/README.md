@@ -5,3 +5,9 @@ Upload any authorized audio directly into this folder on development. Keep origi
 ## Permission record retained from the original album proposal
 
 Music: The Northerner Diaries – Symphonic Sketches by Jeremy Soule. Copyright remains with the rights holder. Public game-use permission reported January 9, 2019: https://www.pcgamesn.com/jeremy-soule-mods-northerner and https://www.gamebusiness.jp/article/2019/01/12/15347.html . The original post was not independently recovered; game-use permission is not a general open-source or standalone redistribution license. Confirm the upload and hosting scope before public distribution. Audio is streamed on demand, not precached.
+
+## Ambience ideas to revisit
+
+Keep the current album as the musical bed. Start with camera-local sounds for an active Town Centre (smithy, cart wheels, occasional bells), forest (wind through trees) and dock (lapping water, creaking timber). Blend the sounds as the camera moves and check that each place is recognisable at normal music volume.
+
+Ideas for a later pass include distant battle sounds that open up as the camera approaches, a short town-attack horn, original villager and captain acknowledgements, and a brief Causeway Muster opening with water and an answering horn from across the strait.

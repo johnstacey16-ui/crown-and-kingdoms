@@ -223,3 +223,55 @@ test('Italian foot-archer armour is passive, stacks with research and affects re
  assert.equal(run("saveG(false,'italian-armour')"),true);assert.equal(run("loadG(false,'italian-armour')"),true);
  assert.equal(run("combatArmor(addU(0,'arc',25,25),'p')"),run('PRA.arc||0')+2);
 });
+
+test('Khmer farmers bank their own farm food immediately and keep the bonus after reload',()=>{
+ const run=game(12);
+ run(`S.g.fill(0);S.nd.fill(null);S.nodes=[];S.civ[1]=12;
+  S.res[0].f=S.res[1].f=S.pl.gath=0;
+  globalThis.setFarm=(team,x,amount)=>{
+   const farm=addN('f',x,25,amount,1);farm.t=team;
+   const unit=addU(team,'vil',x+.5,25.5);
+   Object.assign(unit,{o:'g',tg:farm,ct:'f'});
+   return unit;
+  };
+  globalThis.farmer=setFarm(0,25,10);globalThis.otherFarmer=setFarm(1,30,10);
+  upU(farmer,1);upU(otherFarmer,1)`);
+ const food=.32*.95;
+ assert.equal(run('S.res[0].f'),food);
+ assert.equal(run('S.res[1].f'),food);
+ assert.equal(run('S.pl.gath'),food,'match statistics count only the player’s farming');
+ assert.equal(run('farmer.car+otherFarmer.car+farmer.ret+otherFarmer.ret'),0);
+ assert.equal(run('farmer.tg.amt'),10-food);
+ assert.equal(run('S.bs.some(b=>b.t===0&&(b.k==="mill"||b.k==="tc"))'),false);
+ assert.equal(run("saveG(false,'khmer-current-build')"),true);
+ assert.equal(run("loadG(false,'khmer-current-build')"),true);
+ run(`globalThis.loadedFarmer=S.us.find(u=>u.k==='vil'&&u.t===0);
+  upU(loadedFarmer,1)`);
+ assert.ok(Math.abs(run('S.res[0].f')-2*food)<1e-10);
+ run('loadedFarmer.tg.amt=.05;upU(loadedFarmer,1)');
+ assert.ok(Math.abs(run('S.res[0].f')-(2*food+.05))<1e-10);
+ assert.equal(run('loadedFarmer.tg.amt'),0);
+});
+
+test('Khmer direct deposits leave regular cargo, rival farms and neutral food rules intact',()=>{
+ const run=game(12);
+ run(`S.g.fill(0);S.nd.fill(null);S.nodes=[];S.res[0].f=S.res[1].f=0;
+  globalThis.farm=addN('f',25,25,10,1);farm.t=0;
+  globalThis.worker=addU(0,'vil',25.5,25.5);
+  globalThis.rival=addU(1,'vil',25.5,25.5);
+  Object.assign(worker,{o:'g',tg:farm,ct:'w',car:2});
+  Object.assign(rival,{o:'g',tg:farm,ct:'f'});
+  upU(worker,1);upU(rival,1)`);
+ assert.equal(run('worker.ct'),'w');
+ assert.equal(run('worker.car'),2);
+ assert.equal(run('rival.car'),0,'a rival cannot farm another kingdom’s plot');
+ assert.equal(run('S.res[1].f'),0);
+ run(`worker.car=0;globalThis.forage=addN('f',26,25,10,0);
+  Object.assign(worker,{o:'g',tg:forage,ct:'f'});
+  upU(worker,1)`);
+ assert.equal(run('worker.car'),.31,'non-farm food still goes into cargo');
+ assert.equal(run('S.res[0].f'),.32*.95);
+ run("S.civ[0]=0;Object.assign(worker,{o:'g',tg:farm,ct:'f',car:0});upU(worker,1)");
+ assert.equal(run('worker.car'),.32,'other civilizations still carry farm food');
+ assert.equal(run('S.res[0].f'),.32*.95);
+});
