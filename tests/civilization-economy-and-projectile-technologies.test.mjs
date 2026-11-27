@@ -226,7 +226,7 @@ test('Italian foot-archer armour is passive, stacks with research and affects re
 
 test('Khmer farmers bank their own farm food immediately and keep the bonus after reload',()=>{
  const run=game(12);
- run(`S.g.fill(0);S.nd.fill(null);S.nodes=[];S.civ[1]=12;
+ run(`S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.nodes=[];S.civ[1]=12;
   S.res[0].f=S.res[1].f=S.pl.gath=0;
   globalThis.setFarm=(team,x,amount)=>{
    const farm=addN('f',x,25,amount,1);farm.t=team;
@@ -255,7 +255,7 @@ test('Khmer farmers bank their own farm food immediately and keep the bonus afte
 
 test('Khmer direct deposits leave regular cargo, rival farms and neutral food rules intact',()=>{
  const run=game(12);
- run(`S.g.fill(0);S.nd.fill(null);S.nodes=[];S.res[0].f=S.res[1].f=0;
+ run(`S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.nodes=[];S.res[0].f=S.res[1].f=0;
   globalThis.farm=addN('f',25,25,10,1);farm.t=0;
   globalThis.worker=addU(0,'vil',25.5,25.5);
   globalThis.rival=addU(1,'vil',25.5,25.5);
