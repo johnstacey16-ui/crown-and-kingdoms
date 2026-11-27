@@ -212,7 +212,7 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
  (S.civ?.[a.t]===1&&tk.ut1&&a.k==='tw'?2:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=(a.k==='ele'&&S.civ?.[a.t]===4?20:8);
  const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
  const minorSkirmisherJavelin=a.skirmisherSecondary===true&&a.k==='skirm'&&S.civ?.[a.t]===20&&tk.ut20;
   const raw=minorGalleyArrow||minorSkirmisherJavelin?Math.max(1,1-combatArmor(t,'p')):
@@ -235,6 +235,19 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  a.urumiReadyAt=S.t+18;
  if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
   dmgT({k:'urumi',t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:Math.ceil(urumiCharge*.6)},victim);
+ }
+ // Persian War Elephants splash adjacent hostile targets, including buildings.
+ // Use the existing secondary-hit path; never trigger another trample from it.
+ if(a.k==='ele'&&S.civ?.[a.t]===4&&!a[CK_TRAMPLE_DAMAGE]&&S.us.includes(a)){
+  const attack=ak.dmg+meleeResearchAttackBonus(tk)+(tk.atkb?.ele||0);
+  const x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
+  for(const victim of S.us.concat(S.bs)){
+   if(victim===t||victim===a||victim.hp<=0||victim.ld||!isHostile(a.t,victim.t))continue;
+   const distance=victim.s?Math.hypot(Math.max(victim.x-x,0,x-victim.x-victim.s),Math.max(victim.y-y,0,y-victim.y-victim.s)):Math.hypot(victim.x-x,victim.y-y);
+   if(distance>.5)continue;
+   const damage=Math.max(1,attack*.5-combatArmor(victim,'m'));
+   dmgT({k:'ele',t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:damage},victim);
+  }
  }
  // Persistent Obuch armour stripping requires a genuine attacker and victim.
  if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
