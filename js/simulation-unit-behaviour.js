@@ -22,7 +22,7 @@ if(S.civ?.[u.t]===37&&S.tech?.[u.t]?.ut37&&
  // Polish Villagers regenerate 5/10/15/20 HP per minute by current Age.
  if(u.k==='vil'&&S.civ?.[u.t]===35&&u.hp>0&&u.hp<mhp(u))
   u.hp=Math.min(mhp(u),u.hp+(5+5*Math.max(0,Math.min(3,S.age?.[u.t]||0)))*dt/60);
-if((u.k==='mon'||u.k==='warpriest'&&S.civ?.[u.t]===41)&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=16)continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+(u.k==='warpriest'&&S.tech?.[u.t]?.ut41p?8:4))}}
+if((u.k==='mon'||u.k==='warpriest'&&S.civ?.[u.t]===41)&&(u.hc=(u.hc||0)-dt)<=0){u.hc=1;for(const e of S.us)if(e!==u&&e.t===u.t&&e.hp>0&&!e.ld){const dx=e.x-u.x,dy=e.y-u.y;if(dx*dx+dy*dy>=(u.k==='mon'&&S.civ?.[u.t]===5?64:16))continue;const max=mhp(e);if(e.hp<max)e.hp=Math.min(max,e.hp+(u.k==='warpriest'&&S.tech?.[u.t]?.ut41p?8:4))}}
 if(u.k==='mon'&&u.o==='a'){const target=u.tg;if(!beginConversion([u],target)){u.o='i';u.tg=null;u.p=[];}return;}
 // An automatic interception stays local or covers a nearby shooter firing at
 // the protected target. Resume Guard when that threat leaves its boundary.
