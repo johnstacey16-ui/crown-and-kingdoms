@@ -19,16 +19,5 @@
       "Validate four team tints, all eight walk/attack frames, cold/warm/offline fallback, actual Chromium render and game simulation invariance; physical Xbox acceptance separately"
     ]
   },
-  "items": [
-    {
-      "kind": "ballistaEle",
-      "state": "pending-generation",
-      "artStatus": "missing original base and activity sheets",
-      "identity": "Khmer mounted siege elephant with a compact wooden ballista platform, distinct from the Persian melee war elephant.",
-      "equipment": "Secure wooden siege frame, visible torsion bow and bolt, leather harness, original blue team cloth and protected crew.",
-      "motion": "Eight coherent elephant walking poses and eight ballista wind-up, release and recovery poses with consistent ground anchors.",
-      "reference": "assets/painted-motion-ele.webp",
-      "batch": 1
-    }
-  ]
+  "items": []
 }

@@ -34,10 +34,10 @@ test('relic projection uses carrier coordinates, excludes hidden/garrisoned reli
 test('all graphics categories remain explicitly tracked with complete unit/building coverage',()=>{
  const inventory=JSON.parse(read('docs/graphics-inventory.json'));
  assert.equal(inventory.complete,false);assert.equal(inventory.units.length,85);assert.equal(inventory.buildings.length,28);
- assert.equal(inventory.units.filter(x=>x.paintedBase).length,84,'only integrated painted units count toward coverage');
- assert.deepEqual(inventory.units.filter(x=>!x.paintedBase).map(x=>x.kind),['ballistaEle']);
+ assert.equal(inventory.units.filter(x=>x.paintedBase).length,85,'only integrated painted units count toward coverage');
+ assert.deepEqual(inventory.units.filter(x=>!x.paintedBase).map(x=>x.kind),[]);
  assert.ok(inventory.units.filter(u=>u.paintedBase).every(u=>u.walkFrames===8&&u.attackFrames===8),'base motion coverage never implies independent direction/death coverage');
- assert.equal(inventory.units.filter(x=>x.walkFrames>1&&x.attackFrames>1).length,84);assert.ok(inventory.checklist.length>=11);
+ assert.equal(inventory.units.filter(x=>x.walkFrames>1&&x.attackFrames>1).length,85);assert.ok(inventory.checklist.length>=11);
 });
 
 
