@@ -623,3 +623,18 @@ test('Teutonic defensive bonuses apply to the owner and conversion resistance fo
  assert.equal(run('S.tech[0].murderHoles'),1);
  assert.equal(run('S.tech[0].herbalMedicine'),1);
 });
+
+
+test('Teutonic Knight base and elite melee armour stack with age and blacksmith upgrades',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.age=[2,2];S.tech=[{},{}];globalThis.tk=addU(0,'tk',40,40)");
+ assert.equal(run('mhp(tk)'),90);
+ assert.equal(run("combatArmor(tk,'m')"),8);
+ assert.equal(run("combatArmor(tk,'p')"),2);
+ run('S.age[0]=3;S.tech[0].eliteTeutonicKnight=1');
+ assert.equal(run("combatArmor(tk,'m')"),10);
+ assert.equal(run("combatArmor(tk,'p')"),2);
+ run('S.tech[0].armI=1');
+ assert.equal(run("combatArmor(tk,'m')"),11);
+ assert.equal(run("combatArmor(tk,'p')"),3);
+});
