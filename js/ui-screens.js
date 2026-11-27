@@ -395,23 +395,25 @@ function drawTitle(){
   if(active){
    const band=X.createLinearGradient(x,yy,x+w,yy);
    band.addColorStop(0,'#705430');band.addColorStop(1,'rgba(48,60,62,.92)');
-   X.fillStyle=band;X.fillRect(x,yy,w,rh-3);X.strokeStyle='#f5d27b';X.lineWidth=1;
-   X.strokeRect(x+.5,yy+.5,w-1,rh-4);X.fillStyle='#f5d27b';X.fillRect(x+4,yy+4,3,rh-11);
+   X.fillStyle=band;X.fillRect(x,yy,w,rh-3);X.strokeStyle='#f5d27b';X.lineWidth=2;
+   X.strokeRect(x+1,yy+1,w-2,rh-5);X.fillStyle='#f5d27b';X.fillRect(x+4,yy+4,4,rh-11);
   }else{X.fillStyle='rgba(8,16,22,.47)';X.fillRect(x,yy,w,rh-3)}
   const size=Math.max(13,Math.min(23,rh*.49|0));
   tx(menuFit(name,w-42,size),x+17,yy+rh*.67,size,disabled?'#a3abb0':active?'#fff0cb':i>=7?'#b7c2c5':'#edf2f5');
   if(active)tx('›',x+w-17,yy+rh*.67,size+3,'#f5d27b','center');
  }
  const description=selected===2&&!hs?'No saved game found. Start a new kingdom first.':CK_TITLE_OPTIONS[selected][1];
- tx(menuFit(description,w,13),x,detailY,13,'#d2dddf');
+ const detailSize=Math.max(13,Math.min(19,Math.round(CH/54)));
+ tx(menuFit(description,w,detailSize),x,detailY,detailSize,'#d2dddf');
  if(visible<9)tx((selected+1)+' / 9'+(start?'  ▲':'')+(start+visible<9?'  ▼':''),x+w,detailY+17,12,'#b9c5cb','right');
  X.fillStyle='rgba(5,12,19,.90)';X.fillRect(0,footer-26,CW,CH-footer+26);
  X.fillStyle='rgba(219,184,114,.32)';X.fillRect(edge,footer-26,CW-2*edge,1);
  const hint=selected===7?'D-PAD UP / DOWN  NAVIGATE   •   LEFT / RIGHT  UNITS   •   A  LOAD':'D-PAD  NAVIGATE    •    A  SELECT';
- const hintSize=Math.max(11,Math.min(16,CW/65));
+ const hintSize=Math.max(11,Math.min(20,CW/65,CH/45));
  tx(menuFit(hint,CW-2*edge,hintSize),edge,footer-7,hintSize,'#f5d27b');
  const status=pad?'CONTROLLER CONNECTED':gpErr?'CONTROLLER ACCESS BLOCKED — OPEN AS A FULL PAGE':'CONNECT A CONTROLLER — PRESS ANY GAMEPAD BUTTON';
- tx(menuFit(status,CW-2*edge,12),edge,footer+11,12,pad?'#9ae6b4':'#e7b9a7');
+ const statusSize=Math.max(12,Math.min(17,Math.floor(CH/60)));
+ tx(menuFit(status,CW-2*edge,statusSize),edge,footer+11,statusSize,pad?'#9ae6b4':'#e7b9a7');
  if(l.wide){
   const right=CW-edge,crestSize=Math.min(70,Math.max(36,CH*.075));
   titleCrest(right-crestSize*.5,edge+crestSize*.55,crestSize);
