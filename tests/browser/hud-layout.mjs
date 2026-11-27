@@ -79,6 +79,16 @@ try{
      });
     }finally{tx=oldTx;mode=oldMode;drawTitle()}
    });
+   // Widescreen defaults should not be needlessly shortened in the settings list.
+   if(viewport.width>=1280){
+    const values=await page.evaluate(()=>{
+     const saved=tx,labels=[];
+     try{tx=(s,...args)=>{saved(s,...args);labels.push(String(s))};drawSetup();return labels}
+     finally{tx=saved}
+    });
+    assert.ok(values.includes('Standard'),'setup shows full default game mode');
+    assert.ok(values.some(s=>s.includes('Dark Age')),'setup shows full starting age');
+   }
    assert.equal(sharedProof.length,3);
    assert.ok(sharedProof.every(p=>p.heading&&p.sameScene),'front-end lists retain headings and reuse cached kingdom scene');
    for(const m of ['setup','camp','opts']){

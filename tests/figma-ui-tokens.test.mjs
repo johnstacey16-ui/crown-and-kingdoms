@@ -102,3 +102,22 @@ test('live top HUD palette matches the Figma reference tokens', () => {
  }
  assert.ok(ui.includes('function hudTopLayout(width){'));
 });
+
+test('shared menu values use the available width and reveal clipped selections in the detail area',()=>{
+ const source=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
+ const texts=[];
+ const ctx=vm.createContext({X:{fillRect(){},strokeRect(){},measureText:s=>({width:s.length*9}),createLinearGradient:()=>({addColorStop(){}})},CW:1280,CH:720,panel(){},tx:(s,x,y,size,color,align)=>texts.push({s:String(s),x,y,size,align})});
+ vm.runInContext(source.slice(source.indexOf('const CK_MENU_UI='),source.indexOf('/* Reusable framed panels')),ctx);
+ for(const w of [780,440,350]){
+  const c=ctx.menuValueColumns(w);
+  assert.ok(c.labelWidth+36<c.left&&c.center+c.valueWidth/2<c.right&&c.left<c.center);
+ }
+ const items=[{n:'Starting age',v:()=> 'Imperial Age',l(){},r(){},d:()=> 'Select your starting era.'},{n:'Starting army',v:()=> 'Siege force (4 infantry, 4 archers, 1 ram)',l(){},r(){}}];
+ ctx.drawList('NEW GAME',items,0,'Choose');
+ assert.ok(texts.some(t=>t.s==='Imperial Age'));
+ assert.ok(texts.some(t=>t.s==='Siege force (4 infantry, 4 archers, 1 ram)'||t.s.startsWith('Siege force')));
+ ctx.CW=390;ctx.CH=844;texts.length=0;ctx.drawList('NEW GAME',items,1,'Choose');
+ const l=ctx.menuListLayout(2,1,390,844),bottom=l.y+72+l.visible*l.rh;
+ const detail=texts.filter(t=>t.y>bottom&&t.y<bottom+50).map(t=>t.s).join(' ');
+ assert.ok(detail.includes('Siege force')&&detail.includes('1 ram)'),detail);
+});
