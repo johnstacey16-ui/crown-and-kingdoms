@@ -489,7 +489,7 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  * This matrix does not cover all cavalry/unique-unit/tech exceptions. */
 // Paladin d: unit 569 / upgrade 265, aoe2techtree e56728e76b7d08301fba7b18d5f16bc8554c109a.
 // Hussar u: unit 441 / upgrade 428 in the same pinned source.
-// Persians use Savar in that source; the replacement remains unimplemented.
+// Persians use the separately gated Savar upgrade, not the Paladin capability.
 const CIV_CORE_MILITARY=Object.freeze({
  'Franks':'mltcphvaeskd',
  'Britons':'mltcphvaesk',
