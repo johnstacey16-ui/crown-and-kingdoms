@@ -132,3 +132,19 @@ test('uploaded soundtrack loops one track and cycles a multi-track playlist with
   sandbox.mus=0;sandbox.tick();assert.equal(p.paused,true);
  }
 });
+
+test('checked-in soundtrack playlist exactly matches the available audio files',async()=>{
+ const {execFileSync}=await import('node:child_process');
+ const {fileURLToPath}=await import('node:url');
+ execFileSync(process.execPath,[fileURLToPath(new URL('../scripts/generate-music-playlist.mjs',import.meta.url)),'--check'],{stdio:'pipe'});
+});
+
+test('static Vercel release serves the root without a public-directory build',()=>{
+ const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+ assert.equal(config.framework,null);
+ assert.equal(config.buildCommand,'');
+ assert.equal(config.outputDirectory,'.');
+ assert.equal(config.ignoreCommand,'node scripts/vercel-deployment-gate.mjs');
+ assert.deepEqual(config.git.deploymentEnabled,{main:true,'**':false});
+ assert.ok(readFileSync(new URL('../index.html',import.meta.url),'utf8').includes('<html'));
+});

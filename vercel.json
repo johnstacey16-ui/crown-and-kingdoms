@@ -7,5 +7,7 @@
     }
   },
   "ignoreCommand": "node scripts/vercel-deployment-gate.mjs",
-  "buildCommand": "node scripts/generate-music-playlist.mjs"
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": "."
 }
