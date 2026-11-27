@@ -638,7 +638,9 @@ function idleVillagerFixture({canFarm=false,route=()=>true,nodes=[]}={}){
   path:(v,target)=>{checked.push(target);return route(v,target)?[{x:target.x,y:target.y}]:null},
   farmFood:()=>175,addN:(k,x,y,amt)=>{const n={k,x,y,amt,fm:true};built.push(n);return n},
   pay:(team,cost)=>paid.push({team,cost})});
- vm.runInContext(policy+'\n'+economy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const start=kingdom.indexOf('function civilizationBuildingCost('),end=kingdom.indexOf('\n}',start)+2;
+ vm.runInContext(kingdom.slice(start,end)+'\n'+policy+'\n'+economy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
  const villager=(o='i',x=10,y=10)=>({k:'vil',t:1,o,x,y,hp:100,ld:0,aiEvac:false,
   ct:null,tg:null,p:[],rp:0,ret:5});
  const site=(k='house',done=false)=>({k,done,hp:100,x:11,y:10,s:2});
