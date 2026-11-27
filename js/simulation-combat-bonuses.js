@@ -361,7 +361,8 @@ function conversionWindow(target){
  const scout=target.k==='scout',ship=!!U[target.k]?.sh,
   bengaliResist=S.civ?.[target.t]===38&&
    (target.k==='mon'||['eled','batele','ele'].includes(target.k))?3:0;
- return {min:(target.s?15:5)+resistance+bengaliResist+(scout?3:ship?2:0),max:(target.s?25:9)+resistance+bengaliResist+(scout?1:ship?2:0)};
+ const teutonResist=S.civ?.[target.t]===5||(typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(target.t).includes(5));
+ return {min:(target.s?15:5)+resistance+bengaliResist+(scout?3:ship?2:0)+(teutonResist?3:0),max:(target.s?25:9)+resistance+bengaliResist+(scout?1:ship?2:0)+(teutonResist?1:0)};
 }
 function completeConversion(u,target){
  const team=u.t,oldTeam=target.t;
