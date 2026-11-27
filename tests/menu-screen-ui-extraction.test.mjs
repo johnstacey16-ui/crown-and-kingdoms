@@ -290,3 +290,27 @@ test('front-end scene reveal is brief, non-blocking, screen-specific and reduced
  assert.equal(ctx.titleRevealAlpha(state,'title',1700,false),.22,'returning after gameplay reveals scene again');
  assert.equal(ctx.titleRevealAlpha(state,'title',1980,false),0);
 });
+
+test('setup and options controllers recover stale selections and empty models',()=>{
+ for(const [handler,index,model,screen] of [
+  ['setupCtl','si','setRows','setup'],['optsCtl','oi','optsItems','opts']
+ ]){
+  let rows=[],actions=0,saves=0;
+  const ctx=vm.createContext({E:[],mode:screen,[index]:0,[model]:()=>rows,sset(){saves++}});
+  const start=menus.indexOf('function '+handler+'(){');
+  assert.ok(start>=0);
+  const end=menus.indexOf('\n',start);
+  vm.runInContext(menus.slice(start,end<0?menus.length:end),ctx);
+  rows=[{a(){actions++}},{a(){actions+=10}}];
+  for(const invalid of [-1,2,NaN,Infinity,0.5,undefined]){
+   ctx[index]=invalid;ctx.E=[];ctx.E[0]=true;ctx.mode=screen;
+   const before=actions;ctx[handler]();
+   assert.equal(ctx[index],0);assert.equal(actions,before+1);
+  }
+  ctx[index]=0;ctx.E=[];ctx.E[12]=true;ctx[handler]();assert.equal(ctx[index],1);
+  ctx.E=[];ctx.E[13]=true;ctx[handler]();assert.equal(ctx[index],0);
+  rows=[];ctx.E=[];ctx.E[0]=true;ctx.mode=screen;
+  const before=[actions,saves];ctx[handler]();
+  assert.equal(ctx.mode,'title');assert.deepEqual([actions,saves],before);
+ }
+});
