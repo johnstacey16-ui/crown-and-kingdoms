@@ -1,3 +1,7 @@
 # Repository-only duplicate and original artwork transfer package.
 /1 (1).mp3
 /assets/ballista-elephant-runtime-art.zip
+# Original artwork source files are retained in Git, not shipped to players.
+/ballista-elephant-source-art.zip
+/ballistaEle-base.png
+/ballistaEle-elite.png
