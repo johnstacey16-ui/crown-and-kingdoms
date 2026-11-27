@@ -124,9 +124,6 @@ function drawError(){X.setTransform(DPR,0,0,DPR,0,0);X.fillStyle='#090b10';X.fil
 /* Campaign objective, list and briefing presentation; progression stays in js/campaign.js. */
 // Mission briefing body scrolls independently from fixed Xbox button help.
 let briefScroll=0,briefScrollMax=0,briefScrollMission=-1;
-function briefingLines(s,w,sz){X.font=`bold ${sz}px system-ui,sans-serif`;let line='';const lines=[];for(const word of String(s||'').split(' ')){const next=line?line+' '+word:word;if(line&&X.measureText(next).width>w){lines.push(line);line=word}else line=next}lines.push(line);return lines}
-function wrapT(s,x,y,w,sz,c,lh,rows=null){const lines=rows||briefingLines(s,w,sz);lines.forEach((line,i)=>tx(line,x,y+i*lh,sz,c));return y+lines.length*lh}
-
 function cmpHud(){const sc=CAMP[cmp.i];if(!sc)return;const pending=sc.goals.filter(q=>!cmp.d[q.id]),g=pending.slice(0,5),more=pending.length-g.length;if(!g.length)return;const y=typeof hudTopLayout==='function'?hudTopLayout(CW).height+8:60;X.fillStyle='rgba(0,0,0,.55)';X.fillRect(10,y,Math.min(420,CW-20),30+(g.length+(more?1:0))*26);tx('Mission '+(cmp.i+1)+': '+sc.t,20,y+20,17,'#f2c14e');g.forEach((q,i)=>tx('- '+q.t,24,y+44+i*26,16,'#fff'));if(more)tx('+'+more+' more — View for all objectives',24,y+44+g.length*26,15,'#f2c14e')}
 
 function cmpObj(){
@@ -147,28 +144,59 @@ function cmpObj(){
  return rows;
 }
 
-function drawCamp(){briefScrollMission=-1;titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
+function drawCamp(){briefScrollMission=-1;titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,CW<620?'↕ Mission   ↔ Campaign   A Brief   B Back':'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
 
+function briefingLayout(sc){
+ const w=Math.min(900,CW-28),x=(CW-w)/2;
+ const padding=CW<600?24:34,textWidth=w-2*padding;
+ const titleSize=Math.max(19,Math.min(34,Math.floor(w/23)));
+ const title=infoWrap(sc.t,textWidth,titleSize);
+ const titleLine=titleSize+5,titleY=65;
+ const clipTop=titleY+(title.length-1)*titleLine+16;
+ const font=Math.max(14,Math.min(20,Math.floor(w/34))),line=font+7;
+ const bodyWidth=textWidth-14;
+ const story=infoWrap(sc.b,bodyWidth,font);
+ const meta=infoWrap('You: '+CIV[sc.civ].n+'  ·  Enemy: '+CIV[sc.en].n+
+  '  ·  Difficulty: '+difficultyName(sc.diff),bodyWidth,font);
+ const goals=sc.goals.map(goal=>infoWrap('- '+goal.t,bodyWidth,font));
+ const storyY=clipTop+line,metaY=storyY+story.length*line+5;
+ const headingY=metaY+meta.length*line+13,goalsY=headingY+line+4;
+ const lastY=goalsY+goals.reduce((total,rows)=>total+rows.length*line+4,0)-line-4;
+ const h=Math.min(CH-28,lastY+82),y=(CH-h)/2;
+ return {w,x,y,h,padding,title,titleSize,titleLine,titleY:y+titleY,
+  clipTop:y+clipTop,clipBottom:y+h-67,font,line,story,meta,goals,
+  storyY:y+storyY,metaY:y+metaY,headingY:y+headingY,goalsY:y+goalsY,lastY:y+lastY};
+}
 function drawBrief(){
  const sc=CAMP[bi];if(!sc)return;
  if(briefScrollMission!==bi){briefScroll=0;briefScrollMission=bi}
+ const l=briefingLayout(sc),left=l.x+l.padding,bodyHeight=l.clipBottom-l.clipTop;
+ briefScrollMax=Math.max(0,l.lastY-l.clipBottom+12);
+ briefScroll=Math.max(0,Math.min(briefScroll,briefScrollMax));
  titleBg();X.fillStyle='rgba(0,0,0,.6)';X.fillRect(0,0,CW,CH);
- const w=Math.min(900,CW-60),x=(CW-w)/2,titleY=Math.min(100,Math.max(72,CH*.13)),clipTop=Math.max(112,titleY+34),clipBottom=Math.max(clipTop+20,CH-118);
- panel(x,40,w,CH-80);tx('MISSION '+(bi+1)+': '+sc.t.toUpperCase(),CW/2,titleY,Math.min(34,Math.max(24,CH*.047)),'#f2c14e','center');
- const story=briefingLines(sc.b,w-60,20),storyY=clipTop+24,storyEnd=storyY+story.length*28,metaY=storyEnd+6;
- const meta=briefingLines('You: '+CIV[sc.civ].n+'    Enemy: '+CIV[sc.en].n+'    Difficulty: '+difficultyName(sc.diff),w-60,19);
- const headingY=metaY+meta.length*25+17,goalsY=headingY+34;
- const goals=sc.goals.map(g=>briefingLines('- '+g.t,w-80,20));
- const lastY=goalsY+Math.max(0,goals.reduce((n,lines)=>n+lines.length*26+4,0)-30);
- briefScrollMax=Math.max(0,lastY-(clipBottom-18));briefScroll=Math.max(0,Math.min(briefScroll,briefScrollMax));
- X.save();X.beginPath();X.rect(x+18,clipTop,w-36,clipBottom-clipTop);X.clip();
- wrapT(sc.b,x+30,storyY-briefScroll,w-60,20,'#e2e8f0',28,story);
- meta.forEach((line,i)=>tx(line,x+30,metaY+i*25-briefScroll,19,'#cbd5e1'));
- tx('OBJECTIVES',x+30,headingY-briefScroll,22,'#fde68a');
- let goalY=goalsY;
- for(const lines of goals){lines.forEach((line,i)=>tx(line,x+40,goalY+i*26-briefScroll,20));goalY+=lines.length*26+4}
+ panel(l.x,l.y,l.w,l.h);
+ tx('MISSION '+(bi+1),CW/2,l.y+31,13,'#cbd5e1','center');
+ l.title.forEach((text,i)=>tx(text,CW/2,l.titleY+i*l.titleLine,l.titleSize,'#f5d27b','center'));
+ X.fillStyle='rgba(219,184,114,.35)';X.fillRect(left,l.clipTop-5,l.w-2*l.padding,1);
+
+ X.save();X.beginPath();X.rect(left-3,l.clipTop,l.w-2*l.padding-6,bodyHeight);X.clip();
+ const drawRows=(rows,y,color)=>rows.forEach((text,i)=>tx(text,left,y+i*l.line-briefScroll,l.font,color));
+ drawRows(l.story,l.storyY,'#e2e8f0');
+ drawRows(l.meta,l.metaY,'#cbd5e1');
+ drawRows(['OBJECTIVES'],l.headingY,'#fde68a');
+ let goalY=l.goalsY;
+ for(const rows of l.goals){drawRows(rows,goalY,'#fff');goalY+=rows.length*l.line+4}
  X.restore();
- tx(briefScrollMax?'D-pad Up/Down: scroll    A: start mission    B: back':'A: start mission    B: back',CW/2,CH-62,20,'#9ae6b4','center');
+
+ const footerSize=Math.min(16,l.font);
+ if(briefScrollMax){
+  const trackX=l.x+l.w-l.padding-4;
+  const thumb=Math.max(14,bodyHeight*bodyHeight/(bodyHeight+briefScrollMax));
+  X.fillStyle='#354451';X.fillRect(trackX,l.clipTop,4,bodyHeight);
+  X.fillStyle='#d9b568';X.fillRect(trackX,l.clipTop+(bodyHeight-thumb)*briefScroll/briefScrollMax,4,thumb);
+  tx('D-pad Up/Down: scroll',CW/2,l.y+l.h-46,footerSize,'#9ae6b4','center');
+ }
+ tx('A: start mission    B / Menu: back',CW/2,l.y+l.h-27,footerSize,'#9ae6b4','center');
 }
 
 /* Main title, new-game setup and options screen drawing. */

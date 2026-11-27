@@ -163,3 +163,6 @@ Candidate `c148723c` passed hosted quick/focused and Chromium checks in [run 459
 
 ### 2026-11-27 — Responsive in-match objectives
 The follow-up to production `c4e195b` wraps and pages the live objective text, keeping goals together and match statistics accessible on short canvases. Campaign progress counts required goals, with optional goals marked separately. The View and pause-menu entry points share the screen, and the close buttons return to the originating mode. Verify the short layout with the six-goal Causeway Muster and the existing browser HUD check. Physical Series S acceptance remains open.
+
+### 2026-11-27 — Campaign briefing and navigation
+The follow-up to `1384985` uses measured text for all briefing titles and goals, keeps launch and Back visible while scrolling, and gives locked missions a prerequisite. Campaign switching works from mission rows. Back takes precedence over launch when both buttons arrive together. The existing browser HUD run verifies the menu route and checks the final goal at the short viewport. Physical Series S acceptance remains open.

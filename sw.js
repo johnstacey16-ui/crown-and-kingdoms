@@ -5,7 +5,7 @@
 'use strict';
 
 const ART_REVISION = '054cca667486a05f3d6acc9847e3505b1b14da3bdf7577fef02222845b46c368';
-const CACHE_NAME = 'ck-shell-v261-responsive-objectives-' + ART_REVISION;
+const CACHE_NAME = 'ck-shell-v262-campaign-briefings-' + ART_REVISION;
 const CORE_ASSETS = [
   './assets/painted-elite-footkonnik.webp',
   './assets/painted-elite-orgun.webp',

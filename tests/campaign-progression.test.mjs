@@ -42,7 +42,7 @@ test('campaign-list lock rules use the filtered previous mission in the same arc
     /const CAMP_ARCS=\[\{n:'The Crown of Ashford',ids:\[0,1,2,3,4,5,8\]\},\{n:'Frontier Wars',ids:\[6,7\]\},\{n:'The Royal Campaign',ids:\[9,10,11\]\},\{n:'Coastal War',ids:\[12,13,14\]\},\{n:'Northern March',ids:\[15,18\]\},\{n:'The Causeway Campaign',ids:\[16,17\]\}\]/,
     'Arc groupings must remain explicit and consistent');
   assert.match(html,
-    /const m=CAMP\[i\],locked=j>0&&!dn\[ids\[j-1\]\]/,
+    /locked=j>0&&!done\[ids\[j-1\]\]/,
     'Unlocking must use the previous valid mission in the displayed arc');
   assert.match(html,
     /ids=arc\.ids\.filter\(i=>Number\.isInteger\(i\)&&CAMP\[i\]&&typeof CAMP\[i\]\.t==='string'\)/,
@@ -86,7 +86,7 @@ test('leaving campaign restores every pre-campaign setup option', () => {
     /\{n:'Back',a:\(\)=>\{leaveCampaign\(\)\}\}/,
     'The campaign list Back action must use the shared exit handler');
   assert.match(html,
-    /function campCtl\(\)\{[^}]*if\(E\[1\]\|\|E\[9\]\)leaveCampaign\(\)\}/,
+    /function campCtl\(\)\{\s*if\(E\[1\]\|\|E\[9\]\)\{leaveCampaign\(\);return\}/,
     'B and Menu/Start must both use the shared campaign exit handler');
   assert.match(html,
     /function endB\(\)\{if\(cmp\)\{if\(S\.over==='win'&&nextCampaignMission\(cmp\.i\)===null\)\{leaveCampaign\(\)\}else\{mode='camp';ci=0\}\}else leaveCampaign\(\)\}/,

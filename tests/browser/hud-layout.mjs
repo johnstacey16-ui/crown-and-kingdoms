@@ -118,6 +118,40 @@ try{
    const objectiveViewport=viewport.width===390?{width:390,height:360}:viewport;
    if(objectiveViewport!==viewport)await page.setViewportSize(objectiveViewport);
    await page.waitForFunction(size=>CW===size.width&&CH===size.height,objectiveViewport);
+   const briefing=await page.evaluate(()=>{
+    const select=button=>{E=[];E[button]=true;ctl(0);E=[]};
+    ca=0;ci=1;mode='camp';select(15);
+    const switched=ca===1&&ci===0;
+    select(13);select(0);
+    const opened=mode==='brief'&&bi===CAMP_ARCS[1].ids[0];
+    bi=CAMP.findIndex(mission=>mission.goals.length===6);
+    const originalTx=tx,labels=[];
+    let fits=true;
+    try{
+     tx=(value,x,y,size,color,align)=>{
+      originalTx(value,x,y,size,color,align);
+      const width=X.measureText(String(value)).width;
+      const left=align==='center'?x-width/2:x;
+      fits&&=left>=0&&left+width<=CW;
+      labels.push({text:String(value),y,align});
+     };
+     drawBrief();
+     const scrollable=briefScrollMax>0;
+     if(scrollable)for(let n=0;n<30;n++)select(13);
+     labels.length=0;drawBrief();
+     const layout=briefingLayout(CAMP[bi]),last=labels.filter(label=>label.align!=='center').at(-1);
+     const finalGoalVisible=last.y>=layout.clipTop&&last.y<=layout.clipBottom;
+     const action=labels.find(label=>label.text.startsWith('A: start mission'));
+     const footer=action&&action.y>layout.clipBottom&&action.y<CH;
+     select(9);const backed=mode==='camp';
+     tx=originalTx;drawCamp();mode='brief';drawBrief();
+     return {switched,opened,fits,scrollable,finalGoalVisible,footer,backed,reset:briefScroll===0};
+    }finally{tx=originalTx}
+   });
+   assert.ok(briefing.switched&&briefing.opened&&briefing.backed&&briefing.reset);
+   assert.ok(briefing.fits&&briefing.finalGoalVisible&&briefing.footer,JSON.stringify(briefing));
+   if(viewport.width===390)assert.ok(briefing.scrollable,'short viewport scrolls long mission briefings');
+   await page.locator('#c').screenshot({path:output+'/campaign-briefing-'+objectiveViewport.width+'x'+objectiveViewport.height+'.png'});
    const objectives=await page.evaluate(()=>{
     snd=mus=0;
     const mission=CAMP.findIndex(sc=>sc.goals.length===6);
@@ -276,6 +310,7 @@ try{
    assert.deepEqual(errors,[],'no Chromium page exceptions');
    evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof,guide:guideProof},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
+    briefing:{viewport:objectiveViewport,...briefing},
     objectives:{viewport:objectiveViewport,...objectives},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
@@ -285,8 +320,8 @@ try{
   source:'current checkout',type:'real Chromium Canvas2D UI screenshots',
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
- console.log('Live Canvas2D menu, objectives and HUD screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*9)+' screenshots; simulation checks unchanged.');
+ console.log('Live Canvas2D menu, campaign and HUD screenshots verified: '+evidence.length+' viewports, '
+  +(evidence.length*10)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));
