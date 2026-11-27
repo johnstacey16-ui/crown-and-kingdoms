@@ -34,7 +34,7 @@ lbow:{n:'Longbowman',hp:35,sp:1.3,dmg:7,rng:7,cd:1.6,arm:0,cost:{w:35,g:40},t:12
 mgd:{n:'Mangudai',hp:60,sp:2.2,dmg:6,rng:4,cd:1.5,arm:0,cost:{w:55,g:65},t:14,c:'#c9905a',r:11,age:2,bn:{arc:4,skirm:4}},
 cata:{n:'Cataphract',hp:130,sp:1.9,dmg:12,rng:.9,cd:1.8,arm:0,cavalryArmor:12,cost:{f:70,g:75},t:18,c:'#b8b8c4',r:12,age:2,bn:{spear:8,mil:4}},
 ele:{n:'War Elephant',hp:450,sp:.8,dmg:15,rng:.9,cd:2,arm:1,cost:{f:170,g:85},t:25,c:'#8a8a90',r:14,age:2},
-tk:{n:'Teutonic Knight',hp:90,sp:1.1,dmg:12,rng:.9,cd:1.6,arm:0,cost:{f:50,g:40},t:16,c:'#d0d0d8',r:10,age:2},
+tk:{n:'Teutonic Knight',hp:90,sp:.8,dmg:14,rng:.9,cd:2,arm:7,cost:{f:85,g:30},t:12,c:'#d0d0d8',r:10,age:2},
 treb:{n:'Trebuchet',hp:60,sp:.8,dmg:20,bb:40,du:.25,rng:11,minR:3,cd:5,arm:0,cost:{w:200,g:150},t:30,c:'#8a6a3a',r:12,age:3,spl:1.2,sg:1},
 camel:{n:'Camel Rider',hp:100,sp:1.45,dmg:6,rng:.9,cd:2,arm:0,cost:{f:55,g:60},t:22,c:'#c9a46a',r:11,age:2,bn:{knight:9,scout:9}},
 king:{n:'King',hp:150,sp:1.2,dmg:1,rng:.9,cd:2,arm:0,cost:{},t:0,c:'#c9a0ff',r:9,age:0},
