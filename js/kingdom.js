@@ -914,7 +914,7 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
+ const regional=finalList.filter(k=>k!=='savar'||index===4).filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
   // Regional upgrade research and production share the same legal roster for
   // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
   const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];
