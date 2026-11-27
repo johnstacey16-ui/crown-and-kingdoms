@@ -594,3 +594,32 @@ test('Teutonic age-dependent melee armour and farm discount are scoped to their 
  assert.equal(run("combatArmor(infantry,'m')"),base[0][0]+3);
  assert.equal(run("combatArmor(infantry,'p')"),base[0][1]+1);
 });
+
+
+test('Teutonic defensive bonuses apply to the owner and conversion resistance follows alliances',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.dip=createDiplomacy(2);S.age=[1,1];S.tech=[{},{}]");
+ const copy=expr=>JSON.parse(run('JSON.stringify('+expr+')'));
+ const ordinary=copy("conversionWindow({k:'mil',t:1})");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:0})"),{min:ordinary.min+3,max:ordinary.max+1});
+ run("S.dip[0][1]=S.dip[1][0]='ally'");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:1})"),{min:ordinary.min+3,max:ordinary.max+1});
+ run("S.dip[0][1]=S.dip[1][0]='neutral'");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:1})"),ordinary);
+ for(const kind of ['tc','tower','castle']){
+  const extra=kind==='tc'?10:kind==='tower'?5:0;
+  assert.equal(run("civilizationGarrisonCapacity({k:'"+kind+"',t:0})"),run("GAR['"+kind+"']")+extra);
+  assert.equal(run("civilizationGarrisonCapacity({k:'"+kind+"',t:1})"),run("GAR['"+kind+"']"));
+ }
+ run('CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].murderHoles||0'),0);
+ assert.equal(run('S.tech[0].herbalMedicine||0'),0);
+ run("globalThis.tc=addB(0,'tc',44,20,true);tc.rs={k:'age',t:1};upB(tc,2)");
+ assert.equal(run('S.age[0]'),2);
+ assert.equal(run('S.tech[0].murderHoles'),1);
+ assert.equal(run('S.tech[0].herbalMedicine'),1);
+ assert.equal(run('S.tech[1].murderHoles||0'),0);
+ run('S.tech[0]={};S.age[0]=3;CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].murderHoles'),1);
+ assert.equal(run('S.tech[0].herbalMedicine'),1);
+});
