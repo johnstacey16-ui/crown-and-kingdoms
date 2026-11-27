@@ -147,8 +147,152 @@ function drawBrief(){
 }
 
 /* Main title, new-game setup and options screen drawing. */
-function drawTitle(){titleBg();const it=['New Game','Campaign','Continue'+(hs?'':'  ·  NO SAVE'),'Options','Controls','About','Multiplayer','Xbox FPS Test · '+selectedXboxPerformanceLoad+' units','Large Battle Test Save'],w=Math.min(500,CW-40),rh=Math.max(30,Math.min(48,Math.floor((CH-385)/it.length))),y0=Math.max(48,Math.min(CH*.35,CH-145-it.length*rh)),x=(CW-w)/2;panel(x-24,y0-24,w+48,it.length*rh+48);it.forEach((s,i)=>{const yy=y0+i*rh;if(i===ti){const hg=X.createLinearGradient(x,yy,x+w,yy+rh);hg.addColorStop(0,'#6b512b');hg.addColorStop(.45,'#344750');hg.addColorStop(1,'#25333b');X.fillStyle=hg;X.fillRect(x+2,yy,w-4,rh-7);X.strokeStyle='#f2d28a';X.lineWidth=1.5;X.strokeRect(x+2.5,yy+.5,w-5,rh-8);X.fillStyle='#f2d28a';X.fillRect(x+12,yy+8,3,rh-22);X.fillStyle='rgba(244,213,138,.12)';X.fillRect(x+20,yy+rh-10,w-40,1)}tx(s,x+34,yy+rh*.61,Math.min(26,rh*.5|0),i===2&&!hs?'#8b9299':i===ti?'#fff0c2':'#edf2f5','left');if(i===ti)tx('›',x+w-24,yy+rh*.62,28,'#f4d58b','center')});
-X.fillStyle='rgba(4,8,12,.68)';X.fillRect(CW*.18,CH-111,CW*.64,34);X.strokeStyle='rgba(217,181,104,.6)';X.strokeRect(CW*.18+.5,CH-110.5,CW*.64-1,33);tx(pad?'◆ CONTROLLER CONNECTED: '+pad.id.slice(0,42):gpErr?'CONTROLLER ACCESS BLOCKED — OPEN AS A FULL PAGE':'NO CONTROLLER DETECTED — PRESS A BUTTON ON YOUR GAMEPAD',CW/2,CH-89,Math.min(18,CW/65),pad?'#a9e6bd':'#ffc0b0','center');tx(ti===7?'D-PAD LEFT / RIGHT  50 · 100 · 200 UNITS     A  LOAD':'D-PAD  NAVIGATE     A  SELECT',CW/2,CH-55,17,'#e6d4a9','center');tx('Page: '+(window.top!==window?'embedded':'standalone')+'   •   Gamepad API: '+(navigator.getGamepads?'available':'missing'),CW/2,CH-20,12,'#8996a0','center')}
+/* Cinematic main menu: original, deterministic valley artwork cached once.
+ * The controller's existing nine action indices remain unchanged. */
+const CK_TITLE_OPTIONS=Object.freeze([
+ ['New Game','Found a kingdom and choose your own battlefield.'],
+ ['Campaign','Follow the stories of kingdoms across nineteen missions.'],
+ ['Continue','Return to a saved kingdom.'],
+ ['Options','Adjust your game, graphics and audio settings.'],
+ ['Controls','Learn the controller commands and shortcuts.'],
+ ['About','Discover Crown & Kingdoms.'],
+ ['Multiplayer','Gather allies or challenge rival kingdoms.'],
+ ['Xbox FPS Test','Compare performance at 50, 100 or 200 units.'],
+ ['Large Battle Test Save','Load the large-scale battlefield test.']
+]);
+let ckTitleScene=null;
+let ckTitleMotionPreference=null;
+function titleLayout(width,height,index){
+ const edge=Math.max(12,Math.min(64,width*.045,height*.055));
+ const wide=width>=height*1.28;
+ const w=wide?Math.min(580,width*.47-edge):width-2*edge;
+ const brandSize=Math.max(22,Math.min(60,w/6.6,height*.095));
+ const top=edge+brandSize*1.82+38;
+ const footer=height-edge-7,detailY=footer-52;
+ const room=Math.max(22,detailY-top-15);
+ const rh=Math.max(22,Math.min(46,Math.floor(room/9)));
+ const visible=Math.min(9,Math.max(1,Math.floor(room/rh)));
+ const selected=Math.max(0,Math.min(8,Number.isInteger(index)?index:0));
+ const start=Math.max(0,Math.min(9-visible,selected-Math.floor(visible/2)));
+ return {edge,wide,x:edge,w,brandSize,top,footer,detailY,rh,visible,start,selected};
+}
+function paintTitleValley(c){
+ const W=960,H=540;
+ const shape=(pts,color)=>{
+  c.fillStyle=color;c.beginPath();c.moveTo(...pts[0]);
+  for(let i=1;i<pts.length;i++)c.lineTo(...pts[i]);
+  c.closePath();c.fill();
+ };
+ const rect=(x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h)};
+ const sky=c.createLinearGradient(0,0,0,H);
+ [[0,'#081725'],[.33,'#304955'],[.61,'#9a8870'],[.78,'#5d655a'],[1,'#101c20']].forEach(([p,col])=>sky.addColorStop(p,col));
+ c.fillStyle=sky;c.fillRect(0,0,W,H);
+ const sun=c.createRadialGradient(725,162,3,725,162,186);
+ sun.addColorStop(0,'rgba(255,221,157,.76)');sun.addColorStop(.24,'rgba(233,191,128,.24)');sun.addColorStop(1,'rgba(233,191,128,0)');
+ c.fillStyle=sun;c.fillRect(0,0,W,H);
+ // Fixed seed: no simulation RNG consumption, no changing pixels between frames.
+ let seed=91731;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ for(let layer=0;layer<4;layer++){
+  const horizon=240+layer*37,points=[[0,H],[0,horizon]];
+  for(let i=0;i<=24;i++){
+   const x=i*W/24,y=horizon-Math.sin(i*.53+layer)*28-rand()*(58-layer*9);
+   points.push([x,y]);
+  }
+  points.push([W,H]);
+  shape(points,['#596c70','#40575e','#30474c','#203639'][layer]);
+ }
+ // A winding river leads toward the fortified hill.
+ shape([[424,540],[488,467],[610,418],[660,385],[714,347],[724,347],[694,384],[635,426],[557,481],[530,540]],'#526c6c');
+ shape([[460,540],[507,472],[621,421],[670,385],[714,349],[719,349],[683,386],[637,426],[530,484],[493,540]],'#8b9790');
+ shape([[0,540],[0,436],[170,398],[332,435],[448,449],[480,496],[452,540]],'#182a2c');
+ shape([[960,540],[960,360],[833,334],[759,364],[700,412],[780,467],[868,540]],'#263a39');
+ // A defensible stone ridge and medieval keep, silhouetted against dusk.
+ shape([[559,390],[596,332],[650,310],[716,318],[777,309],[846,338],[900,390],[780,416],[649,420]],'#283a3a');
+ const stone='#344342',shadow='#202d30',lit='#66706a';
+ const tower=(x,y,w,h)=>{
+  rect(x,y,w,h,stone);rect(x+w*.71,y,w*.29,h,shadow);
+  rect(x-3,y-7,w+6,9,shadow);
+  for(let i=0;i<4;i++)rect(x-3+i*(w+6)/4,y-15,(w+6)/7,9,shadow);
+  rect(x+3,y+5,2,h-7,lit);
+  for(let k=0;k<3;k++)rect(x+w*.4,y+14+k*20,4,10,'#d7aa66');
+ };
+ rect(606,300,214,51,stone);rect(606,343,214,10,shadow);
+ for(let i=0;i<16;i++)rect(605+i*13.5,290,7,12,shadow);
+ tower(596,264,29,86);tower(653,248,31,103);tower(780,253,31,98);tower(817,278,27,73);
+ tower(707,215,43,136);
+ shape([[700,215],[728,184],[757,215]],'#1a292e');
+ rect(727,177,2,13,'#c6a876');shape([[729,177],[756,181],[729,190]],'#9d5945');
+ for(const [x,y] of [[608,247],[794,235],[668,230]]){
+  rect(x,y,2,20,'#c4a577');shape([[x+2,y],[x+23,y+4],[x+2,y+10]],'#895041');
+ }
+ rect(718,321,20,30,'#121e25');c.fillStyle='#121e25';c.beginPath();c.arc(728,321,10,Math.PI,0);c.fill();
+ // Distant pines and dark foreground forest frame the landscape.
+ for(let i=0;i<145;i++){
+  const x=rand()*W,y=355+rand()*185;
+  if(x>560&&x<885&&y<423)continue;
+  if(x>425&&x<695&&y>411&&x<660-(y-411)*.95)continue;
+  const h=9+(y-355)*.12+rand()*16,tw=h*.28,col=y>465?'#102323':'#203638';
+  rect(x-1,y-h*.25,2,h*.28,col);
+  for(let j=0;j<3;j++){const q=y-h+j*h*.23;shape([[x,q],[x-tw*(.62+j*.2),q+h*.65],[x+tw*(.62+j*.2),q+h*.65]],col)}
+ }
+ const ground=c.createLinearGradient(0,425,0,H);
+ ground.addColorStop(0,'rgba(6,15,20,0)');ground.addColorStop(1,'rgba(6,15,20,.88)');
+ c.fillStyle=ground;c.fillRect(0,425,W,H-425);
+}
+function titleScene(){
+ if(!ckTitleScene&&typeof document!=='undefined'&&typeof document.createElement==='function'){
+  const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
+  const context=canvas.getContext('2d');
+  if(context&&context!==X){paintTitleValley(context);ckTitleScene=canvas}
+ }
+ if(ckTitleScene)X.drawImage(ckTitleScene,0,0,CW,CH);
+ else{X.save();X.scale(CW/960,CH/540);paintTitleValley(X);X.restore()}
+ if(ckTitleMotionPreference===null)ckTitleMotionPreference=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):false;
+ const phase=ckTitleMotionPreference&&ckTitleMotionPreference.matches?0:Math.sin(performance.now()/13000);
+ const mistY=CH*(.66+phase*.017),mist=X.createLinearGradient(0,mistY-CH*.07,0,mistY+CH*.07);
+ mist.addColorStop(0,'rgba(164,190,184,0)');mist.addColorStop(.5,'rgba(164,190,184,.10)');mist.addColorStop(1,'rgba(164,190,184,0)');
+ X.fillStyle=mist;X.fillRect(0,mistY-CH*.07,CW,CH*.14);
+}
+function drawTitle(){
+ titleScene();
+ const l=titleLayout(CW,CH,ti),{x,w,edge,brandSize,top,footer,detailY,rh,visible,start,selected}=l;
+ const shade=X.createLinearGradient(0,0,CW,0);
+ shade.addColorStop(0,'rgba(5,12,19,.97)');shade.addColorStop(l.wide?.43:.76,'rgba(5,12,19,.85)');shade.addColorStop(1,l.wide?'rgba(5,12,19,.04)':'rgba(5,12,19,.72)');
+ X.fillStyle=shade;X.fillRect(0,0,CW,CH);
+ // A stable, readable wordmark; no blocking splash screen or intro delay.
+ X.save();X.textAlign='left';X.fillStyle='#f5d27b';X.font='bold '+brandSize+'px Georgia, serif';
+ X.fillText('CROWN &',x,edge+brandSize*.82);X.fillText('KINGDOMS',x,edge+brandSize*1.66);X.restore();
+ tx(menuFit('BUILD YOUR REALM. CLAIM THE CROWN.',w,12),x,top-16,12,'#cbb68d');
+ X.fillStyle='rgba(219,184,114,.40)';X.fillRect(x,top-8,w,1);
+ for(let row=0;row<visible;row++){
+  const i=start+row,yy=top+row*rh,active=i===selected,disabled=i===2&&!hs;
+  const name=CK_TITLE_OPTIONS[i][0]+(disabled?'  ·  NO SAVE':i===7?' · '+selectedXboxPerformanceLoad+' units':'');
+  if(active){
+   const band=X.createLinearGradient(x,yy,x+w,yy);
+   band.addColorStop(0,'#705430');band.addColorStop(1,'rgba(48,60,62,.92)');
+   X.fillStyle=band;X.fillRect(x,yy,w,rh-3);X.strokeStyle='#f5d27b';X.lineWidth=1;
+   X.strokeRect(x+.5,yy+.5,w-1,rh-4);X.fillStyle='#f5d27b';X.fillRect(x+4,yy+4,3,rh-11);
+  }else{X.fillStyle='rgba(8,16,22,.47)';X.fillRect(x,yy,w,rh-3)}
+  const size=Math.max(13,Math.min(23,rh*.49|0));
+  tx(menuFit(name,w-42,size),x+17,yy+rh*.67,size,disabled?'#a3abb0':active?'#fff0cb':i>=7?'#b7c2c5':'#edf2f5');
+  if(active)tx('›',x+w-17,yy+rh*.67,size+3,'#f5d27b','center');
+ }
+ const description=selected===2&&!hs?'No saved game found. Start a new kingdom first.':CK_TITLE_OPTIONS[selected][1];
+ tx(menuFit(description,w,13),x,detailY,13,'#d2dddf');
+ if(visible<9)tx((selected+1)+' / 9'+(start?'  ▲':'')+(start+visible<9?'  ▼':''),x+w,detailY+17,12,'#b9c5cb','right');
+ X.fillStyle='rgba(5,12,19,.90)';X.fillRect(0,footer-26,CW,CH-footer+26);
+ X.fillStyle='rgba(219,184,114,.32)';X.fillRect(edge,footer-26,CW-2*edge,1);
+ const hint=selected===7?'D-PAD UP / DOWN  NAVIGATE   •   LEFT / RIGHT  UNITS   •   A  LOAD':'D-PAD  NAVIGATE    •    A  SELECT';
+ const hintSize=Math.max(11,Math.min(16,CW/65));
+ tx(menuFit(hint,CW-2*edge,hintSize),edge,footer-7,hintSize,'#f5d27b');
+ const status=pad?'CONTROLLER CONNECTED':gpErr?'CONTROLLER ACCESS BLOCKED — OPEN AS A FULL PAGE':'CONNECT A CONTROLLER — PRESS ANY GAMEPAD BUTTON';
+ tx(menuFit(status,CW-2*edge,12),edge,footer+11,12,pad?'#9ae6b4':'#e7b9a7');
+ if(l.wide){
+  const right=CW-edge;
+  tx('A KINGDOM AWAITS',right,edge+14,12,'#ead4a5','right');
+  tx('REAL-TIME STRATEGY',right,edge+33,12,'#c6d2d3','right');
+ }
+}
 function drawSetup(){titleBg();drawList('NEW GAME',setRows(),si,'D-pad Up/Down: choose    Left/Right: change    A: select    B: back')}
 function drawOpts(){titleBg();drawList('OPTIONS',optsItems(),oi,'D-pad Up/Down: choose    Left/Right: change    A: select    B: back')}
 

@@ -9,7 +9,7 @@ const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 
 test('title, new-game setup and options screens are drawn in js/ui.js', () => {
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/menus.js'));
-  assert.match(ui, /function drawTitle\(\)\{titleBg\(\)/);
+  assert.match(ui, /function drawTitle\(\)\{\s*titleScene\(\)/);
   assert.match(ui, /function drawSetup\(\)\{titleBg\(\);drawList\('NEW GAME'/);
   assert.match(ui, /function drawOpts\(\)\{titleBg\(\);drawList\('OPTIONS'/);
   for (const name of ['drawTitle','drawSetup','drawOpts']) {
@@ -195,4 +195,38 @@ test('multi-kingdom Objectives show only kingdoms with living units or buildings
  ctx.S.teamN=2;labels.length=0;ctx.drawObj();
  assert.equal(labels.some(t=>t.includes('Kingdoms alive:')),false,
   'two-kingdom Objectives retain the existing simpler layout');
+});
+
+test('cinematic title layout keeps the selected action visible at console and compact resolutions',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});
+ vm.runInContext(source,ctx);
+ for(const [w,h] of [[1920,1080],[1280,720],[854,480],[640,360],[390,700]]){
+  for(let i=0;i<9;i++){
+   const l=ctx.titleLayout(w,h,i);
+   assert.ok(l.start<=i&&i<l.start+l.visible,'selected row must be visible');
+   assert.ok(l.top+l.rh*l.visible<=l.detailY-10,'rows must clear description');
+   assert.ok(l.x>=0&&l.x+l.w<=w,'rows must stay within safe horizontal bounds');
+   assert.ok(l.detailY<l.footer&&l.footer+11<=h,'footer stays within viewport');
+  }
+ }
+ assert.equal(vm.runInContext('CK_TITLE_OPTIONS.length',ctx),9,'preserve every menu action');
+});
+test('cinematic title caches the static scene and paints every existing action without a splash delay',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ let created=0,blits=0,gradientCount=0;const labels=[];
+ const gradient=()=>{gradientCount++;return {addColorStop(){}}};
+ const drawing=()=>({fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},arc(){},save(){},restore(){},scale(){},fillText(s){labels.push(s)},drawImage(){blits++},createLinearGradient:gradient,createRadialGradient:gradient});
+ const X=drawing(),ctx=vm.createContext({X,CW:1280,CH:720,ti:0,hs:true,pad:{id:'Xbox'},gpErr:'',selectedXboxPerformanceLoad:100,
+  document:{createElement(){created++;return {getContext:()=>drawing()}}},
+  matchMedia:()=>({matches:true}),performance:{now:()=>1000},
+  tx:s=>labels.push(s),menuFit:s=>s});
+ vm.runInContext(source,ctx);
+ ctx.drawTitle();
+ for(const name of ['New Game','Campaign','Continue','Options','Controls','About','Multiplayer','Xbox FPS Test · 100 units','Large Battle Test Save'])assert.ok(labels.includes(name),name+' is immediately available');
+ assert.ok(labels.includes('CROWN &')&&labels.includes('KINGDOMS'));
+ const first=gradientCount;ctx.drawTitle();
+ assert.equal(created,1);assert.equal(blits,2);assert.ok(gradientCount-first<=4,'static valley is not redrawn each frame');
+ ctx.CW=640;ctx.CH=360;ctx.ti=8;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Large Battle Test Save'));
+ ctx.hs=false;ctx.ti=2;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Continue  ·  NO SAVE'));
 });
