@@ -521,3 +521,28 @@ test('Persian starting resources, building health and work rates are faction sco
  run('upB(persianTC,U.vil.t/1.2+.01)');
  assert.equal(run("S.us.filter(u=>u.t===0&&u.k==='vil').length"),1);
 });
+
+
+test('Kamandaran changes only Persian Archer-line costs after completed research',()=>{
+ const {run}=fixture();
+ const cost=expr=>JSON.parse(run('JSON.stringify('+expr+')'));
+ run("S.civ=[4,1];S.age=[2,2];globalThis.range=addB(0,'rng',44,20,true)");
+ const base=cost("unitTrainingCost(0,'arc')");
+ const crossbow=cost("unitTrainingCost(0,'xbow')");
+ const skirm=cost("unitTrainingCost(0,'skirm')");
+ assert.equal(run("research(castles[0],'ut4')"),true);
+ assert.deepEqual(cost("unitTrainingCost(0,'arc')"),base);
+ run("upB(castles[0],TE.ut4.t)");
+ assert.deepEqual(cost("unitTrainingCost(0,'arc')"),{w:50});
+ assert.deepEqual(cost("unitTrainingCost(0,'xbow')"),{w:50});
+ assert.deepEqual(cost("unitTrainingCost(1,'arc')"),base);
+ assert.deepEqual(cost("unitTrainingCost(0,'skirm')"),skirm);
+ assert.deepEqual(cost("unitTrainingCost(0,'xbow',S.civ,[{},{}])"),crossbow);
+ assert.equal(run("S.tech[0].hpb?.ele||0"),0);
+ run("S.age[0]=1;S.res[0]={f:0,w:50,g:0,s:0}");
+ assert.equal(run("train(range,'arc')"),true);
+ assert.equal(run("S.res[0].w"),0);
+ assert.equal(run("cancelQ(range)"),true);
+ assert.equal(run("S.res[0].w"),50);
+ assert.equal(run("S.res[0].g"),0);
+});
