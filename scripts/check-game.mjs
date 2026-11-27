@@ -53,7 +53,7 @@ const checks = [
   ['age advancement shares distinct-building and single-Castle eligibility', source.includes('function ageRequirements(t,world=S)')&&source.includes('const gate=ageRequirements(t);if(!gate.ready)')],
   ['farm capacity uses researched technologies', /function farmFood\(t\)[\s\S]{0,180}q\.coll\?75[\s\S]{0,80}q\.plow\?125[\s\S]{0,80}q\.crop\?175/.test(source)],
   ['player-built farms record ownership and charge only after creation', /addN\('f',place\.x,place\.y,farmFood\(0\),1\);\s*if\(!n\)return note\('Cannot build there'\);\s*n\.t=0;pay\(0,d\.cost\)/.test(source)],
-  ['AI-built farms record ownership', /const farm=addN\('f',x,y,farmFood\(t\),1\);if\(!farm\)continue;pay\(t,B\.farm\.cost\);farm\.t=t/.test(source)],
+  ['AI-built farms record ownership', /const farm=addN\('f',x,y,farmFood\(t\),1\);if\(!farm\)continue;pay\(t,civilizationBuildingCost\('farm',t\)\);farm\.t=t/.test(source)],
   ['farm technology only affects the researching kingdom', /n\.k==='f'&&n\.fm&&n\.t===b\.t&&S\.nd\[n\.y\*W\+n\.x\]===n/.test(source)],
   ['infantry armour upgrades use explicit unit classes', source.includes("const INFARM=new Set(['mil','spear','tk','woad','bers','saml','huskarl','jaguar','kamayuk','shotel','axe','gbeto','eagle','footkonnik','flemish','serjeant','obuch','urumi','legionary','chakram','warpriest'])")],
   ['archer armour upgrades use explicit unit classes', source.includes("const ARCHARM=new Set(['arc','xbow','lbow','skirm','genoa','plumed','chuko','jan','hcan','conq','wagon','eled','mgd','cavarch','arambai','rattan','kipchak','ratha','composite'])")],
