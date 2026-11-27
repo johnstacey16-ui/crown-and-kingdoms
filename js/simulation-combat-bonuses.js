@@ -7,6 +7,7 @@
 const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 
 // The spear-line's cavalry/camel/elephant bonuses increase at each upgrade.
+// These return raw counter attacks; factionCounterBonus resolves class armour.
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
@@ -19,10 +20,7 @@ function spearLineBonus(a,t){
  const bohemian=value=>S.civ?.[a.t]===36?Math.round(value*1.25):value;
  if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return bohemian([15,25,28][tier]);
  if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return bohemian([12,18,26][tier]);
- if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias)){
-  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(key,t.t):null;
-  return bohemian(Math.max(0,[15,22,32][tier]-(elite?.cavalryArmor||0)));
- }
+ if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias))return bohemian([15,22,32][tier]);
  return bohemian(U.spear.bn?.[key]||U.spear.bn?.[alias]||0);
 }
 // Counter bonuses are attached to AoE2 armour classes, not broadly to
@@ -36,10 +34,7 @@ const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
  if(CAMEL_CLASS.has(key)||CAMEL_CLASS.has(alias))return heavy?9:5;
- if(CAMEL_CAVALRY.has(key)||CAMEL_CAVALRY.has(alias)){
-  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(key,t.t):null;
-  return Math.max(0,(heavy?18:9)-(elite?.cavalryArmor||0));
- }
+ if(CAMEL_CAVALRY.has(key)||CAMEL_CAVALRY.has(alias))return heavy?18:9;
  return U.camel.bn?.[key]||U.camel.bn?.[alias]||0;
 }
 function scoutLineBonus(a,t){
@@ -81,12 +76,15 @@ function combatArmor(t,cls){
  const sicilianHauberk=S.civ?.[t.t]===34&&ta.ut34p&&t.k==='knight'?(cls==='p'?2:1):0;
  const ironclad=cls!=='p'&&S.civ?.[t.t]===5&&ta.ut5p&&
   (t.k==='ram'||t.k==='mang'||t.k==='scor'||t.k==='bomb'||t.k==='treb')?4:0;
+ // The former Pavise effect is now an Italian passive, excluding Skirmishers.
+ const italianArcherArmor=S.civ?.[t.t]===15&&SKIRM_ARCHER_KINDS.has(t.k)&&t.k!=='skirm'?1:0;
  const romanInfantryArmor=S.civ?.[t.t]===40&&INFARM.has(t.k)?ib:0;
  const romanGalleyArmor=S.civ?.[t.t]===40&&t.k==='gal'?1+(ta.galleon?1:0):0;
   const armenianFereters=S.civ?.[t.t]===41&&ta.ut41p&&INFARM.has(t.k)&&t.k!=='spear'?2:0;
- const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+bengaliMonk+gurjaraGuard+(t.k==='turtle'&&ta.eliteTurtle?1:0);
+ const teutonArmor=!t.s&&cls!=='p'&&S.civ?.[t.t]===5&&(INFARM.has(t.k)||CAVARM.has(t.k))?Math.max(0,Math.min(2,(S.age?.[t.t]||0)-1)):0;
+ const armor=t.s?((cls==='p'?8:2)+(ta.arch?(cls==='s'?3:1):0)):cls==='p'?(PRA[t.k]||0)+ib+(t.k==='knight'&&S.civ?.[t.t]===4&&ta.savar?2:t.k==='knight'&&ta.pala?1:0)+(t.k==='skirm'&&ta.elsk?1:0)+(elite?.armor?.p||0)+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+(t.k==='turtle'&&ta.eliteTurtle?5:0):(MA[t.k]||0)+ib+teutonArmor+(t.k==='knight'&&S.civ?.[t.t]===4&&ta.savar?1:0)+(t.k==='mil'&&ta.longs?1:0)+(elite?.armor?.m||0)+ironclad+incaShield+regionalArmor+lastKhansArmor+lithShields+sicilianHauberk+bengaliMonk+gurjaraGuard+(t.k==='turtle'&&ta.eliteTurtle?1:0);
  const strip=!t.s&&Number.isInteger(t.obuchArmorShred)?Math.max(0,Math.min(10,t.obuchArmorShred)):0;
- return t.s?armor:armor+romanInfantryArmor+romanGalleyArmor+armenianFereters-Math.min(Math.max(0,armor+romanInfantryArmor+romanGalleyArmor+armenianFereters),strip);
+ return t.s?armor:armor+romanInfantryArmor+romanGalleyArmor+armenianFereters+italianArcherArmor-Math.min(Math.max(0,armor+romanInfantryArmor+romanGalleyArmor+armenianFereters+italianArcherArmor),strip);
 }
 
 // Damage resolution and destruction; armour is shared with the HUD.
@@ -145,13 +143,34 @@ function chakramPierceTargets(a,t){
    ((u.x-x)*dx+(u.y-y)*dy)/dist<=1.35&&
    Math.abs((u.x-x)*dy-(u.y-y)*dx)/Math.sqrt(dist)<=.65).slice(0,3);
 }
+// Chieftains changes only infantry counter damage, including ranged infantry
+// projectile snapshots. Camel targets use their separate armour-class amount.
+function chieftainsBonus(a,t){
+ if(t.s||S.civ?.[a.t]!==7||!S.tech?.[a.t]?.ut7||!INFARM.has(a.k))return 0;
+ const kind=t.k,alias=U[kind]?.lk;
+ if(CAMEL_CLASS.has(kind)||CAMEL_CLASS.has(alias)||kind==='flamecamel')return 4;
+ return U[kind]?.mt||CAVARM.has(kind)?5:0;
+}
+// Raw unit/research counters combine before the defender's class armour.
+// Keep it separate from ordinary melee/pierce armour and minimum hit damage.
+function cavalryCounterArmor(t){
+ if(!t||t.s||!U[t.k])return 0;
+ const base=U[t.k].cavalryArmor,
+  elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(t.k,t.t):null,
+  extra=elite?.cavalryArmor;
+ return (Number.isFinite(base)&&base>0?base:0)+(Number.isFinite(extra)&&extra>0?extra:0);
+}
 function factionCounterBonus(a,t,base){
- const bonus=Number.isFinite(base)?base:0;
+ const bonus=(Number.isFinite(base)?base:0)+chieftainsBonus(a,t);
+ const archerTarget=a.k==='knight'&&!t.s&&(ARCHARM.has(t.k)||SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k));
+ const savar=a.k==='knight'&&archerTarget&&S.civ?.[a.t]===4&&S.tech?.[a.t]?.savar?2:0;
+ const persianTeam=a.k==='knight'&&archerTarget&&(S.civ?.[a.t]===4||typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(4))?2:0;
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
  const mounted=S.civ?.[a.t]===39&&(U[a.k]?.mt||CAVARM.has(a.k))&&age>=1;
  const boosted=mounted?Math.round(bonus*(1+.1*(age+1))):bonus;
+ const defended=Math.max(0,boosted-cavalryCounterArmor(t));
  const bengali=S.civ?.[t.t]===38&&['ele','eled','batele'].includes(t.k);
- return bengali?Math.round(boosted*.75):boosted;
+ return bengali?Math.round((defended+savar+persianTeam)*.75):defended+savar+persianTeam;
 }
 function georgianMonaspaFormationBonus(a){
  if(!a||a.k!=='monaspa'||S.civ?.[a.t]!==42||!S.us.includes(a)||a.hp<=0||a.ld)return 0;
@@ -178,7 +197,10 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
   t.dodgeRechargeAt=Math.max(S.t+4,Number.isFinite(t.dodgeRechargeAt)?t.dodgeRechargeAt:0);
   return;
  }
- const charge=burgundianChargeDamage(a),urumiCharge=urumiChargeDamage(a),romanCharge=romanChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(typeof factionCounterBonus==='function'?factionCounterBonus(a,t,(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))):(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))))+(t.s&&ak.bb||0)+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
+ const buildingCounter=(t.s&&ak.bb||0)+(t.s&&a.k==='ram'?(tk.siegeRam?65:tk.cappedRam?25:0):0)+(t.s&&ak.rng<2&&INFARM.has(a.k)&&tk.arson?2:0);
+ // Citadels reduces modeled anti-building counters, not ordinary attack or armour.
+ const buildingCounterFactor=t.s&&t.k==='castle'&&S.civ?.[t.t]===4&&S.tech?.[t.t]?.ut4p?0.75:1;
+ const charge=burgundianChargeDamage(a),urumiCharge=urumiChargeDamage(a),romanCharge=romanChargeDamage(a),bd=(ak.rng<2?meleeResearchAttackBonus(tk):arrowBonus(a))+((a.k==='scout'||a.k==='winged')&&(S.age?.[a.t]||0)>=1?2:0)+(!t.s&&(typeof factionCounterBonus==='function'?factionCounterBonus(a,t,(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))):(a.k==='spear'?spearLineBonus(a,t):a.k==='skirm'?skirmisherBonus(a,t):(a.k==='scout'||a.k==='winged')?scoutLineBonus(a,t):a.k==='camel'?camelLineBonus(a,t):(ak.bn&&(ak.bn[t.k]||ak.bn[U[t.k].lk])||0))))+buildingCounter*buildingCounterFactor+(typeof civilizationUniqueUnitTargetBonus==='function'?civilizationUniqueUnitTargetBonus(a,t):0)+(tk.atkb&&tk.atkb[a.k]||0)+(S.civ?.[a.t]===19&&tk.ut19&&INFARM.has(a.k)?4:0)+(S.civ?.[a.t]===19&&tk.ut19p&&a.k==='skirm'?1:0)+(S.civ?.[a.t]===10&&tk.ut10p?(a.k==='chuko'?2:a.k==='scor'?4:0):0)+(S.civ?.[a.t]===7&&tk.ut7p&&(a.k==='arc'||a.k==='xbow')?1:0)+
  (S.civ?.[a.t]===25&&tk.ut25p&&a.k==='cavarch'?1:0)+
  (S.civ?.[a.t]===27&&tk.burmeseInfantry&&INFARM.has(a.k)?Math.max(0,Math.min(3,S.age?.[a.t]||0)):0)+
  (S.civ?.[a.t]===27&&tk.ut27&&!t.s&&ARCHARM.has(t.k)&&(CAVARM.has(a.k)||a.k==='arambai')?4:0)+
@@ -191,11 +213,16 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  (S.civ?.[a.t]===8&&tk.ut8p&&(a.k==='treb'||a.k==='mang')?Math.round(ak.dmg*.15):0)+
  (S.civ?.[a.t]===23&&tk.ut23p&&['scout','knight','camel'].includes(a.k)?5:0)+
  (S.civ?.[a.t]===1&&tk.ut1&&a.k==='tw'?2:0)+
- ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=8;
+ ((a.k==='tw'||a.k==='cs'||a.k==='tca')?(tk.slit?2:0)+(tk.gtow?3:0)+(tk.keep?3:0)+(S.civ?.[a.t]===42&&tk.ut42?2:0):0),cls=a.k==='chakram'?'m':ak.sg?'s':ak.rng>2?'p':'m',ar=!t.s&&((a.k==='leitis'&&S.civ?.[a.t]===32)||(a.k==='composite'&&S.civ?.[a.t]===41)||(S.civ?.[a.t]===37&&tk.ut37p&&ak.rng<=2&&(INFARM.has(a.k)||CAVARM.has(a.k))))?0:combatArmor(t,cls);const hpBeforeHit=t.hp,secondaryDamage=Number.isFinite(a[CK_TRAMPLE_DAMAGE])&&a[CK_TRAMPLE_DAMAGE]>0&&a[CK_TRAMPLE_DAMAGE]<=(a.k==='ele'&&S.civ?.[a.t]===4?20:8);
  const minorGalleyArrow=a.galleySecondary===true&&a.k==='gal'&&S.civ?.[a.t]===41;
-  const raw=minorGalleyArrow?Math.max(1,1-combatArmor(t,'p')):
+ const minorSkirmisherJavelin=a.skirmisherSecondary===true&&a.k==='skirm'&&S.civ?.[a.t]===20&&tk.ut20;
+  const raw=minorGalleyArrow||minorSkirmisherJavelin?Math.max(1,1-combatArmor(t,'p')):
     secondaryDamage?a[CK_TRAMPLE_DAMAGE]:Math.max(1,(ak.dmg+bd)*(!t.s&&ak.du?ak.du:1)-ar);
- const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(raw/2)):raw;
+ // Mounted projectile snapshots retain kind/team after the shooter dies.
+ const reduction=!t.s&&(ak.mt||CAVARM.has(a.k))&&typeof uniqueTechnologyUnitBonus==='function'
+  ?uniqueTechnologyUnitBonus('mountedDamageReduction',t.k,t.t):0;
+ const defended=reduction>0?Math.max(1,raw-reduction):raw;
+ const strike=!secondaryDamage&&typeof hussiteWagonCover==='function'&&hussiteWagonCover(a,t)?Math.max(1,Math.ceil(defended/2)):defended;
   t.hp-=strike*georgianElevationDamageFactor(a,t);
  if(a.k==='chakram'&&!a[CK_TRAMPLE_DAMAGE]&&
    typeof chakramPierceTargets==='function'&&S.civ?.[a.t]===39){
@@ -209,6 +236,19 @@ function dmgT(a,t){if(!a||!t||!U[a.k]||(!t.s&&!U[t.k])||!Number.isFinite(t.hp)||
  a.urumiReadyAt=S.t+18;
  if(!t.s)for(const victim of S.us)if(victim!==a&&victim!==t&&victim.hp>0&&!victim.ld&&isHostile(a.t,victim.t)&&Math.hypot(victim.x-t.x,victim.y-t.y)<=1.15)
   dmgT({k:'urumi',t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:Math.ceil(urumiCharge*.6)},victim);
+ }
+ // Persian War Elephants splash adjacent hostile targets, including buildings.
+ // Use the existing secondary-hit path; never trigger another trample from it.
+ if(a.k==='ele'&&S.civ?.[a.t]===4&&!a[CK_TRAMPLE_DAMAGE]&&S.us.includes(a)){
+  const attack=ak.dmg+meleeResearchAttackBonus(tk)+(tk.atkb?.ele||0);
+  const x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
+  for(const victim of S.us.concat(S.bs)){
+   if(victim===t||victim===a||victim.hp<=0||victim.ld||!isHostile(a.t,victim.t))continue;
+   const distance=victim.s?Math.hypot(Math.max(victim.x-x,0,x-victim.x-victim.s),Math.max(victim.y-y,0,y-victim.y-victim.s)):Math.hypot(victim.x-x,victim.y-y);
+   if(distance>.5)continue;
+   const damage=Math.max(1,attack*.5-combatArmor(victim,'m'));
+   dmgT({k:'ele',t:a.t,x:a.x,y:a.y,[CK_TRAMPLE_DAMAGE]:damage},victim);
+  }
  }
  // Persistent Obuch armour stripping requires a genuine attacker and victim.
  if(a.k==='obuch'&&S.civ?.[a.t]===35&&!t.s&&S.us.includes(a)&&S.us.includes(t))
@@ -321,7 +361,8 @@ function conversionWindow(target){
  const scout=target.k==='scout',ship=!!U[target.k]?.sh,
   bengaliResist=S.civ?.[target.t]===38&&
    (target.k==='mon'||['eled','batele','ele'].includes(target.k))?3:0;
- return {min:(target.s?15:5)+resistance+bengaliResist+(scout?3:ship?2:0),max:(target.s?25:9)+resistance+bengaliResist+(scout?1:ship?2:0)};
+ const teutonResist=S.civ?.[target.t]===5||(typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(target.t).includes(5));
+ return {min:(target.s?15:5)+resistance+bengaliResist+(scout?3:ship?2:0)+(teutonResist?3:0),max:(target.s?25:9)+resistance+bengaliResist+(scout?1:ship?2:0)+(teutonResist?1:0)};
 }
 function completeConversion(u,target){
  const team=u.t,oldTeam=target.t;
@@ -371,6 +412,15 @@ function rangedAccuracy(a){
  if(S.tech[a.t]?.thumb&&(['arc','xbow','skirm','cavarch'].includes(a.k)))return 1;
  return a.k==='xbow'&&S.tech[a.t]?.arb?.9:(d.acc??1);
 }
+// One live minimum-range rule drives both wind-up legality and retreat.
+function attackMinimumRange(u){
+ let base=U[u.k]?.minR||0;
+ if(u.k==='mang'&&S.tech?.[u.t]?.onager)base=3;
+ else if(u.k==='scor')base=romanScorpionMinimumRange(u);
+ const reduction=typeof uniqueTechnologyUnitBonus==='function'
+  ?uniqueTechnologyUnitBonus('minimumRangeReduction',u.k,u.t):0;
+ return Math.max(0,base-reduction);
+}
 function romanScorpionMinimumRange(u){
  if(u?.k!=='scor')return 0;
  return typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(u.t).includes(40)?1:2;
@@ -404,6 +454,7 @@ function arrowBonus(a){const t=S.tech[a.t]||{};return ARROW_WEAPONS.has(a.k)?(t.
 function arrowSightBonus(e){return arrowBonus({k:B[e.k]?.atk||e.k,t:e.t})}
 function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a.k==='cs'&&S.civ?.[a.t]===5&&S.tech[a.t]?.ut5?3:0)+(a.k==='skirm'&&S.civ?.[a.t]===19&&S.tech[a.t]?.ut19p?1:0)+(a.k==='skirm'&&S.tech[a.t]?.elsk?1:0)+(a.k==='mang'&&S.tech[a.t]?.onager?1:0)+(a.k==='cgal'&&S.tech[a.t]?.eliteCgal?1:0)+(S.civ?.[a.t]===9&&S.tech[a.t]?.ut9p&&(a.k==='bomb'||a.k==='cgal')?2:0)+(a.k==='gal'&&S.tech[a.t]?.galleon?1:0)+(a.k==='fire'&&S.tech[a.t]?.fastFire?.5:0)+(a.k==='fire'&&S.civ?.[a.t]===3&&S.tech[a.t]?.gf?1:0)
  +(S.civ?.[a.t]===1&&S.tech?.[a.t]?.ut1&&SKIRM_ARCHER_KINDS.has(a.k)?1:0)
+ +(typeof uniqueTechnologyRangeBonus==='function'?uniqueTechnologyRangeBonus(a.k,a.t):0)
  +(a.k==='tca'&&S.civ?.[a.t]===32&&S.tech[a.t]?.ut32?3:0)
  +(a.k==='tw'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24p?2:0)
  +(a.k==='turtle'&&S.civ?.[a.t]===24&&S.tech[a.t]?.ut24?1:0)
@@ -439,6 +490,14 @@ function launchProjectile(a,t){
   aim.ty=Math.max(0,Math.min(H-.001,aim.ty+dx/distance*deviation));
  }
  S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
+ // Hulche's second javelin is a real, weaker shot. A fixed parallel offset
+ // makes both visible without consuming extra RNG or homing after release.
+ if(a.k==='skirm'&&S.civ?.[a.t]===20&&S.tech?.[a.t]?.ut20&&S.us?.includes(a)&&a.hp>0&&!a.ld){
+  const dx=aim.tx-a.x,dy=aim.ty-a.y,length=Math.hypot(dx,dy)||1;
+  const ox=-dy/length*.18,oy=dx/length*.18,bound=value=>Math.max(0,Math.min(W-.001,value));
+  S.pj.push({x:bound(a.x+ox),y:bound(a.y+oy),t,
+   a:{k:'skirm',t:a.t,x:a.x,y:a.y,skirmisherSecondary:true},tx:bound(aim.tx+ox),ty:bound(aim.ty+oy)});
+ }
  if(a.k==='gal'&&S.civ?.[a.t]===41&&S.us?.includes(a)&&a.hp>0&&!a.ld)
   S.pj.push({x:a.x,y:a.y,t,a:{k:'gal',t:a.t,x:a.x,y:a.y,galleySecondary:true},...aim});
  if(a.k==='chakram'&&S.civ?.[a.t]===39&&S.us.includes(a)){
@@ -459,7 +518,7 @@ function launchProjectile(a,t){
  if(a.k==='hcan'){const shot=S.pj[S.pj.length-1];shot.sx=a.x;shot.sy=a.y;}
  // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
  // second projectile in the normal collision/damage path, not a visual effect.
- if(a.k==='scor'&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
+ if(['scor','ballistaEle'].includes(a.k)&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
   S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
  // Original Portuguese Organ Gun salvo: three standard deterministic pellets
  // that retain normal collision, target death and save/network semantics.
@@ -514,6 +573,18 @@ function pjs(dt){
   const size=p.t.s||0,gapX=Math.max(p.t.x-p.tx,0,p.tx-p.t.x-size),gapY=Math.max(p.t.y-p.ty,0,p.ty-p.t.y-size);
   const direct=gapX*gapX+gapY*gapY<=.35*.35;
   if(direct)dmgT(p.a,p.t);
+  // Ballista Elephant bolts deal secondary damage along their firing line.
+  // Use the saved shooter coordinates and a bounded extension beyond impact.
+  if(p.a.k==='ballistaEle'&&Number.isFinite(p.a.x)&&Number.isFinite(p.a.y)){
+   const vx=p.tx-p.a.x,vy=p.ty-p.a.y,length=Math.hypot(vx,vy);
+   if(length>0)for(const e of S.us){
+    if(!e||e===p.t||e.hp<=0||e.ld||!isHostile(p.a.t,e.t))continue;
+    const ex=e.x-p.a.x,ey=e.y-p.a.y,along=(ex*vx+ey*vy)/length;
+    const cross=Math.abs(ex*vy-ey*vx)/length;
+    if(along>0&&along<=length+1.5&&cross<.35)
+     dmgT({k:p.a.k,t:p.a.t,[CK_TRAMPLE_DAMAGE]:Math.max(1,Math.floor(U.ballistaEle.dmg*.5)-combatArmor(e,'p'))},e);
+   }
+  }
   // Pirotechnia passes a bounded fraction of the shot into enemies directly
   // behind its first impact. The private marker still uses normal death logic.
   if(direct&&p.a.k==='hcan'&&S.civ?.[p.a.t]===15&&S.tech?.[p.a.t]?.ut15p&&

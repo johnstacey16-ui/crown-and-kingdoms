@@ -34,6 +34,17 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
  if(!Array.isArray(catalogue?.civilizations)||!catalogue.civilizations.length)errors.push('Missing civilization records');
  if(!Array.isArray(catalogue?.rulesets)||!catalogue.rulesets.length)errors.push('Missing ruleset status registry');
  if(errors.length)return errors;
+ for(const [kind,definition] of Object.entries(units))if(definition.cavalryArmor!==undefined&&
+  (!Number.isFinite(definition.cavalryArmor)||definition.cavalryArmor<0||definition.cavalryArmor>32))
+  errors.push('Invalid unit cavalry-class armour for '+kind);
+ const hasUnitStatEffects=definition=>{
+  const fields=['hpb','atkb','rangeBonus','mountedDamageReduction','minimumRangeReduction'].filter(field=>definition?.[field]!==undefined);
+  return fields.length>0&&fields.every(field=>{
+   const map=definition[field];
+   return map&&typeof map==='object'&&!Array.isArray(map)&&Object.keys(map).length>0&&
+    Object.entries(map).every(([kind,amount])=>Object.hasOwn(units,kind)&&Number.isFinite(amount)&&amount>0&&(field!=='rangeBonus'||amount<=5)&&(field!=='mountedDamageReduction'||amount<=8)&&(field!=='minimumRangeReduction'||amount<=5));
+  });
+ };
  const statuses=new Set(['missing','partial','verified']);
  const ruleIds=new Set();
  for(const pack of catalogue.rulesets){
@@ -68,12 +79,14 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
     errors.push('Unknown/duplicate '+label+' for '+entry.name);
    if(key!==undefined)techs.add(key);
    if(key!==undefined&&(!definition||
-    !(typeof definition.fx==='function'||definition.hpb||definition.atkb)||
+    !(typeof definition.fx==='function'||hasUnitStatEffects(definition))||
     !Number.isInteger(definition.age)||definition.age<0||definition.age>3||
     !Number.isFinite(definition.t)||definition.t<=0||!definition.cost||
     Object.entries(definition.cost).some(([resource,amount])=>
      !['f','w','g','s'].includes(resource)||!Number.isFinite(amount)||amount<0)))
     errors.push('Invalid '+label+' definition for '+entry.name);
+   if(['hpb','atkb','rangeBonus','mountedDamageReduction','minimumRangeReduction'].some(field=>definition?.[field]!==undefined)&&!hasUnitStatEffects(definition))
+    errors.push('Invalid unit-stat technology effects for '+entry.name+' / '+label);
   }
   // Elite-only modifiers must be data-driven, finite and bounded.
   if(actual?.elite){
@@ -81,6 +94,8 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
    if(elite.age!==3)errors.push('Elite upgrade must require Imperial Age for '+entry.name);
    if(elite.range!==undefined&&(!Number.isFinite(elite.range)||elite.range<0||elite.range>5))
     errors.push('Invalid Elite range modifier for '+entry.name);
+   if(elite.cavalryArmor!==undefined&&(!Number.isFinite(elite.cavalryArmor)||elite.cavalryArmor<0||elite.cavalryArmor>32))
+    errors.push('Invalid Elite cavalry-class armour for '+entry.name);
    for(const [field,keys] of [['armor',['m','p']],['bonus',['archer','infantry','siege','building']]]){
     if(elite[field]!==undefined&&(
      !elite[field]||typeof elite[field]!=='object'||
@@ -108,8 +123,10 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
      errors.push('Unavailable early research '+key+' for '+entry.name);
    }
   }
-  if(typeof actual?.fx!=='function'||typeof actual?.ut?.fx!=='function')
+  if(typeof actual?.fx!=='function'||!(typeof actual?.ut?.fx==='function'||hasUnitStatEffects(actual?.ut)))
    errors.push('Missing live civilization/technology effects for '+entry.name);
+  if(['hpb','atkb','rangeBonus','mountedDamageReduction','minimumRangeReduction'].some(field=>actual?.ut?.[field]!==undefined)&&!hasUnitStatEffects(actual.ut))
+   errors.push('Invalid unit-stat technology effects for '+entry.name);
   if(!actual?.ut||!Number.isInteger(actual.ut.age)||actual.ut.age<0||actual.ut.age>3||
    !Number.isFinite(actual.ut.t)||actual.ut.t<=0||!actual.ut.cost||typeof actual.ut.cost!=='object'||
    Object.entries(actual.ut.cost).some(([resource,amount])=>!['f','w','g','s'].includes(resource)||!Number.isFinite(amount)||amount<0))

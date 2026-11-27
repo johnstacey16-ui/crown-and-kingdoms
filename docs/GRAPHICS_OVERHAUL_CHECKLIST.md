@@ -21,4 +21,4 @@ Tracks every current visual category, including unfinished art. Source catalogue
 
 All current playable kinds have painted movement/activity sheets; automatic activity-event integration still requires review.
 
-All 84 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.
+All 85 playable kinds have native painted or original procedural fallback artwork. Dedicated directional/work/death art still requires review across the full roster; an eight-frame sheet is not eight independent directions. New gameplay/DLC catalogue entries must also receive art and acceptance coverage.

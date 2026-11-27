@@ -5,13 +5,13 @@ import {createRequire} from 'node:module';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
-const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'],args=process.argv.slice(2),sources={},atlases=[];
+const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','axe','lbow','woad','bers','saml','tk','huskarl','jaguar','kamayuk','shotel','jan','genoa','plumed','gbeto','chuko','hcan','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','fish','gal','trn','cog','cart','king','eled','ele','ram','bomb','treb','mang','scor','wagon','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai','ballistaEle'],args=process.argv.slice(2),sources={},atlases=[];
 // Additional graphics are opt-in until their approved original PNG/WebP exists.
 // The source-authored queue owns unit IDs; normal rebuilds preserve the exact
 // approved 81-sheet output and do not fabricate missing assets.
 const upcomingKinds=JSON.parse(readFileSync(new URL('docs/painted-motion-production-queue.json',root),'utf8')).items.map(item=>item.kind);
 const availableKinds=new Set([...kinds,...upcomingKinds]);
-const assetSource=kind=>'./assets/painted-motion-'+(kind==='rathaM'?'ratha-melee':kind)+'.webp';
+const assetSource=kind=>'./assets/painted-motion-'+(kind==='rathaM'?'ratha-melee':kind==='ballistaEle'?'ballista-ele':kind)+'.webp';
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!availableKinds.has(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
@@ -20,11 +20,11 @@ const selectedKinds=[...kinds,...upcomingKinds.filter(kind=>
 // Preserve legitimate disconnected hoof/shadow, rigging and net components.
 // Dense vessels/carts allow 65 percent nonzero alpha; infantry retains 55 percent.
 const ships=new Set(['fish','gal','trn','cog','turtle','caravel','thirisadai']),vehicles=new Set([...ships,'cart','ratha','rathaM','husswagon']);
-const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon','batele','orgun','husswagon','houfnice']),elephants=new Set(['ele','eled','batele']);
+const large=new Set(['ballistaEle','eled','ele','ram','bomb','treb','mang','scor','wagon','batele','orgun','husswagon','houfnice']),elephants=new Set(['ele','eled','batele','ballistaEle']);
 const multipart=new Set(['conq','tarkan','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa',...vehicles,...large]);
 const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa']);
 // Source review locates the actual release/recoil/thrust pose in each sheet.
-const impactSource={ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12,footkonnik:12,flemish:12,warpriest:12,konnik:12,keshik:12,leitis:12,urumi:12,chakram:12,centurion:12,monaspa:12,coust:12,winged:12,kipchak:12,steppe:12,arambai:12,shrivamsha:12,camelscout:12,flamecamel:12,ratha:12,rathaM:12,batele:12,orgun:12,husswagon:12,houfnice:12,turtle:12,caravel:12,thirisadai:12};
+const impactSource={ballistaEle:12,ele:10,eled:11,ram:11,bomb:11,treb:11,mang:11,scor:11,wagon:11,eagle:12,cavarch:12,rattan:12,composite:12,serjeant:12,obuch:12,legionary:12,footkonnik:12,flemish:12,warpriest:12,konnik:12,keshik:12,leitis:12,urumi:12,chakram:12,centurion:12,monaspa:12,coust:12,winged:12,kipchak:12,steppe:12,arambai:12,shrivamsha:12,camelscout:12,flamecamel:12,ratha:12,rathaM:12,batele:12,orgun:12,husswagon:12,houfnice:12,turtle:12,caravel:12,thirisadai:12};
 for(const kind of selectedKinds){
  const src=assetSource(kind),path=new URL(src,root);
  let {data,info}=await sharp(sources[kind]||path.pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
@@ -53,7 +53,7 @@ for(const kind of selectedKinds){
   anims[kind+'/idle/'+team]={dur:1,scale,referenceHeight,frames:[swing[0]]};
   anims[kind+'/walk/'+team]={dur:elephants.has(kind)?.12:large.has(kind)?.11:mounted.has(kind)?.075:.095,scale,referenceHeight,frames:walk};
   anims[kind+'/attack/'+team]={dur:.1,scale,referenceHeight,frames:attack};
-  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
+  if(['vil','mon','fish','eagle','cavarch','rattan','composite','serjeant','obuch','legionary','footkonnik','flemish','warpriest','konnik','keshik','leitis','urumi','chakram','centurion','monaspa','coust','winged','kipchak','steppe','arambai','shrivamsha','camelscout','flamecamel','ratha','rathaM','batele','orgun','husswagon','houfnice','turtle','caravel','thirisadai','ballistaEle'].includes(kind))anims[kind+'/work/'+team]={dur:.13,scale,referenceHeight,frames:swing};
  }
  atlases.push({id:'painted-motion-'+kind,src,meta:{painted:true,motion:true,...(impactSource[kind]!==undefined?{sourceActionFrame:impactSource[kind]}:{}),width:info.width,height:info.height,anims}});
 }

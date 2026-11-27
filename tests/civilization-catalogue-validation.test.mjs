@@ -82,6 +82,64 @@ test('all ten technology restriction groups are versioned for every civilization
 const rosterSource=readFileSync(new URL('../js/civilizations.js',import.meta.url),'utf8');
 const configSource=readFileSync(new URL('../js/config.js',import.meta.url),'utf8');
 const kingdomSource=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+test('first unique technologies accept actual declarative stats and reject empty, unknown or malformed effects',()=>{
+ for(const id of[6,8,13,14,21,22]){
+  const current=currentCivilizationRuntime();
+  assert.equal(typeof current.civilizations[id].ut.fx,'undefined');
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+ }
+ for(const effects of[{},[],null,{camel:NaN},{camel:-20},{camel:0},{camel:'20'},{invented:20},{constructor:20}]){
+  const current=currentCivilizationRuntime();current.civilizations[8].ut.hpb=effects;
+  assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)),String(effects));
+ }
+ const missing=currentCivilizationRuntime();delete missing.civilizations[8].ut.hpb;
+ assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing live civilization\/technology effects/.test(e)));
+});
+test('unique range maps accept known units and reject malformed or excessive ranges in either technology slot',()=>{
+ for(const slot of['ut','ut2']){
+  const valid=currentCivilizationRuntime(),definition=valid.civilizations[13][slot];
+  delete definition.fx;definition.rangeBonus={hcan:2};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,valid),[]);
+  for(const map of[{},[],null,{hcan:NaN},{hcan:-1},{hcan:0},{hcan:'2'},{hcan:6},{invented:2},{constructor:2}]){
+   definition.rangeBonus=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,valid).some(e=>/Invalid unit-stat technology effects/.test(e)),slot+' / '+String(map));
+  }
+ }
+});
+test('conditional mounted defence maps reject malformed, unknown and excessive values in either unique slot',()=>{
+ for(const slot of ['ut','ut2']){
+  const current=currentCivilizationRuntime(),definition=current.civilizations[22][slot];
+  delete definition.fx;definition.mountedDamageReduction={shotel:3,camel:3};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  for(const map of [{},[],null,{shotel:NaN},{shotel:-3},{shotel:0},{shotel:'3'},{shotel:9},{invented:3},{constructor:3}]){
+   definition.mountedDamageReduction=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)));
+  }
+ }
+});
+test('minimum-range reductions require finite positive bounded amounts and known unit kinds in both unique slots',()=>{
+ for(const slot of ['ut','ut2']){
+  const current=currentCivilizationRuntime(),definition=current.civilizations[21][slot];
+  delete definition.fx;definition.minimumRangeReduction={skirm:1};
+  assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  for(const map of [{},[],null,{skirm:NaN},{skirm:-1},{skirm:0},{skirm:'1'},{skirm:6},{invented:1},{constructor:1}]){
+   definition.minimumRangeReduction=map;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid unit-stat technology effects/.test(e)));
+  }
+ }
+});
+test('base and Elite cavalry-class armour must be finite nonnegative bounded numbers',()=>{
+ for(const slot of ['unit','elite']){
+  const current=currentCivilizationRuntime(),definition=slot==='unit'?current.units.cata:current.civilizations[3].elite;
+  for(const amount of [0,12,16,32]){
+   definition.cavalryArmor=amount;assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  }
+  for(const amount of [null,NaN,Infinity,-1,33,'12',{},[]]){
+   definition.cavalryArmor=amount;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid .*cavalry-class armour/.test(e)),slot+' / '+String(amount));
+  }
+ }
+});
 test('a missing live research row is rejected before permissive fallback can hide it',()=>{
  const missing=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace(" 'Franks':'x',",''));
  assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing research row archery for Franks/.test(e)));

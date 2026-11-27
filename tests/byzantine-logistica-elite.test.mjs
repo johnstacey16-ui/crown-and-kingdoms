@@ -70,7 +70,8 @@ test('Elite Cataphract adds real hit points, attack and class-counter resistance
  run("globalThis.cata={k:'cata',t:0,x:18,y:18,hp:U.cata.hp,p:[],o:'i',cd:0};S.us.push(cata)");
  const beforeHealth=run('mhp(cata)');
  const beforeMelee=run("S.tech[0].atkb?.cata||0");
- const beforeCounter=run("spearLineBonus({k:'spear',t:1},cata)");
+ const beforeCounter=run("factionCounterBonus({k:'spear',t:1},cata,spearLineBonus({k:'spear',t:1},cata))");
+ assert.equal(beforeCounter,3);
  assert.equal(run("research(testCastle,'eliteCataphract')"),true);
  assert.equal(run('S.res[0].f'),8800);assert.equal(run('S.res[0].g'),9200);
  assert.equal(run('mhp(cata)'),beforeHealth,'still non-Elite during research');
@@ -79,8 +80,9 @@ test('Elite Cataphract adds real hit points, attack and class-counter resistance
  assert.equal(run('mhp(cata)'),beforeHealth+40);
  assert.equal(run('cata.hp'),beforeHealth+40,'existing units receive Elite health');
  assert.equal(run('S.tech[0].atkb.cata'),beforeMelee+3);
- assert.equal(run("spearLineBonus({k:'spear',t:1},cata)"),beforeCounter-4);
- assert.equal(run("camelLineBonus({k:'camel',t:1},cata)"),5);
+ assert.equal(run("spearLineBonus({k:'spear',t:1},cata)"),15,'line helpers now return raw counters');
+ assert.equal(run("factionCounterBonus({k:'spear',t:1},cata,spearLineBonus({k:'spear',t:1},cata))"),0);
+ assert.equal(run("factionCounterBonus({k:'camel',t:1},cata,camelLineBonus({k:'camel',t:1},cata))"),0);
  assert.equal(run("eliteUniqueUnitUpgrade('cata',1)"),null);
 });
 
@@ -137,4 +139,64 @@ test('current-build save/load persists Byzantine research and its real effects',
  assert.equal(run('S.tech[0].eliteCataphract'),1);
  assert.equal(run("mhp({k:'cata',t:0})"),before);
  assert.equal(run("eliteUniqueUnitUpgrade('cata',0).k"),'eliteCataphract');
+});
+
+function counterGame(){
+ const run=game();
+ run("S.us=[];S.bs=[];S.pj=[];S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.defender=addU(0,'cata',31,30);globalThis.attacker=addU(1,'spear',30,30)");
+ return run;
+}
+function rawCounter(run){return run('attacker.k==="spear"?spearLineBonus(attacker,defender):camelLineBonus(attacker,defender)');}
+function resolvedCounter(run){return run('factionCounterBonus(attacker,defender,attacker.k==="spear"?spearLineBonus(attacker,defender):camelLineBonus(attacker,defender))');}
+function counterHit(run){return run('(()=>{defender.hp=1000;dmgT(attacker,defender);return 1000-defender.hp})()');}
+
+test('Cataphracts have 12 intrinsic class armour and researched Elite totals 16 without changing normal armour',()=>{
+ const run=counterGame();
+ const melee=run("combatArmor(defender,'m')"),pierce=run("combatArmor(defender,'p')");
+ assert.equal(run('cavalryCounterArmor(defender)'),12);
+ run('S.tech[0].eliteCataphract=1');assert.equal(run('cavalryCounterArmor(defender)'),16);
+ assert.equal(run("combatArmor(defender,'m')"),melee);assert.equal(run("combatArmor(defender,'p')"),pierce);
+ run('defender.obuchArmorShred=10');assert.equal(run('cavalryCounterArmor(defender)'),16,'normal armour shredding cannot remove class resistance');
+ run('S.civ[0]=1');assert.equal(run('cavalryCounterArmor(defender)'),12,'converted base units retain intrinsic armour; foreign Elite flags do not apply');
+ for(const kind of ['knight','camel','mil','arc','ram'])assert.equal(run(`cavalryCounterArmor({k:'${kind}',t:0})`),0);
+ assert.equal(run("cavalryCounterArmor({k:'cata',t:0,s:3})"),0);
+ assert.equal(run('U.cata.cavalryArmor'),12,'research does not mutate the global base');
+});
+test('spear and camel class bonuses are reduced once, clamped to zero and leave normal hit damage intact',()=>{
+ const run=counterGame();
+ for(const elite of [false,true]){
+  run('S.tech[0]={'+(elite?'eliteCataphract:1':'')+'}');
+  const armour=elite?16:12;
+  for(const [flag,raw] of [['',15],['pike',22],['halb',32]]){
+   run('attacker.k="spear";S.tech[1]={'+(flag?flag+':1':'')+'}');
+   assert.equal(rawCounter(run),raw);assert.equal(resolvedCounter(run),Math.max(0,raw-armour));
+   assert.equal(counterHit(run),Math.max(1,run('U.spear.dmg')+Math.max(0,raw-armour)-run("combatArmor(defender,'m')")));
+  }
+  for(const heavy of [false,true]){
+   run('attacker.k="camel";S.tech[1]={'+(heavy?'hcamel:1':'')+'}');
+   const raw=heavy?18:9;assert.equal(rawCounter(run),raw);assert.equal(resolvedCounter(run),Math.max(0,raw-armour));
+   assert.equal(counterHit(run),Math.max(1,run('U.camel.dmg')+Math.max(0,raw-armour)-run("combatArmor(defender,'m')")));
+  }
+  run('attacker.k="mil";S.tech[1]={}');const foot=counterHit(run);
+  run('S.tech[1].forging=1');assert.equal(counterHit(run),foot+1,'ordinary research damage bypasses class resistance');
+ }
+});
+test('Chieftains combines with the spear counter before class armour; source boosts also precede resistance',()=>{
+ const run=counterGame();run('S.civ[1]=7;S.tech[1].ut7=1');
+ assert.equal(resolvedCounter(run),8,'15 spear + 5 Chieftains - 12 base armour');
+ run('S.tech[0].eliteCataphract=1');assert.equal(resolvedCounter(run),4,'20 combined attack - 16 Elite armour');
+ run('attacker.k="bers"');assert.equal(run('factionCounterBonus(attacker,defender,0)'),0,'five alone is absorbed');
+ run('S.tech[1].ut7=0');const base=counterHit(run);run('S.tech[1].ut7=1');assert.equal(counterHit(run),base);
+ run('attacker.k="camel";S.civ[1]=39;S.age[1]=3;S.tech[1]={hcamel:1}');
+ assert.equal(resolvedCounter(run),9,'rounded 18 × 1.4 raw bonus - 16 armour');
+ run('attacker.k="spear";S.civ[1]=36;S.tech[1]={pike:1}');
+ assert.equal(resolvedCounter(run),12,'rounded 22 × 1.25 raw bonus - 16 armour');
+});
+test('class armour follows current-build research after reload and protects against detached infantry shots',()=>{
+ const run=counterGame();run('S.civ[1]=7;S.tech[1].ut7=1;S.tech[0].eliteCataphract=1;attacker.k="gbeto";attacker.x=28;defender.hp=mhp(defender);globalThis.before=defender.hp;launchProjectile(attacker,defender)');
+ assert.equal(run('S.pj.length'),1);run('attacker.hp=0;S.us=S.us.filter(u=>u!==attacker)');
+ assert.equal(run("saveG(false,'cataphract-class-armour')"),true);assert.equal(run("loadG(false,'cataphract-class-armour')"),true);
+ run('defender=S.pj[0].t;pjs(1)');
+ assert.equal(run('before-defender.hp'),run("Math.max(1,U.gbeto.dmg-combatArmor(defender,'p'))"));
+ assert.equal(run("cavalryCounterArmor(addU(0,'cata',32,30))"),16,'future units inherit researched resistance without a unit flag');
 });

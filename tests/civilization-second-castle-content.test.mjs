@@ -38,7 +38,7 @@ test('Celtic Stronghold has paid Castle research, tower fire bonus and nearby in
  assert.equal(run('tower.cd'),run('U.tw.cd'),'only Celts benefit');
 });
 
-test('Imperial Furor Celtica grants +40% base hitpoints to Siege Workshop units',()=>{
+test('Imperial Furor Celtica grants +40% base hitpoints to siege including Trebuchets',()=>{
  const run=game(6);
  const before=JSON.parse(run("JSON.stringify(Object.fromEntries(['ram','mang','scor','bomb','treb'].map(k=>[k,mhp({k,t:0})])))"));
  run('S.age[0]=2');
@@ -47,12 +47,53 @@ test('Imperial Furor Celtica grants +40% base hitpoints to Siege Workshop units'
  assert.equal(run("research(castle,'ut6')"),true);
  assert.equal(run('S.res[0].f'),9250);
  run('upB(castle,50.1)');
- for(const kind of ['ram','mang','scor','bomb']){
+ for(const kind of ['ram','mang','scor','bomb','treb']){
   const after=run("mhp({k:'"+kind+"',t:0})");
   assert.equal(after,before[kind]+Math.round(run("U['"+kind+"'].hp")*.4),kind+' receives 40%');
  }
- assert.equal(run("mhp({k:'treb',t:0})"),before.treb,'Castle trebuchets are outside this upgrade');
+ assert.equal(run("mhp({k:'knight',t:0})"),run("U.knight.hp"),'unrelated cavalry is outside this upgrade');
 });
+
+for(const [civ,key,kinds]of [[6,'ut6',['ram','mang','scor','bomb','treb']],[8,'ut8',['camel','mamel']],[14,'ut14',['vil']]]){
+ test(`${key} gives existing and future troops the same HP bonus without healing old damage or applying twice`,()=>{
+  const run=game(civ),tech=JSON.parse(run(`JSON.stringify(TE.${key})`));
+  const expected=kind=>civ===6?Math.round(run(`U.${kind}.hp`)*.4):civ===8?20:40;
+  run(`globalThis.kinds=${JSON.stringify(kinds)};S.tech[0].hpb=Object.fromEntries(kinds.map(k=>[k,7]));globalThis.troops=kinds.map((k,i)=>{
+   const full=addU(0,k,28+i,28),hurt=addU(0,k,28+i,29),dead=addU(0,k,28+i,30),enemy=addU(1,k,28+i,31);
+   hurt.hp-=10;dead.hp=0;return {k,full,hurt,dead,enemy,max:mhp(full)};
+  });globalThis.excluded=addU(0,'knight',35,32);globalThis.excludedHp=excluded.hp;`);
+  if(civ===14)run("globalThis.workerDamage=()=>{const target={t:1,k:'mil',x:30,y:30,hp:1000,p:[]};dmgT(troops[0].full,target);return 1000-target.hp};globalThis.oldWorkerDamage=workerDamage()");
+  run(`S.age[0]=${tech.age-1}`);assert.equal(run(`research(castle,'${key}')`),false);
+  assert.equal(run('S.res[0].f'),10000,'age rejection cannot spend resources');
+  run('S.age[0]=3;S.res[0]={f:0,w:0,g:0,s:0}');
+  assert.equal(run(`research(castle,'${key}')`),false,'no free research');
+  run('S.res[0]={f:10000,w:10000,g:10000,s:10000}');
+  assert.equal(run(`rsOf({k:'castle',t:1}).includes('${key}')`),false);
+  assert.equal(run(`technologyTreeModel(0).buildings.find(b=>b.id==='castle').research.find(r=>r.id==='${key}').state`),'available');
+  assert.equal(run(`research(castle,'${key}')`),true);
+  assert.equal(run('S.res[0].f'),10000-(tech.cost.f||0));
+  assert.equal(run('S.res[0].g'),10000-(tech.cost.g||0));
+  assert.equal(run('troops.every(u=>u.full.hp===u.max&&u.hurt.hp===u.max-10)'),true,'effects wait for completion');
+  run(`upB(castle,TE.${key}.t+.1)`);
+  for(const kind of kinds){
+   const state=JSON.parse(run(`JSON.stringify(troops.find(u=>u.k==='${kind}'))`)),bonus=expected(kind);
+   assert.equal(state.full.hp,state.max+bonus,kind+' existing full-health HP');
+   assert.equal(state.hurt.hp,state.max-10+bonus,kind+' retains its ten points of old damage');
+   assert.equal(state.dead.hp,0,'dead troops are never revived');
+   assert.equal(state.enemy.hp,run(`U.${kind}.hp`),'enemy troops are unchanged');
+   assert.equal(run(`addU(0,'${kind}',30,35).hp`),state.max+bonus,'future troops use the same bonus');
+  }
+  assert.equal(run('excluded.hp===excludedHp'),true,'unrelated units do not benefit');
+  if(civ===14)assert.equal(run('workerDamage()-oldWorkerDamage'),6,'Supremacy retains its real villager attack bonus');
+  const after=run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})');
+  assert.equal(run(`research(castle,'${key}')`),false,'completed research cannot be bought again');
+  run('upB(castle,100)');assert.equal(run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})'),after);
+  assert.equal(run(`saveG(false,'ck_hp_upgrade_${key}')`),true);
+  run('S.tech[0]={};S.us=[]');
+  assert.equal(run(`loadG(false,'ck_hp_upgrade_${key}')`),true);
+  assert.equal(run('JSON.stringify({tech:S.tech,units:S.us.map(u=>({id:u.netId,hp:u.hp,max:mhp(u)}))})'),after,'same-build reload restores bonuses exactly once');
+ });
+}
 
 test('Viking Bogsveigar adds one damage to Archer and Crossbowman attacks only',()=>{
  const run=game(7);
@@ -117,4 +158,60 @@ test('same-build saves restore Stronghold research, healing and Celtic Elite uni
  assert.equal(run("loadG(false,'ck_celtic_content_test')"),true);
  assert.equal(run('S.tech[0].ut6p'),1);
  assert.equal(run("mhp({k:'woad',t:0})"),hp);
+});
+
+function chieftainsGame(){
+ const run=game(7);
+ run("S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.attacker=addU(0,'bers',30,30);globalThis.victim=addU(1,'knight',30.5,30)");
+ return run;
+}
+function chieftainsHit(run){return run('(()=>{victim.hp=1000;dmgT(attacker,victim);return 1000-victim.hp})()');}
+test('Chieftains requires paid completed Castle research at the extracted reference price and time',()=>{
+ const run=chieftainsGame(),base=chieftainsHit(run);
+ assert.deepEqual(JSON.parse(run('JSON.stringify(TE.ut7.cost)')),{f:600,g:450});assert.equal(run('TE.ut7.t'),40);
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut7')"),false);
+ run('S.age[0]=2;S.res[0].g=449');assert.equal(run("research(castle,'ut7')"),false);
+ run('S.res[0].g=10000');assert.equal(run("research(castle,'ut7')"),true);
+ assert.equal(run('S.res[0].f'),9400);assert.equal(run('S.res[0].g'),9550);
+ assert.equal(chieftainsHit(run),base);run('upB(castle,TE.ut7.t+.1)');assert.equal(chieftainsHit(run),base+5);
+ for(const kind of ['mil','spear','bers'])assert.equal(run(`S.tech[0].atkb?.${kind}||0`),0,'no old flat attack ledger');
+ assert.equal(run("research(castle,'ut7')"),false);assert.equal(run("rsOf({k:'castle',t:1}).includes('ut7')"),false);
+});
+test('Chieftains adds only class-specific infantry damage and stacks with spear-line counters',()=>{
+ const run=chieftainsGame();
+ const infantry=['mil','spear','bers','axe','gbeto','chakram','footkonnik'];
+ const sources=[...infantry,'arc','knight','vil'];
+ const cavalry=['knight','cavarch','cata','ele','eled','rathaM','monaspa'];
+ const camels=['camel','mamel','camelscout','flamecamel'];
+ for(const source of sources)for(const target of [...cavalry,...camels,'mil','arc','ram','gal']){
+  run(`attacker.k='${source}';victim.k='${target}';S.tech[0]={atkb:{'${source}':20}}`);
+  const base=chieftainsHit(run);run('S.tech[0].ut7=1');
+  const extra=infantry.includes(source)?camels.includes(target)?4:cavalry.includes(target)&&(target!=='cata'||source==='spear')?5:0:0;
+  assert.equal(chieftainsHit(run),base+extra,source+' → '+target);
+ }
+ run("attacker.k='spear';victim.k='knight';S.tech[0]={pike:1}");const pike=chieftainsHit(run);
+ run('S.tech[0].ut7=1');assert.equal(chieftainsHit(run),pike+5);
+ run('S.civ[0]=0');assert.equal(chieftainsHit(run),pike,'foreign research flags cannot retain the counter bonus');
+ run("S.civ[0]=7;attacker.k='bers';victim.k='mil';victim.s=4;S.tech[0]={}");const building=chieftainsHit(run);
+ run('S.tech[0].ut7=1');assert.equal(chieftainsHit(run),building,'buildings are not cavalry targets');
+});
+test('Chieftains uses the normal counter-resistance path and does not restore removed kill-gold rewards',()=>{
+ const run=chieftainsGame();
+ run("victim.k='batele';S.civ[1]=38;S.tech[0].ut7=1");
+ assert.equal(run('factionCounterBonus(attacker,victim,0)'),4,'existing Bengali 25% resistance and rounding apply to the bonus');
+ run("S.civ[1]=1;attacker.k='bers'");
+ for(const kind of ['vil','cart','cog','mon']){
+  run(`victim=addU(1,'${kind}',30.5,30);victim.hp=1;globalThis.gold=S.res[0].g;dmgT(attacker,victim)`);
+  assert.equal(run('victim.hp<=0'),true);assert.equal(run('S.res[0].g'),run('gold'),kind+' grants no obsolete Chieftains gold');
+ }
+});
+test('Chieftains follows ranged-infantry projectile snapshots through reload and applies to future troops',()=>{
+ const run=chieftainsGame();
+ run("attacker.k='gbeto';attacker.x=27;S.tech[0].ut7=1;victim.hp=1000;launchProjectile(attacker,victim)");
+ assert.equal(run('S.pj.length'),1);run('attacker.hp=0;S.us=S.us.filter(u=>u!==attacker)');
+ assert.equal(run("saveG(false,'chieftains-projectile')"),true);assert.equal(run("loadG(false,'chieftains-projectile')"),true);
+ run('victim=S.pj[0].t;pjs(1)');
+ assert.equal(run('1000-victim.hp'),run("Math.max(1,U.gbeto.dmg+5-combatArmor(victim,'p'))"));
+ run("attacker=addU(0,'bers',30,30);victim=addU(1,'knight',30.5,30)");
+ const upgraded=chieftainsHit(run);run('S.tech[0].ut7=0');assert.equal(chieftainsHit(run),upgraded-5);
 });

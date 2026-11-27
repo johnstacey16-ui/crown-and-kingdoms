@@ -475,9 +475,9 @@ test('hostile roster policy ignores dead, allied, malformed and unknown records'
  assert.equal(found.humanArmy.length,0);
 });
 
-function researchScoreFixture(){
+function researchScoreFixture(TE){
  const ctx=vm.createContext({INFARM:new Set(['mil','spear']),ARCHARM:new Set(['arc','xbow']),
-  CAVARM:new Set(['knight','camel'])});
+  CAVARM:new Set(['knight','camel']),TE});
  vm.runInContext(policy+'\n;globalThis.scoreTech=aiTechnologyPriority;',ctx);
  const rosters=()=>({arm:[],vil:[],bl:[],my:[],humanCav:0,humanRanged:0,humanSiege:0,humanInf:0,humanShips:[]});
  return {score:(k,r)=>ctx.scoreTech(k,r),rosters};
@@ -520,6 +520,60 @@ test('technology scoring retains villager, monk and damaged town-centre prioriti
  assert.equal(f.score('sanctity',r),55);
  r.bl.push({k:'tc',hp:60,mh:100});
  assert.equal(f.score('mas',r),67,'masonry gets the original damaged town-centre boost');
+});
+for(const [key,kind,irrelevant]of [['ut20','skirm','plumed'],['ut13','hcan','eled']])test(`${key} research priority follows its living fielded beneficiaries`,()=>{
+ const f=researchScoreFixture(),r=f.rosters();
+ const empty=f.score(key,r);
+ r.my.push({k:irrelevant,hp:50},{k:kind,hp:0},{k:kind,hp:30,ld:{}});
+ assert.equal(f.score(key,r),empty);
+ r.my.push({k:kind,hp:30});const one=f.score(key,r);
+ assert.ok(one>empty);
+ r.my.push({k:kind,hp:30},{k:kind,hp:30});assert.ok(f.score(key,r)>one);
+});
+
+test('Royal Heirs AI values eligible living fielded units and mounted threats from canonical effect data',()=>{
+ const f=researchScoreFixture({ut22:{mountedDamageReduction:{shotel:3,camel:3}}}),r=f.rosters(),empty=f.score('ut22',r);
+ r.my.push({k:'knight',hp:50},{k:'shotel',hp:0},{k:'camel',hp:50,ld:{}});
+ r.humanCav=3;assert.equal(f.score('ut22',r),empty,'no speculative benefit without protected troops');
+ r.humanCav=0;r.my.push({k:'camel',hp:50});const one=f.score('ut22',r);assert.ok(one>empty);
+ r.humanCav=3;assert.ok(f.score('ut22',r)>one);
+ r.humanCav=0;r.my.push({k:'shotel',hp:40},{k:'camel',hp:50});assert.ok(f.score('ut22',r)>one);
+});
+
+test('Andean Sling AI values living fielded Skirmishers rather than Kamayuk count',()=>{
+ const f=researchScoreFixture({ut21:{minimumRangeReduction:{skirm:1}}}),r=f.rosters(),empty=f.score('ut21',r);
+ r.my.push({k:'kamayuk',hp:60},{k:'skirm',hp:0},{k:'skirm',hp:30,ld:{}});
+ assert.equal(f.score('ut21',r),empty);
+ r.my.push({k:'skirm',hp:30});const one=f.score('ut21',r);assert.ok(one>empty);
+ r.humanCav=3;assert.equal(f.score('ut21',r),one,'mounted-defence threat weighting does not leak into minimum-range upgrades');
+ r.my.push({k:'skirm',hp:30},{k:'skirm',hp:30});assert.ok(f.score('ut21',r)>one);
+});
+
+test('Silk Road AI values living fielded traders rather than Genoese combat units',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut15',r);
+ r.my.push({k:'genoa',hp:50},{k:'cart',hp:0},{k:'cog',hp:50,ld:{}});assert.equal(f.score('ut15',r),empty);
+ r.my.push({k:'cart',hp:40});const one=f.score('ut15',r);assert.ok(one>empty);
+ r.my.push({k:'cog',hp:50},{k:'cart',hp:40});assert.ok(f.score('ut15',r)>one);
+});
+
+test('Chieftains AI values fielded infantry and mounted pressure without counting dead or loaded troops',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut7',r);
+ r.my.push({k:'knight',hp:100},{k:'mil',hp:0},{k:'spear',hp:40,ld:{}});r.humanCav=3;
+ assert.equal(f.score('ut7',r),empty);
+ r.humanCav=0;r.my.push({k:'mil',hp:40});const one=f.score('ut7',r);assert.ok(one>empty);
+ r.humanCav=3;assert.ok(f.score('ut7',r)>one);
+ r.humanCav=0;r.my.push({k:'spear',hp:40},{k:'mil',hp:40});assert.ok(f.score('ut7',r)>one);
+});
+
+test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut23',r);
+ r.my.push({k:'gbeto',hp:40},{k:'gbeto',hp:40});
+ r.bl.push({k:'tc',done:false,hp:100,mh:100},{k:'tc',done:true,hp:0,mh:100});
+ assert.equal(f.score('ut23',r),empty);
+ r.bl.push({k:'tc',done:true,hp:100,mh:100});const one=f.score('ut23',r);assert.ok(one>empty);
+ r.bl.at(-1).hp=60;assert.ok(f.score('ut23',r)>one);
+ r.bl.at(-1).hp=100;r.bl.push({k:'tc',done:true,hp:100,mh:100},{k:'tc',done:true,hp:100,mh:100});
+ assert.ok(f.score('ut23',r)>one);
 });
 
 function buildingRepairFixture({reachable=()=>true}={}){
@@ -584,7 +638,9 @@ function idleVillagerFixture({canFarm=false,route=()=>true,nodes=[]}={}){
   path:(v,target)=>{checked.push(target);return route(v,target)?[{x:target.x,y:target.y}]:null},
   farmFood:()=>175,addN:(k,x,y,amt)=>{const n={k,x,y,amt,fm:true};built.push(n);return n},
   pay:(team,cost)=>paid.push({team,cost})});
- vm.runInContext(policy+'\n'+economy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const start=kingdom.indexOf('function civilizationBuildingCost('),end=kingdom.indexOf('\n}',start)+2;
+ vm.runInContext(kingdom.slice(start,end)+'\n'+policy+'\n'+economy+'\n;globalThis.assignIdle=aiAssignIdleVillagers;',ctx);
  const villager=(o='i',x=10,y=10)=>({k:'vil',t:1,o,x,y,hp:100,ld:0,aiEvac:false,
   ct:null,tg:null,p:[],rp:0,ret:5});
  const site=(k='house',done=false)=>({k,done,hp:100,x:11,y:10,s:2});
@@ -710,7 +766,10 @@ test('villagers already fleeing can repath toward shelter while threat persists'
 function townCentreDefenceFixture(){
  const S={t:100},unloads=[];
  const U={mil:{dmg:5},ram:{dmg:10},mon:{dmg:0},king:{dmg:0}};
- const ctx=vm.createContext({S,U,unload:b=>unloads.push(b)});
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const capacity=kingdom.slice(kingdom.indexOf('function civilizationGarrisonCapacity('),kingdom.indexOf('/* Shared faction-adjusted construction prices'));
+ const ctx=vm.createContext({S,U,GAR:{tc:15},unload:b=>unloads.push(b)});
+ vm.runInContext(capacity,ctx);
  vm.runInContext(policy+'\n'+defence+'\n;globalThis.defendTown=aiDefendTownCentre;',ctx);
  const tc={k:'tc',x:20,y:20,hp:500,cg:[]};
  const soldier=(k='mil',o='i',x=21,y=20)=>({k,o,x,y,ld:false,tg:null,p:[{x:1,y:1}]});

@@ -250,3 +250,35 @@ test('AI waits for four fielded Scouts before buying Hussar',()=>{
  assert.equal(c('structures.enemyStable.rs==null'),true);
  c("army.push(addU(1,'scout',63.5,30.5));plan()");assert.equal(c('structures.enemyStable.rs.k'),'huss');
 });
+
+
+test('Persian Savar replaces Paladin and upgrades living and future cavalry',()=>{
+ const c=fixture();
+ c("S.civ=[4,0];globalThis.rider=addU(0,'knight',16.5,30.5);rider.hp=80;globalThis.foreign=addU(1,'knight',20.5,30.5)");
+ assert.equal(c("rsOf(structures.stable).includes('savar')"),true);
+ assert.equal(c("rsOf(structures.stable).includes('pala')"),false);
+ assert.equal(c("rsOf(structures.enemyStable).includes('savar')"),false);
+ assert.equal(c("research(structures.stable,'savar')"),false);
+ assert.equal(c("research(structures.stable,'cavl')"),true);
+ c("upB(structures.stable,TE.cavl.t);S.age[0]=2");
+ assert.equal(c("research(structures.stable,'savar')"),false);
+ c("S.age[0]=3");
+ assert.equal(c("research(structures.stable,'savar')"),true);
+ c("upB(structures.stable,TE.savar.t)");
+ assert.equal(c("unitName('knight',0)"),'Savar');
+ assert.equal(c('mhp(rider)'),145);
+ assert.equal(c('rider.hp'),125);
+ assert.equal(c("combatArmor(rider,'m')"),3);
+ assert.equal(c("combatArmor(rider,'p')"),4);
+ assert.equal(c('attackReload(rider)'),1.8);
+ assert.equal(c('foreign.hp'),100);
+ assert.equal(c("factionCounterBonus(rider,{k:'arc',t:1},0)"),4);
+ assert.equal(c("factionCounterBonus(foreign,{k:'arc',t:0},0)"),0);
+ c("S.dip[0][1]=S.dip[1][0]='ally'");
+ assert.equal(c("factionCounterBonus(foreign,{k:'arc',t:0},0)"),2);
+ c("S.dip[0][1]=S.dip[1][0]='enemy'");
+ assert.equal(c("factionCounterBonus(rider,{k:'mil',t:1},0)"),0);
+ assert.equal(c("train(structures.stable,'knight')"),true);
+ c("upB(structures.stable,U.knight.t)");
+ assert.equal(c("S.us.filter(u=>u.k==='knight'&&u.t===0).at(-1).hp"),145);
+});

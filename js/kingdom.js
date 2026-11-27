@@ -199,7 +199,7 @@ function tryAutomaticFarm(u){
   .sort((a,b)=>Math.hypot(a.x+a.s/2-u.x,a.y+a.s/2-u.y)-
    Math.hypot(b.x+b.s/2-u.x,b.y+b.s/2-u.y)||a.x-b.x||a.y-b.y);
  if(!centres.length)return false;
- if(!can(0,B.farm.cost)){
+ if(!can(0,civilizationBuildingCost('farm',0))){
   let wood=findReachableAutoNode(u,'w',18);
   if(!wood)wood=findReachableAutoNode(u,'w',30);
   if(!wood)return false;
@@ -217,17 +217,17 @@ function tryAutomaticFarm(u){
    if(!route||!route.length)continue;
    const farm=addN('f',x,y,farmFood(0),1);
    if(!farm)continue;
-   farm.t=0;pay(0,B.farm.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(farm,0);
+   farm.t=0;pay(0,civilizationBuildingCost('farm',0));if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarmFood(farm,0);
    u.o='g';u.tg=farm;u.ct='f';u.p=route;u.pt=null;u.rp=1;u.ret=0;
    u.autoWorker=1;u.autoFarmWaiting=0;
-   note('Automatic farm built (-'+B.farm.cost.w+' wood)');
+   note('Automatic farm built (-'+civilizationBuildingCost('farm',0).w+' wood)');
    return true;
   }
  }
  return false;
 }
 function retryAutomaticFarmWorkers(){
- if(!automaticFarmAllowed()||!S.res?.[0]||!can(0,B.farm.cost))return false;
+ if(!automaticFarmAllowed()||!S.res?.[0]||!can(0,civilizationBuildingCost('farm',0)))return false;
  for(const u of S.us)if(u&&u.t===0&&u.k==='vil'&&u.hp>0&&!u.ld&&!u.retreating&&
   u.autoFarmWaiting&&u.autoWorker&&u.o==='g'&&u.ct==='w'&&!(u.car>0)){
   u.autoFarmWaiting=0;
@@ -360,9 +360,15 @@ function grantArmenianFirstChurchRelic(b){
  S.rel.push({rl:1,x:b.x+b.s/2,y:b.y+b.s/2,c:null,m:b});
  S.tech[b.t].armenianFirstChurchRelic=1;return true;
 }
+/* Shared building capacity for boarding, shelter reservations and host orders. */
+function civilizationGarrisonCapacity(b,world=S){
+ const base=GAR[b.k]||0;
+ return base&&world?.civ?.[b.t]===5?base+(b.k==='tc'?10:b.k==='tower'?5:0):base;
+}
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ,techs=S?.tech){
  const cost=B[kind]?.cost||{};
+ if(kind==='farm'&&civs?.[team]===5)return {...cost,w:Math.round(cost.w*.6)};
  if(civs?.[team]===16&&techs?.[team]?.ut16&&['castle','tower'].includes(kind)&&cost.s){
   const replaced=Math.floor(cost.s*.4);
   return {...cost,w:(cost.w||0)+replaced,s:cost.s-replaced};
@@ -489,7 +495,7 @@ const CIV_ARCHERY_RESEARCH=Object.freeze({
  * This matrix does not cover all cavalry/unique-unit/tech exceptions. */
 // Paladin d: unit 569 / upgrade 265, aoe2techtree e56728e76b7d08301fba7b18d5f16bc8554c109a.
 // Hussar u: unit 441 / upgrade 428 in the same pinned source.
-// Persians use Savar in that source; the replacement remains unimplemented.
+// Persians use the separately gated Savar upgrade, not the Paladin capability.
 const CIV_CORE_MILITARY=Object.freeze({
  'Franks':'mltcphvaeskd',
  'Britons':'mltcphvaesk',
@@ -914,7 +920,7 @@ const rsOf=(b,civs=S?.civ)=>{
  const melee=b.k==='smith'&&c&&CIV_MELEE_RESEARCH[c.n];
  const finalList=melee==null?barded:barded.filter(k=>!MELEE_RESEARCH_KEYS[k]||melee.includes(MELEE_RESEARCH_KEYS[k]));
  // Use the same regional unit catalogue as Stable training and authenticated orders.
- const regional=finalList.filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
+ const regional=finalList.filter(k=>k!=='savar'||index===4).filter(k=>(k!=='houfniceUpgrade'||index===36)&&(k!=='eliteThirisadai'||index===37)&&(k!=='legionaryUpgrade'||index===40)&&(index!==40||!['twohand','champ'].includes(k))).filter(k=>{
   // Regional upgrade research and production share the same legal roster for
   // solo commands, host-validated multiplayer, AI and the Xbox technology tree.
   const upgradeUnit={hcamel:'camel',eliteEagle:'eagle',heavyCavArch:'cavarch',eliteTurtle:'turtle',eliteCaravel:'caravel',heavyBatele:'batele'}[k];

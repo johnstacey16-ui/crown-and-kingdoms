@@ -16,7 +16,9 @@ function fixture(cap=2,{single=false}={}){
  const S={us:[],bs:single?[a]:[a,b]};
  const messages=[];
  const context={S,GAR:{tc:cap,castle:cap},note:m=>messages.push(m)};
- const bell=vm.runInNewContext(source+'\n;townBell;',context);
+ const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+ const capacity=kingdom.slice(kingdom.indexOf('function civilizationGarrisonCapacity('),kingdom.indexOf('/* Shared faction-adjusted construction prices'));
+ const bell=vm.runInNewContext(capacity+'\n'+source+'\n;townBell;',context);
  const villager=(x,y)=>({t:0,k:'vil',hp:30,x,y,o:'i',p:[],tg:null});
  return {S,a,b,bell,villager,messages};
 }

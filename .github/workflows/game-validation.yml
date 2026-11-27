@@ -162,6 +162,8 @@ jobs:
             artifacts/battlefield-art/painted-elites.json
             artifacts/battlefield-art/large-battle-recovery.png
             artifacts/battlefield-art/metrics.json
+            artifacts/battlefield-art/projectile-art.json
+            artifacts/battlefield-art/hulche-projectiles.png
             artifacts/battlefield-art/light-motion.png
             artifacts/battlefield-art/ranged-motion.png
             artifacts/battlefield-art/horse-motion.png

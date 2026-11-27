@@ -4,8 +4,8 @@
    Cross-origin Supabase traffic and non-GET requests are never intercepted. */
 'use strict';
 
-const ART_REVISION = '27fcdd76363c5baafcc95296af96f9244b83d543caf8c9304bde196629fdc071';
-const CACHE_NAME = 'ck-shell-v252-elite-dismounted-konnik-' + ART_REVISION;
+const ART_REVISION = '054cca667486a05f3d6acc9847e3505b1b14da3bdf7577fef02222845b46c368';
+const CACHE_NAME = 'ck-shell-v253-ballista-elephant-' + ART_REVISION;
 const CORE_ASSETS = [
   './assets/painted-elite-footkonnik.webp',
   './assets/painted-elite-orgun.webp',
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   './assets/painted-elite-arambai.webp',
   './assets/painted-elite-konnik.webp',
   './assets/painted-elite-ele.webp',
+  './assets/painted-elite-ballista-ele.webp',
   './assets/painted-elite-eled.webp',
   './assets/painted-elite-wagon.webp',
   './assets/painted-elite-mamel.webp',
@@ -149,6 +150,7 @@ const CORE_ASSETS = [
   './assets/painted-motion-king.webp',
   './assets/painted-motion-eled.webp',
   './assets/painted-motion-ele.webp',
+  './assets/painted-motion-ballista-ele.webp',
   './assets/painted-motion-ram.webp',
   './assets/painted-motion-bomb.webp',
   './assets/painted-motion-treb.webp',
@@ -260,6 +262,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Stream soundtrack media directly; never cache full or partial MP3 responses.
+  if (url.pathname.includes('/assets/music/')) return;
   // Authenticated relay responses must never enter or fall back to shell caches.
   if (url.pathname.startsWith('/api/multiplayer/') ||
       request.headers.has('Authorization') || request.cache === 'no-store') return;

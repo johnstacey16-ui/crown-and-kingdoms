@@ -494,3 +494,147 @@ test('Yeomen adds range without archer damage, and adds real Tower damage withou
  assert.equal(run('loadG()'),true);
  assert.equal(run("attackRange({k:'lbow',t:0})"),beforeRange+1);
 });
+
+
+test('Persian starting resources, building health and work rates are faction scoped',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.age=[0,0];S.res[0]={f:200,w:200,g:0,s:0};CIV[4].fx(0)");
+ assert.equal(run('S.res[0].f'),250);
+ assert.equal(run('S.res[0].w'),250);
+ run("globalThis.persianTC=addB(0,'tc',44,20,true);globalThis.enemyTC=addB(1,'tc',54,20,true);globalThis.persianDock=addB(0,'dock',44,32,false);globalThis.enemyDock=addB(1,'dock',54,32,true)");
+ assert.equal(run('persianTC.hp'),run('B.tc.hp')*2);
+ assert.equal(run('persianTC.mh'),run('B.tc.hp')*2);
+ assert.equal(run('enemyTC.mh'),run('B.tc.hp'));
+ assert.equal(run('persianDock.mh'),run('B.dock.hp')*2);
+ assert.equal(run('persianDock.hp'),1);
+ assert.equal(run('enemyDock.mh'),run('B.dock.hp'));
+ assert.equal(run('castles[0].mh'),run('B.castle.hp'));
+ for(const [age,rate] of [1.05,1.10,1.15,1.20].entries()){
+  run('S.age[0]='+age);
+  assert.equal(run("trainRate(persianTC,'vil')"),rate);
+  assert.equal(run("trainRate(persianDock,'fish')"),rate);
+  assert.equal(run("trainRate(enemyTC,'vil')"),1);
+  assert.equal(run("civilizationOwnWorkRate(castles[0])"),1);
+ }
+ run("S.res[0]={f:10000,w:10000,g:10000,s:10000};train(persianTC,'vil')");
+ assert.equal(run('persianTC.q.length'),1);
+ run('upB(persianTC,U.vil.t/1.2+.01)');
+ assert.equal(run("S.us.filter(u=>u.t===0&&u.k==='vil').length"),1);
+});
+
+
+test('Kamandaran changes only Persian Archer-line costs after completed research',()=>{
+ const {run}=fixture();
+ const cost=expr=>JSON.parse(run('JSON.stringify('+expr+')'));
+ run("S.civ=[4,1];S.age=[2,2];globalThis.range=addB(0,'rng',44,20,true)");
+ const base=cost("unitTrainingCost(0,'arc')");
+ const crossbow=cost("unitTrainingCost(0,'xbow')");
+ const skirm=cost("unitTrainingCost(0,'skirm')");
+ assert.equal(run("research(castles[0],'ut4')"),true);
+ assert.deepEqual(cost("unitTrainingCost(0,'arc')"),base);
+ run("upB(castles[0],TE.ut4.t)");
+ assert.deepEqual(cost("unitTrainingCost(0,'arc')"),{w:50});
+ assert.deepEqual(cost("unitTrainingCost(0,'xbow')"),{w:50});
+ assert.deepEqual(cost("unitTrainingCost(1,'arc')"),base);
+ assert.deepEqual(cost("unitTrainingCost(0,'skirm')"),skirm);
+ assert.deepEqual(cost("unitTrainingCost(0,'xbow',S.civ,[{},{}])"),crossbow);
+ assert.equal(run("S.tech[0].hpb?.ele||0"),0);
+ run("S.age[0]=1;S.res[0]={f:0,w:50,g:0,s:0}");
+ assert.equal(run("train(range,'arc')"),true);
+ assert.equal(run("S.res[0].w"),0);
+ assert.equal(run("cancelQ(range)"),true);
+ assert.equal(run("S.res[0].w"),50);
+ assert.equal(run("S.res[0].g"),0);
+});
+
+
+test('Persian War Elephant trample hits nearby enemies once and excludes friendly units',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.dip=createDiplomacy(2);globalThis.ele=addU(0,'ele',39,40);globalThis.primary=addU(1,'mil',40,40);globalThis.near=addU(1,'mil',40.3,40);globalThis.far=addU(1,'mil',40.8,40);globalThis.friend=addU(0,'mil',40,40.3);for(const u of [primary,near,far,friend])u.hp=1000");
+ const expected=run("Math.max(1,U.ele.dmg*.5-combatArmor(near,'m'))");
+ run('dmgT(ele,primary)');
+ assert.equal(run('1000-near.hp'),expected);
+ assert.equal(run('far.hp'),1000);
+ assert.equal(run('friend.hp'),1000);
+ assert.ok(run('primary.hp')<1000);
+ run('near.hp=1000;primary.hp=1000;S.civ[0]=0;dmgT(ele,primary)');
+ assert.equal(run('near.hp'),1000,'foreign elephant does not gain Persian splash');
+});
+test('Citadels reduces modeled anti-building bonus damage but not normal attack',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.dip=createDiplomacy(2);globalThis.target=castles[0]");
+ const hit=kind=>run("(()=>{target.hp=10000;dmgT({k:"+JSON.stringify(kind)+",t:1,x:19,y:20},target);return 10000-target.hp})()");
+ const normal=hit('mil'), siege=hit('ram');
+ run('S.tech[0].ut4p=1');
+ assert.equal(hit('mil'),normal);
+ assert.ok(hit('ram')<siege);
+ assert.ok(hit('ram')>0);
+});
+
+
+test('Teutonic age-dependent melee armour and farm discount are scoped to their civilization',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.tech=[{},{}];globalThis.infantry=addU(0,'mil',40,40);globalThis.cavalry=addU(0,'knight',41,40);globalThis.archer=addU(0,'arc',42,40)");
+ const kinds=['infantry','cavalry','archer'];
+ run('S.age=[0,0]');
+ const base=kinds.map(k=>[run("combatArmor("+k+",'m')"),run("combatArmor("+k+",'p')")]);
+ for(let age=0;age<4;age++){
+  run('S.age[0]='+age);
+  for(let i=0;i<kinds.length;i++){
+   assert.equal(run("combatArmor("+kinds[i]+",'m')"),base[i][0]+(i<2?Math.max(0,age-1):0));
+   assert.equal(run("combatArmor("+kinds[i]+",'p')"),base[i][1]);
+  }
+ }
+ run('CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].armI||0'),0);
+ assert.equal(run("civilizationBuildingCost('farm',0).w"),Math.round(run('B.farm.cost.w')*.6));
+ assert.equal(run("civilizationBuildingCost('farm',1).w"),run('B.farm.cost.w'));
+ assert.equal(run("civilizationBuildingCost('house',0).w"),run('B.house.cost.w'));
+ run('S.tech[0].armI=1');
+ assert.equal(run("combatArmor(infantry,'m')"),base[0][0]+3);
+ assert.equal(run("combatArmor(infantry,'p')"),base[0][1]+1);
+});
+
+
+test('Teutonic defensive bonuses apply to the owner and conversion resistance follows alliances',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.dip=createDiplomacy(2);S.age=[1,1];S.tech=[{},{}]");
+ const copy=expr=>JSON.parse(run('JSON.stringify('+expr+')'));
+ const ordinary=copy("conversionWindow({k:'mil',t:1})");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:0})"),{min:ordinary.min+3,max:ordinary.max+1});
+ run("S.dip[0][1]=S.dip[1][0]='ally'");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:1})"),{min:ordinary.min+3,max:ordinary.max+1});
+ run("S.dip[0][1]=S.dip[1][0]='neutral'");
+ assert.deepEqual(copy("conversionWindow({k:'mil',t:1})"),ordinary);
+ for(const kind of ['tc','tower','castle']){
+  const extra=kind==='tc'?10:kind==='tower'?5:0;
+  assert.equal(run("civilizationGarrisonCapacity({k:'"+kind+"',t:0})"),run("GAR['"+kind+"']")+extra);
+  assert.equal(run("civilizationGarrisonCapacity({k:'"+kind+"',t:1})"),run("GAR['"+kind+"']"));
+ }
+ run('CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].murderHoles||0'),0);
+ assert.equal(run('S.tech[0].herbalMedicine||0'),0);
+ run("globalThis.tc=addB(0,'tc',44,20,true);tc.rs={k:'age',t:1};upB(tc,2)");
+ assert.equal(run('S.age[0]'),2);
+ assert.equal(run('S.tech[0].murderHoles'),1);
+ assert.equal(run('S.tech[0].herbalMedicine'),1);
+ assert.equal(run('S.tech[1].murderHoles||0'),0);
+ run('S.tech[0]={};S.age[0]=3;CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].murderHoles'),1);
+ assert.equal(run('S.tech[0].herbalMedicine'),1);
+});
+
+
+test('Teutonic Knight base and elite melee armour stack with age and blacksmith upgrades',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.age=[2,2];S.tech=[{},{}];globalThis.tk=addU(0,'tk',40,40)");
+ assert.equal(run('mhp(tk)'),90);
+ assert.equal(run("combatArmor(tk,'m')"),8);
+ assert.equal(run("combatArmor(tk,'p')"),2);
+ run('S.age[0]=3;S.tech[0].eliteTeutonicKnight=1');
+ assert.equal(run("combatArmor(tk,'m')"),10);
+ assert.equal(run("combatArmor(tk,'p')"),2);
+ run('S.tech[0].armI=1');
+ assert.equal(run("combatArmor(tk,'m')"),11);
+ assert.equal(run("combatArmor(tk,'p')"),3);
+});

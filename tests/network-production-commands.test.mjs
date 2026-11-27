@@ -347,6 +347,108 @@ test('both authenticated players research Paladin only at the host frame and pay
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[[700,250],[700,250]]);assert.deepEqual(Array.from(out.hp),[160,160]);assert.deepEqual(Array.from(out.names),['Paladin','Paladin']);
 });
 
+for(const [civ,key,kind]of [[6,'ut6','ram'],[8,'ut8','camel'],[14,'ut14','vil']]){
+ test(`${key} applies existing-unit HP through authorized host research without a foreign purchase`,()=>{
+  const out=world(`
+   S.civ=[${civ},1];S.age=[3,3];S.tech=[{},{}];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+   S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+   const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+   const troops=[addU(0,'${kind}',25,25),addU(1,'${kind}',36,25)];
+   troops[0].hp-=10;const hp=troops.map(u=>u.hp),before=JSON.stringify(S.res);
+   const forged=host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[0].netId],value:'${key}'}),'guest-session',2);
+   const requests=[host.receive(packet('host-session',0,1,6,{type:'research',entities:[castles[0].netId],value:'${key}'}),'host-session',2),
+    host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[1].netId],value:'${key}'}),'guest-session',2)];
+   const deferred=JSON.stringify(S.res)===before&&castles.every(b=>!b.rs),applied=host.applyFrame(6);
+   const hpBeforeCompletion=troops.map(u=>u.hp);upB(castles[0],TE.${key}.t+.1);
+   const after=JSON.stringify({res:S.res,tech:S.tech,hp:troops.map(u=>u.hp)});
+   host.receive(packet('host-session',0,2,8,{type:'research',entities:[castles[0].netId],value:'${key}'}),'host-session',2);
+   const duplicate=host.applyFrame(8)[0];
+   return {forged:forged.reason,accepted:requests.map(r=>r.ok),deferred,applied:applied.map(r=>r.ok),
+    hp,hpBeforeCompletion,afterHp:troops.map(u=>u.hp),bonus:TE.${key}.hpb['${kind}'],cost:TE.${key}.cost,
+    paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),duplicate:duplicate.ok,
+    unchanged:JSON.stringify({res:S.res,tech:S.tech,hp:troops.map(u=>u.hp)})===after};
+  `);
+  assert.equal(out.forged,'unauthorized-order');assert.deepEqual(Array.from(out.accepted),[true,true]);
+  assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.applied),[true,false]);
+  assert.deepEqual(Array.from(out.hpBeforeCompletion),Array.from(out.hp));
+  assert.equal(out.afterHp[0],out.hp[0]+out.bonus);assert.equal(out.afterHp[1],out.hp[1]);
+  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:out.cost.f||0,g:out.cost.g||0},{f:0,g:0}]);
+  assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+ });
+}
+
+test('host-authorized Tigui research grants only the owning Malian Town Centre its eight extra arrows',()=>{
+ const out=world(`
+  S.civ=[23,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',48,20,true)];
+  const centres=[addB(0,'tc',30,30,true),addB(1,'tc',44,44,true)];
+  addU(1,'mil',34,31.5);addU(0,'mil',48,45.5);
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut23'});
+  const accepted=[host.receive(packet('host-session',0,1,6,order(0)),'host-session',2).ok,
+   host.receive(packet('guest-session',1,1,6,order(1)),'guest-session',2).ok];
+  const deferred=centres.every(b=>!b.rs)&&!castles[0].rs&&S.res[0].f===10000;
+  const applied=host.applyFrame(6).map(r=>r.ok);upB(castles[0],TE.ut23.t+.1);S.tech[1].ut23=1;
+  S.pj=[];for(const b of centres){b.cd=0;upB(b,.1)}
+  const after=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);const duplicate=host.applyFrame(10)[0].ok;
+  return {accepted,deferred,applied,shots:[0,1].map(t=>S.pj.filter(p=>p.a.t===t).length),
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),cost:TE.ut23.cost,duplicate,unchanged:JSON.stringify(S.res)===after};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.applied),[true,false]);
+ assert.deepEqual(Array.from(out.shots),[9,1]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:out.cost.f,g:out.cost.g},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});
+
+test('host Shatagni research enforces Imperial age, price and civilization before granting range',()=>{
+ const out=world(`
+  S.civ=[13,0];S.age=[2,3];S.tech=[{},{}];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+  const guns=[addU(0,'hcan',25,25),addU(1,'hcan',36,25)],base=guns.map(u=>attackRange(u));
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut13'});
+  host.receive(packet('host-session',0,1,6,order(0)),'host-session',2);
+  const wrongAge=host.applyFrame(6)[0].ok,ageBudget=S.res[0].g;
+  S.age[0]=3;S.res[0].g=649;
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);
+  const poor=host.applyFrame(10)[0].ok,poorBudget=S.res[0].g;
+  S.res[0].g=10000;
+  const accepted=host.receive(packet('host-session',0,3,14,order(0)),'host-session',10).ok;
+  host.receive(packet('guest-session',1,1,14,order(1)),'guest-session',10);
+  const deferred=!castles[0].rs&&S.res[0].g===10000,results=host.applyFrame(14).map(r=>r.ok),during=attackRange(guns[0]);
+  upB(castles[0],TE.ut13.t+.1);S.tech[1].ut13=1;
+  return {wrongAge,ageBudget,poor,poorBudget,accepted,deferred,results,base,during,ranges:guns.map(u=>attackRange(u)),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.wrongAge,false);assert.equal(out.ageBudget,10000);
+ assert.equal(out.poor,false);assert.equal(out.poorBudget,649);
+ assert.equal(out.accepted,true);assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.results),[true,false]);
+ assert.equal(out.during,out.base[0]);assert.deepEqual(Array.from(out.ranges),[out.base[0]+2,out.base[1]]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:500,g:650},{f:0,g:0}]);
+});
+
+test('two authorized Mayan players research Hulche and fire weak second javelins through host attack orders',()=>{
+ const out=world(`
+  S.civ=[20,20];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',32,20,true)];
+  const troops=[addU(0,'skirm',25,25),addU(1,'skirm',28,25)];
+  const sessions=['host-session','guest-session'],budget=JSON.stringify(S.res);
+  const accepted=sessions.map((sid,t)=>host.receive(packet(sid,t,1,6,{type:'research',entities:[castles[t].netId],value:'ut20'}),sid,2).ok);
+  const deferred=JSON.stringify(S.res)===budget&&castles.every(b=>!b.rs),research=host.applyFrame(6);
+  for(const b of castles)upB(b,TE.ut20.t+.1);S.pj=[];
+  const orders=sessions.map((sid,t)=>host.receive(packet(sid,t,2,10,{type:'attack',entities:[troops[t].netId],target:troops[1-t].netId}),sid,6).ok);
+  const attacks=host.applyFrame(10);
+  for(let i=0;i<60&&S.pj.length<4;i++){S.t+=DT;for(const u of troops)upU(u,DT)}
+  return {accepted,deferred,research:research.map(r=>r.ok),orders,attacks:attacks.map(r=>r.ok),
+   paid:S.res.map(r=>({f:10000-r.f,w:10000-r.w})),cost:TE.ut20.cost,
+   shots:[0,1].map(t=>S.pj.filter(p=>p.a.t===t).length),weak:[0,1].map(t=>S.pj.filter(p=>p.a.t===t&&p.a.skirmisherSecondary===true).length)};
+ `);
+ for(const key of['accepted','research','orders','attacks'])assert.deepEqual(Array.from(out[key]),[true,true],key);
+ assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.shots),[2,2]);assert.deepEqual(Array.from(out.weak),[1,1]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),Array(2).fill({f:out.cost.f,w:out.cost.w}));
+});
+
 test('both authenticated players research Hussar only at the host frame and pay their own budgets',()=>{
  const out=world(`
   S.civ=[2,3];S.age=[3,3];S.us=[];S.bs=[];S.g.fill(0);S.wt.fill(0);S.nd.fill(null);
@@ -417,4 +519,146 @@ test('Dock resource rally sends a trained Fishing Ship to fish and persists its 
   return {accepted,result,dispatched,saved,loaded,reference:restored?.rally?.t===S.nodes.find(n=>n.netId===fish.netId)};
  `);
  for(const [k,v] of Object.entries(out))assert.equal(v,true,k);
+});
+
+test('authenticated Royal Heirs research protects only its paid Ethiopian owner after completion',()=>{
+ const out=world(`
+  S.civ=[22,0];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];S.el.fill(0);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',40,20,true)];
+  const defenders=[addU(0,'shotel',30,30),addU(1,'shotel',31,30)];
+  const hit=t=>{const target=defenders[t];target.hp=1000;dmgT({k:'knight',t:1-t,x:30,y:30},target);return 1000-target.hp};
+  const base=[hit(0),hit(1)],order=t=>({type:'research',entities:[castles[t].netId],value:'ut22'});
+  const forged=host.receive(packet('guest-session',1,1,6,order(0)),'guest-session',2).reason;
+  const accepted=host.receive(packet('host-session',0,1,6,order(0)),'host-session',2).ok;
+  host.receive(packet('guest-session',1,1,6,order(1)),'guest-session',2);
+  const deferred=!castles[0].rs&&S.res[0].f===10000,applied=host.applyFrame(6).map(r=>r.ok),during=hit(0);
+  upB(castles[0],TE.ut22.t+.1);S.tech[1].ut22=1;
+  const after=[hit(0),hit(1)],budget=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);
+  const duplicate=host.applyFrame(10)[0].ok;
+  return {forged,accepted,deferred,applied,base,during,after,duplicate,unchanged:budget===JSON.stringify(S.res),
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.forged,'unauthorized-order');assert.equal(out.accepted,true);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.applied),[true,false]);assert.equal(out.during,out.base[0]);
+ assert.deepEqual(Array.from(out.after),[Math.max(1,out.base[0]-3),out.base[1]]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:300,g:200},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});
+
+test('both authenticated Incan players pay for Andean Sling and fire at close range through host attack orders',()=>{
+ const out=world(`
+  S.civ=[21,21];S.age=[2,2];S.tech=[{thumb:1},{thumb:1}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const troops=[addU(0,'skirm',30,30),addU(1,'skirm',30.5,30)];
+  for(const u of troops){u.st=2;u.hp=1000}
+  const sessions=['host-session','guest-session'];
+  const accepted=sessions.map((sid,t)=>host.receive(packet(sid,t,1,6,{type:'research',entities:[castles[t].netId],value:'ut21'}),sid,2).ok);
+  const deferred=castles.every(b=>!b.rs)&&S.res.every(r=>r.f===10000),researched=host.applyFrame(6).map(r=>r.ok);
+  const before=troops.map(u=>attackMinimumRange(u));
+  for(const b of castles)upB(b,TE.ut21.t+.1);S.pj=[];
+  const orders=sessions.map((sid,t)=>host.receive(packet(sid,t,2,10,{type:'attack',entities:[troops[t].netId],target:troops[1-t].netId}),sid,6).ok);
+  const attacks=host.applyFrame(10).map(r=>r.ok);
+  for(let i=0;i<80&&S.pj.length<2;i++){S.t+=DT;for(const u of troops)upU(u,DT)}
+  const shots=troops.map(u=>S.pj.filter(p=>p.a.t===u.t).length),positions=troops.map(u=>u.x);
+  pjs(.2);
+  return {accepted,deferred,researched,before,after:troops.map(u=>attackMinimumRange(u)),orders,attacks,shots,positions,
+   damage:troops.map(u=>1000-u.hp),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.deepEqual(Array.from(out.accepted),[true,true]);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.researched),[true,true]);assert.deepEqual(Array.from(out.before),[1,1]);
+ assert.deepEqual(Array.from(out.after),[0,0]);assert.deepEqual(Array.from(out.orders),[true,true]);
+ assert.deepEqual(Array.from(out.attacks),[true,true]);assert.deepEqual(Array.from(out.shots),[1,1]);
+ assert.deepEqual(Array.from(out.positions),[30,30.5]);assert.ok(out.damage.every(n=>n>0));
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,g:200},{f:250,g:200}]);
+});
+
+test('both authenticated Italian players research Silk Road and receive exact discounted train/cancel prices',()=>{
+ const out=world(`
+  S.civ=[15,15];S.age=[2,2];S.tech=[{},{}];S.us=[];S.bs=[];
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const markets=[addB(0,'market',28,28,true),addB(1,'market',48,48,true)];
+  for(let t=0;t<2;t++)addB(t,'house',12+t*40,12,true);
+  const sessions=['host-session','guest-session'];
+  const send=(seq,frame,now,order)=>sessions.map((sid,t)=>host.receive(packet(sid,t,seq,frame,order(t)),sid,now).ok);
+  const accepted=send(1,6,2,t=>({type:'research',entities:[castles[t].netId],value:'ut15'}));
+  const deferred=S.res.every(r=>r.f===10000)&&castles.every(b=>!b.rs),research=host.applyFrame(6).map(r=>r.ok);
+  const before=markets.map((b,t)=>window.CK_GAME_COMMANDS.buildingOptions(S,t,b).find(o=>o.type==='train'&&o.value==='cart').cost.w);
+  for(const b of castles)upB(b,TE.ut15.t+.1);
+  const after=markets.map((b,t)=>window.CK_GAME_COMMANDS.buildingOptions(S,t,b).find(o=>o.type==='train'&&o.value==='cart').cost.w);
+  const train=send(2,10,6,t=>({type:'train',entities:[markets[t].netId],value:'cart'})),trained=host.applyFrame(10).map(r=>r.ok);
+  const paid=S.res.map(r=>({f:10000-r.f,w:10000-r.w,g:10000-r.g}));
+  const cancel=send(3,14,10,t=>({type:'cancel',entities:[markets[t].netId]})),cancelled=host.applyFrame(14).map(r=>r.ok);
+  return {accepted,deferred,research,before,after,train,trained,paid,cancel,cancelled,
+   refunded:S.res.every(r=>r.w===10000&&r.f===9750&&r.g===9750),empty:markets.every(b=>b.q.length===0)};
+ `);
+ for(const key of ['accepted','research','train','trained','cancel','cancelled'])assert.deepEqual(Array.from(out[key]),[true,true],key);
+ assert.equal(out.deferred,true);assert.deepEqual(Array.from(out.before),[100,100]);assert.deepEqual(Array.from(out.after),[50,50]);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,w:50,g:250},{f:250,w:50,g:250}]);
+ assert.equal(out.refunded,true);assert.equal(out.empty,true);
+});
+
+test('host Chieftains enforces age, price and ownership before a real infantry attack gains cavalry damage',()=>{
+ const out=world(`
+  S.civ=[7,0];S.age=[1,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const infantry=addU(0,'bers',30,30),rider=addU(1,'knight',30.5,30);infantry.st=2;rider.hp=1000;
+  const base=Math.max(1,U.bers.dmg-combatArmor(rider,'m'));
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut7'});
+  host.receive(packet('host-session',0,1,6,order(0)),'host-session',2);const wrongAge=host.applyFrame(6)[0].ok;
+  S.age[0]=2;S.res[0].g=449;
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);const poor=host.applyFrame(10)[0].ok,poorGold=S.res[0].g;
+  S.res[0].g=10000;
+  host.receive(packet('host-session',0,3,14,order(0)),'host-session',10);
+  host.receive(packet('guest-session',1,1,14,order(1)),'guest-session',10);
+  const deferred=!castles[0].rs&&S.res[0].f===10000,researched=host.applyFrame(14).map(r=>r.ok);
+  upB(castles[0],TE.ut7.t+.1);
+  const attack=host.receive(packet('host-session',0,4,18,{type:'attack',entities:[infantry.netId],target:rider.netId}),'host-session',14).ok;
+  const applied=host.applyFrame(18)[0].ok;
+  for(let i=0;i<80&&rider.hp===1000;i++){S.t+=DT;upU(infantry,DT)}
+  const gold=S.res[0].g;
+  host.receive(packet('host-session',0,5,22,order(0)),'host-session',18);const duplicate=host.applyFrame(22)[0].ok;
+  return {wrongAge,poor,poorGold,deferred,researched,attack,applied,base,hit:1000-rider.hp,duplicate,
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),unchanged:S.res[0].g===gold};
+ `);
+ assert.equal(out.wrongAge,false);assert.equal(out.poor,false);assert.equal(out.poorGold,449);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.researched),[true,false]);assert.equal(out.attack,true);assert.equal(out.applied,true);
+ assert.equal(out.hit,out.base+5);assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:600,g:450},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});
+
+test('host-authorized Elite Cataphract resistance absorbs combined incoming spear and Chieftains bonuses once',()=>{
+ const out=world(`
+  S.civ=[3,7];S.age=[3,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const defender=addU(0,'cata',30.5,30),attacker=addU(1,'spear',30,30);attacker.st=2;
+  const elite={type:'research',entities:[castles[0].netId],value:'eliteCataphract'};
+  const forged=host.receive(packet('guest-session',1,1,6,elite),'guest-session',2).reason;
+  const accepted=[host.receive(packet('host-session',0,1,6,elite),'host-session',2).ok,
+   host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[1].netId],value:'ut7'}),'guest-session',2).ok];
+  const research=host.applyFrame(6).map(r=>r.ok),during=cavalryCounterArmor(defender);
+  upB(castles[0],TE.eliteCataphract.t+.1);upB(castles[1],TE.ut7.t+.1);S.pj=[];defender.hp=1000;
+  const resistance=cavalryCounterArmor(defender),counter=factionCounterBonus(attacker,defender,spearLineBonus(attacker,defender));
+  const expected=Math.max(1,U.spear.dmg+4-combatArmor(defender,'m'));
+  const attack=host.receive(packet('guest-session',1,2,10,{type:'attack',entities:[attacker.netId],target:defender.netId}),'guest-session',6).ok;
+  const applied=host.applyFrame(10)[0].ok;
+  for(let i=0;i<80&&defender.hp===1000;i++){S.t+=DT;upU(attacker,DT)}
+  const budget=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,14,elite),'host-session',10);const duplicate=host.applyFrame(14)[0].ok;
+  return {forged,accepted,research,during,resistance,counter,expected,attack,applied,hit:1000-defender.hp,
+   duplicate,unchanged:budget===JSON.stringify(S.res),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.forged,'unauthorized-order');assert.deepEqual(Array.from(out.accepted),[true,true]);
+ assert.deepEqual(Array.from(out.research),[true,true]);assert.equal(out.during,12);assert.equal(out.resistance,16);
+ assert.equal(out.counter,4);assert.equal(out.attack,true);assert.equal(out.applied,true);assert.equal(out.hit,out.expected);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:1200,g:800},{f:600,g:450}]);
 });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "27fcdd76363c5baafcc95296af96f9244b83d543caf8c9304bde196629fdc071",
+  "revision": "054cca667486a05f3d6acc9847e3505b1b14da3bdf7577fef02222845b46c368",
   "files": {
     "./assets/painted-building-donjon.webp": "5cf619683d1ea36a8a0e3770839a9879c4b12e1851c6bc113032242bb18b0d9d",
     "./assets/painted-building-fchurch.webp": "16cbff8ac6d378a11969ad0a387bf222cb609579af460f6ea8b12e1d6c3b55f3",
@@ -12,6 +12,7 @@
     "./assets/painted-buildings.webp": "f3102a598ed37934444ab0ca7cda447d9bf33446d4734147593ef18b5d01c8d0",
     "./assets/painted-elite-arambai.webp": "789b992ad1015e2a7ecd4476de8294c794c6bc1573f09cc06ec2848d1de58d44",
     "./assets/painted-elite-axe.webp": "e90dead31078ebad3f9899690ea5c06590ad86cbcb691d565812046b5f7a1b80",
+    "./assets/painted-elite-ballista-ele.webp": "8dfed6e231df126acba20af2a94d58db342798fc52afe8a7f67f07b4eb4100fa",
     "./assets/painted-elite-bers.webp": "ba84845f3f2b36a8164301a083d2f73ffb31b6fb7f53c61fdc7a2b78b3a8026a",
     "./assets/painted-elite-boyar.webp": "9823d45932be3c9bacbc234b148f79549b7caf908551a95ec60567fa1ac0820f",
     "./assets/painted-elite-cata.webp": "bf7db16e8726127f26ba191f9bd64b125127d0191a9a27c02e29eb0b17a62525",
@@ -60,6 +61,7 @@
     "./assets/painted-motion-arambai.webp": "b7a15668b03972f7cf0de5622b9b2b795ae4eb0148badd0dd225ee9e83817304",
     "./assets/painted-motion-arc.webp": "0c5fab9317ff58472c44e6c6155d697b3a0c660d424d53ab3afa9b4cccb15a32",
     "./assets/painted-motion-axe.webp": "e8118307281117d8cf204b6b5003a3737d2846bd5afb54aa062eff6b8384c27b",
+    "./assets/painted-motion-ballista-ele.webp": "9a56985fe4a80a26eda74e7d2cb674327897242018bca25c3459af8ff84bc877",
     "./assets/painted-motion-batele.webp": "98a5f88ae5e36e2993b89bbd637257fce523ac562283528ed27e2c9eb6e73cc2",
     "./assets/painted-motion-bers.webp": "1c79626d4b8e90f2c261b538d301c60e9a22cf8b6255af3b06cff3bff79f28c4",
     "./assets/painted-motion-bomb.webp": "d46111e119d808344de0abf0d6f9a75fdb1346df7eeaa831ca9c20942b0267bc",

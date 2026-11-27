@@ -92,7 +92,7 @@ return {hostileFleet,hostileShips,humanArmy,humanShips,navalThreatCount};
  * than closing over aiTeam so production and focused policy checks use one owner.
  * Existing research weights, prerequisites and sorting remain unchanged. */
 function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,humanInf,humanShips}){
- const base={loom:76,wheel:79,handcart:75,gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60,armI2:64,armI3:66,armR:60,armR2:64,armR3:66,armC:60,armC2:64,armC3:66,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,blood:68,squires:64,arson:56,xbow:70,arb:65,elsk:64,lcav:62,cavl:65,pala:68,huss:65,siegeup:54,onager:60,siegeOnager:52,cappedRam:56,siegeRam:52,heavyScorp:56,galleon:59,fastFire:59,heavyBatele:62,eliteCaravel:60,eliteEagle:66,heavyCavArch:57,eliteTurtle:60,hoardings:48,arch:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57,eliteCgal:54,chem:58,devotion:40,faith:30,heresy:25,redemption:45,atonement:40,sanctity:55,fervor:48,blockPrinting:60,illumination:50,theocracy:42,herbalMedicine:36,murderHoles:38};
+ const base={loom:76,wheel:79,handcart:75,gath:86,axe:82,saw:78,gmine:74,smine:66,coll:75,plow:70,crop:60,carry:58,forging:62,ironCasting:69,blastFurnace:72,atkR:62,atkR2:72,bodkin:69,ballistics:73,thumb:67,armI:60,armI2:64,armI3:66,armR:60,armR2:64,armR3:66,armC:60,armC2:64,armC3:66,man:65,longs:66,twohand:65,champ:64,cons:62,pike:63,halb:66,husb:64,blood:68,squires:64,arson:56,xbow:70,arb:65,elsk:64,lcav:62,cavl:65,pala:68,savar:68,huss:65,siegeup:54,onager:60,siegeOnager:52,cappedRam:56,siegeRam:52,heavyScorp:56,galleon:59,fastFire:59,heavyBatele:62,eliteCaravel:60,eliteEagle:66,heavyCavArch:57,eliteTurtle:60,hoardings:48,arch:54,crane:50,mas:52,slit:45,fw:35,gtow:40,keep:36,navalAtk:55,navalHull:57,eliteCgal:54,chem:58,devotion:40,faith:30,heresy:25,redemption:45,atonement:40,sanctity:55,fervor:48,blockPrinting:60,illumination:50,theocracy:42,herbalMedicine:36,murderHoles:38};
  // Unit policy can also be evaluated without a booted civilization roster.
  const eliteCiv=typeof CIV==='undefined'?null:CIV.find(c=>c.elite?.k===k);
  const secondCiv=typeof CIV==='undefined'?null:CIV.find(c=>c.ut2?.k===k);
@@ -137,7 +137,7 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='cons'&&arm.length>=8)score+=24;
  if(['forging','ironCasting','blastFurnace'].includes(k)&&ownInf+ownCav>=4)score+=24;
  if(k==='atkR'&&ownRanged>=4)score+=24;
- if(k==='pala'&&arm.filter(u=>u.k==='knight').length>=4)score+=32;
+ if((k==='pala'||k==='savar')&&arm.filter(u=>u.k==='knight').length>=4)score+=32;
  if(k==='huss'&&arm.filter(u=>u.k==='scout').length>=4)score+=32;
  if(k==='siegeup'&&humanSiege>=1)score+=42;
  if(k==='onager'||k==='siegeOnager'){
@@ -154,6 +154,33 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
  if(k==='navalAtk'&&humanShips.length)score+=105;
  if(k==='eliteCgal'){const n=my.filter(u=>u.k==='cgal'&&!u.ld&&u.hp>0).length;score+=n>=2?60:n?12:-48;}
  if(eliteCiv){const n=my.filter(u=>u.k===eliteCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?55:n?18:-35;}
+ if(k==='ut20'||k==='ut13'){
+  const kind=k==='ut20'?'skirm':'hcan',n=my.filter(u=>u.k===kind&&!u.ld&&u.hp>0).length;
+  score+=n>=3?55:n?18:-35;
+ }
+ const effects=typeof TE!=='undefined'?TE[k]:null;
+ const mountedDefence=effects?.mountedDamageReduction,closeRange=effects?.minimumRangeReduction;
+ if(mountedDefence||closeRange){
+  const n=my.filter(u=>!u.ld&&u.hp>0&&
+   ((Number.isFinite(mountedDefence?.[u.k])&&mountedDefence[u.k]>0)||
+    (Number.isFinite(closeRange?.[u.k])&&closeRange[u.k]>0))).length;
+  score+=n>=3?55:n?18:-35;
+  if(mountedDefence&&n&&humanCav>=2)score+=20;
+ }
+ if(k==='ut7'){
+  const n=my.filter(u=>INFARM.has(u.k)&&!u.ld&&u.hp>0).length;
+  score+=n>=3?55:n?18:-35;
+  if(n&&humanCav>=2)score+=25;
+ }
+ if(k==='ut15'){
+  const n=my.filter(u=>(u.k==='cart'||u.k==='cog')&&!u.ld&&u.hp>0).length;
+  score+=n>=3?55:n?18:-35;
+ }
+ if(k==='ut23'){
+  const centres=bl.filter(b=>b.k==='tc'&&b.done&&b.hp>0);
+  score+=centres.length>=3?55:centres.length?25:-35;
+  if(centres.some(b=>b.hp<b.mh*.8))score+=20;
+ }
  if(secondCiv){const n=my.filter(u=>u.k===secondCiv.uu&&!u.ld&&u.hp>0).length;score+=n>=3?40:n?14:-30;}
  if(k==='chem'&&my.some(u=>['gal','fire','cgal'].includes(u.k)))score+=16;
  if(k==='atkR'&&humanRanged>=4)score+=18;

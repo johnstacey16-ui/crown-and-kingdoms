@@ -173,7 +173,7 @@ function townBell(t){
   let shelter=null,best=Infinity;
   for(const b of shelters){
    const ownReservation=u.o==='B'&&u.tg===b?1:0;
-   if((occupancy.get(b)||0)-ownReservation>=GAR[b.k])continue;
+   if((occupancy.get(b)||0)-ownReservation>=civilizationGarrisonCapacity(b))continue;
    const sz=b.s||0,dx=Math.max(b.x-u.x,0,u.x-(b.x+sz)),dy=Math.max(b.y-u.y,0,u.y-(b.y+sz)),distanceSq=dx*dx+dy*dy;
    if(distanceSq<best){best=distanceSq;shelter=b}
   }

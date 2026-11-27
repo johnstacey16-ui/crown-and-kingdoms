@@ -39,8 +39,8 @@ function scriptedPlayerTick(){
   const k=Object.keys(desired).sort((a,b)=>(assigned[a]/Math.max(1,workers.length)-desired[a])-(assigned[b]/Math.max(1,workers.length)-desired[b]))[0];
   if(u.o==='g'&&(u.ct===k||assigned[u.ct]<=Math.ceil((desired[u.ct]||0)*workers.length)))continue;
   let nodes=S.nodes.filter(n=>n.k===k&&n.amt>0&&!n.an&&!n.fi&&Math.hypot(n.x-tc.x,n.y-tc.y)<30).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
-  if(k==='f'&&(!nodes.length||nodes[0].fm&&S.nodes.filter(n=>n.fm&&n.t===0&&n.amt>0).length<Math.ceil(workers.length*.5))&&can(0,B.farm.cost)){
-   farm:for(let r=4;r<=10;r++)for(let dx=-r;dx<=r;dx++)for(const dy of [-r,r]){const x=tc.x+dx,y=tc.y+dy;if(!okPlace(0,'farm',x,y)||!path(u,gp(x+.5,y+.5,1.5)))continue;const n=addN('f',x,y,farmFood(0),1);if(n){n.t=0;pay(0,B.farm.cost);nodes=[n,...nodes];playerStats.buildOrders++;break farm}}
+  if(k==='f'&&(!nodes.length||nodes[0].fm&&S.nodes.filter(n=>n.fm&&n.t===0&&n.amt>0).length<Math.ceil(workers.length*.5))&&can(0,civilizationBuildingCost('farm',0))){
+   farm:for(let r=4;r<=10;r++)for(let dx=-r;dx<=r;dx++)for(const dy of [-r,r]){const x=tc.x+dx,y=tc.y+dy;if(!okPlace(0,'farm',x,y)||!path(u,gp(x+.5,y+.5,1.5)))continue;const n=addN('f',x,y,farmFood(0),1);if(n){n.t=0;pay(0,civilizationBuildingCost('farm',0));nodes=[n,...nodes];playerStats.buildOrders++;break farm}}
   }
   for(const n of nodes.slice(0,6))if(path(u,goalNear(n,1))){if(u.o==='g'&&u.ct in assigned)assigned[u.ct]--;S.sel=[u];orderSel(n,n.x+.5,n.y+.5);assigned[k]++;break}
  }

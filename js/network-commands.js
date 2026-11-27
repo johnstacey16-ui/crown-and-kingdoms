@@ -320,7 +320,7 @@
           !inSight(target,visibility(S,team,W,H),W,H) ||
           (target.t!==team && S.dip?.[team]?.[target.t]!=='ally')) return false;
       if (order.type==='garrison') {
-        const capacity=building ? (target.done&&GAR[target.k]) : (target.t===team&&U[target.k]?.cap);
+        const capacity=building ? (target.done&&civilizationGarrisonCapacity(target,S)) : (target.t===team&&U[target.k]?.cap);
         const cargo=target.cg||[];
         if (!capacity || !Array.isArray(cargo) || new Set(cargo).size!==cargo.length ||
             cargo.some(u=>!S.us.includes(u)||u.hp<=0||u.ld!==target||u.t!==target.t||!U[u.k]||U[u.k].sh) ||

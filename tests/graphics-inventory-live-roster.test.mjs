@@ -36,7 +36,7 @@ test('original painted art production queue tracks only the remaining genuinely 
  assert.deepEqual(promised,missing,'art briefs must not claim or omit an already painted sheet');
  assert.equal(new Set(promised).size,promised.length,'one authored brief per distinct unit kind');
  assert.deepEqual(queue.shared.sourceDimensions,[1536,1024]);
- assert.equal(queue.items.length,0,'no current base unit kind remains in the source-only queue');
+ assert.deepEqual(promised,[],'no playable base sheet remains missing');
  assert.ok(queue.items.every(item=>item.state==='pending-generation'&&item.artStatus.includes('missing')));
  assert.ok(queue.items.every(item=>item.identity.length>55&&item.equipment.length>45&&item.motion.length>48));
  assert.ok(queue.items.every(item=>item.reference.startsWith('assets/painted-motion-')&&item.reference.endsWith('.webp')));
