@@ -153,6 +153,7 @@ const CK_TITLE_OPTIONS=Object.freeze([
 ]);
 let ckTitleScene=null;
 let ckTitleMotionPreference=null;
+const ckTitleReveal={screen:null,started:0,last:0};
 function titleLayout(width,height,index){
  const edge=Math.max(12,Math.min(64,width*.045,height*.055));
  const wide=width>=height*1.28;
@@ -311,6 +312,18 @@ function paintTitleLife(g,m){
   const p=point(x,y);X.fillRect(p[0],p[1],2*sx,4*sy);
  }
 }
+/* A short scene-only reveal; text, controller focus and actions remain live.
+ * The private clock never participates in simulation, input or saved state. */
+function titleRevealAlpha(state,screen,now,reduced){
+ const t=Number.isFinite(now)?Math.max(0,now):0;
+ if(state.screen!==screen||t<state.last||t-state.last>800){
+  state.screen=screen;state.started=t;
+ }
+ state.last=t;
+ if(reduced){state.started=t-280;return 0}
+ const progress=Math.min(1,Math.max(0,(t-state.started)/280));
+ return .22*(1-progress)*(1-progress);
+}
 function titleScene(){
  if(!ckTitleScene&&typeof document!=='undefined'&&typeof document.createElement==='function'){
   const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
@@ -321,11 +334,17 @@ function titleScene(){
  if(ckTitleScene)X.drawImage(ckTitleScene,g.dx,g.dy,g.w,g.h);
  else{g={sx:CW/960,sy:CH/540,dx:0,dy:0};X.save();X.scale(g.sx,g.sy);paintTitleValley(X);X.restore()}
  if(ckTitleMotionPreference===null)ckTitleMotionPreference=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):false;
- const motion=titleSceneMotion(typeof performance!=='undefined'?performance.now():0,!!(ckTitleMotionPreference&&ckTitleMotionPreference.matches));
+ const now=typeof performance!=='undefined'?performance.now():0;
+ const reduced=!!(ckTitleMotionPreference&&ckTitleMotionPreference.matches);
+ const motion=titleSceneMotion(now,reduced);
  paintTitleLife(g,motion);
  const mistY=CH*(.66+motion.mist*.017),mist=X.createLinearGradient(0,mistY-CH*.07,0,mistY+CH*.07);
  mist.addColorStop(0,'rgba(164,190,184,0)');mist.addColorStop(.5,'rgba(164,190,184,.10)');mist.addColorStop(1,'rgba(164,190,184,0)');
  X.fillStyle=mist;X.fillRect(0,mistY-CH*.07,CW,CH*.14);
+ const screen=typeof mode==='string'?mode:'title';
+ const key=screen==='info'&&typeof inf==='string'?screen+':'+inf:screen;
+ const alpha=titleRevealAlpha(ckTitleReveal,key,now,reduced);
+ if(alpha>0){X.fillStyle='rgba(5,12,19,'+alpha.toFixed(3)+')';X.fillRect(0,0,CW,CH)}
 }
 function titleOptionLabel(index,hasSave,load){
  return CK_TITLE_OPTIONS[index][0]+(index===2&&!hasSave?'  ·  NO SAVE':index===7?' · '+load+' units':'');
@@ -350,7 +369,9 @@ function drawTitle(){
  shade.addColorStop(0,'rgba(5,12,19,.97)');shade.addColorStop(l.wide?.43:.76,'rgba(5,12,19,.85)');shade.addColorStop(1,l.wide?'rgba(5,12,19,.04)':'rgba(5,12,19,.72)');
  X.fillStyle=shade;X.fillRect(0,0,CW,CH);
  // A stable, readable wordmark; no blocking splash screen or intro delay.
- X.save();X.textAlign='left';X.fillStyle='#f5d27b';X.font='bold '+brandSize+'px Georgia, serif';
+ X.save();X.textAlign='left';X.font='bold '+brandSize+'px Georgia, serif';
+ const gold=X.createLinearGradient(0,edge,0,edge+brandSize*1.75);
+ gold.addColorStop(0,'#fff0c7');gold.addColorStop(.45,'#f5d27b');gold.addColorStop(1,'#c8a66b');X.fillStyle=gold;
  X.fillText('CROWN &',x,edge+brandSize*.82);X.fillText('KINGDOMS',x,edge+brandSize*1.66);X.restore();
  tx(menuFit('BUILD YOUR REALM. CLAIM THE CROWN.',w,12),x,top-16,12,'#cbb68d');
  X.fillStyle='rgba(219,184,114,.40)';X.fillRect(x,top-8,w,1);

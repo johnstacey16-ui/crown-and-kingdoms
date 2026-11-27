@@ -270,3 +270,19 @@ test('kingdom vista artwork is deterministic, crops without distortion and honor
   const m=ctx.titleSceneMotion(time,false);assert.ok(m.light>=.74&&m.light<=.92&&Math.abs(m.banner)<=1&&Math.abs(m.mist)<=1);
  }
 });
+
+test('front-end scene reveal is brief, non-blocking, screen-specific and reduced-motion safe',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ const state={screen:null,started:0,last:0};
+ assert.equal(ctx.titleRevealAlpha(state,'title',100,false),.22);
+ assert.ok(ctx.titleRevealAlpha(state,'title',240,false)<.07);
+ assert.equal(ctx.titleRevealAlpha(state,'title',380,false),0);
+ assert.equal(ctx.titleRevealAlpha(state,'setup',400,false),.22);
+ assert.equal(ctx.titleRevealAlpha(state,'setup',700,false),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:c',720,true),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:a',740,true),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:a',760,false),0,'disabling reduced motion does not replay transition');
+ assert.equal(ctx.titleRevealAlpha(state,'title',1700,false),.22,'returning after gameplay reveals scene again');
+ assert.equal(ctx.titleRevealAlpha(state,'title',1980,false),0);
+});
