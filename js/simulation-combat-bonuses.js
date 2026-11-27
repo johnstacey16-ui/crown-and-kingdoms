@@ -161,12 +161,13 @@ function cavalryCounterArmor(t){
 }
 function factionCounterBonus(a,t,base){
  const bonus=(Number.isFinite(base)?base:0)+chieftainsBonus(a,t);
+ const savar=!t.s&&a.k==='knight'&&S.civ?.[a.t]===4&&S.tech?.[a.t]?.savar&&(SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k))?2:0;
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
  const mounted=S.civ?.[a.t]===39&&(U[a.k]?.mt||CAVARM.has(a.k))&&age>=1;
  const boosted=mounted?Math.round(bonus*(1+.1*(age+1))):bonus;
  const defended=Math.max(0,boosted-cavalryCounterArmor(t));
  const bengali=S.civ?.[t.t]===38&&['ele','eled','batele'].includes(t.k);
- return bengali?Math.round(defended*.75):defended;
+ return bengali?Math.round((defended+savar)*.75):defended+savar;
 }
 function georgianMonaspaFormationBonus(a){
  if(!a||a.k!=='monaspa'||S.civ?.[a.t]!==42||!S.us.includes(a)||a.hp<=0||a.ld)return 0;
