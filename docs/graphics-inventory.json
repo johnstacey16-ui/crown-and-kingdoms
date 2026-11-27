@@ -283,6 +283,15 @@
       "deathArt": "base-art fall transform"
     },
     {
+      "kind": "ballistaEle",
+      "name": "Ballista Elephant",
+      "paintedBase": false,
+      "walkFrames": 0,
+      "attackFrames": 0,
+      "directionalArt": "unfinished",
+      "deathArt": "base-art fall transform"
+    },
+    {
       "kind": "tk",
       "name": "Teutonic Knight",
       "paintedBase": true,
@@ -1417,14 +1426,14 @@
     {
       "category": "Unit base artwork",
       "state": "present",
-      "evidence": "84 playable kinds; see catalogue",
+      "evidence": "85 playable kinds; see catalogue",
       "remaining": "play-scale faction/direction review"
     },
     {
       "category": "Unit animation",
       "state": "partial",
-      "evidence": "84 of 84 kinds have painted multi-frame movement/activity art",
-      "remaining": "independent directions, work variants and dedicated death sheets"
+      "evidence": "84 of 85 kinds have painted multi-frame movement/activity art",
+      "remaining": "1 kinds, independent directions, work variants and dedicated death sheets"
     },
     {
       "category": "Elite unit visuals",
