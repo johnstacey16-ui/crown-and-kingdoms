@@ -49,13 +49,15 @@ test('fourteen missing Elite upgrades are paid, completed and applied to existin
   assert.equal(run('JSON.stringify(S.res[0])'),charged,key+' no double charge');
  }
 });
-test('Persian and Khmer independent Elite upgrade flags share elephant unit safely',()=>{
+test('Persian and Khmer Elite elephant upgrades affect distinct units and owners',()=>{
  const run=game();
- run('S.civ=[4,12];S.tech=[{eliteWarElephant:1,hpb:{ele:150}},{eliteBattleElephant:1,hpb:{ele:70}}]');
- assert.equal(run("mhp({k:'ele',t:0})"),450);
- assert.equal(run("mhp({k:'ele',t:1})"),370);
+ run('S.civ=[4,12];S.tech=[{eliteWarElephant:1,hpb:{ele:150}},{eliteBallistaElephant:1,hpb:{ballistaEle:20}}]');
+ assert.equal(run("mhp({k:'ele',t:0})"),600);
+ assert.equal(run("mhp({k:'ballistaEle',t:1})"),270);
  assert.equal(run("eliteUniqueUnitUpgrade('ele',0).k"),'eliteWarElephant');
- assert.equal(run("eliteUniqueUnitUpgrade('ele',1).k"),'eliteBattleElephant');
+ assert.equal(run("eliteUniqueUnitUpgrade('ballistaEle',1).k"),'eliteBallistaElephant');
+ assert.equal(run("eliteUniqueUnitUpgrade('ele',1)"),null);
+ assert.equal(run("eliteUniqueUnitUpgrade('ballistaEle',0)"),null);
 });
 test('new Elite research remains live after save/reload of the same build',()=>{
  const run=game();
