@@ -42,7 +42,7 @@ const ak=B[b.k].atk;
  if(b.k==='tc'&&S.civ?.[b.t]===23&&S.tech[b.t]?.ut23)
   for(const [dx,dy]of TIGUI_ARROW_OFFSETS)launchProjectile({k:ak,t:b.t,x:o.x+dx,y:o.y+dy},e);
  sfx('bow',o.x,o.y);b.cd=U[ak].cd/(S.civ?.[b.t]===6&&S.tech[b.t]?.ut6p&&(b.k==='castle'||b.k==='tower')?1.33:1)}}}
-if(b.rs){b.rs.t-=dt*(typeof civilizationOwnWorkRate==='function'?civilizationOwnWorkRate(b):1)*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizationTeamWorkRate==='function'?civilizationTeamWorkRate(b,'research',b.rs.k):1);if(b.rs.t<=0){const k=b.rs.k;b.rs=null;if(k==='age'){S.age[b.t]++;
+if(b.rs){b.rs.t-=dt*(typeof civilizationOwnWorkRate==='function'?civilizationOwnWorkRate(b):1)*(b.k==='bar'&&S.tech[b.t]?.perfusion?2:1)*(typeof civilizationTeamWorkRate==='function'?civilizationTeamWorkRate(b,'research',b.rs.k):1);if(b.rs.t<=0){const k=b.rs.k;b.rs=null;if(k==='age'){S.age[b.t]++;if(S.civ?.[b.t]===5&&S.age[b.t]>=2){S.tech[b.t].murderHoles=1;S.tech[b.t].herbalMedicine=1;}
  if(S.civ?.[b.t]===37)S.res[b.t].w+=200;
  if(S.civ?.[b.t]===38&&typeof spawnPos==='function'&&typeof addU==='function'&&
    typeof livePopulation==='function'&&typeof capOf==='function'){
