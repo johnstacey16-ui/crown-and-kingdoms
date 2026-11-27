@@ -272,7 +272,11 @@ test('Persian Savar replaces Paladin and upgrades living and future cavalry',()=
  assert.equal(c("combatArmor(rider,'p')"),4);
  assert.equal(c('attackReload(rider)'),1.8);
  assert.equal(c('foreign.hp'),100);
- assert.equal(c("factionCounterBonus(rider,{k:'arc',t:1},0)"),2);
+ assert.equal(c("factionCounterBonus(rider,{k:'arc',t:1},0)"),4);
+ assert.equal(c("factionCounterBonus(foreign,{k:'arc',t:0},0)"),0);
+ c("S.dip[0][1]=S.dip[1][0]='ally'");
+ assert.equal(c("factionCounterBonus(foreign,{k:'arc',t:0},0)"),2);
+ c("S.dip[0][1]=S.dip[1][0]='enemy'");
  assert.equal(c("factionCounterBonus(rider,{k:'mil',t:1},0)"),0);
  assert.equal(c("train(structures.stable,'knight')"),true);
  c("upB(structures.stable,U.knight.t)");
