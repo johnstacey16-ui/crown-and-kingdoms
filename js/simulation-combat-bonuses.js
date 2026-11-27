@@ -518,7 +518,7 @@ function launchProjectile(a,t){
  if(a.k==='hcan'){const shot=S.pj[S.pj.length-1];shot.sx=a.x;shot.sy=a.y;}
  // Double Crossbow fires an additional deterministic Scorpion bolt. Keep the
  // second projectile in the normal collision/damage path, not a visual effect.
- if(a.k==='scor'&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
+ if(['scor','ballistaEle'].includes(a.k)&&S.civ?.[a.t]===12&&S.tech[a.t]?.ut12p)
   S.pj.push({x:a.x,y:a.y,t,a:{k:a.k,t:a.t,x:a.x,y:a.y},...aim});
  // Original Portuguese Organ Gun salvo: three standard deterministic pellets
  // that retain normal collision, target death and save/network semantics.
