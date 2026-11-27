@@ -546,3 +546,27 @@ test('Kamandaran changes only Persian Archer-line costs after completed research
  assert.equal(run("S.res[0].w"),50);
  assert.equal(run("S.res[0].g"),0);
 });
+
+
+test('Persian War Elephant trample hits nearby enemies once and excludes friendly units',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.dip=createDiplomacy(2);globalThis.ele=addU(0,'ele',39,40);globalThis.primary=addU(1,'mil',40,40);globalThis.near=addU(1,'mil',40.3,40);globalThis.far=addU(1,'mil',40.8,40);globalThis.friend=addU(0,'mil',40,40.3);for(const u of [primary,near,far,friend])u.hp=1000");
+ const expected=run("Math.max(1,U.ele.dmg*.5-combatArmor(near,'m'))");
+ run('dmgT(ele,primary)');
+ assert.equal(run('1000-near.hp'),expected);
+ assert.equal(run('far.hp'),1000);
+ assert.equal(run('friend.hp'),1000);
+ assert.ok(run('primary.hp')<1000);
+ run('near.hp=1000;primary.hp=1000;S.civ[0]=0;dmgT(ele,primary)');
+ assert.equal(run('near.hp'),1000,'foreign elephant does not gain Persian splash');
+});
+test('Citadels reduces modeled anti-building bonus damage but not normal attack',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.dip=createDiplomacy(2);globalThis.target=castles[0]");
+ const hit=kind=>run("(()=>{target.hp=10000;dmgT({k:"+JSON.stringify(kind)+",t:1,x:19,y:20},target);return 10000-target.hp})()");
+ const normal=hit('mil'), siege=hit('ram');
+ run('S.tech[0].ut4p=1');
+ assert.equal(hit('mil'),normal);
+ assert.ok(hit('ram')<siege);
+ assert.ok(hit('ram')>0);
+});
