@@ -35,6 +35,7 @@ test('Ironclad appears only in Teuton Castle research and is correctly costed',(
 test('actual Castle research charges resources, completes on timer and upgrades existing and future siege',()=>{
  const run=game();
  run("globalThis.castle={k:'castle',t:0,x:8,y:8,s:4,hp:1400,mh:1400,done:true,pr:60,q:[],rs:null,cd:999};S.bs.push(castle)");
+ const cavalryBefore=run("combatArmor({k:'knight',t:0},'m')");
  const keys=['ram','mang','scor','bomb','treb'];
  const before=JSON.parse(run("JSON.stringify(Object.fromEntries(['ram','mang','scor','bomb','treb'].map(k=>[k,combatArmor({k,t:0},'m')])))"));
  assert.equal(run("research(castle,'ut5p')"),true);
@@ -51,7 +52,7 @@ test('actual Castle research charges resources, completes on timer and upgrades 
   assert.equal(run("combatArmor({k:'"+k+"',t:0},'p')"),run("combatArmor({k:'"+k+"',t:1},'p')"),'no pierce bonus for '+k);
  }
  assert.equal(run("combatArmor({k:'cgal',t:0},'m')"),run("combatArmor({k:'cgal',t:1},'m')"),'cannon ships are not land siege');
- assert.equal(run("combatArmor({k:'knight',t:0},'m')"),run("combatArmor({k:'knight',t:1},'m')"),'ordinary cavalry receive no Ironclad');
+ assert.equal(run("combatArmor({k:'knight',t:0},'m')"),cavalryBefore,'ordinary cavalry receive no additional Ironclad armour');
  assert.equal(run("research(castle,'ut5p')"),false,'completed technology is not charged twice');
 });
 
