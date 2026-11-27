@@ -162,7 +162,7 @@ function cavalryCounterArmor(t){
 }
 function factionCounterBonus(a,t,base){
  const bonus=(Number.isFinite(base)?base:0)+chieftainsBonus(a,t);
- const archerTarget=!t.s&&(ARCHARM.has(t.k)||SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k));
+ const archerTarget=a.k==='knight'&&!t.s&&(ARCHARM.has(t.k)||SKIRM_ARCHER_KINDS.has(t.k)||SKIRM_CAV_ARCHER_KINDS.has(t.k));
  const savar=a.k==='knight'&&archerTarget&&S.civ?.[a.t]===4&&S.tech?.[a.t]?.savar?2:0;
  const persianTeam=a.k==='knight'&&archerTarget&&(S.civ?.[a.t]===4||typeof alliedCivilizationIds==='function'&&alliedCivilizationIds(a.t).includes(4))?2:0;
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
