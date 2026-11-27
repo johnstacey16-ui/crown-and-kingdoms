@@ -208,7 +208,11 @@ test('offline cache can survive temporary hosting errors as well as network loss
 
 test('in-game About copy describes the real asset, audio and verification boundaries', () => {
   assert.match(engine, /Painted medieval raster sprites, textured terrain and team-colour heraldry/);
-  assert.match(engine, /Synthesised Web Audio with spatial effects, ambience and adaptive music/);
+  assert.match(ui, /Spatial effects and environmental ambience accompany the streamed album/);
+  assert.match(ui, /The Northerner Diaries – Jeremy Soule/);
+  assert.match(audio, /assets\/music\/playlist\.json/);
+  assert.match(audio, /albumTick\(\);AUD\.nt=0/);
+  assert.doesNotMatch(ui, /ambience and adaptive music/);
   assert.match(engine, /Multiplayer reliability and host-authoritative match state are active development goals/);
   assert.match(engine, /measure Xbox performance and verify multiplayer/);
   assert.doesNotMatch(engine, /All art is drawn in code\. No external assets or network calls/);
