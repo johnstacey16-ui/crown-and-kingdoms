@@ -35,17 +35,17 @@ test('forty-four dedicated Elite sheets retain sixteen complete poses and indepe
   }
  }
 });
-test('every current main Elite kind and alternate form has a dedicated original sheet',()=>{
+test('all existing Elite sheets remain present and new Ballista Elephant art debt is explicit',()=>{
  const run=fixture(),main=JSON.parse(run('JSON.stringify([...new Set(CIV.filter(c=>c.elite).map(c=>c.uu))])'));
- assert.equal(main.length,42);
+ assert.equal(main.length,43);
  const painted=new Set(elite.atlases.map(a=>a.meta.elite));
- assert.deepEqual(main.filter(k=>!painted.has(k)),[],'no main researched unique-unit appearance is missing');
+ assert.deepEqual(main.filter(k=>!painted.has(k)),['ballistaEle'],'only the new Ballista Elephant Elite sheet remains missing');
  assert.ok(painted.has('ratha')&&painted.has('rathaM'),'both stances have their own original artwork');
  assert.ok(painted.has('footkonnik'),'dismounted form has its own original artwork');
 });
 test('solo rendering selects only the owning researched Elite tier and falls back after atlas loss',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['footkonnik',29],['ele',12]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['footkonnik',29]]){
   run('S.civ=['+id+','+id+'];S.tech=[{},{}]');
   const draw=t=>'unitAssetFrame('+JSON.stringify(k)+','+t+',{state:1,time:.2},!!eliteUniqueUnitAppearance('+JSON.stringify(k)+','+t+'))';
   assert.equal(run('!!'+draw(0)+'.elite'),false);
@@ -62,7 +62,7 @@ test('solo rendering selects only the owning researched Elite tier and falls bac
 });
 test('network projection uses its supplied world research, including visible opponents',()=>{
  const run=fixture();
- for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['footkonnik',29],['ele',12]]){
+ for(const [k,id]of [['huskarl',18],['lbow',1],['mgd',2],['axe',0],['woad',6],['bers',7],['saml',11],['tk',5],['jaguar',19],['kamayuk',21],['shotel',22],['gbeto',23],['obuch',35],['jan',9],['chuko',10],['genoa',15],['plumed',20],['rattan',28],['composite',41],['urumi',37],['chakram',39],['serjeant',34],['cata',3],['boyar',16],['leitis',32],['tarkan',17],['keshik',30],['monaspa',42],['conq',14],['huszar',25],['coust',33],['mamel',8],['kipchak',31],['centurion',40],['arambai',27],['konnik',29],['ele',4],['eled',13],['wagon',24],['orgun',26],['husswagon',36],['ratha',38],['rathaM',38],['footkonnik',29]]){
   run(`S.civ=[${id},${id}];S.tech=[{},{}];S.us=[];globalThis.a=addU(0,'${k}',20,20);globalThis.b=addU(1,'${k}',21,20);globalThis.w={...S,civ:[${id},${id}],tech:[{[CIV[${id}].elite.k]:1},{}]}`);
   const before=run('JSON.stringify([S.tech,w.tech,S.us,S.bs])');
   assert.equal(run(`eliteUniqueUnitAppearance('${k}',0)`),false);
@@ -95,4 +95,14 @@ test('a real researched Konnik dismount keeps Elite art and label without extend
  run('S.tech[0].eliteKonnik=0');
  assert.equal(run("eliteUniqueUnitAppearance('footkonnik',0)"),false);
  assert.equal(run("unitName('footkonnik',0)"),'Dismounted Konnik');
+});
+
+test('Khmer Elite research applies to Ballista Elephant only without borrowing Persian Elite artwork',()=>{
+ const run=fixture();
+ run("S.civ=[12,4];S.tech=[{eliteBallistaElephant:1},{eliteWarElephant:1}]");
+ assert.equal(run("!!eliteUniqueUnitAppearance('ballistaEle',0)"),true);
+ assert.equal(run("!!eliteUniqueUnitAppearance('ele',0)"),false);
+ assert.equal(run("!!eliteUniqueUnitAppearance('ballistaEle',1)"),false);
+ assert.equal(run("!!eliteUniqueUnitAppearance('ele',1)"),true);
+ assert.equal(run("!!unitAssetFrame('ballistaEle',0,{state:1,time:.2},true)?.elite"),false,'missing original art must not be claimed as rendered');
 });
