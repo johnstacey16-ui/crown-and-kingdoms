@@ -112,9 +112,10 @@ function albumTick(){
   if(a.failed>=a.tracks.length){albumPause();return;}
   a.index=(a.index+1)%a.tracks.length;
   a.player.src='./assets/music/'+a.tracks[a.index];
+  a.retry=0;
  }
  if(!a.player){
-  const p=a.player=new Audio();p.preload='none';
+  const p=a.player=new Audio();p.preload='none';p.loop=a.tracks.length===1;
   p.addEventListener('playing',()=>{a.started=true;a.failed=0;});
   p.addEventListener('ended',()=>advance(false));
   p.addEventListener('error',()=>advance(true));
