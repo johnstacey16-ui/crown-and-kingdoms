@@ -275,3 +275,59 @@ test('Khmer direct deposits leave regular cargo, rival farms and neutral food ru
  assert.equal(run('worker.car'),.32,'other civilizations still carry farm food');
  assert.equal(run('S.res[0].f'),.32*.95);
 });
+
+test('Khmer Battle Elephants move 10% faster through normal orders and after reload',()=>{
+ const run=game(12);
+ run(`S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);S.nodes=[];
+  globalThis.khmerElephant=addU(0,'batele',23,27);
+  globalThis.rivalElephant=addU(1,'batele',23,30);
+  for(const elephant of [khmerElephant,rivalElephant]){
+   elephant.o='m';elephant.p=[[35,elephant.y]];
+   upU(elephant,1);
+  }`);
+ const approx=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-9,`${actual} != ${expected}`);
+ const base=run('U.batele.sp');
+ approx(run('khmerElephant.x-23'),base*1.1);
+ approx(run('rivalElephant.x-23'),base);
+ for(const kind of ['ballistaEle','ele','eled','knight'])
+  assert.equal(run(`unitSpeed({k:'${kind}',t:0})`),run(`unitSpeed({k:'${kind}',t:1})`),kind);
+ run('S.tech[0].husb=1;S.tech[0].heavyBatele=1');
+ approx(run('unitSpeed(khmerElephant)'),base*1.1*1.1);
+ assert.equal(run("saveG(false,'khmer-elephant-speed')"),true);
+ assert.equal(run("loadG(false,'khmer-elephant-speed')"),true);
+ run(`globalThis.reloadedElephant=S.us.find(u=>u.k==='batele'&&u.t===0);
+  globalThis.beforeX=reloadedElephant.x;upU(reloadedElephant,1)`);
+ approx(run('reloadedElephant.x-beforeX'),base*1.1*1.1);
+});
+
+test('Tusk Swords charges wood and gold, waits for completion and adds three Battle Elephant damage',()=>{
+ const run=game(12);
+ run(`globalThis.elephant=addU(0,'batele',24,25);
+  globalThis.target=addU(1,'mil',25,25);
+  globalThis.damage=unit=>{target.hp=1000;dmgT(unit,target);return 1000-target.hp}`);
+ const baseline=run('damage(elephant)');
+ assert.equal(run('TE.ut12.t'),40);
+ assert.equal(run("rsOf({k:'castle',t:1}).includes('ut12')"),false);
+ run('S.age[0]=1');
+ assert.equal(run("research(castle,'ut12')"),false);
+ run('S.age[0]=2;S.res[0]={f:0,w:299,g:450,s:0}');
+ assert.equal(run("research(castle,'ut12')"),false);
+ run('S.res[0].w=300;S.res[0].g=449');
+ assert.equal(run("research(castle,'ut12')"),false);
+ run('S.res[0].g=450');
+ assert.equal(run("research(castle,'ut12')"),true);
+ assert.equal(run('S.res[0].f+S.res[0].w+S.res[0].g'),0);
+ run('upB(castle,39.5)');
+ assert.equal(run('damage(elephant)'),baseline);
+ run('upB(castle,.5)');
+ assert.equal(run('damage(elephant)'),baseline+3);
+ assert.equal(run("damage(addU(0,'batele',24,28))"),baseline+3);
+ assert.equal(run("S.tech[0].atkb?.ballistaEle||0"),0);
+ assert.equal(run("S.tech[1].atkb?.batele||0"),0);
+ assert.equal(run("research(castle,'ut12')"),false);
+ assert.equal(run("saveG(false,'khmer-tusk-swords')"),true);
+ assert.equal(run("loadG(false,'khmer-tusk-swords')"),true);
+ assert.equal(run("S.tech[0].atkb.batele"),3);
+ run("target=S.us.find(u=>u.k==='mil'&&u.t===1)");
+ assert.equal(run("damage(addU(0,'batele',24,28))"),baseline+3);
+});
