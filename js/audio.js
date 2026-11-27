@@ -1,5 +1,5 @@
-/* Crown & Kingdoms — procedural audio synthesis, spatial sound and adaptive music. */
-/* ===== AUDIO ENGINE: every sound is synthesised (no assets). Buses: master > music / effects / ambient / interface / voice ===== */
+/* Crown & Kingdoms — procedural sound effects, spatial ambience and streamed soundtrack. */
+/* ===== AUDIO ENGINE: synthesised effects and streamed music. Buses: master > music / effects / ambient / interface / voice ===== */
 const AUD={ok:0,cd:{},vc:0,lc:-99,lv:{pad:0,bass:0,arp:0,drum:0,drone:0},nt:0,sp:0,resumeAt:-Infinity,pendingCue:null};let aT=0;
 const R1=(a,b)=>a+Math.random()*(b-a);
 function aInit(){if(AUD.ok)return AUD.ok>0;try{const C=window.AudioContext||window.webkitAudioContext;if(!C){AUD.ok=-1;return false}AC=AC||new C();const m=AC.createGain(),cp=AC.createDynamicsCompressor();cp.threshold.value=-16;cp.ratio.value=5;m.connect(cp);cp.connect(AC.destination);AUD.m=m;AUD.b={};for(const k of['mu','sf','am','ui','vo']){const g=AC.createGain();g.connect(m);AUD.b[k]=g}
@@ -83,12 +83,12 @@ const pal=pl?S.pal|0:0,L=AUD.ly;L.wind.g.gain.setTargetAtTime(pl?(.03+.04*(1-Mat
 if(pl&&ff>.05&&pal!==2&&Math.random()<.05){const c=s2w(CW/2+R1(-CW*.4,CW*.4),CH/2+R1(-CH*.3,CH*.3));sfx('bird',c[0],c[1])}}
 const SCS={w:[0,2,3,5,7,9,10],e:[0,2,4,7,9],m:[0,1,4,5,7,8,10]},CSC=['w','w','e','m','m','w','w','w','m','m','e','e','e','m','m','w','w','e','w','e','e','e','m','m','e','m'],PRG=[[0,3,4,0],[0,5,3,4],[0,2,3,4],[0,4,5,3]],MST={peace:{pad:.55,bass:0,arp:.5,drum:0,drone:0,bpm:64},tension:{pad:.6,bass:.45,arp:.2,drum:.3,drone:.45,bpm:82},combat:{pad:.4,bass:.55,arp:0,drum:1,drone:.3,bpm:112}};
 function aSt(){if(mode!=='play'||!S)return'peace';if(gt-AUD.lc<6)return'combat';if(S.ping&&S.t-S.ping.t<25)return'tension';return'peace'}
-// Optional same-origin, licensed album. Only one streaming media element is
+// Same-origin soundtrack. Only one streaming media element is
 // used, never a decoded whole-album buffer or an offline precache.
-const CK_ALBUM={player:null,tracks:null,loading:false,index:0,failed:0,started:false,pending:false,retry:0};
+const CK_ALBUM={player:null,tracks:null,loading:false,index:0,failed:0,started:false,pending:false,retry:0,loadRetry:0};
 function albumPause(){const p=CK_ALBUM.player;if(p&&!p.paused)p.pause();}
 function albumLoad(){
- const a=CK_ALBUM;if(a.loading||a.tracks!==null)return;
+ const a=CK_ALBUM;if(a.loading||a.tracks!==null||performance.now()<a.loadRetry)return;
  a.loading=true;
  fetch('./assets/music/playlist.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('playlist unavailable');return r.json();}).then(data=>{
   const tracks=Array.isArray(data.tracks)?data.tracks:[];
@@ -97,19 +97,27 @@ function albumLoad(){
    try{return s.split('/').every(part=>{const v=decodeURIComponent(part);return v&&v!=='.'&&v!=='..'&&!/[\\/:\x00-\x1f]/.test(v);})&&/\.(mp3|ogg|wav|m4a|aac|flac|opus)$/i.test(s);}catch{return false;}
   }))];
   for(let i=a.tracks.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a.tracks[i],a.tracks[j]]=[a.tracks[j],a.tracks[i]];}
- }).catch(()=>{a.tracks=[];}).finally(()=>{a.loading=false;});
+ }).catch(()=>{a.loadRetry=performance.now()+15000;}).finally(()=>{a.loading=false;});
 }
-function albumTick(){
- if(typeof Audio!=='function'||typeof fetch!=='function')return false;
- const a=CK_ALBUM,allowed=snd&&mus&&VOL.m>0&&VOL.mu>0&&
+function albumAllowed(){
+ return snd&&mus&&VOL.m>0&&VOL.mu>0&&
   ['play','pause','title','setup','opts','info','obj','tree','remap','camp','brief','slots'].includes(mode)&&
   !(typeof document!=='undefined'&&document.hidden);
- if(!allowed){albumPause();return false;}
+}
+function albumTick(gesture=false){
+ if(typeof Audio!=='function'||typeof fetch!=='function')return false;
+ const a=CK_ALBUM;
+ if(!albumAllowed()){albumPause();return false;}
  if(a.tracks===null){albumLoad();return false;}
- if(!a.tracks.length||a.failed>=a.tracks.length)return false;
+ if(!a.tracks.length)return false;
+ if(a.failed>=a.tracks.length){
+  if(performance.now()<a.retry)return false;
+  a.failed=0;a.started=false;a.pending=false;
+  a.player.src='./assets/music/'+a.tracks[a.index];
+ }
  function advance(failed){
   a.failed=failed?a.failed+1:0;a.started=false;a.pending=false;
-  if(a.failed>=a.tracks.length){albumPause();return;}
+  if(a.failed>=a.tracks.length){albumPause();a.retry=performance.now()+15000;return;}
   a.index=(a.index+1)%a.tracks.length;
   a.player.src='./assets/music/'+a.tracks[a.index];
   a.retry=0;
@@ -122,14 +130,19 @@ function albumTick(){
   p.src='./assets/music/'+a.tracks[0];
  }
  const p=a.player;p.volume=Math.max(0,Math.min(1,VOL.m*VOL.mu*(mode==='pause'?.35:1)));
- if(p.paused&&!a.pending&&performance.now()>=a.retry){
+ if(p.paused&&!a.pending&&(gesture||performance.now()>=a.retry)){
   a.pending=true;a.retry=performance.now()+1500;
-  Promise.resolve(p.play()).catch(()=>{}).finally(()=>{a.pending=false;if(!snd||!mus||(typeof document!=='undefined'&&document.hidden))albumPause();});
+  try{Promise.resolve(p.play()).catch(()=>{}).finally(()=>{a.pending=false;if(!albumAllowed())albumPause();});}
+  catch{a.pending=false;}
  }
  return a.started&&!p.paused;
 }
-if(typeof document!=='undefined'&&typeof document.addEventListener==='function')
+if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
  document.addEventListener('visibilitychange',()=>{if(document.hidden)albumPause();});
+ // A real browser gesture can unlock media playback even when timed attempts were denied.
+ for(const event of ['pointerdown','keydown','touchstart'])
+  document.addEventListener(event,()=>albumTick(true),{passive:true});
+}
 
 function aMus(){if(AUD.ok<1||AC.state!=='running')return;const ok=snd&&mus&&['play','pause','title','setup','opts','info','obj','tree','remap','camp','brief','slots'].includes(mode),st=ok?aSt():'peace',T=MST[st];AUD.st=st;for(const k in AUD.lv)AUD.lv[k]+=((ok?T[k]:0)-AUD.lv[k])*.12;if(!ok){AUD.nt=0;return}
 const now=AC.currentTime,sd=60/T.bpm/2;if(!AUD.nt)AUD.nt=now+.1;
@@ -143,4 +156,4 @@ if(q===0){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=
 if(lv.bass>.03&&q%4===0)tn(B,t,sd*3.6,'sine',fq(deg)/2,0,.16*lv.bass,.01);
 if(lv.arp>.03&&Math.random()<.55)tn(B,t,sd*2.2,'triangle',fq(deg+[0,2,4,2,5,4,2,1][sp%8])*2,0,.06*lv.arp,.005);
 if(lv.drum>.03){if(q===0||q===8||(st==='combat'&&q===6))tn(B,t,.2,'sine',130,45,.4*lv.drum,.003);if(st==='combat'){if(q===4||q===12){nz(B,t,.12,'bandpass',1700,1,.18*lv.drum);tn(B,t,.08,'triangle',190,130,.1*lv.drum)}if(q===2||q===10)tn(B,t,.22,'sine',170,80,.22*lv.drum,.004)}}}
-function aTick(){if(!snd||!aInit()||AC.state!=='running'){albumPause();return;}if(AUD.pendingCue)aFlushPendingCue();aT++;if(aT%2===0){aVol();aAmb()}if(albumTick()){AUD.nt=0;return;}aMus()}
+function aTick(){if(!snd||!aInit()||AC.state!=='running'){albumPause();return;}if(AUD.pendingCue)aFlushPendingCue();aT++;if(aT%2===0){aVol();aAmb()}albumTick();AUD.nt=0;}
