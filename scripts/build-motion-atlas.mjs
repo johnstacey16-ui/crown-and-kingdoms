@@ -11,7 +11,7 @@ const kinds=['mil','knight','vil','arc','xbow','spear','scout','skirm','mon','ax
 // approved 81-sheet output and do not fabricate missing assets.
 const upcomingKinds=JSON.parse(readFileSync(new URL('docs/painted-motion-production-queue.json',root),'utf8')).items.map(item=>item.kind);
 const availableKinds=new Set([...kinds,...upcomingKinds]);
-const assetSource=kind=>'./assets/painted-motion-'+(kind==='rathaM'?'ratha-melee':kind)+'.webp';
+const assetSource=kind=>'./assets/painted-motion-'+(kind==='rathaM'?'ratha-melee':kind==='ballistaEle'?'ballista-ele':kind)+'.webp';
 if(args[0]?.startsWith('--')){
  while(args.length){const flag=args.shift(),kind=args.shift(),path=args.shift();if(flag!=='--source'||!availableKinds.has(kind)||!path)throw Error('Use --source KIND PNG');sources[kind]=path;}
 }else args.forEach((path,i)=>{if(!kinds[i])throw Error('Too many source images');sources[kinds[i]]=path});
