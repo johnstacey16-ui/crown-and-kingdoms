@@ -15,7 +15,7 @@ function fixture(){
   performance:{now:()=>clock},setTimeout:()=>1,played,music:0};
  vm.createContext(sandbox);
  vm.runInContext(audio,sandbox);
- vm.runInContext("aInit=()=>true;AUD.ok=1;AUD.b={ui:{},sf:{},mu:{},am:{}};aVol=()=>{};aAmb=()=>{};aMus=()=>{globalThis.music++};SFX.u_note.f=()=>played.push('notice');SFX.cmd.f=()=>played.push('command');globalThis.trigger=id=>sfx(id);globalThis.tick=()=>aTick();globalThis.status=()=>({queued:AUD.pendingCue?.id??null,at:AUD.resumeAt,step:aT,beat:AUD.nt,vc:AUD.vc});",sandbox);
+ vm.runInContext("aInit=()=>true;AUD.ok=1;AUD.b={ui:{},sf:{},mu:{},am:{}};aVol=()=>{};aAmb=()=>{};albumTick=()=>{globalThis.music++};aMus=()=>{throw Error('Old soundtrack must not run');};SFX.u_note.f=()=>played.push('notice');SFX.cmd.f=()=>played.push('command');globalThis.trigger=id=>sfx(id);globalThis.tick=()=>aTick();globalThis.status=()=>({queued:AUD.pendingCue?.id??null,at:AUD.resumeAt,step:aT,beat:AUD.nt,vc:AUD.vc});",sandbox);
  return {sandbox,AC,document,played,trigger:id=>sandbox.trigger(id),tick:()=>sandbox.tick(),
   status:()=>sandbox.status(),setTime:t=>{clock=t},resolve:async()=>{
    AC.state='running';resolveResume?.();
@@ -43,7 +43,7 @@ test('the first audible UI notification is played once on resume',async()=>{
  assert.deepEqual(h.played,['notice']);
  assert.equal(h.status().queued,null);
  h.tick();
- assert.equal(h.music(),1,'music scheduling resumes after the AudioContext runs');
+ assert.equal(h.music(),1,'streamed soundtrack scheduling resumes after the AudioContext runs');
  assert.deepEqual(h.played,['notice'],'audio ticks must not replay the queued cue');
 });
 
@@ -147,4 +147,25 @@ test('static Vercel release serves the root without a public-directory build',()
  assert.equal(config.ignoreCommand,'node scripts/vercel-deployment-gate.mjs');
  assert.deepEqual(config.git.deploymentEnabled,{main:true,'**':false});
  assert.ok(readFileSync(new URL('../index.html',import.meta.url),'utf8').includes('<html'));
+});
+
+test('missing or blocked uploaded music never starts the old synthesised soundtrack and retries transient failures',async()=>{
+ let now=0,requests=0,plays=0,oldMusic=0;
+ class Audio{
+  constructor(){this.paused=true;this.handlers={}}
+  addEventListener(name,fn){this.handlers[name]=fn}
+  play(){plays++;return Promise.reject(Error('autoplay blocked'))}
+  pause(){this.paused=true}
+ }
+ const sandbox={Audio,fetch:async()=>{requests++;if(requests===1)throw Error('offline');return {ok:true,json:async()=>({tracks:['1%20(1).mp3']})}},VOL:{m:1,mu:1},snd:1,mus:1,mode:'play',AC:{state:'running'},performance:{now:()=>now},oldMusic};
+ vm.createContext(sandbox);
+ vm.runInContext(audio+"\nAUD.ok=1;aInit=()=>true;aVol=()=>{};aAmb=()=>{};aMus=()=>{oldMusic++};globalThis.tick=()=>aTick();globalThis.gesture=()=>albumTick(true);",sandbox);
+ const flush=async()=>{for(let i=0;i<20;i++)await Promise.resolve()};
+ sandbox.tick();await flush();
+ now=14999;sandbox.tick();assert.equal(requests,1);
+ now=15000;sandbox.tick();await flush();assert.equal(requests,2);
+ sandbox.tick();await flush();assert.equal(plays,1);
+ sandbox.tick();assert.equal(plays,1,'autoplay attempts are bounded');
+ sandbox.gesture();await flush();assert.equal(plays,2,'real gesture bypasses timed retry');
+ assert.equal(sandbox.oldMusic,0,'never revert to the original procedural soundtrack');
 });
