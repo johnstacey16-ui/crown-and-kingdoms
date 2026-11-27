@@ -24,6 +24,7 @@ function unitTrainingUnlock(b,kind,world=S){
 }
 function unitTrainingCost(team,kind,civs=S?.civ,techs=S?.tech){
  const cost=U[kind]?.cost||{};
+ if(civs?.[team]===4&&techs?.[team]?.ut4&&(kind==='arc'||kind==='xbow'))return {w:50};
  if(civs?.[team]===15&&techs?.[team]?.ut15&&(kind==='cart'||kind==='cog'))
   return Object.fromEntries(Object.entries(cost).map(([resource,amount])=>[resource,Math.ceil(amount/2)]));
  if(kind==='kipchak'&&civs?.[team]!==31&&
