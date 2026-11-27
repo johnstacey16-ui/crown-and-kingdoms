@@ -20,7 +20,7 @@ const selectedKinds=[...kinds,...upcomingKinds.filter(kind=>
 // Preserve legitimate disconnected hoof/shadow, rigging and net components.
 // Dense vessels/carts allow 65 percent nonzero alpha; infantry retains 55 percent.
 const ships=new Set(['fish','gal','trn','cog','turtle','caravel','thirisadai']),vehicles=new Set([...ships,'cart','ratha','rathaM','husswagon']);
-const large=new Set(['eled','ele','ram','bomb','treb','mang','scor','wagon','batele','orgun','husswagon','houfnice']),elephants=new Set(['ele','eled','batele']);
+const large=new Set(['ballistaEle','eled','ele','ram','bomb','treb','mang','scor','wagon','batele','orgun','husswagon','houfnice']),elephants=new Set(['ele','eled','batele','ballistaEle']);
 const multipart=new Set(['conq','tarkan','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa',...vehicles,...large]);
 const mounted=new Set(['knight','scout','camel','mamel','mgd','cata','conq','boyar','tarkan','huszar','cavarch','konnik','keshik','leitis','centurion','arambai','kipchak','steppe','flamecamel','coust','winged','shrivamsha','camelscout','monaspa']);
 // Source review locates the actual release/recoil/thrust pose in each sheet.
