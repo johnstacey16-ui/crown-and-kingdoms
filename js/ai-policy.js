@@ -167,6 +167,11 @@ function aiTechnologyPriority(k,{arm,vil,bl,my,humanCav,humanRanged,humanSiege,h
   score+=n>=3?55:n?18:-35;
   if(mountedDefence&&n&&humanCav>=2)score+=20;
  }
+ if(k==='ut7'){
+  const n=my.filter(u=>INFARM.has(u.k)&&!u.ld&&u.hp>0).length;
+  score+=n>=3?55:n?18:-35;
+  if(n&&humanCav>=2)score+=25;
+ }
  if(k==='ut15'){
   const n=my.filter(u=>(u.k==='cart'||u.k==='cog')&&!u.ld&&u.hp>0).length;
   score+=n>=3?55:n?18:-35;

@@ -601,3 +601,34 @@ test('both authenticated Italian players research Silk Road and receive exact di
  assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:250,w:50,g:250},{f:250,w:50,g:250}]);
  assert.equal(out.refunded,true);assert.equal(out.empty,true);
 });
+
+test('host Chieftains enforces age, price and ownership before a real infantry attack gains cavalry damage',()=>{
+ const out=world(`
+  S.civ=[7,0];S.age=[1,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const infantry=addU(0,'bers',30,30),rider=addU(1,'knight',30.5,30);infantry.st=2;rider.hp=1000;
+  const base=Math.max(1,U.bers.dmg-combatArmor(rider,'m'));
+  const order=t=>({type:'research',entities:[castles[t].netId],value:'ut7'});
+  host.receive(packet('host-session',0,1,6,order(0)),'host-session',2);const wrongAge=host.applyFrame(6)[0].ok;
+  S.age[0]=2;S.res[0].g=449;
+  host.receive(packet('host-session',0,2,10,order(0)),'host-session',6);const poor=host.applyFrame(10)[0].ok,poorGold=S.res[0].g;
+  S.res[0].g=10000;
+  host.receive(packet('host-session',0,3,14,order(0)),'host-session',10);
+  host.receive(packet('guest-session',1,1,14,order(1)),'guest-session',10);
+  const deferred=!castles[0].rs&&S.res[0].f===10000,researched=host.applyFrame(14).map(r=>r.ok);
+  upB(castles[0],TE.ut7.t+.1);
+  const attack=host.receive(packet('host-session',0,4,18,{type:'attack',entities:[infantry.netId],target:rider.netId}),'host-session',14).ok;
+  const applied=host.applyFrame(18)[0].ok;
+  for(let i=0;i<80&&rider.hp===1000;i++){S.t+=DT;upU(infantry,DT)}
+  const gold=S.res[0].g;
+  host.receive(packet('host-session',0,5,22,order(0)),'host-session',18);const duplicate=host.applyFrame(22)[0].ok;
+  return {wrongAge,poor,poorGold,deferred,researched,attack,applied,base,hit:1000-rider.hp,duplicate,
+   paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g})),unchanged:S.res[0].g===gold};
+ `);
+ assert.equal(out.wrongAge,false);assert.equal(out.poor,false);assert.equal(out.poorGold,449);assert.equal(out.deferred,true);
+ assert.deepEqual(Array.from(out.researched),[true,false]);assert.equal(out.attack,true);assert.equal(out.applied,true);
+ assert.equal(out.hit,out.base+5);assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:600,g:450},{f:0,g:0}]);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+});

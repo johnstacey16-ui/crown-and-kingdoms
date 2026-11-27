@@ -147,8 +147,16 @@ function chakramPierceTargets(a,t){
    ((u.x-x)*dx+(u.y-y)*dy)/dist<=1.35&&
    Math.abs((u.x-x)*dy-(u.y-y)*dx)/Math.sqrt(dist)<=.65).slice(0,3);
 }
+// Chieftains changes only infantry counter damage, including ranged infantry
+// projectile snapshots. Camel targets use their separate armour-class amount.
+function chieftainsBonus(a,t){
+ if(t.s||S.civ?.[a.t]!==7||!S.tech?.[a.t]?.ut7||!INFARM.has(a.k))return 0;
+ const kind=t.k,alias=U[kind]?.lk;
+ if(CAMEL_CLASS.has(kind)||CAMEL_CLASS.has(alias)||kind==='flamecamel')return 4;
+ return U[kind]?.mt||CAVARM.has(kind)?5:0;
+}
 function factionCounterBonus(a,t,base){
- const bonus=Number.isFinite(base)?base:0;
+ const bonus=(Number.isFinite(base)?base:0)+chieftainsBonus(a,t);
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
  const mounted=S.civ?.[a.t]===39&&(U[a.k]?.mt||CAVARM.has(a.k))&&age>=1;
  const boosted=mounted?Math.round(bonus*(1+.1*(age+1))):bonus;

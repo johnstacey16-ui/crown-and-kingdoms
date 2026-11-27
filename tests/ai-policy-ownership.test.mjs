@@ -556,6 +556,15 @@ test('Silk Road AI values living fielded traders rather than Genoese combat unit
  r.my.push({k:'cog',hp:50},{k:'cart',hp:40});assert.ok(f.score('ut15',r)>one);
 });
 
+test('Chieftains AI values fielded infantry and mounted pressure without counting dead or loaded troops',()=>{
+ const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut7',r);
+ r.my.push({k:'knight',hp:100},{k:'mil',hp:0},{k:'spear',hp:40,ld:{}});r.humanCav=3;
+ assert.equal(f.score('ut7',r),empty);
+ r.humanCav=0;r.my.push({k:'mil',hp:40});const one=f.score('ut7',r);assert.ok(one>empty);
+ r.humanCav=3;assert.ok(f.score('ut7',r)>one);
+ r.humanCav=0;r.my.push({k:'spear',hp:40},{k:'mil',hp:40});assert.ok(f.score('ut7',r)>one);
+});
+
 test('Tigui research priority follows completed Town Centres and defensive need rather than Gbeto count',()=>{
  const f=researchScoreFixture(),r=f.rosters(),empty=f.score('ut23',r);
  r.my.push({k:'gbeto',hp:40},{k:'gbeto',hp:40});

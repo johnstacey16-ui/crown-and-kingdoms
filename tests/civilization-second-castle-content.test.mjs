@@ -159,3 +159,59 @@ test('same-build saves restore Stronghold research, healing and Celtic Elite uni
  assert.equal(run('S.tech[0].ut6p'),1);
  assert.equal(run("mhp({k:'woad',t:0})"),hp);
 });
+
+function chieftainsGame(){
+ const run=game(7);
+ run("S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);globalThis.attacker=addU(0,'bers',30,30);globalThis.victim=addU(1,'knight',30.5,30)");
+ return run;
+}
+function chieftainsHit(run){return run('(()=>{victim.hp=1000;dmgT(attacker,victim);return 1000-victim.hp})()');}
+test('Chieftains requires paid completed Castle research at the extracted reference price and time',()=>{
+ const run=chieftainsGame(),base=chieftainsHit(run);
+ assert.deepEqual(JSON.parse(run('JSON.stringify(TE.ut7.cost)')),{f:600,g:450});assert.equal(run('TE.ut7.t'),40);
+ run('S.age[0]=1');assert.equal(run("research(castle,'ut7')"),false);
+ run('S.age[0]=2;S.res[0].g=449');assert.equal(run("research(castle,'ut7')"),false);
+ run('S.res[0].g=10000');assert.equal(run("research(castle,'ut7')"),true);
+ assert.equal(run('S.res[0].f'),9400);assert.equal(run('S.res[0].g'),9550);
+ assert.equal(chieftainsHit(run),base);run('upB(castle,TE.ut7.t+.1)');assert.equal(chieftainsHit(run),base+5);
+ for(const kind of ['mil','spear','bers'])assert.equal(run(`S.tech[0].atkb?.${kind}||0`),0,'no old flat attack ledger');
+ assert.equal(run("research(castle,'ut7')"),false);assert.equal(run("rsOf({k:'castle',t:1}).includes('ut7')"),false);
+});
+test('Chieftains adds only class-specific infantry damage and stacks with spear-line counters',()=>{
+ const run=chieftainsGame();
+ const infantry=['mil','spear','bers','axe','gbeto','chakram','footkonnik'];
+ const sources=[...infantry,'arc','knight','vil'];
+ const cavalry=['knight','cavarch','cata','ele','eled','rathaM','monaspa'];
+ const camels=['camel','mamel','camelscout','flamecamel'];
+ for(const source of sources)for(const target of [...cavalry,...camels,'mil','arc','ram','gal']){
+  run(`attacker.k='${source}';victim.k='${target}';S.tech[0]={atkb:{'${source}':20}}`);
+  const base=chieftainsHit(run);run('S.tech[0].ut7=1');
+  const extra=infantry.includes(source)?camels.includes(target)?4:cavalry.includes(target)?5:0:0;
+  assert.equal(chieftainsHit(run),base+extra,source+' → '+target);
+ }
+ run("attacker.k='spear';victim.k='knight';S.tech[0]={pike:1}");const pike=chieftainsHit(run);
+ run('S.tech[0].ut7=1');assert.equal(chieftainsHit(run),pike+5);
+ run('S.civ[0]=0');assert.equal(chieftainsHit(run),pike,'foreign research flags cannot retain the counter bonus');
+ run("S.civ[0]=7;attacker.k='bers';victim.k='mil';victim.s=4;S.tech[0]={}");const building=chieftainsHit(run);
+ run('S.tech[0].ut7=1');assert.equal(chieftainsHit(run),building,'buildings are not cavalry targets');
+});
+test('Chieftains uses the normal counter-resistance path and does not restore removed kill-gold rewards',()=>{
+ const run=chieftainsGame();
+ run("victim.k='batele';S.civ[1]=38;S.tech[0].ut7=1");
+ assert.equal(run('factionCounterBonus(attacker,victim,0)'),4,'existing Bengali 25% resistance and rounding apply to the bonus');
+ run("S.civ[1]=1;attacker.k='bers'");
+ for(const kind of ['vil','cart','cog','mon']){
+  run(`victim=addU(1,'${kind}',30.5,30);victim.hp=1;globalThis.gold=S.res[0].g;dmgT(attacker,victim)`);
+  assert.equal(run('victim.hp<=0'),true);assert.equal(run('S.res[0].g'),run('gold'),kind+' grants no obsolete Chieftains gold');
+ }
+});
+test('Chieftains follows ranged-infantry projectile snapshots through reload and applies to future troops',()=>{
+ const run=chieftainsGame();
+ run("attacker.k='gbeto';attacker.x=27;S.tech[0].ut7=1;victim.hp=1000;launchProjectile(attacker,victim)");
+ assert.equal(run('S.pj.length'),1);run('attacker.hp=0;S.us=S.us.filter(u=>u!==attacker)');
+ assert.equal(run("saveG(false,'chieftains-projectile')"),true);assert.equal(run("loadG(false,'chieftains-projectile')"),true);
+ run('victim=S.pj[0].t;pjs(1)');
+ assert.equal(run('1000-victim.hp'),run("Math.max(1,U.gbeto.dmg+5-combatArmor(victim,'p'))"));
+ run("attacker=addU(0,'bers',30,30);victim=addU(1,'knight',30.5,30)");
+ const upgraded=chieftainsHit(run);run('S.tech[0].ut7=0');assert.equal(chieftainsHit(run),upgraded-5);
+});
