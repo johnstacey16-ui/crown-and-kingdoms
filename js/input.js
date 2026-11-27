@@ -72,7 +72,7 @@ n.t=0;pay(0,d.cost);if(typeof grantFolwarkFarmFood==='function')grantFolwarkFarm
 if(k!=='wall'&&!lt)place=null;note(d.n+' placed')}return}
 if(E[5]){cancelGameplayGestures();ov=1;return}if(E[7]){openRadial(wx,wy);return}if(E[4]){cancelGameplayGestures();cgo={sel:-1,done:0};yc=1;return}
 if(E[1]&&!lt){cancelGameplayGestures();S.sel=[];return}
-if(E[8]){cancelGameplayGestures();omr='play';mode='obj';return}
+if(E[8]){cancelGameplayGestures();openObjectives('play');return}
 if(E[3]){yc=0;yDown=true}if(yDown&&P[py]&&E[14]){yShort(true);yc=1}if(RE[py]){const executeShortcut=yDown&&!yc;yDown=false;if(executeShortcut)yShort(false);yc=0}
 // LT is the Xbox selection/build/train modifier, not an economy/zoom layer.
 // The dedicated R3 villager priorities wheel handles those bindings above.
@@ -87,7 +87,7 @@ if(E[10]){const pg=S.ping&&S.t-S.ping.t<30&&!S.sel.length;if(pg)ctr(S.ping.x,S.p
 function ctl(dt){if(mode!=='play')cancelShortcutGesture();if(E.some(Boolean)&&aInit()&&AC.state==='suspended')AC.resume().catch(()=>{});if(mode!=='play'){if(E[12]||E[13]||E[14]||E[15])uis('move');else if(E[0])uis('ok');else if((E[1]||E[9])&&mode!=='title')uis('back')}
 if(mode==='remap'){if(rw){const b=ER.findIndex((v,i)=>v&&i!==9);if(b>=0){BM[RA[ri][0]]=b;rw=0;sv()}return}
 if(ER[12])ri=(ri+RA.length-1)%RA.length;if(ER[13])ri=(ri+1)%RA.length;if(ER[0])rw=1;if(ER[2]){BM={};sv()}if(ER[9]||ER[1])mode=rbk;return}
-if(mode==='obj'){if(E[0]||E[1]||E[8]||E[9]||E[5])mode=omr;return}
+if(mode==='obj'){objectiveCtl();return}
 if(mode==='tree'){const TL=treeLines();if(E[13])tsc=Math.min(Math.max(0,TL.length-1),tsc+1);if(E[12])tsc=Math.max(0,tsc-1);if(E[1]||E[0]||E[9])mode='pause';return}
 if(mode==='info'){infoCtl();return}
 if(mode==='title'){titleCtl();return}

@@ -114,6 +114,51 @@ try{
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await page.locator('#c').screenshot({path:output+'/figma-live-info-'+section+'-'+viewport.width+'x'+viewport.height+'.png'});
    }
+   // Exercise the in-match Objectives entry and close actions through controller routing.
+   const objectiveViewport=viewport.width===390?{width:390,height:360}:viewport;
+   if(objectiveViewport!==viewport)await page.setViewportSize(objectiveViewport);
+   await page.waitForFunction(size=>CW===size.width&&CH===size.height,objectiveViewport);
+   const objectives=await page.evaluate(()=>{
+    snd=mus=0;
+    const mission=CAMP.findIndex(sc=>sc.goals.length===6);
+    startScenario(mission);mode='play';
+    const goals=CAMP[mission].goals,completed=goals.find(goal=>!goal.optional);
+    cmp.d[completed.id]=1;
+    const priorPad=pad;pad={axes:[0,0,0,0]};
+    try{E=[];E[8]=true;ctl(0)}finally{pad=priorPad;E=[]}
+    const entered=mode==='obj',labels=[],priorTx=tx;
+    let fits=true;
+    const pages=objectiveLayout().count;
+    try{
+     tx=(value,x,y,size,color,align)=>{
+      priorTx(value,x,y,size,color,align);
+      const width=X.measureText(String(value)).width;
+      const left=X.textAlign==='center'?x-width/2:X.textAlign==='right'?x-width:x;
+      fits &&= left>=0&&left+width<=CW&&y>=0&&y<=CH;
+      labels.push(String(value));
+     };
+     for(let i=0;i<pages;i++){
+      drawObj();E[15]=true;ctl(0);E=[];
+     }
+    }finally{tx=priorTx}
+    E[5]=true;ctl(0);E=[];
+    const returned=mode==='play';
+    mode='pause';pmItems().find(item=>item.n==='Objectives').a();
+    const reopened=mode==='obj'&&objectiveLayout().page===0;
+    return {entered,returned,reopened,pages,fits,goals:labels.filter(label=>/^\[[x ]\]/.test(label)).length,
+     progress:labels.some(label=>label.includes('1 / 5 required goals met')),
+     optional:labels.some(label=>label.includes('Optional:'))};
+   });
+   assert.ok(objectives.entered&&objectives.returned&&objectives.reopened,JSON.stringify(objectives));
+   assert.ok(objectives.fits&&objectives.progress&&objectives.optional,JSON.stringify(objectives));
+   assert.equal(objectives.goals,6);
+   if(viewport.width===390)assert.ok(objectives.pages>1,'short viewport paginates campaign objectives');
+   await page.locator('#c').screenshot({path:output+'/campaign-objectives-'+objectiveViewport.width+'x'+objectiveViewport.height+'.png'});
+   await page.evaluate(()=>leaveCampaign());
+   if(objectiveViewport!==viewport){
+    await page.setViewportSize(viewport);
+    await page.waitForFunction(size=>CW===size.width&&CH===size.height,viewport);
+   }
    await page.evaluate(()=>{mode='title'});
 
    await page.evaluate(()=>{
@@ -231,6 +276,7 @@ try{
    assert.deepEqual(errors,[],'no Chromium page exceptions');
    evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof,guide:guideProof},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
+    objectives:{viewport:objectiveViewport,...objectives},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
   }finally{await page.close()}
@@ -239,8 +285,8 @@ try{
   source:'current checkout',type:'real Chromium Canvas2D UI screenshots',
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
- console.log('Live Canvas2D HUD/command screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*8)+' screenshots; simulation checks unchanged.');
+ console.log('Live Canvas2D menu, objectives and HUD screenshots verified: '+evidence.length+' viewports, '
+  +(evidence.length*9)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));

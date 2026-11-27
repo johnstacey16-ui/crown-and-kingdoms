@@ -74,11 +74,15 @@ test('Menu/Start performs the advertised back action in setup, options, slots an
  assert.match(input,/mode!=='title'\)uis\('back'\)/,
   'title screen no longer plays a back sound for an unavailable action');
 });
+const objectivesUi=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+const objectiveCode=[
+ objectivesUi.slice(objectivesUi.indexOf('let objectivePage='),objectivesUi.indexOf('function drawInfo2()')),
+ objectivesUi.slice(objectivesUi.indexOf('function infoWrap('),objectivesUi.indexOf('function infoPages(')),
+ ui.slice(ui.indexOf('function menuMeasure('),ui.indexOf('function menuFit(')),
+ ui.slice(ui.indexOf('function cmpObj()'),ui.indexOf('function drawCamp()'))
+].join('\n');
+
 test('Objectives screen accurately explains all seven selectable victory conditions',()=>{
- const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
- const start=source.indexOf('function drawObj()');
- const end=source.indexOf('function drawInfo2()',start);
- assert.ok(start>=0&&end>start,'use the real in-game Objectives renderer');
  const labels=[];
  const context=vm.createContext({
   X:{fillRect(){},fillStyle:''},CW:1280,CH:720,panel(){},
@@ -89,7 +93,7 @@ test('Objectives screen accurately explains all seven selectable victory conditi
   difficultyName:()=> 'Normal',diff:0,popOf:()=>2,capOf:()=>15,
   cmp:null,cmpObj(){},kingdomAlive:()=>true,scoreLimit:1200,vm:0
  });
- vm.runInContext(source.slice(start,end),context);
+ vm.runInContext(objectiveCode,context);
  const expected=[
   /Destroy the enemy Town Centre/,
   /Wonder.*5 minutes/,
@@ -101,7 +105,7 @@ test('Objectives screen accurately explains all seven selectable victory conditi
  ];
  for(let mode=0;mode<7;mode++){
   labels.length=0;context.vm=mode;context.drawObj();
-  const objective=labels.find(v=>v.startsWith('Primary: '));
+  const objective=context.objectiveRows()[0][0];
   assert.ok(objective, 'mode '+mode+' must display its primary objective');
   assert.doesNotMatch(objective,/undefined|null/,'mode '+mode+' must show a valid objective');
   assert.match(objective,expected[mode],'mode '+mode+' must match its actual victory rules');
@@ -113,21 +117,18 @@ test('Objectives screen accurately explains all seven selectable victory conditi
  assert.ok(labels.some(v=>v.includes('Destroy every rival Town Centre')),'multiplayer objective includes all rivals');
 });
 test('campaign Objectives use mission goals instead of the skirmish victory rule',()=>{
- const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
- const start=source.indexOf('function drawObj()'),end=source.indexOf('function drawInfo2()',start);
- assert.ok(start>=0&&end>start);
  const labels=[];
  const ctx=vm.createContext({
   X:{fillRect(){}},CW:1280,CH:720,panel(){},
   tx:value=>labels.push(String(value)),S:{teamN:3,pl:{tr:0,kills:0,gath:0},civ:[0,1,2],t:60,age:[0],us:[],bs:[]},
   CIV:[{n:'Blue'},{n:'Red'},{n:'Gold'}],AG:[{n:'Founding Age'}],
   difficultyName:()=> 'Normal',diff:0,popOf:()=>0,capOf:()=>10,
-  cmp:{i:0,d:{}},cmpObj:()=>labels.push('Mission goals shown'),kingdomAlive:()=>true,
+  cmp:{i:0,d:{}},CAMP:[{t:'Border watch',goals:[{id:'tower',t:'Build a Tower'}]}],kingdomAlive:()=>true,
   scoreLimit:1200,vm:0
  });
- vm.runInContext(source.slice(start,end),ctx);ctx.drawObj();
- assert.ok(labels.some(s=>s.includes('Complete the required mission objectives below')));
- assert.ok(labels.some(s=>s.includes('Mission goals shown')));
+ vm.runInContext(objectiveCode,ctx);ctx.drawObj();
+ assert.ok(labels.some(s=>s.includes('0 / 1 required goals met')));
+ assert.ok(labels.some(s=>s.includes('Build a Tower')));
  assert.equal(labels.some(s=>s.includes('Primary: Destroy every rival Town Centre')),false,
   'campaign missions can win by scripted objectives, not generic skirmish Town Centre rules');
  ctx.cmp=null;labels.length=0;ctx.drawObj();
@@ -135,37 +136,64 @@ test('campaign Objectives use mission goals instead of the skirmish victory rule
   'ordinary skirmishes keep their victory-specific guidance');
 });
 
-test('six-goal campaign displays every objective without obscuring the footer',()=>{
- const source=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
- const start=source.indexOf('function cmpHud()'),end=source.indexOf('function drawCamp()',start);
- assert.ok(start>=0&&end>start,'exercise actual campaign screen renderers');
- const painted=[],boxes=[],goals=Array.from({length:6},(_,i)=>({id:'goal'+i,t:'Goal '+i}));
+test('six-goal campaign paginates at narrow layouts and returns to its parent',()=>{
+ const start=ui.indexOf('function cmpHud()'),end=ui.indexOf('function cmpObj()',start);
+ const painted=[],boxes=[];
+ const goals=Array.from({length:6},(_,i)=>({
+  id:'goal'+i,t:'Goal '+i+' Secure the distant narrow crossing and keep it clear until relief arrives',
+  optional:i===5
+ }));
  const ctx=vm.createContext({
-  CW:1280,CH:720,
-  X:{fillRect:(...args)=>boxes.push(args)},
+  CW:390,CH:360,X:{fillRect:(...args)=>boxes.push(args)},panel(){},
   tx:(label,x,y,size,color)=>painted.push({label:String(label),x,y,size,color}),
-  CAMP:[{t:'Six-goal mission',goals}],cmp:{i:0,d:{}}
+  CAMP:[{t:'Six-goal mission',goals}],cmp:{i:0,d:{goal0:1}},E:[],mode:'play',omr:'play',
+  S:{teamN:2,pl:{tr:0,kills:0,gath:0},civ:[0,1],t:50,age:[0]},
+  CIV:[{n:'Blue'},{n:'Red'}],AG:[{n:'Founding Age'}],
+  difficultyName:()=> 'Normal',diff:0,popOf:()=>2,capOf:()=>15
  });
- vm.runInContext(source.slice(start,end),ctx);
+ vm.runInContext(objectiveCode+'\n'+ui.slice(start,end),ctx);
+ // Keep one extra goal pending to exercise the existing five-goal HUD limit.
+ ctx.cmp.d.goal0=0;
  ctx.cmpHud();
- assert.equal(painted.filter(r=>r.label.startsWith('- Goal ')).length,5,'HUD shows first five goals');
- assert.ok(painted.some(r=>r.label.includes('+1 more')&&r.label.includes('View')),
-  'HUD advertises the sixth goal rather than silently hiding it');
- const height=boxes[0][3];assert.ok(height>160,'HUD backdrop reserves space for overflow hint');
- painted.length=0;ctx.cmpObj();
- const rows=painted.filter(r=>r.label.includes('Goal '));
- assert.equal(rows.length,6,'full objectives lists every campaign goal');
- assert.ok(rows.every(r=>r.y<=720-145),'last objective clears the controller footer');
- assert.ok(rows.every((r,i)=>i===0||r.y-rows[i-1].y>=20),'objectives have readable spacing');
- ctx.cmp.d.goal0=1;painted.length=0;ctx.cmpObj();
- assert.ok(painted.some(r=>r.label==='[x] Goal 0'&&r.color==='#9ae6b4'),'completed state remains visible');
+ assert.equal(painted.filter(r=>r.label.startsWith('- Goal ')).length,5);
+ assert.ok(painted.some(r=>r.label.includes('+1 more')&&r.label.includes('View')));
+ assert.ok(boxes[0][3]>160);
+ ctx.cmp.d.goal0=1;
+ ctx.openObjectives('pause');
+ const first=ctx.objectiveLayout();
+ assert.ok(first.count>1);
+ const rows=[];
+ for(let index=0;index<first.count;index++){
+  painted.length=0;ctx.drawObj();
+  const layout=ctx.objectiveLayout();
+  assert.equal(layout.page,index);
+  assert.ok(layout.rows.every(row=>ctx.menuMeasure(row.value,layout.size)<=layout.textWidth));
+  assert.ok(painted.filter(r=>r.y>=layout.y+86).every(r=>r.y<360));
+  assert.ok(painted.some(r=>r.label.includes('Left/Right: pages')));
+  const optional=layout.rows.findIndex(r=>r.value.startsWith('[ ] Optional: Goal 5'));
+  if(optional>=0)assert.ok(layout.rows.slice(optional).some(r=>r.value.endsWith('relief arrives')),
+   'a wrapped goal stays together on one page');
+  rows.push(...layout.rows);
+  ctx.E[15]=true;ctx.objectiveCtl();ctx.E[15]=false;
+ }
+ assert.equal(ctx.objectiveLayout().page,first.count-1,'last page clamps');
+ assert.equal(rows.filter(r=>r.value.includes('Goal ')).length,6);
+ assert.ok(rows.some(r=>r.value.includes('1 / 5 required goals met')));
+ assert.ok(rows.some(r=>r.value.startsWith('[x] Goal 0')&&r.color==='#9ae6b4'));
+ assert.ok(rows.some(r=>r.value.startsWith('[ ] Optional: Goal 5')));
+ ctx.E[14]=true;ctx.objectiveCtl();ctx.E[14]=false;
+ assert.equal(ctx.objectiveLayout().page,first.count-2);
+ ctx.E[5]=true;ctx.objectiveCtl();ctx.E[5]=false;
+ assert.equal(ctx.mode,'pause');
+ ctx.openObjectives('play');
+ assert.equal(ctx.objectiveLayout().page,0);
+ ctx.E[8]=true;ctx.objectiveCtl();
+ assert.equal(ctx.mode,'play');
 });
 test('multi-kingdom Objectives show only kingdoms with living units or buildings',()=>{
- const ui=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
  const victory=readFileSync(new URL('../js/simulation-victory.js',import.meta.url),'utf8');
- const start=ui.indexOf('function drawObj()'),end=ui.indexOf('function drawInfo2()',start);
  const alive=victory.match(/function kingdomAlive\(t\)\{[^}]*\}/);
- assert.ok(start>=0&&end>start&&alive,'exercise the real Objectives renderer and survival rule');
+ assert.ok(alive,'exercise the real Objectives renderer and survival rule');
  const labels=[];
  const ctx=vm.createContext({
   X:{fillRect(){}},CW:1280,CH:720,panel(){},tx:value=>labels.push(String(value)),
@@ -175,7 +203,7 @@ test('multi-kingdom Objectives show only kingdoms with living units or buildings
   diff:0,difficultyName:()=> 'Normal',popOf:()=>0,capOf:()=>20,
   cmp:null,cmpObj(){},scoreLimit:1200,vm:0
  });
- vm.runInContext(alive[0]+'\n'+ui.slice(start,end),ctx);
+ vm.runInContext(alive[0]+'\n'+objectiveCode,ctx);
  const readCount=()=>{
   labels.length=0;ctx.drawObj();
   const row=labels.find(t=>t.includes('Kingdoms alive:'));

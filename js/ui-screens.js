@@ -129,7 +129,23 @@ function wrapT(s,x,y,w,sz,c,lh,rows=null){const lines=rows||briefingLines(s,w,sz
 
 function cmpHud(){const sc=CAMP[cmp.i];if(!sc)return;const pending=sc.goals.filter(q=>!cmp.d[q.id]),g=pending.slice(0,5),more=pending.length-g.length;if(!g.length)return;const y=typeof hudTopLayout==='function'?hudTopLayout(CW).height+8:60;X.fillStyle='rgba(0,0,0,.55)';X.fillRect(10,y,Math.min(420,CW-20),30+(g.length+(more?1:0))*26);tx('Mission '+(cmp.i+1)+': '+sc.t,20,y+20,17,'#f2c14e');g.forEach((q,i)=>tx('- '+q.t,24,y+44+i*26,16,'#fff'));if(more)tx('+'+more+' more — View for all objectives',24,y+44+g.length*26,15,'#f2c14e')}
 
-function cmpObj(){const sc=CAMP[cmp.i];if(!sc)return;const gap=sc.goals.length>1?Math.max(20,Math.min(34,(CH-145-440)/(sc.goals.length-1))):34;tx('Mission '+(cmp.i+1)+': '+sc.t,CW/2-400,400,22,'#f2c14e');sc.goals.forEach((g,i)=>tx((cmp.d[g.id]?'[x] ':'[  ] ')+g.t,CW/2-400,440+i*gap,21,cmp.d[g.id]?'#9ae6b4':'#fff'))}
+function cmpObj(){
+ const sc=CAMP[cmp.i];
+ if(!sc)return [];
+ const required=sc.goals.filter(goal=>!goal.optional);
+ const complete=required.filter(goal=>cmp.d[goal.id]).length;
+ const rows=[
+  ['Mission '+(cmp.i+1)+': '+sc.t,'#f5d27b'],
+  [complete+' / '+required.length+' required goals met  ·  Defend your Town Centre']
+ ];
+ for(const goal of sc.goals){
+  const met=Boolean(cmp.d[goal.id]);
+  const status=met?'[x] ':'[ ] ';
+  const label=goal.optional?'Optional: '+goal.t.replace(/^Optional:\s*/i,''):goal.t;
+  rows.push([status+label,met?'#9ae6b4':goal.optional?'#cbd5e1':'#fff']);
+ }
+ return rows;
+}
 
 function drawCamp(){briefScrollMission=-1;titleBg();drawList('CAMPAIGNS & MISSIONS',campItems(),ci,'D-pad Up/Down: choose    Left/Right: campaign    A: briefing    B: back')}
 

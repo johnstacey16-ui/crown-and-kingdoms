@@ -134,8 +134,80 @@ function drawTree(){
  tx('D-pad: select building    A/B: back    '+(chosen+1)+'/'+TL.length,
   CW/2,CH-margin-17,Math.min(16,Math.max(11,CW/33)),'#9ae6b4','center');
 }
-function drawObj(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(CW/2-440,70,880,CH-140);tx('OBJECTIVES',CW/2,140,40,'#f2c14e','center');const vmx=[S.teamN>2?'Destroy every rival Town Centre.':'Destroy the enemy Town Centre.','Build a Wonder and hold it for 5 minutes. Any rival kingdom can win the same way.','Hold every relic in your Monasteries for 4 minutes. Any rival kingdom can win the same way.',S.teamN>2?'Keep your King alive and defeat every rival King.':'Keep your King alive and kill the enemy King.','Have the highest kingdom score when the '+Math.round(scoreLimit/60)+'-minute time limit expires.','Control the central hill with military units for 5 minutes; hostile units contest control.','Protect your starting Town Centre and destroy every hostile Town Centre. You cannot build additional Town Centres.'][vm],p=S.pl;
-tx('Primary: '+(cmp?'Complete the required mission objectives below; defend your Town Centre.':vmx),CW/2-400,220,21);tx('You: '+CIV[S.civ[0]].n+'     '+(S.teamN>2?((S.teamN-1)+' rival kingdoms'):('Enemy: '+CIV[S.civ[1]].n))+'     Difficulty: '+difficultyName(diff),CW/2-400,270,20,'#cbd5e1');tx('Time '+(S.t/60|0)+' min     Units trained '+p.tr+'     Enemies defeated '+p.kills+'     Resources gathered '+(p.gath|0),CW/2-400,312,20,'#cbd5e1');tx('Age: '+AG[S.age[0]].n+'     Population '+popOf(0)+'/'+capOf(0)+(S.teamN>2?'     Kingdoms alive: '+(Array.from({length:S.teamN},(_,t)=>kingdomAlive(t)).filter(Boolean).length):''),CW/2-400,354,20,'#cbd5e1');if(cmp)cmpObj();tx('A / B / View / RB / Menu: back',CW/2,CH-110,20,'#9ae6b4','center')}
+let objectivePage=0;
+function openObjectives(returnMode){
+ objectivePage=0;
+ omr=returnMode;
+ mode='obj';
+}
+function objectiveRows(){
+ const {teamN,pl,civ,age,t}=S;
+ const rival=teamN>2?(teamN-1)+' rival kingdoms':'Enemy: '+CIV[civ[1]].n;
+ const rows=[];
+ if(cmp){
+  rows.push(...cmpObj());
+ }else{
+  const rules=[
+   teamN>2?'Destroy every rival Town Centre.':'Destroy the enemy Town Centre.',
+   'Build a Wonder and hold it for 5 minutes. Any rival kingdom can win the same way.',
+   'Hold every relic in your Monasteries for 4 minutes. Any rival kingdom can win the same way.',
+   teamN>2?'Keep your King alive and defeat every rival King.':'Keep your King alive and kill the enemy King.',
+   'Have the highest kingdom score when the '+Math.round(scoreLimit/60)+'-minute time limit expires.',
+   'Control the central hill with military units for 5 minutes; hostile units contest control.',
+   'Protect your starting Town Centre and destroy every hostile Town Centre. You cannot build additional Town Centres.'
+  ];
+  rows.push(['Primary: '+rules[vm],'#f5d27b']);
+ }
+ rows.push(
+  ['Match status','#f5d27b'],
+  ['You: '+CIV[civ[0]].n+'  ·  '+rival+'  ·  Difficulty: '+difficultyName(diff)],
+  ['Age: '+AG[age[0]].n+'  ·  Population '+popOf(0)+'/'+capOf(0)+'  ·  Time '+Math.floor(t/60)+' min'],
+  ['Units trained '+pl.tr+'  ·  Enemies defeated '+pl.kills+'  ·  Resources gathered '+Math.floor(pl.gath)]
+ );
+ if(teamN>2){
+  const alive=Array.from({length:teamN},(_,team)=>kingdomAlive(team)).filter(Boolean).length;
+  rows.push(['Kingdoms alive: '+alive]);
+ }
+ return rows;
+}
+function objectiveLayout(){
+ const w=Math.min(1040,CW-32),x=(CW-w)/2;
+ const size=Math.max(14,Math.min(22,Math.floor(CW/38)));
+ const line=size+7,textWidth=w-48;
+ const groups=objectiveRows().map(([text,color])=>
+  infoWrap(text,textWidth,size).map(value=>({value,color})));
+ const lineCount=groups.reduce((total,group)=>total+group.length,0);
+ const h=Math.min(CH-24,154+Math.max(0,lineCount-1)*line),y=(CH-h)/2;
+ const pageLines=Math.max(1,Math.floor((h-154)/line)+1);
+ const pages=[[]];
+ for(const group of groups){
+  for(let start=0;start<group.length;start+=pageLines){
+   const chunk=group.slice(start,start+pageLines),current=pages.at(-1);
+   if(current.length+chunk.length>pageLines)pages.push(chunk);
+   else current.push(...chunk);
+  }
+ }
+ const count=pages.length,page=Math.max(0,Math.min(objectivePage,count-1));
+ return {w,h,x,y,size,line,textWidth,count,page,rows:pages[page]};
+}
+function drawObj(){
+ const l=objectiveLayout();
+ X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);
+ panel(l.x,l.y,l.w,l.h);
+ tx('OBJECTIVES',l.x+24,l.y+44,Math.min(32,l.size+8),'#f5d27b');
+ if(l.count>1)tx((l.page+1)+' / '+l.count,l.x+l.w-24,l.y+44,l.size,'#cbd5e1','right');
+ X.fillStyle='rgba(219,184,114,.4)';X.fillRect(l.x+24,l.y+56,l.textWidth,1);
+ l.rows.forEach(({value,color},i)=>tx(value,l.x+24,l.y+86+i*l.line,l.size,color||'#e2e8f0'));
+ const footerSize=Math.min(16,l.size);
+ if(l.count>1)tx('D-pad Left/Right: pages',CW/2,l.y+l.h-48,footerSize,'#9ae6b4','center');
+ tx('A / B / View / RB / Menu: back',CW/2,l.y+l.h-28,footerSize,'#9ae6b4','center');
+}
+function objectiveCtl(){
+ if(E[0]||E[1]||E[8]||E[9]||E[5]){mode=omr;return}
+ if(!E[14]&&!E[15])return;
+ const {page,count}=objectiveLayout();
+ objectivePage=E[14]?Math.max(0,page-1):Math.min(count-1,page+1);
+}
 function drawInfo2(){
  titleBg();
  const l=infoLayout(CW,CH),pages=infoPages(inf==='c',l),page=Math.max(0,Math.min(infoPage,pages.length-1));
@@ -203,7 +275,7 @@ function infoCtl(){
 
 /* Pause-menu model and drawing. Controller navigation remains in js/input.js. */
 const GSP=[.5,1,1.5,2,3];
-function pmItems(){return[{n:'Resume',a:()=>{if(!retryGraphicsRestore())mode='play'}},{n:'Objectives',a:()=>{omr='pause';mode='obj'}},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),...tributeMenuItems(),...villagerPriorityMenuItems(),
+function pmItems(){return[{n:'Resume',a:()=>{if(!retryGraphicsRestore())mode='play'}},{n:'Objectives',a:()=>openObjectives('pause')},{n:'Technology Tree',a:()=>{tsc=0;mode='tree'}},...diplomacyMenuItems(),...tributeMenuItems(),...villagerPriorityMenuItems(),
 {n:'Game speed',v:()=>gs+'x',l:()=>{gs=GSP[Math.max(0,GSP.indexOf(gs)-1)]},r:()=>{gs=GSP[Math.min(4,GSP.indexOf(gs)+1)]}},
 {n:'Minimap cursor speed',v:()=>cspd+'x',l:()=>{cspd=Math.max(.5,cspd-.25)},r:()=>{cspd=Math.min(2,cspd+.25)}},
 {n:'Brightness',v:()=>br.toFixed(1),l:()=>{br=Math.max(.6,+(br-.1).toFixed(1));rs()},r:()=>{br=Math.min(1.5,+(br+.1).toFixed(1));rs()}},
