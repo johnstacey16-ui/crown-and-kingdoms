@@ -5,7 +5,8 @@ import {readFileSync} from 'node:fs';
 import {headlessGame} from './helpers/headless-game.mjs';
 import {loadCoreGameSource} from '../scripts/runtime-sources.mjs';
 
-const hostCommands=readFileSync(new URL('../js/network-commands.js',import.meta.url),'utf8');
+const hostCommands=['network-sync','network-commands'].map(name=>
+ readFileSync(new URL('../js/'+name+'.js',import.meta.url),'utf8')).join('\n');
 
 function game(){
  const {source,sandbox}=headlessGame();
@@ -216,4 +217,71 @@ test('authenticated options use projected Gurjara age for Camel Scout replacemen
  assert.ok(!options(2).includes('camelscout'));
  assert.ok(options(3).includes('camel'));
  assert.equal(run('S.age[0]'),3,'projected host age cannot change live game');
+});
+
+test('Khmer Farms and Feudal military buildings skip prerequisite structures in every build entry point',()=>{
+ const run=uiGame();
+ run(`S.bs=[tc];S.nodes=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);S.nd.fill(null);
+  S.el.fill(0);S.civ[0]=12;S.age[0]=0;S.sel=[worker];mode='play';
+  globalThis.sendBuild=(value,x,y)=>CK_GAME_COMMANDS.execute(
+   {type:'build',value,entities:[worker.netId],point:{x,y}},0,2)`);
+ const hostLock=kind=>run(`CK_GAME_COMMANDS.buildOptions(S,0).flat().find(o=>o.value==='${kind}').locked`);
+ for(const kind of ['stable','rng','smith']){
+  assert.equal(run(`bLock('${kind}')`),'Needs Feudal Age');
+  assert.equal(hostLock(kind),'Requires Feudal Age');
+ }
+ assert.equal(run("sendBuild('stable',16,24)"),false);
+ assert.equal(run("sendBuild('farm',16,24)"),true,'a live host build can place a farm with no Mill');
+ assert.equal(run("worker.tg.fm&&worker.tg.t===0"),true);
+ assert.equal(run('S.res[0].w'),9940);
+ run('S.age[0]=1');
+ for(const kind of ['stable','rng','smith']){
+  assert.equal(run(`bLock('${kind}')`),'');
+  assert.equal(hostLock(kind),'');
+ }
+ const tree=world=>snapshot(run,`technologyTreeModel(0,${world}).buildings.find(b=>b.id==='stable')`);
+ assert.equal(tree('S').pre,null);
+ assert.equal(tree('S').state,'available');
+ assert.equal(tree('{...S,civ:[0,0]}').reason,'Requires Barracks');
+ run('worker.x=18.5;worker.y=22.5');
+ assert.equal(run("sendBuild('stable',17,23)"),true);
+ assert.equal(run('S.res[0].w'),9790);
+ assert.equal(run("S.bs.some(b=>b.k==='stable'&&b.t===0&&!b.done)"),true);
+ assert.equal(run("buildingUnlock('donjon',0,S).state"),'locked','regional ownership still applies');
+ assert.equal(run("sendBuild('rng',17,23)"),false,'an occupied site is rejected');
+});
+
+test('Khmer can advance all three ages without extra buildings through the live host',()=>{
+ const run=game();
+ run(`S.bs=[tc];S.civ[0]=12;S.age[0]=0;mode='play';
+  globalThis.sendAge=()=>CK_GAME_COMMANDS.execute(
+   {type:'research',value:'age',entities:[tc.netId]},0,2)`);
+ for(let age=0;age<3;age++){
+  const next=snapshot(run,`AG[${age+1}]`);
+  assert.deepEqual(snapshot(run,'ageRequirements(0)'),{ready:true,count:0});
+  assert.equal(snapshot(run,'ageRequirements(0,{...S,civ:[0,0]})').ready,false);
+  assert.equal(commandOption(run,'tc','age').locked,'');
+  run(`S.res[0]={f:${next.cost.f-1},g:${next.cost.g||0},w:0,s:0}`);
+  assert.equal(run('sendAge()'),false);
+  run('S.res[0].f++');
+  assert.equal(run('sendAge()'),true);
+  assert.equal(run('S.res[0].f+S.res[0].g'),0);
+  assert.equal(run('sendAge()'),false,'an advance cannot queue twice');
+  run(`upB(tc,${next.t}+1)`);
+  assert.equal(run('S.age[0]'),age+1);
+  assert.equal(run('S.bs.length'),1);
+ }
+ assert.equal(run('sendAge()'),false,'Imperial Age remains the cap');
+});
+
+test('Khmer AI starts a paid age advance before any prerequisite building finishes',()=>{
+ const run=game();
+ run(`S.civ[1]=12;S.age[1]=0;diff=2;S.ai[1].cd=0;S.el.fill(0);
+  globalThis.aiCentre=addB(1,'tc',32,32,true);
+  for(let i=0;i<12;i++)addU(1,'vil',29+i%4,36+Math.floor(i/4));
+  S.res[1]={f:500,w:0,g:0,s:0};
+  aiTeam(1,1)`);
+ assert.equal(run('aiCentre.rs?.k'),'age');
+ assert.equal(run('S.res[1].f'),0);
+ assert.equal(run('S.bs.filter(b=>b.t===1&&b.done).length'),1);
 });

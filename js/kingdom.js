@@ -326,7 +326,7 @@ function civilizationBuildingAllowed(kind,team,civs=S?.civ){
 function buildingUnlock(kind,team,world=S){
  const d=B[kind],civs=world?.civ,id=civs?.[team];
  const age=Number.isInteger(d?.age)?d.age:0;
- const pre=kind==='farm'?(id===35?'folwark':'mill'):d?.req||null;
+ const pre=id===12?null:kind==='farm'?(id===35?'folwark':'mill'):d?.req||null;
  const reason=!d?'Building unavailable':
   !civilizationBuildingAllowed(kind,team,civs)?
    (kind==='donjon'?'Only Sicilians can construct a Donjon':

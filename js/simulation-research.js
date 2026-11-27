@@ -5,7 +5,7 @@ function ageRequirements(t,world=S){
  const g=AG[world.age[t]+1];if(!g)return {ready:false,count:0};
  const completed=world.bs.filter(b=>b.t===t&&b.done&&b.hp>0);
  const count=new Set(completed.filter(b=>g.needs.includes(b.k)).map(b=>b.k)).size;
- return {ready:count>=2||!!(g.single&&completed.some(b=>b.k===g.single)),count};
+ return {ready:world.civ?.[t]===12||count>=2||!!(g.single&&completed.some(b=>b.k===g.single)),count};
 }
 /* Spanish civilization bonus (DE): Blacksmith technologies cost no gold.
  * Keep the base TE catalogue immutable and calculate costs separately for each
