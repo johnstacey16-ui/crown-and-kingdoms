@@ -7,9 +7,9 @@ import {createHash} from 'node:crypto';
 import {extractSpriteGrid,reflowSpriteGrid} from './sprite-grid.mjs';
 import {updateArtRevisions} from './build-art-revisions.mjs';
 const sharp=createRequire(import.meta.url)('sharp'),root=new URL('../',import.meta.url);
-const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon','orgun','husswagon','ratha','rathaM','footkonnik'],args=process.argv.slice(2),sources={};
+const kinds=['huskarl','lbow','mgd','axe','woad','bers','saml','tk','jaguar','kamayuk','shotel','gbeto','obuch','jan','chuko','genoa','plumed','rattan','composite','urumi','chakram','serjeant','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik','ele','eled','wagon','orgun','husswagon','ratha','rathaM','footkonnik','ballistaEle'],args=process.argv.slice(2),sources={};
 const mountedKinds=new Set(['mgd','cata','boyar','leitis','tarkan','keshik','monaspa','conq','huszar','coust','mamel','kipchak','centurion','arambai','konnik']);
-const largeKinds=new Set(['ele','eled','wagon','orgun','husswagon','ratha','rathaM']);
+const largeKinds=new Set(['ballistaEle','ele','eled','wagon','orgun','husswagon','ratha','rathaM']);
 const impactSource={ele:11};
 const manifest=new URL('assets/atlas-manifest.json',root),pack=JSON.parse(readFileSync(manifest));
 if(args[0]?.startsWith('--')){
