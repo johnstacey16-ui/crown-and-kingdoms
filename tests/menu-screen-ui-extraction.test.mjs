@@ -9,7 +9,7 @@ const menus = readFileSync(new URL('../js/menus.js', import.meta.url), 'utf8');
 
 test('title, new-game setup and options screens are drawn in js/ui.js', () => {
   assert.ok(html.indexOf('./js/ui.js') < html.indexOf('./js/menus.js'));
-  assert.match(ui, /function drawTitle\(\)\{titleBg\(\)/);
+  assert.match(ui, /function drawTitle\(\)\{\s*titleScene\(\)/);
   assert.match(ui, /function drawSetup\(\)\{titleBg\(\);drawList\('NEW GAME'/);
   assert.match(ui, /function drawOpts\(\)\{titleBg\(\);drawList\('OPTIONS'/);
   for (const name of ['drawTitle','drawSetup','drawOpts']) {
@@ -195,4 +195,122 @@ test('multi-kingdom Objectives show only kingdoms with living units or buildings
  ctx.S.teamN=2;labels.length=0;ctx.drawObj();
  assert.equal(labels.some(t=>t.includes('Kingdoms alive:')),false,
   'two-kingdom Objectives retain the existing simpler layout');
+});
+
+test('cinematic title layout keeps the selected action visible at console and compact resolutions',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});
+ vm.runInContext(source,ctx);
+ for(const [w,h] of [[1920,1080],[1280,720],[854,480],[640,360],[390,700]]){
+  for(let i=0;i<9;i++){
+   const l=ctx.titleLayout(w,h,i);
+   assert.ok(l.start<=i&&i<l.start+l.visible,'selected row must be visible');
+   assert.ok(l.top+l.rh*l.visible<=l.detailY-10,'rows must clear description');
+   assert.ok(l.x>=0&&l.x+l.w<=w,'rows must stay within safe horizontal bounds');
+   assert.ok(l.detailY<l.footer&&l.footer+11<=h,'footer stays within viewport');
+  }
+ }
+ assert.equal(vm.runInContext('CK_TITLE_OPTIONS.length',ctx),9,'preserve every menu action');
+});
+test('cinematic title caches the static scene and paints every existing action without a splash delay',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ let created=0,blits=0,gradientCount=0;const labels=[];
+ const gradient=()=>{gradientCount++;return {addColorStop(){}}};
+ const drawing=()=>({fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},arc(){},save(){},restore(){},scale(){},fillText(s){labels.push(s)},drawImage(){blits++},createLinearGradient:gradient,createRadialGradient:gradient});
+ const X=drawing(),ctx=vm.createContext({X,CW:1280,CH:720,ti:0,hs:true,pad:{id:'Xbox'},gpErr:'',selectedXboxPerformanceLoad:100,
+  document:{createElement(){created++;return {getContext:()=>drawing()}}},
+  matchMedia:()=>({matches:true}),performance:{now:()=>1000},
+  tx:s=>labels.push(s),menuFit:s=>s});
+ vm.runInContext(source,ctx);
+ ctx.drawTitle();
+ for(const name of ['New Game','Campaign','Continue','Options','Controls','About','Multiplayer','Xbox FPS Test · 100 units','Large Battle Test Save'])assert.ok(labels.includes(name),name+' is immediately available');
+ assert.ok(labels.includes('CROWN &')&&labels.includes('KINGDOMS'));
+ const first=gradientCount;ctx.drawTitle();
+ assert.equal(created,1);assert.equal(blits,2);assert.ok(gradientCount-first<=4,'static valley is not redrawn each frame');
+ ctx.CW=640;ctx.CH=360;ctx.ti=8;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Large Battle Test Save'));
+ ctx.hs=false;ctx.ti=2;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Continue  ·  NO SAVE'));
+});
+
+test('Controls and About paginate every description without losing words and preserve back actions',()=>{
+ const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ctx=vm.createContext({menuMeasure:(s,size)=>String(s).length*size*.53,menuFit:s=>s,E:[],mode:'info',inf:'c',CW:390,CH:720});
+ vm.runInContext(source.slice(source.indexOf('function drawInfo2()'),source.indexOf('/* Pause-menu model')),ctx);
+ for(const [w,h] of [[1920,1080],[1280,720],[640,360],[390,844]]){
+  const l=ctx.infoLayout(w,h);
+  for(const controls of [true,false]){
+   const pages=ctx.infoPages(controls,l),rows=pages.flat();
+   assert.ok(pages.every(p=>p.reduce((sum,row)=>sum+row.height,0)<=l.body));
+   assert.ok(rows.every(row=>row.lines.every(line=>ctx.menuMeasure(line,l.size)<=l.textWidth)));
+   assert.equal(rows.map(row=>Array.from(row.lines).join(' ')).join(' '),ctx.infoEntries(controls).map(row=>row[1]).join(' '));
+  }
+ }
+ ctx.E[15]=true;ctx.infoCtl();assert.equal(vm.runInContext('infoPage',ctx),1);
+ ctx.E=[];ctx.E[14]=true;ctx.infoCtl();assert.equal(vm.runInContext('infoPage',ctx),0);
+ ctx.E=[];ctx.E[1]=true;ctx.infoCtl();assert.equal(ctx.mode,'title');
+});
+
+test('kingdom vista artwork is deterministic, crops without distortion and honors reduced motion',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ const paint=()=>{
+  const calls=[];
+  const c={fillStyle:'',fillRect(...v){calls.push(['rect',this.fillStyle?.spec??this.fillStyle,...v])},beginPath(){},moveTo(...v){calls.push(['move',...v])},lineTo(...v){calls.push(['line',...v])},closePath(){},fill(){calls.push(['fill',this.fillStyle?.spec??this.fillStyle])},arc(...v){calls.push(['arc',...v])}};
+  // Store gradient identity as serializable geometry and stops, never as mock function references.
+  const gradient=(...v)=>{
+   const spec={geometry:v,stops:[]};
+   return {spec,addColorStop(...s){spec.stops.push(s);calls.push(['stop',...v,...s])}};
+  };
+  c.createLinearGradient=gradient;c.createRadialGradient=gradient;
+  ctx.paintTitleValley(c);return calls;
+ };
+ assert.deepEqual(paint(),paint(),'cached artwork uses a private fixed seed, not live simulation RNG');
+ for(const [w,h] of [[1920,1080],[1280,720],[390,844]]){
+  const g=ctx.titleSceneGeometry(w,h);
+  assert.equal(g.sx,g.sy);assert.ok(g.dx<=0&&g.dx+g.w>=w-1e-8&&g.dy<=0&&g.dy+g.h>=h-1e-8);
+ }
+ assert.deepEqual(ctx.titleSceneMotion(0,true),ctx.titleSceneMotion(30000,true));
+ assert.notDeepEqual(ctx.titleSceneMotion(0,false),ctx.titleSceneMotion(30000,false));
+ for(let time=0;time<60000;time+=173){
+  const m=ctx.titleSceneMotion(time,false);assert.ok(m.light>=.74&&m.light<=.92&&Math.abs(m.banner)<=1&&Math.abs(m.mist)<=1);
+ }
+});
+
+test('front-end scene reveal is brief, non-blocking, screen-specific and reduced-motion safe',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ const state={screen:null,started:0,last:0};
+ assert.equal(ctx.titleRevealAlpha(state,'title',100,false),.22);
+ assert.ok(ctx.titleRevealAlpha(state,'title',240,false)<.07);
+ assert.equal(ctx.titleRevealAlpha(state,'title',380,false),0);
+ assert.equal(ctx.titleRevealAlpha(state,'setup',400,false),.22);
+ assert.equal(ctx.titleRevealAlpha(state,'setup',700,false),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:c',720,true),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:a',740,true),0);
+ assert.equal(ctx.titleRevealAlpha(state,'info:a',760,false),0,'disabling reduced motion does not replay transition');
+ assert.equal(ctx.titleRevealAlpha(state,'title',1700,false),.22,'returning after gameplay reveals scene again');
+ assert.equal(ctx.titleRevealAlpha(state,'title',1980,false),0);
+});
+
+test('setup and options controllers recover stale selections and empty models',()=>{
+ for(const [handler,index,model,screen] of [
+  ['setupCtl','si','setRows','setup'],['optsCtl','oi','optsItems','opts']
+ ]){
+  let rows=[],actions=0,saves=0;
+  const ctx=vm.createContext({E:[],mode:screen,[index]:0,[model]:()=>rows,sset(){saves++}});
+  const start=menus.indexOf('function '+handler+'(){');
+  assert.ok(start>=0);
+  const end=menus.indexOf('\n',start);
+  vm.runInContext(menus.slice(start,end<0?menus.length:end),ctx);
+  rows=[{a(){actions++}},{a(){actions+=10}}];
+  for(const invalid of [-1,2,NaN,Infinity,0.5,undefined]){
+   ctx[index]=invalid;ctx.E=[];ctx.E[0]=true;ctx.mode=screen;
+   const before=actions;ctx[handler]();
+   assert.equal(ctx[index],0);assert.equal(actions,before+1);
+  }
+  ctx[index]=0;ctx.E=[];ctx.E[12]=true;ctx[handler]();assert.equal(ctx[index],1);
+  ctx.E=[];ctx.E[13]=true;ctx[handler]();assert.equal(ctx[index],0);
+  rows=[];ctx.E=[];ctx.E[0]=true;ctx.mode=screen;
+  const before=[actions,saves];ctx[handler]();
+  assert.equal(ctx.mode,'title');assert.deepEqual([actions,saves],before);
+ }
 });

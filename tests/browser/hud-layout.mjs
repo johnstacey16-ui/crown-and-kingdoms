@@ -37,6 +37,85 @@ try{
    await page.waitForFunction(()=>typeof hud==='function'&&
     typeof hudTopLayout==='function'&&typeof hudLowerLayout==='function'&&
     typeof quickBarLayout==='function'&&typeof drawRadial==='function');
+   // Capture the real entry screen before creating a skirmish or evidence overlay.
+   await page.emulateMedia({reducedMotion:'reduce'});
+   await page.waitForFunction(()=>typeof titleLayout==='function'&&typeof drawTitle==='function'&&ckTitleScene!==null);
+   const titleProof=await page.evaluate(()=>{
+    const priorTx=tx,priorSelection=ti,labels=[];
+    try{
+     tx=(value,x,y,size,color,align)=>{
+      priorTx(value,x,y,size,color,align);
+      const width=X.measureText(String(value)).width;
+      const left=X.textAlign==='center'?x-width/2:X.textAlign==='right'?x-width:x;
+      labels.push({value:String(value),left,right:left+width,y});
+     };
+     const proofs=[];
+     for(let i=0;i<9;i++){
+      ti=i;labels.length=0;drawTitle();
+      const layout=titleLayout(CW,CH,i),selected=CK_TITLE_OPTIONS[i][0];
+      proofs.push({i,layout,selected,shown:labels.some(t=>t.value.startsWith(selected)),
+       fits:labels.every(t=>t.left>=-1&&t.right<=CW+1&&t.y>=0&&t.y<=CH)});
+     }
+     return {proofs,width:CW,height:CH,cache:{width:ckTitleScene.width,height:ckTitleScene.height}};
+    }finally{tx=priorTx;ti=priorSelection;drawTitle()}
+   });
+   assert.equal(titleProof.width,viewport.width);
+   assert.equal(titleProof.height,viewport.height);
+   assert.deepEqual(titleProof.cache,{width:960,height:540});
+   for(const proof of titleProof.proofs){
+    assert.ok(proof.shown,'title selection '+proof.selected+' remains visible at '+viewport.width);
+    assert.ok(proof.fits,'title text stays inside the actual canvas at '+viewport.width+' for '+proof.selected);
+    assert.ok(proof.layout.start<=proof.i&&proof.i<proof.layout.start+proof.layout.visible);
+   }
+   await page.locator('#c').screenshot({path:output+'/figma-live-title-'+viewport.width+'x'+viewport.height+'.png'});
+   // The same cached world now backs setup, campaign and options.
+   const sharedProof=await page.evaluate(()=>{
+    const oldMode=mode,oldTx=tx,scene=ckTitleScene,labels=[];
+    try{
+     tx=(value,x,y,size,color,align)=>{oldTx(value,x,y,size,color,align);labels.push(String(value));};
+     return [['setup',drawSetup,'NEW GAME'],['camp',drawCamp,'CAMPAIGNS & MISSIONS'],['opts',drawOpts,'OPTIONS']].map(([m,draw,heading])=>{
+      mode=m;labels.length=0;draw();
+      return {mode:m,heading:labels.some(t=>t===heading||heading.startsWith(t.replace(/…$/,''))),sameScene:scene===ckTitleScene};
+     });
+    }finally{tx=oldTx;mode=oldMode;drawTitle()}
+   });
+   // Widescreen defaults should not be needlessly shortened in the settings list.
+   if(viewport.width>=1280){
+    const values=await page.evaluate(()=>{
+     const saved=tx,labels=[];
+     try{tx=(s,...args)=>{saved(s,...args);labels.push(String(s))};drawSetup();return labels}
+     finally{tx=saved}
+    });
+    assert.ok(values.includes('Standard'),'setup shows full default game mode');
+    assert.ok(values.some(s=>s.includes('Dark Age')),'setup shows full starting age');
+   }
+   assert.equal(sharedProof.length,3);
+   assert.ok(sharedProof.every(p=>p.heading&&p.sameScene),'front-end lists retain headings and reuse cached kingdom scene');
+   for(const m of ['setup','camp','opts']){
+    await page.evaluate(m=>{mode=m},m);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await page.locator('#c').screenshot({path:output+'/figma-live-'+m+'-'+viewport.width+'x'+viewport.height+'.png'});
+   }
+   // Capture the paged guide and album credit using the real canvas.
+   const guideProof=await page.evaluate(()=>{
+    const previous=inf,previousMode=mode;
+    try{
+     mode='info';
+     return [true,false].map(c=>{
+      inf=c?'c':'a';const layout=infoLayout(CW,CH),pages=infoPages(c,layout);
+      for(let i=0;i<pages.length;i++){infoPage=i;drawInfo2()}
+      return {controls:c,pages:pages.length,fit:pages.every(p=>p.reduce((s,row)=>s+row.height,0)<=layout.body&&p.every(row=>row.lines.every(line=>menuMeasure(line,layout.size)<=layout.textWidth)))};
+     });
+    }finally{inf=previous;mode=previousMode;infoPage=0}
+   });
+   assert.ok(guideProof.every(p=>p.pages>=1&&p.fit),'all controller guide and about pages fit');
+   for(const section of ['c','a']){
+    await page.evaluate(section=>{mode='info';inf=section;infoPage=0},section);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await page.locator('#c').screenshot({path:output+'/figma-live-info-'+section+'-'+viewport.width+'x'+viewport.height+'.png'});
+   }
+   await page.evaluate(()=>{mode='title'});
+
    await page.evaluate(()=>{
     seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;
     startAge=2;startArmy=0;startRes=3;
@@ -150,7 +229,7 @@ try{
     path:output+'/figma-live-commands-'+viewport.width+'x'+viewport.height+'.png'
    });
    assert.deepEqual(errors,[],'no Chromium page exceptions');
-   evidence.push({viewport,hud:{labels:words.length,topHeight:hudProof.header.height,
+   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof,guide:guideProof},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
@@ -161,7 +240,7 @@ try{
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
  console.log('Live Canvas2D HUD/command screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*2)+' screenshots; simulation checks unchanged.');
+  +(evidence.length*8)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));

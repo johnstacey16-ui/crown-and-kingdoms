@@ -136,8 +136,70 @@ function drawTree(){
 }
 function drawObj(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);panel(CW/2-440,70,880,CH-140);tx('OBJECTIVES',CW/2,140,40,'#f2c14e','center');const vmx=[S.teamN>2?'Destroy every rival Town Centre.':'Destroy the enemy Town Centre.','Build a Wonder and hold it for 5 minutes. Any rival kingdom can win the same way.','Hold every relic in your Monasteries for 4 minutes. Any rival kingdom can win the same way.',S.teamN>2?'Keep your King alive and defeat every rival King.':'Keep your King alive and kill the enemy King.','Have the highest kingdom score when the '+Math.round(scoreLimit/60)+'-minute time limit expires.','Control the central hill with military units for 5 minutes; hostile units contest control.','Protect your starting Town Centre and destroy every hostile Town Centre. You cannot build additional Town Centres.'][vm],p=S.pl;
 tx('Primary: '+(cmp?'Complete the required mission objectives below; defend your Town Centre.':vmx),CW/2-400,220,21);tx('You: '+CIV[S.civ[0]].n+'     '+(S.teamN>2?((S.teamN-1)+' rival kingdoms'):('Enemy: '+CIV[S.civ[1]].n))+'     Difficulty: '+difficultyName(diff),CW/2-400,270,20,'#cbd5e1');tx('Time '+(S.t/60|0)+' min     Units trained '+p.tr+'     Enemies defeated '+p.kills+'     Resources gathered '+(p.gath|0),CW/2-400,312,20,'#cbd5e1');tx('Age: '+AG[S.age[0]].n+'     Population '+popOf(0)+'/'+capOf(0)+(S.teamN>2?'     Kingdoms alive: '+(Array.from({length:S.teamN},(_,t)=>kingdomAlive(t)).filter(Boolean).length):''),CW/2-400,354,20,'#cbd5e1');if(cmp)cmpObj();tx('A / B / View / RB / Menu: back',CW/2,CH-110,20,'#9ae6b4','center')}
-function drawInfo2(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);const c=inf==='c',L=c?[['Left stick','Pan camera to aim the centre reticle; steer wheels and expanded minimap cursor'],['Right stick','Up/down: zoom during gameplay (solo and multiplayer)'],['Minimap cursor speed','Controls expanded minimap pointer only; Camera speed changes normal panning'],['A','Select / command. Hold A and drag for a selection box; double-tap for all of a type on screen'],['Small minimap','A inside the diamond focuses the camera; outside it A selects or commands normally'],['A (production buildings selected)','Set their gather (rally) point'],['LT (hold)','Add to selection, place several buildings, train five at a time'],['RT (hold)','Command menu (radial). With nothing selected: site-based commands'],['Y','Build/train; military: Line/Split. Hold Y + D-pad Left: change shortcut.'],['LB (hold)','Control groups: left stick picks, X assigns, release selects, Y focuses'],['RB','Open minimap; left stick moves its cursor, Y focuses, B/RB/View closes'],['D-pad','Up: idle villager; Right: support; Down: Town Centre; Left: military'],['X / B','X assigns control groups in the LB wheel; B cancels or deselects'],['L3 / R3','L3 focuses camera; R3: villager priorities, Y: manual weights'],['View / Menu','View opens objectives; Menu pauses. B/RB/View exits objectives']]:[['Game','Crown & Kingdoms is an original controller-first medieval RTS built from modular browser scripts.'],['Goal','Win by the victory mode you chose; the enemy follows the same rules and fog.'],['Controls','Target: Age of Empires II: DE Xbox default controls. Full parity is still in progress.'],['Graphics','Painted medieval raster sprites, textured terrain and team-colour heraldry.'],['Audio','Synthesised Web Audio with spatial effects, ambience and adaptive music; browser audio may require controller input first.'],['Music credit','The Northerner Diaries – Jeremy Soule (optional soundtrack).'],['Online','Multiplayer reliability and host-authoritative match state are active development goals.'],['Focus','Finish all 19 campaigns, improve AI and technology, fix naval/maps, improve graphics, measure Xbox performance and verify multiplayer.']];
-tx(c?'CONTROLS':'ABOUT',CW/2,70,44,'#f2c14e','center');const sp2=Math.min(52,(CH-170)/L.length);L.forEach((e,i)=>{tx(e[0],60,130+i*sp2,20,'#fde68a');tx(e[1].slice(0,Math.floor((CW-330)/9.5)),330,130+i*sp2,19)});tx('A or B: back',CW/2,CH-40,20,'#9ae6b4','center')}
+function drawInfo2(){
+ titleBg();
+ const l=infoLayout(CW,CH),pages=infoPages(inf==='c',l),page=Math.max(0,Math.min(infoPage,pages.length-1));
+ panel(l.x,l.y,l.w,l.h);
+ tx(inf==='c'?'CONTROLS':'ABOUT',l.x+18,l.y+36,l.titleSize,'#f5d27b');
+ tx((page+1)+' / '+pages.length,l.x+l.w-18,l.y+35,13,'#cbd5e1','right');
+ X.fillStyle='rgba(219,184,114,.4)';X.fillRect(l.x+18,l.y+48,l.w-36,1);
+ let y=l.y+58;
+ for(const item of pages[page]){
+  const h=item.height;
+  X.fillStyle='rgba(7,15,20,.52)';X.fillRect(l.x+14,y,l.w-28,h-5);
+  X.fillStyle='rgba(219,184,114,.58)';X.fillRect(l.x+14,y+5,2,h-15);
+  tx(item.label,l.x+25,y+l.line,l.labelSize,'#f5d27b');
+  item.lines.forEach((line,i)=>tx(line,l.x+25,y+l.line*(i+2),l.size,'#e3e8eb'));
+  y+=h;
+ }
+ tx(menuFit('D-pad Left/Right: pages   •   A / B / Menu: back',l.w-36,l.footerSize),
+  CW/2,l.y+l.h-20,l.footerSize,'#9ae6b4','center');
+}
+let infoPage=0;
+function infoEntries(c){return c?[['Left stick','Pan camera to aim the centre reticle; steer wheels and expanded minimap cursor'],['Right stick','Up/down: zoom during gameplay (solo and multiplayer)'],['Minimap cursor speed','Controls expanded minimap pointer only; Camera speed changes normal panning'],['A','Select / command. Hold A and drag for a selection box; double-tap for all of a type on screen'],['Small minimap','A inside the diamond focuses the camera; outside it A selects or commands normally'],['A (production buildings selected)','Set their gather (rally) point'],['LT (hold)','Add to selection, place several buildings, train five at a time'],['RT (hold)','Command menu (radial). With nothing selected: site-based commands'],['Y','Build/train; military: Line/Split. Hold Y + D-pad Left: change shortcut.'],['LB (hold)','Control groups: left stick picks, X assigns, release selects, Y focuses'],['RB','Open minimap; left stick moves its cursor, Y focuses, B/RB/View closes'],['D-pad','Up: idle villager; Right: support; Down: Town Centre; Left: military'],['X / B','X assigns control groups in the LB wheel; B cancels or deselects'],['L3 / R3','L3 focuses camera; R3: villager priorities, Y: manual weights'],['View / Menu','View opens objectives; Menu pauses. B/RB/View exits objectives']]:[['Game','Crown & Kingdoms is an original controller-first medieval RTS built from modular browser scripts.'],['Goal','Win by the victory mode you chose; the enemy follows the same rules and fog.'],['Controls','Target: Age of Empires II: DE Xbox default controls. Full parity is still in progress.'],['Graphics','Painted medieval raster sprites, textured terrain and team-colour heraldry.'],['Audio','Spatial effects and environmental ambience accompany the streamed album; browser audio may require input first.'],['Music credit','The Northerner Diaries – Jeremy Soule. Music volume and playback can be adjusted in Options.'],['Online','Multiplayer reliability and host-authoritative match state are active development goals.'],['Focus','Finish all 19 campaigns, improve AI and technology, fix naval/maps, improve graphics, measure Xbox performance and verify multiplayer.']]}
+function infoLayout(width,height){
+ const w=Math.min(1040,width-32),h=height-24;
+ const size=Math.max(12,Math.min(18,Math.floor(width/62),Math.floor(height/34)));
+ const line=size+4;
+ return {w,h,x:(width-w)/2,y:12,size,line,labelSize:size,titleSize:Math.min(30,Math.max(19,width/22)),footerSize:Math.max(11,Math.min(15,width/45)),body:h-100,textWidth:w-50};
+}
+function infoWrap(value,width,size){
+ const lines=[];let line='';
+ for(const word of String(value).split(/\s+/)){
+  // Break even a single unusually long token rather than clip it.
+  let part=word;
+  if(line&&menuMeasure(line+' '+part,size)>width){lines.push(line);line=''}
+  while(menuMeasure(part,size)>width&&part.length>1){
+   let n=part.length-1;while(n>1&&menuMeasure(part.slice(0,n),size)>width)n--;
+   lines.push(part.slice(0,n));part=part.slice(n);
+  }
+  line=line?line+' '+part:part;
+ }
+ if(line)lines.push(line);
+ return lines;
+}
+function infoPages(c,l){
+ const pages=[[]];let used=0;
+ for(const [label,value] of infoEntries(c)){
+  const lines=infoWrap(value,l.textWidth,l.size);
+  const maxLines=Math.max(1,Math.floor((l.body-12)/l.line)-1);
+  for(let i=0;i<lines.length;i+=maxLines){
+   const chunk=lines.slice(i,i+maxLines),height=(chunk.length+1)*l.line+12;
+   const row={label:menuFit(label+(i?' (continued)':''),l.textWidth,l.labelSize),lines:chunk,height};
+   if(used&&used+height>l.body){pages.push([]);used=0}
+   pages[pages.length-1].push(row);used+=height;
+  }
+ }
+ return pages;
+}
+function infoCtl(){
+ if(E[0]||E[1]||E[9]){mode='title';return}
+ const count=infoPages(inf==='c',infoLayout(CW,CH)).length;
+ const page=Math.max(0,Math.min(infoPage,count-1));
+ if(E[14]||E[12])infoPage=Math.max(0,page-1);
+ else if(E[15]||E[13])infoPage=Math.min(count-1,page+1);
+ else infoPage=page;
+}
 
 /* Pause-menu model and drawing. Controller navigation remains in js/input.js. */
 const GSP=[.5,1,1.5,2,3];
@@ -190,9 +252,11 @@ if(off>0)tx('▲ MORE ABOVE',CW/2,y0+56,10,'#c8b17e','center');if(PI[pm]?.n==='Z
 
 /* Controller-remap presentation; commands remain in js/input.js. */
 const RA=[[0,'Select / command'],[1,'Back / cancel'],[2,'Extra order / assign group'],[3,'Shortcut / switch page'],[8,'Objectives'],[10,'Centre camera']];
-function drawRemap(){X.fillStyle='#10131c';X.fillRect(0,0,CW,CH);tx('CONTROLLER REMAP',CW/2,90,48,'#f2c14e','center');
-RA.forEach(([id,l],i)=>{const y=170+i*60;if(i===ri){X.fillStyle='#2f63c4';X.fillRect(CW/2-380,y-36,760,50)}tx(l,CW/2-360,y,26);tx(rw&&i===ri?'press a button...':'Button '+(BM[id]!==undefined?BM[id]:id),CW/2+360,y,26,'#fde68a','right')});
-tx('D-pad Up/Down choose   A rebind   X reset all   B or Menu back   (0=A 1=B 2=X 3=Y 4=LB 5=RB 8=View 10=L3)',CW/2,CH-50,18,'#94a3b8','center')}
+function drawRemap(){
+ titleBg();
+ const rows=RA.map(([id,label],i)=>({n:label,v:()=>rw&&i===ri?'Press a button':'Button '+(BM[id]!==undefined?BM[id]:id)}));
+ drawList('CONTROLLER REMAP',rows,ri,'D-pad choose   A rebind   X reset all   B / Menu back');
+}
 
 /* In-match HUD: resource bar, population/idle counts, selection and orders. */
 function ico(k,x,y){X.save();X.translate(x,y);if(k==='f'){X.fillStyle='#d9473f';X.beginPath();X.arc(0,2,9,0,7);X.fill();X.fillStyle='rgba(255,255,255,.3)';X.beginPath();X.arc(-3,-1,3,0,7);X.fill();X.fillStyle='#3a7a2a';X.fillRect(-1,-9,3,5)}else if(k==='w'){X.fillStyle='#7a4f24';X.fillRect(-10,-6,20,12);X.fillStyle='#c79a5c';X.beginPath();X.ellipse(10,0,4,6,0,0,7);X.fill()}else if(k==='g'){X.fillStyle='#f2c14e';X.beginPath();X.arc(0,0,9,0,7);X.fill();X.strokeStyle='#a87b12';X.lineWidth=2;X.stroke();X.fillStyle='rgba(255,255,255,.4)';X.fillRect(-2,-5,3,9)}else if(k==='s'){X.fillStyle='#9aa3a8';poly([[-10,6],[-6,-6],[4,-8],[10,4],[6,8]]);X.fill();X.fillStyle='#dfe6ea';poly([[-6,-6],[4,-8],[0,0]]);X.fill()}else{X.fillStyle='#3b82f6';X.beginPath();X.arc(0,-4,5,0,7);X.fill();X.fillRect(-7,2,14,8)}X.restore()}

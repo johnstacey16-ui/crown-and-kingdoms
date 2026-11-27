@@ -103,7 +103,10 @@ test('performance unit selection is session-local and invalid size or live game 
  const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
  assert.match(benchmark,/CK_SERIES_S_UNIT_LOADS=\[50,100,200\]/);
  assert.match(menus,/if\(ti===7\)\{if\(E\[14\]\)cycleXboxPerformanceLoad\(-1\)/);
- assert.match(ui,/Xbox FPS Test · '\+selectedXboxPerformanceLoad\+' units/);
+ const presentation=vm.createContext({});
+ vm.runInContext(ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){')),presentation);
+ for(const units of [50,100,200])
+  assert.equal(presentation.titleOptionLabel(7,true,units),'Xbox FPS Test · '+units+' units');
 });
 
 test('Large Battle Test Save stages 372 real units and 238 buildings before combat begins',()=>{
@@ -153,13 +156,17 @@ test('large battle stays out of ordinary saves and cannot replace a running matc
 
 test('nine title options stay above controller help text at Xbox screen heights',()=>{
  const ui=readFileSync(new URL('../js/ui-screens.js',import.meta.url),'utf8');
- assert.match(ui,/rh=Math.max\(30,Math.min\(48,Math.floor\(\(CH-385\)\/it.length\)\)\)/);
- const items=9;
+ const ctx=vm.createContext({});
+ vm.runInContext(ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){')),ctx);
  for(const height of [600,720,900,1080]){
-  const row=Math.max(30,Math.min(48,Math.floor((height-385)/items)));
-  const top=Math.max(48,Math.min(height*.35,height-145-items*row));
-  assert.ok(top+items*row<height-111,
-   'last title entry is above the gamepad-status bar at '+height+'px');
+  const width=Math.round(height*16/9);
+  for(let i=0;i<9;i++){
+   const l=ctx.titleLayout(width,height,i);
+   assert.ok(l.visible>=1&&l.start<=i&&i<l.start+l.visible,'focused option stays visible');
+   assert.ok(l.top+l.visible*l.rh<=l.detailY-10,'last painted entry clears description');
+   assert.ok(l.detailY+17<l.footer-26,'description and scroll hint clear controller footer');
+   assert.ok(l.footer+11<=height,'controller status stays within the screen');
+  }
  }
 });
 

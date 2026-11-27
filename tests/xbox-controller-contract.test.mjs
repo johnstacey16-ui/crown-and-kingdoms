@@ -404,7 +404,7 @@ test('minimap overlay and controller help advertise Y for camera focus',()=>{
   const c=fixture();
   vm.runInContext(`
     globalThis.helpText=[];X.fillText=s=>helpText.push(String(s));
-    minimapDraw=()=>{};S.teamN=2;drawOv();drawInfo2();
+    minimapDraw=()=>{};S.teamN=2;drawOv();inf='c';for(infoPage=0;infoPage<infoPages(true,infoLayout(CW,CH)).length;infoPage++)drawInfo2();infoPage=0;
   `,c);
   assert.ok(c.helpText.some(s=>s.includes('Y: focus')),'overview labels the actual Y focus action');
   assert.ok(c.helpText.some(s=>s.includes('Y focuses')),'controller help explains minimap Y focus');
@@ -760,8 +760,9 @@ test('on-screen controller help matches centre-reticle, minimap and close contro
   const infoStart=uiSource.indexOf('function drawInfo2()');
   const infoEnd=uiSource.indexOf('/* Pause-menu model',infoStart);
   assert.ok(infoStart>=0&&infoEnd>infoStart,'controller help must be available to render');
-  vm.runInNewContext(uiSource.slice(infoStart,infoEnd)+'\ndrawInfo2()',context);
-  const help=seen.join('\n');
+  Object.assign(context,{titleBg(){},panel(){},menuMeasure:(s,size)=>String(s).length*size*.52,menuFit:s=>s});
+  vm.runInNewContext(uiSource.slice(infoStart,infoEnd)+'\nfor(infoPage=0;infoPage<infoPages(true,infoLayout(CW,CH)).length;infoPage++)drawInfo2()',context);
+  const help=seen.join(' ');
   assert.match(help,/Pan camera to aim the centre reticle/);
   assert.match(help,/Minimap cursor speed/);
  assert.match(help,/Small minimap/);
