@@ -245,7 +245,12 @@ function titleScene(){
   const context=canvas.getContext('2d');
   if(context&&context!==X){paintTitleValley(context);ckTitleScene=canvas}
  }
- if(ckTitleScene)X.drawImage(ckTitleScene,0,0,CW,CH);
+ if(ckTitleScene){
+  const scale=Math.max(CW/960,CH/540),w=960*scale,h=540*scale;
+  // Preserve the landscape's aspect ratio, including compact portrait displays.
+  const dx=Math.min(0,Math.max(CW-w,CW*.68-w*.75));
+  X.drawImage(ckTitleScene,dx,(CH-h)/2,w,h);
+ }
  else{X.save();X.scale(CW/960,CH/540);paintTitleValley(X);X.restore()}
  if(ckTitleMotionPreference===null)ckTitleMotionPreference=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):false;
  const phase=ckTitleMotionPreference&&ckTitleMotionPreference.matches?0:Math.sin(performance.now()/13000);

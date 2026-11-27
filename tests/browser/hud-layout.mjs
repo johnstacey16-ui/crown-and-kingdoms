@@ -37,6 +37,37 @@ try{
    await page.waitForFunction(()=>typeof hud==='function'&&
     typeof hudTopLayout==='function'&&typeof hudLowerLayout==='function'&&
     typeof quickBarLayout==='function'&&typeof drawRadial==='function');
+   // Capture the real entry screen before creating a skirmish or evidence overlay.
+   await page.emulateMedia({reducedMotion:'reduce'});
+   await page.waitForFunction(()=>typeof titleLayout==='function'&&typeof drawTitle==='function'&&ckTitleScene!==null);
+   const titleProof=await page.evaluate(()=>{
+    const priorTx=tx,priorSelection=ti,labels=[];
+    try{
+     tx=(value,x,y,size,color,align)=>{
+      priorTx(value,x,y,size,color,align);
+      const width=X.measureText(String(value)).width;
+      const left=X.textAlign==='center'?x-width/2:X.textAlign==='right'?x-width:x;
+      labels.push({value:String(value),left,right:left+width,y});
+     };
+     const proofs=[];
+     for(let i=0;i<9;i++){
+      ti=i;labels.length=0;drawTitle();
+      const layout=titleLayout(CW,CH,i),selected=CK_TITLE_OPTIONS[i][0];
+      proofs.push({i,layout,selected,shown:labels.some(t=>t.value.startsWith(selected)),
+       fits:labels.every(t=>t.left>=-1&&t.right<=CW+1&&t.y>=0&&t.y<=CH)});
+     }
+     return {proofs,width:CW,height:CH,cache:{width:ckTitleScene.width,height:ckTitleScene.height}};
+    }finally{tx=priorTx;ti=priorSelection;drawTitle()}
+   });
+   assert.equal(titleProof.width,viewport.width);
+   assert.equal(titleProof.height,viewport.height);
+   assert.deepEqual(titleProof.cache,{width:960,height:540});
+   for(const proof of titleProof.proofs){
+    assert.ok(proof.shown,'title selection '+proof.selected+' remains visible at '+viewport.width);
+    assert.ok(proof.fits,'title text stays inside the actual canvas at '+viewport.width+' for '+proof.selected);
+    assert.ok(proof.layout.start<=proof.i&&proof.i<proof.layout.start+proof.layout.visible);
+   }
+   await page.locator('#c').screenshot({path:output+'/figma-live-title-'+viewport.width+'x'+viewport.height+'.png'});
    await page.evaluate(()=>{
     seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;
     startAge=2;startArmy=0;startRes=3;
@@ -150,7 +181,7 @@ try{
     path:output+'/figma-live-commands-'+viewport.width+'x'+viewport.height+'.png'
    });
    assert.deepEqual(errors,[],'no Chromium page exceptions');
-   evidence.push({viewport,hud:{labels:words.length,topHeight:hudProof.header.height,
+   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
@@ -161,7 +192,7 @@ try{
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
  console.log('Live Canvas2D HUD/command screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*2)+' screenshots; simulation checks unchanged.');
+  +(evidence.length*3)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));
