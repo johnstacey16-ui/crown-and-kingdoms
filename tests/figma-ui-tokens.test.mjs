@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const data = JSON.parse(readFileSync(new URL('../docs/game-ui-tokens.json', import.meta.url), 'utf8'));
