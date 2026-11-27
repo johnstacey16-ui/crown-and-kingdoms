@@ -260,6 +260,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Stream soundtrack media directly; never cache full or partial MP3 responses.
+  if (url.pathname.includes('/assets/music/')) return;
   // Authenticated relay responses must never enter or fall back to shell caches.
   if (url.pathname.startsWith('/api/multiplayer/') ||
       request.headers.has('Authorization') || request.cache === 'no-store') return;
