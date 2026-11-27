@@ -570,3 +570,27 @@ test('Citadels reduces modeled anti-building bonus damage but not normal attack'
  assert.ok(hit('ram')<siege);
  assert.ok(hit('ram')>0);
 });
+
+
+test('Teutonic age-dependent melee armour and farm discount are scoped to their civilization',()=>{
+ const {run}=fixture();
+ run("S.civ=[5,1];S.tech=[{},{}];globalThis.infantry=addU(0,'mil',40,40);globalThis.cavalry=addU(0,'knight',41,40);globalThis.archer=addU(0,'arc',42,40)");
+ const kinds=['infantry','cavalry','archer'];
+ run('S.age=[0,0]');
+ const base=kinds.map(k=>[run("combatArmor("+k+",'m')"),run("combatArmor("+k+",'p')")]);
+ for(let age=0;age<4;age++){
+  run('S.age[0]='+age);
+  for(let i=0;i<kinds.length;i++){
+   assert.equal(run("combatArmor("+kinds[i]+",'m')"),base[i][0]+(i<2?Math.max(0,age-1):0));
+   assert.equal(run("combatArmor("+kinds[i]+",'p')"),base[i][1]);
+  }
+ }
+ run('CIV[5].fx(0)');
+ assert.equal(run('S.tech[0].armI||0'),0);
+ assert.equal(run("civilizationBuildingCost('farm',0).w"),Math.round(run('B.farm.cost.w')*.6));
+ assert.equal(run("civilizationBuildingCost('farm',1).w"),run('B.farm.cost.w'));
+ assert.equal(run("civilizationBuildingCost('house',0).w"),run('B.house.cost.w'));
+ run('S.tech[0].armI=1');
+ assert.equal(run("combatArmor(infantry,'m')"),base[0][0]+3);
+ assert.equal(run("combatArmor(infantry,'p')"),base[0][1]+1);
+});
