@@ -128,6 +128,18 @@ test('minimum-range reductions require finite positive bounded amounts and known
   }
  }
 });
+test('base and Elite cavalry-class armour must be finite nonnegative bounded numbers',()=>{
+ for(const slot of ['unit','elite']){
+  const current=currentCivilizationRuntime(),definition=slot==='unit'?current.units.cata:current.civilizations[3].elite;
+  for(const amount of [0,12,16,32]){
+   definition.cavalryArmor=amount;assert.deepEqual(inspectCivilizationCatalogue(catalogue,current),[]);
+  }
+  for(const amount of [null,NaN,Infinity,-1,33,'12',{},[]]){
+   definition.cavalryArmor=amount;
+   assert.ok(inspectCivilizationCatalogue(catalogue,current).some(e=>/Invalid .*cavalry-class armour/.test(e)),slot+' / '+String(amount));
+  }
+ }
+});
 test('a missing live research row is rejected before permissive fallback can hide it',()=>{
  const missing=currentCivilizationRuntime(rosterSource,configSource,kingdomSource.replace(" 'Franks':'x',",''));
  assert.ok(inspectCivilizationCatalogue(catalogue,missing).some(e=>/Missing research row archery for Franks/.test(e)));

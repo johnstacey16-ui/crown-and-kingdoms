@@ -186,7 +186,7 @@ test('Chieftains adds only class-specific infantry damage and stacks with spear-
  for(const source of sources)for(const target of [...cavalry,...camels,'mil','arc','ram','gal']){
   run(`attacker.k='${source}';victim.k='${target}';S.tech[0]={atkb:{'${source}':20}}`);
   const base=chieftainsHit(run);run('S.tech[0].ut7=1');
-  const extra=infantry.includes(source)?camels.includes(target)?4:cavalry.includes(target)?5:0:0;
+  const extra=infantry.includes(source)?camels.includes(target)?4:cavalry.includes(target)&&(target!=='cata'||source==='spear')?5:0:0;
   assert.equal(chieftainsHit(run),base+extra,source+' → '+target);
  }
  run("attacker.k='spear';victim.k='knight';S.tech[0]={pike:1}");const pike=chieftainsHit(run);

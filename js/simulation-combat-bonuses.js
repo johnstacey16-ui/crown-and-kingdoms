@@ -7,6 +7,7 @@
 const mhp=u=>U[u.k].hp+(S.tech[u.t].hpb&&S.tech[u.t].hpb[u.k]||0);
 
 // The spear-line's cavalry/camel/elephant bonuses increase at each upgrade.
+// These return raw counter attacks; factionCounterBonus resolves class armour.
 // These are armor-class approximations for the currently modelled unit kinds.
 // Other class interactions (ships, shock infantry and regional bonuses) stay
 // tracked separately in the AoE2 DE parity roadmap.
@@ -19,10 +20,7 @@ function spearLineBonus(a,t){
  const bohemian=value=>S.civ?.[a.t]===36?Math.round(value*1.25):value;
  if(SPEAR_ELEPHANTS.has(key)||SPEAR_ELEPHANTS.has(alias))return bohemian([15,25,28][tier]);
  if(SPEAR_CAMELS.has(key)||SPEAR_CAMELS.has(alias))return bohemian([12,18,26][tier]);
- if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias)){
-  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(key,t.t):null;
-  return bohemian(Math.max(0,[15,22,32][tier]-(elite?.cavalryArmor||0)));
- }
+ if(SPEAR_CAVALRY.has(key)||SPEAR_CAVALRY.has(alias))return bohemian([15,22,32][tier]);
  return bohemian(U.spear.bn?.[key]||U.spear.bn?.[alias]||0);
 }
 // Counter bonuses are attached to AoE2 armour classes, not broadly to
@@ -36,10 +34,7 @@ const CAMEL_CLASS=new Set(['camel','mamel']);
 function camelLineBonus(a,t){
  const key=t.k,alias=U[key]?.lk,heavy=!!S.tech[a.t]?.hcamel;
  if(CAMEL_CLASS.has(key)||CAMEL_CLASS.has(alias))return heavy?9:5;
- if(CAMEL_CAVALRY.has(key)||CAMEL_CAVALRY.has(alias)){
-  const elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(key,t.t):null;
-  return Math.max(0,(heavy?18:9)-(elite?.cavalryArmor||0));
- }
+ if(CAMEL_CAVALRY.has(key)||CAMEL_CAVALRY.has(alias))return heavy?18:9;
  return U.camel.bn?.[key]||U.camel.bn?.[alias]||0;
 }
 function scoutLineBonus(a,t){
@@ -155,13 +150,23 @@ function chieftainsBonus(a,t){
  if(CAMEL_CLASS.has(kind)||CAMEL_CLASS.has(alias)||kind==='flamecamel')return 4;
  return U[kind]?.mt||CAVARM.has(kind)?5:0;
 }
+// Raw unit/research counters combine before the defender's class armour.
+// Keep it separate from ordinary melee/pierce armour and minimum hit damage.
+function cavalryCounterArmor(t){
+ if(!t||t.s||!U[t.k])return 0;
+ const base=U[t.k].cavalryArmor,
+  elite=typeof eliteUniqueUnitUpgrade==='function'?eliteUniqueUnitUpgrade(t.k,t.t):null,
+  extra=elite?.cavalryArmor;
+ return (Number.isFinite(base)&&base>0?base:0)+(Number.isFinite(extra)&&extra>0?extra:0);
+}
 function factionCounterBonus(a,t,base){
  const bonus=(Number.isFinite(base)?base:0)+chieftainsBonus(a,t);
  const age=Math.max(0,Math.min(3,S.age?.[a.t]||0));
  const mounted=S.civ?.[a.t]===39&&(U[a.k]?.mt||CAVARM.has(a.k))&&age>=1;
  const boosted=mounted?Math.round(bonus*(1+.1*(age+1))):bonus;
+ const defended=Math.max(0,boosted-cavalryCounterArmor(t));
  const bengali=S.civ?.[t.t]===38&&['ele','eled','batele'].includes(t.k);
- return bengali?Math.round(boosted*.75):boosted;
+ return bengali?Math.round(defended*.75):defended;
 }
 function georgianMonaspaFormationBonus(a){
  if(!a||a.k!=='monaspa'||S.civ?.[a.t]!==42||!S.us.includes(a)||a.hp<=0||a.ld)return 0;

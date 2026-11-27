@@ -34,6 +34,9 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
  if(!Array.isArray(catalogue?.civilizations)||!catalogue.civilizations.length)errors.push('Missing civilization records');
  if(!Array.isArray(catalogue?.rulesets)||!catalogue.rulesets.length)errors.push('Missing ruleset status registry');
  if(errors.length)return errors;
+ for(const [kind,definition] of Object.entries(units))if(definition.cavalryArmor!==undefined&&
+  (!Number.isFinite(definition.cavalryArmor)||definition.cavalryArmor<0||definition.cavalryArmor>32))
+  errors.push('Invalid unit cavalry-class armour for '+kind);
  const hasUnitStatEffects=definition=>{
   const fields=['hpb','atkb','rangeBonus','mountedDamageReduction','minimumRangeReduction'].filter(field=>definition?.[field]!==undefined);
   return fields.length>0&&fields.every(field=>{
@@ -91,6 +94,8 @@ export function inspectCivilizationCatalogue(catalogue,runtime){
    if(elite.age!==3)errors.push('Elite upgrade must require Imperial Age for '+entry.name);
    if(elite.range!==undefined&&(!Number.isFinite(elite.range)||elite.range<0||elite.range>5))
     errors.push('Invalid Elite range modifier for '+entry.name);
+   if(elite.cavalryArmor!==undefined&&(!Number.isFinite(elite.cavalryArmor)||elite.cavalryArmor<0||elite.cavalryArmor>32))
+    errors.push('Invalid Elite cavalry-class armour for '+entry.name);
    for(const [field,keys] of [['armor',['m','p']],['bonus',['archer','infantry','siege','building']]]){
     if(elite[field]!==undefined&&(
      !elite[field]||typeof elite[field]!=='object'||

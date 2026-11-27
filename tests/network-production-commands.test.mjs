@@ -632,3 +632,33 @@ test('host Chieftains enforces age, price and ownership before a real infantry a
  assert.equal(out.hit,out.base+5);assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:600,g:450},{f:0,g:0}]);
  assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
 });
+
+test('host-authorized Elite Cataphract resistance absorbs combined incoming spear and Chieftains bonuses once',()=>{
+ const out=world(`
+  S.civ=[3,7];S.age=[3,2];S.tech=[{},{}];S.us=[];S.bs=[];S.pj=[];
+  S.el.fill(0);S.g.fill(0);S.wt.fill(0);S.nd.fill(null);S.ex.fill(1);S.vs.fill(1);
+  S.res=S.res.map(()=>({f:10000,w:10000,g:10000,s:10000}));
+  const castles=[addB(0,'castle',20,20,true),addB(1,'castle',42,42,true)];
+  const defender=addU(0,'cata',30.5,30),attacker=addU(1,'spear',30,30);attacker.st=2;
+  const elite={type:'research',entities:[castles[0].netId],value:'eliteCataphract'};
+  const forged=host.receive(packet('guest-session',1,1,6,elite),'guest-session',2).reason;
+  const accepted=[host.receive(packet('host-session',0,1,6,elite),'host-session',2).ok,
+   host.receive(packet('guest-session',1,1,6,{type:'research',entities:[castles[1].netId],value:'ut7'}),'guest-session',2).ok];
+  const research=host.applyFrame(6).map(r=>r.ok),during=cavalryCounterArmor(defender);
+  upB(castles[0],TE.eliteCataphract.t+.1);upB(castles[1],TE.ut7.t+.1);S.pj=[];defender.hp=1000;
+  const resistance=cavalryCounterArmor(defender),counter=factionCounterBonus(attacker,defender,spearLineBonus(attacker,defender));
+  const expected=Math.max(1,U.spear.dmg+4-combatArmor(defender,'m'));
+  const attack=host.receive(packet('guest-session',1,2,10,{type:'attack',entities:[attacker.netId],target:defender.netId}),'guest-session',6).ok;
+  const applied=host.applyFrame(10)[0].ok;
+  for(let i=0;i<80&&defender.hp===1000;i++){S.t+=DT;upU(attacker,DT)}
+  const budget=JSON.stringify(S.res);
+  host.receive(packet('host-session',0,2,14,elite),'host-session',10);const duplicate=host.applyFrame(14)[0].ok;
+  return {forged,accepted,research,during,resistance,counter,expected,attack,applied,hit:1000-defender.hp,
+   duplicate,unchanged:budget===JSON.stringify(S.res),paid:S.res.map(r=>({f:10000-r.f,g:10000-r.g}))};
+ `);
+ assert.equal(out.forged,'unauthorized-order');assert.deepEqual(Array.from(out.accepted),[true,true]);
+ assert.deepEqual(Array.from(out.research),[true,true]);assert.equal(out.during,12);assert.equal(out.resistance,16);
+ assert.equal(out.counter,4);assert.equal(out.attack,true);assert.equal(out.applied,true);assert.equal(out.hit,out.expected);
+ assert.equal(out.duplicate,false);assert.equal(out.unchanged,true);
+ assert.deepEqual(JSON.parse(JSON.stringify(out.paid)),[{f:1200,g:800},{f:600,g:450}]);
+});
