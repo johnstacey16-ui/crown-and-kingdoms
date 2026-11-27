@@ -230,3 +230,21 @@ test('cinematic title caches the static scene and paints every existing action w
  ctx.CW=640;ctx.CH=360;ctx.ti=8;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Large Battle Test Save'));
  ctx.hs=false;ctx.ti=2;labels.length=0;ctx.drawTitle();assert.ok(labels.includes('Continue  ·  NO SAVE'));
 });
+
+test('Controls and About paginate every description without losing words and preserve back actions',()=>{
+ const source=readFileSync(new URL('../js/ui.js',import.meta.url),'utf8');
+ const ctx=vm.createContext({menuMeasure:(s,size)=>String(s).length*size*.53,menuFit:s=>s,E:[],mode:'info',inf:'c',CW:390,CH:720});
+ vm.runInContext(source.slice(source.indexOf('function drawInfo2()'),source.indexOf('/* Pause-menu model')),ctx);
+ for(const [w,h] of [[1920,1080],[1280,720],[640,360],[390,844]]){
+  const l=ctx.infoLayout(w,h);
+  for(const controls of [true,false]){
+   const pages=ctx.infoPages(controls,l),rows=pages.flat();
+   assert.ok(pages.every(p=>p.reduce((sum,row)=>sum+row.height,0)<=l.body));
+   assert.ok(rows.every(row=>row.lines.every(line=>ctx.menuMeasure(line,l.size)<=l.textWidth)));
+   assert.equal(rows.map(row=>Array.from(row.lines).join(' ')).join(' '),ctx.infoEntries(controls).map(row=>row[1]).join(' '));
+  }
+ }
+ ctx.E[15]=true;ctx.infoCtl();assert.equal(vm.runInContext('infoPage',ctx),1);
+ ctx.E=[];ctx.E[14]=true;ctx.infoCtl();assert.equal(vm.runInContext('infoPage',ctx),0);
+ ctx.E=[];ctx.E[1]=true;ctx.infoCtl();assert.equal(ctx.mode,'title');
+});

@@ -86,6 +86,24 @@ try{
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await page.locator('#c').screenshot({path:output+'/figma-live-'+m+'-'+viewport.width+'x'+viewport.height+'.png'});
    }
+   // Capture the paged guide and album credit using the real canvas.
+   const guideProof=await page.evaluate(()=>{
+    const previous=inf,previousMode=mode;
+    try{
+     mode='info';
+     return [true,false].map(c=>{
+      inf=c?'c':'a';const layout=infoLayout(CW,CH),pages=infoPages(c,layout);
+      for(let i=0;i<pages.length;i++){infoPage=i;drawInfo2()}
+      return {controls:c,pages:pages.length,fit:pages.every(p=>p.reduce((s,row)=>s+row.height,0)<=layout.body&&p.every(row=>row.lines.every(line=>menuMeasure(line,layout.size)<=layout.textWidth)))};
+     });
+    }finally{inf=previous;mode=previousMode;infoPage=0}
+   });
+   assert.ok(guideProof.every(p=>p.pages>=1&&p.fit),'all controller guide and about pages fit');
+   for(const section of ['c','a']){
+    await page.evaluate(section=>{mode='info';inf=section;infoPage=0},section);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await page.locator('#c').screenshot({path:output+'/figma-live-info-'+section+'-'+viewport.width+'x'+viewport.height+'.png'});
+   }
    await page.evaluate(()=>{mode='title'});
 
    await page.evaluate(()=>{
@@ -201,7 +219,7 @@ try{
     path:output+'/figma-live-commands-'+viewport.width+'x'+viewport.height+'.png'
    });
    assert.deepEqual(errors,[],'no Chromium page exceptions');
-   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof},hud:{labels:words.length,topHeight:hudProof.header.height,
+   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof,guide:guideProof},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
@@ -212,7 +230,7 @@ try{
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
  console.log('Live Canvas2D HUD/command screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*6)+' screenshots; simulation checks unchanged.');
+  +(evidence.length*8)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));
