@@ -68,6 +68,26 @@ try{
     assert.ok(proof.layout.start<=proof.i&&proof.i<proof.layout.start+proof.layout.visible);
    }
    await page.locator('#c').screenshot({path:output+'/figma-live-title-'+viewport.width+'x'+viewport.height+'.png'});
+   // The same cached world now backs setup, campaign and options.
+   const sharedProof=await page.evaluate(()=>{
+    const oldMode=mode,oldTx=tx,scene=ckTitleScene,labels=[];
+    try{
+     tx=(value,x,y,size,color,align)=>{oldTx(value,x,y,size,color,align);labels.push(String(value));};
+     return [['setup',drawSetup,'NEW GAME'],['camp',drawCamp,'CAMPAIGNS & MISSIONS'],['opts',drawOpts,'OPTIONS']].map(([m,draw,heading])=>{
+      mode=m;labels.length=0;draw();
+      return {mode:m,heading:labels.some(t=>t===heading||heading.startsWith(t.replace(/…$/,''))),sameScene:scene===ckTitleScene};
+     });
+    }finally{tx=oldTx;mode=oldMode;drawTitle()}
+   });
+   assert.equal(sharedProof.length,3);
+   assert.ok(sharedProof.every(p=>p.heading&&p.sameScene),'front-end lists retain headings and reuse cached kingdom scene');
+   for(const m of ['setup','camp','opts']){
+    await page.evaluate(m=>{mode=m},m);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await page.locator('#c').screenshot({path:output+'/figma-live-'+m+'-'+viewport.width+'x'+viewport.height+'.png'});
+   }
+   await page.evaluate(()=>{mode='title'});
+
    await page.evaluate(()=>{
     seedOv=123456;msz=0;kingdoms=2;cmp=null;gameMode=0;vm=0;
     startAge=2;startArmy=0;startRes=3;
@@ -181,7 +201,7 @@ try{
     path:output+'/figma-live-commands-'+viewport.width+'x'+viewport.height+'.png'
    });
    assert.deepEqual(errors,[],'no Chromium page exceptions');
-   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache},hud:{labels:words.length,topHeight:hudProof.header.height,
+   evidence.push({viewport,title:{actions:titleProof.proofs.length,scene:titleProof.cache,sharedScreens:sharedProof},hud:{labels:words.length,topHeight:hudProof.header.height,
     compact:!!hudProof.lower,quick:hudProof.quick,minimap:hudProof.minimap},
     command:{labels:commands.labels.length,compact:!!commands.command},
     simulationUnchanged:true,pageErrors:errors.length});
@@ -192,7 +212,7 @@ try{
   hardwareAcceptance:false,viewports:evidence
  },null,2)+'\n');
  console.log('Live Canvas2D HUD/command screenshots verified: '+evidence.length+' viewports, '
-  +(evidence.length*3)+' screenshots; simulation checks unchanged.');
+  +(evidence.length*6)+' screenshots; simulation checks unchanged.');
 }finally{
  await browser.close();
  await new Promise((resolve,reject)=>server.close(err=>err?reject(err):resolve()));

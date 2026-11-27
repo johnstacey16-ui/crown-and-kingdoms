@@ -6,20 +6,11 @@ if(sm==='load'){let a=null;try{a=JSON.parse(localStorage.getItem('ck_autosave'))
 function drawSlots(){titleBg();drawList(sm==='save'?'SAVE GAME':'LOAD / DELETE GAME',slotItems(),ci,deleteSlotTarget!==null?'A: CONFIRM DELETE    B: cancel':'A: '+(sm==='save'?'save here':'load')+'    X: delete selected save    B: back');if(deleteSlotTarget!==null||overwriteSlotTarget!==null){X.fillStyle='rgba(10,15,24,.94)';X.fillRect(CW*.19,CH*.39,CW*.62,CH*.2);tx(overwriteSlotTarget!==null?'OVERWRITE SLOT '+(overwriteSlotTarget+1)+'?':'DELETE '+(deleteSlotTarget==='auto'?'AUTOSAVE':'SLOT '+(deleteSlotTarget+1))+'?',CW*.24,CH*.46,25,'#ffad8b');tx(overwriteSlotTarget!==null?'The previous save will be replaced. A: confirm, B: cancel.':'This cannot be undone. Press A to delete, B to cancel.',CW*.24,CH*.52,17,'#ffffff')}}
 
 /* Reusable title-background and controller list presentation for all menu screens. */
-function titleBg(){const g=X.createLinearGradient(0,0,0,CH);g.addColorStop(0,'#080f20');g.addColorStop(.34,'#182c42');g.addColorStop(.62,'#53606a');g.addColorStop(.78,'#4c4337');g.addColorStop(1,'#0b1118');X.fillStyle=g;X.fillRect(0,0,CW,CH);
-const glow=X.createRadialGradient(CW*.72,CH*.43,4,CW*.72,CH*.43,CH*.62);glow.addColorStop(0,'rgba(222,177,103,.24)');glow.addColorStop(1,'rgba(222,177,103,0)');X.fillStyle=glow;X.fillRect(0,0,CW,CH);
-X.save();for(let i=0;i<90;i++){const sx=((i*7919)%997)/997*CW,sy=((i*3571)%419)/419*CH*.49,r=i%9===0?1.8:((i%3)+1)*.42;X.globalAlpha=.24+(i%5)*.1;X.fillStyle=i%7===0?'#f6d99a':'#e2eaf1';X.beginPath();X.arc(sx,sy,r,0,Math.PI*2);X.fill()}X.globalAlpha=1;X.restore();
-X.save();X.fillStyle='#e8dfbd';X.shadowColor='#f4d8a0';X.shadowBlur=22;X.beginPath();X.arc(CW*.83,CH*.18,Math.min(35,CW*.027),0,Math.PI*2);X.fill();X.shadowBlur=0;X.fillStyle='#b6b5a4';X.beginPath();X.arc(CW*.83+10,CH*.18-7,Math.min(31,CW*.024),0,Math.PI*2);X.fill();X.restore();
-for(let layer=0;layer<3;layer++){X.beginPath();X.moveTo(0,CH*(.62+layer*.055));for(let i=0;i<=12;i++){const xx=i*CW/12,yy=CH*(.48+layer*.055+(((i*17+layer*9)%7)/100));X.lineTo(xx,yy)}X.lineTo(CW,CH);X.lineTo(0,CH);X.closePath();X.fillStyle=['#263746','#202d32','#17232a'][layer];X.fill()}
-const sc=Math.min(CW/1200,CH/700);X.save();X.translate(CW*.73,CH*.76);X.scale(sc,sc);
-X.fillStyle='#101923';X.strokeStyle='#b99559';X.lineWidth=2;
-X.beginPath();X.moveTo(-250,20);X.lineTo(-250,-128);X.lineTo(-225,-128);X.lineTo(-225,-156);X.lineTo(-202,-156);X.lineTo(-202,-128);X.lineTo(-180,-128);X.lineTo(-180,-192);X.lineTo(-148,-192);X.lineTo(-148,-216);X.lineTo(-125,-216);X.lineTo(-125,-192);X.lineTo(-103,-192);X.lineTo(-103,-152);X.lineTo(-67,-152);X.lineTo(-67,-238);X.lineTo(-34,-238);X.lineTo(-34,-262);X.lineTo(-10,-262);X.lineTo(-10,-238);X.lineTo(14,-238);X.lineTo(14,-168);X.lineTo(49,-168);X.lineTo(49,-205);X.lineTo(82,-205);X.lineTo(82,-227);X.lineTo(104,-227);X.lineTo(104,-205);X.lineTo(128,-205);X.lineTo(128,-145);X.lineTo(164,-145);X.lineTo(164,-184);X.lineTo(195,-184);X.lineTo(195,-208);X.lineTo(218,-208);X.lineTo(218,-184);X.lineTo(239,-184);X.lineTo(239,20);X.closePath();X.fill();X.stroke();
-X.fillStyle='#273744';X.beginPath();X.moveTo(-225,20);X.lineTo(-225,-95);X.lineTo(-168,-95);X.lineTo(-168,20);X.closePath();X.fill();X.beginPath();X.moveTo(-85,20);X.lineTo(-85,-124);X.lineTo(-25,-124);X.lineTo(-25,20);X.closePath();X.fill();X.beginPath();X.moveTo(35,20);X.lineTo(35,-122);X.lineTo(93,-122);X.lineTo(93,20);X.closePath();X.fill();
-X.fillStyle='#e8bd6a';for(const p of [[-213,-112],[-194,-112],[-166,-174],[-145,-174],[-58,-213],[-40,-213],[-1,-145],[19,-145],[59,-184],[76,-184],[143,-124],[161,-124],[177,-163],[195,-163],[216,-163]]){X.fillRect(p[0],p[1],7,13);X.fillStyle='#e8bd6a'}
-X.fillStyle='#101923';X.strokeStyle='#b99559';for(const p of [[-156,-192],[-45,-238],[66,-205],[179,-184]]){X.beginPath();X.moveTo(p[0],p[1]);X.lineTo(p[0]+14,p[1]-31);X.lineTo(p[0]+28,p[1]);X.closePath();X.fill();X.stroke()}
-for(const p of [[-31,-270],[84,-235],[207,-216]]){X.strokeStyle='#b99559';X.lineWidth=2;X.beginPath();X.moveTo(p[0],p[1]);X.lineTo(p[0],p[1]-35);X.stroke();X.fillStyle='#9c3c32';X.beginPath();X.moveTo(p[0],p[1]-35);X.lineTo(p[0]+24,p[1]-28);X.lineTo(p[0],p[1]-20);X.closePath();X.fill()}
-X.fillStyle='#080e14';X.fillRect(-18,-72,38,92);X.strokeStyle='#b99559';X.strokeRect(-18,-72,38,92);X.beginPath();X.arc(1,-72,19,Math.PI,0);X.stroke();X.restore();
-const cx=CW/2,cy=CH*.12;X.save();X.shadowColor='#f2c14e';X.shadowBlur=18;X.fillStyle='#f2c14e';poly([[cx-28,cy+18],[cx-34,cy-8],[cx-16,cy+2],[cx,cy-22],[cx+16,cy+2],[cx+34,cy-8],[cx+28,cy+18]]);X.fill();X.restore();tx('CROWN & KINGDOMS',CW/2,CH*.25,Math.min(76,CW/15),'#f5d27b','center');tx('BUILD YOUR REALM  •  COMMAND YOUR ARMY  •  CLAIM THE CROWN',CW/2,CH*.25+32,Math.min(18,CW/45),'#e2e8f0','center')}
+function titleBg(){
+ titleScene();
+ // Submenus retain the same kingdom vista and gold focus, without title overlap.
+ X.fillStyle='rgba(5,12,19,.28)';X.fillRect(0,0,CW,CH);
+}
 /* The controller must never select an off-screen setup option. The Figma
  * reference's gold focus and slate panel colours are reused here, while input
  * state, setting values and menu action handlers remain the canonical owners. */
@@ -258,6 +249,22 @@ function titleScene(){
  mist.addColorStop(0,'rgba(164,190,184,0)');mist.addColorStop(.5,'rgba(164,190,184,.10)');mist.addColorStop(1,'rgba(164,190,184,0)');
  X.fillStyle=mist;X.fillRect(0,mistY-CH*.07,CW,CH*.14);
 }
+function titleOptionLabel(index,hasSave,load){
+ return CK_TITLE_OPTIONS[index][0]+(index===2&&!hasSave?'  ·  NO SAVE':index===7?' · '+load+' units':'');
+}
+function titleCrest(x,y,size){
+ // Original crowned shield, drawn with seven compact paths; no asset requests.
+ const p=(pts,col)=>{
+  X.fillStyle=col;X.beginPath();X.moveTo(x+pts[0][0]*size,y+pts[0][1]*size);
+  for(let i=1;i<pts.length;i++)X.lineTo(x+pts[i][0]*size,y+pts[i][1]*size);
+  X.closePath();X.fill();
+ };
+ p([[-.48,-.40],[.48,-.40],[.41,.17],[.25,.39],[0,.55],[-.25,.39],[-.41,.17]],'#c8a66b');
+ p([[-.40,-.32],[.40,-.32],[.34,.14],[.20,.32],[0,.46],[-.20,.32],[-.34,.14]],'#152b35');
+ p([[-.30,-.15],[-.19,.02],[0,-.21],[.19,.02],[.30,-.15],[.23,.15],[-.23,.15]],'#f5d27b');
+ p([[-.23,.20],[.23,.20],[.20,.26],[-.20,.26]],'#c8a66b');
+ p([[-.04,-.46],[0,-.51],[.04,-.46],[0,-.41]],'#f5d27b');
+}
 function drawTitle(){
  titleScene();
  const l=titleLayout(CW,CH,ti),{x,w,edge,brandSize,top,footer,detailY,rh,visible,start,selected}=l;
@@ -271,7 +278,7 @@ function drawTitle(){
  X.fillStyle='rgba(219,184,114,.40)';X.fillRect(x,top-8,w,1);
  for(let row=0;row<visible;row++){
   const i=start+row,yy=top+row*rh,active=i===selected,disabled=i===2&&!hs;
-  const name=CK_TITLE_OPTIONS[i][0]+(disabled?'  ·  NO SAVE':i===7?' · '+selectedXboxPerformanceLoad+' units':'');
+  const name=titleOptionLabel(i,hs,selectedXboxPerformanceLoad);
   if(active){
    const band=X.createLinearGradient(x,yy,x+w,yy);
    band.addColorStop(0,'#705430');band.addColorStop(1,'rgba(48,60,62,.92)');
@@ -293,9 +300,10 @@ function drawTitle(){
  const status=pad?'CONTROLLER CONNECTED':gpErr?'CONTROLLER ACCESS BLOCKED — OPEN AS A FULL PAGE':'CONNECT A CONTROLLER — PRESS ANY GAMEPAD BUTTON';
  tx(menuFit(status,CW-2*edge,12),edge,footer+11,12,pad?'#9ae6b4':'#e7b9a7');
  if(l.wide){
-  const right=CW-edge;
-  tx('A KINGDOM AWAITS',right,edge+14,12,'#ead4a5','right');
-  tx('REAL-TIME STRATEGY',right,edge+33,12,'#c6d2d3','right');
+  const right=CW-edge,crestSize=Math.min(70,Math.max(36,CH*.075));
+  titleCrest(right-crestSize*.5,edge+crestSize*.55,crestSize);
+  tx('A KINGDOM AWAITS',right-crestSize-13,edge+crestSize*.43,12,'#ead4a5','right');
+  tx('REAL-TIME STRATEGY',right-crestSize-13,edge+crestSize*.72,12,'#c6d2d3','right');
  }
 }
 function drawSetup(){titleBg();drawList('NEW GAME',setRows(),si,'D-pad Up/Down: choose    Left/Right: change    A: select    B: back')}
