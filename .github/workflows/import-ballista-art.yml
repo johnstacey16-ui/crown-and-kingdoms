@@ -1,0 +1,101 @@
+name: Import approved Ballista Elephant artwork
+on:
+  push:
+    branches: [development]
+    paths:
+      - '.github/workflows/import-ballista-art.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Extract exact reviewed archive and register both atlases
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, zipfile
+          from pathlib import Path
+          archive=Path('assets/ballista-elephant-runtime-art.zip')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()=='9505d9d95852a8cec9f8b734d62291cbc605289e2ec9f01ce524b8bdb9f6213d'
+          def edit(path, old, new, count=1):
+              p=Path(path); s=p.read_text()
+              assert s.count(old)==count, (path,old,s.count(old))
+              p.write_text(s.replace(old,new))
+          def load(p): return json.loads(Path(p).read_text())
+          def save(p,v): Path(p).write_text(json.dumps(v,separators=(',',':')))
+          with zipfile.ZipFile(archive) as z:
+              expected={'assets/painted-motion-ballista-ele.webp':'9a56985fe4a80a26eda74e7d2cb674327897242018bca25c3459af8ff84bc877','assets/painted-elite-ballista-ele.webp':'8dfed6e231df126acba20af2a94d58db342798fc52afe8a7f67f07b4eb4100fa'}
+              for p,h in expected.items():
+                  b=z.read(p); assert hashlib.sha256(b).hexdigest()==h; Path(p).write_bytes(b)
+              motion=json.loads(z.read('integration/motion-atlas-entry.json'))
+              elite=json.loads(z.read('integration/elite-atlas-entry.json'))
+          motion['meta']['sourceActionFrame']=12
+          for a in [motion,elite]:
+              assert a['id'] in ['painted-motion-ballistaEle','painted-elite-ballistaEle']
+              assert a['src'][2:] in expected
+              k='ballistaEle'+('_elite' if a is elite else '')
+              for t in range(4):
+                  for state,count in [('idle',1),('walk',8),('attack',8)]:
+                      frames=a['meta']['anims'][f'{k}/{state}/{t}']['frames']
+                      assert len(frames)==count and len({(f['x'],f['y']) for f in frames})==count
+          m=load('assets/motion-manifest.json'); m['atlases'].append(motion); save('assets/motion-manifest.json',m)
+          e=load('assets/elite-manifest.json'); e['atlases'].append(elite)
+          e['provenance'].append({'kind':'ballistaEle','sourceSha256':'ab82c688b0180e0905e32486de38f4b496d7c4e9095e9e02305ab9b9f592ba30','frames':16,'facings':'one authored facing plus runtime reflection','death':'not authored'})
+          save('assets/elite-manifest.json',e)
+          p=load('assets/atlas-manifest.json')
+          assert not any(a['id'] in [motion['id'],elite['id']] for a in p['atlases'])
+          p['atlases']=m['atlases']+[a for a in p['atlases'] if not a['meta'].get('motion') or a['meta'].get('elite')]+[elite]
+          save('assets/atlas-manifest.json',p)
+          q=load('docs/painted-motion-production-queue.json')
+          assert [i['kind'] for i in q['items']]==['ballistaEle']; q['items']=[]
+          Path('docs/painted-motion-production-queue.json').write_text(json.dumps(q,indent=2)+'\n')
+          edit('scripts/build-motion-atlas.mjs',"'caravel','thirisadai'],args","'caravel','thirisadai','ballistaEle'],args")
+          edit('scripts/build-motion-atlas.mjs',"const impactSource={ele:10,","const impactSource={ballistaEle:12,ele:10,")
+          edit('sw.js',"  './assets/painted-motion-ele.webp',","  './assets/painted-motion-ele.webp',\n  './assets/painted-motion-ballista-ele.webp',")
+          edit('sw.js',"  './assets/painted-elite-ele.webp',","  './assets/painted-elite-ele.webp',\n  './assets/painted-elite-ballista-ele.webp',")
+          edit('sw.js','ck-shell-v252-elite-dismounted-konnik-','ck-shell-v253-ballista-elephant-')
+          t='tests/graphics-inventory-live-roster.test.mjs'
+          edit(t,'existing painted base unit sheets are preserved and new art debt remains explicit','all current base unit sheets are painted while broader graphics acceptance remains partial')
+          edit(t," assert.deepEqual(graphics.units.filter(u=>!u.paintedBase).map(u=>u.kind),['ballistaEle']);\n",'')
+          edit(t,"  if(entry.kind==='ballistaEle'){assert.equal(entry.walkFrames,0);assert.equal(entry.attackFrames,0);continue}\n",'')
+          edit(t,"assert.deepEqual(promised,['ballistaEle'],'only the new siege elephant remains in the source-only queue');","assert.deepEqual(promised,[],'no playable base sheet remains missing');")
+          t='tests/painted-environment.test.mjs'
+          edit(t,"filter(x=>x.paintedBase).length,84","filter(x=>x.paintedBase).length,85")
+          edit(t,"map(x=>x.kind),['ballistaEle']","map(x=>x.kind),[]")
+          edit(t,"filter(x=>x.walkFrames>1&&x.attackFrames>1).length,84","filter(x=>x.walkFrames>1&&x.attackFrames>1).length,85")
+          t='tests/professional-readiness.test.mjs'
+          edit(t,'r.metrics.paintedUnitBases,84','r.metrics.paintedUnitBases,85')
+          edit(t,'r.metrics.movementAndAttackSheets,84','r.metrics.movementAndAttackSheets,85')
+          t='tests/painted-elite.test.mjs'
+          edit(t,'forty-four dedicated Elite sheets','forty-five dedicated Elite sheets')
+          edit(t,"'rathaM','footkonnik']);","'rathaM','footkonnik','ballistaEle']);")
+          edit(t,"'rathaM'].includes(k)","'rathaM','ballistaEle'].includes(k)")
+          edit(t,'all existing Elite sheets remain present and new Ballista Elephant art debt is explicit','every current main Elite kind and alternate form has a dedicated original sheet')
+          edit(t,"['ballistaEle'],'only the new Ballista Elephant Elite sheet remains missing'","[],'no main researched unique-unit appearance is missing'")
+          edit(t,"['footkonnik',29]])","['footkonnik',29],['ballistaEle',12]])",2)
+          edit(t,"false,'missing original art must not be claimed as rendered'","true,'the distinct Khmer Elite sheet is rendered'")
+          edit('README.md','84 painted animated unit kinds, forty-four dedicated Elite sheets (42 of 43 current main unique-unit kinds','85 painted animated unit kinds, forty-five dedicated Elite sheets (all 43 current main unique-unit kinds')
+          edit('README.md','84/85 current playable unit types','85/85 current playable unit types')
+          PY
+          node scripts/build-art-revisions.mjs
+          node scripts/audit-graphics.mjs
+      - name: Validate actual generated art and complete source graph
+        run: node scripts/run-checks.mjs --quick
+      - name: Verify new base and Elite motion contracts
+        run: node --test tests/painted-elite.test.mjs tests/graphics-inventory-live-roster.test.mjs tests/painted-environment.test.mjs tests/professional-readiness.test.mjs
+      - name: Commit only reviewed art integration to development
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/painted-motion-ballista-ele.webp assets/painted-elite-ballista-ele.webp assets/motion-manifest.json assets/elite-manifest.json assets/atlas-manifest.json assets/art-revisions.json docs/painted-motion-production-queue.json docs/graphics-inventory.json docs/GRAPHICS_OVERHAUL_CHECKLIST.md scripts/build-motion-atlas.mjs sw.js tests/graphics-inventory-live-roster.test.mjs tests/painted-environment.test.mjs tests/professional-readiness.test.mjs tests/painted-elite.test.mjs README.md
+          git diff --cached --check
+          git commit -m "Integrate reviewed Ballista Elephant base and Elite sprite atlases"
+          git push origin HEAD:refs/heads/development
