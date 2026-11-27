@@ -254,8 +254,12 @@ test('kingdom vista artwork is deterministic, crops without distortion and honor
  const ctx=vm.createContext({});vm.runInContext(source,ctx);
  const paint=()=>{
   const calls=[];
-  const c={fillStyle:'',fillRect(...v){calls.push(['rect',this.fillStyle,...v])},beginPath(){},moveTo(...v){calls.push(['move',...v])},lineTo(...v){calls.push(['line',...v])},closePath(){},fill(){calls.push(['fill',this.fillStyle])},arc(...v){calls.push(['arc',...v])}};
-  const gradient=(...v)=>({addColorStop(...s){calls.push(['stop',...v,...s])}});
+  const c={fillStyle:'',fillRect(...v){calls.push(['rect',this.fillStyle?.spec??this.fillStyle,...v])},beginPath(){},moveTo(...v){calls.push(['move',...v])},lineTo(...v){calls.push(['line',...v])},closePath(){},fill(){calls.push(['fill',this.fillStyle?.spec??this.fillStyle])},arc(...v){calls.push(['arc',...v])}};
+  // Store gradient identity as serializable geometry and stops, never as mock function references.
+  const gradient=(...v)=>{
+   const spec={geometry:v,stops:[]};
+   return {spec,addColorStop(...s){spec.stops.push(s);calls.push(['stop',...v,...s])}};
+  };
   c.createLinearGradient=gradient;c.createRadialGradient=gradient;
   ctx.paintTitleValley(c);return calls;
  };
