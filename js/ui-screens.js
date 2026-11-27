@@ -183,40 +183,94 @@ function paintTitleValley(c){
  c.fillStyle=sun;c.fillRect(0,0,W,H);
  // Fixed seed: no simulation RNG consumption, no changing pixels between frames.
  let seed=91731;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ // Warm horizon haze and high cloud bands, painted into the cache.
+ for(let i=0;i<35;i++){
+  const x=rand()*W,y=65+rand()*133,w=40+rand()*210,h=2+rand()*7;
+  const cloud=c.createLinearGradient(x,y,x+w,y);
+  cloud.addColorStop(0,'rgba(212,204,185,0)');cloud.addColorStop(.45,'rgba(212,204,185,.075)');cloud.addColorStop(1,'rgba(212,204,185,0)');
+  c.fillStyle=cloud;c.fillRect(x,y,w,h);
+ }
  for(let layer=0;layer<4;layer++){
-  const horizon=240+layer*37,points=[[0,H],[0,horizon]];
-  for(let i=0;i<=24;i++){
-   const x=i*W/24,y=horizon-Math.sin(i*.53+layer)*28-rand()*(58-layer*9);
-   points.push([x,y]);
+  const horizon=245+layer*37,ridge=[];
+  for(let i=0;i<=32;i++){
+   const x=i*W/32;
+   const peaks=Math.abs(Math.sin(i*.31+layer*1.07))*(83-layer*14);
+   const y=horizon-peaks-rand()*(33-layer*5);
+   ridge.push([x,y]);
   }
-  points.push([W,H]);
-  shape(points,['#596c70','#40575e','#30474c','#203639'][layer]);
+  shape([[0,H],...ridge,[W,H]],['#687b7e','#4c6269','#344e53','#243d40'][layer]);
+  for(let i=1;i<ridge.length-1;i++){
+   const [x,y]=ridge[i],left=ridge[i-1],right=ridge[i+1];
+   if(y<left[1]&&y<right[1]){
+    shape([[x,y],[right[0]+12,right[1]+18],[x+12,horizon+21]],['#50666d','#3c535b','#293e46','#1c3036'][layer]);
+    if(layer===0&&y<horizon-61){
+     shape([[x,y],[x-8,y+12],[x+2,y+8],[x+13,y+20],[x+8,y+9]],'#a5aaa2');
+    }
+   }
+  }
+  if(layer<3){
+   const haze=c.createLinearGradient(0,horizon-18,0,horizon+47);
+   haze.addColorStop(0,'rgba(170,180,172,0)');haze.addColorStop(.5,'rgba(170,180,172,.09)');haze.addColorStop(1,'rgba(170,180,172,0)');
+   c.fillStyle=haze;c.fillRect(0,horizon-18,W,65);
+  }
  }
  // A winding river leads toward the fortified hill.
  shape([[424,540],[488,467],[610,418],[660,385],[714,347],[724,347],[694,384],[635,426],[557,481],[530,540]],'#526c6c');
  shape([[460,540],[507,472],[621,421],[670,385],[714,349],[719,349],[683,386],[637,426],[530,484],[493,540]],'#8b9790');
+ // River reflections taper toward the horizon.
+ for(let i=0;i<52;i++){
+  const y=425+rand()*114,t=(y-425)/114,x=620-t*133;
+  const span=11+t*29,r=rand()*span-span*.5;
+  rect(x+r,y,2+rand()*(7+t*18),.5+t*.7,i%3===0?'rgba(236,205,156,.32)':'rgba(26,63,68,.24)');
+ }
  shape([[0,540],[0,436],[170,398],[332,435],[448,449],[480,496],[452,540]],'#182a2c');
  shape([[960,540],[960,360],[833,334],[759,364],[700,412],[780,467],[868,540]],'#263a39');
  // A defensible stone ridge and medieval keep, silhouetted against dusk.
  shape([[559,390],[596,332],[650,310],[716,318],[777,309],[846,338],[900,390],[780,416],[649,420]],'#283a3a');
- const stone='#344342',shadow='#202d30',lit='#66706a';
- const tower=(x,y,w,h)=>{
-  rect(x,y,w,h,stone);rect(x+w*.71,y,w*.29,h,shadow);
-  rect(x-3,y-7,w+6,9,shadow);
-  for(let i=0;i<4;i++)rect(x-3+i*(w+6)/4,y-15,(w+6)/7,9,shadow);
-  rect(x+3,y+5,2,h-7,lit);
-  for(let k=0;k<3;k++)rect(x+w*.4,y+14+k*20,4,10,'#d7aa66');
+ const stone='#455453',shadow='#202d30',lit='#899087';
+ const masonry=(x,y,w,h)=>{
+  const face=c.createLinearGradient(x,y,x+w,y);
+  face.addColorStop(0,'#66716b');face.addColorStop(.68,stone);face.addColorStop(1,shadow);
+  c.fillStyle=face;c.fillRect(x,y,w,h);
+  for(let row=0;row<Math.floor(h/7);row++){
+   const yy=y+row*7+6;
+   rect(x+1,yy,w-2,.7,'rgba(17,29,33,.44)');
+   for(let col=0;col<Math.floor(w/11);col++){
+    const xx=x+col*11+(row%2?5:0);
+    if(xx>x+1&&xx<x+w-1)rect(xx,yy-5,.7,5,'rgba(17,29,33,.28)');
+   }
+  }
  };
- rect(606,300,214,51,stone);rect(606,343,214,10,shadow);
+ const tower=(x,y,w,h)=>{
+  masonry(x,y,w,h);rect(x+w*.79,y,w*.21,h,'rgba(16,25,31,.42)');
+  rect(x-3,y-7,w+6,9,shadow);rect(x-3,y-7,w+6,1,lit);
+  for(let i=0;i<4;i++){
+   const xx=x-3+i*(w+6)/4;rect(xx,y-15,(w+6)/7,9,stone);rect(xx,y-15,(w+6)/7,1,lit);
+  }
+  rect(x+2,y+5,1,h-7,lit);
+  for(let k=0;k<3;k++){
+   const xx=x+w*.4,yy=y+14+k*20;
+   rect(xx-1,yy,6,11,'#1d292d');rect(xx,yy+1,4,9,'#d7aa66');
+   rect(xx,yy+6,4,4,'#9a6948');
+  }
+ };
+ masonry(606,300,214,51);rect(606,343,214,10,shadow);
  for(let i=0;i<16;i++)rect(605+i*13.5,290,7,12,shadow);
  tower(596,264,29,86);tower(653,248,31,103);tower(780,253,31,98);tower(817,278,27,73);
  tower(707,215,43,136);
  shape([[700,215],[728,184],[757,215]],'#1a292e');
- rect(727,177,2,13,'#c6a876');shape([[729,177],[756,181],[729,190]],'#9d5945');
- for(const [x,y] of [[608,247],[794,235],[668,230]]){
-  rect(x,y,2,20,'#c4a577');shape([[x+2,y],[x+23,y+4],[x+2,y+10]],'#895041');
- }
+ shape([[700,215],[728,184],[727,215]],'#3a4b4e');
+ rect(727,177,2,13,'#c6a876');
+ for(const [x,y] of [[608,247],[794,235],[668,230]])rect(x,y,2,20,'#c4a577');
  rect(718,321,20,30,'#121e25');c.fillStyle='#121e25';c.beginPath();c.arc(728,321,10,Math.PI,0);c.fill();
+ // A small settlement beneath the fortress and a worn track toward the gate.
+ shape([[729,350],[720,367],[680,378],[643,404],[654,408],[694,384],[731,371],[737,350]],'#817766');
+ for(const [x,y,w,h] of [[634,382,20,13],[665,369,18,12],[762,375,23,15],[794,384,18,13],[818,368,15,12]]){
+  rect(x,y,w,h,'#766c57');rect(x+w*.72,y,w*.28,h,'#3d4240');
+  shape([[x-3,y],[x+w*.37,y-h*.65],[x+w+3,y]],'#253237');
+  shape([[x-3,y],[x+w*.37,y-h*.65],[x+w*.32,y]],'#4c5046');
+  rect(x+4,y+4,3,4,'#caa26a');rect(x+w*.52,y+4,3,4,'#b78d58');
+ }
  // Distant pines and dark foreground forest frame the landscape.
  for(let i=0;i<145;i++){
   const x=rand()*W,y=355+rand()*185;
@@ -224,11 +278,38 @@ function paintTitleValley(c){
   if(x>425&&x<695&&y>411&&x<660-(y-411)*.95)continue;
   const h=9+(y-355)*.12+rand()*16,tw=h*.28,col=y>465?'#102323':'#203638';
   rect(x-1,y-h*.25,2,h*.28,col);
-  for(let j=0;j<3;j++){const q=y-h+j*h*.23;shape([[x,q],[x-tw*(.62+j*.2),q+h*.65],[x+tw*(.62+j*.2),q+h*.65]],col)}
+  for(let j=0;j<3;j++){
+   const q=y-h+j*h*.23,branch=tw*(.62+j*.2);
+   shape([[x,q],[x-branch,q+h*.65],[x+branch,q+h*.65]],col);
+   if(y>435)shape([[x,q+h*.09],[x-branch*.8,q+h*.61],[x,q+h*.53]],'rgba(86,112,100,.23)');
+  }
  }
  const ground=c.createLinearGradient(0,425,0,H);
  ground.addColorStop(0,'rgba(6,15,20,0)');ground.addColorStop(1,'rgba(6,15,20,.88)');
  c.fillStyle=ground;c.fillRect(0,425,W,H-425);
+}
+function titleSceneGeometry(width,height){
+ const scale=Math.max(width/960,height/540),w=960*scale,h=540*scale;
+ return {sx:scale,sy:scale,dx:Math.min(0,Math.max(width-w,width*.68-w*.75)),dy:(height-h)/2,w,h};
+}
+function titleSceneMotion(now,reduced){
+ const t=reduced?0:Math.max(0,Number.isFinite(now)?now:0);
+ return {mist:Math.sin(t/13000),banner:Math.sin(t/1700),light:.83+.08*Math.sin(t/1300)};
+}
+function paintTitleLife(g,m){
+ const {sx,sy,dx,dy}=g;
+ const point=(x,y)=>[dx+x*sx,dy+y*sy];
+ // Three small banners and a royal standard; gentle movement without abrupt flashes.
+ for(const [x,y,w,h] of [[729,177,27,13],[610,247,21,10],[796,235,21,10],[670,230,21,10]]){
+  X.fillStyle='#9d5945';X.beginPath();X.moveTo(...point(x,y));
+  X.lineTo(...point(x+w*.53,y+2+m.banner*2));
+  X.lineTo(...point(x+w,y+4+m.banner*2.5));
+  X.lineTo(...point(x+w*.5,y+h-3+m.banner));X.lineTo(...point(x,y+h));X.closePath();X.fill();
+ }
+ X.fillStyle='rgba(241,179,91,'+m.light.toFixed(3)+')';
+ for(const [x,y] of [[714,332],[743,332],[638,389],[770,382]]){
+  const p=point(x,y);X.fillRect(p[0],p[1],2*sx,4*sy);
+ }
 }
 function titleScene(){
  if(!ckTitleScene&&typeof document!=='undefined'&&typeof document.createElement==='function'){
@@ -236,16 +317,13 @@ function titleScene(){
   const context=canvas.getContext('2d');
   if(context&&context!==X){paintTitleValley(context);ckTitleScene=canvas}
  }
- if(ckTitleScene){
-  const scale=Math.max(CW/960,CH/540),w=960*scale,h=540*scale;
-  // Preserve the landscape's aspect ratio, including compact portrait displays.
-  const dx=Math.min(0,Math.max(CW-w,CW*.68-w*.75));
-  X.drawImage(ckTitleScene,dx,(CH-h)/2,w,h);
- }
- else{X.save();X.scale(CW/960,CH/540);paintTitleValley(X);X.restore()}
+ let g=titleSceneGeometry(CW,CH);
+ if(ckTitleScene)X.drawImage(ckTitleScene,g.dx,g.dy,g.w,g.h);
+ else{g={sx:CW/960,sy:CH/540,dx:0,dy:0};X.save();X.scale(g.sx,g.sy);paintTitleValley(X);X.restore()}
  if(ckTitleMotionPreference===null)ckTitleMotionPreference=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):false;
- const phase=ckTitleMotionPreference&&ckTitleMotionPreference.matches?0:Math.sin(performance.now()/13000);
- const mistY=CH*(.66+phase*.017),mist=X.createLinearGradient(0,mistY-CH*.07,0,mistY+CH*.07);
+ const motion=titleSceneMotion(typeof performance!=='undefined'?performance.now():0,!!(ckTitleMotionPreference&&ckTitleMotionPreference.matches));
+ paintTitleLife(g,motion);
+ const mistY=CH*(.66+motion.mist*.017),mist=X.createLinearGradient(0,mistY-CH*.07,0,mistY+CH*.07);
  mist.addColorStop(0,'rgba(164,190,184,0)');mist.addColorStop(.5,'rgba(164,190,184,.10)');mist.addColorStop(1,'rgba(164,190,184,0)');
  X.fillStyle=mist;X.fillRect(0,mistY-CH*.07,CW,CH*.14);
 }

@@ -248,3 +248,25 @@ test('Controls and About paginate every description without losing words and pre
  ctx.E=[];ctx.E[14]=true;ctx.infoCtl();assert.equal(vm.runInContext('infoPage',ctx),0);
  ctx.E=[];ctx.E[1]=true;ctx.infoCtl();assert.equal(ctx.mode,'title');
 });
+
+test('kingdom vista artwork is deterministic, crops without distortion and honors reduced motion',()=>{
+ const source=ui.slice(ui.indexOf('const CK_TITLE_OPTIONS='),ui.indexOf('function drawSetup(){'));
+ const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ const paint=()=>{
+  const calls=[];
+  const c={fillStyle:'',fillRect(...v){calls.push(['rect',this.fillStyle,...v])},beginPath(){},moveTo(...v){calls.push(['move',...v])},lineTo(...v){calls.push(['line',...v])},closePath(){},fill(){calls.push(['fill',this.fillStyle])},arc(...v){calls.push(['arc',...v])}};
+  const gradient=(...v)=>({addColorStop(...s){calls.push(['stop',...v,...s])}});
+  c.createLinearGradient=gradient;c.createRadialGradient=gradient;
+  ctx.paintTitleValley(c);return calls;
+ };
+ assert.deepEqual(paint(),paint(),'cached artwork uses a private fixed seed, not live simulation RNG');
+ for(const [w,h] of [[1920,1080],[1280,720],[390,844]]){
+  const g=ctx.titleSceneGeometry(w,h);
+  assert.equal(g.sx,g.sy);assert.ok(g.dx<=0&&g.dx+g.w>=w-1e-8&&g.dy<=0&&g.dy+g.h>=h-1e-8);
+ }
+ assert.deepEqual(ctx.titleSceneMotion(0,true),ctx.titleSceneMotion(30000,true));
+ assert.notDeepEqual(ctx.titleSceneMotion(0,false),ctx.titleSceneMotion(30000,false));
+ for(let time=0;time<60000;time+=173){
+  const m=ctx.titleSceneMotion(time,false);assert.ok(m.light>=.74&&m.light<=.92&&Math.abs(m.banner)<=1&&Math.abs(m.mist)<=1);
+ }
+});
