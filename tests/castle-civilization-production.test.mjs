@@ -494,3 +494,30 @@ test('Yeomen adds range without archer damage, and adds real Tower damage withou
  assert.equal(run('loadG()'),true);
  assert.equal(run("attackRange({k:'lbow',t:0})"),beforeRange+1);
 });
+
+
+test('Persian starting resources, building health and work rates are faction scoped',()=>{
+ const {run}=fixture();
+ run("S.civ=[4,1];S.age=[0,0];S.res[0]={f:200,w:200,g:0,s:0};CIV[4].fx(0)");
+ assert.equal(run('S.res[0].f'),250);
+ assert.equal(run('S.res[0].w'),250);
+ run("globalThis.persianTC=addB(0,'tc',44,20,true);globalThis.enemyTC=addB(1,'tc',54,20,true);globalThis.persianDock=addB(0,'dock',44,32,false);globalThis.enemyDock=addB(1,'dock',54,32,true)");
+ assert.equal(run('persianTC.hp'),run('B.tc.hp')*2);
+ assert.equal(run('persianTC.mh'),run('B.tc.hp')*2);
+ assert.equal(run('enemyTC.mh'),run('B.tc.hp'));
+ assert.equal(run('persianDock.mh'),run('B.dock.hp')*2);
+ assert.equal(run('persianDock.hp'),1);
+ assert.equal(run('enemyDock.mh'),run('B.dock.hp'));
+ assert.equal(run('castles[0].mh'),run('B.castle.hp'));
+ for(const [age,rate] of [1.05,1.10,1.15,1.20].entries()){
+  run('S.age[0]='+age);
+  assert.equal(run("trainRate(persianTC,'vil')"),rate);
+  assert.equal(run("trainRate(persianDock,'fish')"),rate);
+  assert.equal(run("trainRate(enemyTC,'vil')"),1);
+  assert.equal(run("civilizationOwnWorkRate(castles[0])"),1);
+ }
+ run("S.res[0]={f:10000,w:10000,g:10000,s:10000};train(persianTC,'vil')");
+ assert.equal(run('persianTC.q.length'),1);
+ run('upB(persianTC,U.vil.t/1.2+.01)');
+ assert.equal(run("S.us.filter(u=>u.t===0&&u.k==='vil').length"),1);
+});
