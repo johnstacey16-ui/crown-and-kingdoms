@@ -139,14 +139,18 @@ function drawBrief(){
  titleBg();X.fillStyle='rgba(0,0,0,.6)';X.fillRect(0,0,CW,CH);
  const w=Math.min(900,CW-60),x=(CW-w)/2,titleY=Math.min(100,Math.max(72,CH*.13)),clipTop=Math.max(112,titleY+34),clipBottom=Math.max(clipTop+20,CH-118);
  panel(x,40,w,CH-80);tx('MISSION '+(bi+1)+': '+sc.t.toUpperCase(),CW/2,titleY,Math.min(34,Math.max(24,CH*.047)),'#f2c14e','center');
- const story=briefingLines(sc.b,w-60,20),storyY=clipTop+24,storyEnd=storyY+story.length*28,metaY=storyEnd+6,headingY=storyEnd+48,goalsY=headingY+34;
- const lastY=goalsY+Math.max(0,sc.goals.length-1)*30;
+ const story=briefingLines(sc.b,w-60,20),storyY=clipTop+24,storyEnd=storyY+story.length*28,metaY=storyEnd+6;
+ const meta=briefingLines('You: '+CIV[sc.civ].n+'    Enemy: '+CIV[sc.en].n+'    Difficulty: '+difficultyName(sc.diff),w-60,19);
+ const headingY=metaY+meta.length*25+17,goalsY=headingY+34;
+ const goals=sc.goals.map(g=>briefingLines('- '+g.t,w-80,20));
+ const lastY=goalsY+Math.max(0,goals.reduce((n,lines)=>n+lines.length*26+4,0)-30);
  briefScrollMax=Math.max(0,lastY-(clipBottom-18));briefScroll=Math.max(0,Math.min(briefScroll,briefScrollMax));
  X.save();X.beginPath();X.rect(x+18,clipTop,w-36,clipBottom-clipTop);X.clip();
  wrapT(sc.b,x+30,storyY-briefScroll,w-60,20,'#e2e8f0',28,story);
- tx('You: '+CIV[sc.civ].n+'    Enemy: '+CIV[sc.en].n+'    Difficulty: '+difficultyName(sc.diff),x+30,metaY-briefScroll,19,'#cbd5e1');
+ meta.forEach((line,i)=>tx(line,x+30,metaY+i*25-briefScroll,19,'#cbd5e1'));
  tx('OBJECTIVES',x+30,headingY-briefScroll,22,'#fde68a');
- sc.goals.forEach((g,i)=>tx('- '+g.t,x+40,goalsY+i*30-briefScroll,20));
+ let goalY=goalsY;
+ for(const lines of goals){lines.forEach((line,i)=>tx(line,x+40,goalY+i*26-briefScroll,20));goalY+=lines.length*26+4}
  X.restore();
  tx(briefScrollMax?'D-pad Up/Down: scroll    A: start mission    B: back':'A: start mission    B: back',CW/2,CH-62,20,'#9ae6b4','center');
 }
