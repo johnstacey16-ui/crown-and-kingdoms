@@ -107,3 +107,28 @@ test('normal cadence and very long stalls keep music scheduling bounded and phas
  const oldPhase=h.position().phase;h.AC.currentTime+=3600;const before=h.calls.length;h.schedule();const added=h.calls.slice(before);
  assert.ok(added.length<=2);assert.ok(added.every(c=>c.at>=h.AC.currentTime));assert.ok(h.position().phase>oldPhase+10000,'large backlog is skipped arithmetically');
 });
+
+test('uploaded soundtrack loops one track and cycles a multi-track playlist without changing filenames',async()=>{
+ for(const tracks of [['1%20(1).mp3'],['First%20song.mp3','Second.ogg']]){
+  const players=[];
+  class Audio {
+   constructor(){this.paused=true;this.handlers={};players.push(this)}
+   addEventListener(name,fn){this.handlers[name]=fn}
+   play(){this.paused=false;this.handlers.playing();return Promise.resolve()}
+   pause(){this.paused=true}
+  }
+  const sandbox={Audio,fetch:async()=>({ok:true,json:async()=>({tracks})}),VOL:{m:1,mu:1},snd:1,mus:1,mode:'play',performance:{now:()=>2000}};
+  vm.createContext(sandbox);
+  vm.runInContext(audio+'\n;globalThis.tick=albumTick;globalThis.ready=()=>CK_ALBUM.tracks!==null;',sandbox);
+  sandbox.tick();
+  for(let i=0;i<20&&!sandbox.ready();i++)await Promise.resolve();
+  assert.equal(sandbox.ready(),true);
+  sandbox.tick();
+  const p=players[0],first=p.src;
+  assert.equal(p.loop,tracks.length===1);
+  assert.ok(tracks.some(t=>first==='./assets/music/'+t));
+  if(tracks.length>1){p.handlers.ended();assert.notEqual(p.src,first);p.handlers.ended();assert.equal(p.src,first)}
+  assert.equal(players.length,1);
+  sandbox.mus=0;sandbox.tick();assert.equal(p.paused,true);
+ }
+});
