@@ -55,7 +55,7 @@ else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){
  }
 else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg}
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&(u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&S.civ?.[u.t]===34)){u.o='b';u.tg=tg}
-else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&buildingGarrisonAccepts(tg,u)&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
+else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&buildingGarrisonCanBoard(tg,u)&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.k==='trn'&&Array.isArray(u.cg)&&u.cg.some(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const landing=transportLandingRoute(u,wx,wy);if(landing?.route?.length){u.o='U';u.ut=[wx,wy];u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
 else{const i=unitIndex,fo=(u.sh?navalSlots:landSlots)(i),gx=wx+fo[0],gy=wy+fo[1],gl=r=>cachedGoal(formationGoals,gx,gy,r);
 const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');

@@ -126,10 +126,10 @@ function tickTrader(u,dt){
 function healGarrison(b,dt){if(b.k==='house'||!b.cg?.length)return;const rate=S.tech[b.t]?.herbalMedicine ? .6 : .1;
  for(const u of b.cg)if(u&&S.us.includes(u)&&u.hp>0&&u.ld===b&&u.t===b.t)u.hp=Math.min(mhp(u),u.hp+rate*dt);
 }
-function unload(b){
- if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!civilizationGarrisonCapacity(b)){note('Select a living, completed garrison with units inside');return false}
+function unload(b,quiet=false){
+ if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!civilizationGarrisonCapacity(b)){if(!quiet)note('Select a living, completed garrison with units inside');return false}
  const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
- if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
+ if(!cg.length){b.cg=[];if(!quiet)note('No living passengers in this garrison');return false}
  const size=Number.isInteger(b.s)&&b.s>0?b.s:1,spots=[];
  /* Only units near the garrison can occupy one of its possible unload tiles. */
  const occupied=new Set(),left=b.x-6,right=b.x+size+6,top=b.y-6,bottom=b.y+size+6;
@@ -154,12 +154,12 @@ function unload(b){
   c.x=sp.x+.5;c.y=sp.y+.5;c.ld=null;c.o='i';c.tg=null;c.ut=null;c.pt=null;c.as=0;c.p=[];c.rp=0;released++;
  }
  b.cg=cg.filter(c=>c.ld===b);
- note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
+ if(!quiet)note(released?(b.cg.length?'Garrison partially unloaded: '+released+' units':'Garrison unloaded: '+released+' units'):'No clear space to unload this garrison');
  return released>0;
 }
 function townBell(t){
  const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
- const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&civilizationGarrisonCapacity(b));
+ const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&civilizationGarrisonCapacity(b)&&!khmerHouseNeedsEvacuation(b));
  const occupancy=new Map(),living=new Set(S.us);
  for(const b of shelters){
   const residents=new Set();

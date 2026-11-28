@@ -325,7 +325,7 @@
         if (!capacity || !Array.isArray(cargo) || new Set(cargo).size!==cargo.length ||
             cargo.some(u=>!S.us.includes(u)||u.hp<=0||u.ld!==target||u.t!==target.t||!U[u.k]||U[u.k].sh) ||
             cargo.length+entities.length>capacity || entities.some(u=>U[u.k].sh) ||
-            (building && (target.t!==team||entities.some(u=>!buildingGarrisonAccepts(target,u,S))))) return false;
+            (building && (target.t!==team||entities.some(u=>!buildingGarrisonCanBoard(target,u,S))))) return false;
         // Allied garrison sharing is deliberately unavailable until unload ownership
         // and passenger restoration are modeled across different owners.
       } else {

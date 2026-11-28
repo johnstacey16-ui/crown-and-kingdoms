@@ -370,6 +370,14 @@ function buildingGarrisonAccepts(b,u,world=S){
  return civilizationGarrisonCapacity(b,world)>0&&
   (b.k!=='house'||(u.t===b.t&&(u.k==='vil'||u.k==='king')));
 }
+/* This is separate from passenger eligibility so a blocked House can still
+ * restore valid occupants from a save until the evacuation finds space. */
+function khmerHouseNeedsEvacuation(b,world=S){
+ return b.k==='house'&&world?.civ?.[b.t]===12&&b.mh>0&&b.hp<=b.mh*.2;
+}
+function buildingGarrisonCanBoard(b,u,world=S){
+ return buildingGarrisonAccepts(b,u,world)&&!khmerHouseNeedsEvacuation(b,world);
+}
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ,techs=S?.tech){
  const cost=B[kind]?.cost||{};

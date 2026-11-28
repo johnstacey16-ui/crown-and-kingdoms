@@ -330,3 +330,39 @@ test('Khmer Houses shelter five owned Villagers and Kings through Xbox, host and
  run("S.civ[0]=0");
  assert.equal(run('civilizationGarrisonCapacity(house)'),0);
 });
+
+test('a Khmer House at 20% health evacuates around blocked exits and rejects new occupants until repaired',()=>{
+ const run=uiGame();
+ run(`S.civ=[12,0];S.bs=[];S.us=[];S.nodes=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);
+  S.el.fill(0);S.nd.fill(null);mode='play';
+  globalThis.house=addB(0,'house',25,25,true);
+  globalThis.first=addU(0,'vil',24.25,25.5);
+  globalThis.second=addU(0,'king',24.25,26.5);
+  globalThis.arrival=addU(0,'vil',24.25,27.5);
+  globalThis.board=unit=>CK_GAME_COMMANDS.execute(
+   {type:'garrison',target:house.netId,entities:[unit.netId]},0,2);
+  for(const unit of [first,second]){board(unit);upU(unit,DT)}
+  S.vt=15;house.hp=house.mh*.2+1;upB(house,DT)`);
+ assert.equal(run('house.cg.length'),2,'a House above the threshold stays occupied');
+ assert.equal(run('board(arrival)'),true);
+ run('house.hp=house.mh*.2;S.g.fill(1);upB(house,DT);upU(arrival,DT)');
+ assert.equal(run('house.cg.length'),2,'no legal exit leaves occupants sheltered');
+ assert.equal(run('arrival.o'),'i','an en-route boarding order is cancelled');
+ assert.equal(run('board(arrival)'),false);
+ assert.equal(run('townBell(0)'),0,'the bell skips a badly damaged House');
+ run('S.g[25*W+24]=0;S.vt=30;upB(house,DT)');
+ assert.equal(run('house.cg.length'),1,'the first reopened tile releases one occupant');
+ assert.equal(run('first.ld'),null);
+ assert.equal(run('second.ld===house'),true);
+ assert.equal(run("saveG(false,'khmer-house-evacuation')"),true);
+ assert.equal(run("loadG(false,'khmer-house-evacuation')"),true);
+ run("house=S.bs.find(b=>b.k==='house');second=S.us.find(u=>u.k==='king');arrival=S.us.filter(u=>u.k==='vil').at(-1)");
+ assert.equal(run('second.ld===house'),true,'an occupant waiting for an exit survives a save');
+ run('S.vt=45;upB(house,DT)');
+ assert.equal(run('house.cg.length'),0);
+ assert.equal(run('second.ld'),null);
+ assert.equal(run('second.hp'),150);
+ assert.equal(run('board(arrival)'),false);
+ run('house.hp=house.mh*.2+1');
+ assert.equal(run('board(arrival)'),true,'repairs make the shelter usable again');
+});

@@ -3,7 +3,12 @@
 // Fixed firing positions separate Tigui's extra arrows without additional RNG.
 const TIGUI_ARROW_OFFSETS=[[-.2,0],[.2,0],[0,-.2],[0,.2],[-.2,-.2],[-.2,.2],[.2,-.2],[.2,.2]];
 function upB(b,dt){if(!b||!b.done||b.hp<=0||!Number.isFinite(dt)||dt<=0)return;
-if(b.cg?.length)healGarrison(b,dt);
+if(b.cg?.length){
+ if(b.k==='house'&&khmerHouseNeedsEvacuation(b)){
+  // Retry blocked exits on a fixed simulation cadence without a new saved timer.
+  if(S.vt%15===0&&unload(b,true)&&b.t===0)note('Occupants leaving a badly damaged House');
+ }else healGarrison(b,dt);
+}
  if(b.k==='tc'&&S.civ?.[b.t]===32&&!b.lithFoodGranted){
   S.res[b.t].f+=100;b.lithFoodGranted=true;
  }

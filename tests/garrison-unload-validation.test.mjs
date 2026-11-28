@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const sim=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),'utf8');
-const begin=sim.indexOf('function unload(b){');
+const begin=sim.indexOf('function unload(b,quiet=false){');
 const finish=sim.indexOf('\nfunction townBell(',begin);
 assert.ok(begin>=0&&finish>begin,'unload routine must remain independently executable');
 const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');

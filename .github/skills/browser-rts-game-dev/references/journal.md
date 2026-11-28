@@ -184,3 +184,6 @@ The follow-up to `863df1c` adds the [Khmer +1 Scorpion range team bonus](https:/
 
 ### 2026-11-27 — Khmer House shelter
 The follow-up to `90b5d1b` lets a completed Khmer House shelter up to five owned Villagers or Kings. The existing Xbox context order, Town Bell, host commands, unload and save restoration all use faction-aware capacity and eligibility. Houses do not fire or heal occupants. Tests cover actual boarding, capacity reservations, rejection of troops and allied workers, save/load, unload and release on destruction. Automatic low-health ejection and occupied-building conversion remain outside the current shelter rules.
+
+### 2026-11-28 — Khmer House evacuation
+The follow-up to `5afedc9` adds the [20% health evacuation rule](https://ageofempires.fandom.com/wiki/Garrison) to Khmer Houses. At or below the threshold, existing occupants leave via the normal safe unload search. Blocked or partial exits retry every 15 simulation ticks. The Town Bell and direct orders skip the House until repaired, while saved occupants awaiting a clear exit remain valid. Tests exercise the exact threshold, blocked exits, boarding cancellation, partial evacuation, save/reload and repairs. The occupied-building conversion rule stays open.
