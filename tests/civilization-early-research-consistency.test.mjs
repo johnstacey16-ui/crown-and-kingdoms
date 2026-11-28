@@ -285,3 +285,48 @@ test('Khmer AI starts a paid age advance before any prerequisite building finish
  assert.equal(run('S.res[1].f'),0);
  assert.equal(run('S.bs.filter(b=>b.t===1&&b.done).length'),1);
 });
+
+test('Khmer Houses shelter five owned Villagers and Kings through Xbox, host and Town Bell orders',()=>{
+ const run=uiGame();
+ run(`S.civ=[12,0];S.bs=[];S.us=[];S.nodes=[];S.g.fill(0);S.gt.fill(0);S.wt.fill(0);
+  S.el.fill(0);S.nd.fill(null);mode='play';
+  globalThis.house=addB(0,'house',25,25,true);
+  globalThis.worker=addU(0,'vil',24.25,25.5);
+  globalThis.king=addU(0,'king',24.25,26);
+  globalThis.soldier=addU(0,'mil',24.25,26.5);
+  globalThis.board=(unit,team=0)=>CK_GAME_COMMANDS.execute(
+   {type:'garrison',target:house.netId,entities:[unit.netId]},team,2);
+  S.sel=[worker];orderSel(house,25.5,25.5);upU(worker,DT)`);
+ assert.equal(run('worker.ld===house'),true,'Xbox context action enters the House');
+ assert.equal(run('board(soldier)'),false,'infantry cannot shelter in Houses');
+ run("globalThis.ally=addU(1,'vil',24.25,25.75);setDiplomacy(0,1,'ally')");
+ assert.equal(run('board(ally,1)'),false,'only the owning Khmer kingdom can use a House');
+ assert.equal(run('board(king)'),true);
+ run('upU(king,DT)');
+ assert.equal(run('king.ld===house'),true);
+ run("globalThis.workers=Array.from({length:4},()=>addU(0,'vil',24.25,25.5))");
+ assert.equal(run('townBell(0)'),3,'the Town Bell reserves each available space once');
+ run('for(const unit of workers)upU(unit,DT)');
+ assert.equal(run('house.cg.length'),5);
+ assert.equal(run('board(workers[3])'),false);
+ run('worker.hp=20;S.tech[0].herbalMedicine=1;upB(house,10)');
+ assert.equal(run('worker.hp'),20,'sheltered villagers do not heal in Houses');
+ assert.equal(run('S.pj.length'),0,'houses remain unarmed');
+ assert.equal(run("saveG(false,'khmer-house-garrison')"),true);
+ assert.equal(run("loadG(false,'khmer-house-garrison')"),true);
+ run("house=S.bs.find(b=>b.k==='house');S.sel=[house];openMenu()");
+ assert.equal(run('house.cg.length'),5);
+ assert.equal(run('house.cg.every(u=>u.ld===house)'),true);
+ assert.equal(run("menu.items.some(i=>i.l==='Unload garrison (5)')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.buildingOptions(S,0,house).some(o=>o.type==='unload')"),true);
+ assert.equal(run("CK_GAME_COMMANDS.execute({type:'unload',entities:[house.netId]},0,2)"),true);
+ assert.equal(run('house.cg.length'),0);
+ assert.equal(run('S.us.some(u=>u.ld===house)'),false);
+ run(`king=S.us.find(u=>u.k==='king');king.x=24.25;king.y=25.5;
+  setDiplomacy(0,1,'enemy');board(king);upU(king,DT)`);
+ assert.equal(run('king.ld===house'),true);
+ run("house.hp=1;dmgT(addU(1,'mil',24,24),house)");
+ assert.equal(run('house.dead&&king.ld===null&&king.hp>0'),true,'a destroyed House releases living occupants');
+ run("S.civ[0]=0");
+ assert.equal(run('civilizationGarrisonCapacity(house)'),0);
+});

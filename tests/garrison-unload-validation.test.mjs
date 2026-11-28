@@ -7,7 +7,9 @@ const sim=readFileSync(new URL('../js/simulation-logistics.js',import.meta.url),
 const begin=sim.indexOf('function unload(b){');
 const finish=sim.indexOf('\nfunction townBell(',begin);
 assert.ok(begin>=0&&finish>begin,'unload routine must remain independently executable');
-const unloadSource=sim.slice(begin,finish);
+const kingdom=readFileSync(new URL('../js/kingdom.js',import.meta.url),'utf8');
+const capacity=kingdom.slice(kingdom.indexOf('function civilizationGarrisonCapacity('),kingdom.indexOf('/* Shared faction-adjusted construction prices'));
+const unloadSource=capacity+'\n'+sim.slice(begin,finish);
 
 function setup(){
  const S={tech:[{}],us:[],g:new Uint8Array(40*40),wt:new Uint8Array(40*40),nd:new Array(40*40)};

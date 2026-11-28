@@ -55,7 +55,7 @@ else if(tg&&tg.amt>0&&((u.k==='vil'&&!tg.fi)||(u.k==='fish'&&tg.fi))){
  }
 else if(tg&&tg.t===0&&tg.sh&&tg.hp<mhp(tg)&&(u.k==='vil'||(u.sh&&u!==tg))){u.o='rep';u.tg=tg}
 else if(tg&&tg.q&&tg.t===0&&(!tg.done||tg.hp<tg.mh)&&(u.k==='vil'||u.k==='serjeant'&&tg.k==='donjon'&&S.civ?.[u.t]===34)){u.o='b';u.tg=tg}
-else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&GAR[tg.k]&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
+else if(tg&&tg.t===0&&((U[tg.k]?.cap&&tg.t===u.t)||(tg.q&&buildingGarrisonAccepts(tg,u)&&tg.done))&&!u.sh&&u!==tg&&!U[u.k].cap){u.o='B';u.tg=tg}
 else if(u.k==='trn'&&Array.isArray(u.cg)&&u.cg.some(c=>c&&c.hp>0&&c.ld===u&&c.t===u.t&&U[c.k]&&!U[c.k].sh)&&Number.isFinite(wx)&&Number.isFinite(wy)&&wx>=0&&wy>=0&&wx<W&&wy<H&&S.wt[(wy|0)*W+(wx|0)]!==1){const landing=transportLandingRoute(u,wx,wy);if(landing?.route?.length){u.o='U';u.ut=[wx,wy];u.unloadBeach=landing.beach;u.p=landing.route;u.rp=1;u.unloadRouteRetryAt=0}else note('No water route to that landing area')}
 else{const i=unitIndex,fo=(u.sh?navalSlots:landSlots)(i),gx=wx+fo[0],gy=wy+fo[1],gl=r=>cachedGoal(formationGoals,gx,gy,r);
 const routeKey=[u.t,u.sh?1:0,u.x|0,u.y|0,gx,gy].join(':');
@@ -143,7 +143,7 @@ function reformMilitarySelection(units){
  note('Formation: '+FMN[fm]);return true;
 }
 function openMenu(){const s=S.sel[0];if(!s)return note('Select a villager or building first (A)');
-if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||GAR[s.k]))return note('Nothing to do here');
+if(s.q){const d=B[s.k];if(!s.done||!(d.tr||d.rs||d.tx||civilizationGarrisonCapacity(s)))return note('Nothing to do here');
 const it=trOf(s).map(k=>{const unlock=unitTrainingUnlock(s,k,S),lk=unlock.reason.replace(/^Requires /,'Needs ');return{l:unitName(k,s.t),c:unitTrainingCost(s.t,k),lk,fn:()=>{if(lk)return note(lk);const ok=trainSelection(s,k,P[6]?5:1);if(ok)note(unitName(k,s.t)+(ok>1?' x'+ok:'')+' queued')}}});
 if(s.k==='mule')it.push(
   {l:'Move Mule Cart',c:{},lk:'',fn:()=>{menu=null;pat=6;note('Choose a land tile and press A to move (B cancels)')}},
@@ -155,7 +155,7 @@ if(d.tx)for(const r of mkTrades())it.push(r);
 if(s.k==='mill'&&S.civ?.[s.t]===39)it.push({l:'Garrison nearby sheep',c:{},lk:'',
  fn:()=>{const ok=typeof garrisonLivestockMill==='function'&&garrisonLivestockMill(s);
   note(ok?'Sheep sheltered in Mill — passive food enabled':'No nearby herdable sheep or Mill is full')} });
-if(s.cg&&s.cg.length&&GAR[s.k])it.push({l:'Unload garrison ('+s.cg.length+')',c:{},lk:'',fn:()=>{unload(s);menu=null}});
+if(s.cg&&s.cg.length&&civilizationGarrisonCapacity(s))it.push({l:'Unload garrison ('+s.cg.length+')',c:{},lk:'',fn:()=>{unload(s);menu=null}});
 menu={title:d.n,b:s,i:0,items:it}}
 else if(S.sel.length&&S.sel.every(u=>u.k==='fish'))menu={title:'Fishing Ship',i:0,items:[{l:'Deploy Fish Trap (-100 Wood)',c:{w:100},lk:'',fn:()=>{deployFishTrap(S.sel);menu=null}},{l:'Stop fishing',c:{},lk:'',fn:()=>{stopSel();menu=null}}]}
 else if(selectedBuilders('donjon').length)menu={title:'Build',i:0,items:(selectedBuilders().length?[...ECO,'bar','rng','stable','siege','smith','univ','castle','tower','monastery','wonder','tc','fchurch','mule']:['donjon']).filter(k=>civilizationBuildingAllowed(k,0)).map(k=>{const d=B[k];

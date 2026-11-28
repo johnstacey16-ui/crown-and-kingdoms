@@ -123,11 +123,11 @@ function tickTrader(u,dt){
 
 /* Garrison healing, safe unloading and Town Bell shelter reservations:
  * original function bodies relocated unchanged from simulation.js. */
-function healGarrison(b,dt){if(!b.cg?.length)return;const rate=S.tech[b.t]?.herbalMedicine ? .6 : .1;
+function healGarrison(b,dt){if(b.k==='house'||!b.cg?.length)return;const rate=S.tech[b.t]?.herbalMedicine ? .6 : .1;
  for(const u of b.cg)if(u&&S.us.includes(u)&&u.hp>0&&u.ld===b&&u.t===b.t)u.hp=Math.min(mhp(u),u.hp+rate*dt);
 }
 function unload(b){
- if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!GAR[b.k]){note('Select a living, completed garrison with units inside');return false}
+ if(!S||!b||b.hp<=0||!b.done||!Number.isInteger(b.t)||!S.tech[b.t]||!B[b.k]||!Array.isArray(b.cg)||!civilizationGarrisonCapacity(b)){note('Select a living, completed garrison with units inside');return false}
  const cg=b.cg.filter(c=>c&&c.hp>0&&c.ld===b&&c.t===b.t&&U[c.k]&&!U[c.k].sh);
  if(!cg.length){b.cg=[];note('No living passengers in this garrison');return false}
  const size=Number.isInteger(b.s)&&b.s>0?b.s:1,spots=[];
@@ -159,7 +159,7 @@ function unload(b){
 }
 function townBell(t){
  const workers=S.us.filter(u=>u.t===t&&u.k==='vil'&&u.hp>0&&!u.ld);
- const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&GAR[b.k]);
+ const shelters=S.bs.filter(b=>b.t===t&&b.done&&b.hp>0&&civilizationGarrisonCapacity(b));
  const occupancy=new Map(),living=new Set(S.us);
  for(const b of shelters){
   const residents=new Set();

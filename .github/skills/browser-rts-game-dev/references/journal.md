@@ -181,3 +181,6 @@ The follow-up to `1f7f587` waives prerequisite buildings for Khmer construction 
 
 ### 2026-11-27 — Khmer Scorpion team range
 The follow-up to `863df1c` adds the [Khmer +1 Scorpion range team bonus](https://aoe2-counterforge.github.io/en/civ/khmer) in the shared attack-range calculation. It applies to the owner and current allies, including the Heavy Scorpion upgrade, and uses the existing alliance deduplication. The tests exercise actual stand-ground firing across the old boundary, Heavy Scorpion research, alliance changes and save/reload. The Ballista Elephant and Scorpion minimum range keep their existing rules.
+
+### 2026-11-27 — Khmer House shelter
+The follow-up to `90b5d1b` lets a completed Khmer House shelter up to five owned Villagers or Kings. The existing Xbox context order, Town Bell, host commands, unload and save restoration all use faction-aware capacity and eligibility. Houses do not fire or heal occupants. Tests cover actual boarding, capacity reservations, rejection of troops and allied workers, save/load, unload and release on destruction. Automatic low-health ejection and occupied-building conversion remain outside the current shelter rules.

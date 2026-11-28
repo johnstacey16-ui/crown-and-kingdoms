@@ -362,8 +362,13 @@ function grantArmenianFirstChurchRelic(b){
 }
 /* Shared building capacity for boarding, shelter reservations and host orders. */
 function civilizationGarrisonCapacity(b,world=S){
+ if(b.k==='house')return world?.civ?.[b.t]===12?5:0;
  const base=GAR[b.k]||0;
  return base&&world?.civ?.[b.t]===5?base+(b.k==='tc'?10:b.k==='tower'?5:0):base;
+}
+function buildingGarrisonAccepts(b,u,world=S){
+ return civilizationGarrisonCapacity(b,world)>0&&
+  (b.k!=='house'||(u.t===b.t&&(u.k==='vil'||u.k==='king')));
 }
 /* Shared faction-adjusted construction prices for UI, AI and host commands. */
 function civilizationBuildingCost(kind,team,civs=S?.civ,techs=S?.tech){

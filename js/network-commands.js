@@ -72,7 +72,7 @@
     if(building.k==='mule')options.push({type:'move',label:'Move Mule Cart',targeted:true,cost:{},locked:''},{type:'mule-auto',label:'Follow nearby resources',cost:{},locked:''},{type:'stop',label:'Stop Mule Cart',cost:{},locked:''});
      if(building.k==='mill'&&world.civ?.[team]===39)
       options.push({type:'livestock',label:'Garrison nearby sheep',cost:{},locked:''});
-    if (GAR[building.k] && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
+    if (civilizationGarrisonCapacity(building,world) && (building.cg || []).some(u=>u.hp>0&&u.ld===building&&u.t===team))
       options.push({type:'unload',label:'Unload garrison',cost:{},locked:''});
     return options;
   }
@@ -230,7 +230,7 @@
         garrisonLivestockMill(entities[0])===true;
     if (order.type === 'unload') {
       // One garrison per order: no partial multi-building mutation on failure.
-      if (entities.length!==1 || !activeBuildings(entities) || !GAR[entities[0].k]) return false;
+      if (entities.length!==1 || !activeBuildings(entities) || !civilizationGarrisonCapacity(entities[0],S)) return false;
       const b=entities[0];
       // Reject corrupt/foreign manifests rather than silently discarding passengers.
       if (!Array.isArray(b.cg) || !b.cg.length || new Set(b.cg).size!==b.cg.length ||
@@ -325,7 +325,7 @@
         if (!capacity || !Array.isArray(cargo) || new Set(cargo).size!==cargo.length ||
             cargo.some(u=>!S.us.includes(u)||u.hp<=0||u.ld!==target||u.t!==target.t||!U[u.k]||U[u.k].sh) ||
             cargo.length+entities.length>capacity || entities.some(u=>U[u.k].sh) ||
-            (building && target.t!==team)) return false;
+            (building && (target.t!==team||entities.some(u=>!buildingGarrisonAccepts(target,u,S))))) return false;
         // Allied garrison sharing is deliberately unavailable until unload ownership
         // and passenger restoration are modeled across different owners.
       } else {
