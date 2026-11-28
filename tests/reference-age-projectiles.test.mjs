@@ -37,7 +37,7 @@ test('Fletching, Bodkin and Bracer research in sequence, charge once and affect 
   const gold=c.run('S.res[0].g');assert.equal(c.run(`research(smith,'${key}')`),false);assert.equal(c.run('S.res[0].g'),gold);
  }
  assert.equal(c.run("arrowBonus({k:'arc',t:1})"),0);
- for(const kind of ['jan','hcan','conq','bomb','mang','axe','gbeto','scor'])assert.equal(c.run(`arrowBonus({k:'${kind}',t:0})`),0,kind);
+ for(const kind of ['jan','hcan','conq','bomb','mang','axe','gbeto','scor','ballistaEle'])assert.equal(c.run(`arrowBonus({k:'${kind}',t:0})`),0,kind);
  for(const kind of ['arc','gal','tw','cs'])assert.equal(c.run(`attackRange({k:'${kind}',t:0})-U.${kind}.rng`),3,kind);
  assert.equal(c.run("attackRange({k:'tca',t:0})"),c.run('U.tca.rng'),'town centre gains attack/sight, not range');
  assert.equal(c.run("arrowSightBonus({k:'tc',t:0})"),3);
@@ -59,10 +59,10 @@ test('ordinary shots miss lateral movement; Ballistics leads constant movement; 
  assert.ok(flight(true).run('target.hp')<100);
  assert.equal(flight(true,true).run('target.hp'),100);
 });
-test('Ballistics is paid University research and applies to scorpions but not gunpowder or stone siege',()=>{
+test('Ballistics is paid University research and applies to scorpions and Ballista Elephants without affecting gunpowder or stone siege',()=>{
  const c=fixture();c.run("globalThis.university=addB(1,'univ',5,5,true);globalThis.target=addU(0,'scout',26.5,30.5);target.p=[[26.5,60.5]];");
  assert.equal(c.run("research(university,'ballistics')"),true);c.run('upB(university,60)');assert.equal(c.run('S.tech[1].ballistics'),1);assert.equal(c.run('S.tech[0].ballistics||0'),0);
- for(const kind of ['arc','scor'])assert.ok(c.run(`projectileAim({k:'${kind}',t:1,x:20.5,y:30.5},target).ty`)>30.5);
+ for(const kind of ['arc','scor','ballistaEle'])assert.ok(c.run(`projectileAim({k:'${kind}',t:1,x:20.5,y:30.5},target).ty`)>30.5);
  for(const kind of ['bomb','mang','treb','hcan'])assert.equal(c.run(`projectileAim({k:'${kind}',t:1,x:20.5,y:30.5},target).ty`),30.5);
 });
 test('stationary hits and impact-centred hostile-only siege splash survive the non-homing flight',()=>{
@@ -77,4 +77,41 @@ test('save/load preserves fixed aim, validates corrupt aims and upgrades legacy 
  assert.equal(c.run('saveG()'),true);assert.equal(c.run('loadG()'),true);assert.equal(c.run('JSON.stringify([S.pj[0].tx,S.pj[0].ty])'),aim);
  assert.equal(c.run('saveG()'),true);c.run("globalThis.raw=JSON.parse(localStorage.getItem(skey(slot)));raw.pj[0].tx=-1;localStorage.setItem(skey(slot),JSON.stringify(raw))");assert.equal(c.run('loadG()'),false);
  c.run('delete S.pj[0].tx;delete S.pj[0].ty;pjs(DT)');const migrated=c.run('S.pj[0].ty');c.run('S.pj[0].t.y+=2;pjs(DT)');assert.equal(c.run('S.pj[0].ty'),migrated);
+});
+
+test('paid Khmer Ballistics leads with both Ballista Elephant bolts and preserves aim on reload',()=>{
+ const c=fixture();
+ c.run(`S.civ=[12,0];S.el.fill(0);
+  globalThis.university=addB(0,'univ',6,6,true);
+  globalThis.castle=addB(0,'castle',11,11,true);
+  globalThis.elephant=addU(0,'ballistaEle',21,30);
+  globalThis.target=addU(1,'scout',25.75,30);
+  globalThis.launch=()=>{
+   S.pj=[];target.x=25.75;target.y=30;target.hp=100;target.o='m';target.p=[[25.75,55]];
+   launchProjectile(elephant,target);
+  };
+  globalThis.resolve=()=>{for(let tick=0;tick<30&&S.pj.length;tick++){upU(target,DT);pjs(DT)}};
+  launch();resolve()`);
+ assert.equal(c.run('target.hp'),100,'unresearched bolt misses lateral movement');
+ assert.equal(c.run("research(university,'ballistics')"),true);
+ c.run('launch();resolve()');
+ assert.equal(c.run('target.hp'),100,'queued Ballistics does not lead');
+ c.run('upB(university,TE.ballistics.t);launch();resolve()');
+ const primaryDamage=100-c.run('target.hp');
+ assert.ok(primaryDamage>0);
+ for(const key of ['eliteBallistaElephant','ut12p']){
+  assert.equal(c.run(`research(castle,'${key}')`),true);
+  c.run(`upB(castle,TE.${key}.t)`);
+ }
+ c.run('launch()');
+ assert.equal(c.run('S.pj.length'),2);
+ assert.ok(c.run('S.pj.every(p=>p.ty>30)'),'the primary and the spread bolt both lead');
+ const aims=c.run('JSON.stringify(S.pj.map(p=>[p.tx,p.ty]))');
+ assert.equal(c.run("saveG(false,'khmer-ballistics')"),true);
+ assert.equal(c.run("loadG(false,'khmer-ballistics')"),true);
+ assert.equal(c.run('JSON.stringify(S.pj.map(p=>[p.tx,p.ty]))'),aims);
+ c.run('target=S.pj[0].t;elephant=S.us.find(u=>u.k==="ballistaEle");resolve()');
+ assert.ok(100-c.run('target.hp')>primaryDamage+1,'both Elite bolts hit the moving target');
+ c.run('launch();target.p=[[25.75,5]];resolve()');
+ assert.equal(c.run('target.hp'),100,'the target can still dodge by changing direction');
 });

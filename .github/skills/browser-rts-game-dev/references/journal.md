@@ -187,3 +187,6 @@ The follow-up to `90b5d1b` lets a completed Khmer House shelter up to five owned
 
 ### 2026-11-28 — Khmer House evacuation
 The follow-up to `5afedc9` adds the [20% health evacuation rule](https://ageofempires.fandom.com/wiki/Garrison) to Khmer Houses. At or below the threshold, existing occupants leave via the normal safe unload search. Blocked or partial exits retry every 15 simulation ticks. The Town Bell and direct orders skip the House until repaired, while saved occupants awaiting a clear exit remain valid. Tests exercise the exact threshold, blocked exits, boarding cancellation, partial evacuation, save/reload and repairs. The occupied-building conversion rule stays open.
+
+### 2026-11-28 — Ballista Elephant Ballistics
+The follow-up to `8833adc` includes the Ballista Elephant line in the existing Ballistics projectile prediction, following [Update Preview 125283](https://www.ageofempires.com/news/age-of-empires-ii-definitive-edition-update-preview-125283/). Completed University research leads the target for both the primary and Double Crossbow bolts. The shots keep their launch trajectory and a later turn can dodge them. Tests verify paid research, real target movement, both Elite bolts in flight through reload and continued separation from Blacksmith arrow upgrades.

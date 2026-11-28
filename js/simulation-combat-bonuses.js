@@ -467,7 +467,7 @@ function attackRange(a){return (U[a.k]?.rng||0)+(a.k==='tca'?0:arrowBonus(a))+(a
 function projectileSpeed(a){return U[a.k]?.ps||14}
 function projectileAim(a,t){
  let x=t.x+(t.s||0)/2,y=t.y+(t.s||0)/2;
- const next=t.p?.[0],predict=(S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor'))||
+ const next=t.p?.[0],predict=(S.tech[a.t]?.ballistics&&(ARROW_WEAPONS.has(a.k)||a.k==='scor'||a.k==='ballistaEle'))||
  (S.civ?.[a.t]===26&&S.tech[a.t]?.ut26p&&['orgun','hcan','bomb','cgal'].includes(a.k));
  if(predict&&!t.s&&!t.ld&&next&&U[t.k]){
   const dx=next[0]-t.x,dy=next[1]-t.y,length=Math.hypot(dx,dy);
